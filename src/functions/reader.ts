@@ -4,8 +4,6 @@ import { buildOneVsOneApplications } from "../shared/one-vs-one.js";
 import { getOneVsOneApplications, getOneVsOneResults, getPosts, getRoster, getStreamers, getSyncState } from "./store.js";
 
 const headers = {
-  "access-control-allow-origin": process.env.ALLOWED_ORIGIN ?? "*",
-  "access-control-allow-methods": "GET,OPTIONS",
   "content-type": "application/json; charset=utf-8",
   "cache-control": "public, max-age=60, stale-while-revalidate=120",
 };

@@ -113,3 +113,11 @@ streamers:
     override:
       division: null
       policy: auto
+  - slug: 
+    displayName: 미르_MIR
+    cafeAliases: ["MIR미르"]
+    soopId: "alice427"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
