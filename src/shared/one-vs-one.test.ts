@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildOneVsOneApplications, calculateOneVsOneVerdict, isOneVsOneApplication } from "./one-vs-one.js";
 import { parseOneVsOneResults } from "./one-vs-one-results.js";
+import { buildStreamerRecords } from "./promotion.js";
 import { parseRoster } from "./roster.js";
 import type { OneVsOneApplication, RosterEntry } from "./model.js";
 
@@ -39,5 +40,10 @@ describe("one vs one applications", () => {
     expect(parseRoster(`streamers:\n  - { slug: live, displayName: 라이브, cafeAliases: [라이브], autoUpdate: true }\n  - { slug: '', displayName: '', cafeAliases: [''], soopId: '', autoUpdate: true }`)).toHaveLength(1);
     expect(parseRoster(`streamers:\n  - { slug: '', displayName: 라이브, cafeAliases: [라이브], soopId: live, autoUpdate: true }`)[0]?.slug).toBe("live");
     expect(() => parseRoster(`streamers:\n  - { slug: '', displayName: 라이브, cafeAliases: [라이브], autoUpdate: true }`)).toThrow();
+  });
+
+  it("shows a SOOP-mapped candidate with no cafe alias as season-unparticipated", () => {
+    const noAliasRoster = parseRoster(`streamers:\n  - { displayName: 별칭 없는 후보, soopId: noalias, autoUpdate: true }`);
+    expect(buildStreamerRecords([], noAliasRoster)).toMatchObject([{ displayName: "별칭 없는 후보", soopId: "noalias", cafeAliases: [], currentDivision: 10 }]);
   });
 });

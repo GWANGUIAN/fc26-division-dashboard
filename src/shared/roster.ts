@@ -21,11 +21,11 @@ export function parseRoster(source: string): RosterEntry[] {
         while (usedSlugs.has(slug)) slug = `${baseSlug}-${suffix++}`;
       }
       usedSlugs.add(slug);
-      return { ...entry, slug };
+      return { ...entry, slug, cafeAliases: Array.isArray(entry.cafeAliases) ? entry.cafeAliases : [] };
     });
   const slugs = new Set<string>();
   for (const entry of entries) {
-    if (!entry.slug || !entry.displayName || !Array.isArray(entry.cafeAliases) || entry.cafeAliases.length === 0) {
+    if (!entry.slug || !entry.displayName) {
       throw new Error(`Invalid roster entry: ${entry.slug || "unknown"}`);
     }
     if (slugs.has(entry.slug)) throw new Error(`Duplicate roster slug: ${entry.slug}`);
