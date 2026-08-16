@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.terraform/
+*.tfvars
+*.tfstate
+*.tfstate.*
+.env
+.env.*
+!.env.example
+playwright-report/
+test-results/

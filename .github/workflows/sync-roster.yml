@@ -1,0 +1,29 @@
+name: Sync roster to AWS
+
+on:
+  push:
+    branches: [main]
+    paths: [roster.yaml, one-vs-one-results.yaml, .github/workflows/sync-roster.yml]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ secrets.AWS_ROSTER_SYNC_ROLE_ARN }}
+          aws-region: ap-northeast-2
+      - name: Send versioned roster and evaluation results to the private Lambda
+        run: |
+          aws lambda invoke \
+            --function-name "${{ secrets.AWS_ROSTER_SYNC_FUNCTION_NAME }}" \
+            --cli-binary-format raw-in-base64-out \
+            --payload "$(jq -n --rawfile roster roster.yaml --rawfile results one-vs-one-results.yaml '{rosterYaml: $roster, oneVsOneResultsYaml: $results}')" \
+            response.json
+          cat response.json

@@ -1,0 +1,6 @@
+# Copy to terraform.tfvars. The ECR image must be pushed before the full apply.
+image_uri            = "000000000000.dkr.ecr.ap-northeast-2.amazonaws.com/jandy-fc26-dashboard:replace-me"
+allowed_origin       = "https://your-worker.your-subdomain.workers.dev"
+github_repository    = "your-github-org/your-repository"
+github_oidc_provider_arn = "arn:aws:iam::000000000000:oidc-provider/token.actions.githubusercontent.com"
+account_budget_limit_usd = 20

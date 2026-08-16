@@ -1,0 +1,6 @@
+name = "fc26-division-dashboard"
+compatibility_date = "2026-08-16"
+
+[assets]
+directory = "dist/web"
+not_found_handling = "single-page-application"

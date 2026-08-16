@@ -1,0 +1,19 @@
+# Git에서 관리하는 스트리머 매핑 및 수동 보정 목록입니다.
+# cafeAliases는 카페에 보이는 작성자 이름을 정확히 적습니다.
+streamers:
+  - slug: moonmomo
+    displayName: 문모모
+    cafeAliases: ["문 모모", "문모모"]
+    soopId: ""
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: example-pinned
+    displayName: 예시 스트리머
+    cafeAliases: ["예시카페닉"]
+    soopId: ""
+    autoUpdate: true
+    override:
+      division: 7
+      policy: until-next-post

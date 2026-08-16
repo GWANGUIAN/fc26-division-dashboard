@@ -1,0 +1,7 @@
+opponent:
+  displayName: 우왁굳
+  soopId: ecvhao
+  soopTags: ["파트너", "베스트"]
+
+# 신청자 : 우왁굳 점수 순서입니다. 신청 게시글 ID로 결과를 연결합니다.
+results: []
