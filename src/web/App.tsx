@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import type { DashboardSnapshot, OneVsOneApplicationView, PromotionPost, SoopProfileTag, StreamerActivityPost, StreamerRecord } from "../shared/model.js";
 import { defaultSoopProfileUrl, soopChannelUrl } from "../shared/model.js";
 import { DEFAULT_ONE_VS_ONE_CONFIG } from "../shared/one-vs-one-results.js";
@@ -103,7 +104,7 @@ function PreviousPromotionSection({ posts }: { posts?: PromotionPost[] }) {
   if (!posts?.length) return null;
   return <section className="streamer-activity promotion-history">
     <button className="streamer-activity__heading promotion-history__toggle" type="button" onClick={() => setIsOpen((current) => !current)} aria-expanded={isOpen}>
-      <span>이전 승격 게시글</span><span className="promotion-history__meta"><b>{posts.length}</b><i className={isOpen ? "is-open" : ""} aria-hidden="true">⌄</i></span>
+      <span>이전 승격 게시글</span><span className="promotion-history__meta"><b>{posts.length}</b><span className="promotion-history__icon" aria-hidden="true">{isOpen ? <ChevronUp /> : <ChevronDown />}</span></span>
     </button>
     {isOpen && <div className="streamer-activity__posts">{posts.map((post) => <a href={post.articleUrl} target="_blank" rel="noreferrer" key={post.articleId}>
       <span className="promotion-history__category">{post.category}</span><strong>{post.title}</strong><time>{formatCafePostDate(post.publishedAt)}</time>
