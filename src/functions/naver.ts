@@ -4,7 +4,12 @@ import { BOARDS, CAFE, cafeArticleUrl, type BoardId, type PromotionPost } from "
 import { filterArticleImages } from "../shared/images.js";
 import { divisionForPost } from "../shared/promotion.js";
 
-const listUrl = (board: BoardId, page: number) => `${CAFE.baseUrl}/f-e/cafes/${CAFE.cafeId}/menus/${BOARDS[board].menuId}?page=${page}`;
+// Naver Café accepts up to 50 rows per list response.  Keeping this in one
+// place ensures every tracked board benefits without changing the page-based
+// incremental/backfill checkpoints.
+export const LIST_PAGE_SIZE = 50;
+export const listUrl = (board: BoardId, page: number) =>
+  `${CAFE.baseUrl}/f-e/cafes/${CAFE.cafeId}/menus/${BOARDS[board].menuId}?page=${page}&size=${LIST_PAGE_SIZE}`;
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 // Naver's Korean ARIA labels are not stable across its rendering surfaces.
 // The article URL shape is the durable public contract of the list table.
