@@ -142,7 +142,7 @@ function PromotionTimeline({ posts }: { posts: PromotionPost[] }) {
             const delay = index++ * 85;
             return <div className="promotion-timeline__event" key={event.post.articleId}>
               {interval !== undefined && interval >= 0 && <span className="promotion-timeline__interval">{formatDuration(interval)} 후</span>}
-              <a className="promotion-timeline__node" href={event.post.articleUrl} target="_blank" rel="noreferrer" style={{ animationDelay: `${delay}ms` }} aria-label={`${event.post.division}부 승격 게시글 보기`}><b>D{event.post.division}</b>{event.precision === "time" && <span>{formatTimelineTime(event.post.publishedAt)}</span>}</a>
+              <a className="promotion-timeline__node" href={event.post.articleUrl} target="_blank" rel="noreferrer" style={{ animationDelay: `${delay}ms` }} aria-label={`${event.post.division}부 승격 게시글 보기`}><b>D{event.post.division}</b><span className={`promotion-timeline__time ${event.precision === "time" ? "" : "promotion-timeline__time--placeholder"}`} aria-hidden={event.precision !== "time"}>{event.precision === "time" ? formatTimelineTime(event.post.publishedAt) : "00:00"}</span></a>
             </div>;
           })}
         </div>
