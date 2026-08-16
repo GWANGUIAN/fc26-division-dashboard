@@ -167,11 +167,17 @@ function PreviousPromotionSection({ posts }: { posts?: PromotionPost[] }) {
 
 function DetailModal({ streamer, onClose }: { streamer: StreamerRecord; onClose: () => void }) {
   const post = streamer.lastPost;
+  // Snapshots created before promotionHistory was added still contain the
+  // current report and prior reports separately. Combine them so a newly
+  // deployed UI renders the full journey before the next scraper publish.
+  const promotionHistory = streamer.promotionHistory?.length
+    ? streamer.promotionHistory
+    : [...(streamer.previousPromotionPosts ?? []), ...(post ? [post] : [])];
   const channel = soopChannelUrl(streamer.soopId);
   const [expandedImage, setExpandedImage] = useState<string>();
   useEscape(() => expandedImage ? setExpandedImage(undefined) : onClose());
   return <Modal onClose={onClose} label="디비전 상세" header={<div className="modal__identity"><Avatar {...streamer} /><div><span className="eyebrow">CURRENT DIVISION</span><h2>{streamer.displayName} <b>{streamer.currentDivision}부</b></h2><SoopTags tags={streamer.soopTags} />{!streamer.isMapped && <p>카페 작성자 · SOOP 정보 미연결</p>}</div></div>}>
-    {post ? <><div className="report"><span>{post.category}</span><h3>{post.title}</h3><time>{formatCafePostDate(post.publishedAt)}</time></div>{post.imageUrls.length > 0 && <div className="gallery">{post.imageUrls.map((url, index) => <button className="gallery__image" type="button" onClick={() => setExpandedImage(url)} aria-label={`${streamer.displayName} 게시글 이미지 확대`} key={url}><img src={url} alt={`${streamer.displayName} 게시글 이미지`} loading={index === 0 ? "eager" : "lazy"} referrerPolicy="no-referrer" /></button>)}</div>}<PromotionTimeline posts={streamer.promotionHistory ?? [post]} /></> : <p className="empty-detail">아직 확인된 디비전 보고 게시글이 없습니다.</p>}
+    {post ? <><div className="report"><span>{post.category}</span><h3>{post.title}</h3><time>{formatCafePostDate(post.publishedAt)}</time></div>{post.imageUrls.length > 0 && <div className="gallery">{post.imageUrls.map((url, index) => <button className="gallery__image" type="button" onClick={() => setExpandedImage(url)} aria-label={`${streamer.displayName} 게시글 이미지 확대`} key={url}><img src={url} alt={`${streamer.displayName} 게시글 이미지`} loading={index === 0 ? "eager" : "lazy"} referrerPolicy="no-referrer" /></button>)}</div>}<PromotionTimeline posts={promotionHistory} /></> : <p className="empty-detail">아직 확인된 디비전 보고 게시글이 없습니다.</p>}
     <PreviousPromotionSection posts={streamer.previousPromotionPosts} />
     <StreamerActivitySection title="잔디동 스코프" posts={streamer.scopePosts} />
     <StreamerActivitySection title="11대 11 플레이 영상" posts={streamer.elevenVsElevenPosts} />
