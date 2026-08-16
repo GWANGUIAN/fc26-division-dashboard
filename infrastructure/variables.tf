@@ -10,10 +10,10 @@ variable "image_uri" {
   type        = string
   description = "ECR image URI including immutable tag; build and push before the full apply."
 }
-variable "allowed_origin" {
-  type        = string
-  default     = "*"
-  description = "Cloudflare Worker production origin after first deployment."
+variable "allowed_origins" {
+  type        = list(string)
+  default     = ["*"]
+  description = "Origins permitted to read the public dashboard API."
 }
 variable "github_repository" {
   type        = string

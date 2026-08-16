@@ -98,7 +98,7 @@ resource "aws_lambda_function" "reader" {
   role        = aws_iam_role.lambda.arn
   timeout     = 15
   memory_size = 512
-  environment { variables = { TABLE_NAME = aws_dynamodb_table.dashboard.name, ALLOWED_ORIGIN = var.allowed_origin } }
+  environment { variables = { TABLE_NAME = aws_dynamodb_table.dashboard.name, ALLOWED_ORIGIN = join(",", var.allowed_origins) } }
   depends_on = [aws_cloudwatch_log_group.reader]
   tags       = local.tags
 }
@@ -165,7 +165,7 @@ resource "aws_lambda_function_url" "reader" {
   function_name      = aws_lambda_function.reader.function_name
   authorization_type = "NONE"
   cors {
-    allow_origins = [var.allowed_origin]
+    allow_origins = var.allowed_origins
     allow_methods = ["GET"]
     allow_headers = ["content-type"]
     max_age       = 300

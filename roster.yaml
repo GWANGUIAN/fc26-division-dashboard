@@ -315,7 +315,7 @@ streamers:
       policy: auto
   - slug: usom01
     displayName: 유솜_
-    cafeAliases: [""]
+    cafeAliases: ["유솜"]
     soopId: usom01
     autoUpdate: true
     override:
@@ -323,7 +323,7 @@ streamers:
       policy: auto
   - slug: nsnowthemoon
     displayName: "설빈달"
-    cafeAliases: [""]
+    cafeAliases: ["설빈달"]
     soopId: "nsnowthemoon"
     autoUpdate: true
     override:
@@ -331,7 +331,7 @@ streamers:
       policy: auto
   - slug: oreo52
     displayName: "푸히:p"
-    cafeAliases: [""]
+    cafeAliases: ["푸히"]
     soopId: "oreo52"
     autoUpdate: true
     override:
@@ -339,7 +339,7 @@ streamers:
       policy: auto
   - slug: kur0ch4t
     displayName: "쿠로샤"
-    cafeAliases: [""]
+    cafeAliases: ["쿠로샤"]
     soopId: "kur0ch4t"
     autoUpdate: true
     override:
@@ -347,7 +347,7 @@ streamers:
       policy: auto
   - slug: xxxkimmickey
     displayName: "#김미키"
-    cafeAliases: [""]
+    cafeAliases: ["김미키"]
     soopId: "xxxkimmickey"
     autoUpdate: true
     override:
@@ -355,7 +355,7 @@ streamers:
       policy: auto
   - slug: moonkong9
     displayName: "문콩_"
-    cafeAliases: [""]
+    cafeAliases: ["문 콩"]
     soopId: "moonkong9"
     autoUpdate: true
     override:
@@ -363,7 +363,7 @@ streamers:
       policy: auto
   - slug: suddory2
     displayName: "수또리"
-    cafeAliases: [""]
+    cafeAliases: ["수또리"]
     soopId: "suddory2"
     autoUpdate: true
     override:
@@ -371,7 +371,7 @@ streamers:
       policy: auto
   - slug: dlalswl8811
     displayName: "이깨굴"
-    cafeAliases: [""]
+    cafeAliases: ["이깨굴"]
     soopId: "dlalswl8811"
     autoUpdate: true
     override:
@@ -379,7 +379,7 @@ streamers:
       policy: auto
   - slug: xnalcm004
     displayName: "투미츠"
-    cafeAliases: [""]
+    cafeAliases: ["투미츠"]
     soopId: "xnalcm004"
     autoUpdate: true
     override:
@@ -387,7 +387,7 @@ streamers:
       policy: auto
   - slug: owozzz
     displayName: "샤르망"
-    cafeAliases: [""]
+    cafeAliases: ["샤르망owo"]
     soopId: "owozzz"
     autoUpdate: true
     override:
@@ -395,7 +395,7 @@ streamers:
       policy: auto
   - slug: tndk321
     displayName: "단수아"
-    cafeAliases: [""]
+    cafeAliases: ["단수아"]
     soopId: "tndk321"
     autoUpdate: true
     override:
@@ -403,7 +403,7 @@ streamers:
       policy: auto
   - slug: chae1hana
     displayName: "_채하나"
-    cafeAliases: [""]
+    cafeAliases: ["채하나바부"]
     soopId: "chae1hana"
     autoUpdate: true
     override:
@@ -411,7 +411,7 @@ streamers:
       policy: auto
   - slug: nnininin
     displayName: "닌닌_"
-    cafeAliases: [""]
+    cafeAliases: ["닌닌"]
     soopId: "nnininin"
     autoUpdate: true
     override:
@@ -419,7 +419,7 @@ streamers:
       policy: auto
   - slug: kbs9981
     displayName: "김병살"
-    cafeAliases: [""]
+    cafeAliases: ["김병살"]
     soopId: "kbs9981"
     autoUpdate: true
     override:
@@ -427,7 +427,7 @@ streamers:
       policy: auto
   - slug: pinkmold0317
     displayName: "강분팡"
-    cafeAliases: [""]
+    cafeAliases: ["강분팡"]
     soopId: "pinkmold0317"
     autoUpdate: true
     override:
@@ -435,7 +435,7 @@ streamers:
       policy: auto
   - slug: gofl2237
     displayName: "해리"
-    cafeAliases: [""]
+    cafeAliases: ["해리Harry"]
     soopId: "gofl2237"
     autoUpdate: true
     override:
@@ -443,7 +443,7 @@ streamers:
       policy: auto
   - slug: dptclzn00
     displayName: "엣치쿠"
-    cafeAliases: [""]
+    cafeAliases: ["엣치쿠"]
     soopId: "dptclzn00"
     autoUpdate: true
     override:
@@ -451,7 +451,7 @@ streamers:
       policy: auto
   - slug: rariruro
     displayName: "제리츄"
-    cafeAliases: [""]
+    cafeAliases: ["제리츄"]
     soopId: "rariruro"
     autoUpdate: true
     override:
@@ -459,7 +459,7 @@ streamers:
       policy: auto
   - slug: jaesu111
     displayName: "재수피기"
-    cafeAliases: [""]
+    cafeAliases: ["재수피기"]
     soopId: "jaesu111"
     autoUpdate: true
     override:
@@ -467,7 +467,7 @@ streamers:
       policy: auto
   - slug: danchu17
     displayName: "단츄♪"
-    cafeAliases: [""]
+    cafeAliases: ["단츄"]
     soopId: "danchu17"
     autoUpdate: true
     override:
@@ -475,7 +475,7 @@ streamers:
       policy: auto
   - slug: dbdnjfdl0216
     displayName: "유서리_"
-    cafeAliases: [""]
+    cafeAliases: ["유서리"]
     soopId: "dbdnjfdl0216"
     autoUpdate: true
     override:
@@ -483,7 +483,7 @@ streamers:
       policy: auto
   - slug: shiro75
     displayName: "시로v"
-    cafeAliases: [""]
+    cafeAliases: ["시로v"]
     soopId: "shiro75"
     autoUpdate: true
     override:
@@ -491,7 +491,7 @@ streamers:
       policy: auto
   - slug: muse0116
     displayName: "뮤즈_MUSE"
-    cafeAliases: [""]
+    cafeAliases: ["뮤즈 MUSE"]
     soopId: "muse0116"
     autoUpdate: true
     override:
@@ -499,7 +499,7 @@ streamers:
       policy: auto
   - slug: tjdgk31470
     displayName: "성여올"
-    cafeAliases: [""]
+    cafeAliases: ["성여올"]
     soopId: "tjdgk31470"
     autoUpdate: true
     override:
@@ -507,7 +507,7 @@ streamers:
       policy: auto
   - slug: youoneul
     displayName: "유오늘"
-    cafeAliases: [""]
+    cafeAliases: ["유오늘"]
     soopId: "youoneul"
     autoUpdate: true
     override:
@@ -515,7 +515,7 @@ streamers:
       policy: auto
   - slug: 9haedo
     displayName: "9해도"
-    cafeAliases: [""]
+    cafeAliases: ["9해도"]
     soopId: "9haedo"
     autoUpdate: true
     override:
@@ -523,7 +523,7 @@ streamers:
       policy: auto
   - slug: nmachuu060
     displayName: "김땃쥐060"
-    cafeAliases: [""]
+    cafeAliases: ["김땃쥐060"]
     soopId: "nmachuu060"
     autoUpdate: true
     override:
@@ -531,7 +531,7 @@ streamers:
       policy: auto
   - slug: fishstory
     displayName: "뽀끔o3o"
-    cafeAliases: [""]
+    cafeAliases: ["뽀끔"]
     soopId: "fishstory"
     autoUpdate: true
     override:
@@ -539,7 +539,7 @@ streamers:
       policy: auto
   - slug: hye0328
     displayName: "망초♪"
-    cafeAliases: [""]
+    cafeAliases: ["망초"]
     soopId: "hye0328"
     autoUpdate: true
     override:
@@ -547,7 +547,7 @@ streamers:
       policy: auto
   - slug: ruringruming
     displayName: "하링!"
-    cafeAliases: [""]
+    cafeAliases: ["하링"]
     soopId: "ruringruming"
     autoUpdate: true
     override:
@@ -555,7 +555,7 @@ streamers:
       policy: auto
   - slug: mnomno55
     displayName: "루디딕"
-    cafeAliases: [""]
+    cafeAliases: ["루디딕"]
     soopId: "mnomno55"
     autoUpdate: true
     override:
@@ -563,7 +563,7 @@ streamers:
       policy: auto
   - slug: ironyan
     displayName: "이로냥_"
-    cafeAliases: [""]
+    cafeAliases: ["이로냥"]
     soopId: "ironyan"
     autoUpdate: true
     override:
@@ -571,7 +571,7 @@ streamers:
       policy: auto
   - slug: imha22
     displayName: "임하밍"
-    cafeAliases: [""]
+    cafeAliases: ["임하밍"]
     soopId: "imha22"
     autoUpdate: true
     override:
@@ -579,7 +579,7 @@ streamers:
       policy: auto
   - slug: haepalin
     displayName: "해파린~"
-    cafeAliases: [""]
+    cafeAliases: ["해파린"]
     soopId: "haepalin"
     autoUpdate: true
     override:
@@ -587,7 +587,7 @@ streamers:
       policy: auto
   - slug: haettoing
     displayName: "해또잉"
-    cafeAliases: [""]
+    cafeAliases: ["해또잉"]
     soopId: "haettoing"
     autoUpdate: true
     override:
@@ -595,7 +595,7 @@ streamers:
       policy: auto
   - slug: krtl6798
     displayName: "(타)마고"
-    cafeAliases: [""]
+    cafeAliases: ["(타)마고"]
     soopId: "krtl6798"
     autoUpdate: true
     override:
@@ -603,7 +603,7 @@ streamers:
       policy: auto
   - slug: yourdarky
     displayName: "다키_"
-    cafeAliases: [""]
+    cafeAliases: ["다 키"]
     soopId: "yourdarky"
     autoUpdate: true
     override:
@@ -611,7 +611,7 @@ streamers:
       policy: auto
   - slug: 1004tangs2
     displayName: "천사탕"
-    cafeAliases: [""]
+    cafeAliases: ["천사탕"]
     soopId: "1004tangs2"
     autoUpdate: true
     override:
@@ -619,7 +619,7 @@ streamers:
       policy: auto
   - slug: sl0724
     displayName: "성기사샬롯"
-    cafeAliases: [""]
+    cafeAliases: ["성기사 샬롯"]
     soopId: "sl0724"
     autoUpdate: true
     override:
@@ -627,7 +627,7 @@ streamers:
       policy: auto
   - slug: cjstkdbsl3
     displayName: "깡담비"
-    cafeAliases: [""]
+    cafeAliases: ["깡담비"]
     soopId: "cjstkdbsl3"
     autoUpdate: true
     override:
@@ -635,7 +635,7 @@ streamers:
       policy: auto
   - slug: irrilll
     displayName: "이릴_"
-    cafeAliases: [""]
+    cafeAliases: ["이릴"]
     soopId: "irrilll"
     autoUpdate: true
     override:
@@ -643,7 +643,7 @@ streamers:
       policy: auto
   - slug: se450502
     displayName: "세기"
-    cafeAliases: [""]
+    cafeAliases: ["세기"]
     soopId: "se450502"
     autoUpdate: true
     override:
@@ -651,7 +651,7 @@ streamers:
       policy: auto
   - slug: htvv2i
     displayName: "햇비"
-    cafeAliases: [""]
+    cafeAliases: ["햇비1"]
     soopId: "htvv2i"
     autoUpdate: true
     override:
@@ -659,7 +659,7 @@ streamers:
       policy: auto
   - slug: tleod1818
     displayName: "빙밍_"
-    cafeAliases: [""]
+    cafeAliases: ["빙밍"]
     soopId: "tleod1818"
     autoUpdate: true
     override:
@@ -667,7 +667,7 @@ streamers:
       policy: auto
   - slug: habee511
     displayName: "망야_"
-    cafeAliases: [""]
+    cafeAliases: ["망야"]
     soopId: "habee511"
     autoUpdate: true
     override:
@@ -675,7 +675,7 @@ streamers:
       policy: auto
   - slug: leuni158
     displayName: "르니"
-    cafeAliases: [""]
+    cafeAliases: ["르니ㅡ"]
     soopId: "leuni158"
     autoUpdate: true
     override:
@@ -833,7 +833,7 @@ streamers:
     override:
       division: null
       policy: auto
-  - slug: 015234
+  - slug: "015234"
     displayName: "아눙"
     cafeAliases: [""]
     soopId: "015234"
@@ -997,14 +997,6 @@ streamers:
     displayName: "리냐_LINYA"
     cafeAliases: [""]
     soopId: "lina0108"
-    autoUpdate: true
-    override:
-      division: null
-      policy: auto
-  - slug: pakkangmon
-    displayName: "파깡"
-    cafeAliases: ["파깡"]
-    soopId: "pakkangmon"
     autoUpdate: true
     override:
       division: null
