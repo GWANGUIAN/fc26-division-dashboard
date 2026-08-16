@@ -93,6 +93,17 @@ function healthResponse(status: number, statusText: string): Response {
   });
 }
 
+function serveAsset(request: Request, env: Env): Promise<Response> {
+  const path = new URL(request.url).pathname;
+  // A cached HTML shell can still refer to a previous Vite entry hash after a
+  // deployment. The asset binding's SPA fallback would return index.html for
+  // that missing JS/CSS file, preventing React from starting. Serve the
+  // stable current entry instead until the cached shell naturally expires.
+  const staleEntry = path.match(/^\/assets\/index-[^/]+\.(js|css)$/u);
+  if (staleEntry) return env.ASSETS.fetch(new Request(new URL(`/assets/app.${staleEntry[1]}`, request.url), request));
+  return env.ASSETS.fetch(request);
+}
+
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const path = new URL(request.url).pathname;
@@ -102,6 +113,6 @@ export default {
       ? serveHealth(env)
       : new Response("Method Not Allowed", { status: 405 });
     if (path === "/api/snapshot" || path.startsWith("/api/snapshot/")) return serveApi(request, env, ctx);
-    return env.ASSETS.fetch(request);
+    return serveAsset(request, env);
   },
 } satisfies ExportedHandler<Env>;
