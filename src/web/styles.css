@@ -34,3 +34,10 @@ footer { margin-top: 26px; color: #65766f; text-align: center; font-size: 11px; 
 body { isolation: isolate; }
 .soop { display: inline-flex; align-items: center; gap: 6px; }
 .soop-icon { width: 16px; height: 16px; flex: 0 0 16px; }
+.gallery { grid-template-columns: 1fr; gap: 9px; }
+.gallery__image { display: block; width: 100%; padding: 0; overflow: hidden; border: 1px solid #ffffff16; background: #13231c; }
+.gallery__image:hover { border-color: #00e9ae; }
+.gallery__image img { display: block; width: 100%; height: auto; min-height: 0; object-fit: contain; background: #13231c; }
+.image-lightbox { position: fixed; z-index: 30; display: grid; place-items: center; inset: 0; padding: 46px 24px 24px; background: #000d0aef; backdrop-filter: blur(9px); }
+.image-lightbox .close { z-index: 1; color: #effff8; }
+.image-lightbox img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; }

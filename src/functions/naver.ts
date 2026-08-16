@@ -111,13 +111,24 @@ export async function collectArticle(listed: ListedPost, board: BoardId = "divis
     // lazy media is available before we inspect the iframe.
     const postImages = frame.locator("img.se-image-resource");
     try { await postImages.first().waitFor({ timeout: 8_000 }); } catch { /* text-only posts are valid */ }
+    try {
+      await postImages.first().evaluate(async (image) => {
+        const img = image as HTMLImageElement;
+        if (img.complete) return;
+        await new Promise<void>((resolve) => {
+          img.addEventListener("load", () => resolve(), { once: true });
+          img.addEventListener("error", () => resolve(), { once: true });
+          setTimeout(resolve, 5_000);
+        });
+      });
+    } catch { /* text-only posts are valid */ }
     const imageUrls = filterArticleImages(await postImages.evaluateAll((images) => images.map((image) => ({
       src: (image as HTMLImageElement).currentSrc || (image as HTMLImageElement).src,
       className: image.className,
       width: (image as HTMLImageElement).naturalWidth,
       height: (image as HTMLImageElement).naturalHeight,
     }))));
-    return { ...fallback, imageUrls };
+    return { ...fallback, imageUrls, imagesCheckedAt: new Date().toISOString() };
   } catch (error) {
     // Keep rank reporting available when a transient detail-page render fails.
     // CAPTCHA/explicit access blocking remains a hard failure and is never bypassed.

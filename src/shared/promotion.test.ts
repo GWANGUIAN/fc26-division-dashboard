@@ -34,7 +34,8 @@ describe("article image filtering", () => {
       { src: "https://cafeptthumb-phinf.pstatic.net/a.png", className: "se-image-resource", width: 800, height: 600 },
       { src: "https://cafeptthumb-phinf.pstatic.net/b.png", className: "", width: 800, height: 600 },
       { src: "https://cafeptthumb-phinf.pstatic.net/c.png", className: "se-image-resource", width: 100, height: 100 },
+      { src: "https://cafeptthumb-phinf.pstatic.net/d.png", className: "se-image-resource", width: 0, height: 0 },
       { src: "https://ssl.pstatic.net/avatar.png", className: "se-image-resource", width: 800, height: 600 },
-    ])).toEqual(["https://cafeptthumb-phinf.pstatic.net/a.png"]);
+    ])).toEqual(["https://cafeptthumb-phinf.pstatic.net/a.png", "https://cafeptthumb-phinf.pstatic.net/d.png"]);
   });
 });

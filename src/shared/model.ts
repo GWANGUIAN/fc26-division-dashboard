@@ -22,6 +22,8 @@ export interface PromotionPost {
   division: number;
   articleUrl: string;
   imageUrls: string[];
+  /** Set after the article body has been successfully inspected for media. */
+  imagesCheckedAt?: string;
 }
 
 export type StreamerActivityBoard = "scope" | "elevenVsEleven";

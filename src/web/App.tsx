@@ -62,12 +62,14 @@ function StreamerActivitySection({ title, posts }: { title: string; posts?: Stre
 function DetailModal({ streamer, onClose }: { streamer: StreamerRecord; onClose: () => void }) {
   const post = streamer.lastPost;
   const channel = soopChannelUrl(streamer.soopId);
-  useEscape(onClose);
+  const [expandedImage, setExpandedImage] = useState<string>();
+  useEscape(() => expandedImage ? setExpandedImage(undefined) : onClose());
   return <Modal onClose={onClose} label="디비전 상세"><div className="modal__identity"><Avatar {...streamer} /><div><span className="eyebrow">CURRENT DIVISION</span><h2>{streamer.displayName} <b>{streamer.currentDivision}부</b></h2><SoopTags tags={streamer.soopTags} /><p>{streamer.isMapped ? "SOOP 스트리머 정보 연동됨" : "카페 작성자 · SOOP 정보 미연결"}</p></div></div>
-    {post ? <><div className="report"><span>{post.category}</span><h3>{post.title}</h3><time>{formatCafePostDate(post.publishedAt)}</time></div>{post.imageUrls.length > 0 && <div className="gallery">{post.imageUrls.map((url, index) => <img src={url} alt={`${streamer.displayName} 게시글 이미지`} key={url} loading={index === 0 ? "eager" : "lazy"} referrerPolicy="no-referrer" />)}</div>}</> : <p className="empty-detail">아직 확인된 디비전 보고 게시글이 없습니다.</p>}
+    {post ? <><div className="report"><span>{post.category}</span><h3>{post.title}</h3><time>{formatCafePostDate(post.publishedAt)}</time></div>{post.imageUrls.length > 0 && <div className="gallery">{post.imageUrls.map((url, index) => <button className="gallery__image" type="button" onClick={() => setExpandedImage(url)} aria-label={`${streamer.displayName} 게시글 이미지 확대`} key={url}><img src={url} alt={`${streamer.displayName} 게시글 이미지`} loading={index === 0 ? "eager" : "lazy"} referrerPolicy="no-referrer" /></button>)}</div>}</> : <p className="empty-detail">아직 확인된 디비전 보고 게시글이 없습니다.</p>}
     <StreamerActivitySection title="잔디동 스코프" posts={streamer.scopePosts} />
     <StreamerActivitySection title="11대 11 플레이 영상" posts={streamer.elevenVsElevenPosts} />
     <div className="actions">{post && <CafeLink href={post.articleUrl} />}{channel && <SoopLink href={channel}>SOOP 방송국 ↗</SoopLink>}</div>
+    {expandedImage && <div className="image-lightbox" role="dialog" aria-modal="true" aria-label="게시글 이미지 확대" onMouseDown={() => setExpandedImage(undefined)}><button className="close" type="button" onClick={() => setExpandedImage(undefined)} aria-label="확대 이미지 닫기">×</button><img src={expandedImage} alt={`${streamer.displayName} 게시글 이미지 확대`} referrerPolicy="no-referrer" onMouseDown={(event) => event.stopPropagation()} /></div>}
   </Modal>;
 }
 

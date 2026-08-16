@@ -15,6 +15,7 @@ import {
 type ScrapeMode = "incremental" | "reconcile";
 type ScrapeEvent = ScheduledEvent<{ mode?: ScrapeMode; articleId?: string }> | { mode?: ScrapeMode; articleId?: string };
 const maxPagesPerRun = Number(process.env.MAX_PAGES_PER_RUN ?? 20);
+const maxImageBackfillsPerRun = Number(process.env.MAX_IMAGE_BACKFILLS_PER_RUN ?? 3);
 const activityBoards: StreamerActivityBoard[] = ["scope", "elevenVsEleven"];
 
 export async function handler(event: ScrapeEvent = {}): Promise<void> {
@@ -67,12 +68,28 @@ export async function handler(event: ScrapeEvent = {}): Promise<void> {
       }
     }
     const roster = await getRoster();
+    await backfillMissingReportImages(knownPosts, roster);
     await putStreamers(buildStreamerRecords(knownPosts, roster));
     await writeState("ok", undefined, nextPages, newest);
   } catch (error) {
     const message = error instanceof SourceBlockedError ? error.message : `Collection failed: ${(error as Error).message}`;
     await writeState("degraded", message, nextPages, newest);
     throw error;
+  }
+}
+
+async function backfillMissingReportImages(posts: PromotionPost[], roster: Awaited<ReturnType<typeof getRoster>>): Promise<void> {
+  const candidates = buildStreamerRecords(posts, roster)
+    .flatMap((streamer) => streamer.lastPost && !streamer.lastPost.imagesCheckedAt ? [streamer.lastPost] : [])
+    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+    .slice(0, maxImageBackfillsPerRun);
+  for (const candidate of candidates) {
+    const enriched = await collectArticle(candidate, "division");
+    if (!enriched) continue;
+    if (await putPost(enriched, true)) {
+      const index = posts.findIndex((post) => post.articleId === candidate.articleId);
+      if (index >= 0) posts[index] = enriched;
+    }
   }
 }
 
