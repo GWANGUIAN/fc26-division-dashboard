@@ -60,7 +60,7 @@ function DetailModal({ streamer, onClose }: { streamer: StreamerRecord; onClose:
   </Modal>;
 }
 
-function CafeLink({ href, label = "네이버 카페 원문" }: { href: string; label?: string }) { return <a className="action cafe" href={href} target="_blank" rel="noreferrer"><i>{cafeIcon}</i> {label}</a>; }
+function CafeLink({ href, label = "왁물원 게시글" }: { href: string; label?: string }) { return <a className="action cafe" href={href} target="_blank" rel="noreferrer"><i>{cafeIcon}</i> {label}</a>; }
 function SoopLink({ href, children }: { href: string; children: ReactNode }) { return <a className="action soop" href={href} target="_blank" rel="noreferrer"><img className="soop-icon" src={soopIcon} alt="" />{children}</a>; }
 
 function Modal({ children, onClose, label }: { children: ReactNode; onClose: () => void; label: string }) {
