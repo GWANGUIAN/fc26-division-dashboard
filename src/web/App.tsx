@@ -85,7 +85,7 @@ function EvaluationModal({ application, onClose }: { application: OneVsOneApplic
   return <Modal onClose={onClose} label="1대1 평가 상세"><div className="modal__identity"><Avatar {...application} /><div><span className="eyebrow">ONE VS ONE APPLICATION</span><h2>{application.displayName}</h2><SoopTags tags={application.soopTags} /><p>{application.cafeAuthor} · 신청 {formatCafePostDate(application.publishedAt)}</p></div></div>
     <div className="report"><span>{application.category}</span><h3>{application.title}</h3></div>
     {result ? <section className="scoreboard"><p className="eyebrow">MATCH RESULT</p><div className="scoreboard__players"><span>{application.displayName}</span><span>{opponent.displayName}<SoopTags tags={opponent.soopTags} /></span></div><strong>{result.candidateScore}<i>:</i>{result.woowakgoodScore}</strong><time>대결 일시 · {formatDateTime(result.playedAt)}</time><div className="verdict"><b>{result.verdict}</b><p>{result.detail}</p>{result.note && <small>{result.note}</small>}</div></section> : <p className="empty-detail">대결 결과가 아직 등록되지 않았습니다. 결과가 확정되면 이 카드에 공지 기준 판정이 표시됩니다.</p>}
-    <div className="actions"><CafeLink href={application.articleUrl} label="신청글" />{application.soopId && <SoopLink href={soopChannelUrl(application.soopId)!}>신청자 SOOP ↗</SoopLink>}<SoopLink href={soopChannelUrl(opponent.soopId)!}>우왁굳 SOOP ↗</SoopLink></div>
+    <div className="actions"><CafeLink href={application.articleUrl} label="신청글" />{application.soopId && <SoopLink href={soopChannelUrl(application.soopId)!}>신청자 SOOP ↗</SoopLink>}</div>
   </Modal>;
 }
 
