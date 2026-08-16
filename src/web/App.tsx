@@ -128,7 +128,7 @@ function PromotionTimeline({ posts }: { posts: PromotionPost[] }) {
   }, []);
   let index = 0;
   return <section className="promotion-timeline" aria-labelledby="promotion-timeline-title">
-    <div className="promotion-timeline__heading"><div><p className="eyebrow">PROMOTION JOURNEY</p><h3 id="promotion-timeline-title">승급 여정</h3></div><span>{summary.startDivision}부 <i>→</i> {summary.currentDivision}부</span></div>
+    <div className="promotion-timeline__heading"><div><p className="eyebrow">PROMOTION JOURNEY</p><h3 id="promotion-timeline-title">승급 여정</h3></div></div>
     <div className="promotion-timeline__stats" aria-label="승급 여정 요약"><span><b>{summary.promotionCount}</b>회 실제 승급</span>{events.length > 1 ? <span><b>{summary.exactDurationMs !== undefined ? formatDuration(summary.exactDurationMs) : `${summary.calendarDays}일`}</b> {summary.exactDurationMs !== undefined ? "소요" : "확인된 기간"}</span> : <span>첫 승급 보고</span>}</div>
     <div className="promotion-timeline__track">
       {groups.map((group) => <div className="promotion-timeline__day" key={group.dateKey}>
