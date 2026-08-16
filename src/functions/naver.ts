@@ -15,7 +15,10 @@ export interface ListedPost { articleId: string; title: string; category: string
 
 async function browserLaunch() {
   return playwright.launch({
-    args: chromium.args,
+    // Chromium's single-process mode intermittently closes renderer pages in
+    // the Lambda runtime while Naver hydrates iframe content. Keep the normal
+    // multi-process renderer so article media can finish loading.
+    args: chromium.args.filter((arg) => arg !== "--single-process"),
     executablePath: await chromium.executablePath(),
     headless: true,
   });
