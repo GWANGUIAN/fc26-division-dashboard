@@ -68,7 +68,7 @@ export const soopChannelUrl = (soopId?: string) =>
 
 export const defaultSoopProfileUrl = (soopId?: string) =>
   soopId
-    ? `https://profile.img.sooplive.com/LOGO/af/${encodeURIComponent(soopId)}/${encodeURIComponent(soopId)}.jpg`
+    ? `https://stimg.sooplive.com/LOGO/${encodeURIComponent(soopId.slice(0, 2).toLowerCase())}/${encodeURIComponent(soopId)}/m/${encodeURIComponent(soopId)}.webp`
     : undefined;
 
 export interface OneVsOneApplication {

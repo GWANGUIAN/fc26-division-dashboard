@@ -9,10 +9,12 @@ import {
 } from "./store.js";
 
 type ScrapeMode = "incremental" | "reconcile";
+type ScrapeEvent = ScheduledEvent<{ mode?: ScrapeMode; articleId?: string }> | { mode?: ScrapeMode; articleId?: string };
 const maxPagesPerRun = Number(process.env.MAX_PAGES_PER_RUN ?? 20);
 
-export async function handler(event: ScheduledEvent<{ mode?: ScrapeMode }> | { mode?: ScrapeMode } = {}): Promise<void> {
+export async function handler(event: ScrapeEvent = {}): Promise<void> {
   const mode: ScrapeMode = ("detail" in event ? event.detail?.mode : event.mode) ?? "incremental";
+  const articleId = "detail" in event ? event.detail?.articleId : event.articleId;
   const state = await getSyncState();
   const knownPosts = await getPosts();
   const knownApplications = await getOneVsOneApplications();
@@ -27,6 +29,16 @@ export async function handler(event: ScheduledEvent<{ mode?: ScrapeMode }> | { m
     division: progress.division?.latestArticleId ?? state?.latestArticleId,
     oneVsOne: progress.oneVsOne?.latestArticleId,
   };
+
+  if (articleId) {
+    const existing = knownPosts.find((post) => post.articleId === articleId);
+    if (!existing) throw new Error(`Cannot enrich unknown article: ${articleId}`);
+    const enriched = await collectArticle(existing, "division");
+    if (enriched) await putPost(enriched, true);
+    const updatedPosts = enriched ? knownPosts.map((post) => post.articleId === articleId ? enriched : post) : knownPosts;
+    await putStreamers(buildStreamerRecords(updatedPosts, await getRoster()));
+    return;
+  }
 
   try {
     nextPages.division = await scrapeDivision(mode, nextPages.division, knownPosts, knownIds, newest);

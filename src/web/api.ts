@@ -11,7 +11,6 @@ const demo: DashboardSnapshot = {
   latestPosts: [],
   oneVsOneApplications: [
     { id: "application:mir", articleId: "21951534", cafeAuthor: "MIR미르", displayName: "MIR미르", cafeAliases: ["MIR미르"], title: "왁굳님, 저의 희망을 밟아주세요", category: "[1대1 평가 신청]", publishedAt: "2026-08-14T20:00:00+09:00", articleUrl: "https://cafe.naver.com/f-e/cafes/27842958/articles/21951534?menuid=1361", isMapped: false },
-    { id: "application:complete-demo", articleId: "21950000", cafeAuthor: "테스트 후보", displayName: "테스트 후보", cafeAliases: ["테스트 후보"], title: "1대1 평가 신청합니다", category: "[1대1 평가 신청]", publishedAt: "2026-08-12T20:00:00+09:00", articleUrl: "https://cafe.naver.com/f-e/cafes/27842958/articles/21950000?menuid=1361", isMapped: true, soopTags: ["루키존", "스포츠", "서포터즈"], result: { applicationArticleId: "21950000", playedAt: "2026-08-15T20:00:00+09:00", candidateScore: 3, woowakgoodScore: 8, verdict: "잔디동 합격 조건 충족", detail: "5점 차 패배" } },
   ],
 };
 

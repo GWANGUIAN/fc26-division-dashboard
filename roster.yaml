@@ -121,3 +121,51 @@ streamers:
     override:
       division: null
       policy: auto
+  - slug: 
+    displayName: 나나문
+    cafeAliases: ["나나문7"]
+    soopId: "nanamoon777"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: 
+    displayName: 거대별
+    cafeAliases: ["거대별"]
+    soopId: "sikhye1004"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: 
+    displayName: 플리
+    cafeAliases: ["플리 PLI"]
+    soopId: "plincess"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: 
+    displayName: 체비
+    cafeAliases: ["체 비"]
+    soopId: "chebi2"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: 
+    displayName: 마리엘
+    cafeAliases: ["마리엘"]
+    soopId: "s2mariel"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: 
+    displayName: 
+    cafeAliases: [""]
+    soopId: ""
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto

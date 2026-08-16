@@ -31,12 +31,12 @@ export async function getPosts(): Promise<PromotionPost[]> {
   return (await scanByPartition<Item & { post: PromotionPost }>("POST")).map((item) => item.post);
 }
 
-export async function putPost(post: PromotionPost): Promise<boolean> {
+export async function putPost(post: PromotionPost, overwrite = false): Promise<boolean> {
   try {
     await client.send(new PutCommand({
       TableName: tableName,
       Item: { PK: "POST", SK: post.articleId, post, createdAt: new Date().toISOString() },
-      ConditionExpression: "attribute_not_exists(PK)",
+      ...(overwrite ? {} : { ConditionExpression: "attribute_not_exists(PK)" }),
     }));
     return true;
   } catch (error) {

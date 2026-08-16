@@ -86,7 +86,11 @@ export async function collectArticle(listed: ListedPost, board: BoardId = "divis
     const frame = page.frameLocator("iframe#cafe_main");
     const body = await frame.locator("body").innerText();
     if (/captcha|자동입력|비정상적인 접근|접근이 제한/u.test(body)) throw new SourceBlockedError("Naver blocked article collection");
-    const imageUrls = filterArticleImages(await frame.locator("img").evaluateAll((images) => images.map((image) => ({
+    // Naver's editor emits actual post media using this class. Wait for it so
+    // lazy media is available before we inspect the iframe.
+    const postImages = frame.locator("img.se-image-resource");
+    try { await postImages.first().waitFor({ timeout: 8_000 }); } catch { /* text-only posts are valid */ }
+    const imageUrls = filterArticleImages(await postImages.evaluateAll((images) => images.map((image) => ({
       src: (image as HTMLImageElement).currentSrc || (image as HTMLImageElement).src,
       className: image.className,
       width: (image as HTMLImageElement).naturalWidth,
