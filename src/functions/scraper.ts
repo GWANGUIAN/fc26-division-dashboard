@@ -1,21 +1,24 @@
 import type { ScheduledEvent } from "aws-lambda";
 import {
   BOARDS, cafeArticleUrl, type BoardId, type OneVsOneApplication, type PromotionPost,
-  type StreamerActivityBoard, type StreamerActivityPost,
+  type StreamerActivityBoard, type StreamerActivityPost, type StreamerRecord,
 } from "../shared/model.js";
 import { isOneVsOneApplication } from "../shared/one-vs-one.js";
 import { buildStreamerRecords } from "../shared/promotion.js";
 import { isDirectPromotionPost } from "../shared/streamer-activity.js";
+import { buildDashboardSnapshot } from "../shared/snapshot.js";
 import { collectArticle, collectPage, normalizeCafeDate, SourceBlockedError } from "./naver.js";
 import {
-  getOneVsOneApplications, getPosts, getRoster, getStreamerActivityPosts, getSyncState,
-  putOneVsOneApplication, putPost, putStreamerActivityPost, putStreamers, putSyncState,
+  getOneVsOneApplications, getOneVsOneResults, getPosts, getRoster, getStreamerActivityPosts, getSyncState,
+  putDashboardSnapshot, putOneVsOneApplication, putPost, putStreamerActivityPost, putStreamers, putSyncState,
+  type SyncState,
 } from "./store.js";
 
 type ScrapeMode = "incremental" | "reconcile";
 type ScrapeEvent = ScheduledEvent<{ mode?: ScrapeMode; articleId?: string }> | { mode?: ScrapeMode; articleId?: string };
 const maxPagesPerRun = Number(process.env.MAX_PAGES_PER_RUN ?? 20);
 const maxImageBackfillsPerRun = Number(process.env.MAX_IMAGE_BACKFILLS_PER_RUN ?? 3);
+const maxImageCollectionAttempts = Number(process.env.MAX_IMAGE_COLLECTION_ATTEMPTS ?? 3);
 const activityBoards: StreamerActivityBoard[] = ["scope", "elevenVsEleven"];
 
 export async function handler(event: ScrapeEvent = {}): Promise<void> {
@@ -50,7 +53,17 @@ export async function handler(event: ScrapeEvent = {}): Promise<void> {
     const enriched = await collectArticle(existing, "division");
     if (enriched) await putPost(enriched, true);
     const updatedPosts = enriched ? knownPosts.map((post) => post.articleId === articleId ? enriched : post) : knownPosts;
-    await putStreamers(buildStreamerRecords(updatedPosts, await getRoster()));
+    const roster = await getRoster();
+    const streamers = buildStreamerRecords(updatedPosts, roster);
+    await putStreamers(streamers);
+    await publishSnapshot({
+      state,
+      streamers,
+      posts: updatedPosts,
+      applications: knownApplications,
+      roster,
+      activityPosts: knownActivityPosts,
+    });
     return;
   }
 
@@ -69,8 +82,17 @@ export async function handler(event: ScrapeEvent = {}): Promise<void> {
     }
     const roster = await getRoster();
     await backfillMissingReportImages(knownPosts, roster);
-    await putStreamers(buildStreamerRecords(knownPosts, roster));
-    await writeState("ok", undefined, nextPages, newest);
+    const streamers = buildStreamerRecords(knownPosts, roster);
+    await putStreamers(streamers);
+    const nextState = await writeState("ok", undefined, nextPages, newest);
+    await publishSnapshot({
+      state: nextState,
+      streamers,
+      posts: knownPosts,
+      applications: knownApplications,
+      roster,
+      activityPosts: knownActivityPosts,
+    });
   } catch (error) {
     const message = error instanceof SourceBlockedError ? error.message : `Collection failed: ${(error as Error).message}`;
     await writeState("degraded", message, nextPages, newest);
@@ -80,7 +102,14 @@ export async function handler(event: ScrapeEvent = {}): Promise<void> {
 
 async function backfillMissingReportImages(posts: PromotionPost[], roster: Awaited<ReturnType<typeof getRoster>>): Promise<void> {
   const candidates = buildStreamerRecords(posts, roster)
-    .flatMap((streamer) => streamer.lastPost && !streamer.lastPost.imagesCheckedAt ? [streamer.lastPost] : [])
+    // A page can render before Naver exposes its lazy media. Retry only empty
+    // latest reports and cap attempts so genuinely text-only reports do not
+    // generate permanent collection traffic.
+    .flatMap((streamer) => streamer.lastPost
+      && streamer.lastPost.imageUrls.length === 0
+      && (streamer.lastPost.imageCollectionAttempts ?? 0) < maxImageCollectionAttempts
+      ? [streamer.lastPost]
+      : [])
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
     .slice(0, maxImageBackfillsPerRun);
   for (const candidate of candidates) {
@@ -98,13 +127,30 @@ async function writeState(
   message: string | undefined,
   nextPages: Record<BoardId, number>,
   newest: Record<BoardId, string | undefined>,
-): Promise<void> {
-  await putSyncState({
+): Promise<SyncState> {
+  const state = {
     status, message, page: nextPages.division, latestArticleId: newest.division, updatedAt: new Date().toISOString(),
     boards: Object.fromEntries((Object.keys(BOARDS) as BoardId[]).map((board) => [board, {
       page: nextPages[board], latestArticleId: newest[board],
     }])),
-  });
+  };
+  await putSyncState(state);
+  return state;
+}
+
+async function publishSnapshot(input: {
+  state: SyncState | undefined;
+  streamers: StreamerRecord[];
+  posts: PromotionPost[];
+  applications: OneVsOneApplication[];
+  roster: Awaited<ReturnType<typeof getRoster>>;
+  activityPosts: StreamerActivityPost[];
+}): Promise<void> {
+  await putDashboardSnapshot(buildDashboardSnapshot({
+    ...input,
+    state: input.state,
+    results: await getOneVsOneResults(),
+  }));
 }
 
 async function scrapeDivision(

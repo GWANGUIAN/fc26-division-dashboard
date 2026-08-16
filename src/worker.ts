@@ -17,7 +17,7 @@ export interface Env {
 }
 
 const API_CACHE_SECONDS = 120;
-const API_CACHE_VERSION = "v2";
+const API_CACHE_VERSION = "v3";
 const HEALTH_MAX_SNAPSHOT_AGE_MS = 12 * 60 * 1_000;
 // Bump whenever the static entry bundle changes. It is used only for the
 // internal asset-binding request, bypassing the zone's broad cache rule while

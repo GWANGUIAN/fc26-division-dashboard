@@ -3,6 +3,14 @@ locals {
   schedule_group = "${var.project_name}-schedules"
 }
 
+# This token is persisted only in Terraform state and is injected into the
+# Reader Lambda. Its matching value is uploaded to Cloudflare as a Worker
+# secret after each Terraform apply; it is never committed to Git.
+resource "random_password" "reader_origin_token" {
+  length  = 64
+  special = false
+}
+
 resource "aws_ecr_repository" "app" {
   name                 = var.project_name
   image_tag_mutability = "IMMUTABLE"
@@ -95,10 +103,15 @@ resource "aws_lambda_function" "reader" {
   package_type  = "Image"
   image_uri     = var.image_uri
   image_config { command = ["reader.handler"] }
-  role        = aws_iam_role.lambda.arn
-  timeout     = 15
-  memory_size = 512
-  environment { variables = { TABLE_NAME = aws_dynamodb_table.dashboard.name, ALLOWED_ORIGIN = join(",", var.allowed_origins) } }
+  role                           = aws_iam_role.lambda.arn
+  timeout                        = 15
+  memory_size                    = 512
+  reserved_concurrent_executions = 5
+  environment { variables = {
+    TABLE_NAME        = aws_dynamodb_table.dashboard.name
+    ALLOWED_ORIGIN    = join(",", var.allowed_origins)
+    ORIGIN_AUTH_TOKEN = random_password.reader_origin_token.result
+  } }
   depends_on = [aws_cloudwatch_log_group.reader]
   tags       = local.tags
 }

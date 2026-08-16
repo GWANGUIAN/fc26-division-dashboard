@@ -24,6 +24,8 @@ export interface PromotionPost {
   imageUrls: string[];
   /** Set after the article body has been successfully inspected for media. */
   imagesCheckedAt?: string;
+  /** Limits retries for posts whose first article render did not expose media. */
+  imageCollectionAttempts?: number;
 }
 
 export type StreamerActivityBoard = "scope" | "elevenVsEleven";
@@ -50,6 +52,8 @@ export interface StreamerRecord {
   overrideDivision?: number;
   currentDivision: number;
   lastPost?: PromotionPost;
+  /** Earlier rank reports, excluding the streamer's current division. */
+  previousPromotionPosts?: PromotionPost[];
   scopePosts?: StreamerActivityPost[];
   elevenVsElevenPosts?: StreamerActivityPost[];
   isMapped: boolean;

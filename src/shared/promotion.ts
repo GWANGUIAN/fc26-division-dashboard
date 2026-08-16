@@ -35,6 +35,12 @@ function automaticDivision(posts: PromotionPost[]): number | undefined {
     best === undefined ? post.division : Math.min(best, post.division), undefined);
 }
 
+function previousPromotionPosts(posts: PromotionPost[], currentDivision: number): PromotionPost[] {
+  return posts
+    .filter((post) => post.division > currentDivision)
+    .sort((a, b) => a.division - b.division || b.publishedAt.localeCompare(a.publishedAt));
+}
+
 export function resolveDivision(
   posts: PromotionPost[],
   override: { division?: number | null; policy: OverridePolicy },
@@ -58,6 +64,10 @@ export function buildStreamerRecords(posts: PromotionPost[], roster: RosterEntry
   const records: StreamerRecord[] = roster.map((entry) => {
     const entryPosts = grouped.get(entry.slug) ?? [];
     const override = entry.override ?? { policy: "auto" as const, division: undefined };
+    const currentDivision = entry.autoUpdate
+      ? (resolveDivision(entryPosts, override) ?? 10)
+      : (override.division ?? automaticDivision(entryPosts) ?? 10);
+    const history = previousPromotionPosts(entryPosts, currentDivision);
     return {
       id: entry.slug,
       displayName: entry.displayName,
@@ -68,8 +78,9 @@ export function buildStreamerRecords(posts: PromotionPost[], roster: RosterEntry
       autoUpdate: entry.autoUpdate,
       overridePolicy: override.policy,
       overrideDivision: override.division ?? undefined,
-      currentDivision: entry.autoUpdate ? (resolveDivision(entryPosts, override) ?? 10) : (override.division ?? automaticDivision(entryPosts) ?? 10),
+      currentDivision,
       lastPost: newest(entryPosts),
+      previousPromotionPosts: history.length ? history : undefined,
       isMapped: true,
     };
   });
@@ -87,6 +98,7 @@ export function buildStreamerRecords(posts: PromotionPost[], roster: RosterEntry
       overridePolicy: "auto",
       currentDivision: division,
       lastPost,
+      previousPromotionPosts: previousPromotionPosts(entryPosts, division),
       isMapped: false,
     });
   }

@@ -17,6 +17,20 @@ describe("promotion parsing", () => {
     expect(result.find((entry) => entry.id === "momo")?.currentDivision).toBe(7);
     expect(result.find((entry) => entry.id === "new")?.currentDivision).toBe(10);
   });
+  it("lists earlier promotion reports by division, then newest duplicate first", () => {
+    const result = buildStreamerRecords([
+      ...posts,
+      { ...posts[0], articleId: "3", cafeAuthor: "문모모", title: "8부", category: "[8부 승격]", division: 8, publishedAt: "2026-08-12T00:00:00+09:00" },
+      { ...posts[0], articleId: "4", title: "7부 중복", category: "[7부 승격]", division: 7, publishedAt: "2026-08-13T00:00:00+09:00" },
+      { ...posts[0], articleId: "5", title: "9부 재보고", category: "[9부 승격]", division: 9, publishedAt: "2026-08-15T00:00:00+09:00" },
+    ], [{ ...roster[0], cafeAliases: ["문 모모", "문모모"] }]);
+
+    expect(result[0].previousPromotionPosts?.map((post) => post.articleId)).toEqual(["3", "5", "1"]);
+  });
+  it("keeps a history absent when a manual division has no earlier reports", () => {
+    const result = buildStreamerRecords(posts, [{ ...roster[0], override: { division: 10, policy: "until-manual-release" } }]);
+    expect(result[0].previousPromotionPosts).toBeUndefined();
+  });
   it("shows unregistered writers when they have a valid post", () => {
     const result = buildStreamerRecords([{ ...posts[0], cafeAuthor: "미등록" }], roster);
     expect(result[0]).toMatchObject({ displayName: "미등록", isMapped: false, currentDivision: 9 });

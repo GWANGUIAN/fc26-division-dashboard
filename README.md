@@ -82,7 +82,13 @@ Terraform과 Docker, AWS CLI 로그인이 필요합니다.
    terraform apply
    ```
 
-5. `reader_function_url`을 Cloudflare Worker의 Settings → Builds → Build variables에 `VITE_DATA_API_URL`로 설정하고 새 빌드를 실행합니다. Workers Builds는 `pnpm build` 뒤 `npx wrangler deploy`를 실행하며, `wrangler.toml`의 Static Assets 설정이 `dist/web`을 배포합니다.
+5. 공개 API는 Cloudflare Worker를 통해서만 제공됩니다. Terraform이 생성한 `reader_origin_token` 출력값을 Cloudflare Worker Secret `ORIGIN_AUTH_TOKEN`으로, Reader Function URL을 `API_ORIGIN_URL` Secret으로 설정한 뒤 새 빌드를 실행합니다. 프런트에는 `VITE_DATA_API_URL`을 설정하지 않습니다. Worker는 `/api/snapshot`을 2분간 캐시하고, Lambda Reader는 단일 DynamoDB 스냅샷만 읽습니다.
+
+   ```powershell
+   npx wrangler secret put API_ORIGIN_URL
+   npx wrangler secret put ORIGIN_AUTH_TOKEN
+   npx wrangler deploy
+   ```
 6. 첫 로스터 동기화는 GitHub Actions를 실행하거나 다음처럼 직접 Lambda를 호출합니다.
 
    ```powershell

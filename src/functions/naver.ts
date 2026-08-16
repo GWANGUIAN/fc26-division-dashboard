@@ -1,5 +1,6 @@
 import chromium from "@sparticuz/chromium";
 import { chromium as playwright } from "playwright-core";
+import type { Locator } from "playwright-core";
 import { BOARDS, CAFE, cafeArticleUrl, type BoardId, type PromotionPost } from "../shared/model.js";
 import { filterArticleImages } from "../shared/images.js";
 import { divisionForPost } from "../shared/promotion.js";
@@ -10,6 +11,8 @@ import { divisionForPost } from "../shared/promotion.js";
 export const LIST_PAGE_SIZE = 50;
 export const listUrl = (board: BoardId, page: number) =>
   `${CAFE.baseUrl}/f-e/cafes/${CAFE.cafeId}/menus/${BOARDS[board].menuId}?page=${page}&size=${LIST_PAGE_SIZE}`;
+const mobileArticleUrl = (articleId: string, menuId: string) =>
+  `https://m.cafe.naver.com/ca-fe/web/cafes/${CAFE.cafeId}/articles/${articleId}?menuId=${menuId}`;
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 // Naver's Korean ARIA labels are not stable across its rendering surfaces.
 // The article URL shape is the durable public contract of the list table.
@@ -44,6 +47,41 @@ async function withRetries<T>(operation: () => Promise<T>): Promise<T> {
     try { return await operation(); } catch (caught) { error = caught; }
   }
   throw error;
+}
+
+type ArticleImageCandidate = {
+  src?: string;
+  className?: string;
+  width?: number;
+  height?: number;
+  inPostBody?: boolean;
+};
+
+async function hydrateArticleImages(images: Locator): Promise<void> {
+  await images.evaluateAll(async (nodes) => {
+    const articleImages = nodes.filter((image) => image.classList.contains("se-image-resource")
+      || Boolean(image.closest(".se-main-container, .article_viewer, .ArticleContentBox, #tbody, [class*='ArticleContent'], [class*='article-content'], [class*='ContentRenderer']")));
+    await Promise.all(articleImages.map(async (image) => {
+      const img = image as HTMLImageElement;
+      img.scrollIntoView({ block: "center", inline: "nearest" });
+      if (img.complete) return;
+      await new Promise<void>((resolve) => {
+        img.addEventListener("load", () => resolve(), { once: true });
+        img.addEventListener("error", () => resolve(), { once: true });
+        setTimeout(resolve, 5_000);
+      });
+    }));
+  });
+}
+
+async function inspectArticleImages(images: Locator): Promise<ArticleImageCandidate[]> {
+  return images.evaluateAll((nodes) => nodes.map((image) => ({
+    src: (image as HTMLImageElement).currentSrc || image.getAttribute("data-src") || image.getAttribute("data-lazy-src") || (image as HTMLImageElement).src,
+    className: image.className,
+    width: (image as HTMLImageElement).naturalWidth,
+    height: (image as HTMLImageElement).naturalHeight,
+    inPostBody: Boolean(image.closest(".se-main-container, .article_viewer, .ArticleContentBox, #tbody, [class*='ArticleContent'], [class*='article-content'], [class*='ContentRenderer']")),
+  })));
 }
 
 export function normalizeCafeDate(value: string): string {
@@ -104,31 +142,68 @@ export async function collectArticle(listed: ListedPost, board: BoardId = "divis
       if (!response || response.status() === 429 || response.status() >= 500) throw new Error(`Naver returned ${response?.status()}`);
       await page.locator("iframe#cafe_main").waitFor({ timeout: 12_000 });
     });
-    const frame = page.frameLocator("iframe#cafe_main");
-    const body = await frame.locator("body").innerText();
+    const desktopFrame = page.frameLocator("iframe#cafe_main");
+    const body = await desktopFrame.locator("body").innerText();
     if (/captcha|자동입력|비정상적인 접근|접근이 제한/u.test(body)) throw new SourceBlockedError("Naver blocked article collection");
-    // Naver's editor emits actual post media using this class. Wait for it so
-    // lazy media is available before we inspect the iframe.
-    const postImages = frame.locator("img.se-image-resource");
-    try { await postImages.first().waitFor({ timeout: 8_000 }); } catch { /* text-only posts are valid */ }
+    // The iframe itself is available before the Café SPA has loaded article
+    // data. Waiting only for the iframe created a race where posts with slower
+    // hydration looked image-less. The listed title is present only after the
+    // article has rendered; allow either rendering surface to satisfy it.
+    let articleRendered = false;
     try {
-      await postImages.first().evaluate(async (image) => {
-        const img = image as HTMLImageElement;
-        if (img.complete) return;
-        await new Promise<void>((resolve) => {
-          img.addEventListener("load", () => resolve(), { once: true });
-          img.addEventListener("error", () => resolve(), { once: true });
-          setTimeout(resolve, 5_000);
-        });
-      });
+      await Promise.any([
+        desktopFrame.getByText(listed.title, { exact: false }).first().waitFor({ state: "visible", timeout: 12_000 }),
+        page.getByText(listed.title, { exact: false }).first().waitFor({ state: "visible", timeout: 12_000 }),
+      ]);
+      articleRendered = true;
+      await page.waitForTimeout(750);
+    } catch {
+      // The PC SPA occasionally returns only its navigation shell to Lambda.
+      // Its public mobile view uses a different rendering path, so retry there
+      // before declaring a post image-less.
+      const response = await page.goto(mobileArticleUrl(listed.articleId, BOARDS[board].menuId), { waitUntil: "domcontentloaded", timeout: 25_000 });
+      if (!response || response.status() === 429 || response.status() >= 500) throw new Error(`Naver mobile returned ${response?.status()}`);
+      const mobileBody = await page.locator("body").innerText();
+      if (/captcha|자동입력|비정상적인 접근|접근이 제한/u.test(mobileBody)) throw new SourceBlockedError("Naver blocked mobile article collection");
+      try {
+        await page.getByText(listed.title, { exact: false }).first().waitFor({ state: "visible", timeout: 12_000 });
+        articleRendered = true;
+        await page.waitForTimeout(750);
+      } catch { console.info(`Article content did not render before media check: ${listed.articleId}`); }
+    }
+    // Café can render the article in its legacy `cafe_main` iframe, the outer
+    // document, or a nested editor frame. Inspect every rendered document,
+    // then accept only trusted Naver image hosts within a recognised article
+    // body. Duplicate surfaces are harmless because URLs are deduplicated.
+    const imageSurfaces = [page.locator("img"), ...page.frames().map((currentFrame) => currentFrame.locator("img"))];
+    try {
+      await Promise.all(imageSurfaces.map(async (images) => { try { await hydrateArticleImages(images); } catch { /* detached frame */ } }));
     } catch { /* text-only posts are valid */ }
-    const imageUrls = filterArticleImages(await postImages.evaluateAll((images) => images.map((image) => ({
-      src: (image as HTMLImageElement).currentSrc || (image as HTMLImageElement).src,
-      className: image.className,
-      width: (image as HTMLImageElement).naturalWidth,
-      height: (image as HTMLImageElement).naturalHeight,
-    }))));
-    return { ...fallback, imageUrls, imagesCheckedAt: new Date().toISOString() };
+    const discoveredImages = (await Promise.all(imageSurfaces.map(async (images) => {
+      try { return await inspectArticleImages(images); } catch { return []; }
+    }))).flat();
+    const imageUrls = filterArticleImages(discoveredImages);
+    if (imageUrls.length === 0) {
+      // Preserve enough metadata to support new Café editor variants without
+      // logging users' image URLs or post contents.
+      console.info(`No accepted post media for ${listed.articleId}: ${JSON.stringify({
+        articleRendered,
+        frames: page.frames().map((currentFrame) => currentFrame.url().replace(/\?.*/u, "")),
+        images: discoveredImages.slice(0, 12).map((image) => ({
+          className: image.className,
+          host: image.src?.match(/^https?:\/\/([^/]+)/u)?.[1],
+          width: image.width,
+          height: image.height,
+          inPostBody: image.inPostBody,
+        })),
+      })}`);
+    }
+    return {
+      ...fallback,
+      imageUrls,
+      imagesCheckedAt: new Date().toISOString(),
+      imageCollectionAttempts: ((listed as Partial<PromotionPost>).imageCollectionAttempts ?? 0) + 1,
+    };
   } catch (error) {
     // Keep rank reporting available when a transient detail-page render fails.
     // CAPTCHA/explicit access blocking remains a hard failure and is never bypassed.

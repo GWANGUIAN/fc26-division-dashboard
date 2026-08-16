@@ -1,8 +1,5 @@
 import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import type { DashboardSnapshot } from "../shared/model.js";
-import { buildOneVsOneApplications } from "../shared/one-vs-one.js";
-import { attachStreamerActivityPosts } from "../shared/streamer-activity.js";
-import { getOneVsOneApplications, getOneVsOneResults, getPosts, getRoster, getStreamerActivityPosts, getStreamers, getSyncState } from "./store.js";
+import { getDashboardSnapshot, getOneVsOneResults } from "./store.js";
 
 const headers = {
   "content-type": "application/json; charset=utf-8",
@@ -15,22 +12,18 @@ function response(statusCode: number, body: unknown): APIGatewayProxyResultV2 {
 
 export async function handler(event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> {
   if (event.requestContext.http.method === "OPTIONS") return { statusCode: 204, headers };
-  const [streamers, posts, state, applications, roster, results, activityPosts] = await Promise.all([
-    getStreamers(), getPosts(), getSyncState(), getOneVsOneApplications(), getRoster(), getOneVsOneResults(), getStreamerActivityPosts(),
-  ]);
-  const latestPosts = [...posts].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)).slice(0, 50);
-  const snapshot: DashboardSnapshot = {
-    generatedAt: state?.updatedAt ?? new Date().toISOString(),
-    status: state?.status ?? "degraded",
-    message: state?.message,
-    streamers: attachStreamerActivityPosts(streamers, roster, activityPosts)
-      .sort((a, b) => a.currentDivision - b.currentDivision || a.displayName.localeCompare(b.displayName, "ko")),
-    latestPosts,
-    oneVsOneApplications: buildOneVsOneApplications(applications, roster, results),
-  };
-  if (event.rawPath.endsWith("/latest")) return response(200, { generatedAt: snapshot.generatedAt, status: snapshot.status, posts: latestPosts });
+  const expectedToken = process.env.ORIGIN_AUTH_TOKEN;
+  if (expectedToken && event.headers["x-dashboard-origin"] !== expectedToken) {
+    return response(403, { message: "Forbidden" });
+  }
+  const snapshot = await getDashboardSnapshot();
+  if (!snapshot) return response(503, { message: "Initial data collection is in progress" });
+  if (event.rawPath.endsWith("/latest")) return response(200, { generatedAt: snapshot.generatedAt, status: snapshot.status, posts: snapshot.latestPosts });
   if (event.rawPath.endsWith("/one-vs-one")) return response(200, {
-    generatedAt: snapshot.generatedAt, status: snapshot.status, opponent: results.opponent, applications: snapshot.oneVsOneApplications,
+    generatedAt: snapshot.generatedAt,
+    status: snapshot.status,
+    opponent: (await getOneVsOneResults()).opponent,
+    applications: snapshot.oneVsOneApplications,
   });
   return response(200, snapshot);
 }

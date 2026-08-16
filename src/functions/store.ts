@@ -1,6 +1,6 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
-import type { OneVsOneApplication, OneVsOneResultsConfig, PromotionPost, RosterEntry, StreamerActivityPost, StreamerRecord } from "../shared/model.js";
+import type { DashboardSnapshot, OneVsOneApplication, OneVsOneResultsConfig, PromotionPost, RosterEntry, StreamerActivityPost, StreamerRecord } from "../shared/model.js";
 import { DEFAULT_ONE_VS_ONE_CONFIG } from "../shared/one-vs-one-results.js";
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}), {
@@ -138,4 +138,16 @@ export async function getSyncState(): Promise<SyncState | undefined> {
 
 export async function putSyncState(state: SyncState): Promise<void> {
   await client.send(new PutCommand({ TableName: tableName, Item: { PK: "SYNC", SK: "STATE", state } }));
+}
+
+export async function getDashboardSnapshot(): Promise<DashboardSnapshot | undefined> {
+  const output = await client.send(new GetCommand({ TableName: tableName, Key: { PK: "SNAPSHOT", SK: "CURRENT" } }));
+  return output.Item?.snapshot as DashboardSnapshot | undefined;
+}
+
+export async function putDashboardSnapshot(snapshot: DashboardSnapshot): Promise<void> {
+  await client.send(new PutCommand({
+    TableName: tableName,
+    Item: { PK: "SNAPSHOT", SK: "CURRENT", snapshot, updatedAt: snapshot.generatedAt },
+  }));
 }

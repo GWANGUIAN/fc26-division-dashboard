@@ -18,10 +18,13 @@ export async function loadSnapshot(): Promise<DashboardSnapshot> {
   // The Function URL is public read-only data.  Keep local development on the
   // sample snapshot while making the Cloudflare production build work without
   // requiring a dashboard secret or a manually configured build variable.
-  const url = import.meta.env.VITE_DATA_API_URL
-    ?? (import.meta.env.PROD ? "https://xu4v4zbffpa7gajxmoc2hdvpmi0abjzw.lambda-url.ap-northeast-2.on.aws/" : undefined);
+  // Production reads through the same-origin Cloudflare Worker cache. The
+  // Lambda Function URL is intentionally never exposed to site visitors.
+  const url = import.meta.env.PROD ? "/api/snapshot" : import.meta.env.VITE_DATA_API_URL;
   if (!url) return demo;
-  const response = await fetch(url, { headers: { Accept: "application/json" } });
+  // Cloudflare holds the shared 2-minute cache. Do not let a browser retain a
+  // stale snapshot longer than that edge window after a page reload.
+  const response = await fetch(url, { cache: "no-store", headers: { Accept: "application/json" } });
   if (!response.ok) throw new Error(`대시보드 데이터를 불러오지 못했습니다 (${response.status})`);
   return response.json() as Promise<DashboardSnapshot>;
 }
