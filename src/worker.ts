@@ -19,6 +19,10 @@ export interface Env {
 const API_CACHE_SECONDS = 120;
 const API_CACHE_VERSION = "v2";
 const HEALTH_MAX_SNAPSHOT_AGE_MS = 12 * 60 * 1_000;
+// Bump whenever the static entry bundle changes. It is used only for the
+// internal asset-binding request, bypassing the zone's broad cache rule while
+// retaining a stable public URL for cached HTML shells.
+const ASSET_REVISION = "20260817-cache-guard-1";
 const edgeCache = caches as unknown as { default: Cache };
 
 function apiOriginUrl(origin: string, path: string): string {
@@ -93,15 +97,26 @@ function healthResponse(status: number, statusText: string): Response {
   });
 }
 
-function serveAsset(request: Request, env: Env): Promise<Response> {
+async function serveAsset(request: Request, env: Env): Promise<Response> {
   const path = new URL(request.url).pathname;
   // A cached HTML shell can still refer to a previous Vite entry hash after a
   // deployment. The asset binding's SPA fallback would return index.html for
   // that missing JS/CSS file, preventing React from starting. Serve the
   // stable current entry instead until the cached shell naturally expires.
   const staleEntry = path.match(/^\/assets\/index-[^/]+\.(js|css)$/u);
-  if (staleEntry) return env.ASSETS.fetch(new Request(new URL(`/assets/app.${staleEntry[1]}`, request.url), request));
-  return env.ASSETS.fetch(request);
+  const assetUrl = new URL(staleEntry ? `/assets/app.${staleEntry[1]}` : request.url, request.url);
+  // Static asset resolution ignores this query when selecting the file, but
+  // Cloudflare's cache treats it as a new internal key for each revision.
+  assetUrl.searchParams.set("__dashboard_asset_revision", ASSET_REVISION);
+  const response = await env.ASSETS.fetch(new Request(assetUrl, request));
+  // Never let a zone-level Cache Everything rule preserve an HTML shell or
+  // entry bundle beyond the Worker revision that generated it.
+  if (path === "/" || path === "/index.html" || path === "/assets/app.js" || path === "/assets/app.css" || staleEntry) {
+    const headers = new Headers(response.headers);
+    headers.set("cache-control", "no-store");
+    return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+  }
+  return response;
 }
 
 export default {

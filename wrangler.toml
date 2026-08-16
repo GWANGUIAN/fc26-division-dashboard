@@ -6,3 +6,6 @@ main = "src/worker.ts"
 directory = "dist/web"
 binding = "ASSETS"
 not_found_handling = "single-page-application"
+# The zone has a broad cache rule. Run the Worker before asset resolution so
+# app shell and entry-bundle responses can be made deployment-safe below.
+run_worker_first = true
