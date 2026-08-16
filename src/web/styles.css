@@ -41,3 +41,8 @@ body { isolation: isolate; }
 .image-lightbox { position: fixed; z-index: 30; display: grid; place-items: center; inset: 0; padding: 46px 24px 24px; background: #000d0aef; backdrop-filter: blur(9px); }
 .image-lightbox .close { z-index: 1; color: #effff8; }
 .image-lightbox img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
+.modal, .feed { scrollbar-width: thin; scrollbar-color: #00e9ae8a #020805; }
+.modal::-webkit-scrollbar, .feed::-webkit-scrollbar { width: 8px; }
+.modal::-webkit-scrollbar-track, .feed::-webkit-scrollbar-track { border-left: 1px solid #ffffff0e; background: #020805; }
+.modal::-webkit-scrollbar-thumb, .feed::-webkit-scrollbar-thumb { border: 2px solid #020805; border-radius: 999px; background: linear-gradient(#00e9ae, #00a8bd); box-shadow: 0 0 10px #00e9ae70; }
+.modal::-webkit-scrollbar-thumb:hover, .feed::-webkit-scrollbar-thumb:hover { background: #7effda; }
