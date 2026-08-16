@@ -16,7 +16,11 @@ const demo: DashboardSnapshot = {
 };
 
 export async function loadSnapshot(): Promise<DashboardSnapshot> {
-  const url = import.meta.env.VITE_DATA_API_URL;
+  // The Function URL is public read-only data.  Keep local development on the
+  // sample snapshot while making the Cloudflare production build work without
+  // requiring a dashboard secret or a manually configured build variable.
+  const url = import.meta.env.VITE_DATA_API_URL
+    ?? (import.meta.env.PROD ? "https://xu4v4zbffpa7gajxmoc2hdvpmi0abjzw.lambda-url.ap-northeast-2.on.aws/" : undefined);
   if (!url) return demo;
   const response = await fetch(url, { headers: { Accept: "application/json" } });
   if (!response.ok) throw new Error(`대시보드 데이터를 불러오지 못했습니다 (${response.status})`);

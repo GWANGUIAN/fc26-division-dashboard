@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildOneVsOneApplications, calculateOneVsOneVerdict, isOneVsOneApplication } from "./one-vs-one.js";
 import { parseOneVsOneResults } from "./one-vs-one-results.js";
+import { parseRoster } from "./roster.js";
 import type { OneVsOneApplication, RosterEntry } from "./model.js";
 
 const application: OneVsOneApplication = {
@@ -32,5 +33,11 @@ describe("one vs one applications", () => {
   it("rejects duplicate IDs and invalid scores", () => {
     expect(() => parseOneVsOneResults(`opponent: { displayName: 우왁굳, soopId: ecvhao }\nresults:\n  - { applicationArticleId: "1", playedAt: "2026-08-15T20:00:00+09:00", candidateScore: -1, woowakgoodScore: 1 }`)).toThrow();
     expect(() => parseOneVsOneResults(`opponent: { displayName: 우왁굳, soopId: ecvhao }\nresults:\n  - { applicationArticleId: "1", playedAt: "2026-08-15T20:00:00+09:00", candidateScore: 1, woowakgoodScore: 1 }\n  - { applicationArticleId: "1", playedAt: "2026-08-15T20:00:00+09:00", candidateScore: 1, woowakgoodScore: 1 }`)).toThrow();
+  });
+
+  it("ignores entirely blank roster placeholders but rejects incomplete entries", () => {
+    expect(parseRoster(`streamers:\n  - { slug: live, displayName: 라이브, cafeAliases: [라이브], autoUpdate: true }\n  - { slug: '', displayName: '', cafeAliases: [''], soopId: '', autoUpdate: true }`)).toHaveLength(1);
+    expect(parseRoster(`streamers:\n  - { slug: '', displayName: 라이브, cafeAliases: [라이브], soopId: live, autoUpdate: true }`)[0]?.slug).toBe("live");
+    expect(() => parseRoster(`streamers:\n  - { slug: '', displayName: 라이브, cafeAliases: [라이브], autoUpdate: true }`)).toThrow();
   });
 });

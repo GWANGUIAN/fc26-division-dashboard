@@ -5,6 +5,8 @@ dist/
 *.tfvars
 *.tfstate
 *.tfstate.*
+infrastructure/config-sync-*.json
+*-response.json
 .env
 .env.*
 !.env.example

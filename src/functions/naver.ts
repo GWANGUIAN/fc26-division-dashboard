@@ -6,6 +6,9 @@ import { divisionForPost } from "../shared/promotion.js";
 
 const listUrl = (board: BoardId, page: number) => `${CAFE.baseUrl}/f-e/cafes/${CAFE.cafeId}/menus/${BOARDS[board].menuId}?page=${page}`;
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+// Naver's Korean ARIA labels are not stable across its rendering surfaces.
+// The article URL shape is the durable public contract of the list table.
+const articleListTable = 'table:has(a[href*="/articles/"])';
 
 export class SourceBlockedError extends Error {}
 export interface ListedPost { articleId: string; title: string; category: string; cafeAuthor: string; publishedAt: string; articleUrl: string }
@@ -42,11 +45,11 @@ export async function collectPage(board: BoardId, pageNumber: number): Promise<L
     await withRetries(async () => {
       const response = await page.goto(listUrl(board, pageNumber), { waitUntil: "domcontentloaded", timeout: 25_000 });
       if (!response || response.status() === 429 || response.status() >= 500) throw new Error(`Naver returned ${response?.status()}`);
-      await page.locator('table[aria-label="게시글 목록"]').waitFor({ timeout: 12_000 });
+      await page.locator(articleListTable).first().waitFor({ timeout: 20_000 });
     });
     const blocked = await page.locator("body").innerText();
     if (/captcha|자동입력|비정상적인 접근|접근이 제한/u.test(blocked)) throw new SourceBlockedError("Naver blocked automated collection");
-    return page.locator('table[aria-label="게시글 목록"] tbody tr').evaluateAll((rows) => rows.map((row) => {
+    const listedPosts = await page.locator(`${articleListTable} tbody tr`).evaluateAll((rows) => rows.map((row) => {
       const cells = Array.from(row.querySelectorAll("td"));
       const first = cells[0]?.textContent?.trim() ?? "";
       const link = row.querySelector<HTMLAnchorElement>('a[href*="/articles/"]');
@@ -58,12 +61,20 @@ export async function collectPage(board: BoardId, pageNumber: number): Promise<L
       const date = cells[3]?.textContent?.trim() ?? "";
       return { articleId, title, category, cafeAuthor: author, publishedAt: date, articleUrl: href ?? "" };
     }).filter((row) => /^\d+$/u.test(row.articleId) && row.title));
+    return listedPosts;
   } finally { await browser.close(); }
 }
 
 export async function collectArticle(listed: ListedPost, board: BoardId = "division"): Promise<PromotionPost | undefined> {
   const division = divisionForPost(listed);
   if (!division) return undefined;
+  const fallback: PromotionPost = {
+    ...listed,
+    publishedAt: normalizeCafeDate(listed.publishedAt),
+    division,
+    articleUrl: listed.articleUrl || cafeArticleUrl(listed.articleId, BOARDS[board].menuId),
+    imageUrls: [],
+  };
   const browser = await browserLaunch();
   try {
     const page = await browser.newPage({ locale: "ko-KR", timezoneId: "Asia/Seoul" });
@@ -81,6 +92,12 @@ export async function collectArticle(listed: ListedPost, board: BoardId = "divis
       width: (image as HTMLImageElement).naturalWidth,
       height: (image as HTMLImageElement).naturalHeight,
     }))));
-    return { ...listed, publishedAt: normalizeCafeDate(listed.publishedAt), division, articleUrl: listed.articleUrl || cafeArticleUrl(listed.articleId, BOARDS[board].menuId), imageUrls };
+    return { ...fallback, imageUrls };
+  } catch (error) {
+    // Keep rank reporting available when a transient detail-page render fails.
+    // CAPTCHA/explicit access blocking remains a hard failure and is never bypassed.
+    if (error instanceof SourceBlockedError) throw error;
+    console.warn(`Article image collection skipped for ${listed.articleId}: ${(error as Error).message}`);
+    return fallback;
   } finally { await browser.close(); }
 }

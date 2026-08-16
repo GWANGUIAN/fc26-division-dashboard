@@ -3,7 +3,9 @@ import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand } from "@aw
 import type { OneVsOneApplication, OneVsOneResultsConfig, PromotionPost, RosterEntry, StreamerRecord } from "../shared/model.js";
 import { DEFAULT_ONE_VS_ONE_CONFIG } from "../shared/one-vs-one-results.js";
 
-const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
+const client = DynamoDBDocumentClient.from(new DynamoDBClient({}), {
+  marshallOptions: { removeUndefinedValues: true },
+});
 const tableName = process.env.TABLE_NAME!;
 if (!tableName) throw new Error("TABLE_NAME is required");
 

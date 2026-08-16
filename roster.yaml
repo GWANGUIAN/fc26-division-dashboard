@@ -1,19 +1,115 @@
 # Git에서 관리하는 스트리머 매핑 및 수동 보정 목록입니다.
 # cafeAliases는 카페에 보이는 작성자 이름을 정확히 적습니다.
 streamers:
-  - slug: moonmomo
-    displayName: 문모모
-    cafeAliases: ["문 모모", "문모모"]
-    soopId: ""
+  - slug: villlo
+    displayName: 왜냐니
+    cafeAliases: ["왜냐니"]
+    soopId: "villlo"
     autoUpdate: true
     override:
       division: null
       policy: auto
-  - slug: example-pinned
-    displayName: 예시 스트리머
-    cafeAliases: ["예시카페닉"]
-    soopId: ""
+  - slug: ddalgishoux
+    displayName: 딸기슈몽이♡
+    cafeAliases: ["딸기슈몽이"]
+    soopId: "ddalgishoux"
     autoUpdate: true
     override:
-      division: 7
-      policy: until-next-post
+      division: null
+      policy: auto
+  - slug: nlsb9718
+    displayName: 판다비♥
+    cafeAliases: ["판다비"]
+    soopId: "nlsb9718"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: janine95kim
+    displayName: 재닌
+    cafeAliases: ["김재닌"]
+    soopId: "janine95kim"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: sookbong777
+    displayName: 숙봉이
+    cafeAliases: ["숙봉이"]
+    soopId: "sookbong777"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: dokkhye0000
+    displayName: 독고혜지
+    cafeAliases: ["독고혜지"]
+    soopId: "dokkhye0000"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: bboringirl
+    displayName: 뽀린걸
+    cafeAliases: ["뽀린걸"]
+    soopId: "bboringirl"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: sjh4018
+    displayName: 핑구
+    cafeAliases: ["필규"]
+    soopId: "sjh4018"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: qna0906
+    displayName: 큐나
+    cafeAliases: ["큐나"]
+    soopId: "qna0906"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: 
+    displayName: 투냥츠
+    cafeAliases: ["투냥츠"]
+    soopId: "toocats"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: 
+    displayName: 문모모
+    cafeAliases: ["문 모모"]
+    soopId: "doormomo"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: 
+    displayName: 마이곰이
+    cafeAliases: ["마이곰이"]
+    soopId: "mygomiee"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: 
+    displayName: 찌미
+    cafeAliases: ["찌 미"]
+    soopId: "zzimio3o"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: 
+    displayName: 하치_HACHI
+    cafeAliases: ["하치HACHI"]
+    soopId: "hachi97"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto

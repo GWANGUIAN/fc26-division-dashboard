@@ -11,7 +11,8 @@ $RepositoryUri = "$AccountId.dkr.ecr.$Region.amazonaws.com/$ProjectName"
 aws ecr get-login-password --region $Region |
   docker login --username AWS --password-stdin "$AccountId.dkr.ecr.$Region.amazonaws.com"
 
-docker build --tag "$RepositoryUri`:$ImageTag" .
+# Lambda only accepts a single Docker manifest; disable BuildKit attestations that create an OCI image index.
+docker build --provenance=false --sbom=false --tag "$RepositoryUri`:$ImageTag" .
 docker push "$RepositoryUri`:$ImageTag"
 
 Write-Host "Image published: $RepositoryUri`:$ImageTag"
