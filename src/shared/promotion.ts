@@ -30,6 +30,13 @@ function newest(posts: PromotionPost[]): PromotionPost | undefined {
   return [...posts].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))[0];
 }
 
+function chronological(posts: PromotionPost[]): PromotionPost[] {
+  return [...posts].sort((left, right) =>
+    left.publishedAt.localeCompare(right.publishedAt)
+    || Number(left.articleId) - Number(right.articleId)
+    || left.articleId.localeCompare(right.articleId));
+}
+
 function automaticDivision(posts: PromotionPost[]): number | undefined {
   return posts.reduce<number | undefined>((best, post) =>
     best === undefined ? post.division : Math.min(best, post.division), undefined);
@@ -80,6 +87,7 @@ export function buildStreamerRecords(posts: PromotionPost[], roster: RosterEntry
       overrideDivision: override.division ?? undefined,
       currentDivision,
       lastPost: newest(entryPosts),
+      promotionHistory: entryPosts.length ? chronological(entryPosts) : undefined,
       previousPromotionPosts: history.length ? history : undefined,
       isMapped: true,
     };
@@ -98,6 +106,7 @@ export function buildStreamerRecords(posts: PromotionPost[], roster: RosterEntry
       overridePolicy: "auto",
       currentDivision: division,
       lastPost,
+      promotionHistory: chronological(entryPosts),
       previousPromotionPosts: previousPromotionPosts(entryPosts, division),
       isMapped: false,
     });

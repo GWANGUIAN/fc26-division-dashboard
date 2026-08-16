@@ -19,6 +19,8 @@ export interface PromotionPost {
   title: string;
   category: string;
   publishedAt: string;
+  /** Whether Naver exposed an exact posting time or only a calendar date. */
+  publishedAtPrecision?: "time" | "date";
   division: number;
   articleUrl: string;
   imageUrls: string[];
@@ -52,6 +54,8 @@ export interface StreamerRecord {
   overrideDivision?: number;
   currentDivision: number;
   lastPost?: PromotionPost;
+  /** Every collected division report, ordered from oldest to newest. */
+  promotionHistory?: PromotionPost[];
   /** Earlier rank reports, excluding the streamer's current division. */
   previousPromotionPosts?: PromotionPost[];
   scopePosts?: StreamerActivityPost[];

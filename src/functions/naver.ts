@@ -92,6 +92,11 @@ export function normalizeCafeDate(value: string): string {
   return `${today}T${/^\d{1,2}:\d{2}$/u.test(text) ? text.padStart(5, "0") : "00:00"}:00+09:00`;
 }
 
+export function cafeDatePrecision(value: string): "time" | "date" {
+  const text = value.trim();
+  return /^\d{4}\.\d{2}\.\d{2}\.$/u.test(text) ? "date" : "time";
+}
+
 export async function collectPage(board: BoardId, pageNumber: number): Promise<ListedPost[]> {
   const browser = await browserLaunch();
   try {
@@ -130,6 +135,7 @@ export async function collectArticle(listed: ListedPost, board: BoardId = "divis
   const fallback: PromotionPost = {
     ...article,
     publishedAt: normalizeCafeDate(listed.publishedAt),
+    publishedAtPrecision: cafeDatePrecision(listed.publishedAt),
     division,
     articleUrl: listed.articleUrl || cafeArticleUrl(listed.articleId, BOARDS[board].menuId),
     imageUrls: [],

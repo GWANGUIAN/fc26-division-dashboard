@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import type { DashboardSnapshot, OneVsOneApplicationView, PromotionPost, SoopProfileTag, StreamerActivityPost, StreamerRecord } from "../shared/model.js";
 import { defaultSoopProfileUrl, soopChannelUrl } from "../shared/model.js";
 import { DEFAULT_ONE_VS_ONE_CONFIG } from "../shared/one-vs-one-results.js";
+import { buildPromotionTimeline, summarizePromotionTimeline } from "../shared/promotion-timeline.js";
 import { loadSnapshot } from "./api.js";
 import soopIcon from "./assets/soop_icon.svg";
 
@@ -34,6 +35,22 @@ function formatCafePostDate(value?: string) {
     return new Intl.DateTimeFormat("ko-KR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" }).format(date);
   }
   return new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit", timeZone: "Asia/Seoul" }).format(date);
+}
+
+function formatTimelineDate(value: string) {
+  return new Intl.DateTimeFormat("ko-KR", { month: "long", day: "numeric", timeZone: "Asia/Seoul" }).format(new Date(`${value}T00:00:00+09:00`));
+}
+
+function formatTimelineTime(value: string) {
+  return new Intl.DateTimeFormat("ko-KR", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Seoul" }).format(new Date(value));
+}
+
+function formatDuration(milliseconds: number) {
+  const minutes = Math.round(milliseconds / 60_000);
+  if (minutes < 60) return `${minutes}분`;
+  const hours = Math.floor(minutes / 60);
+  const restMinutes = minutes % 60;
+  return restMinutes ? `${hours}시간 ${restMinutes}분` : `${hours}시간`;
 }
 
 const tagStyle: Record<SoopProfileTag, string> = { "파트너": "partner", "베스트": "best", "루키존": "rookie", "스포츠": "sports", "서포터즈": "supporters" };
@@ -99,16 +116,52 @@ function StreamerActivitySection({ title, posts }: { title: string; posts?: Stre
   </section>;
 }
 
-function PreviousPromotionSection({ posts }: { posts?: PromotionPost[] }) {
+function PromotionTimeline({ posts }: { posts: PromotionPost[] }) {
+  const events = buildPromotionTimeline(posts);
+  const summary = summarizePromotionTimeline(events);
+  if (!summary || events.length < 2) return null;
+  const groups = events.reduce<{ dateKey: string; events: typeof events }[]>((items, event) => {
+    const group = items.at(-1);
+    if (group?.dateKey === event.dateKey) group.events.push(event);
+    else items.push({ dateKey: event.dateKey, events: [event] });
+    return items;
+  }, []);
+  let index = 0;
+  return <section className="promotion-timeline" aria-labelledby="promotion-timeline-title">
+    <div className="promotion-timeline__heading"><div><p className="eyebrow">PROMOTION JOURNEY</p><h3 id="promotion-timeline-title">승급 여정</h3></div><span>{summary.startDivision}부 <i>→</i> {summary.currentDivision}부</span></div>
+    <div className="promotion-timeline__stats" aria-label="승급 여정 요약"><span><b>{summary.promotionCount}</b>회 실제 승급</span><span><b>{summary.exactDurationMs !== undefined ? formatDuration(summary.exactDurationMs) : `${summary.calendarDays}일`}</b> {summary.exactDurationMs !== undefined ? "소요" : "확인된 기간"}</span></div>
+    <div className="promotion-timeline__track">
+      {groups.map((group) => <div className="promotion-timeline__day" key={group.dateKey}>
+        <p>{formatTimelineDate(group.dateKey)}{group.events.some((event) => event.precision === "date") && <small>시간 미상</small>}</p>
+        <div className="promotion-timeline__events">
+          {group.events.map((event, eventIndex) => {
+            const previous = group.events[eventIndex - 1];
+            const interval = previous?.precision === "time" && event.precision === "time"
+              ? Date.parse(event.post.publishedAt) - Date.parse(previous.post.publishedAt)
+              : undefined;
+            const delay = index++ * 85;
+            return <div className="promotion-timeline__event" key={event.post.articleId}>
+              {interval !== undefined && interval >= 0 && <span className="promotion-timeline__interval">{formatDuration(interval)} 후</span>}
+              <a className="promotion-timeline__node" href={event.post.articleUrl} target="_blank" rel="noreferrer" style={{ animationDelay: `${delay}ms` }} aria-label={`${event.post.division}부 승격 게시글 보기`}><b>D{event.post.division}</b><span>{event.precision === "time" ? formatTimelineTime(event.post.publishedAt) : "날짜만 확인"}</span></a>
+            </div>;
+          })}
+        </div>
+      </div>)}
+    </div>
+    <p className="promotion-timeline__notice">일부 과거 게시글은 카페 제공 정보상 날짜만 표시됩니다.</p>
+  </section>;
+}
+
+function PreviousPromotionSection({ posts, history }: { posts?: PromotionPost[]; history?: PromotionPost[] }) {
   const [isOpen, setIsOpen] = useState(false);
   if (!posts?.length) return null;
   return <section className="streamer-activity promotion-history">
     <button className="streamer-activity__heading promotion-history__toggle" type="button" onClick={() => setIsOpen((current) => !current)} aria-expanded={isOpen}>
       <span>이전 승격 게시글</span><span className="promotion-history__meta"><b>{posts.length}</b><span className="promotion-history__icon" aria-hidden="true">{isOpen ? <ChevronUp /> : <ChevronDown />}</span></span>
     </button>
-    {isOpen && <div className="streamer-activity__posts">{posts.map((post) => <a href={post.articleUrl} target="_blank" rel="noreferrer" key={post.articleId}>
+    {isOpen && <><PromotionTimeline posts={history ?? posts} /><div className="streamer-activity__posts">{posts.map((post) => <a href={post.articleUrl} target="_blank" rel="noreferrer" key={post.articleId}>
       <span className="promotion-history__category">{post.category}</span><strong>{post.title}</strong><time>{formatCafePostDate(post.publishedAt)}</time>
-    </a>)}</div>}
+    </a>)}</div></>}
   </section>;
 }
 
@@ -119,7 +172,7 @@ function DetailModal({ streamer, onClose }: { streamer: StreamerRecord; onClose:
   useEscape(() => expandedImage ? setExpandedImage(undefined) : onClose());
   return <Modal onClose={onClose} label="디비전 상세" header={<div className="modal__identity"><Avatar {...streamer} /><div><span className="eyebrow">CURRENT DIVISION</span><h2>{streamer.displayName} <b>{streamer.currentDivision}부</b></h2><SoopTags tags={streamer.soopTags} />{!streamer.isMapped && <p>카페 작성자 · SOOP 정보 미연결</p>}</div></div>}>
     {post ? <><div className="report"><span>{post.category}</span><h3>{post.title}</h3><time>{formatCafePostDate(post.publishedAt)}</time></div>{post.imageUrls.length > 0 && <div className="gallery">{post.imageUrls.map((url, index) => <button className="gallery__image" type="button" onClick={() => setExpandedImage(url)} aria-label={`${streamer.displayName} 게시글 이미지 확대`} key={url}><img src={url} alt={`${streamer.displayName} 게시글 이미지`} loading={index === 0 ? "eager" : "lazy"} referrerPolicy="no-referrer" /></button>)}</div>}</> : <p className="empty-detail">아직 확인된 디비전 보고 게시글이 없습니다.</p>}
-    <PreviousPromotionSection posts={streamer.previousPromotionPosts} />
+    <PreviousPromotionSection posts={streamer.previousPromotionPosts} history={streamer.promotionHistory} />
     <StreamerActivitySection title="잔디동 스코프" posts={streamer.scopePosts} />
     <StreamerActivitySection title="11대 11 플레이 영상" posts={streamer.elevenVsElevenPosts} />
     <div className="actions">{post && <CafeLink href={post.articleUrl} />}{channel && <SoopLink href={channel}>SOOP 방송국 ↗</SoopLink>}</div>
