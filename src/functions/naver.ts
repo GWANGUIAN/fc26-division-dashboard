@@ -11,7 +11,15 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const articleListTable = 'table:has(a[href*="/articles/"])';
 
 export class SourceBlockedError extends Error {}
-export interface ListedPost { articleId: string; title: string; category: string; cafeAuthor: string; publishedAt: string; articleUrl: string }
+export interface ListedPost {
+  articleId: string;
+  title: string;
+  category: string;
+  cafeAuthor: string;
+  publishedAt: string;
+  articleUrl: string;
+  isNotice?: boolean;
+}
 
 async function browserLaunch() {
   return playwright.launch({
@@ -62,7 +70,7 @@ export async function collectPage(board: BoardId, pageNumber: number): Promise<L
       const category = link?.querySelector(".article-board-tag, strong, em")?.textContent?.trim() ?? title.match(/^\[[^\]]+\]/u)?.[0] ?? "";
       const author = cells[2]?.textContent?.replace(/멤버등급.*/u, "").trim() ?? "";
       const date = cells[3]?.textContent?.trim() ?? "";
-      return { articleId, title, category, cafeAuthor: author, publishedAt: date, articleUrl: href ?? "" };
+      return { articleId, title, category, cafeAuthor: author, publishedAt: date, articleUrl: href ?? "", isNotice: /공지/u.test(first) };
     }).filter((row) => /^\d+$/u.test(row.articleId) && row.title));
     return listedPosts;
   } finally { await browser.close(); }
@@ -71,8 +79,9 @@ export async function collectPage(board: BoardId, pageNumber: number): Promise<L
 export async function collectArticle(listed: ListedPost, board: BoardId = "division"): Promise<PromotionPost | undefined> {
   const division = divisionForPost(listed);
   if (!division) return undefined;
+  const { isNotice: _isNotice, ...article } = listed;
   const fallback: PromotionPost = {
-    ...listed,
+    ...article,
     publishedAt: normalizeCafeDate(listed.publishedAt),
     division,
     articleUrl: listed.articleUrl || cafeArticleUrl(listed.articleId, BOARDS[board].menuId),

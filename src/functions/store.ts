@@ -1,6 +1,6 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
-import type { OneVsOneApplication, OneVsOneResultsConfig, PromotionPost, RosterEntry, StreamerRecord } from "../shared/model.js";
+import type { OneVsOneApplication, OneVsOneResultsConfig, PromotionPost, RosterEntry, StreamerActivityPost, StreamerRecord } from "../shared/model.js";
 import { DEFAULT_ONE_VS_ONE_CONFIG } from "../shared/one-vs-one-results.js";
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}), {
@@ -63,6 +63,24 @@ export async function putOneVsOneApplication(application: OneVsOneApplication): 
   }
 }
 
+export async function getStreamerActivityPosts(): Promise<StreamerActivityPost[]> {
+  return (await scanByPartition<Item & { post: StreamerActivityPost }>("STREAMER_ACTIVITY_POST")).map((item) => item.post);
+}
+
+export async function putStreamerActivityPost(post: StreamerActivityPost): Promise<boolean> {
+  try {
+    await client.send(new PutCommand({
+      TableName: tableName,
+      Item: { PK: "STREAMER_ACTIVITY_POST", SK: `${post.board}#${post.articleId}`, post, createdAt: new Date().toISOString() },
+      ConditionExpression: "attribute_not_exists(PK)",
+    }));
+    return true;
+  } catch (error) {
+    if ((error as { name?: string }).name === "ConditionalCheckFailedException") return false;
+    throw error;
+  }
+}
+
 export async function getRoster(): Promise<RosterEntry[]> {
   const output = await client.send(new GetCommand({ TableName: tableName, Key: { PK: "ROSTER", SK: "CONFIG" } }));
   return (output.Item?.streamers as RosterEntry[] | undefined) ?? [];
@@ -102,7 +120,12 @@ export interface BoardProgress { page?: number; latestArticleId?: string }
 export interface SyncState {
   page?: number;
   latestArticleId?: string;
-  boards?: { division?: BoardProgress; oneVsOne?: BoardProgress };
+  boards?: {
+    scope?: BoardProgress;
+    division?: BoardProgress;
+    elevenVsEleven?: BoardProgress;
+    oneVsOne?: BoardProgress;
+  };
   status: "ok" | "degraded";
   message?: string;
   updatedAt: string;

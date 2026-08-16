@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import type { DashboardSnapshot, OneVsOneApplicationView, SoopProfileTag, StreamerRecord } from "../shared/model.js";
+import type { DashboardSnapshot, OneVsOneApplicationView, SoopProfileTag, StreamerActivityPost, StreamerRecord } from "../shared/model.js";
 import { defaultSoopProfileUrl, soopChannelUrl } from "../shared/model.js";
 import { DEFAULT_ONE_VS_ONE_CONFIG } from "../shared/one-vs-one-results.js";
 import { loadSnapshot } from "./api.js";
@@ -50,12 +50,23 @@ function StreamerCard({ streamer, onOpen }: { streamer: StreamerRecord; onOpen: 
   </button>;
 }
 
+function StreamerActivitySection({ title, posts }: { title: string; posts?: StreamerActivityPost[] }) {
+  return <section className="streamer-activity">
+    <div className="streamer-activity__heading"><span>{title}</span><b>{posts?.length ?? 0}</b></div>
+    {posts?.length ? <div className="streamer-activity__posts">{posts.map((post) => <a href={post.articleUrl} target="_blank" rel="noreferrer" key={`${post.board}:${post.articleId}`}>
+      <strong>{post.title}</strong><time>{formatCafePostDate(post.publishedAt)}</time>
+    </a>)}</div> : <p>등록된 게시글 없음</p>}
+  </section>;
+}
+
 function DetailModal({ streamer, onClose }: { streamer: StreamerRecord; onClose: () => void }) {
   const post = streamer.lastPost;
   const channel = soopChannelUrl(streamer.soopId);
   useEscape(onClose);
   return <Modal onClose={onClose} label="디비전 상세"><div className="modal__identity"><Avatar {...streamer} /><div><span className="eyebrow">CURRENT DIVISION</span><h2>{streamer.displayName} <b>{streamer.currentDivision}부</b></h2><SoopTags tags={streamer.soopTags} /><p>{streamer.isMapped ? "SOOP 스트리머 정보 연동됨" : "카페 작성자 · SOOP 정보 미연결"}</p></div></div>
     {post ? <><div className="report"><span>{post.category}</span><h3>{post.title}</h3><time>{formatCafePostDate(post.publishedAt)}</time></div>{post.imageUrls.length > 0 && <div className="gallery">{post.imageUrls.map((url) => <img src={url} alt={`${streamer.displayName} 게시글 이미지`} key={url} loading="lazy" />)}</div>}</> : <p className="empty-detail">아직 확인된 디비전 보고 게시글이 없습니다.</p>}
+    <StreamerActivitySection title="잔디동 스코프" posts={streamer.scopePosts} />
+    <StreamerActivitySection title="11대 11 플레이 영상" posts={streamer.elevenVsElevenPosts} />
     <div className="actions">{post && <CafeLink href={post.articleUrl} />}{channel && <SoopLink href={channel}>SOOP 방송국 ↗</SoopLink>}</div>
   </Modal>;
 }

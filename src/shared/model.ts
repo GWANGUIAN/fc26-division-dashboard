@@ -24,6 +24,18 @@ export interface PromotionPost {
   imageUrls: string[];
 }
 
+export type StreamerActivityBoard = "scope" | "elevenVsEleven";
+
+export interface StreamerActivityPost {
+  articleId: string;
+  board: StreamerActivityBoard;
+  cafeAuthor: string;
+  title: string;
+  category: string;
+  publishedAt: string;
+  articleUrl: string;
+}
+
 export interface StreamerRecord {
   id: string;
   displayName: string;
@@ -36,6 +48,8 @@ export interface StreamerRecord {
   overrideDivision?: number;
   currentDivision: number;
   lastPost?: PromotionPost;
+  scopePosts?: StreamerActivityPost[];
+  elevenVsElevenPosts?: StreamerActivityPost[];
   isMapped: boolean;
 }
 
@@ -54,7 +68,9 @@ export const CAFE = {
 };
 
 export const BOARDS = {
+  scope: { menuId: "1358", name: "잔디동 스코프" },
   division: { menuId: "1359", name: "디비전 보고소" },
+  elevenVsEleven: { menuId: "1360", name: "11대 11 플레이 영상" },
   oneVsOne: { menuId: "1361", name: "1대1 평가 신청" },
 } as const;
 
