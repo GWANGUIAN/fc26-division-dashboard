@@ -1,6 +1,8 @@
 name = "fc26-division-dashboard"
 compatibility_date = "2026-08-16"
+main = "src/worker.ts"
 
 [assets]
 directory = "dist/web"
+binding = "ASSETS"
 not_found_handling = "single-page-application"
