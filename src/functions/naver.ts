@@ -61,7 +61,11 @@ export async function collectPage(board: BoardId, pageNumber: number): Promise<L
     await withRetries(async () => {
       const response = await page.goto(listUrl(board, pageNumber), { waitUntil: "domcontentloaded", timeout: 25_000 });
       if (!response || response.status() === 429 || response.status() >= 500) throw new Error(`Naver returned ${response?.status()}`);
-      await page.locator(articleListTable).first().waitFor({ timeout: 20_000 });
+      // Empty boards do not render an article-link table at all.  Waiting for
+      // that exact selector made a valid empty 11v11 board look like a failed
+      // collection and prevented the already-collected division posts from
+      // being aggregated into streamer records.
+      await page.locator("table").first().waitFor({ timeout: 20_000 });
     });
     const blocked = await page.locator("body").innerText();
     if (/captcha|자동입력|비정상적인 접근|접근이 제한/u.test(blocked)) throw new SourceBlockedError("Naver blocked automated collection");
