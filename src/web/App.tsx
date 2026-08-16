@@ -3,6 +3,7 @@ import type { DashboardSnapshot, OneVsOneApplicationView, SoopProfileTag, Stream
 import { defaultSoopProfileUrl, soopChannelUrl } from "../shared/model.js";
 import { DEFAULT_ONE_VS_ONE_CONFIG } from "../shared/one-vs-one-results.js";
 import { loadSnapshot } from "./api.js";
+import soopIcon from "./assets/soop_icon.svg";
 
 const divisions = Array.from({ length: 10 }, (_, index) => index + 1);
 const cafeIcon = "N";
@@ -42,11 +43,12 @@ function DetailModal({ streamer, onClose }: { streamer: StreamerRecord; onClose:
   useEscape(onClose);
   return <Modal onClose={onClose} label="디비전 상세"><div className="modal__identity"><Avatar {...streamer} /><div><span className="eyebrow">CURRENT DIVISION</span><h2>{streamer.displayName} <b>{streamer.currentDivision}부</b></h2><SoopTags tags={streamer.soopTags} /><p>{streamer.isMapped ? "SOOP 스트리머 정보 연동됨" : "카페 작성자 · SOOP 정보 미연결"}</p></div></div>
     {post ? <><div className="report"><span>{post.category}</span><h3>{post.title}</h3><time>{formatDate(post.publishedAt)}</time></div>{post.imageUrls.length > 0 && <div className="gallery">{post.imageUrls.map((url) => <img src={url} alt={`${streamer.displayName} 게시글 이미지`} key={url} loading="lazy" />)}</div>}</> : <p className="empty-detail">아직 확인된 디비전 보고 게시글이 없습니다.</p>}
-    <div className="actions">{post && <CafeLink href={post.articleUrl} />}{channel && <a className="action soop" href={channel} target="_blank" rel="noreferrer">SOOP 방송국 ↗</a>}</div>
+    <div className="actions">{post && <CafeLink href={post.articleUrl} />}{channel && <SoopLink href={channel}>SOOP 방송국 ↗</SoopLink>}</div>
   </Modal>;
 }
 
 function CafeLink({ href, label = "네이버 카페 원문" }: { href: string; label?: string }) { return <a className="action cafe" href={href} target="_blank" rel="noreferrer"><i>{cafeIcon}</i> {label}</a>; }
+function SoopLink({ href, children }: { href: string; children: ReactNode }) { return <a className="action soop" href={href} target="_blank" rel="noreferrer"><img className="soop-icon" src={soopIcon} alt="" />{children}</a>; }
 
 function Modal({ children, onClose, label }: { children: ReactNode; onClose: () => void; label: string }) {
   return <div className="modal-backdrop" role="presentation" onMouseDown={onClose}><section className="modal" role="dialog" aria-modal="true" aria-label={label} onMouseDown={(event) => event.stopPropagation()}><button className="close" onClick={onClose} aria-label="닫기">×</button>{children}</section></div>;
@@ -70,7 +72,7 @@ function EvaluationModal({ application, onClose }: { application: OneVsOneApplic
   return <Modal onClose={onClose} label="1대1 평가 상세"><div className="modal__identity"><Avatar {...application} /><div><span className="eyebrow">ONE VS ONE APPLICATION</span><h2>{application.displayName}</h2><SoopTags tags={application.soopTags} /><p>{application.cafeAuthor} · 신청 {formatDate(application.publishedAt)}</p></div></div>
     <div className="report"><span>{application.category}</span><h3>{application.title}</h3></div>
     {result ? <section className="scoreboard"><p className="eyebrow">MATCH RESULT</p><div className="scoreboard__players"><span>{application.displayName}</span><span>{opponent.displayName}<SoopTags tags={opponent.soopTags} /></span></div><strong>{result.candidateScore}<i>:</i>{result.woowakgoodScore}</strong><time>대결 일시 · {formatDate(result.playedAt)}</time><div className="verdict"><b>{result.verdict}</b><p>{result.detail}</p>{result.note && <small>{result.note}</small>}</div></section> : <p className="empty-detail">대결 결과가 아직 등록되지 않았습니다. 결과가 확정되면 이 카드에 공지 기준 판정이 표시됩니다.</p>}
-    <div className="actions"><CafeLink href={application.articleUrl} label="신청글" />{application.soopId && <a className="action soop" href={soopChannelUrl(application.soopId)} target="_blank" rel="noreferrer">신청자 SOOP ↗</a>}<a className="action soop" href={soopChannelUrl(opponent.soopId)} target="_blank" rel="noreferrer">우왁굳 SOOP ↗</a></div>
+    <div className="actions"><CafeLink href={application.articleUrl} label="신청글" />{application.soopId && <SoopLink href={soopChannelUrl(application.soopId)!}>신청자 SOOP ↗</SoopLink>}<SoopLink href={soopChannelUrl(opponent.soopId)!}>우왁굳 SOOP ↗</SoopLink></div>
   </Modal>;
 }
 
@@ -92,7 +94,7 @@ export function App() {
     <section className="hero" id="top"><div><p className="eyebrow">FC26 · {isDivision ? "SEASON DIVISION BOARD" : "ONE VS ONE EVALUATION"}</p><h1>{isDivision ? <>잰디 <mark>동아리 후보</mark><br />대시보드</> : <>1:1 <mark>평가 신청</mark><br />현황</>}</h1><p className="intro">{isDivision ? "카페에 보고된 FC26 디비전 승격 현황을 추적합니다." : "1대1 평가 신청 게시글과 운영자가 등록한 대결 결과를 표시합니다."}</p></div><div className="sync"><span className="sync-dot" /> <b>3 MINUTE REFRESH</b><small><span className="refresh-icon" aria-hidden="true">↻</span> 3분마다 갱신 · {snapshot ? `${formatDate(snapshot.generatedAt)} 기준` : "데이터 연결 중"}</small></div></section>
     <section className="controls" aria-label={isDivision ? "스트리머 검색" : "평가 신청 필터"}><label><span className="sr-only">검색</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="이름 또는 카페 닉네임 검색" /></label>{!isDivision && <div className="segmented">{(["all", "pending", "completed"] as const).map((value) => <button key={value} className={evaluationFilter === value ? "active" : ""} onClick={() => setEvaluationFilter(value)}>{value === "all" ? "전체" : value === "pending" ? "대결 전" : "대결 완료"}</button>)}</div>}</section>
     {isDivision ? <section className="board" aria-label="FC26 디비전 보드">{divisions.map((division) => { const entries = streamers.filter((streamer) => streamer.currentDivision === division); return <section className={`division division-${division}`} key={division}><div className="division__label"><span>{division === 10 ? "SEASON" : "DIVISION"}</span><strong>{division}</strong>{division === 10 && <small>미참여</small>}</div><div className="division__players">{entries.map((streamer) => <StreamerCard key={streamer.id} streamer={streamer} onOpen={() => setSelected(streamer)} />)}{entries.length === 0 && <p className="vacant">{division === 10 ? "시즌 미참여 후보 없음" : "후보 대기 중"}</p>}</div></section>; })}</section> : <section className="evaluation-list" aria-label="1대1 평가 신청 목록">{applications.map((application) => <EvaluationCard key={application.articleId} application={application} onOpen={() => setSelectedApplication(application)} />)}{applications.length === 0 && <p className="empty-list">표시할 1대1 평가 신청자가 없습니다.</p>}</section>}
-    <footer>공개 카페 게시글 기반 · 마지막 동기화 {snapshot ? formatDate(snapshot.generatedAt) : "확인 중"}</footer>
+    <footer>왁물원 카페 게시글 기반 · 마지막 동기화 {snapshot ? formatDate(snapshot.generatedAt) : "확인 중"}</footer>
     {selected && <DetailModal streamer={selected} onClose={() => setSelected(undefined)} />}{selectedApplication && <EvaluationModal application={selectedApplication} onClose={() => setSelectedApplication(undefined)} />}
     {feedOpen && <div className="modal-backdrop" role="presentation" onMouseDown={() => setFeedOpen(false)}><aside className="feed" role="dialog" aria-modal="true" aria-label="최신 소식" onMouseDown={(event) => event.stopPropagation()}><button className="close" onClick={() => setFeedOpen(false)} aria-label="닫기">×</button><p className="eyebrow">LATEST REPORTS</p><h2>최신 소식</h2>{latest.slice(0, 25).map((post) => <a href={post.articleUrl} target="_blank" rel="noreferrer" key={post.articleId}><span>{post.category}</span><strong>{post.title}</strong><small>{post.cafeAuthor} · {formatDate(post.publishedAt)}</small></a>)}</aside></div>}
   </main>;

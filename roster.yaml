@@ -162,9 +162,929 @@ streamers:
       division: null
       policy: auto
   - slug: 
-    displayName: 
+    displayName: 매그피이
+    cafeAliases: ["매그피이"]
+    soopId: "alskflcb123"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: 
+    displayName: 쿠리_KURI
+    cafeAliases: ["쿠리"]
+    soopId: "yumeka89"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: 
+    displayName: 찰리씨
+    cafeAliases: ["찰리씨"]
+    soopId: "sircharlee"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: 
+    displayName: 세온
+    cafeAliases: ["세온이"]
+    soopId: "seon12"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: 
+    displayName: 리체
+    cafeAliases: ["리체입니다"]
+    soopId: "nrudksd01"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: 
+    displayName: 파깡
+    cafeAliases: ["파깡"]
+    soopId: "pakkangmon"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: kaksjak0730
+    displayName: 한결___
+    cafeAliases: ["한결8008"]
+    soopId: kaksjak0730
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: amanemay
+    displayName: 김메이
+    cafeAliases: ["김메이kimmay"]
+    soopId: amanemay
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: aryenne
+    displayName: 이부키에사
+    cafeAliases: ["이부키에사"]
+    soopId: aryenne
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: banta251201
+    displayName: 반타__
+    cafeAliases: ["반타"]
+    soopId: banta251201
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: choeunnn
+    displayName: 초은.
+    cafeAliases: ["초은"]
+    soopId: choeunnn
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: guqlswls123
+    displayName: 따스히
+    cafeAliases: ["따스히"]
+    soopId: guqlswls123
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: ju010228
+    displayName: 쥬멩이
+    cafeAliases: ["쥬멩이"]
+    soopId: ju010228
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: secretto486
+    displayName: 비밀소녀♥
+    cafeAliases: ["비밀소녀"]
+    soopId: secretto486
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: eun0333
+    displayName: 우마이:>
+    cafeAliases: ["우마이"]
+    soopId: eun0333
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: meia0510
+    displayName: 메이아
+    cafeAliases: ["메이아"]
+    soopId: meia0510
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: beadyo97
+    displayName: 구슬요
+    cafeAliases: ["구슬요"]
+    soopId: beadyo97
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: kawri3
+    displayName: 카우리3
+    cafeAliases: ["카우리"]
+    soopId: kawri3
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: rmrss2
+    displayName: 르미루~
+    cafeAliases: ["진짜르미루"]
+    soopId: rmrss2
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: usom01
+    displayName: 유솜_
     cafeAliases: [""]
-    soopId: ""
+    soopId: usom01
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: nsnowthemoon
+    displayName: "설빈달"
+    cafeAliases: [""]
+    soopId: "nsnowthemoon"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: oreo52
+    displayName: "푸히:p"
+    cafeAliases: [""]
+    soopId: "oreo52"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: kur0ch4t
+    displayName: "쿠로샤"
+    cafeAliases: [""]
+    soopId: "kur0ch4t"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: xxxkimmickey
+    displayName: "#김미키"
+    cafeAliases: [""]
+    soopId: "xxxkimmickey"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: moonkong9
+    displayName: "문콩_"
+    cafeAliases: [""]
+    soopId: "moonkong9"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: suddory2
+    displayName: "수또리"
+    cafeAliases: [""]
+    soopId: "suddory2"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: dlalswl8811
+    displayName: "이깨굴"
+    cafeAliases: [""]
+    soopId: "dlalswl8811"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: xnalcm004
+    displayName: "투미츠"
+    cafeAliases: [""]
+    soopId: "xnalcm004"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: owozzz
+    displayName: "샤르망"
+    cafeAliases: [""]
+    soopId: "owozzz"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: tndk321
+    displayName: "단수아"
+    cafeAliases: [""]
+    soopId: "tndk321"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: chae1hana
+    displayName: "_채하나"
+    cafeAliases: [""]
+    soopId: "chae1hana"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: nnininin
+    displayName: "닌닌_"
+    cafeAliases: [""]
+    soopId: "nnininin"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: kbs9981
+    displayName: "김병살"
+    cafeAliases: [""]
+    soopId: "kbs9981"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: pinkmold0317
+    displayName: "강분팡"
+    cafeAliases: [""]
+    soopId: "pinkmold0317"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: gofl2237
+    displayName: "해리"
+    cafeAliases: [""]
+    soopId: "gofl2237"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: dptclzn00
+    displayName: "엣치쿠"
+    cafeAliases: [""]
+    soopId: "dptclzn00"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: rariruro
+    displayName: "제리츄"
+    cafeAliases: [""]
+    soopId: "rariruro"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: jaesu111
+    displayName: "재수피기"
+    cafeAliases: [""]
+    soopId: "jaesu111"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: danchu17
+    displayName: "단츄♪"
+    cafeAliases: [""]
+    soopId: "danchu17"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: dbdnjfdl0216
+    displayName: "유서리_"
+    cafeAliases: [""]
+    soopId: "dbdnjfdl0216"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: shiro75
+    displayName: "시로v"
+    cafeAliases: [""]
+    soopId: "shiro75"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: muse0116
+    displayName: "뮤즈_MUSE"
+    cafeAliases: [""]
+    soopId: "muse0116"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: tjdgk31470
+    displayName: "성여올"
+    cafeAliases: [""]
+    soopId: "tjdgk31470"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: youoneul
+    displayName: "유오늘"
+    cafeAliases: [""]
+    soopId: "youoneul"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: 9haedo
+    displayName: "9해도"
+    cafeAliases: [""]
+    soopId: "9haedo"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: nmachuu060
+    displayName: "김땃쥐060"
+    cafeAliases: [""]
+    soopId: "nmachuu060"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: fishstory
+    displayName: "뽀끔o3o"
+    cafeAliases: [""]
+    soopId: "fishstory"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: hye0328
+    displayName: "망초♪"
+    cafeAliases: [""]
+    soopId: "hye0328"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: ruringruming
+    displayName: "하링!"
+    cafeAliases: [""]
+    soopId: "ruringruming"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: mnomno55
+    displayName: "루디딕"
+    cafeAliases: [""]
+    soopId: "mnomno55"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: ironyan
+    displayName: "이로냥_"
+    cafeAliases: [""]
+    soopId: "ironyan"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: imha22
+    displayName: "임하밍"
+    cafeAliases: [""]
+    soopId: "imha22"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: haepalin
+    displayName: "해파린~"
+    cafeAliases: [""]
+    soopId: "haepalin"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: haettoing
+    displayName: "해또잉"
+    cafeAliases: [""]
+    soopId: "haettoing"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: krtl6798
+    displayName: "(타)마고"
+    cafeAliases: [""]
+    soopId: "krtl6798"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: yourdarky
+    displayName: "다키_"
+    cafeAliases: [""]
+    soopId: "yourdarky"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: 1004tangs2
+    displayName: "천사탕"
+    cafeAliases: [""]
+    soopId: "1004tangs2"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: sl0724
+    displayName: "성기사샬롯"
+    cafeAliases: [""]
+    soopId: "sl0724"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: cjstkdbsl3
+    displayName: "깡담비"
+    cafeAliases: [""]
+    soopId: "cjstkdbsl3"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: irrilll
+    displayName: "이릴_"
+    cafeAliases: [""]
+    soopId: "irrilll"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: se450502
+    displayName: "세기"
+    cafeAliases: [""]
+    soopId: "se450502"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: htvv2i
+    displayName: "햇비"
+    cafeAliases: [""]
+    soopId: "htvv2i"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: tleod1818
+    displayName: "빙밍_"
+    cafeAliases: [""]
+    soopId: "tleod1818"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: habee511
+    displayName: "망야_"
+    cafeAliases: [""]
+    soopId: "habee511"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: leuni158
+    displayName: "르니"
+    cafeAliases: [""]
+    soopId: "leuni158"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: daenggang
+    displayName: "댕강"
+    cafeAliases: [""]
+    soopId: "daenggang"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: star52
+    displayName: "이라★"
+    cafeAliases: [""]
+    soopId: "star52"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: afterin04
+    displayName: "먕이♬"
+    cafeAliases: [""]
+    soopId: "afterin04"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: bejae1
+    displayName: "비재"
+    cafeAliases: [""]
+    soopId: "bejae1"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: esoj001
+    displayName: "도이지"
+    cafeAliases: [""]
+    soopId: "esoj001"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: wellro314
+    displayName: "김웰로"
+    cafeAliases: [""]
+    soopId: "wellro314"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: miwoomiwoo
+    displayName: "미우"
+    cafeAliases: [""]
+    soopId: "miwoomiwoo"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: tdw0926
+    displayName: "하루아_"
+    cafeAliases: [""]
+    soopId: "tdw0926"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: tdnlamuron
+    displayName: "다시바"
+    cafeAliases: [""]
+    soopId: "tdnlamuron"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: usharko0o0
+    displayName: "유샥크"
+    cafeAliases: [""]
+    soopId: "usharko0o0"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: y0unggam
+    displayName: "영감__"
+    cafeAliases: [""]
+    soopId: "y0unggam"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: peeya116
+    displayName: "피야."
+    cafeAliases: [""]
+    soopId: "peeya116"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: mingkymya
+    displayName: "이루희"
+    cafeAliases: [""]
+    soopId: "mingkymya"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: syusyuang
+    displayName: "슈슈슈앙"
+    cafeAliases: [""]
+    soopId: "syusyuang"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: whiteone325
+    displayName: "난워니-_-+"
+    cafeAliases: [""]
+    soopId: "whiteone325"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: dougie0328
+    displayName: "올어바웃설이"
+    cafeAliases: [""]
+    soopId: "dougie0328"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: merryou
+    displayName: "비숑b"
+    cafeAliases: [""]
+    soopId: "merryou"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: fumagochi
+    displayName: "푸마고치"
+    cafeAliases: [""]
+    soopId: "fumagochi"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: lighthoong
+    displayName: "설홍"
+    cafeAliases: [""]
+    soopId: "lighthoong"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: 015234
+    displayName: "아눙"
+    cafeAliases: [""]
+    soopId: "015234"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: banaseeznia
+    displayName: "바나♪"
+    cafeAliases: [""]
+    soopId: "banaseeznia"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: secymyong
+    displayName: "묭씨"
+    cafeAliases: [""]
+    soopId: "secymyong"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: n4w4nr
+    displayName: "왁듁푸"
+    cafeAliases: [""]
+    soopId: "n4w4nr"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: yeonju1209
+    displayName: "연주홍"
+    cafeAliases: [""]
+    soopId: "yeonju1209"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: kanoz0
+    displayName: "쥬아눈나조아"
+    cafeAliases: [""]
+    soopId: "kanoz0"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: jejong5
+    displayName: "제이제이잉"
+    cafeAliases: [""]
+    soopId: "jejong5"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: miome3
+    displayName: "고미호♡"
+    cafeAliases: [""]
+    soopId: "miome3"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: nyaming0505
+    displayName: "냐밍_"
+    cafeAliases: [""]
+    soopId: "nyaming0505"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: kirababy2
+    displayName: "유키라"
+    cafeAliases: [""]
+    soopId: "kirababy2"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: toryvac
+    displayName: "빅토리~!"
+    cafeAliases: [""]
+    soopId: "toryvac"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: imleeyo
+    displayName: "리요"
+    cafeAliases: [""]
+    soopId: "imleeyo"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: ditosak
+    displayName: "오슈이"
+    cafeAliases: [""]
+    soopId: "ditosak"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: kim852134
+    displayName: "김잇딥"
+    cafeAliases: [""]
+    soopId: "kim852134"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: been11060
+    displayName: "오구"
+    cafeAliases: [""]
+    soopId: "been11060"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: vnuguria
+    displayName: "너구리아"
+    cafeAliases: [""]
+    soopId: "vnuguria"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: dw0672
+    displayName: "단지이럴수가"
+    cafeAliases: [""]
+    soopId: "dw0672"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: hinqocorv
+    displayName: "힌콕"
+    cafeAliases: [""]
+    soopId: "hinqocorv"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: ttu0221
+    displayName: "흠냥b"
+    cafeAliases: [""]
+    soopId: "ttu0221"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: allure282
+    displayName: "리르"
+    cafeAliases: [""]
+    soopId: "allure282"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: lina0108
+    displayName: "리냐_LINYA"
+    cafeAliases: [""]
+    soopId: "lina0108"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: pakkangmon
+    displayName: "파깡"
+    cafeAliases: ["파깡"]
+    soopId: "pakkangmon"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: nboxox182
+    displayName: "뱀부범부"
+    cafeAliases: [""]
+    soopId: "nboxox182"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: hikicomoring
+    displayName: "히키☆"
+    cafeAliases: [""]
+    soopId: "hikicomoring"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: tadka56
+    displayName: "양지랖"
+    cafeAliases: [""]
+    soopId: "tadka56"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: yaguja00
+    displayName: "야구자"
+    cafeAliases: [""]
+    soopId: "yaguja00"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: foxyeon
+    displayName: "여우연"
+    cafeAliases: [""]
+    soopId: "foxyeon"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: hobal115end
+    displayName: "왁육터☆"
+    cafeAliases: [""]
+    soopId: "hobal115end"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: natty09
+    displayName: "냐쵸♥"
+    cafeAliases: [""]
+    soopId: "natty09"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: roundpopo
+    displayName: "땡글땡글포포"
+    cafeAliases: [""]
+    soopId: "roundpopo"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: wggumteuli
+    displayName: "꿈틀__"
+    cafeAliases: [""]
+    soopId: "wggumteuli"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: yaya1787
+    displayName: "호냥2"
+    cafeAliases: [""]
+    soopId: "yaya1787"
     autoUpdate: true
     override:
       division: null

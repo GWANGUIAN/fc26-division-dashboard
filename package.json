@@ -7,6 +7,7 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "build:lambda": "esbuild src/functions/scraper.ts src/functions/reader.ts src/functions/config-sync.ts src/functions/budget-guard.ts --bundle --platform=node --target=node22 --format=esm --outdir=dist/lambda --out-extension:.js=.mjs --external:@aws-sdk/* --external:@sparticuz/chromium --external:playwright-core --external:yaml",
+    "sync:comments-roster": "node scripts/sync-roster-from-comments-xlsx.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
@@ -16,6 +17,7 @@
     "@aws-sdk/client-scheduler": "^3.859.0",
     "@aws-sdk/lib-dynamodb": "^3.859.0",
     "@sparticuz/chromium": "^138.0.2",
+    "jszip": "3.10.1",
     "playwright-core": "^1.55.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

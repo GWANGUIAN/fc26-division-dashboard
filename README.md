@@ -43,6 +43,18 @@ streamers:
 
 `until-next-post`은 더 높은 부수(예: 7부 고정 중 6부 승격)가 발견될 때만 자동 복귀합니다. 늦게 등록된 낮은 등급 글은 고정을 해제하지 않습니다.
 
+### CollaBot 댓글 Excel에서 후보 추가
+
+다운로드 폴더의 `댓글_ecvhao_204050719.xlsx`에서 닉네임 셀에 담긴 SOOP 방송국 링크를 읽어, 아직 `soopId`가 없는 후보만 추가합니다. 기존 스트리머 행은 수정하지 않고, 새 후보의 카페 별칭은 확인 전까지 `['']`로 둡니다. 외부 웹사이트에 접속하지 않습니다.
+
+```powershell
+pnpm sync:comments-roster                         # 다운로드 폴더의 기본 파일로 실제 갱신
+pnpm sync:comments-roster -- --dry-run            # 추가 대상만 미리 보기
+pnpm sync:comments-roster -- --xlsx C:\\path\\comments.xlsx
+```
+
+프로젝트의 Node 의존성만 사용하므로 Python이나 브라우저 설치는 필요 없습니다.
+
 ## AWS 배포
 
 Terraform과 Docker, AWS CLI 로그인이 필요합니다.
