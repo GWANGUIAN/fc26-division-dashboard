@@ -119,7 +119,7 @@ function StreamerActivitySection({ title, posts }: { title: string; posts?: Stre
 function PromotionTimeline({ posts }: { posts: PromotionPost[] }) {
   const events = buildPromotionTimeline(posts);
   const summary = summarizePromotionTimeline(events);
-  if (!summary || events.length < 2) return null;
+  if (!summary) return null;
   const groups = events.reduce<{ dateKey: string; events: typeof events }[]>((items, event) => {
     const group = items.at(-1);
     if (group?.dateKey === event.dateKey) group.events.push(event);
@@ -129,10 +129,10 @@ function PromotionTimeline({ posts }: { posts: PromotionPost[] }) {
   let index = 0;
   return <section className="promotion-timeline" aria-labelledby="promotion-timeline-title">
     <div className="promotion-timeline__heading"><div><p className="eyebrow">PROMOTION JOURNEY</p><h3 id="promotion-timeline-title">승급 여정</h3></div><span>{summary.startDivision}부 <i>→</i> {summary.currentDivision}부</span></div>
-    <div className="promotion-timeline__stats" aria-label="승급 여정 요약"><span><b>{summary.promotionCount}</b>회 실제 승급</span><span><b>{summary.exactDurationMs !== undefined ? formatDuration(summary.exactDurationMs) : `${summary.calendarDays}일`}</b> {summary.exactDurationMs !== undefined ? "소요" : "확인된 기간"}</span></div>
+    <div className="promotion-timeline__stats" aria-label="승급 여정 요약"><span><b>{summary.promotionCount}</b>회 실제 승급</span>{events.length > 1 ? <span><b>{summary.exactDurationMs !== undefined ? formatDuration(summary.exactDurationMs) : `${summary.calendarDays}일`}</b> {summary.exactDurationMs !== undefined ? "소요" : "확인된 기간"}</span> : <span>첫 승급 보고</span>}</div>
     <div className="promotion-timeline__track">
       {groups.map((group) => <div className="promotion-timeline__day" key={group.dateKey}>
-        <p>{formatTimelineDate(group.dateKey)}{group.events.some((event) => event.precision === "date") && <small>시간 미상</small>}</p>
+        <p>{formatTimelineDate(group.dateKey)}</p>
         <div className="promotion-timeline__events">
           {group.events.map((event, eventIndex) => {
             const previous = group.events[eventIndex - 1];
@@ -142,7 +142,7 @@ function PromotionTimeline({ posts }: { posts: PromotionPost[] }) {
             const delay = index++ * 85;
             return <div className="promotion-timeline__event" key={event.post.articleId}>
               {interval !== undefined && interval >= 0 && <span className="promotion-timeline__interval">{formatDuration(interval)} 후</span>}
-              <a className="promotion-timeline__node" href={event.post.articleUrl} target="_blank" rel="noreferrer" style={{ animationDelay: `${delay}ms` }} aria-label={`${event.post.division}부 승격 게시글 보기`}><b>D{event.post.division}</b><span>{event.precision === "time" ? formatTimelineTime(event.post.publishedAt) : "날짜만 확인"}</span></a>
+              <a className="promotion-timeline__node" href={event.post.articleUrl} target="_blank" rel="noreferrer" style={{ animationDelay: `${delay}ms` }} aria-label={`${event.post.division}부 승격 게시글 보기`}><b>D{event.post.division}</b>{event.precision === "time" && <span>{formatTimelineTime(event.post.publishedAt)}</span>}</a>
             </div>;
           })}
         </div>
@@ -152,16 +152,16 @@ function PromotionTimeline({ posts }: { posts: PromotionPost[] }) {
   </section>;
 }
 
-function PreviousPromotionSection({ posts, history }: { posts?: PromotionPost[]; history?: PromotionPost[] }) {
+function PreviousPromotionSection({ posts }: { posts?: PromotionPost[] }) {
   const [isOpen, setIsOpen] = useState(false);
   if (!posts?.length) return null;
   return <section className="streamer-activity promotion-history">
     <button className="streamer-activity__heading promotion-history__toggle" type="button" onClick={() => setIsOpen((current) => !current)} aria-expanded={isOpen}>
       <span>이전 승격 게시글</span><span className="promotion-history__meta"><b>{posts.length}</b><span className="promotion-history__icon" aria-hidden="true">{isOpen ? <ChevronUp /> : <ChevronDown />}</span></span>
     </button>
-    {isOpen && <><PromotionTimeline posts={history ?? posts} /><div className="streamer-activity__posts">{posts.map((post) => <a href={post.articleUrl} target="_blank" rel="noreferrer" key={post.articleId}>
+    {isOpen && <div className="streamer-activity__posts">{posts.map((post) => <a href={post.articleUrl} target="_blank" rel="noreferrer" key={post.articleId}>
       <span className="promotion-history__category">{post.category}</span><strong>{post.title}</strong><time>{formatCafePostDate(post.publishedAt)}</time>
-    </a>)}</div></>}
+    </a>)}</div>}
   </section>;
 }
 
@@ -171,8 +171,8 @@ function DetailModal({ streamer, onClose }: { streamer: StreamerRecord; onClose:
   const [expandedImage, setExpandedImage] = useState<string>();
   useEscape(() => expandedImage ? setExpandedImage(undefined) : onClose());
   return <Modal onClose={onClose} label="디비전 상세" header={<div className="modal__identity"><Avatar {...streamer} /><div><span className="eyebrow">CURRENT DIVISION</span><h2>{streamer.displayName} <b>{streamer.currentDivision}부</b></h2><SoopTags tags={streamer.soopTags} />{!streamer.isMapped && <p>카페 작성자 · SOOP 정보 미연결</p>}</div></div>}>
-    {post ? <><div className="report"><span>{post.category}</span><h3>{post.title}</h3><time>{formatCafePostDate(post.publishedAt)}</time></div>{post.imageUrls.length > 0 && <div className="gallery">{post.imageUrls.map((url, index) => <button className="gallery__image" type="button" onClick={() => setExpandedImage(url)} aria-label={`${streamer.displayName} 게시글 이미지 확대`} key={url}><img src={url} alt={`${streamer.displayName} 게시글 이미지`} loading={index === 0 ? "eager" : "lazy"} referrerPolicy="no-referrer" /></button>)}</div>}</> : <p className="empty-detail">아직 확인된 디비전 보고 게시글이 없습니다.</p>}
-    <PreviousPromotionSection posts={streamer.previousPromotionPosts} history={streamer.promotionHistory} />
+    {post ? <><div className="report"><span>{post.category}</span><h3>{post.title}</h3><time>{formatCafePostDate(post.publishedAt)}</time></div>{post.imageUrls.length > 0 && <div className="gallery">{post.imageUrls.map((url, index) => <button className="gallery__image" type="button" onClick={() => setExpandedImage(url)} aria-label={`${streamer.displayName} 게시글 이미지 확대`} key={url}><img src={url} alt={`${streamer.displayName} 게시글 이미지`} loading={index === 0 ? "eager" : "lazy"} referrerPolicy="no-referrer" /></button>)}</div>}<PromotionTimeline posts={streamer.promotionHistory ?? [post]} /></> : <p className="empty-detail">아직 확인된 디비전 보고 게시글이 없습니다.</p>}
+    <PreviousPromotionSection posts={streamer.previousPromotionPosts} />
     <StreamerActivitySection title="잔디동 스코프" posts={streamer.scopePosts} />
     <StreamerActivitySection title="11대 11 플레이 영상" posts={streamer.elevenVsElevenPosts} />
     <div className="actions">{post && <CafeLink href={post.articleUrl} />}{channel && <SoopLink href={channel}>SOOP 방송국 ↗</SoopLink>}</div>
