@@ -10,7 +10,7 @@ export type DailyPromotionTrophy = {
 
 export type CurrentDivisionTrophy = {
   streamer: StreamerRecord;
-  reachedAt: string;
+  reachedAt?: string;
 };
 
 export type PromotionTrophy = {
@@ -41,11 +41,19 @@ function koreaDateKey(value: string): string {
   return koreaDateFormatter.format(new Date(value));
 }
 
+function promotionPostsFor(streamer: StreamerRecord): PromotionPost[] {
+  if (streamer.promotionHistory?.length) return chronological(streamer.promotionHistory);
+  // Snapshots published before promotionHistory existed expose the same data
+  // as a current report plus previous reports. Keep awards available until
+  // the next scraper publish upgrades their shape.
+  return chronological([...(streamer.previousPromotionPosts ?? []), ...(streamer.lastPost ? [streamer.lastPost] : [])]);
+}
+
 /** Derives display-only awards from the public dashboard snapshot. */
 export function buildTrophyAwards(streamers: StreamerRecord[]): TrophyAwards {
   const dailyRecords = streamers.flatMap((streamer) => {
     const days = new Map<string, PromotionPost[]>();
-    for (const post of chronological(streamer.promotionHistory ?? [])) {
+    for (const post of promotionPostsFor(streamer)) {
       const dateKey = koreaDateKey(post.publishedAt);
       days.set(dateKey, [...(days.get(dateKey) ?? []), post]);
     }
@@ -65,12 +73,12 @@ export function buildTrophyAwards(streamers: StreamerRecord[]): TrophyAwards {
 
   const currentCandidates = streamers.flatMap((streamer) => {
     if (streamer.currentDivision >= 10) return [];
-    const reachedAt = chronological(streamer.promotionHistory ?? [])
+    const reachedAt = promotionPostsFor(streamer)
       .find((post) => post.division === streamer.currentDivision)?.publishedAt;
-    return reachedAt ? [{ streamer, reachedAt }] : [];
+    return [{ streamer, reachedAt }];
   }).sort((left, right) =>
     left.streamer.currentDivision - right.streamer.currentDivision
-    || left.reachedAt.localeCompare(right.reachedAt)
+    || (left.reachedAt ?? "9999-12-31").localeCompare(right.reachedAt ?? "9999-12-31")
     || left.streamer.displayName.localeCompare(right.streamer.displayName, "ko"));
 
   const promotionRecords = streamers.map((streamer) => {

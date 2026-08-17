@@ -30,6 +30,14 @@ describe("trophy awards", () => {
     expect(awards.dailyPromotion.every((award) => award.steps === 1)).toBe(true);
   });
 
+  it("supports snapshots that have current and previous reports but no promotion history", () => {
+    const latest = post("2", 5, "2026-08-10T14:00:00+09:00");
+    const legacy = { ...streamer("이전 형식"), currentDivision: 5, lastPost: latest, previousPromotionPosts: [post("1", 9, "2026-08-10T10:00:00+09:00")] };
+    const awards = buildTrophyAwards([legacy]);
+    expect(awards.dailyPromotion).toMatchObject([{ startDivision: 10, endDivision: 5, steps: 5 }]);
+    expect(awards.currentDivision?.streamer.id).toBe("이전 형식");
+  });
+
   it("groups promotion reports by Korea date", () => {
     const awards = buildTrophyAwards([streamer("시간대", [
       post("1", 9, "2026-08-10T15:30:00Z"), post("2", 7, "2026-08-10T16:00:00Z"),
