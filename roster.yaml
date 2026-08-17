@@ -297,15 +297,6 @@ streamers:
     override:
       division: null
       policy: auto
-  - slug: beadyo97
-    displayName: 구슬요
-    cafeAliases: ["구슬요"]
-    soopId: beadyo97
-    autoUpdate: true
-    override:
-      division: null
-      policy: auto
-    celebrationMessage: "떼굴떼굴 구슬요 {n}부 리그 승격!!🟢"
   - slug: kawri3
     displayName: 카우리3
     cafeAliases: ["카우리"]
@@ -411,14 +402,6 @@ streamers:
     override:
       division: null
       policy: auto
-  - slug: chae1hana
-    displayName: "_채하나"
-    cafeAliases: ["채하나바부"]
-    soopId: "chae1hana"
-    autoUpdate: true
-    override:
-      division: null
-      policy: auto
   - slug: nnininin
     displayName: "닌닌_"
     cafeAliases: ["닌닌"]
@@ -451,14 +434,6 @@ streamers:
     override:
       division: null
       policy: auto
-  - slug: dptclzn00
-    displayName: "엣치쿠"
-    cafeAliases: ["엣치쿠"]
-    soopId: "dptclzn00"
-    autoUpdate: true
-    override:
-      division: null
-      policy: auto
   - slug: rariruro
     displayName: "제리츄"
     cafeAliases: ["제리츄"]
@@ -487,14 +462,6 @@ streamers:
     displayName: "유서리_"
     cafeAliases: ["유서리"]
     soopId: "dbdnjfdl0216"
-    autoUpdate: true
-    override:
-      division: null
-      policy: auto
-  - slug: shiro75
-    displayName: "시로v"
-    cafeAliases: ["시로v"]
-    soopId: "shiro75"
     autoUpdate: true
     override:
       division: null
@@ -560,14 +527,6 @@ streamers:
     displayName: "하링!"
     cafeAliases: ["하링"]
     soopId: "ruringruming"
-    autoUpdate: true
-    override:
-      division: null
-      policy: auto
-  - slug: mnomno55
-    displayName: "루디딕"
-    cafeAliases: ["루디딕"]
-    soopId: "mnomno55"
     autoUpdate: true
     override:
       division: null
@@ -698,14 +657,6 @@ streamers:
     displayName: "댕강"
     cafeAliases: ["댕강DaengGang"]
     soopId: "daenggang"
-    autoUpdate: true
-    override:
-      division: null
-      policy: auto
-  - slug: star52
-    displayName: "이라★"
-    cafeAliases: ["이 라"]
-    soopId: "star52"
     autoUpdate: true
     override:
       division: null
@@ -904,14 +855,6 @@ streamers:
     override:
       division: null
       policy: auto
-  - slug: miome3
-    displayName: "고미호♡"
-    cafeAliases: ["고미호"]
-    soopId: "miome3"
-    autoUpdate: true
-    override:
-      division: null
-      policy: auto
   - slug: nyaming0505
     displayName: "냐밍_"
     cafeAliases: ["냐밍"]
@@ -970,14 +913,6 @@ streamers:
     override:
       division: null
       policy: auto
-  - slug: vnuguria
-    displayName: "너구리아"
-    cafeAliases: ["너구리아"]
-    soopId: "vnuguria"
-    autoUpdate: true
-    override:
-      division: null
-      policy: auto
   - slug: dw0672
     displayName: "단지이럴수가"
     cafeAliases: ["단지이럴수가"]
@@ -1019,14 +954,6 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "사시노 리냐의 {n}부 리그 승격을 축하합니다~!!🤪"
-  - slug: nboxox182
-    displayName: "뱀부범부"
-    cafeAliases: ["뱀부범부"]
-    soopId: "nboxox182"
-    autoUpdate: true
-    override:
-      division: null
-      policy: auto
   - slug: hikicomoring
     displayName: "히키☆"
     cafeAliases: ["히 키"]
@@ -1097,6 +1024,14 @@ streamers:
     displayName: "호냥2"
     cafeAliases: ["호냥2"]
     soopId: "yaya1787"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: jkl1122
+    displayName: "김나디"
+    cafeAliases: ["김나디"]
+    soopId: "jkl1122"
     autoUpdate: true
     override:
       division: null
