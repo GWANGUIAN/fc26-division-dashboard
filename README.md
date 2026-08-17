@@ -50,9 +50,12 @@ streamers:
     override:
       division: 7
       policy: until-next-post # auto | until-next-post | until-manual-release
+    celebrationMessage: "{n}부 리그 승격을 축하합니다." # 선택, {n}이 승격된 디비전 숫자로 치환됨
 ```
 
 `until-next-post`은 더 높은 부수(예: 7부 고정 중 6부 승격)가 발견될 때만 자동 복귀합니다. 늦게 등록된 낮은 등급 글은 고정을 해제하지 않습니다.
+
+`celebrationMessage`는 해당 스트리머의 디비전 승격 게시글이 **2시간 이내**에 올라왔을 때만 상단 배너(`FavoriteCelebration`)에 표시됩니다. `{n}`은 승격된 디비전 숫자로 치환됩니다. 값을 넣지 않으면 `{displayName}의 {n}부 리그 승격을 축하합니다~!!` 형식의 기본 문구가 쓰이고, 2시간이 지나면 배너는 다시 기본 문구(`축 왁굳형 즐겨찾기 목록 입성`)로 돌아갑니다.
 
 ### CollaBot 댓글 Excel에서 후보 추가
 
@@ -108,6 +111,8 @@ Terraform과 Docker, AWS CLI 로그인이 필요합니다.
    ```
 
 GitHub Actions를 사용하려면 기존 GitHub OIDC Provider ARN을 Terraform 변수에 넣고, 출력되는 `github_roster_sync_role_arn`과 `config_sync_function_name`을 각각 `AWS_ROSTER_SYNC_ROLE_ARN`, `AWS_ROSTER_SYNC_FUNCTION_NAME` Secret으로 설정합니다. 역할은 config-sync 함수에만 `lambda:InvokeFunction`을 허용합니다.
+
+`src/functions`, `src/shared`, `Dockerfile` 등 백엔드 코드는 위 초기 설정 이후 수동 배포가 필요 없습니다. `.github/workflows/deploy-backend.yml`이 해당 경로 변경을 main에 push할 때마다 이미지를 빌드·ECR 푸시하고 4개 Lambda(`scraper`/`reader`/`config-sync`/`budget-guard`)를 자동으로 갱신합니다. 이 워크플로가 assume하는 역할은 Terraform 출력 `github_backend_deploy_role_arn`이며, `AWS_BACKEND_DEPLOY_ROLE_ARN` Secret으로 설정합니다. 새 Lambda 코드가 반영되려면 워크플로 완료 후 scraper의 다음 3분 주기 실행까지 기다려야 스냅샷이 재생성됩니다 — push 직후 화면에 안 보인다고 코드가 잘못된 것은 아닙니다.
 
 배포 이후에는 `https://<Worker 도메인>/healthz`로 상태를 확인할 수 있습니다. 이 엔드포인트는 실제 Reader Lambda와 스냅샷 신선도(12분 이내)를 확인하며, 대시보드 데이터나 인증 토큰은 노출하지 않습니다.
 

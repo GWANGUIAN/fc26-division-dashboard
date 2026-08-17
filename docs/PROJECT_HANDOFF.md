@@ -49,6 +49,7 @@ GitHub push (roster/results YAML) → Config Sync Lambda → DynamoDB 로스터/
 | `src/shared/*.ts` | 타입, 디비전 산정, 별칭 매칭, 1:1 판정, 타임라인, 트로피, 이미지 필터 |
 | `infrastructure/` | AWS 인프라 Terraform |
 | `.github/workflows/sync-roster.yml` | main의 YAML 변경을 Config Sync Lambda로 전송 |
+| `.github/workflows/deploy-backend.yml` | main의 백엔드 코드 변경을 감지해 Lambda 이미지 자동 빌드·배포 |
 
 ## 핵심 도메인 규칙
 
@@ -62,6 +63,13 @@ GitHub push (roster/results YAML) → Config Sync Lambda → DynamoDB 로스터/
   - `auto`: 자동 산정값 사용.
   - `until-next-post`: 고정 디비전보다 더 높은(숫자가 작은) 보고가 생길 때만 자동 복귀.
   - `until-manual-release`: 수동 해제 전까지 고정.
+
+### 축하 배너
+
+- 상단 `FavoriteCelebration` 배너는 공개 스냅샷의 `latestPosts[0]`(가장 최근 승격 글)이 **2시간 이내**일 때만 문구를 바꾼다. `src/web/App.tsx`의 `celebrationMessage`가 계산 위치다.
+- 해당 스트리머의 `roster.yaml` `celebrationMessage`가 있으면 그 문구의 `{n}`을 승격된 디비전 숫자로 치환해 보여준다. 없으면 `{displayName}의 {n}부 리그 승격을 축하합니다~!!` 기본 문구를 쓴다.
+- 2시간이 지나거나 오늘 승격 글이 없으면 기본값 `축 왁굳형 즐겨찾기 목록 입성`으로 돌아간다.
+- `celebrationMessage`는 `RosterEntry`와 `StreamerRecord` 양쪽 타입에 있어야 하며, `buildStreamerRecords`(`src/shared/promotion.ts`)가 로스터 → 스트리머 레코드 변환 시 이 필드를 빠뜨리지 않아야 프런트까지 전달된다. 백엔드 로직이라 반영에는 `deploy-backend.yml` 배포 + scraper의 다음 3분 주기 실행이 필요하다.
 
 ### 활동글·1:1 평가
 
@@ -129,19 +137,29 @@ pnpm dev
 
 ### 배포 순서
 
+최초 인프라 구축(1회):
+
 1. ECR 저장소를 Terraform으로 먼저 만든다.
 2. `./scripts/deploy.ps1 -ImageTag <tag>`로 Lambda 이미지 빌드·푸시한다.
 3. `terraform apply -var='image_uri=<pushed-uri>'`로 나머지 AWS 인프라를 적용한다.
 4. Terraform의 `reader_function_url`, `reader_origin_token`을 Cloudflare Worker Secret `API_ORIGIN_URL`, `ORIGIN_AUTH_TOKEN`에 각각 설정하고 `npx wrangler deploy`한다.
-5. GitHub OIDC를 쓸 경우 Terraform 출력값을 Actions Secret `AWS_ROSTER_SYNC_ROLE_ARN`, `AWS_ROSTER_SYNC_FUNCTION_NAME`에 설정한다.
+5. GitHub OIDC를 쓸 경우 Terraform 출력값을 Actions Secret `AWS_ROSTER_SYNC_ROLE_ARN`, `AWS_ROSTER_SYNC_FUNCTION_NAME`, `AWS_BACKEND_DEPLOY_ROLE_ARN`에 설정한다.
+
+이후 일상적인 변경(자동):
+
+- **백엔드**(`src/functions`, `src/shared`, `Dockerfile` 등): main에 push하면 `deploy-backend.yml`이 이미지를 빌드·ECR 푸시하고 4개 Lambda를 `aws lambda update-function-code`로 갱신한다. Terraform은 이 이미지 태그를 관리하지 않도록 각 `aws_lambda_function`에 `lifecycle { ignore_changes = [image_uri] }`가 설정돼 있다 — 인프라 변경으로 `terraform apply`를 다시 돌려도 배포된 이미지가 되돌아가지 않는다.
+- **프런트**(`src/web`): Cloudflare가 GitHub 저장소와 연동돼 있어 push 시 자동 배포된다.
+- **로스터/결과 YAML**: `sync-roster.yml`이 Config Sync Lambda를 호출한다.
+- 세 워크플로 모두 `push` 파일 경로 기준으로 독립 트리거되므로, 한 커밋에 여러 영역이 섞여도 필요한 워크플로만 돈다.
 
 ### 장애 확인 순서
 
 1. `https://<worker-domain>/healthz`를 확인한다. `ok`, `collection_degraded`, `snapshot_stale`, `snapshot_empty`, `upstream_unavailable` 중 하나를 반환한다.
 2. CloudWatch의 Scraper Lambda 로그와 `*-scraper-errors` 알람을 확인한다.
 3. `SYNC/STATE`의 `status`, `message`, `boards` 체크포인트를 확인한다. Naver 차단이면 데이터를 임의로 비우지 말고 차단 해소 후 다음 스케줄을 기다린다.
-4. 로스터 변경이 화면에 없으면 GitHub Actions 결과와 Config Sync Lambda 로그를 확인한다.
-5. 비용 한도에 도달한 경우 Budget Guard가 두 Scheduler를 `DISABLED`로 바꾼다. 예산 상태를 해제한 뒤 두 스케줄을 다시 활성화해야 수집이 재개된다.
+4. 로스터 변경이 화면에 없으면 GitHub Actions(`sync-roster.yml`) 결과와 Config Sync Lambda 로그를 확인한다.
+5. 백엔드 코드 변경(예: `src/shared`, `src/functions`)이 화면에 반영되지 않으면 `deploy-backend.yml` 실행 결과를 먼저 확인한다. 워크플로가 성공했어도 scraper는 3분 주기로만 스냅샷을 재생성하므로 반영까지 수 분 걸릴 수 있다.
+6. 비용 한도에 도달한 경우 Budget Guard가 두 Scheduler를 `DISABLED`로 바꾼다. 예산 상태를 해제한 뒤 두 스케줄을 다시 활성화해야 수집이 재개된다.
 
 ## 변경 시 주의할 점
 
@@ -150,6 +168,7 @@ pnpm dev
 - Reader Lambda Function URL은 AWS 레벨에서 공개지만 `x-dashboard-origin` 비밀 헤더 없이는 403이다. 브라우저가 Function URL을 직접 사용하게 하거나 토큰을 `VITE_*` 환경 변수에 넣으면 안 된다.
 - Lambda는 Playwright/Chromium을 사용하므로 로컬 Node 실행만으로 실제 수집 동작을 보장하지 않는다. 인프라 변경 뒤에는 컨테이너 이미지와 스케줄러 입력(`{ mode: ... }`)을 함께 확인한다.
 - `store.ts`의 파티션별 읽기는 DynamoDB `Scan`을 쓴다. 데이터량이 커지면 GSI 또는 Query 가능한 키 설계로 바꾸는 것이 우선 개선 지점이다.
+- `roster.yaml`에 새 선택 필드를 추가할 때는 `RosterEntry`(`src/shared/model.ts`), `StreamerRecord`(같은 파일), 그리고 `buildStreamerRecords`(`src/shared/promotion.ts`)의 반환 객체 세 곳 모두에 반영해야 한다. 타입에만 추가하고 `buildStreamerRecords`에서 값을 옮기지 않으면 컴파일은 통과하지만 스냅샷·프런트까지 값이 전달되지 않는다(`celebrationMessage`에서 실제로 발생했던 문제).
 
 ## 새 세션 시작용 체크리스트
 
