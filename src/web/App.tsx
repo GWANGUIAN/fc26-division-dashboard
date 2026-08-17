@@ -229,7 +229,7 @@ function TrophyModal({ awards, onClose }: { awards: TrophyAwards; onClose: () =>
   return <Modal onClose={onClose} label="트로피 업적" header={<div><p className="eyebrow">HALL OF FAME</p><h2 className="trophy-modal__title"><Trophy aria-hidden="true" /> 트로피 업적</h2><p className="trophy-modal__intro">수집된 카페 활동을 바탕으로 한 이번 시즌의 빛나는 기록입니다.</p></div>}>
     <div className="trophy-awards">
       <section className="trophy-award trophy-award--growth">
-        <div className="trophy-award__heading"><span className="trophy-award__icon" aria-hidden="true">🏆</span><div><h3>하루 급성장 <TrophyHelp>전체 수집 기간에서 한국 시간 하루 동안 첫 승격글의 직전 부수부터 마지막 승격글까지 계산합니다. 중간 승격글이 없어도 최종 부수까지 반영하며, 한 건만 있어도 1단계로 계산합니다.</TrophyHelp></h3><p>하루에 가장 멀리 올라간 역대 기록</p></div></div>
+        <div className="trophy-award__heading"><span className="trophy-award__icon" aria-hidden="true">🏆</span><div><h3>하루 급성장 <TrophyHelp>전체 수집 기간에서 한국 시간 하루 동안 첫 승격글의 직전 부수부터 마지막 승격글까지 계산합니다. 중간 승격글이 없어도 최종 부수까지 반영하며, 한 건만 있어도 1단계로 계산합니다.</TrophyHelp></h3><p>하루에 가장 많이 올라간 역대 기록</p></div></div>
         {awards.dailyPromotion.length ? <div className="trophy-award__winners">{awards.dailyPromotion.map((award) => <article className="trophy-record" key={`${award.streamer.id}-${award.dateKey}`}><TrophyWinner streamer={award.streamer} /><div className="trophy-record__metric"><span>{formatTimelineDate(award.dateKey)}</span><strong>{award.startDivision}부 → {award.endDivision}부</strong><b>▲ {award.steps}</b></div></article>)}</div> : <p className="trophy-award__empty">아직 기록된 승격 업적이 없습니다.</p>}
       </section>
       <section className="trophy-award trophy-award--summit">
