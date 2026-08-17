@@ -31,11 +31,11 @@ describe("trophy awards", () => {
   });
 
   it("supports snapshots that have current and previous reports but no promotion history", () => {
-    const latest = post("2", 5, "2026-08-10T14:00:00+09:00");
-    const legacy = { ...streamer("이전 형식"), currentDivision: 5, lastPost: latest, previousPromotionPosts: [post("1", 9, "2026-08-10T10:00:00+09:00")] };
+    const latest = post("2", 1, "2026-08-10T14:00:00+09:00");
+    const legacy = { ...streamer("이전 형식"), currentDivision: 1, lastPost: latest, previousPromotionPosts: [post("1", 9, "2026-08-10T10:00:00+09:00")] };
     const awards = buildTrophyAwards([legacy]);
-    expect(awards.dailyPromotion).toMatchObject([{ startDivision: 10, endDivision: 5, steps: 5 }]);
-    expect(awards.currentDivision?.streamer.id).toBe("이전 형식");
+    expect(awards.dailyPromotion).toMatchObject([{ startDivision: 10, endDivision: 1, steps: 9 }]);
+    expect(awards.divisionOne.map((award) => award.streamer.id)).toEqual(["이전 형식"]);
   });
 
   it("groups promotion reports by Korea date", () => {
@@ -45,24 +45,34 @@ describe("trophy awards", () => {
     expect(awards.dailyPromotion).toMatchObject([{ dateKey: "2026-08-11", steps: 3 }]);
   });
 
-  it("selects the earliest achiever among the current highest division ties", () => {
-    const early = streamer("먼저", [post("1", 3, "2026-08-10T10:00:00+09:00")]);
-    const late = streamer("나중", [post("2", 3, "2026-08-10T11:00:00+09:00")]);
-    expect(buildTrophyAwards([late, early]).currentDivision?.streamer.id).toBe("먼저");
+  it("ranks division-one achievers by who reached 1부 first, up to three", () => {
+    const first = streamer("일등", [post("1", 1, "2026-08-10T10:00:00+09:00")]);
+    const second = streamer("이등", [post("2", 1, "2026-08-10T11:00:00+09:00")]);
+    const third = streamer("삼등", [post("3", 1, "2026-08-10T12:00:00+09:00")]);
+    const fourth = streamer("사등", [post("4", 1, "2026-08-10T13:00:00+09:00")]);
+    const awards = buildTrophyAwards([fourth, third, second, first]);
+    expect(awards.divisionOne.map((award) => ({ id: award.streamer.id, rank: award.rank }))).toEqual([
+      { id: "일등", rank: 1 }, { id: "이등", rank: 2 }, { id: "삼등", rank: 3 },
+    ]);
+  });
+
+  it("excludes streamers who never reported reaching 1부", () => {
+    const neverReached = streamer("미달성", [post("1", 3, "2026-08-10T10:00:00+09:00")]);
+    expect(buildTrophyAwards([neverReached]).divisionOne).toEqual([]);
   });
 
   it("adds scope and eleven-versus-eleven posts, retaining promotion ties", () => {
     const first = { ...streamer("A"), scopePosts: [{ articleId: "s", board: "scope" as const, cafeAuthor: "A", title: "홍보", category: "[내가 직접 홍보]", publishedAt: "2026-08-10T10:00:00+09:00", articleUrl: "https://example.test/s" }] };
     const second = { ...streamer("B"), elevenVsElevenPosts: [{ articleId: "v", board: "elevenVsEleven" as const, cafeAuthor: "B", title: "영상", category: "", publishedAt: "2026-08-10T10:00:00+09:00", articleUrl: "https://example.test/v" }] };
     expect(buildTrophyAwards([first, second]).selfPromotion.map((award) => award.streamer.id)).toEqual(["A", "B"]);
-    expect(buildTrophyAwards([])).toEqual({ dailyPromotion: [], currentDivision: undefined, selfPromotion: [] });
+    expect(buildTrophyAwards([])).toEqual({ dailyPromotion: [], divisionOne: [], selfPromotion: [] });
   });
 
   it("returns each earned badge once even when a daily record is tied more than once", () => {
-    const candidate = streamer("수상자", [post("1", 9, "2026-08-10T10:00:00+09:00"), post("2", 5, "2026-08-10T14:00:00+09:00")]);
+    const candidate = streamer("수상자", [post("1", 9, "2026-08-10T10:00:00+09:00"), post("2", 1, "2026-08-10T14:00:00+09:00")]);
     const awards = buildTrophyAwards([candidate]);
     expect(trophyBadgesFor(candidate, awards)).toEqual([
-      { name: "하루 급성장", emoji: "🚀" }, { name: "현재 최고 디비전", emoji: "🥇" },
+      { key: "division-one", name: "가장 먼저 1부 리그 달성", emoji: "🥇" }, { key: "daily-promotion", name: "하루 급성장", emoji: "🚀" },
     ]);
   });
 });

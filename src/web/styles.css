@@ -57,6 +57,7 @@ body { isolation: isolate; }
 .trophy-award:has(.trophy-help:hover), .trophy-award:has(.trophy-help:focus-within) { z-index: 3; }.trophy-help:hover [role="tooltip"], .trophy-help:focus-within [role="tooltip"] { opacity: 1; transform: translateY(0); }
 .trophy-award__winners { display: grid; }.trophy-record { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 14px; border-top: 1px solid #ffffff10; }.trophy-award__heading + .trophy-award__winners .trophy-record:first-child { border-top: 0; }
 .trophy-winner { display: flex; min-width: 0; align-items: center; gap: 9px; }.trophy-winner .avatar { width: 38px; height: 38px; flex-basis: 38px; }.trophy-winner > div { display: grid; min-width: 0; gap: 3px; }.trophy-winner strong { overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.trophy-winner__medal { font-size: 20px; line-height: 1; }
 .trophy-record__metric { display: grid; justify-items: end; gap: 3px; text-align: right; }.trophy-record__metric span { color: #83988f; font-size: 10px; }.trophy-record__metric strong { color: #ebfff7; font: 800 18px/1 "Barlow Condensed", "Noto Sans KR"; }.trophy-record__metric b { color: #ff6666; font: 800 16px/1 "Barlow Condensed"; }
 .trophy-award__empty { margin: 0; padding: 18px 14px; color: #799087; font-size: 12px; }
 .streamer-card__name { display: flex; min-width: 0; align-items: center; gap: 4px; }.streamer-card__name > strong { min-width: 0; }

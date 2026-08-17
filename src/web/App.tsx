@@ -9,7 +9,7 @@ import { defaultSoopProfileUrl, soopChannelUrl } from "../shared/model.js";
 import { DEFAULT_ONE_VS_ONE_CONFIG } from "../shared/one-vs-one-results.js";
 import { buildPromotionTimeline, summarizePromotionTimeline } from "../shared/promotion-timeline.js";
 import { normalizeCafeAlias } from "../shared/promotion.js";
-import { buildTrophyAwards, trophyBadgesFor, type TrophyAwards } from "../shared/trophy.js";
+import { buildTrophyAwards, DIVISION_ONE_EMOJI, trophyBadgesFor, type TrophyAwards } from "../shared/trophy.js";
 import { loadSnapshot } from "./api.js";
 import soopIcon from "./assets/soop_icon.svg";
 
@@ -131,7 +131,7 @@ function FavoriteCelebration({ message = "축 왁굳형 즐겨찾기 목록 입�
 function AchievementBadges({ streamer, awards }: { streamer: StreamerRecord; awards: TrophyAwards }) {
   const badges = trophyBadgesFor(streamer, awards);
   if (!badges.length) return null;
-  return <span className="achievement-badges" aria-label={`${streamer.displayName} 업적`}>{badges.map((badge) => <span className="achievement-badge" role="img" title={badge.name} key={badge.name} aria-label={badge.name}><span aria-hidden="true">{badge.emoji}</span><span role="tooltip">{badge.name}</span></span>)}</span>;
+  return <span className="achievement-badges" aria-label={`${streamer.displayName} 업적`}>{badges.map((badge) => <span className="achievement-badge" role="img" title={badge.name} key={badge.key} aria-label={badge.name}><span aria-hidden="true">{badge.emoji}</span><span role="tooltip">{badge.name}</span></span>)}</span>;
 }
 
 function StreamerCard({ streamer, awards, onOpen }: { streamer: StreamerRecord; awards: TrophyAwards; onOpen: () => void }) {
@@ -239,21 +239,21 @@ function TrophyHelp({ children }: { children: ReactNode }) {
   return <span className="trophy-help"><button type="button" aria-label="계산 기준 보기"><Info aria-hidden="true" /></button><span role="tooltip">{children}</span></span>;
 }
 
-function TrophyWinner({ streamer }: { streamer: StreamerRecord }) {
-  return <div className="trophy-winner"><Avatar {...streamer} /><div><strong>{streamer.displayName}</strong><SoopTags tags={streamer.soopTags} /></div></div>;
+function TrophyWinner({ streamer, medal }: { streamer: StreamerRecord; medal?: string }) {
+  return <div className="trophy-winner">{medal && <span className="trophy-winner__medal" aria-hidden="true">{medal}</span>}<Avatar {...streamer} /><div><strong>{streamer.displayName}</strong><SoopTags tags={streamer.soopTags} /></div></div>;
 }
 
 function TrophyModal({ awards, onClose }: { awards: TrophyAwards; onClose: () => void }) {
   useEscape(onClose);
   return <Modal onClose={onClose} label="업적" header={<div><p className="eyebrow">HALL OF FAME</p><h2 className="trophy-modal__title"><Trophy aria-hidden="true" /> 업적</h2><p className="trophy-modal__intro">이제야 이쪽을 봐주는구나</p></div>}>
     <div className="trophy-awards">
+      <section className="trophy-award trophy-award--summit">
+        <div className="trophy-award__heading"><span className="trophy-award__icon" aria-hidden="true">🏆</span><div><h3>1부 리그 달성 <TrophyHelp>가장 먼저 1부 리그를 달성한 상위 스트리머 3명을 표시합니다. 1부 리거 달성 게시글이 게시된 순서를 기준으로 하며, 이후 디비전이 바뀌어도 최초 달성 기록은 유지됩니다.</TrophyHelp></h3><p>가장 먼저 1부 리그를 달성한 스트리머들</p></div></div>
+        {awards.divisionOne.length ? <div className="trophy-award__winners">{awards.divisionOne.map((award) => <article className="trophy-record" key={award.streamer.id}><TrophyWinner streamer={award.streamer} medal={DIVISION_ONE_EMOJI[award.rank]} /><div className="trophy-record__metric"><span>{formatCafePostDate(award.reachedAt)} 달성</span><strong>현재 {award.streamer.currentDivision}부</strong></div></article>)}</div> : <p className="trophy-award__empty">아직 1부 리그를 달성한 스트리머가 없습니다.</p>}
+      </section>
       <section className="trophy-award trophy-award--growth">
         <div className="trophy-award__heading"><span className="trophy-award__icon" aria-hidden="true">🚀</span><div><h3>하루 급성장 <TrophyHelp>전체 수집 기간에서 한국 시간 하루 동안 첫 승격글의 직전 부수부터 마지막 승격글까지 계산합니다. 중간 승격글이 없어도 최종 부수까지 반영하며, 한 건만 있어도 1단계로 계산합니다.</TrophyHelp></h3><p>하루에 가장 많이 올라간 역대 기록</p></div></div>
         {awards.dailyPromotion.length ? <div className="trophy-award__winners">{awards.dailyPromotion.map((award) => <article className="trophy-record" key={`${award.streamer.id}-${award.dateKey}`}><TrophyWinner streamer={award.streamer} /><div className="trophy-record__metric"><span>{formatTimelineDate(award.dateKey)}</span><strong>{award.startDivision}부 → {award.endDivision}부</strong><b>▲ {award.steps}</b></div></article>)}</div> : <p className="trophy-award__empty">아직 기록된 승격 업적이 없습니다.</p>}
-      </section>
-      <section className="trophy-award trophy-award--summit">
-        <div className="trophy-award__heading"><span className="trophy-award__icon" aria-hidden="true">🥇</span><div><h3>현재 최고 디비전 <TrophyHelp>대시보드에 표시된 현재 디비전 중 가장 높은 디비전(가장 낮은 부수)을 기준으로 합니다. 동률이면 해당 디비전에 먼저 도달한 스트리머를 표시합니다.</TrophyHelp></h3><p>지금 가장 높은 곳에 있는 스트리머</p></div></div>
-        {awards.currentDivision ? <article className="trophy-record"><TrophyWinner streamer={awards.currentDivision.streamer} /><div className="trophy-record__metric"><span>{awards.currentDivision.reachedAt ? `${formatCafePostDate(awards.currentDivision.reachedAt)} 달성` : "현재 기준"}</span><strong>현재 {awards.currentDivision.streamer.currentDivision}부</strong></div></article> : <p className="trophy-award__empty">아직 디비전 보고가 없습니다.</p>}
       </section>
       <section className="trophy-award trophy-award--promotion">
         <div className="trophy-award__heading"><span className="trophy-award__icon" aria-hidden="true">📣</span><div><h3>자기 PR 왕 <TrophyHelp>잔디동 스코프의 ‘내가 직접 홍보’ 글과 11대11 플레이 영상 게시글 수를 합산합니다. 동률자는 함께 표시합니다.</TrophyHelp></h3><p>가장 활발하게 자신을 알린 주인공</p></div></div>

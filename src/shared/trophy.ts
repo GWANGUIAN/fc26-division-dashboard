@@ -8,9 +8,10 @@ export type DailyPromotionTrophy = {
   steps: number;
 };
 
-export type CurrentDivisionTrophy = {
+export type DivisionOneTrophy = {
   streamer: StreamerRecord;
-  reachedAt?: string;
+  rank: 1 | 2 | 3;
+  reachedAt: string;
 };
 
 export type PromotionTrophy = {
@@ -22,14 +23,18 @@ export type PromotionTrophy = {
 
 export type TrophyAwards = {
   dailyPromotion: DailyPromotionTrophy[];
-  currentDivision?: CurrentDivisionTrophy;
+  divisionOne: DivisionOneTrophy[];
   selfPromotion: PromotionTrophy[];
 };
 
 export type TrophyBadge = {
-  name: "하루 급성장" | "현재 최고 디비전" | "자기 PR 왕";
-  emoji: "🚀" | "🥇" | "📣";
+  key: "daily-promotion" | "division-one" | "self-promotion";
+  name: string;
+  emoji: string;
 };
+
+export const DIVISION_ONE_EMOJI = { 1: "🥇", 2: "🥈", 3: "🥉" } as const;
+const DIVISION_ONE_LABEL = { 1: "가장 먼저 1부 리그 달성", 2: "두 번째로 1부 리그 달성", 3: "세 번째로 1부 리그 달성" } as const;
 
 const koreaDateFormatter = new Intl.DateTimeFormat("en-CA", {
   timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit",
@@ -76,15 +81,14 @@ export function buildTrophyAwards(streamers: StreamerRecord[]): TrophyAwards {
   });
   const bestDailySteps = Math.max(0, ...dailyRecords.map((record) => record.steps));
 
-  const currentCandidates = streamers.flatMap((streamer) => {
-    if (streamer.currentDivision >= 10) return [];
-    const reachedAt = promotionPostsFor(streamer)
-      .find((post) => post.division === streamer.currentDivision)?.publishedAt;
-    return [{ streamer, reachedAt }];
+  const divisionOneCandidates = streamers.flatMap((streamer) => {
+    const reachedAt = promotionPostsFor(streamer).find((post) => post.division === 1)?.publishedAt;
+    return reachedAt ? [{ streamer, reachedAt }] : [];
   }).sort((left, right) =>
-    left.streamer.currentDivision - right.streamer.currentDivision
-    || (left.reachedAt ?? "9999-12-31").localeCompare(right.reachedAt ?? "9999-12-31")
-    || left.streamer.displayName.localeCompare(right.streamer.displayName, "ko"));
+    left.reachedAt.localeCompare(right.reachedAt)
+    || left.streamer.displayName.localeCompare(right.streamer.displayName, "ko"))
+    .slice(0, 3)
+    .map((candidate, index) => ({ ...candidate, rank: (index + 1) as 1 | 2 | 3 }));
 
   const promotionRecords = streamers.map((streamer) => {
     const scopeCount = streamer.scopePosts?.length ?? 0;
@@ -95,15 +99,16 @@ export function buildTrophyAwards(streamers: StreamerRecord[]): TrophyAwards {
 
   return {
     dailyPromotion: bestDailySteps > 0 ? dailyRecords.filter((record) => record.steps === bestDailySteps) : [],
-    currentDivision: currentCandidates[0],
+    divisionOne: divisionOneCandidates,
     selfPromotion: bestPromotionCount > 0 ? promotionRecords.filter((record) => record.totalCount === bestPromotionCount) : [],
   };
 }
 
 export function trophyBadgesFor(streamer: StreamerRecord, awards: TrophyAwards): TrophyBadge[] {
   const badges: TrophyBadge[] = [];
-  if (awards.dailyPromotion.some((award) => award.streamer.id === streamer.id)) badges.push({ name: "하루 급성장", emoji: "🚀" });
-  if (awards.currentDivision?.streamer.id === streamer.id) badges.push({ name: "현재 최고 디비전", emoji: "🥇" });
-  if (awards.selfPromotion.some((award) => award.streamer.id === streamer.id)) badges.push({ name: "자기 PR 왕", emoji: "📣" });
+  const divisionOne = awards.divisionOne.find((award) => award.streamer.id === streamer.id);
+  if (divisionOne) badges.push({ key: "division-one", name: DIVISION_ONE_LABEL[divisionOne.rank], emoji: DIVISION_ONE_EMOJI[divisionOne.rank] });
+  if (awards.dailyPromotion.some((award) => award.streamer.id === streamer.id)) badges.push({ key: "daily-promotion", name: "하루 급성장", emoji: "🚀" });
+  if (awards.selfPromotion.some((award) => award.streamer.id === streamer.id)) badges.push({ key: "self-promotion", name: "자기 PR 왕", emoji: "📣" });
   return badges;
 }
