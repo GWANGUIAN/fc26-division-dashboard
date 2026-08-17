@@ -187,15 +187,15 @@ function PreviousPromotionSection({ posts }: { posts?: PromotionPost[] }) {
 }
 
 function DetailModal({ streamer, awards, onClose, latestPosts = [] }: { streamer: StreamerRecord; awards: TrophyAwards; onClose: () => void; latestPosts?: PromotionPost[] }) {
-  // Find current division post from latestPosts first (most reliable source)
-  const currentPost = latestPosts.find((p) => p.cafeAuthor === streamer.displayName && p.division === streamer.currentDivision);
-  // Snapshots created before promotionHistory was added still contain the
-  // current report and prior reports separately. Combine them so a newly
-  // deployed UI renders the full journey before the next scraper publish.
-  const allPosts = streamer.promotionHistory?.length
-    ? streamer.promotionHistory
-    : [...(streamer.previousPromotionPosts ?? []), ...(streamer.lastPost ? [streamer.lastPost] : [])];
-  const post = currentPost ?? allPosts.filter((p) => p.division === streamer.currentDivision).pop() ?? streamer.lastPost;
+  // Build allPosts: prefer latestPosts for this streamer, fallback to streamer data
+  const allPosts = latestPosts.length && latestPosts.some((p) => p.cafeAuthor === streamer.displayName)
+    ? latestPosts.filter((p) => p.cafeAuthor === streamer.displayName)
+    : (streamer.promotionHistory?.length
+      ? streamer.promotionHistory
+      : (streamer.previousPromotionPosts ?? []));
+  // Find current division post from allPosts
+  const currentPost = allPosts.find((p) => p.division === streamer.currentDivision);
+  const post = currentPost;
   const promotionHistory = allPosts;
   const channel = soopChannelUrl(streamer.soopId);
   const [expandedImage, setExpandedImage] = useState<string>();
