@@ -44,6 +44,20 @@ function formatCafePostDate(value?: string) {
   return new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit", timeZone: "Asia/Seoul" }).format(date);
 }
 
+function formatBoardPostDate(value?: string) {
+  if (!value) return "보고 없음";
+  const date = new Date(value);
+  const dateKey = koreaDateKey(date);
+  const today = new Date();
+  if (dateKey === koreaDateKey(today)) {
+    return `오늘 ${new Intl.DateTimeFormat("ko-KR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" }).format(date)}`;
+  }
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (dateKey === koreaDateKey(yesterday)) return "어제";
+  return formatCafePostDate(value);
+}
+
 function formatTimelineDate(value: string) {
   return new Intl.DateTimeFormat("ko-KR", { month: "long", day: "numeric", timeZone: "Asia/Seoul" }).format(new Date(`${value}T00:00:00+09:00`));
 }
@@ -123,7 +137,7 @@ function AchievementBadges({ streamer, awards }: { streamer: StreamerRecord; awa
 function StreamerCard({ streamer, awards, onOpen }: { streamer: StreamerRecord; awards: TrophyAwards; onOpen: () => void }) {
   return <button className="streamer-card" onClick={onOpen} aria-label={`${streamer.displayName} 상세 보기`}>
     <Avatar {...streamer} />
-    <span className="streamer-card__copy"><span className="streamer-card__name"><strong>{streamer.displayName}</strong><AchievementBadges streamer={streamer} awards={awards} /></span><SoopTags tags={streamer.soopTags} /><small>{streamer.lastPost ? formatCafePostDate(streamer.lastPost.publishedAt) : "첫 보고 대기"}</small></span>
+    <span className="streamer-card__copy"><span className="streamer-card__name"><strong>{streamer.displayName}</strong><AchievementBadges streamer={streamer} awards={awards} /></span><SoopTags tags={streamer.soopTags} /><small>{streamer.lastPost ? formatBoardPostDate(streamer.lastPost.publishedAt) : "첫 보고 대기"}</small></span>
     <span className="streamer-card__rank">D{streamer.currentDivision}</span>
     {!streamer.isMapped && <span className="unmapped" title="SOOP 정보 미연결">카페</span>}
   </button>;
