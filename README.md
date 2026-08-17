@@ -1,15 +1,20 @@
 # 잰디 동아리 후보 대시보드
 
-FC26 디비전 보고소를 읽어 후보의 1~10부 현황을 보여주는 대시보드입니다. 10부는 **시즌 미참여** 후보를 뜻합니다.
+왁물원 FC26 게시글을 수집해 잰디 동아리 후보의 디비전(1~10부), 활동글, 1:1 평가 신청·결과와 트로피 업적을 보여주는 대시보드입니다. 10부는 **시즌 미참여** 후보를 뜻합니다.
+
+새 세션에서 프로젝트를 빠르게 이어서 작업하려면 [프로젝트 인수인계 문서](docs/PROJECT_HANDOFF.md)를 먼저 읽어주세요. 데이터 흐름, 도메인 규칙, DynamoDB 스키마, 장애 대응, 변경 주의사항을 정리해 두었습니다.
 
 ## 구성
 
 - `src/web`: Cloudflare Workers Static Assets에 올릴 React/Vite 정적 대시보드
-- `src/functions`: Lambda 수집기, 공개 읽기 API, Git 기반 로스터 동기화, 비용 안전장치
+- `src/worker.ts`: Reader Lambda 인증 프록시, 2분 Edge 캐시, `/healthz`, 정적 자산 캐시 호환 처리
+- `src/functions`: Lambda 수집기, 읽기 API, Git 기반 설정 동기화, 비용 안전장치
+- `src/shared`: 디비전 산정·별칭 매칭·1:1 판정·트로피·스냅샷 등 도메인 로직과 단위 테스트
 - `roster.yaml`: 카페 닉네임 ↔ SOOP ID/표시명 및 수동 보정의 유일한 관리 파일
+- `one-vs-one-results.yaml`: 신청 게시글 ID에 연결하는 1:1 평가 결과 관리 파일
 - `infrastructure`: EventBridge Scheduler, DynamoDB, ECR, Lambda, 로그, Budget 안전장치 Terraform
 
-수집기는 3분마다 첫 페이지부터 새 글을 확인합니다. 최초/야간 재조정은 마지막 일반 글 페이지까지 이어서 읽습니다. 카페가 접근을 제한하거나 CAPTCHA를 표시하면 우회하지 않고 마지막 정상 데이터를 유지합니다.
+수집기는 3분마다 각 게시판의 첫 페이지부터 새 글을 확인합니다. 최초/야간 재조정(매일 03:00 KST)은 마지막 일반 글 페이지까지 이어서 읽습니다. 카페가 접근을 제한하거나 CAPTCHA를 표시하면 우회하지 않고 마지막 정상 데이터를 유지합니다.
 
 ## 로컬 실행
 
@@ -21,7 +26,13 @@ pnpm build
 pnpm dev
 ```
 
-`VITE_DATA_API_URL`을 지정하지 않으면 실제 UI 검증을 위한 데모 데이터가 표시됩니다. 배포 뒤에는 Cloudflare Worker Builds의 Build variable에 Reader Lambda Function URL을 설정합니다.
+`VITE_DATA_API_URL`을 지정하지 않으면 실제 UI 검증을 위한 데모 데이터가 표시됩니다. 운영 빌드에서는 이 값을 설정하지 마세요. 프런트는 같은 출처의 Cloudflare Worker `/api/snapshot`을 통해 인증된 Reader Lambda 데이터를 받습니다.
+
+Lambda 번들만 별도로 확인할 때는 다음을 실행합니다.
+
+```powershell
+pnpm build:lambda
+```
 
 ## 로스터 관리
 
@@ -97,6 +108,8 @@ Terraform과 Docker, AWS CLI 로그인이 필요합니다.
    ```
 
 GitHub Actions를 사용하려면 기존 GitHub OIDC Provider ARN을 Terraform 변수에 넣고, 출력되는 `github_roster_sync_role_arn`과 `config_sync_function_name`을 각각 `AWS_ROSTER_SYNC_ROLE_ARN`, `AWS_ROSTER_SYNC_FUNCTION_NAME` Secret으로 설정합니다. 역할은 config-sync 함수에만 `lambda:InvokeFunction`을 허용합니다.
+
+배포 이후에는 `https://<Worker 도메인>/healthz`로 상태를 확인할 수 있습니다. 이 엔드포인트는 실제 Reader Lambda와 스냅샷 신선도(12분 이내)를 확인하며, 대시보드 데이터나 인증 토큰은 노출하지 않습니다.
 
 ## 비용 안전장치
 
