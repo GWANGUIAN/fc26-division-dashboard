@@ -8,6 +8,7 @@ import type { DashboardSnapshot, OneVsOneApplicationView, PromotionPost, SoopPro
 import { defaultSoopProfileUrl, soopChannelUrl } from "../shared/model.js";
 import { DEFAULT_ONE_VS_ONE_CONFIG } from "../shared/one-vs-one-results.js";
 import { buildPromotionTimeline, summarizePromotionTimeline } from "../shared/promotion-timeline.js";
+import { normalizeCafeAlias } from "../shared/promotion.js";
 import { buildTrophyAwards, trophyBadgesFor, type TrophyAwards } from "../shared/trophy.js";
 import { loadSnapshot } from "./api.js";
 import soopIcon from "./assets/soop_icon.svg";
@@ -189,9 +190,10 @@ function PreviousPromotionSection({ posts }: { posts?: PromotionPost[] }) {
 function DetailModal({ streamer, awards, onClose, latestPosts = [] }: { streamer: StreamerRecord; awards: TrophyAwards; onClose: () => void; latestPosts?: PromotionPost[] }) {
   // Combine promotionHistory with latestPosts to ensure we have all posts
   const historyPostIds = new Set((streamer.promotionHistory ?? []).map((p) => p.articleId));
+  const normalizedAliases = new Set(streamer.cafeAliases.map(normalizeCafeAlias));
   const allPosts = [
     ...(streamer.promotionHistory ?? []),
-    ...latestPosts.filter((p) => p.cafeAuthor === streamer.displayName && !historyPostIds.has(p.articleId)),
+    ...latestPosts.filter((p) => normalizedAliases.has(normalizeCafeAlias(p.cafeAuthor)) && !historyPostIds.has(p.articleId)),
   ];
   // Find current division post from allPosts
   const currentPost = allPosts.find((p) => p.division === streamer.currentDivision);
