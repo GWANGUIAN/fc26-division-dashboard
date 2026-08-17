@@ -186,14 +186,16 @@ function PreviousPromotionSection({ posts }: { posts?: PromotionPost[] }) {
   </section>;
 }
 
-function DetailModal({ streamer, awards, onClose }: { streamer: StreamerRecord; awards: TrophyAwards; onClose: () => void }) {
+function DetailModal({ streamer, awards, onClose, latestPosts = [] }: { streamer: StreamerRecord; awards: TrophyAwards; onClose: () => void; latestPosts?: PromotionPost[] }) {
+  // Find current division post from latestPosts first (most reliable source)
+  const currentPost = latestPosts.find((p) => p.cafeAuthor === streamer.displayName && p.division === streamer.currentDivision);
   // Snapshots created before promotionHistory was added still contain the
   // current report and prior reports separately. Combine them so a newly
   // deployed UI renders the full journey before the next scraper publish.
   const allPosts = streamer.promotionHistory?.length
     ? streamer.promotionHistory
     : [...(streamer.previousPromotionPosts ?? []), ...(streamer.lastPost ? [streamer.lastPost] : [])];
-  const post = allPosts.filter((p) => p.division === streamer.currentDivision).pop() ?? streamer.lastPost;
+  const post = currentPost ?? allPosts.filter((p) => p.division === streamer.currentDivision).pop() ?? streamer.lastPost;
   const promotionHistory = allPosts;
   const channel = soopChannelUrl(streamer.soopId);
   const [expandedImage, setExpandedImage] = useState<string>();
@@ -308,7 +310,7 @@ export function App() {
     <section className="controls" aria-label={isDivision ? "스트리머 검색" : "평가 신청 필터"}><label><span className="sr-only">검색</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="이름 또는 카페 닉네임 검색" /></label>{isDivision ? <div className="segmented"><button className={activityOnly ? "active" : ""} onClick={() => setActivityOnly((current) => !current)} aria-pressed={activityOnly}>활동글 작성자만</button></div> : <div className="segmented">{(["all", "pending", "completed"] as const).map((value) => <button key={value} className={evaluationFilter === value ? "active" : ""} onClick={() => setEvaluationFilter(value)}>{value === "all" ? "전체" : value === "pending" ? "대결 전" : "대결 완료"}</button>)}</div>}</section>
     {isDivision ? <section className="board" aria-label="FC26 디비전 보드">{divisions.map((division) => { const entries = streamers.filter((streamer) => streamer.currentDivision === division); return <section className={`division division-${division}`} key={division}><div className="division__label"><span>{division === 10 ? "SEASON" : "DIVISION"}</span><strong>{division}</strong>{division === 10 && <small>미참여</small>}</div><div className="division__players">{entries.map((streamer) => <StreamerCard key={streamer.id} streamer={streamer} awards={trophyAwards} onOpen={() => setSelected(streamer)} />)}{entries.length === 0 && <p className="vacant">{division === 10 ? "시즌 미참여 후보 없음" : "후보 대기 중"}</p>}</div></section>; })}</section> : <section className="evaluation-list" aria-label="1대1 평가 신청 목록">{applications.map((application) => <EvaluationCard key={application.articleId} application={application} onOpen={() => setSelectedApplication(application)} />)}{applications.length === 0 && <p className="empty-list">표시할 1대1 평가 신청자가 없습니다.</p>}</section>}
     <footer>왁물원 카페 게시글 기반 · 마지막 동기화 {snapshot ? formatDateTime(snapshot.generatedAt) : "확인 중"}</footer>
-    {selected && <DetailModal streamer={selected} awards={trophyAwards} onClose={() => setSelected(undefined)} />}{selectedApplication && <EvaluationModal application={selectedApplication} onClose={() => setSelectedApplication(undefined)} />}{trophyOpen && <TrophyModal awards={trophyAwards} onClose={() => setTrophyOpen(false)} />}
+    {selected && <DetailModal streamer={selected} awards={trophyAwards} onClose={() => setSelected(undefined)} latestPosts={latest} />}{selectedApplication && <EvaluationModal application={selectedApplication} onClose={() => setSelectedApplication(undefined)} />}{trophyOpen && <TrophyModal awards={trophyAwards} onClose={() => setTrophyOpen(false)} />}
     {feedOpen && <div className="modal-backdrop" role="presentation" onMouseDown={() => setFeedOpen(false)}><aside className="feed" role="dialog" aria-modal="true" aria-label="최신 소식" onMouseDown={(event) => event.stopPropagation()}><button className="close" onClick={() => setFeedOpen(false)} aria-label="닫기">×</button><p className="eyebrow">TODAY'S REPORTS</p><h2>최신 소식</h2>{latest.length ? latest.slice(0, 25).map((post) => <a href={post.articleUrl} target="_blank" rel="noreferrer" key={post.articleId}><span>{post.category}</span><strong>{post.title}</strong><small>{post.cafeAuthor} · {formatCafePostDate(post.publishedAt)}</small></a>) : <p className="empty-list">오늘 등록된 디비전 보고가 없습니다.</p>}</aside></div>}
   </main>;
 }
