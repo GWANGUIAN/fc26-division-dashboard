@@ -97,6 +97,9 @@ resource "aws_lambda_function" "scraper" {
   environment { variables = { TABLE_NAME = aws_dynamodb_table.dashboard.name, MAX_PAGES_PER_RUN = "20", DEPLOYMENT_VERSION = var.image_uri } }
   depends_on = [aws_cloudwatch_log_group.scraper]
   tags       = local.tags
+  # CI updates the running image directly via lambda:UpdateFunctionCode; do not
+  # let the next `terraform apply` revert it back to var.image_uri.
+  lifecycle { ignore_changes = [image_uri] }
 }
 resource "aws_lambda_function" "reader" {
   function_name = "${var.project_name}-reader"
@@ -114,6 +117,7 @@ resource "aws_lambda_function" "reader" {
   } }
   depends_on = [aws_cloudwatch_log_group.reader]
   tags       = local.tags
+  lifecycle { ignore_changes = [image_uri] }
 }
 resource "aws_lambda_function" "config" {
   function_name = "${var.project_name}-config-sync"
@@ -126,6 +130,7 @@ resource "aws_lambda_function" "config" {
   environment { variables = { TABLE_NAME = aws_dynamodb_table.dashboard.name } }
   depends_on = [aws_cloudwatch_log_group.config]
   tags       = local.tags
+  lifecycle { ignore_changes = [image_uri] }
 }
 resource "aws_lambda_function" "budget_guard" {
   count         = var.enable_account_budget_guard ? 1 : 0
@@ -139,6 +144,12 @@ resource "aws_lambda_function" "budget_guard" {
   environment { variables = { SCHEDULE_GROUP = aws_scheduler_schedule_group.main.name, SCHEDULE_NAMES = "${aws_scheduler_schedule.incremental.name},${aws_scheduler_schedule.reconcile.name}" } }
   depends_on = [aws_cloudwatch_log_group.budget_guard]
   tags       = local.tags
+  lifecycle { ignore_changes = [image_uri] }
+}
+
+locals {
+  github_owner     = try(split("/", var.github_repository)[0], "")
+  github_repo_name = try(split("/", var.github_repository)[1], "")
 }
 
 data "aws_iam_policy_document" "github_actions_assume" {
@@ -154,10 +165,16 @@ data "aws_iam_policy_document" "github_actions_assume" {
       variable = "token.actions.githubusercontent.com:aud"
       values   = ["sts.amazonaws.com"]
     }
+    # StringLike (not StringEquals) with the trailing "@*" variant is required
+    # to also match GitHub's fork-PR-style OIDC subject format; keep both
+    # patterns so this stays compatible with the currently deployed roles.
     condition {
-      test     = "StringEquals"
+      test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.github_repository}:ref:refs/heads/main"]
+      values = [
+        "repo:${var.github_repository}:ref:refs/heads/main",
+        "repo:${local.github_owner}@*/${local.github_repo_name}@*:ref:refs/heads/main",
+      ]
     }
   }
 }
@@ -172,6 +189,40 @@ resource "aws_iam_role_policy" "github_roster_sync" {
   name   = "invoke-config-sync"
   role   = aws_iam_role.github_roster_sync[0].id
   policy = jsonencode({ Version = "2012-10-17", Statement = [{ Effect = "Allow", Action = "lambda:InvokeFunction", Resource = aws_lambda_function.config.arn }] })
+}
+
+resource "aws_iam_role" "github_backend_deploy" {
+  count              = var.github_repository != "" && var.github_oidc_provider_arn != "" ? 1 : 0
+  name               = "${var.project_name}-github-backend-deploy"
+  assume_role_policy = data.aws_iam_policy_document.github_actions_assume[0].json
+  tags               = local.tags
+}
+resource "aws_iam_role_policy" "github_backend_deploy" {
+  count = var.github_repository != "" && var.github_oidc_provider_arn != "" ? 1 : 0
+  name  = "build-and-deploy-lambda-image"
+  role  = aws_iam_role.github_backend_deploy[0].id
+  policy = jsonencode({ Version = "2012-10-17", Statement = [
+    { Effect = "Allow", Action = ["ecr:GetAuthorizationToken"], Resource = "*" },
+    {
+      Effect = "Allow",
+      Action = [
+        "ecr:BatchCheckLayerAvailability", "ecr:PutImage",
+        "ecr:InitiateLayerUpload", "ecr:UploadLayerPart", "ecr:CompleteLayerUpload",
+        "ecr:BatchGetImage",
+      ],
+      Resource = aws_ecr_repository.app.arn,
+    },
+    {
+      Effect = "Allow",
+      Action = ["lambda:UpdateFunctionCode", "lambda:GetFunction", "lambda:GetFunctionConfiguration"],
+      Resource = compact([
+        aws_lambda_function.scraper.arn,
+        aws_lambda_function.reader.arn,
+        aws_lambda_function.config.arn,
+        try(aws_lambda_function.budget_guard[0].arn, ""),
+      ]),
+    },
+  ] })
 }
 
 resource "aws_lambda_function_url" "reader" {

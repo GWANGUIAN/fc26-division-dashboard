@@ -90,6 +90,7 @@ export function buildStreamerRecords(posts: PromotionPost[], roster: RosterEntry
       promotionHistory: entryPosts.length ? chronological(entryPosts) : undefined,
       previousPromotionPosts: history.length ? history : undefined,
       isMapped: true,
+      celebrationMessage: entry.celebrationMessage,
     };
   });
 

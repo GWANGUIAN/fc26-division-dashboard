@@ -7,3 +7,4 @@ output "reader_origin_token" {
 output "config_sync_function_name" { value = aws_lambda_function.config.function_name }
 output "budget_guard_name" { value = try(aws_budgets_budget.account_guard[0].name, null) }
 output "github_roster_sync_role_arn" { value = try(aws_iam_role.github_roster_sync[0].arn, null) }
+output "github_backend_deploy_role_arn" { value = try(aws_iam_role.github_backend_deploy[0].arn, null) }

@@ -1,0 +1,68 @@
+name: Deploy backend to AWS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - src/functions/**
+      - src/shared/**
+      - Dockerfile
+      - package.json
+      - package-lock.json
+      - pnpm-lock.yaml
+      - tsconfig.json
+      - .github/workflows/deploy-backend.yml
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ap-northeast-2
+  ECR_REPOSITORY: jandy-fc26-dashboard
+  FUNCTIONS: >-
+    jandy-fc26-dashboard-scraper
+    jandy-fc26-dashboard-reader
+    jandy-fc26-dashboard-config-sync
+    jandy-fc26-dashboard-budget-guard
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ secrets.AWS_BACKEND_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: aws-actions/amazon-ecr-login@v2
+        id: ecr-login
+
+      - name: Build and push Lambda image
+        id: build
+        env:
+          REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+        run: |
+          IMAGE_TAG="sha-${GITHUB_SHA::12}"
+          IMAGE_URI="$REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          # Lambda only accepts a single Docker manifest; disable BuildKit
+          # attestations that would otherwise create an OCI image index.
+          docker build --provenance=false --sbom=false --tag "$IMAGE_URI" .
+          docker push "$IMAGE_URI"
+          echo "image_uri=$IMAGE_URI" >> "$GITHUB_OUTPUT"
+
+      - name: Update Lambda functions
+        env:
+          IMAGE_URI: ${{ steps.build.outputs.image_uri }}
+        run: |
+          for function in $FUNCTIONS; do
+            echo "Updating $function -> $IMAGE_URI"
+            aws lambda update-function-code \
+              --function-name "$function" \
+              --image-uri "$IMAGE_URI" \
+              --no-cli-pager > /dev/null
+            aws lambda wait function-updated --function-name "$function"
+          done
