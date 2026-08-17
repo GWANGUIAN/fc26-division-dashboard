@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { PromotionPost, StreamerRecord } from "./model.js";
-import { buildTrophyAwards } from "./trophy.js";
+import { buildTrophyAwards, trophyBadgesFor } from "./trophy.js";
 
 const post = (articleId: string, division: number, publishedAt: string): PromotionPost => ({
   articleId, cafeAuthor: "후보", title: `${division}부 승격`, category: `[${division}부 승격]`, division, publishedAt,
@@ -56,5 +56,13 @@ describe("trophy awards", () => {
     const second = { ...streamer("B"), elevenVsElevenPosts: [{ articleId: "v", board: "elevenVsEleven" as const, cafeAuthor: "B", title: "영상", category: "", publishedAt: "2026-08-10T10:00:00+09:00", articleUrl: "https://example.test/v" }] };
     expect(buildTrophyAwards([first, second]).selfPromotion.map((award) => award.streamer.id)).toEqual(["A", "B"]);
     expect(buildTrophyAwards([])).toEqual({ dailyPromotion: [], currentDivision: undefined, selfPromotion: [] });
+  });
+
+  it("returns each earned badge once even when a daily record is tied more than once", () => {
+    const candidate = streamer("수상자", [post("1", 9, "2026-08-10T10:00:00+09:00"), post("2", 5, "2026-08-10T14:00:00+09:00")]);
+    const awards = buildTrophyAwards([candidate]);
+    expect(trophyBadgesFor(candidate, awards)).toEqual([
+      { name: "하루 급성장", emoji: "🏆" }, { name: "현재 최고 디비전", emoji: "🥇" },
+    ]);
   });
 });

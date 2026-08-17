@@ -26,6 +26,11 @@ export type TrophyAwards = {
   selfPromotion: PromotionTrophy[];
 };
 
+export type TrophyBadge = {
+  name: "하루 급성장" | "현재 최고 디비전" | "자기 PR 왕";
+  emoji: "🏆" | "🥇" | "📣";
+};
+
 const koreaDateFormatter = new Intl.DateTimeFormat("en-CA", {
   timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit",
 });
@@ -93,4 +98,12 @@ export function buildTrophyAwards(streamers: StreamerRecord[]): TrophyAwards {
     currentDivision: currentCandidates[0],
     selfPromotion: bestPromotionCount > 0 ? promotionRecords.filter((record) => record.totalCount === bestPromotionCount) : [],
   };
+}
+
+export function trophyBadgesFor(streamer: StreamerRecord, awards: TrophyAwards): TrophyBadge[] {
+  const badges: TrophyBadge[] = [];
+  if (awards.dailyPromotion.some((award) => award.streamer.id === streamer.id)) badges.push({ name: "하루 급성장", emoji: "🏆" });
+  if (awards.currentDivision?.streamer.id === streamer.id) badges.push({ name: "현재 최고 디비전", emoji: "🥇" });
+  if (awards.selfPromotion.some((award) => award.streamer.id === streamer.id)) badges.push({ name: "자기 PR 왕", emoji: "📣" });
+  return badges;
 }
