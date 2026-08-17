@@ -187,15 +187,15 @@ function PreviousPromotionSection({ posts }: { posts?: PromotionPost[] }) {
 }
 
 function DetailModal({ streamer, awards, onClose, latestPosts = [] }: { streamer: StreamerRecord; awards: TrophyAwards; onClose: () => void; latestPosts?: PromotionPost[] }) {
-  // Build allPosts: prefer latestPosts for this streamer, fallback to streamer data
-  const allPosts = latestPosts.length && latestPosts.some((p) => p.cafeAuthor === streamer.displayName)
-    ? latestPosts.filter((p) => p.cafeAuthor === streamer.displayName)
-    : (streamer.promotionHistory?.length
-      ? streamer.promotionHistory
-      : (streamer.previousPromotionPosts ?? []));
+  // Combine promotionHistory with latestPosts to ensure we have all posts
+  const historyPostIds = new Set((streamer.promotionHistory ?? []).map((p) => p.articleId));
+  const allPosts = [
+    ...(streamer.promotionHistory ?? []),
+    ...latestPosts.filter((p) => p.cafeAuthor === streamer.displayName && !historyPostIds.has(p.articleId)),
+  ];
   // Find current division post from allPosts
   const currentPost = allPosts.find((p) => p.division === streamer.currentDivision);
-  const post = currentPost;
+  const post = currentPost ?? (allPosts.length ? allPosts[allPosts.length - 1] : undefined);
   const promotionHistory = allPosts;
   const channel = soopChannelUrl(streamer.soopId);
   const [expandedImage, setExpandedImage] = useState<string>();
