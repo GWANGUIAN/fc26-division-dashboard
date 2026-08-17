@@ -402,6 +402,7 @@ streamers:
     override:
       division: null
       policy: auto
+    celebrationMessage: "맹주님의 {n}부 리그 승격을 축하합니다~!!"
   - slug: tndk321
     displayName: "단수아"
     cafeAliases: ["단수아"]

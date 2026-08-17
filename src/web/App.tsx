@@ -187,13 +187,14 @@ function PreviousPromotionSection({ posts }: { posts?: PromotionPost[] }) {
 }
 
 function DetailModal({ streamer, awards, onClose }: { streamer: StreamerRecord; awards: TrophyAwards; onClose: () => void }) {
-  const post = streamer.lastPost;
   // Snapshots created before promotionHistory was added still contain the
   // current report and prior reports separately. Combine them so a newly
   // deployed UI renders the full journey before the next scraper publish.
-  const promotionHistory = streamer.promotionHistory?.length
+  const allPosts = streamer.promotionHistory?.length
     ? streamer.promotionHistory
-    : [...(streamer.previousPromotionPosts ?? []), ...(post ? [post] : [])];
+    : [...(streamer.previousPromotionPosts ?? []), ...(streamer.lastPost ? [streamer.lastPost] : [])];
+  const post = allPosts.filter((p) => p.division === streamer.currentDivision).pop() ?? streamer.lastPost;
+  const promotionHistory = allPosts;
   const channel = soopChannelUrl(streamer.soopId);
   const [expandedImage, setExpandedImage] = useState<string>();
   useEscape(() => expandedImage ? setExpandedImage(undefined) : onClose());
