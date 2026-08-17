@@ -62,7 +62,7 @@ describe("trophy awards", () => {
     const candidate = streamer("수상자", [post("1", 9, "2026-08-10T10:00:00+09:00"), post("2", 5, "2026-08-10T14:00:00+09:00")]);
     const awards = buildTrophyAwards([candidate]);
     expect(trophyBadgesFor(candidate, awards)).toEqual([
-      { name: "하루 급성장", emoji: "🏆" }, { name: "현재 최고 디비전", emoji: "🥇" },
+      { name: "하루 급성장", emoji: "🚀" }, { name: "현재 최고 디비전", emoji: "🥇" },
     ]);
   });
 });

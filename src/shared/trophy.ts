@@ -28,7 +28,7 @@ export type TrophyAwards = {
 
 export type TrophyBadge = {
   name: "하루 급성장" | "현재 최고 디비전" | "자기 PR 왕";
-  emoji: "🏆" | "🥇" | "📣";
+  emoji: "🚀" | "🥇" | "📣";
 };
 
 const koreaDateFormatter = new Intl.DateTimeFormat("en-CA", {
@@ -102,7 +102,7 @@ export function buildTrophyAwards(streamers: StreamerRecord[]): TrophyAwards {
 
 export function trophyBadgesFor(streamer: StreamerRecord, awards: TrophyAwards): TrophyBadge[] {
   const badges: TrophyBadge[] = [];
-  if (awards.dailyPromotion.some((award) => award.streamer.id === streamer.id)) badges.push({ name: "하루 급성장", emoji: "🏆" });
+  if (awards.dailyPromotion.some((award) => award.streamer.id === streamer.id)) badges.push({ name: "하루 급성장", emoji: "🚀" });
   if (awards.currentDivision?.streamer.id === streamer.id) badges.push({ name: "현재 최고 디비전", emoji: "🥇" });
   if (awards.selfPromotion.some((award) => award.streamer.id === streamer.id)) badges.push({ name: "자기 PR 왕", emoji: "📣" });
   return badges;
