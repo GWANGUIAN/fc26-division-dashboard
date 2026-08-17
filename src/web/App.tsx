@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Info, Trophy } from "lucide-react";
 import { A11y } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperInstance } from "swiper/types";
@@ -8,6 +8,7 @@ import type { DashboardSnapshot, OneVsOneApplicationView, PromotionPost, SoopPro
 import { defaultSoopProfileUrl, soopChannelUrl } from "../shared/model.js";
 import { DEFAULT_ONE_VS_ONE_CONFIG } from "../shared/one-vs-one-results.js";
 import { buildPromotionTimeline, summarizePromotionTimeline } from "../shared/promotion-timeline.js";
+import { buildTrophyAwards, type TrophyAwards } from "../shared/trophy.js";
 import { loadSnapshot } from "./api.js";
 import soopIcon from "./assets/soop_icon.svg";
 
@@ -209,6 +210,34 @@ function Modal({ children, header, onClose, label }: { children: ReactNode; head
 
 function useEscape(onClose: () => void) { useEffect(() => { const close = (event: KeyboardEvent) => event.key === "Escape" && onClose(); addEventListener("keydown", close); return () => removeEventListener("keydown", close); }, [onClose]); }
 
+function TrophyHelp({ children }: { children: ReactNode }) {
+  return <span className="trophy-help"><button type="button" aria-label="계산 기준 보기"><Info aria-hidden="true" /></button><span role="tooltip">{children}</span></span>;
+}
+
+function TrophyWinner({ streamer }: { streamer: StreamerRecord }) {
+  return <div className="trophy-winner"><Avatar {...streamer} /><div><strong>{streamer.displayName}</strong><SoopTags tags={streamer.soopTags} /></div></div>;
+}
+
+function TrophyModal({ awards, onClose }: { awards: TrophyAwards; onClose: () => void }) {
+  useEscape(onClose);
+  return <Modal onClose={onClose} label="트로피 업적" header={<div><p className="eyebrow">HALL OF FAME</p><h2 className="trophy-modal__title"><Trophy aria-hidden="true" /> 트로피 업적</h2><p className="trophy-modal__intro">수집된 카페 활동을 바탕으로 한 이번 시즌의 빛나는 기록입니다.</p></div>}>
+    <div className="trophy-awards">
+      <section className="trophy-award trophy-award--growth">
+        <div className="trophy-award__heading"><span className="trophy-award__icon" aria-hidden="true">🏆</span><div><h3>오늘의 급성장 <TrophyHelp>한국 시간 하루 동안 첫 승격글의 직전 부수부터 마지막 승격글까지 계산합니다. 중간 승격글이 없어도 최종 부수까지 반영하며, 한 건만 있어도 1단계로 계산합니다.</TrophyHelp></h3><p>하루에 가장 멀리 올라간 기록</p></div></div>
+        {awards.dailyPromotion.length ? <div className="trophy-award__winners">{awards.dailyPromotion.map((award) => <article className="trophy-record" key={`${award.streamer.id}-${award.dateKey}`}><TrophyWinner streamer={award.streamer} /><div className="trophy-record__metric"><span>{formatTimelineDate(award.dateKey)}</span><strong>{award.startDivision}부 → {award.endDivision}부</strong><b>▲ {award.steps}</b></div></article>)}</div> : <p className="trophy-award__empty">아직 기록된 승격 업적이 없습니다.</p>}
+      </section>
+      <section className="trophy-award trophy-award--summit">
+        <div className="trophy-award__heading"><span className="trophy-award__icon" aria-hidden="true">🥇</span><div><h3>정상 정복자 <TrophyHelp>현재 가장 높은 디비전(가장 낮은 부수)을 기준으로 하며, 동률이면 그 디비전에 먼저 도달한 스트리머를 표시합니다.</TrophyHelp></h3><p>현재 가장 높은 디비전</p></div></div>
+        {awards.currentDivision ? <article className="trophy-record"><TrophyWinner streamer={awards.currentDivision.streamer} /><div className="trophy-record__metric"><span>{formatCafePostDate(awards.currentDivision.reachedAt)} 달성</span><strong>현재 {awards.currentDivision.streamer.currentDivision}부</strong></div></article> : <p className="trophy-award__empty">아직 디비전 보고가 없습니다.</p>}
+      </section>
+      <section className="trophy-award trophy-award--promotion">
+        <div className="trophy-award__heading"><span className="trophy-award__icon" aria-hidden="true">📣</span><div><h3>자기 PR 왕 <TrophyHelp>잔디동 스코프의 ‘내가 직접 홍보’ 글과 11대11 플레이 영상 게시글 수를 합산합니다. 동률자는 함께 표시합니다.</TrophyHelp></h3><p>가장 활발하게 자신을 알린 주인공</p></div></div>
+        {awards.selfPromotion.length ? <div className="trophy-award__winners">{awards.selfPromotion.map((award) => <article className="trophy-record" key={award.streamer.id}><TrophyWinner streamer={award.streamer} /><div className="trophy-record__metric"><strong>총 {award.totalCount}개 게시글</strong><span>스코프 {award.scopeCount} · 11대11 {award.elevenVsElevenCount}</span></div></article>)}</div> : <p className="trophy-award__empty">아직 집계된 자기 PR 게시글이 없습니다.</p>}
+      </section>
+    </div>
+  </Modal>;
+}
+
 function EvaluationCard({ application, onOpen }: { application: OneVsOneApplicationView; onOpen: () => void }) {
   const result = application.result;
   return <article className={`evaluation-card ${result ? "evaluation-card--completed" : ""}`}>
@@ -238,6 +267,7 @@ export function App() {
   const [selected, setSelected] = useState<StreamerRecord>();
   const [selectedApplication, setSelectedApplication] = useState<OneVsOneApplicationView>();
   const [feedOpen, setFeedOpen] = useState(false);
+  const [trophyOpen, setTrophyOpen] = useState(false);
   useEffect(() => { loadSnapshot().then(setSnapshot).catch(() => undefined); }, []);
   const streamers = useMemo(() => (snapshot?.streamers ?? []).filter((streamer) =>
     searchable(streamer.displayName, streamer.cafeAliases, query)
@@ -245,16 +275,17 @@ export function App() {
   const applications = useMemo(() => (snapshot?.oneVsOneApplications ?? []).filter((application) => searchable(application.displayName, application.cafeAliases, query) && (evaluationFilter === "all" || (evaluationFilter === "completed" ? Boolean(application.result) : !application.result))), [snapshot, query, evaluationFilter]);
   const latest = (snapshot?.latestPosts.length ? snapshot.latestPosts : streamers.flatMap((streamer) => streamer.lastPost ? [streamer.lastPost] : []).sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)))
     .filter((post) => koreaDateKey(new Date(post.publishedAt)) === koreaDateKey(new Date()));
+  const trophyAwards = useMemo(() => buildTrophyAwards(snapshot?.streamers ?? []), [snapshot]);
   const isDivision = view === "division";
   return <main>
-    <header className="topbar"><a className="brand" href="#top"><span className="brand-wak">WAK</span><span>JANDY</span><strong>동아리 후보 대시보드</strong></a><nav className="main-nav" aria-label="메인 메뉴"><button className={isDivision ? "active" : ""} onClick={() => setView("division")}>디비전 현황</button><button className={!isDivision ? "active" : ""} onClick={() => setView("evaluation")}>1:1 평가</button></nav><button className="feed-toggle" onClick={() => setFeedOpen(true)}>최신 소식 <em>{latest.length}</em></button></header>
+    <header className="topbar"><a className="brand" href="#top"><span className="brand-wak">WAK</span><span>JANDY</span><strong>동아리 후보 대시보드</strong></a><nav className="main-nav" aria-label="메인 메뉴"><button className={isDivision ? "active" : ""} onClick={() => setView("division")}>디비전 현황</button><button className={!isDivision ? "active" : ""} onClick={() => setView("evaluation")}>1:1 평가</button></nav><div className="topbar__actions"><button className="feed-toggle" onClick={() => setFeedOpen(true)}>최신 소식 <em>{latest.length}</em></button><button className="trophy-toggle" type="button" onClick={() => setTrophyOpen(true)} aria-label="트로피 업적 보기"><Trophy aria-hidden="true" /></button></div></header>
     <FavoriteCelebration />
     <section className="hero" id="top"><div><p className="eyebrow">FC26 · {isDivision ? "SEASON DIVISION BOARD" : "ONE VS ONE EVALUATION"}</p><h1>{isDivision ? <>잰디 <mark>동아리 후보</mark><br />대시보드</> : <>1:1 <mark>평가 신청</mark><br />현황</>}</h1><p className="intro">{isDivision ? "왁물원에 보고된 FC26 디비전 승격 현황을 추적합니다." : "1대1 평가 신청 게시글과 대결 결과를 표시합니다."}</p></div><div className="sync"><span className="sync-dot" /> <b>3 MINUTE REFRESH</b><small><span className="refresh-icon" aria-hidden="true">↻</span> 3분마다 갱신 · {snapshot ? `${formatDateTime(snapshot.generatedAt)} 기준` : "데이터 연결 중"}</small></div></section>
     <JandyVideoSection />
     <section className="controls" aria-label={isDivision ? "스트리머 검색" : "평가 신청 필터"}><label><span className="sr-only">검색</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="이름 또는 카페 닉네임 검색" /></label>{isDivision ? <div className="segmented"><button className={activityOnly ? "active" : ""} onClick={() => setActivityOnly((current) => !current)} aria-pressed={activityOnly}>활동글 작성자만</button></div> : <div className="segmented">{(["all", "pending", "completed"] as const).map((value) => <button key={value} className={evaluationFilter === value ? "active" : ""} onClick={() => setEvaluationFilter(value)}>{value === "all" ? "전체" : value === "pending" ? "대결 전" : "대결 완료"}</button>)}</div>}</section>
     {isDivision ? <section className="board" aria-label="FC26 디비전 보드">{divisions.map((division) => { const entries = streamers.filter((streamer) => streamer.currentDivision === division); return <section className={`division division-${division}`} key={division}><div className="division__label"><span>{division === 10 ? "SEASON" : "DIVISION"}</span><strong>{division}</strong>{division === 10 && <small>미참여</small>}</div><div className="division__players">{entries.map((streamer) => <StreamerCard key={streamer.id} streamer={streamer} onOpen={() => setSelected(streamer)} />)}{entries.length === 0 && <p className="vacant">{division === 10 ? "시즌 미참여 후보 없음" : "후보 대기 중"}</p>}</div></section>; })}</section> : <section className="evaluation-list" aria-label="1대1 평가 신청 목록">{applications.map((application) => <EvaluationCard key={application.articleId} application={application} onOpen={() => setSelectedApplication(application)} />)}{applications.length === 0 && <p className="empty-list">표시할 1대1 평가 신청자가 없습니다.</p>}</section>}
     <footer>왁물원 카페 게시글 기반 · 마지막 동기화 {snapshot ? formatDateTime(snapshot.generatedAt) : "확인 중"}</footer>
-    {selected && <DetailModal streamer={selected} onClose={() => setSelected(undefined)} />}{selectedApplication && <EvaluationModal application={selectedApplication} onClose={() => setSelectedApplication(undefined)} />}
+    {selected && <DetailModal streamer={selected} onClose={() => setSelected(undefined)} />}{selectedApplication && <EvaluationModal application={selectedApplication} onClose={() => setSelectedApplication(undefined)} />}{trophyOpen && <TrophyModal awards={trophyAwards} onClose={() => setTrophyOpen(false)} />}
     {feedOpen && <div className="modal-backdrop" role="presentation" onMouseDown={() => setFeedOpen(false)}><aside className="feed" role="dialog" aria-modal="true" aria-label="최신 소식" onMouseDown={(event) => event.stopPropagation()}><button className="close" onClick={() => setFeedOpen(false)} aria-label="닫기">×</button><p className="eyebrow">TODAY'S REPORTS</p><h2>최신 소식</h2>{latest.length ? latest.slice(0, 25).map((post) => <a href={post.articleUrl} target="_blank" rel="noreferrer" key={post.articleId}><span>{post.category}</span><strong>{post.title}</strong><small>{post.cafeAuthor} · {formatCafePostDate(post.publishedAt)}</small></a>) : <p className="empty-list">오늘 등록된 디비전 보고가 없습니다.</p>}</aside></div>}
   </main>;
 }
