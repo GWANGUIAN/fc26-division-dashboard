@@ -4,7 +4,7 @@
 
 ## 한눈에 보기
 
-- 목적: 왁물원 FC26 잔디동 관련 게시글을 수집하여 후보자의 디비전, 활동글, 1:1 평가 신청·결과, 트로피 업적을 보여준다.
+- 목적: 왁물원 FC26 잔디동 관련 게시글을 수집하여 후보자의 디비전, 활동글, 1:1 평가 신청·결과, 업적을 보여준다.
 - 프런트: React 19 + Vite 정적 사이트를 Cloudflare Worker Static Assets로 제공한다.
 - 백엔드: AWS Lambda 컨테이너가 Naver Café를 Playwright로 수집하고 DynamoDB에 저장한다.
 - 공개 경로: 브라우저 → Cloudflare Worker(`/api/snapshot`) → Reader Lambda → DynamoDB.
@@ -38,7 +38,7 @@ GitHub push (roster/results YAML) → Config Sync Lambda → DynamoDB 로스터/
 
 | 위치 | 책임 |
 | --- | --- |
-| `src/web/App.tsx` | 두 화면(디비전/1:1), 검색·필터, 상세 모달, 승급 타임라인, 트로피 업적, VOD 카드 |
+| `src/web/App.tsx` | 두 화면(디비전/1:1), 검색·필터, 상세 모달, 승급 타임라인, 업적, VOD 카드 |
 | `src/web/api.ts` | 개발 시 데모 데이터, 운영 시 같은 출처 `/api/snapshot` 호출 |
 | `src/worker.ts` | Cloudflare API 프록시·2분 Edge 캐시·`/healthz`·정적 자산 캐시 방어 |
 | `src/functions/scraper.ts` | 스케줄 수집, 게시판별 체크포인트, 이미지 재시도, 스냅샷 발행 |
@@ -70,7 +70,7 @@ GitHub push (roster/results YAML) → Config Sync Lambda → DynamoDB 로스터/
 - 1:1 신청은 `[1대1 평가 신청]` 카테고리 또는 제목으로 판별한다.
 - 결과는 `one-vs-one-results.yaml`에서 신청 게시글 ID로 연결한다. 점수 판정 로직은 `src/shared/one-vs-one.ts`가 단일 기준이다.
 
-### 트로피 업적
+### 업적
 
 - 상단 트로피 버튼은 공개 스냅샷의 `streamers`만으로 계산하는 표시 전용 업적 모달을 연다. 별도의 API·DynamoDB 저장 항목은 없다.
 - `오늘의 급성장`: 한국 시간 날짜별로 해당 후보의 첫 승격 글 직전 부수부터 마지막 승격 글까지의 상승 단계를 계산한다. 중간 단계가 누락돼도 최종 부수까지 반영하며, 하루에 보고가 한 건이어도 1단계다. 가장 큰 기록은 동률자를 모두 표시한다.

@@ -226,7 +226,7 @@ function TrophyWinner({ streamer }: { streamer: StreamerRecord }) {
 
 function TrophyModal({ awards, onClose }: { awards: TrophyAwards; onClose: () => void }) {
   useEscape(onClose);
-  return <Modal onClose={onClose} label="트로피 업적" header={<div><p className="eyebrow">HALL OF FAME</p><h2 className="trophy-modal__title"><Trophy aria-hidden="true" /> 트로피 업적</h2><p className="trophy-modal__intro">수집된 카페 활동을 바탕으로 한 이번 시즌의 빛나는 기록입니다.</p></div>}>
+  return <Modal onClose={onClose} label="업적" header={<div><p className="eyebrow">HALL OF FAME</p><h2 className="trophy-modal__title"><Trophy aria-hidden="true" /> 업적</h2><p className="trophy-modal__intro">수집된 카페 활동을 바탕으로 한 이번 시즌의 빛나는 기록입니다.</p></div>}>
     <div className="trophy-awards">
       <section className="trophy-award trophy-award--growth">
         <div className="trophy-award__heading"><span className="trophy-award__icon" aria-hidden="true">🏆</span><div><h3>하루 급성장 <TrophyHelp>전체 수집 기간에서 한국 시간 하루 동안 첫 승격글의 직전 부수부터 마지막 승격글까지 계산합니다. 중간 승격글이 없어도 최종 부수까지 반영하며, 한 건만 있어도 1단계로 계산합니다.</TrophyHelp></h3><p>하루에 가장 많이 올라간 역대 기록</p></div></div>
@@ -284,7 +284,7 @@ export function App() {
   const trophyAwards = useMemo(() => buildTrophyAwards(snapshot?.streamers ?? []), [snapshot]);
   const isDivision = view === "division";
   return <main>
-    <header className="topbar"><a className="brand" href="#top"><span className="brand-wak">WAK</span><span>JANDY</span><strong>동아리 후보 대시보드</strong></a><nav className="main-nav" aria-label="메인 메뉴"><button className={isDivision ? "active" : ""} onClick={() => setView("division")}>디비전 현황</button><button className={!isDivision ? "active" : ""} onClick={() => setView("evaluation")}>1:1 평가</button></nav><div className="topbar__actions"><button className="feed-toggle" onClick={() => setFeedOpen(true)}>최신 소식 <em>{latest.length}</em></button><button className="trophy-toggle" type="button" onClick={() => setTrophyOpen(true)} aria-label="트로피 업적 보기"><Trophy aria-hidden="true" /></button></div></header>
+    <header className="topbar"><a className="brand" href="#top"><span className="brand-wak">WAK</span><span>JANDY</span><strong>동아리 후보 대시보드</strong></a><nav className="main-nav" aria-label="메인 메뉴"><button className={isDivision ? "active" : ""} onClick={() => setView("division")}>디비전 현황</button><button className={!isDivision ? "active" : ""} onClick={() => setView("evaluation")}>1:1 평가</button></nav><div className="topbar__actions"><button className="feed-toggle" onClick={() => setFeedOpen(true)}>최신 소식 <em>{latest.length}</em></button><button className="trophy-toggle" type="button" onClick={() => setTrophyOpen(true)} aria-label="업적 보기"><Trophy aria-hidden="true" /></button></div></header>
     <FavoriteCelebration />
     <section className="hero" id="top"><div><p className="eyebrow">FC26 · {isDivision ? "SEASON DIVISION BOARD" : "ONE VS ONE EVALUATION"}</p><h1>{isDivision ? <>잰디 <mark>동아리 후보</mark><br />대시보드</> : <>1:1 <mark>평가 신청</mark><br />현황</>}</h1><p className="intro">{isDivision ? "왁물원에 보고된 FC26 디비전 승격 현황을 추적합니다." : "1대1 평가 신청 게시글과 대결 결과를 표시합니다."}</p></div><div className="sync"><span className="sync-dot" /> <b>3 MINUTE REFRESH</b><small><span className="refresh-icon" aria-hidden="true">↻</span> 3분마다 갱신 · {snapshot ? `${formatDateTime(snapshot.generatedAt)} 기준` : "데이터 연결 중"}</small></div></section>
     <JandyVideoSection />
