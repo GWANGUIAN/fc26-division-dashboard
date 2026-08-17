@@ -739,7 +739,7 @@ streamers:
       policy: auto
   - slug: tdw0926
     displayName: "하루아_"
-    cafeAliases: ["하루아킴"]
+    cafeAliases: ["하루아1"]
     soopId: "tdw0926"
     autoUpdate: true
     override:
