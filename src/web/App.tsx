@@ -104,11 +104,11 @@ function JandyVideoSection() {
 }
 
 function FavoriteCelebration() {
-  return <aside className="favorite-celebration" role="note" aria-label="축 왁굳형, 즐겨찾기 목록 입성">
+  return <aside className="favorite-celebration" role="note" aria-label="축 왁굳형 즐겨찾기 목록 입성">
     <span className="favorite-celebration__spark favorite-celebration__spark--left" aria-hidden="true">✦</span>
-    {/* <span className="favorite-celebration__icon" aria-hidden="true">🎉</span> */}
-    <strong>하치쿤, 이제야 이쪽을 봐주는구나</strong>
-    {/* <span className="favorite-celebration__icon" aria-hidden="true">🎺</span> */}
+    <span className="favorite-celebration__icon" aria-hidden="true">🎉</span>
+    <strong>축 왁굳형 즐겨찾기 목록 입성</strong>
+    <span className="favorite-celebration__icon" aria-hidden="true">🎺</span>
     <span className="favorite-celebration__spark favorite-celebration__spark--right" aria-hidden="true">✦</span>
   </aside>;
 }
