@@ -144,7 +144,7 @@ function PromotionTimeline({ posts }: { posts: PromotionPost[] }) {
   return <section className="promotion-timeline" aria-labelledby="promotion-timeline-title">
     <div className="promotion-timeline__heading"><div><p className="eyebrow">PROMOTION JOURNEY</p><h3 id="promotion-timeline-title">승급 여정</h3></div></div>
     <div className="promotion-timeline__stats" aria-label="승급 여정 요약"><span><b>{summary.promotionCount}</b>회 실제 승급</span>{events.length > 1 ? <span><b>{summary.exactDurationMs !== undefined ? formatDuration(summary.exactDurationMs) : `${summary.calendarDays}일`}</b> {summary.exactDurationMs !== undefined ? "소요" : "확인된 기간"}</span> : <span>첫 승급 보고</span>}</div>
-    <div className="promotion-timeline__track">
+    <div className="promotion-timeline__track"><div className="promotion-timeline__rail">
       {groups.map((group) => <div className="promotion-timeline__day" key={group.dateKey}>
         <p>{formatTimelineDate(group.dateKey)}</p>
         <div className="promotion-timeline__events">
@@ -161,7 +161,7 @@ function PromotionTimeline({ posts }: { posts: PromotionPost[] }) {
           })}
         </div>
       </div>)}
-    </div>
+    </div></div>
     <p className="promotion-timeline__notice">일부 과거 게시글은 카페 제공 정보상 날짜만 표시됩니다.</p>
   </section>;
 }
