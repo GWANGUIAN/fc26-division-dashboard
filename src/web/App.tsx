@@ -88,9 +88,15 @@ function JandyVideoCard({ video }: { video: JandyVideo }) {
 
 function JandyVideoSection() {
   const swiper = useRef<SwiperInstance | null>(null);
+  const [canGoPrev, setCanGoPrev] = useState(false);
+  const [canGoNext, setCanGoNext] = useState(true);
+  const syncNavigation = (instance: SwiperInstance) => {
+    setCanGoPrev(!instance.isBeginning);
+    setCanGoNext(!instance.isEnd);
+  };
   return <section className="jandy-videos" aria-labelledby="jandy-videos-title">
-    <div className="jandy-videos__heading"><div><p className="eyebrow">WATCH &amp; LEARN</p><h2 id="jandy-videos-title">잔디동 참고 영상</h2></div><div className="jandy-videos__actions"><span>우왁굳 VOD</span><div className="jandy-videos__navigation" aria-label="참고 영상 넘기기"><button type="button" onClick={() => swiper.current?.slidePrev()} aria-label="이전 참고 영상"><ChevronLeft aria-hidden="true" /></button><button type="button" onClick={() => swiper.current?.slideNext()} aria-label="다음 참고 영상"><ChevronRight aria-hidden="true" /></button></div></div></div>
-    <Swiper className="jandy-videos__swiper" modules={[A11y]} onSwiper={(instance) => { swiper.current = instance; }} loop={jandyVideos.length > 1} spaceBetween={10} slidesPerView={1.1} breakpoints={{ 481: { slidesPerView: 2.15 }, 760: { slidesPerView: 3.15 }, 1100: { slidesPerView: 4 } }} a11y={{ prevSlideMessage: "이전 참고 영상", nextSlideMessage: "다음 참고 영상" }}>
+    <div className="jandy-videos__heading"><div><p className="eyebrow">WATCH &amp; LEARN</p><h2 id="jandy-videos-title">잔디동 참고 영상</h2></div><div className="jandy-videos__actions"><span>우왁굳 VOD</span><div className="jandy-videos__navigation" aria-label="참고 영상 넘기기"><button type="button" onClick={() => swiper.current?.slidePrev()} aria-label="이전 참고 영상" disabled={!canGoPrev}><ChevronLeft aria-hidden="true" /></button><button type="button" onClick={() => swiper.current?.slideNext()} aria-label="다음 참고 영상" disabled={!canGoNext}><ChevronRight aria-hidden="true" /></button></div></div></div>
+    <Swiper className="jandy-videos__swiper" modules={[A11y]} onSwiper={(instance) => { swiper.current = instance; syncNavigation(instance); }} onSlideChange={syncNavigation} onResize={syncNavigation} watchOverflow spaceBetween={10} slidesPerView={1.1} breakpoints={{ 481: { slidesPerView: 2.15 }, 760: { slidesPerView: 3.15 }, 1100: { slidesPerView: 4 } }} a11y={{ prevSlideMessage: "이전 참고 영상", nextSlideMessage: "다음 참고 영상" }}>
       {jandyVideos.map((video) => <SwiperSlide key={video.videoUrl}><JandyVideoCard video={video} /></SwiperSlide>)}
     </Swiper>
   </section>;
