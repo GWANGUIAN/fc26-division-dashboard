@@ -103,11 +103,11 @@ function JandyVideoSection() {
   </section>;
 }
 
-function FavoriteCelebration() {
-  return <aside className="favorite-celebration" role="note" aria-label="축 왁굳형 즐겨찾기 목록 입성">
+function FavoriteCelebration({ message = "축 왁굳형 즐겨찾기 목록 입성" }: { message?: string } = {}) {
+  return <aside className="favorite-celebration" role="note" aria-label={message}>
     <span className="favorite-celebration__spark favorite-celebration__spark--left" aria-hidden="true">✦</span>
     <span className="favorite-celebration__icon" aria-hidden="true">🎉</span>
-    <strong>축 왁굳형 즐겨찾기 목록 입성</strong>
+    <strong>{message}</strong>
     <span className="favorite-celebration__icon" aria-hidden="true">🎺</span>
     <span className="favorite-celebration__spark favorite-celebration__spark--right" aria-hidden="true">✦</span>
   </aside>;
@@ -282,10 +282,26 @@ export function App() {
   const latest = (snapshot?.latestPosts.length ? snapshot.latestPosts : streamers.flatMap((streamer) => streamer.lastPost ? [streamer.lastPost] : []).sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)))
     .filter((post) => koreaDateKey(new Date(post.publishedAt)) === koreaDateKey(new Date()));
   const trophyAwards = useMemo(() => buildTrophyAwards(snapshot?.streamers ?? []), [snapshot]);
+  const celebrationMessage = useMemo(() => {
+    const now = new Date();
+    const latestPost = latest[0];
+    if (!latestPost) return undefined;
+    const postTime = new Date(latestPost.publishedAt);
+    const diffMs = now.getTime() - postTime.getTime();
+    const twoHoursMs = 2 * 60 * 60 * 1000;
+    if (diffMs > twoHoursMs) return undefined;
+    const streamer = snapshot?.streamers.find((s) => s.lastPost?.articleId === latestPost.articleId);
+    if (!streamer) return undefined;
+    const division = latestPost.division;
+    if (streamer.celebrationMessage) {
+      return streamer.celebrationMessage.replace("{n}", String(division));
+    }
+    return `${streamer.displayName}의 ${division}부 리그 승격을 축하합니다~!!`;
+  }, [snapshot, latest]);
   const isDivision = view === "division";
   return <main>
     <header className="topbar"><a className="brand" href="#top"><span className="brand-wak">WAK</span><span>JANDY</span><strong>동아리 후보 대시보드</strong></a><nav className="main-nav" aria-label="메인 메뉴"><button className={isDivision ? "active" : ""} onClick={() => setView("division")}>디비전 현황</button><button className={!isDivision ? "active" : ""} onClick={() => setView("evaluation")}>1:1 평가</button></nav><div className="topbar__actions"><button className="feed-toggle" onClick={() => setFeedOpen(true)}>최신 소식 <em>{latest.length}</em></button><button className="trophy-toggle" type="button" onClick={() => setTrophyOpen(true)} aria-label="업적 보기"><Trophy aria-hidden="true" /></button></div></header>
-    <FavoriteCelebration />
+    <FavoriteCelebration message={celebrationMessage} />
     <section className="hero" id="top"><div><p className="eyebrow">FC26 · {isDivision ? "SEASON DIVISION BOARD" : "ONE VS ONE EVALUATION"}</p><h1>{isDivision ? <>잰디 <mark>동아리 후보</mark><br />대시보드</> : <>1:1 <mark>평가 신청</mark><br />현황</>}</h1><p className="intro">{isDivision ? "왁물원에 보고된 FC26 디비전 승격 현황을 추적합니다." : "1대1 평가 신청 게시글과 대결 결과를 표시합니다."}</p></div><div className="sync"><span className="sync-dot" /> <b>3 MINUTE REFRESH</b><small><span className="refresh-icon" aria-hidden="true">↻</span> 3분마다 갱신 · {snapshot ? `${formatDateTime(snapshot.generatedAt)} 기준` : "데이터 연결 중"}</small></div></section>
     <JandyVideoSection />
     <section className="controls" aria-label={isDivision ? "스트리머 검색" : "평가 신청 필터"}><label><span className="sr-only">검색</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="이름 또는 카페 닉네임 검색" /></label>{isDivision ? <div className="segmented"><button className={activityOnly ? "active" : ""} onClick={() => setActivityOnly((current) => !current)} aria-pressed={activityOnly}>활동글 작성자만</button></div> : <div className="segmented">{(["all", "pending", "completed"] as const).map((value) => <button key={value} className={evaluationFilter === value ? "active" : ""} onClick={() => setEvaluationFilter(value)}>{value === "all" ? "전체" : value === "pending" ? "대결 전" : "대결 완료"}</button>)}</div>}</section>

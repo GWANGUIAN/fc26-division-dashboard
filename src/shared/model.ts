@@ -9,6 +9,7 @@ export interface RosterEntry {
   soopTags?: SoopProfileTag[];
   autoUpdate: boolean;
   override?: { division: number | null; policy: OverridePolicy };
+  celebrationMessage?: string;
 }
 
 export type SoopProfileTag = "파트너" | "베스트" | "루키존" | "스포츠" | "서포터즈";
@@ -61,6 +62,7 @@ export interface StreamerRecord {
   scopePosts?: StreamerActivityPost[];
   elevenVsElevenPosts?: StreamerActivityPost[];
   isMapped: boolean;
+  celebrationMessage?: string;
 }
 
 export interface DashboardSnapshot {

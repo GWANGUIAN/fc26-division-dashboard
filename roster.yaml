@@ -9,6 +9,7 @@ streamers:
     override:
       division: null
       policy: auto
+    # celebrationMessage: "왜냐니의 {n}부 리그 승격을 축하합니다 💝"
   - slug: ddalgishoux
     displayName: 딸기슈몽이♡
     cafeAliases: ["딸기슈몽이"]
@@ -33,6 +34,7 @@ streamers:
     override:
       division: null
       policy: auto
+    celebrationMessage: "재--신의 {n}부 리그 승격을 축하합니다~!!🥅"
   - slug: sookbong777
     displayName: 숙봉이
     cafeAliases: ["숙봉이"]
@@ -57,6 +59,7 @@ streamers:
     override:
       division: null
       policy: auto
+    celebrationMessage: "뽀햄 묵직허이 {n}부 리그 승격!!🔫"
   - slug: sjh4018
     displayName: 핑구
     cafeAliases: ["필규"]
@@ -89,6 +92,7 @@ streamers:
     override:
       division: null
       policy: auto
+    celebrationMessage: "ㅁㅁㅁ의 {n}부 리그 승격을 축하합니다~!!😏"
   - slug: 
     displayName: 마이곰이
     cafeAliases: ["마이곰이"]
@@ -97,6 +101,7 @@ streamers:
     override:
       division: null
       policy: auto
+    celebrationMessage: "곰짱의 {n}부 리그 승격을 축하합니다~!!🧸"
   - slug: 
     displayName: 찌미
     cafeAliases: ["찌 미"]
@@ -113,6 +118,7 @@ streamers:
     override:
       division: null
       policy: auto
+    celebrationMessage: "핫짱의 {n}부 리그 승격을 축하합니다~!!🐉"
   - slug: 
     displayName: 미르_MIR
     cafeAliases: ["MIR미르"]
@@ -137,6 +143,7 @@ streamers:
     override:
       division: null
       policy: auto
+    celebrationMessage: "거--성의 {n}부 리그 승격을 축하합니다~!!⭐"
   - slug: 
     displayName: 플리
     cafeAliases: ["플리 PLI"]
@@ -217,6 +224,7 @@ streamers:
     override:
       division: null
       policy: auto
+    celebrationMessage: "얼음공주의 {n}부 리그 승격을 축하합니다~!!🧊"
   - slug: amanemay
     displayName: 김메이
     cafeAliases: ["김메이kimmay"]
@@ -297,6 +305,7 @@ streamers:
     override:
       division: null
       policy: auto
+    celebrationMessage: "떼굴떼굴 구슬요 {n}부 리그 승격!!🟢"
   - slug: kawri3
     displayName: 카우리3
     cafeAliases: ["카우리"]
@@ -497,6 +506,7 @@ streamers:
     override:
       division: null
       policy: auto
+    celebrationMessage: "단단묵직 센터백 뮤즈의 {n}부 리그 승격을 축하합니다~!!⚽"
   - slug: tjdgk31470
     displayName: "성여올"
     cafeAliases: ["성여올"]
@@ -665,6 +675,7 @@ streamers:
     override:
       division: null
       policy: auto
+    celebrationMessage: "빵망이의 {n}부 리그 승격을 축하합니다~!!🤤"
   - slug: habee511
     displayName: "망야_"
     cafeAliases: ["망야"]
@@ -673,6 +684,7 @@ streamers:
     override:
       division: null
       policy: auto
+    celebrationMessage: "망야 {n}부 리그 승격해쓰야~~"
   - slug: leuni158
     displayName: "르니"
     cafeAliases: ["르니ㅡ"]
@@ -785,6 +797,7 @@ streamers:
     override:
       division: null
       policy: auto
+    celebrationMessage: "이루희의 {n}부 리그 승격을 축하합니다~!! 꼭 이루레이"
   - slug: syusyuang
     displayName: "슈슈슈앙"
     cafeAliases: ["슈슈슈앙"]
@@ -801,6 +814,7 @@ streamers:
     override:
       division: null
       policy: auto
+    celebrationMessage: "ㄴㄴㄴ의 {n}부 리그 승격을 축하합니다~!!"
   - slug: dougie0328
     displayName: "올어바웃설이"
     cafeAliases: ["올어바웃설이"]
@@ -913,6 +927,7 @@ streamers:
     override:
       division: null
       policy: auto
+    celebrationMessage: "유키라의 잔디 놀이 {n}부 리그 승격!!"
   - slug: toryvac
     displayName: "빅토리~!"
     cafeAliases: ["vic tory"]
@@ -921,6 +936,7 @@ streamers:
     override:
       division: null
       policy: auto
+    celebrationMessage: "VICTORY 빅토리 {n}부 리그 승격!!🙌"
   - slug: imleeyo
     displayName: "리요"
     cafeAliases: ["리요"]
@@ -1001,6 +1017,7 @@ streamers:
     override:
       division: null
       policy: auto
+    celebrationMessage: "사시노 리냐의 {n}부 리그 승격을 축하합니다~!!🤪"
   - slug: nboxox182
     displayName: "뱀부범부"
     cafeAliases: ["뱀부범부"]
@@ -1033,6 +1050,7 @@ streamers:
     override:
       division: null
       policy: auto
+    celebrationMessage: "링링이의 {n}부 리그 승격을 축하합니다~!!📜"
   - slug: foxyeon
     displayName: "여우연"
     cafeAliases: ["여우연"]
@@ -1049,6 +1067,7 @@ streamers:
     override:
       division: null
       policy: auto
+    celebrationMessage: "왁육터의 {n}부 리그 승격을 축하합니다~!!💦"
   - slug: natty09
     displayName: "냐쵸♥"
     cafeAliases: ["냐 쵸"]
