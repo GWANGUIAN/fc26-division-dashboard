@@ -18,6 +18,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/ddalshu.mp3"
   - slug: nlsb9718
     displayName: 판다비♥
     cafeAliases: ["판다비"]
@@ -91,6 +92,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/toonyangtz.mp3"
   - slug: 
     displayName: 문모모
     cafeAliases: ["문 모모"]
@@ -612,6 +614,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/ggangdambi.mp3"
   - slug: irrilll
     displayName: "이릴_"
     cafeAliases: ["이릴"]
@@ -728,6 +731,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/dashiba.mp3"
   - slug: usharko0o0
     displayName: "유샥크"
     cafeAliases: ["유샥크"]
@@ -895,6 +899,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "VICTORY 빅토리 {n}부 리그 승격!!🙌"
+    sfx: "/sfxes/victory.mp3"
   - slug: imleeyo
     displayName: "리요"
     cafeAliases: ["리요"]
@@ -970,6 +975,7 @@ streamers:
       policy: auto
     celebrationMessage: "사시노 리냐의 {n}부 리그 승격을 축하합니다~!!🤪"
     profileImageUrl: "/profiles/profile_linya.webp"
+    sfx: "/sfxes/linya.mp3"
   - slug: hikicomoring
     displayName: "히키☆"
     cafeAliases: ["히 키"]
