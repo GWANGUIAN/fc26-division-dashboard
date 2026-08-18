@@ -456,14 +456,6 @@ streamers:
     override:
       division: null
       policy: auto
-  - slug: jaesu111
-    displayName: "재수피기"
-    cafeAliases: ["재수피기"]
-    soopId: "jaesu111"
-    autoUpdate: true
-    override:
-      division: null
-      policy: auto
   - slug: danchu17
     displayName: "단츄♪"
     cafeAliases: ["단츄"]
@@ -1053,6 +1045,22 @@ streamers:
     displayName: "김나디"
     cafeAliases: ["김나디"]
     soopId: "jkl1122"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: xex3
+    displayName: "목츄리"
+    cafeAliases: ["목츄리"]
+    soopId: "xex3"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+  - slug: etwo22
+    displayName: "이투__"
+    cafeAliases: ["이투22"]
+    soopId: "etwo22"
     autoUpdate: true
     override:
       division: null
