@@ -60,6 +60,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "뽀햄 묵직허이 {n}부 리그 승격!!🔫"
+    profileImageUrl: "/profiles/profile_bboringirl.webp"
   - slug: sjh4018
     displayName: 핑구
     cafeAliases: ["필규"]
@@ -93,6 +94,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "ㅁㅁㅁ의 {n}부 리그 승격을 축하합니다~!!😏"
+    profileImageUrl: "/profiles/profile_doormomo.webp"
   - slug: 
     displayName: 마이곰이
     cafeAliases: ["마이곰이"]
@@ -102,6 +104,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "곰짱의 {n}부 리그 승격을 축하합니다~!!🧸"
+    profileImageUrl: "/profiles/profile_mygomiee.webp"
   - slug: 
     displayName: 찌미
     cafeAliases: ["찌 미"]
@@ -135,6 +138,7 @@ streamers:
     override:
       division: null
       policy: auto
+    profileImageUrl: "/profiles/profile_nanamoon.webp"
   - slug: 
     displayName: 거대별
     cafeAliases: ["거대별"]
@@ -225,6 +229,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "얼음공주의 {n}부 리그 승격을 축하합니다~!!🧊"
+    profileImageUrl: "/profiles/profile_hangyeul.webp"
   - slug: amanemay
     displayName: 김메이
     cafeAliases: ["김메이kimmay"]
@@ -281,6 +286,7 @@ streamers:
     override:
       division: null
       policy: auto
+    profileImageUrl: "/profiles/profile_secretgirl.webp"
   - slug: eun0333
     displayName: 우마이:>
     cafeAliases: ["우마이"]
@@ -913,6 +919,7 @@ streamers:
     override:
       division: null
       policy: auto
+    profileImageUrl: "/profiles/profile_ohgu.webp"
   - slug: dw0672
     displayName: "단지이럴수가"
     cafeAliases: ["단지이럴수가"]
@@ -954,6 +961,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "사시노 리냐의 {n}부 리그 승격을 축하합니다~!!🤪"
+    profileImageUrl: "/profiles/profile_linya.webp"
   - slug: hikicomoring
     displayName: "히키☆"
     cafeAliases: ["히 키"]
