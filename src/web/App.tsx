@@ -171,7 +171,7 @@ function JandyVideoCard({ video }: { video: JandyVideo }) {
         : <img src={video.thumbnailUrl} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setThumbnailFailed(true)} />}
       <span className="jandy-video__play" aria-hidden="true">▶</span>
     </span>
-    <span className="jandy-video__copy"><small>우왁굳 VOD ↗</small><strong>{video.title}</strong></span>
+    <span className="jandy-video__copy"><strong>{video.title}</strong></span>
   </a>;
 }
 
