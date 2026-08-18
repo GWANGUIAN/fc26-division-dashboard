@@ -9,7 +9,7 @@ streamers:
     override:
       division: null
       policy: auto
-    # celebrationMessage: "왜냐니의 {n}부 리그 승격을 축하합니다 💝"
+    sfx: "/sfxes/why.mp3"
   - slug: ddalgishoux
     displayName: 딸기슈몽이♡
     cafeAliases: ["딸기슈몽이"]
@@ -84,6 +84,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/quna.mp3"
   - slug: 
     displayName: 투냥츠
     cafeAliases: ["투냥츠"]
@@ -123,6 +124,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/jjimi.mp3"
   - slug: 
     displayName: 하치_HACHI
     cafeAliases: ["하치HACHI"]
@@ -259,6 +261,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/esa.mp3"
   - slug: banta251201
     displayName: 반타__
     cafeAliases: ["반타"]
@@ -349,6 +352,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/sulbindal.mp3"
   - slug: oreo52
     displayName: "푸히:p"
     cafeAliases: ["푸히"]
@@ -422,6 +426,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/dansua.mp3"
   - slug: nnininin
     displayName: "닌닌_"
     cafeAliases: ["닌닌"]
@@ -670,6 +675,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/rni.mp3"
   - slug: daenggang
     displayName: "댕강"
     cafeAliases: ["댕강DaengGang"]
@@ -753,6 +759,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/younggam.mp3"
   - slug: peeya116
     displayName: "피야."
     cafeAliases: ["피야"]
@@ -928,6 +935,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/kimitdip.mp3"
   - slug: been11060
     displayName: "오구"
     cafeAliases: ["오구"]
