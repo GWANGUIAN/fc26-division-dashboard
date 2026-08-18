@@ -12,6 +12,7 @@ import { normalizeCafeAlias } from "../shared/promotion.js";
 import { buildTrophyAwards, DIVISION_ONE_EMOJI, trophyBadgesFor, type TrophyAwards } from "../shared/trophy.js";
 import { loadSnapshot } from "./api.js";
 import soopIcon from "./assets/soop_icon.svg";
+import { MusicPlayer } from "./MusicPlayer";
 
 const divisions = Array.from({ length: 10 }, (_, index) => index + 1);
 const cafeIcon = "N";
@@ -328,6 +329,7 @@ export function App() {
     <footer>왁물원 카페 게시글 기반 · 마지막 동기화 {snapshot ? formatDateTime(snapshot.generatedAt) : "확인 중"}</footer>
     {selected && <DetailModal streamer={selected} awards={trophyAwards} onClose={() => setSelected(undefined)} latestPosts={snapshot?.latestPosts} />}{selectedApplication && <EvaluationModal application={selectedApplication} onClose={() => setSelectedApplication(undefined)} />}{trophyOpen && <TrophyModal awards={trophyAwards} onClose={() => setTrophyOpen(false)} />}
     {feedOpen && <div className="modal-backdrop" role="presentation" onMouseDown={() => setFeedOpen(false)}><aside className="feed" role="dialog" aria-modal="true" aria-label="최신 소식" onMouseDown={(event) => event.stopPropagation()}><button className="close" onClick={() => setFeedOpen(false)} aria-label="닫기">×</button><p className="eyebrow">TODAY'S REPORTS</p><h2>최신 소식</h2>{latest.length ? latest.slice(0, 25).map((post) => <a href={post.articleUrl} target="_blank" rel="noreferrer" key={post.articleId}><span>{post.category}</span><strong>{post.title}</strong><small>{post.cafeAuthor} · {formatCafePostDate(post.publishedAt)}</small></a>) : <p className="empty-list">오늘 등록된 디비전 보고가 없습니다.</p>}</aside></div>}
+    <MusicPlayer />
   </main>;
 }
 
