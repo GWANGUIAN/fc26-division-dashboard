@@ -300,6 +300,7 @@ streamers:
       division: null
       policy: auto
     profileImageUrl: "/profiles/profile_secretgirl.webp"
+    sfx: "/sfxes/secretgirl.mp3"
   - slug: eun0333
     displayName: 우마이:>
     cafeAliases: ["우마이"]
@@ -429,6 +430,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/ninnin.mp3"
   - slug: kbs9981
     displayName: "김병살"
     cafeAliases: ["김병살"]
@@ -606,6 +608,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/charlotte.mp3"
   - slug: cjstkdbsl3
     displayName: "깡담비"
     cafeAliases: ["깡담비"]
@@ -649,6 +652,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "빵망이의 {n}부 리그 승격을 축하합니다~!!🤤"
+    sfx: "/sfxes/bingming.mp3"
   - slug: habee511
     displayName: "망야_"
     cafeAliases: ["망야"]
