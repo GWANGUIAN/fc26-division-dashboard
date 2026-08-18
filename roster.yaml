@@ -108,6 +108,7 @@ streamers:
       policy: auto
     celebrationMessage: "곰짱의 {n}부 리그 승격을 축하합니다~!!🧸"
     profileImageUrl: "/profiles/profile_mygomiee.webp"
+    sfx: "/sfxes/mygomiee.mp3"
   - slug: 
     displayName: 찌미
     cafeAliases: ["찌 미"]
@@ -134,6 +135,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/mir.mp3"
   - slug: 
     displayName: 나나문
     cafeAliases: ["나나문7"]
