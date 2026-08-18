@@ -9,9 +9,9 @@ import { isDirectPromotionPost } from "../shared/streamer-activity.js";
 import { buildDashboardSnapshot } from "../shared/snapshot.js";
 import { collectArticle, collectPage, normalizeCafeDate, SourceBlockedError } from "./naver.js";
 import {
-  getOneVsOneApplications, getOneVsOneResults, getPosts, getRoster, getStreamerActivityPosts, getSyncState,
-  putDashboardSnapshot, putOneVsOneApplication, putPost, putStreamerActivityPost, putStreamers, putSyncState,
-  type SyncState,
+  getDivisionOverrides, getOneVsOneApplications, getOneVsOneResults, getPosts, getRoster, getStreamerActivityPosts,
+  getSyncState, putDashboardSnapshot, putOneVsOneApplication, putPost, putStreamerActivityPost, putStreamers,
+  putSyncState, type SyncState,
 } from "./store.js";
 
 type ScrapeMode = "incremental" | "reconcile";
@@ -25,6 +25,7 @@ export async function handler(event: ScrapeEvent = {}): Promise<void> {
   const mode: ScrapeMode = ("detail" in event ? event.detail?.mode : event.mode) ?? "incremental";
   const articleId = "detail" in event ? event.detail?.articleId : event.articleId;
   const state = await getSyncState();
+  const divisionOverrides = await getDivisionOverrides();
   const knownPosts = await getPosts();
   const knownApplications = await getOneVsOneApplications();
   const knownActivityPosts = await getStreamerActivityPosts();
@@ -50,7 +51,7 @@ export async function handler(event: ScrapeEvent = {}): Promise<void> {
   if (articleId) {
     const existing = knownPosts.find((post) => post.articleId === articleId);
     if (!existing) throw new Error(`Cannot enrich unknown article: ${articleId}`);
-    const enriched = await collectArticle(existing, "division");
+    const enriched = await collectArticle(existing, "division", divisionOverrides);
     if (enriched) await putPost(enriched, true);
     const updatedPosts = enriched ? knownPosts.map((post) => post.articleId === articleId ? enriched : post) : knownPosts;
     const roster = await getRoster();
@@ -68,7 +69,7 @@ export async function handler(event: ScrapeEvent = {}): Promise<void> {
   }
 
   try {
-    nextPages.division = await scrapeDivision(mode, nextPages.division, knownPosts, knownIds, newest);
+    nextPages.division = await scrapeDivision(mode, nextPages.division, knownPosts, knownIds, newest, divisionOverrides);
     nextPages.oneVsOne = await scrapeOneVsOne(mode, nextPages.oneVsOne, knownApplications, knownApplicationIds, newest);
     for (const board of activityBoards) {
       const boardProgress = progress[board]?.page ?? 1;
@@ -81,7 +82,7 @@ export async function handler(event: ScrapeEvent = {}): Promise<void> {
       }
     }
     const roster = await getRoster();
-    await backfillMissingReportImages(knownPosts, roster);
+    await backfillMissingReportImages(knownPosts, roster, divisionOverrides);
     const streamers = buildStreamerRecords(knownPosts, roster);
     await putStreamers(streamers);
     const nextState = await writeState("ok", undefined, nextPages, newest);
@@ -100,7 +101,11 @@ export async function handler(event: ScrapeEvent = {}): Promise<void> {
   }
 }
 
-async function backfillMissingReportImages(posts: PromotionPost[], roster: Awaited<ReturnType<typeof getRoster>>): Promise<void> {
+async function backfillMissingReportImages(
+  posts: PromotionPost[],
+  roster: Awaited<ReturnType<typeof getRoster>>,
+  divisionOverrides: Record<string, number>,
+): Promise<void> {
   const candidates = buildStreamerRecords(posts, roster)
     // A page can render before Naver exposes its lazy media. Retry only empty
     // latest reports and cap attempts so genuinely text-only reports do not
@@ -113,7 +118,7 @@ async function backfillMissingReportImages(posts: PromotionPost[], roster: Await
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
     .slice(0, maxImageBackfillsPerRun);
   for (const candidate of candidates) {
-    const enriched = await collectArticle(candidate, "division");
+    const enriched = await collectArticle(candidate, "division", divisionOverrides);
     if (!enriched) continue;
     if (await putPost(enriched, true)) {
       const index = posts.findIndex((post) => post.articleId === candidate.articleId);
@@ -159,6 +164,7 @@ async function scrapeDivision(
   knownPosts: PromotionPost[],
   knownIds: Set<string>,
   newest: Record<BoardId, string | undefined>,
+  divisionOverrides: Record<string, number>,
 ): Promise<number> {
   let nextPage = page;
   for (let count = 0; count < maxPagesPerRun; count += 1, nextPage += 1) {
@@ -167,7 +173,7 @@ async function scrapeDivision(
     const allKnown = rows.every((row) => knownIds.has(row.articleId));
     for (const row of rows) {
       if (knownIds.has(row.articleId)) continue;
-      const post = await collectArticle(row, "division");
+      const post = await collectArticle(row, "division", divisionOverrides);
       if (post && await putPost(post)) {
         knownPosts.push(post);
         knownIds.add(post.articleId);

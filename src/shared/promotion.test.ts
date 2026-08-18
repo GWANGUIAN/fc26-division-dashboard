@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { filterArticleImages } from "./images.js";
-import { buildStreamerRecords, matchRosterEntry, parseDivision, resolveDivision } from "./promotion.js";
+import { buildStreamerRecords, divisionForPost, matchRosterEntry, parseDivision, resolveDivision } from "./promotion.js";
 import type { PromotionPost, RosterEntry } from "./model.js";
 
 const roster: RosterEntry[] = [{ slug: "momo", displayName: "문모모", cafeAliases: ["문 모모"], autoUpdate: true, override: { division: null, policy: "auto" } }];
@@ -11,6 +11,16 @@ const posts: PromotionPost[] = [
 
 describe("promotion parsing", () => {
   it("recognizes the special division one category", () => expect(parseDivision("[1부 리거 달성]")).toBe(1));
+  it("falls back to a manual override when the category and title carry no 말머리", () => {
+    const post = { articleId: "999", category: "", title: "말머리 없이 올린 승격 인증" };
+    expect(divisionForPost(post)).toBeUndefined();
+    expect(divisionForPost(post, { "999": 4 })).toBe(4);
+    expect(divisionForPost(post, { "111": 4 })).toBeUndefined();
+  });
+  it("prefers a parsed 말머리 over a manual override", () => {
+    const post = { articleId: "999", category: "[3부 승격]", title: "" };
+    expect(divisionForPost(post, { "999": 4 })).toBe(3);
+  });
   it("matches aliases while ignoring whitespace", () => expect(matchRosterEntry("문모모", roster)?.slug).toBe("momo"));
   it("uses the best achieved division and creates division 10 defaults", () => {
     const result = buildStreamerRecords(posts, [...roster, { slug: "new", displayName: "신규", cafeAliases: ["신규"], autoUpdate: true }]);

@@ -128,8 +128,12 @@ export async function collectPage(board: BoardId, pageNumber: number): Promise<L
   } finally { await browser.close(); }
 }
 
-export async function collectArticle(listed: ListedPost, board: BoardId = "division"): Promise<PromotionPost | undefined> {
-  const division = divisionForPost(listed);
+export async function collectArticle(
+  listed: ListedPost,
+  board: BoardId = "division",
+  divisionOverrides?: Record<string, number>,
+): Promise<PromotionPost | undefined> {
+  const division = divisionForPost(listed, divisionOverrides);
   if (!division) return undefined;
   const { isNotice: _isNotice, ...article } = listed;
   const fallback: PromotionPost = {

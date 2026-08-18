@@ -17,8 +17,11 @@ export function isPromotionPost(value: { category: string; title?: string }): bo
   return parseDivision(value.category) !== undefined || parseDivision(value.title ?? "") !== undefined;
 }
 
-export function divisionForPost(post: Pick<PromotionPost, "category" | "title">): number | undefined {
-  return parseDivision(post.category) ?? parseDivision(post.title);
+export function divisionForPost(
+  post: Pick<PromotionPost, "category" | "title" | "articleId">,
+  overrides?: Record<string, number>,
+): number | undefined {
+  return parseDivision(post.category) ?? parseDivision(post.title) ?? overrides?.[post.articleId];
 }
 
 export function matchRosterEntry(author: string, roster: RosterEntry[]): RosterEntry | undefined {

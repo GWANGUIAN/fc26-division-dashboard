@@ -105,6 +105,18 @@ export async function putOneVsOneResults(config: OneVsOneResultsConfig): Promise
   }));
 }
 
+export async function getDivisionOverrides(): Promise<Record<string, number>> {
+  const output = await client.send(new GetCommand({ TableName: tableName, Key: { PK: "CONFIG", SK: "DIVISION_OVERRIDES" } }));
+  return (output.Item?.overrides as Record<string, number> | undefined) ?? {};
+}
+
+export async function putDivisionOverrides(overrides: Record<string, number>): Promise<void> {
+  await client.send(new PutCommand({
+    TableName: tableName,
+    Item: { PK: "CONFIG", SK: "DIVISION_OVERRIDES", overrides, updatedAt: new Date().toISOString() },
+  }));
+}
+
 export async function getStreamers(): Promise<StreamerRecord[]> {
   return (await scanByPartition<Item & { streamer: StreamerRecord }>("STREAMER")).map((item) => item.streamer);
 }
