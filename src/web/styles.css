@@ -122,6 +122,15 @@ body { isolation: isolate; }
 .music-player__time { margin-left: auto; color: #8ca399; font-size: 11px; white-space: nowrap; }
 .music-player__progress { height: 4px; margin: 0 16px 12px; border-radius: 2px; background: #ffffff18; cursor: pointer; }
 .music-player__progress-fill { height: 100%; border-radius: 2px; background: #00e9ae; }
+.music-player__volume { display: flex; align-items: center; gap: 8px; padding: 0 16px 12px; }
+.music-player__volume button { display: grid; width: 26px; height: 26px; flex: 0 0 26px; place-items: center; border: 1px solid #ffffff20; border-radius: 50%; color: #eafffa; background: #ffffff08; }
+.music-player__volume button:hover { border-color: #00e9ae; background: #00e9ae18; }
+.music-player__volume button svg { width: 14px; height: 14px; }
+.music-player__volume input[type="range"] { flex: 1; height: 4px; -webkit-appearance: none; appearance: none; border-radius: 2px; background: linear-gradient(to right, #00e9ae var(--volume-fill, 100%), #ffffff18 var(--volume-fill, 100%)); outline: none; cursor: pointer; }
+.music-player__volume input[type="range"]::-webkit-slider-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%; background: #00e9ae; box-shadow: 0 0 6px #00e9ae70; -webkit-appearance: none; }
+.music-player__volume input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%; background: #00e9ae; box-shadow: 0 0 6px #00e9ae70; }
+.music-player__volume input[type="range"]::-moz-range-track { height: 4px; border-radius: 2px; background: #ffffff18; }
+.music-player__volume input[type="range"]::-moz-range-progress { height: 4px; border-radius: 2px; background: #00e9ae; }
 .music-player__playlist { display: grid; overflow-y: auto; margin: 0; padding: 0; border-top: 1px solid #ffffff18; list-style: none; }
 .music-player__playlist button { display: grid; width: 100%; gap: 2px; padding: 10px 16px; border: 0; border-top: 1px solid #ffffff10; color: #d9ebe4; text-align: left; background: transparent; }
 .music-player__playlist li:first-child button { border-top: 0; }

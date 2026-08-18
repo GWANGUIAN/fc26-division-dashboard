@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Music4, Pause, Play, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Music4, Pause, Play, Volume2, VolumeX, X } from "lucide-react";
 import { musicPlaylist } from "./musicPlaylist";
 
 declare global {
@@ -19,6 +19,9 @@ type YTPlayer = {
   seekTo(seconds: number, allowSeekAhead: boolean): void;
   getCurrentTime(): number;
   getDuration(): number;
+  setVolume(volume: number): void;
+  mute(): void;
+  unMute(): void;
   destroy(): void;
 };
 
@@ -50,6 +53,8 @@ export function MusicPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(100);
+  const [muted, setMuted] = useState(false);
   const frameRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YTPlayer | undefined>(undefined);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -112,6 +117,19 @@ export function MusicPlayer() {
     else playerRef.current?.playVideo();
   };
 
+  const changeVolume = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number(event.target.value);
+    setVolume(value);
+    playerRef.current?.setVolume(value);
+    if (value === 0 && !muted) { playerRef.current?.mute(); setMuted(true); }
+    else if (value > 0 && muted) { playerRef.current?.unMute(); setMuted(false); }
+  };
+
+  const toggleMute = () => {
+    if (muted) { playerRef.current?.unMute(); setMuted(false); }
+    else { playerRef.current?.mute(); setMuted(true); }
+  };
+
   const seek = (event: React.MouseEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
     const ratio = (event.clientX - rect.left) / rect.width;
@@ -136,6 +154,10 @@ export function MusicPlayer() {
         <span className="music-player__time">{formatTime(currentTime)} / {formatTime(duration)}</span>
       </div>
       <div className="music-player__progress" onClick={seek}><div className="music-player__progress-fill" style={{ width: `${progressRatio * 100}%` }} /></div>
+      <div className="music-player__volume">
+        <button type="button" onClick={toggleMute} aria-label={muted ? "음소거 해제" : "음소거"} tabIndex={isExpanded ? 0 : -1}>{muted || volume === 0 ? <VolumeX aria-hidden="true" /> : <Volume2 aria-hidden="true" />}</button>
+        <input type="range" min={0} max={100} value={muted ? 0 : volume} onChange={changeVolume} aria-label="볼륨" tabIndex={isExpanded ? 0 : -1} style={{ "--volume-fill": `${muted ? 0 : volume}%` } as React.CSSProperties} />
+      </div>
       <ul className="music-player__playlist">
         {musicPlaylist.map((item, index) => <li key={item.videoId}>
           <button type="button" className={index === trackIndex ? "active" : ""} onClick={() => playTrack(index)} tabIndex={isExpanded ? 0 : -1}>
