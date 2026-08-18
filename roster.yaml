@@ -44,6 +44,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/sookbong.mp3"
   - slug: dokkhye0000
     displayName: 독고혜지
     cafeAliases: ["독고혜지"]
@@ -72,6 +73,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/pinggu.mp3"
   - slug: qna0906
     displayName: 큐나
     cafeAliases: ["큐나"]
