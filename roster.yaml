@@ -607,7 +607,7 @@ streamers:
     soopId: "cjstkdbsl3"
     autoUpdate: true
     override:
-      division: 9
+      division: null
       policy: auto
   - slug: irrilll
     displayName: "이릴_"
