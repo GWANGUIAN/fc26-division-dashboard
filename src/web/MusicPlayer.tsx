@@ -167,11 +167,19 @@ export function MusicPlayer() {
       </ul>
     </section>
     <button type="button" className="music-player__toggle" onClick={() => setIsExpanded((current) => !current)} aria-label={isExpanded ? "음악 플레이어 접기" : "음악 플레이어 열기"} aria-expanded={isExpanded}>
-      {isPlaying && <svg className="music-player__ring" viewBox="0 0 48 48" aria-hidden="true">
-        <circle cx="24" cy="24" r="22" />
-        <circle cx="24" cy="24" r="22" style={{ strokeDasharray: ringCircumference, strokeDashoffset: ringCircumference * (1 - progressRatio) }} />
-      </svg>}
-      <Music4 />
+      <span className="music-player__toggle-icon">
+        {isPlaying && <svg className="music-player__ring" viewBox="0 0 48 48" aria-hidden="true">
+          <circle cx="24" cy="24" r="22" />
+          <circle cx="24" cy="24" r="22" style={{ strokeDasharray: ringCircumference, strokeDashoffset: ringCircumference * (1 - progressRatio) }} />
+        </svg>}
+        <Music4 aria-hidden="true" />
+      </span>
+      <span className="music-player__toggle-title" aria-hidden="true">
+        <span className="music-player__toggle-title-track">
+          <span>{track.title}</span>
+          <span>{track.title}</span>
+        </span>
+      </span>
     </button>
   </div>;
 }
