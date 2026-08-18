@@ -216,7 +216,7 @@ function AchievementBadges({ streamer, awards }: { streamer: StreamerRecord; awa
 
 function StreamerCard({ streamer, awards, isNew, onOpen }: { streamer: StreamerRecord; awards: TrophyAwards; isNew: boolean; onOpen: () => void }) {
   return <button className={`streamer-card ${isNew ? "streamer-card--new" : ""}`} onClick={onOpen} aria-label={`${streamer.displayName} 상세 보기${isNew ? " (오늘 업데이트됨)" : ""}`}>
-    <Avatar {...streamer} />
+    <span className="streamer-card__avatar"><Avatar {...streamer} />{streamer.sfx && <Volume2 className="streamer-card__sfx-badge" aria-hidden="true" />}</span>
     <span className="streamer-card__copy"><span className="streamer-card__name"><strong>{streamer.displayName}</strong><AchievementBadges streamer={streamer} awards={awards} /></span><SoopTags tags={streamer.soopTags} /><small>{streamer.lastPost ? formatBoardPostDate(streamer.lastPost.publishedAt) : "첫 보고 대기"}</small></span>
     <span className="streamer-card__rank">D{streamer.currentDivision}</span>
     {!streamer.isMapped && <span className="unmapped" title="SOOP 정보 미연결">카페</span>}
