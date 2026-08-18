@@ -758,7 +758,7 @@ streamers:
     override:
       division: null
       policy: auto
-    celebrationMessage: "이루희의 {n}부 리그 승격을 축하합니다~!! 꼭 이루레이"
+    celebrationMessage: "이루희의 {n}부 리그 승격을 축하합니다~!! 꼭 이루래희"
   - slug: syusyuang
     displayName: "슈슈슈앙"
     cafeAliases: ["슈슈슈앙"]
