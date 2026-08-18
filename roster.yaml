@@ -60,6 +60,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "뽀햄 묵직허이 {n}부 리그 승격!!🔫"
+    sfx: "/sfxes/bboringirl.mp3"
     profileImageUrl: "/profiles/profile_bboringirl.webp"
   - slug: sjh4018
     displayName: 핑구
@@ -231,6 +232,7 @@ streamers:
       policy: auto
     celebrationMessage: "얼음공주의 {n}부 리그 승격을 축하합니다~!!🧊"
     profileImageUrl: "/profiles/profile_hangyeul.webp"
+    sfx: "/sfxes/hangyeul.mp3"
   - slug: amanemay
     displayName: 김메이
     cafeAliases: ["김메이kimmay"]
