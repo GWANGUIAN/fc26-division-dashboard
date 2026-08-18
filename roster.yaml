@@ -35,6 +35,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "재--신의 {n}부 리그 승격을 축하합니다~!!🥅"
+    sfx: "/sfxes/jaenin.mp3"
   - slug: sookbong777
     displayName: 숙봉이
     cafeAliases: ["숙봉이"]
@@ -739,6 +740,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/ushark.mp3"
   - slug: y0unggam
     displayName: "영감__"
     cafeAliases: ["영감"]
