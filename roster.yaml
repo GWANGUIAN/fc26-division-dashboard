@@ -641,6 +641,7 @@ streamers:
     override:
       division: null
       policy: auto
+    celebrationMessage: "햇슨황의 {n}부 리그 승격을 축하합니다~!!🤤"
   - slug: tleod1818
     displayName: "빙밍_"
     cafeAliases: ["빙밍"]
