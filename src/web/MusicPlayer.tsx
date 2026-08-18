@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Music, Pause, Play, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pause, Play, X } from "lucide-react";
 import { musicPlaylist } from "./musicPlaylist";
 
 declare global {
@@ -149,7 +149,7 @@ export function MusicPlayer() {
         <circle cx="24" cy="24" r="22" />
         <circle cx="24" cy="24" r="22" style={{ strokeDasharray: ringCircumference, strokeDashoffset: ringCircumference * (1 - progressRatio) }} />
       </svg>}
-      {isPlaying ? <Pause aria-hidden="true" /> : <Music aria-hidden="true" />}
+      {isPlaying ? <Pause aria-hidden="true" /> : <Play aria-hidden="true" />}
     </button>
   </div>;
 }
