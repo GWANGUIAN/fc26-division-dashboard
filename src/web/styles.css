@@ -99,6 +99,16 @@ body { isolation: isolate; }
 .sfx-toggle:hover, .sfx-toggle:focus-visible { color: #00e9ae; outline: 0; }
 .sfx-toggle[aria-pressed="true"] { color: #eafffa; }
 .sfx-toggle svg { width: 18px; height: 18px; }
+.sfx-control { position: relative; }
+.sfx-control__popup { position: absolute; bottom: calc(100% + 10px); left: 50%; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; width: 40px; padding: 14px 0 10px; border: 1px solid #00e9ae62; border-radius: 10px; background: #0c1814; box-shadow: 0 8px 24px #000a; opacity: 0; pointer-events: none; transform: translate(-50%, 6px); transition: opacity .15s, transform .15s; }
+.sfx-control--open .sfx-control__popup { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
+.sfx-control__slider-track { position: relative; width: 24px; height: 84px; }
+.sfx-control__slider { position: absolute; top: 50%; left: 50%; width: 84px; height: 4px; margin: 0; -webkit-appearance: none; appearance: none; border-radius: 2px; background: linear-gradient(to right, #00e9ae var(--volume-fill, 100%), #ffffff18 var(--volume-fill, 100%)); outline: none; cursor: pointer; transform: translate(-50%, -50%) rotate(-90deg); }
+.sfx-control__slider::-webkit-slider-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%; background: #00e9ae; box-shadow: 0 0 6px #00e9ae70; -webkit-appearance: none; }
+.sfx-control__slider::-moz-range-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%; background: #00e9ae; box-shadow: 0 0 6px #00e9ae70; }
+.sfx-control__slider::-moz-range-track { height: 4px; border-radius: 2px; background: #ffffff18; }
+.sfx-control__slider::-moz-range-progress { height: 4px; border-radius: 2px; background: #00e9ae; }
+.sfx-control__value { color: #8ca399; font-size: 10px; font-weight: 700; }
 .music-player { position: relative; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
 .music-player__toggle { position: relative; display: grid; width: 52px; height: 52px; place-items: center; border: 1px solid #00e9ae62; border-radius: 50%; color: #eafffa; background: #0c1814; box-shadow: 0 8px 24px #000a; transition: .2s; }
 .music-player__toggle:hover, .music-player__toggle:focus-visible { border-color: #00e9ae; background: #00e9ae18; outline: 0; }

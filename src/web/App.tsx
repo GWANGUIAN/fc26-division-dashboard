@@ -34,6 +34,7 @@ const koreaDateKey = (value: Date) => new Intl.DateTimeFormat("en-CA", {
 
 const SEEN_UPDATES_STORAGE_KEY = "fc26-seen-updates";
 const SFX_ENABLED_STORAGE_KEY = "fc26-sfx-enabled";
+const SFX_VOLUME_STORAGE_KEY = "fc26-sfx-volume";
 
 function loadSfxEnabled(): boolean {
   try {
@@ -44,11 +45,23 @@ function loadSfxEnabled(): boolean {
   }
 }
 
+function loadSfxVolume(): number {
+  try {
+    const raw = localStorage.getItem(SFX_VOLUME_STORAGE_KEY);
+    if (raw === null) return 100;
+    const value = Number(raw);
+    return Number.isFinite(value) ? Math.min(100, Math.max(0, value)) : 100;
+  } catch {
+    return 100;
+  }
+}
+
 let activeSfxAudio: HTMLAudioElement | undefined;
 
-function playSfx(url: string) {
+function playSfx(url: string, volume = 1) {
   stopSfx();
   const audio = new Audio(url);
+  audio.volume = volume;
   activeSfxAudio = audio;
   audio.play().catch(() => {
     // ignore autoplay/decoding failures
@@ -60,11 +73,34 @@ function stopSfx() {
   activeSfxAudio = undefined;
 }
 
-function SfxToggle({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) {
-  return <button type="button" className="sfx-toggle" onClick={onToggle} aria-pressed={enabled} aria-label={enabled ? "효과음 끄기" : "효과음 켜기"}>
-    {enabled ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
-    <span>효과음 {enabled ? "ON" : "OFF"}</span>
-  </button>;
+const SFX_POPUP_CLOSE_DELAY_MS = 500;
+
+function SfxToggle({ enabled, volume, onToggle, onVolumeChange }: { enabled: boolean; volume: number; onToggle: () => void; onVolumeChange: (value: number) => void }) {
+  const [popupOpen, setPopupOpen] = useState(false);
+  const closeTimeoutRef = useRef<number | undefined>(undefined);
+  const cancelClose = () => {
+    clearTimeout(closeTimeoutRef.current);
+    closeTimeoutRef.current = undefined;
+  };
+  const openPopup = () => { cancelClose(); setPopupOpen(true); };
+  const scheduleClose = () => {
+    cancelClose();
+    closeTimeoutRef.current = window.setTimeout(() => setPopupOpen(false), SFX_POPUP_CLOSE_DELAY_MS);
+  };
+  useEffect(() => cancelClose, []);
+  const displayValue = enabled ? volume : 0;
+  return <div className={`sfx-control ${popupOpen ? "sfx-control--open" : ""}`} onMouseEnter={openPopup} onMouseLeave={scheduleClose} onFocus={openPopup} onBlur={scheduleClose}>
+    <div className="sfx-control__popup">
+      <div className="sfx-control__slider-track">
+        <input type="range" className="sfx-control__slider" min={0} max={100} value={displayValue} onChange={(event) => onVolumeChange(Number(event.target.value))} aria-label="효과음 볼륨" style={{ "--volume-fill": `${displayValue}%` } as React.CSSProperties} />
+      </div>
+      <span className="sfx-control__value">{displayValue}</span>
+    </div>
+    <button type="button" className="sfx-toggle" onClick={onToggle} aria-pressed={enabled} aria-label={enabled ? "효과음 끄기" : "효과음 켜기"}>
+      {enabled ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
+      <span>효과음 {enabled ? "ON" : "OFF"}</span>
+    </button>
+  </div>;
 }
 
 function isUpdatedToday(streamer: StreamerRecord, todayKey: string) {
@@ -388,6 +424,7 @@ export function App() {
   const [toast, setToast] = useState<string>();
   const toastTimeout = useRef<number | undefined>(undefined);
   const [sfxEnabled, setSfxEnabled] = useState(loadSfxEnabled);
+  const [sfxVolume, setSfxVolume] = useState(loadSfxVolume);
   const { seenKeys, markSeen, todayKey } = useSeenUpdates();
   const controlsSentinelRef = useRef<HTMLDivElement>(null);
   const [controlsStuck, setControlsStuck] = useState(false);
@@ -398,16 +435,26 @@ export function App() {
     observer.observe(sentinel);
     return () => observer.disconnect();
   }, []);
+  function persistSfxEnabled(next: boolean) {
+    setSfxEnabled(next);
+    try {
+      localStorage.setItem(SFX_ENABLED_STORAGE_KEY, next ? "1" : "0");
+    } catch {
+      // ignore storage failures (e.g. private browsing)
+    }
+  }
   function toggleSfx() {
-    setSfxEnabled((current) => {
-      const next = !current;
-      try {
-        localStorage.setItem(SFX_ENABLED_STORAGE_KEY, next ? "1" : "0");
-      } catch {
-        // ignore storage failures (e.g. private browsing)
-      }
-      return next;
-    });
+    persistSfxEnabled(!sfxEnabled);
+  }
+  function changeSfxVolume(value: number) {
+    setSfxVolume(value);
+    try {
+      localStorage.setItem(SFX_VOLUME_STORAGE_KEY, String(value));
+    } catch {
+      // ignore storage failures (e.g. private browsing)
+    }
+    if (value === 0 && sfxEnabled) persistSfxEnabled(false);
+    else if (value > 0 && !sfxEnabled) persistSfxEnabled(true);
   }
   useEffect(() => { loadSnapshot().then(setSnapshot).catch(() => undefined); }, []);
   useEffect(() => () => clearTimeout(toastTimeout.current), []);
@@ -454,11 +501,11 @@ export function App() {
     <JandyVideoSection />
     <div ref={controlsSentinelRef} className="controls-sentinel" aria-hidden="true" />
     <section className={`controls-bar ${controlsStuck ? "controls-bar--stuck" : ""}`} aria-label={isDivision ? "스트리머 검색" : "평가 신청 필터"}><div className="controls"><div className="controls__search"><label><span className="sr-only">검색</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="이름 또는 카페 닉네임 검색" /></label>{isDivision && <DivisionHistogram streamers={snapshot?.streamers ?? []} />}</div>{isDivision ? <div className="controls__actions"><div className="segmented"><button className={activityOnly ? "active" : ""} onClick={() => setActivityOnly((current) => !current)} aria-pressed={activityOnly}>활동글 작성자만</button></div><button className="copy-list-button" type="button" onClick={handleCopyDivisionList}><Copy aria-hidden="true" /> 목록 복사</button></div> : <div className="segmented">{(["all", "pending", "completed"] as const).map((value) => <button key={value} className={evaluationFilter === value ? "active" : ""} onClick={() => setEvaluationFilter(value)}>{value === "all" ? "전체" : value === "pending" ? "대결 전" : "대결 완료"}</button>)}</div>}</div></section>
-    {isDivision ? <section className="board" aria-label="FC26 디비전 보드">{divisions.map((division) => { const entries = streamers.filter((streamer) => streamer.currentDivision === division); return <section className={`division division-${division}`} key={division}><div className="division__label"><span>{division === 10 ? "SEASON" : "DIVISION"}</span><strong>{division}</strong>{division === 10 && <small>미참여</small>}</div><div className="division__players">{entries.map((streamer) => <StreamerCard key={streamer.id} streamer={streamer} awards={trophyAwards} isNew={isUpdatedToday(streamer, todayKey) && !seenKeys.has(seenKeyFor(streamer))} onOpen={() => { if (streamer.lastPost) markSeen(seenKeyFor(streamer)); if (sfxEnabled && streamer.sfx) playSfx(streamer.sfx); setSelected(streamer); }} />)}{entries.length === 0 && <p className="vacant">{division === 10 ? "시즌 미참여 후보 없음" : "후보 대기 중"}</p>}</div></section>; })}</section> : <section className="evaluation-list" aria-label="1대1 평가 신청 목록">{applications.map((application) => <EvaluationCard key={application.articleId} application={application} onOpen={() => setSelectedApplication(application)} />)}{applications.length === 0 && <p className="empty-list">표시할 1대1 평가 신청자가 없습니다.</p>}</section>}
+    {isDivision ? <section className="board" aria-label="FC26 디비전 보드">{divisions.map((division) => { const entries = streamers.filter((streamer) => streamer.currentDivision === division); return <section className={`division division-${division}`} key={division}><div className="division__label"><span>{division === 10 ? "SEASON" : "DIVISION"}</span><strong>{division}</strong>{division === 10 && <small>미참여</small>}</div><div className="division__players">{entries.map((streamer) => <StreamerCard key={streamer.id} streamer={streamer} awards={trophyAwards} isNew={isUpdatedToday(streamer, todayKey) && !seenKeys.has(seenKeyFor(streamer))} onOpen={() => { if (streamer.lastPost) markSeen(seenKeyFor(streamer)); if (sfxEnabled && streamer.sfx) playSfx(streamer.sfx, sfxVolume / 100); setSelected(streamer); }} />)}{entries.length === 0 && <p className="vacant">{division === 10 ? "시즌 미참여 후보 없음" : "후보 대기 중"}</p>}</div></section>; })}</section> : <section className="evaluation-list" aria-label="1대1 평가 신청 목록">{applications.map((application) => <EvaluationCard key={application.articleId} application={application} onOpen={() => setSelectedApplication(application)} />)}{applications.length === 0 && <p className="empty-list">표시할 1대1 평가 신청자가 없습니다.</p>}</section>}
     <footer>왁물원 카페 게시글 기반 · 마지막 동기화 {snapshot ? formatDateTime(snapshot.generatedAt) : "확인 중"}</footer>
     {selected && <DetailModal streamer={selected} awards={trophyAwards} onClose={() => { stopSfx(); setSelected(undefined); }} latestPosts={snapshot?.latestPosts} />}{selectedApplication && <EvaluationModal application={selectedApplication} onClose={() => setSelectedApplication(undefined)} />}{trophyOpen && <TrophyModal awards={trophyAwards} onClose={() => setTrophyOpen(false)} />}
     {feedOpen && <div className="modal-backdrop" role="presentation" onMouseDown={() => setFeedOpen(false)}><aside className="feed" role="dialog" aria-modal="true" aria-label="최신 소식" onMouseDown={(event) => event.stopPropagation()}><button className="close" onClick={() => setFeedOpen(false)} aria-label="닫기">×</button><p className="eyebrow">TODAY'S REPORTS</p><h2>최신 소식</h2>{latest.length ? latest.slice(0, 25).map((post) => <a href={post.articleUrl} target="_blank" rel="noreferrer" key={post.articleId}><span>{post.category}</span><strong>{post.title}</strong><small>{post.cafeAuthor} · {formatCafePostDate(post.publishedAt)}</small></a>) : <p className="empty-list">오늘 등록된 디비전 보고가 없습니다.</p>}</aside></div>}
-    <div className="floating-toolbar"><SfxToggle enabled={sfxEnabled} onToggle={toggleSfx} /><MusicPlayer /></div>
+    <div className="floating-toolbar"><SfxToggle enabled={sfxEnabled} volume={sfxVolume} onToggle={toggleSfx} onVolumeChange={changeSfxVolume} /><MusicPlayer /></div>
     {toast && <div className="toast" role="status">{toast}</div>}
   </main>;
 }
