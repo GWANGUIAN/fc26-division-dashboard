@@ -7,5 +7,7 @@ export const musicPlaylist: readonly MusicTrack[] = [
   { videoId: "3ugetzmbQF8", title: "We are DINOS - 버축대 천양 다이노스 MV", artist: "왁타버스 WAKTAVERSE" },
   { videoId: "dnK6P5rI2Dg", title: "티바로살래나 후보 MV - 버축대 3팀", artist: "왁타버스 WAKTAVERSE" },
   { videoId: "VCV6aVlyyS4", title: "티바로살래나 주전 MV - 버축대 3팀", artist: "왁타버스 WAKTAVERSE" },
-  { videoId: "4di6nanDjiU", title: "Counting Stars - 버축대 카오닝스타즈 MV", artist: "왁타버스 WAKTAVERSE" },
+  { videoId: "gUnwixuaHDs", title: "버축대 두세븐일레븐 - Ballin (Band ver) | Cover by HanGyeol 한결", artist: "한결" },
+  { videoId: "yHRXDJ4Iimw", title: "[1절행동] Ballin - 두세븐일레븐(버축대) cover", artist: "빕어" },
+  { videoId: "sC7A7dLhjks", title: "뜨거운 목소리로 (Original Song) - 2022 카타르 월드컵 응원가", artist: "왁타버스 WAKTAVERSE" },
 ];
