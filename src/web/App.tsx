@@ -389,7 +389,7 @@ export function App() {
         : `${streamer.displayName}의 ${division}부 리그 승격을 축하합니다~!!`;
       return [{ key: bestPost.articleId, message, publishedAt: bestPost.publishedAt }];
     }).sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
-    return [...postSlides.map(({ key, message }) => ({ key, message })), { key: "default", message: DEFAULT_CELEBRATION_MESSAGE }];
+    return [{ key: "default", message: DEFAULT_CELEBRATION_MESSAGE }, ...postSlides.map(({ key, message }) => ({ key, message })) ];
   }, [snapshot, latest]);
   const isDivision = view === "division";
   return <main>
