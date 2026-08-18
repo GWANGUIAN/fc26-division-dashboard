@@ -176,7 +176,7 @@ function FavoriteCelebration({ slides }: { slides: CelebrationSlide[] }) {
     <span className="favorite-celebration__spark favorite-celebration__spark--left" aria-hidden="true">✦</span>
     <div className="favorite-celebration__viewport">
       {slides.length > 1
-        ? <Swiper className="favorite-celebration__swiper" modules={[Autoplay]} direction="vertical" autoHeight loop allowTouchMove={false} speed={600} autoplay={{ delay: 3400, disableOnInteraction: false }}>
+        ? <Swiper className="favorite-celebration__swiper" modules={[Autoplay]} direction="vertical" loop allowTouchMove={false} speed={600} autoplay={{ delay: 3400, disableOnInteraction: false }}>
             {slides.map((slide) => <SwiperSlide key={slide.key}><FavoriteCelebrationRow message={slide.message} /></SwiperSlide>)}
           </Swiper>
         : <FavoriteCelebrationRow message={slides[0]?.message ?? DEFAULT_CELEBRATION_MESSAGE} />}
@@ -377,16 +377,19 @@ export function App() {
     .filter((post) => koreaDateKey(new Date(post.publishedAt)) === koreaDateKey(new Date()));
   const trophyAwards = useMemo(() => buildTrophyAwards(snapshot?.streamers ?? []), [snapshot]);
   const celebrationSlides = useMemo(() => {
-    const postSlides = latest.flatMap((post) => {
-      const streamer = snapshot?.streamers.find((s) => s.lastPost?.articleId === post.articleId);
-      if (!streamer) return [];
-      const division = post.division;
+    const postSlides = (snapshot?.streamers ?? []).flatMap((streamer) => {
+      const normalizedAliases = new Set(streamer.cafeAliases.map(normalizeCafeAlias));
+      const todaysPosts = latest.filter((post) => normalizedAliases.has(normalizeCafeAlias(post.cafeAuthor)));
+      if (!todaysPosts.length) return [];
+      // Lower division number = higher tier, so pick the best (minimum) division reached today.
+      const bestPost = todaysPosts.reduce((best, post) => (post.division < best.division ? post : best));
+      const division = bestPost.division;
       const message = streamer.celebrationMessage
         ? streamer.celebrationMessage.replace("{n}", String(division))
         : `${streamer.displayName}의 ${division}부 리그 승격을 축하합니다~!!`;
-      return [{ key: post.articleId, message }];
-    });
-    return [...postSlides, { key: "default", message: DEFAULT_CELEBRATION_MESSAGE }];
+      return [{ key: bestPost.articleId, message, publishedAt: bestPost.publishedAt }];
+    }).sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+    return [...postSlides.map(({ key, message }) => ({ key, message })), { key: "default", message: DEFAULT_CELEBRATION_MESSAGE }];
   }, [snapshot, latest]);
   const isDivision = view === "division";
   return <main>
