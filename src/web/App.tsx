@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Copy, Info, Trophy } from "lucide-react";
-import { A11y } from "swiper/modules";
+import { A11y, Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperInstance } from "swiper/types";
 import "swiper/css";
@@ -158,12 +158,29 @@ function JandyVideoSection() {
   </section>;
 }
 
-function FavoriteCelebration({ message = "축 왁굳형 즐겨찾기 목록 입성" }: { message?: string } = {}) {
-  return <aside className="favorite-celebration" role="note" aria-label={message}>
-    <span className="favorite-celebration__spark favorite-celebration__spark--left" aria-hidden="true">✦</span>
+const DEFAULT_CELEBRATION_MESSAGE = "축 왁굳형 즐겨찾기 목록 입성";
+
+type CelebrationSlide = { key: string; message: string };
+
+function FavoriteCelebrationRow({ message }: { message: string }) {
+  return <span className="favorite-celebration__row">
     <span className="favorite-celebration__icon" aria-hidden="true">🎉</span>
     <strong>{message}</strong>
     <span className="favorite-celebration__icon" aria-hidden="true">🎺</span>
+  </span>;
+}
+
+function FavoriteCelebration({ slides }: { slides: CelebrationSlide[] }) {
+  const label = slides.map((slide) => slide.message).join(" · ");
+  return <aside className="favorite-celebration" role="note" aria-label={label}>
+    <span className="favorite-celebration__spark favorite-celebration__spark--left" aria-hidden="true">✦</span>
+    <div className="favorite-celebration__viewport">
+      {slides.length > 1
+        ? <Swiper className="favorite-celebration__swiper" modules={[Autoplay]} direction="vertical" autoHeight loop allowTouchMove={false} speed={600} autoplay={{ delay: 3400, disableOnInteraction: false }}>
+            {slides.map((slide) => <SwiperSlide key={slide.key}><FavoriteCelebrationRow message={slide.message} /></SwiperSlide>)}
+          </Swiper>
+        : <FavoriteCelebrationRow message={slides[0]?.message ?? DEFAULT_CELEBRATION_MESSAGE} />}
+    </div>
     <span className="favorite-celebration__spark favorite-celebration__spark--right" aria-hidden="true">✦</span>
   </aside>;
 }
@@ -359,26 +376,22 @@ export function App() {
   const latest = (snapshot?.latestPosts.length ? snapshot.latestPosts : streamers.flatMap((streamer) => streamer.lastPost ? [streamer.lastPost] : []).sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)))
     .filter((post) => koreaDateKey(new Date(post.publishedAt)) === koreaDateKey(new Date()));
   const trophyAwards = useMemo(() => buildTrophyAwards(snapshot?.streamers ?? []), [snapshot]);
-  const celebrationMessage = useMemo(() => {
-    const now = new Date();
-    const latestPost = latest[0];
-    if (!latestPost) return undefined;
-    const postTime = new Date(latestPost.publishedAt);
-    const diffMs = now.getTime() - postTime.getTime();
-    const twoHoursMs = 2 * 60 * 60 * 1000;
-    if (diffMs > twoHoursMs) return undefined;
-    const streamer = snapshot?.streamers.find((s) => s.lastPost?.articleId === latestPost.articleId);
-    if (!streamer) return undefined;
-    const division = latestPost.division;
-    if (streamer.celebrationMessage) {
-      return streamer.celebrationMessage.replace("{n}", String(division));
-    }
-    return `${streamer.displayName}의 ${division}부 리그 승격을 축하합니다~!!`;
+  const celebrationSlides = useMemo(() => {
+    const postSlides = latest.flatMap((post) => {
+      const streamer = snapshot?.streamers.find((s) => s.lastPost?.articleId === post.articleId);
+      if (!streamer) return [];
+      const division = post.division;
+      const message = streamer.celebrationMessage
+        ? streamer.celebrationMessage.replace("{n}", String(division))
+        : `${streamer.displayName}의 ${division}부 리그 승격을 축하합니다~!!`;
+      return [{ key: post.articleId, message }];
+    });
+    return [...postSlides, { key: "default", message: DEFAULT_CELEBRATION_MESSAGE }];
   }, [snapshot, latest]);
   const isDivision = view === "division";
   return <main>
     <header className="topbar"><a className="brand" href="#top"><span className="brand-wak">WAK</span><span>JANDY</span><strong>동아리 후보 대시보드</strong></a><nav className="main-nav" aria-label="메인 메뉴"><button className={isDivision ? "active" : ""} onClick={() => setView("division")}>디비전 현황</button><button className={!isDivision ? "active" : ""} onClick={() => setView("evaluation")}>1:1 평가</button></nav><div className="topbar__actions"><button className="feed-toggle" onClick={() => setFeedOpen(true)}>최신 소식 <em>{latest.length}</em></button><button className="trophy-toggle" type="button" onClick={() => setTrophyOpen(true)} aria-label="업적 보기"><Trophy aria-hidden="true" /></button></div></header>
-    <FavoriteCelebration message={celebrationMessage} />
+    <FavoriteCelebration slides={celebrationSlides} />
     <section className="hero" id="top"><div><p className="eyebrow">FC26 · {isDivision ? "SEASON DIVISION BOARD" : "ONE VS ONE EVALUATION"}</p><h1>{isDivision ? <>잰디 <mark>동아리 후보</mark><br />대시보드</> : <>1:1 <mark>평가 신청</mark><br />현황</>}</h1><p className="intro">{isDivision ? "왁물원에 보고된 FC26 디비전 승격 현황을 추적합니다." : "1대1 평가 신청 게시글과 대결 결과를 표시합니다."}</p></div><div className="sync"><span className="sync-dot" /> <b>3 MINUTE REFRESH</b><small><span className="refresh-icon" aria-hidden="true">↻</span> 3분마다 갱신 · {snapshot ? `${formatDateTime(snapshot.generatedAt)} 기준` : "데이터 연결 중"}</small></div></section>
     <JandyVideoSection />
     <section className="controls" aria-label={isDivision ? "스트리머 검색" : "평가 신청 필터"}><label><span className="sr-only">검색</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="이름 또는 카페 닉네임 검색" /></label>{isDivision ? <div className="controls__actions"><div className="segmented"><button className={activityOnly ? "active" : ""} onClick={() => setActivityOnly((current) => !current)} aria-pressed={activityOnly}>활동글 작성자만</button></div><button className="copy-list-button" type="button" onClick={handleCopyDivisionList}><Copy aria-hidden="true" /> 목록 복사</button></div> : <div className="segmented">{(["all", "pending", "completed"] as const).map((value) => <button key={value} className={evaluationFilter === value ? "active" : ""} onClick={() => setEvaluationFilter(value)}>{value === "all" ? "전체" : value === "pending" ? "대결 전" : "대결 완료"}</button>)}</div>}</section>
