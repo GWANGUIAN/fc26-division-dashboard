@@ -94,6 +94,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "ㅁㅁㅁ의 {n}부 리그 승격을 축하합니다~!!😏"
+    sfx: "/sfxes/doormomo.mp3"
     profileImageUrl: "/profiles/profile_doormomo.webp"
   - slug: 
     displayName: 마이곰이
@@ -878,6 +879,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "유키라의 잔디 놀이 {n}부 리그 승격!!"
+    sfx: "/sfxes/yukira.mp3"
   - slug: toryvac
     displayName: "빅토리~!"
     cafeAliases: ["vic tory"]

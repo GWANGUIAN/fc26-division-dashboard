@@ -94,6 +94,7 @@ export function buildStreamerRecords(posts: PromotionPost[], roster: RosterEntry
       previousPromotionPosts: history.length ? history : undefined,
       isMapped: true,
       celebrationMessage: entry.celebrationMessage,
+      sfx: entry.sfx,
     };
   });
 

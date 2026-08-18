@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Copy, Info, Trophy } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Copy, Info, Trophy, Volume2, VolumeX } from "lucide-react";
 import { A11y, Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperInstance } from "swiper/types";
@@ -32,6 +32,29 @@ const koreaDateKey = (value: Date) => new Intl.DateTimeFormat("en-CA", {
 }).format(value);
 
 const SEEN_UPDATES_STORAGE_KEY = "fc26-seen-updates";
+const SFX_ENABLED_STORAGE_KEY = "fc26-sfx-enabled";
+
+function loadSfxEnabled(): boolean {
+  try {
+    const raw = localStorage.getItem(SFX_ENABLED_STORAGE_KEY);
+    return raw === null ? true : raw === "1";
+  } catch {
+    return true;
+  }
+}
+
+function playSfx(url: string) {
+  new Audio(url).play().catch(() => {
+    // ignore autoplay/decoding failures
+  });
+}
+
+function SfxToggle({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) {
+  return <button type="button" className="sfx-toggle" onClick={onToggle} aria-pressed={enabled} aria-label={enabled ? "효과음 끄기" : "효과음 켜기"}>
+    {enabled ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
+    <span>효과음 {enabled ? "ON" : "OFF"}</span>
+  </button>;
+}
 
 function isUpdatedToday(streamer: StreamerRecord, todayKey: string) {
   return Boolean(streamer.lastPost && koreaDateKey(new Date(streamer.lastPost.publishedAt)) === todayKey);
@@ -353,7 +376,19 @@ export function App() {
   const [trophyOpen, setTrophyOpen] = useState(false);
   const [toast, setToast] = useState<string>();
   const toastTimeout = useRef<number | undefined>(undefined);
+  const [sfxEnabled, setSfxEnabled] = useState(loadSfxEnabled);
   const { seenKeys, markSeen, todayKey } = useSeenUpdates();
+  function toggleSfx() {
+    setSfxEnabled((current) => {
+      const next = !current;
+      try {
+        localStorage.setItem(SFX_ENABLED_STORAGE_KEY, next ? "1" : "0");
+      } catch {
+        // ignore storage failures (e.g. private browsing)
+      }
+      return next;
+    });
+  }
   useEffect(() => { loadSnapshot().then(setSnapshot).catch(() => undefined); }, []);
   useEffect(() => () => clearTimeout(toastTimeout.current), []);
   function showToast(message: string) {
@@ -398,11 +433,11 @@ export function App() {
     <section className="hero" id="top"><div><p className="eyebrow">FC26 · {isDivision ? "SEASON DIVISION BOARD" : "ONE VS ONE EVALUATION"}</p><h1>{isDivision ? <>잰디 <mark>동아리 후보</mark><br />대시보드</> : <>1:1 <mark>평가 신청</mark><br />현황</>}</h1><p className="intro">{isDivision ? "왁물원에 보고된 FC26 디비전 승격 현황을 추적합니다." : "1대1 평가 신청 게시글과 대결 결과를 표시합니다."}</p></div><div className="sync"><span className="sync-dot" /> <b>3 MINUTE REFRESH</b><small><span className="refresh-icon" aria-hidden="true">↻</span> 3분마다 갱신 · {snapshot ? `${formatDateTime(snapshot.generatedAt)} 기준` : "데이터 연결 중"}</small></div></section>
     <JandyVideoSection />
     <section className="controls" aria-label={isDivision ? "스트리머 검색" : "평가 신청 필터"}><label><span className="sr-only">검색</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="이름 또는 카페 닉네임 검색" /></label>{isDivision ? <div className="controls__actions"><div className="segmented"><button className={activityOnly ? "active" : ""} onClick={() => setActivityOnly((current) => !current)} aria-pressed={activityOnly}>활동글 작성자만</button></div><button className="copy-list-button" type="button" onClick={handleCopyDivisionList}><Copy aria-hidden="true" /> 목록 복사</button></div> : <div className="segmented">{(["all", "pending", "completed"] as const).map((value) => <button key={value} className={evaluationFilter === value ? "active" : ""} onClick={() => setEvaluationFilter(value)}>{value === "all" ? "전체" : value === "pending" ? "대결 전" : "대결 완료"}</button>)}</div>}</section>
-    {isDivision ? <section className="board" aria-label="FC26 디비전 보드">{divisions.map((division) => { const entries = streamers.filter((streamer) => streamer.currentDivision === division); return <section className={`division division-${division}`} key={division}><div className="division__label"><span>{division === 10 ? "SEASON" : "DIVISION"}</span><strong>{division}</strong>{division === 10 && <small>미참여</small>}</div><div className="division__players">{entries.map((streamer) => <StreamerCard key={streamer.id} streamer={streamer} awards={trophyAwards} isNew={isUpdatedToday(streamer, todayKey) && !seenKeys.has(seenKeyFor(streamer))} onOpen={() => { if (streamer.lastPost) markSeen(seenKeyFor(streamer)); setSelected(streamer); }} />)}{entries.length === 0 && <p className="vacant">{division === 10 ? "시즌 미참여 후보 없음" : "후보 대기 중"}</p>}</div></section>; })}</section> : <section className="evaluation-list" aria-label="1대1 평가 신청 목록">{applications.map((application) => <EvaluationCard key={application.articleId} application={application} onOpen={() => setSelectedApplication(application)} />)}{applications.length === 0 && <p className="empty-list">표시할 1대1 평가 신청자가 없습니다.</p>}</section>}
+    {isDivision ? <section className="board" aria-label="FC26 디비전 보드">{divisions.map((division) => { const entries = streamers.filter((streamer) => streamer.currentDivision === division); return <section className={`division division-${division}`} key={division}><div className="division__label"><span>{division === 10 ? "SEASON" : "DIVISION"}</span><strong>{division}</strong>{division === 10 && <small>미참여</small>}</div><div className="division__players">{entries.map((streamer) => <StreamerCard key={streamer.id} streamer={streamer} awards={trophyAwards} isNew={isUpdatedToday(streamer, todayKey) && !seenKeys.has(seenKeyFor(streamer))} onOpen={() => { if (streamer.lastPost) markSeen(seenKeyFor(streamer)); if (sfxEnabled && streamer.sfx) playSfx(streamer.sfx); setSelected(streamer); }} />)}{entries.length === 0 && <p className="vacant">{division === 10 ? "시즌 미참여 후보 없음" : "후보 대기 중"}</p>}</div></section>; })}</section> : <section className="evaluation-list" aria-label="1대1 평가 신청 목록">{applications.map((application) => <EvaluationCard key={application.articleId} application={application} onOpen={() => setSelectedApplication(application)} />)}{applications.length === 0 && <p className="empty-list">표시할 1대1 평가 신청자가 없습니다.</p>}</section>}
     <footer>왁물원 카페 게시글 기반 · 마지막 동기화 {snapshot ? formatDateTime(snapshot.generatedAt) : "확인 중"}</footer>
     {selected && <DetailModal streamer={selected} awards={trophyAwards} onClose={() => setSelected(undefined)} latestPosts={snapshot?.latestPosts} />}{selectedApplication && <EvaluationModal application={selectedApplication} onClose={() => setSelectedApplication(undefined)} />}{trophyOpen && <TrophyModal awards={trophyAwards} onClose={() => setTrophyOpen(false)} />}
     {feedOpen && <div className="modal-backdrop" role="presentation" onMouseDown={() => setFeedOpen(false)}><aside className="feed" role="dialog" aria-modal="true" aria-label="최신 소식" onMouseDown={(event) => event.stopPropagation()}><button className="close" onClick={() => setFeedOpen(false)} aria-label="닫기">×</button><p className="eyebrow">TODAY'S REPORTS</p><h2>최신 소식</h2>{latest.length ? latest.slice(0, 25).map((post) => <a href={post.articleUrl} target="_blank" rel="noreferrer" key={post.articleId}><span>{post.category}</span><strong>{post.title}</strong><small>{post.cafeAuthor} · {formatCafePostDate(post.publishedAt)}</small></a>) : <p className="empty-list">오늘 등록된 디비전 보고가 없습니다.</p>}</aside></div>}
-    <MusicPlayer />
+    <div className="floating-toolbar"><SfxToggle enabled={sfxEnabled} onToggle={toggleSfx} /><MusicPlayer /></div>
     {toast && <div className="toast" role="status">{toast}</div>}
   </main>;
 }

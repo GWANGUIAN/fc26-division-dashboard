@@ -90,7 +90,12 @@ body { isolation: isolate; }
 @media (max-width: 680px) { .promotion-timeline__track { display: block; min-height: 96px; max-height: 156px; overflow: auto; padding: 0; }.promotion-timeline__rail { min-height: 96px; padding: 3px 2px 12px; }.promotion-timeline__rail::before { top: 43px; right: 0; bottom: auto; left: 0; width: auto; height: 2px; transform-origin: left; background: linear-gradient(90deg, #00e9ae80, #00e9ae2a); animation-name: promotion-track-in; } }
 @media (prefers-reduced-motion: reduce) { .promotion-timeline__rail::before { animation: none; } }
 
-.music-player { position: fixed; z-index: 25; right: 20px; bottom: 20px; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+.floating-toolbar { position: fixed; z-index: 25; right: 20px; bottom: 20px; display: flex; align-items: center; gap: 12px; }
+.sfx-toggle { display: flex; align-items: center; gap: 6px; padding: 0; border: 0; color: #a3bbb0; font-size: 13px; font-weight: 600; background: transparent; transition: color .2s; }
+.sfx-toggle:hover, .sfx-toggle:focus-visible { color: #00e9ae; outline: 0; }
+.sfx-toggle[aria-pressed="true"] { color: #eafffa; }
+.sfx-toggle svg { width: 18px; height: 18px; }
+.music-player { position: relative; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
 .music-player__toggle { position: relative; display: grid; width: 52px; height: 52px; place-items: center; border: 1px solid #00e9ae62; border-radius: 50%; color: #eafffa; background: #0c1814; box-shadow: 0 8px 24px #000a; transition: .2s; }
 .music-player__toggle:hover, .music-player__toggle:focus-visible { border-color: #00e9ae; background: #00e9ae18; outline: 0; }
 .music-player__toggle svg:not(.music-player__ring) { width: 22px; height: 22px; }
@@ -121,4 +126,4 @@ body { isolation: isolate; }
 .music-player__playlist button.active strong { color: #00e9ae; }
 .music-player__playlist strong { overflow: hidden; color: #ecfff7; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 .music-player__playlist small { color: #789087; font-size: 10px; }
-@media (max-width: 680px) { .music-player { right: 12px; bottom: 12px; }.music-player__panel { width: min(320px, calc(100vw - 24px)); } }
+@media (max-width: 680px) { .floating-toolbar { right: 12px; bottom: 12px; }.music-player__panel { width: min(320px, calc(100vw - 24px)); } }
