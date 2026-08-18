@@ -702,7 +702,7 @@ streamers:
       policy: auto
   - slug: esoj001
     displayName: "도이지"
-    cafeAliases: ["도이지"]
+    cafeAliases: ["진짜도이지"]
     soopId: "esoj001"
     autoUpdate: true
     override:
