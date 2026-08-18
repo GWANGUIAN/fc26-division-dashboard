@@ -722,6 +722,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/harua.mp3"
   - slug: tdnlamuron
     displayName: "다시바"
     cafeAliases: ["다시바"]
@@ -836,6 +837,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/myongssi.mp3"
   - slug: n4w4nr
     displayName: "연푸_"
     cafeAliases: ["연푸"]
