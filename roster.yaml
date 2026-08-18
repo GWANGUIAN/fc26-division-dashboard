@@ -26,6 +26,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/pandabi.mp3"
   - slug: janine95kim
     displayName: 재닌
     cafeAliases: ["김재닌"]
@@ -985,6 +986,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/yangzirap.mp3"
   - slug: yaguja00
     displayName: "야구자"
     cafeAliases: ["야구자"]
