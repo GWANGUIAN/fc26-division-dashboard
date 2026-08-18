@@ -3,6 +3,16 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    // Proxied server-to-server so the browser never sees a cross-origin
+    // request — the production Worker only allows same-origin CORS.
+    proxy: {
+      "/api/snapshot": {
+        target: "https://wakjandy.stream",
+        changeOrigin: true,
+      },
+    },
+  },
   build: {
     outDir: "dist/web",
     sourcemap: true,
