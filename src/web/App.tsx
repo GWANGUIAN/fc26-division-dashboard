@@ -31,6 +31,45 @@ const koreaDateKey = (value: Date) => new Intl.DateTimeFormat("en-CA", {
   timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit",
 }).format(value);
 
+const SEEN_UPDATES_STORAGE_KEY = "fc26-seen-updates";
+
+function isUpdatedToday(streamer: StreamerRecord, todayKey: string) {
+  return Boolean(streamer.lastPost && koreaDateKey(new Date(streamer.lastPost.publishedAt)) === todayKey);
+}
+
+function seenKeyFor(streamer: StreamerRecord) {
+  return `${streamer.id}:${streamer.lastPost?.articleId}`;
+}
+
+function loadSeenKeys(todayKey: string): Set<string> {
+  try {
+    const raw = localStorage.getItem(SEEN_UPDATES_STORAGE_KEY);
+    if (!raw) return new Set();
+    const parsed = JSON.parse(raw) as { date: string; keys: string[] };
+    return parsed.date === todayKey ? new Set(parsed.keys) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+function useSeenUpdates() {
+  const todayKey = koreaDateKey(new Date());
+  const [seenKeys, setSeenKeys] = useState(() => loadSeenKeys(todayKey));
+  const markSeen = (key: string) => {
+    setSeenKeys((current) => {
+      if (current.has(key)) return current;
+      const next = new Set(current).add(key);
+      try {
+        localStorage.setItem(SEEN_UPDATES_STORAGE_KEY, JSON.stringify({ date: todayKey, keys: Array.from(next) }));
+      } catch {
+        // ignore storage failures (e.g. private browsing)
+      }
+      return next;
+    });
+  };
+  return { seenKeys, markSeen, todayKey };
+}
+
 function formatDateTime(value?: string) {
   if (!value) return "보고 없음";
   return new Intl.DateTimeFormat("ko-KR", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Seoul" }).format(new Date(value));
@@ -135,12 +174,13 @@ function AchievementBadges({ streamer, awards }: { streamer: StreamerRecord; awa
   return <span className="achievement-badges" aria-label={`${streamer.displayName} 업적`}>{badges.map((badge) => <span className="achievement-badge" role="img" title={badge.name} key={badge.key} aria-label={badge.name}><span aria-hidden="true">{badge.emoji}</span><span role="tooltip">{badge.name}</span></span>)}</span>;
 }
 
-function StreamerCard({ streamer, awards, onOpen }: { streamer: StreamerRecord; awards: TrophyAwards; onOpen: () => void }) {
-  return <button className="streamer-card" onClick={onOpen} aria-label={`${streamer.displayName} 상세 보기`}>
+function StreamerCard({ streamer, awards, isNew, onOpen }: { streamer: StreamerRecord; awards: TrophyAwards; isNew: boolean; onOpen: () => void }) {
+  return <button className={`streamer-card ${isNew ? "streamer-card--new" : ""}`} onClick={onOpen} aria-label={`${streamer.displayName} 상세 보기${isNew ? " (오늘 업데이트됨)" : ""}`}>
     <Avatar {...streamer} />
     <span className="streamer-card__copy"><span className="streamer-card__name"><strong>{streamer.displayName}</strong><AchievementBadges streamer={streamer} awards={awards} /></span><SoopTags tags={streamer.soopTags} /><small>{streamer.lastPost ? formatBoardPostDate(streamer.lastPost.publishedAt) : "첫 보고 대기"}</small></span>
     <span className="streamer-card__rank">D{streamer.currentDivision}</span>
     {!streamer.isMapped && <span className="unmapped" title="SOOP 정보 미연결">카페</span>}
+    {isNew && <span className="streamer-card__new-badge">NEW</span>}
   </button>;
 }
 
@@ -294,6 +334,7 @@ export function App() {
   const [selectedApplication, setSelectedApplication] = useState<OneVsOneApplicationView>();
   const [feedOpen, setFeedOpen] = useState(false);
   const [trophyOpen, setTrophyOpen] = useState(false);
+  const { seenKeys, markSeen, todayKey } = useSeenUpdates();
   useEffect(() => { loadSnapshot().then(setSnapshot).catch(() => undefined); }, []);
   const streamers = useMemo(() => (snapshot?.streamers ?? []).filter((streamer) =>
     searchable(streamer.displayName, streamer.cafeAliases, query)
@@ -325,7 +366,7 @@ export function App() {
     <section className="hero" id="top"><div><p className="eyebrow">FC26 · {isDivision ? "SEASON DIVISION BOARD" : "ONE VS ONE EVALUATION"}</p><h1>{isDivision ? <>잰디 <mark>동아리 후보</mark><br />대시보드</> : <>1:1 <mark>평가 신청</mark><br />현황</>}</h1><p className="intro">{isDivision ? "왁물원에 보고된 FC26 디비전 승격 현황을 추적합니다." : "1대1 평가 신청 게시글과 대결 결과를 표시합니다."}</p></div><div className="sync"><span className="sync-dot" /> <b>3 MINUTE REFRESH</b><small><span className="refresh-icon" aria-hidden="true">↻</span> 3분마다 갱신 · {snapshot ? `${formatDateTime(snapshot.generatedAt)} 기준` : "데이터 연결 중"}</small></div></section>
     <JandyVideoSection />
     <section className="controls" aria-label={isDivision ? "스트리머 검색" : "평가 신청 필터"}><label><span className="sr-only">검색</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="이름 또는 카페 닉네임 검색" /></label>{isDivision ? <div className="segmented"><button className={activityOnly ? "active" : ""} onClick={() => setActivityOnly((current) => !current)} aria-pressed={activityOnly}>활동글 작성자만</button></div> : <div className="segmented">{(["all", "pending", "completed"] as const).map((value) => <button key={value} className={evaluationFilter === value ? "active" : ""} onClick={() => setEvaluationFilter(value)}>{value === "all" ? "전체" : value === "pending" ? "대결 전" : "대결 완료"}</button>)}</div>}</section>
-    {isDivision ? <section className="board" aria-label="FC26 디비전 보드">{divisions.map((division) => { const entries = streamers.filter((streamer) => streamer.currentDivision === division); return <section className={`division division-${division}`} key={division}><div className="division__label"><span>{division === 10 ? "SEASON" : "DIVISION"}</span><strong>{division}</strong>{division === 10 && <small>미참여</small>}</div><div className="division__players">{entries.map((streamer) => <StreamerCard key={streamer.id} streamer={streamer} awards={trophyAwards} onOpen={() => setSelected(streamer)} />)}{entries.length === 0 && <p className="vacant">{division === 10 ? "시즌 미참여 후보 없음" : "후보 대기 중"}</p>}</div></section>; })}</section> : <section className="evaluation-list" aria-label="1대1 평가 신청 목록">{applications.map((application) => <EvaluationCard key={application.articleId} application={application} onOpen={() => setSelectedApplication(application)} />)}{applications.length === 0 && <p className="empty-list">표시할 1대1 평가 신청자가 없습니다.</p>}</section>}
+    {isDivision ? <section className="board" aria-label="FC26 디비전 보드">{divisions.map((division) => { const entries = streamers.filter((streamer) => streamer.currentDivision === division); return <section className={`division division-${division}`} key={division}><div className="division__label"><span>{division === 10 ? "SEASON" : "DIVISION"}</span><strong>{division}</strong>{division === 10 && <small>미참여</small>}</div><div className="division__players">{entries.map((streamer) => <StreamerCard key={streamer.id} streamer={streamer} awards={trophyAwards} isNew={isUpdatedToday(streamer, todayKey) && !seenKeys.has(seenKeyFor(streamer))} onOpen={() => { if (streamer.lastPost) markSeen(seenKeyFor(streamer)); setSelected(streamer); }} />)}{entries.length === 0 && <p className="vacant">{division === 10 ? "시즌 미참여 후보 없음" : "후보 대기 중"}</p>}</div></section>; })}</section> : <section className="evaluation-list" aria-label="1대1 평가 신청 목록">{applications.map((application) => <EvaluationCard key={application.articleId} application={application} onOpen={() => setSelectedApplication(application)} />)}{applications.length === 0 && <p className="empty-list">표시할 1대1 평가 신청자가 없습니다.</p>}</section>}
     <footer>왁물원 카페 게시글 기반 · 마지막 동기화 {snapshot ? formatDateTime(snapshot.generatedAt) : "확인 중"}</footer>
     {selected && <DetailModal streamer={selected} awards={trophyAwards} onClose={() => setSelected(undefined)} latestPosts={snapshot?.latestPosts} />}{selectedApplication && <EvaluationModal application={selectedApplication} onClose={() => setSelectedApplication(undefined)} />}{trophyOpen && <TrophyModal awards={trophyAwards} onClose={() => setTrophyOpen(false)} />}
     {feedOpen && <div className="modal-backdrop" role="presentation" onMouseDown={() => setFeedOpen(false)}><aside className="feed" role="dialog" aria-modal="true" aria-label="최신 소식" onMouseDown={(event) => event.stopPropagation()}><button className="close" onClick={() => setFeedOpen(false)} aria-label="닫기">×</button><p className="eyebrow">TODAY'S REPORTS</p><h2>최신 소식</h2>{latest.length ? latest.slice(0, 25).map((post) => <a href={post.articleUrl} target="_blank" rel="noreferrer" key={post.articleId}><span>{post.category}</span><strong>{post.title}</strong><small>{post.cafeAuthor} · {formatCafePostDate(post.publishedAt)}</small></a>) : <p className="empty-list">오늘 등록된 디비전 보고가 없습니다.</p>}</aside></div>}
