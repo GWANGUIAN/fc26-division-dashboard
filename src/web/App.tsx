@@ -480,13 +480,14 @@ function DetailModal({ streamer, awards, onClose, latestPosts = [] }: { streamer
   ];
   // Find current division post from allPosts
   const currentPost = allPosts.find((p) => p.division === streamer.currentDivision);
-  const post = currentPost ?? (allPosts.length ? allPosts[allPosts.length - 1] : undefined);
+  // An operator override is pinning the division (roster.yaml override.policy !== "auto") and no collected
+  // post actually reports that division yet — every known post is for a different (often stale) division.
+  const manualOverrideNotice = !currentPost && streamer.overridePolicy !== "auto" && streamer.overrideDivision === streamer.currentDivision;
+  const post = currentPost ?? (manualOverrideNotice ? undefined : (allPosts.length ? allPosts[allPosts.length - 1] : undefined));
   const promotionHistory = allPosts;
   const channel = soopChannelUrl(streamer.soopId);
   const [expandedImage, setExpandedImage] = useState<string>();
   useEscape(() => expandedImage ? setExpandedImage(undefined) : onClose());
-  // No matching post yet, but an operator override is pinning the division (roster.yaml override.policy !== "auto").
-  const manualOverrideNotice = !post && streamer.overridePolicy !== "auto" && streamer.overrideDivision !== undefined;
   return <Modal onClose={onClose} label="디비전 상세" header={<div className="modal__identity"><Avatar {...streamer} /><div><span className="eyebrow">CURRENT DIVISION</span><h2>{streamer.displayName} <b style={{ "--division-color": divisionColor(streamer.currentDivision) } as React.CSSProperties}>{streamer.currentDivision}부</b> <AchievementBadges streamer={streamer} awards={awards} /></h2><SoopTags tags={streamer.soopTags} /><RecordBadge streamer={streamer} className="record-badge--lg" />{!streamer.isMapped && <p>카페 작성자 · SOOP 정보 미연결</p>}</div></div>}>
     {post
       ? <><div className="report"><span>{post.category}</span><h3>{post.title}</h3><time>{formatCafePostDate(post.publishedAt)}</time></div>{post.imageUrls.length > 0 && <div className="gallery">{post.imageUrls.map((url, index) => <button className="gallery__image" type="button" onClick={() => setExpandedImage(url)} aria-label={`${streamer.displayName} 게시글 이미지 확대`} key={url}><img src={url} alt={`${streamer.displayName} 게시글 이미지`} loading={index === 0 ? "eager" : "lazy"} referrerPolicy="no-referrer" /></button>)}</div>}<PromotionTimeline posts={promotionHistory} /></>
