@@ -46,6 +46,10 @@ const ANNOUNCEMENTS: Announcement[] = [
     id: "2026-08-card-view",
     body: <><strong>카드 뷰</strong>가 추가되었습니다. <span className="announcement-icon-badge"><LayoutGrid aria-hidden="true" /></span> 버튼을 클릭하면 카드 뷰로 전환할 수 있고,<br />디비전순 / 승률순으로 정렬할 수 있습니다.</>,
   },
+  {
+    id: "2026-08-trophy",
+    body: <><strong>업적</strong> 기능이 추가되었습니다. 상단바 오른쪽 <span className="announcement-icon-badge announcement-icon-badge--trophy"><Trophy aria-hidden="true" /></span> 버튼을 누르면 각 카테고리별 업적을 확인할 수 있습니다.</>,
+  },
 ];
 
 const SEEN_ANNOUNCEMENTS_STORAGE_KEY = "fc26-seen-announcements";
@@ -523,6 +527,14 @@ function TrophyModal({ awards, onClose }: { awards: TrophyAwards; onClose: () =>
       <section className="trophy-award trophy-award--summit">
         <div className="trophy-award__heading"><span className="trophy-award__icon" aria-hidden="true">🏆</span><div><h3>1부 리그 달성 <TrophyHelp>가장 먼저 1부 리그를 달성한 상위 스트리머 3명을 표시합니다. 1부 리거 달성 게시글이 게시된 순서를 기준으로 하며, 이후 디비전이 바뀌어도 최초 달성 기록은 유지됩니다.</TrophyHelp></h3><p>가장 먼저 1부 리그를 달성한 스트리머들</p></div></div>
         {awards.divisionOne.length ? <div className="trophy-award__winners">{awards.divisionOne.map((award) => <article className="trophy-record" key={award.streamer.id}><TrophyWinner streamer={award.streamer} medal={DIVISION_ONE_EMOJI[award.rank]} /><div className="trophy-record__metric"><span>{formatCafePostDate(award.reachedAt)} 달성</span><strong>현재 {award.streamer.currentDivision}부</strong></div></article>)}</div> : <p className="trophy-award__empty">아직 1부 리그를 달성한 스트리머가 없습니다.</p>}
+      </section>
+      <section className="trophy-award trophy-award--matches">
+        <div className="trophy-award__heading"><span className="trophy-award__icon" aria-hidden="true">⚔️</span><div><h3>최다 경기 출전 <TrophyHelp>커리어 전적(승+무+패)을 합산해 가장 많은 경기를 치른 스트리머를 표시합니다. 동률자는 함께 표시합니다.</TrophyHelp></h3><p>가장 많은 경기를 치른 스트리머</p></div></div>
+        {awards.mostMatches.length ? <div className="trophy-award__winners">{awards.mostMatches.map((award) => <article className="trophy-record" key={award.streamer.id}><TrophyWinner streamer={award.streamer} /><div className="trophy-record__metric"><strong>총 {award.totalGames}경기</strong><span>{award.streamer.record?.wins}승 {award.streamer.record?.draws}무 {award.streamer.record?.losses}패</span></div></article>)}</div> : <p className="trophy-award__empty">아직 집계된 전적이 없습니다.</p>}
+      </section>
+      <section className="trophy-award trophy-award--winrate">
+        <div className="trophy-award__heading"><span className="trophy-award__icon" aria-hidden="true">👑</span><div><h3>최고 승률 <TrophyHelp>커리어 전적(승+무+패)이 1경기 이상인 스트리머 중 승률이 가장 높은 스트리머를 표시합니다. 동률자는 함께 표시합니다.</TrophyHelp></h3><p>가장 높은 승률을 기록한 스트리머</p></div></div>
+        {awards.bestWinRate.length ? <div className="trophy-award__winners">{awards.bestWinRate.map((award) => <article className="trophy-record" key={award.streamer.id}><TrophyWinner streamer={award.streamer} /><div className="trophy-record__metric"><strong>승률 {award.winRate.toFixed(1)}%</strong><span>{award.streamer.record?.wins}승 {award.streamer.record?.draws}무 {award.streamer.record?.losses}패</span></div></article>)}</div> : <p className="trophy-award__empty">아직 집계된 전적이 없습니다.</p>}
       </section>
       <section className="trophy-award trophy-award--growth">
         <div className="trophy-award__heading"><span className="trophy-award__icon" aria-hidden="true">🚀</span><div><h3>하루 급성장 <TrophyHelp>전체 수집 기간에서 한국 시간 하루 동안 첫 승격글의 직전 부수부터 마지막 승격글까지 계산합니다. 중간 승격글이 없어도 최종 부수까지 반영하며, 한 건만 있어도 1단계로 계산합니다.</TrophyHelp></h3><p>하루에 가장 많이 올라간 역대 기록</p></div></div>

@@ -57,7 +57,7 @@ body { isolation: isolate; }
 .trophy-modal__intro { margin: 10px 0 0; color: #8da49a; font-size: 12px; }
 .trophy-awards { display: grid; gap: 12px; padding-top: 20px; }
 .trophy-award { position: relative; z-index: 0; overflow: visible; border: 1px solid #ffffff18; background: linear-gradient(130deg, #0b1712, #07100d); }
-.trophy-award--growth { border-color: #f6c95e4f; }.trophy-award--summit { border-color: #c9f4a34f; }.trophy-award--promotion { border-color: #5cdbff4f; }
+.trophy-award--growth { border-color: #f6c95e4f; }.trophy-award--summit { border-color: #c9f4a34f; }.trophy-award--promotion { border-color: #5cdbff4f; }.trophy-award--matches { border-color: #ff8f6f4f; }.trophy-award--winrate { border-color: #ffd7664f; }
 .trophy-award__heading { display: flex; align-items: center; gap: 11px; padding: 13px 14px; border-bottom: 1px solid #ffffff14; background: #ffffff04; }
 .trophy-award__icon { display: grid; width: 38px; height: 38px; flex: 0 0 38px; place-items: center; border: 1px solid #ffffff22; border-radius: 50%; background: #00000024; font-size: 20px; }
 .trophy-award__heading h3 { display: flex; align-items: center; gap: 5px; color: #effff8; font-size: 15px; }.trophy-award__heading p { margin: 3px 0 0; color: #7f978c; font-size: 11px; }
@@ -234,8 +234,9 @@ body { isolation: isolate; }
 .announcement-item p strong { color: #00e9ae; font-weight: 600; }
 .announcement-item__note { display: block; margin-top: 8px; color: #7f978c; font-size: 12px; }
 .announcement-modal__divider { margin: 18px 0; border: 0; border-top: 1px solid #ffffff18; }
-.announcement-icon-badge { display: inline-grid; width: 20px; height: 20px; margin: 0 1px; place-items: center; border: 1px solid #d7fff73a; border-radius: 4px; color: #eafffa; background: #ffffff08; vertical-align: middle; transform: translateY(-2px); }
-.announcement-icon-badge svg { width: 12px; height: 12px; stroke-width: 2.6; }
+.announcement-icon-badge { display: inline-grid; width: 30px; height: 30px; margin: 0 2px; place-items: center; border: 1px solid #d7fff73a; border-radius: 5px; color: #eafffa; background: #ffffff08; vertical-align: middle; transform: translateY(-3px); }
+.announcement-icon-badge svg { width: 18px; height: 18px; stroke-width: 2.6; }
+.announcement-icon-badge--trophy { color: #f6c95e; }
 .announcement-modal__actions { display: flex; flex: 0 0 auto; justify-content: flex-end; padding: 16px 30px 26px; border-top: 1px solid #ffffff14; }
 .announcement-modal__ack { padding: 10px 16px; border: 1px solid #00e9ae55; border-radius: 3px; color: #c8fff0; font-weight: 700; font-size: 12px; background: #00e9ae22; transition: .2s; }
 .announcement-modal__ack:hover, .announcement-modal__ack:focus-visible { border-color: #00e9ae80; background: #00e9ae33; outline: 0; }
