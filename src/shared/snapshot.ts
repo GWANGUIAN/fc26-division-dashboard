@@ -3,6 +3,7 @@ import type {
   OneVsOneApplication,
   OneVsOneResultsConfig,
   PromotionPost,
+  RecordOverride,
   RosterEntry,
   StreamerActivityPost,
   StreamerRecord,
@@ -25,6 +26,7 @@ export interface SnapshotInput {
   roster: RosterEntry[];
   results: OneVsOneResultsConfig;
   activityPosts: StreamerActivityPost[];
+  recordOverrides?: RecordOverride[];
 }
 
 /**
@@ -32,7 +34,7 @@ export interface SnapshotInput {
  * then retrieve one compact item instead of scanning every partition.
  */
 export function buildDashboardSnapshot(input: SnapshotInput): DashboardSnapshot {
-  const { state, streamers, posts, applications, roster, results, activityPosts } = input;
+  const { state, streamers, posts, applications, roster, results, activityPosts, recordOverrides } = input;
   return {
     generatedAt: state?.updatedAt ?? new Date().toISOString(),
     status: state?.status ?? "degraded",
@@ -40,7 +42,7 @@ export function buildDashboardSnapshot(input: SnapshotInput): DashboardSnapshot 
     // The public record is always rebuilt from the source reports and roster.
     // This prevents a previously persisted streamer shape from omitting a
     // newly added derived field such as previous promotion history.
-    streamers: attachStreamerActivityPosts(buildStreamerRecords(posts, roster), roster, activityPosts)
+    streamers: attachStreamerActivityPosts(buildStreamerRecords(posts, roster, recordOverrides), roster, activityPosts)
       .sort((a, b) => a.currentDivision - b.currentDivision || a.displayName.localeCompare(b.displayName, "ko")),
     latestPosts: [...posts].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)).slice(0, 50),
     oneVsOneApplications: buildOneVsOneApplications(applications, roster, results),

@@ -6,10 +6,12 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
-    "build:lambda": "esbuild src/functions/scraper.ts src/functions/reader.ts src/functions/config-sync.ts src/functions/budget-guard.ts --bundle --platform=node --target=node22 --format=esm --outdir=dist/lambda --out-extension:.js=.mjs --external:@aws-sdk/* --external:@sparticuz/chromium --external:playwright-core --external:yaml",
+    "build:lambda": "esbuild src/functions/scraper.ts src/functions/reader.ts src/functions/config-sync.ts src/functions/budget-guard.ts --bundle --platform=node --target=node22 --format=esm --outdir=dist/lambda --out-extension:.js=.mjs --external:@aws-sdk/* --external:@sparticuz/chromium --external:playwright-core --external:yaml --external:@google/genai",
     "sync:comments-roster": "node scripts/sync-roster-from-comments-xlsx.mjs",
     "fetch:collabot": "node scripts/fetch-collabot-export.mjs",
     "sync:collabot-live": "node scripts/sync-roster-from-collabot-xlsx.mjs",
+    "build:backfill-records": "esbuild scripts/backfill-records.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/backfill-records.mjs --external:@aws-sdk/* --external:@google/genai --external:yaml",
+    "backfill:records": "pnpm run build:backfill-records && node dist/backfill-records.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
@@ -18,6 +20,7 @@
     "@aws-sdk/client-dynamodb": "^3.859.0",
     "@aws-sdk/client-scheduler": "^3.859.0",
     "@aws-sdk/lib-dynamodb": "^3.859.0",
+    "@google/genai": "^2.17.1",
     "@sparticuz/chromium": "^138.0.2",
     "jszip": "3.10.1",
     "lucide-react": "^1.31.0",

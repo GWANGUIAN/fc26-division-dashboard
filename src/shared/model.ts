@@ -15,6 +15,19 @@ export interface RosterEntry {
 
 export type SoopProfileTag = "파트너" | "베스트" | "루키존" | "스포츠" | "서포터즈";
 
+export interface CareerRecord {
+  wins: number;
+  draws: number;
+  losses: number;
+}
+
+/** A manually-entered career record for one streamer, applied only while their current division matches. */
+export interface RecordOverride {
+  soopId: string;
+  division: number;
+  record: CareerRecord;
+}
+
 export interface PromotionPost {
   articleId: string;
   cafeAuthor: string;
@@ -30,6 +43,14 @@ export interface PromotionPost {
   imagesCheckedAt?: string;
   /** Limits retries for posts whose first article render did not expose media. */
   imageCollectionAttempts?: number;
+  /** Career (all-time) W-D-L read from a record-screen screenshot, if one was found among imageUrls. */
+  record?: CareerRecord;
+  /** Set after imageUrls has been run through record extraction, successfully or not. */
+  recordCheckedAt?: string;
+  /** Limits retries for posts whose images did not yield a usable record. */
+  recordExtractionAttempts?: number;
+  /** Set when a later image in the same post produced a different record than the one kept, so it needs a human look. */
+  recordNeedsReview?: boolean;
 }
 
 export type StreamerActivityBoard = "scope" | "elevenVsEleven";
@@ -55,6 +76,8 @@ export interface StreamerRecord {
   overridePolicy: OverridePolicy;
   overrideDivision?: number;
   currentDivision: number;
+  /** Effective career W-D-L to display: a matching record-overrides.yaml entry takes precedence over lastPost.record. */
+  record?: CareerRecord;
   lastPost?: PromotionPost;
   /** Every collected division report, ordered from oldest to newest. */
   promotionHistory?: PromotionPost[];

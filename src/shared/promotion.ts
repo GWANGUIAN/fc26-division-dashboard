@@ -1,4 +1,4 @@
-import type { OverridePolicy, PromotionPost, RosterEntry, StreamerRecord } from "./model.js";
+import type { OverridePolicy, PromotionPost, RecordOverride, RosterEntry, StreamerRecord } from "./model.js";
 
 const firstDivision = /^\s*\[\s*1부\s*리거\s*달성\s*\]/u;
 const promotionDivision = /^\s*\[\s*([2-9])부\s*승격\s*\]/u;
@@ -63,7 +63,11 @@ export function resolveDivision(
   return automatic !== undefined && automatic < override.division ? automatic : override.division;
 }
 
-export function buildStreamerRecords(posts: PromotionPost[], roster: RosterEntry[]): StreamerRecord[] {
+export function buildStreamerRecords(
+  posts: PromotionPost[],
+  roster: RosterEntry[],
+  recordOverrides: RecordOverride[] = [],
+): StreamerRecord[] {
   const grouped = new Map<string, PromotionPost[]>();
   for (const post of posts) {
     const rosterEntry = matchRosterEntry(post.cafeAuthor, roster);
@@ -78,6 +82,13 @@ export function buildStreamerRecords(posts: PromotionPost[], roster: RosterEntry
       ? (resolveDivision(entryPosts, override) ?? 10)
       : (override.division ?? automaticDivision(entryPosts) ?? 10);
     const history = previousPromotionPosts(entryPosts, currentDivision);
+    const lastPost = newest(entryPosts);
+    // A record override only applies while the streamer sits in the division
+    // it was written for, so a stale entry can never overwrite a record after
+    // the streamer has since promoted or relegated.
+    const recordOverride = entry.soopId
+      ? recordOverrides.find((candidate) => candidate.soopId === entry.soopId && candidate.division === currentDivision)
+      : undefined;
     return {
       id: entry.slug,
       displayName: entry.displayName,
@@ -89,7 +100,8 @@ export function buildStreamerRecords(posts: PromotionPost[], roster: RosterEntry
       overridePolicy: override.policy,
       overrideDivision: override.division ?? undefined,
       currentDivision,
-      lastPost: newest(entryPosts),
+      record: recordOverride?.record ?? lastPost?.record,
+      lastPost,
       promotionHistory: entryPosts.length ? chronological(entryPosts) : undefined,
       previousPromotionPosts: history.length ? history : undefined,
       isMapped: true,
@@ -110,6 +122,7 @@ export function buildStreamerRecords(posts: PromotionPost[], roster: RosterEntry
       autoUpdate: true,
       overridePolicy: "auto",
       currentDivision: division,
+      record: lastPost.record,
       lastPost,
       promotionHistory: chronological(entryPosts),
       previousPromotionPosts: previousPromotionPosts(entryPosts, division),

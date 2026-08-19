@@ -33,3 +33,9 @@ variable "account_budget_limit_usd" {
   type    = number
   default = 20
 }
+variable "gemini_api_key" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Gemini API key used to OCR streamer W-D-L records from division-report screenshots. Leave empty to disable record extraction."
+}

@@ -1,6 +1,6 @@
 import type { ScheduledEvent } from "aws-lambda";
 import {
-  BOARDS, cafeArticleUrl, type BoardId, type OneVsOneApplication, type PromotionPost,
+  BOARDS, cafeArticleUrl, type BoardId, type OneVsOneApplication, type PromotionPost, type RecordOverride,
   type StreamerActivityBoard, type StreamerActivityPost, type StreamerRecord,
 } from "../shared/model.js";
 import { isOneVsOneApplication } from "../shared/one-vs-one.js";
@@ -8,10 +8,11 @@ import { buildStreamerRecords } from "../shared/promotion.js";
 import { isDirectPromotionPost } from "../shared/streamer-activity.js";
 import { buildDashboardSnapshot } from "../shared/snapshot.js";
 import { collectArticle, collectPage, normalizeCafeDate, SourceBlockedError } from "./naver.js";
+import { extractRecordFromImages } from "./record-extraction.js";
 import {
-  getDivisionOverrides, getOneVsOneApplications, getOneVsOneResults, getPosts, getRoster, getStreamerActivityPosts,
-  getSyncState, putDashboardSnapshot, putOneVsOneApplication, putPost, putStreamerActivityPost, putStreamers,
-  putSyncState, type SyncState,
+  getDivisionOverrides, getOneVsOneApplications, getOneVsOneResults, getPosts, getRecordOverrides, getRoster,
+  getStreamerActivityPosts, getSyncState, putDashboardSnapshot, putOneVsOneApplication, putPost, putStreamerActivityPost,
+  putStreamers, putSyncState, type SyncState,
 } from "./store.js";
 
 type ScrapeMode = "incremental" | "reconcile";
@@ -19,6 +20,8 @@ type ScrapeEvent = ScheduledEvent<{ mode?: ScrapeMode; articleId?: string }> | {
 const maxPagesPerRun = Number(process.env.MAX_PAGES_PER_RUN ?? 20);
 const maxImageBackfillsPerRun = Number(process.env.MAX_IMAGE_BACKFILLS_PER_RUN ?? 3);
 const maxImageCollectionAttempts = Number(process.env.MAX_IMAGE_COLLECTION_ATTEMPTS ?? 3);
+const maxRecordBackfillsPerRun = Number(process.env.MAX_RECORD_BACKFILLS_PER_RUN ?? 5);
+const maxRecordExtractionAttempts = Number(process.env.MAX_RECORD_EXTRACTION_ATTEMPTS ?? 3);
 const activityBoards: StreamerActivityBoard[] = ["scope", "elevenVsEleven"];
 
 export async function handler(event: ScrapeEvent = {}): Promise<void> {
@@ -26,6 +29,7 @@ export async function handler(event: ScrapeEvent = {}): Promise<void> {
   const articleId = "detail" in event ? event.detail?.articleId : event.articleId;
   const state = await getSyncState();
   const divisionOverrides = await getDivisionOverrides();
+  const recordOverrides = await getRecordOverrides();
   const knownPosts = await getPosts();
   const knownApplications = await getOneVsOneApplications();
   const knownActivityPosts = await getStreamerActivityPosts();
@@ -55,7 +59,7 @@ export async function handler(event: ScrapeEvent = {}): Promise<void> {
     if (enriched) await putPost(enriched, true);
     const updatedPosts = enriched ? knownPosts.map((post) => post.articleId === articleId ? enriched : post) : knownPosts;
     const roster = await getRoster();
-    const streamers = buildStreamerRecords(updatedPosts, roster);
+    const streamers = buildStreamerRecords(updatedPosts, roster, recordOverrides);
     await putStreamers(streamers);
     await publishSnapshot({
       state,
@@ -64,6 +68,7 @@ export async function handler(event: ScrapeEvent = {}): Promise<void> {
       applications: knownApplications,
       roster,
       activityPosts: knownActivityPosts,
+      recordOverrides,
     });
     return;
   }
@@ -83,7 +88,8 @@ export async function handler(event: ScrapeEvent = {}): Promise<void> {
     }
     const roster = await getRoster();
     await backfillMissingReportImages(knownPosts, roster, divisionOverrides);
-    const streamers = buildStreamerRecords(knownPosts, roster);
+    await backfillMissingRecords(knownPosts);
+    const streamers = buildStreamerRecords(knownPosts, roster, recordOverrides);
     await putStreamers(streamers);
     const nextState = await writeState("ok", undefined, nextPages, newest);
     await publishSnapshot({
@@ -93,6 +99,7 @@ export async function handler(event: ScrapeEvent = {}): Promise<void> {
       applications: knownApplications,
       roster,
       activityPosts: knownActivityPosts,
+      recordOverrides,
     });
   } catch (error) {
     const message = error instanceof SourceBlockedError ? error.message : `Collection failed: ${(error as Error).message}`;
@@ -127,6 +134,30 @@ async function backfillMissingReportImages(
   }
 }
 
+async function backfillMissingRecords(posts: PromotionPost[]): Promise<void> {
+  const candidates = posts
+    .filter((post) => post.imageUrls.length > 0 && !post.record && (post.recordExtractionAttempts ?? 0) < maxRecordExtractionAttempts)
+    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+    .slice(0, maxRecordBackfillsPerRun);
+  for (const candidate of candidates) {
+    const { record, needsReview } = await extractRecordFromImages(candidate.imageUrls).catch((error) => {
+      console.warn(`Record extraction failed for ${candidate.articleId}: ${(error as Error).message}`);
+      return {} as { record?: PromotionPost["record"]; needsReview?: boolean };
+    });
+    const updated: PromotionPost = {
+      ...candidate,
+      record: record ?? candidate.record,
+      recordNeedsReview: needsReview,
+      recordCheckedAt: new Date().toISOString(),
+      recordExtractionAttempts: (candidate.recordExtractionAttempts ?? 0) + 1,
+    };
+    if (await putPost(updated, true)) {
+      const index = posts.findIndex((post) => post.articleId === candidate.articleId);
+      if (index >= 0) posts[index] = updated;
+    }
+  }
+}
+
 async function writeState(
   status: "ok" | "degraded",
   message: string | undefined,
@@ -150,6 +181,7 @@ async function publishSnapshot(input: {
   applications: OneVsOneApplication[];
   roster: Awaited<ReturnType<typeof getRoster>>;
   activityPosts: StreamerActivityPost[];
+  recordOverrides: RecordOverride[];
 }): Promise<void> {
   await putDashboardSnapshot(buildDashboardSnapshot({
     ...input,

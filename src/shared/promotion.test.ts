@@ -50,6 +50,18 @@ describe("promotion parsing", () => {
     expect(resolveDivision([...posts, { ...posts[1], articleId: "3", division: 6, category: "[6부 승격]" }], { division: 7, policy: "until-next-post" })).toBe(6);
     expect(resolveDivision(posts, { division: 7, policy: "until-manual-release" })).toBe(7);
   });
+  it("applies a record override only while the streamer sits in the division it was written for", () => {
+    const rosterWithSoopId = [{ ...roster[0], soopId: "momosoop" }];
+    const matching = buildStreamerRecords(posts, rosterWithSoopId, [{ soopId: "momosoop", division: 7, record: { wins: 1, draws: 2, losses: 3 } }]);
+    expect(matching[0].record).toEqual({ wins: 1, draws: 2, losses: 3 });
+
+    const stale = buildStreamerRecords(posts, rosterWithSoopId, [{ soopId: "momosoop", division: 9, record: { wins: 1, draws: 2, losses: 3 } }]);
+    expect(stale[0].record).toBeUndefined();
+  });
+  it("falls back to the last post's record when no override matches", () => {
+    const withRecord = [{ ...posts[1], record: { wins: 5, draws: 5, losses: 5 } }, posts[0]];
+    expect(buildStreamerRecords(withRecord, roster)[0].record).toEqual({ wins: 5, draws: 5, losses: 5 });
+  });
 });
 
 describe("article image filtering", () => {

@@ -94,7 +94,12 @@ resource "aws_lambda_function" "scraper" {
   timeout                        = 900
   memory_size                    = 2048
   reserved_concurrent_executions = 1
-  environment { variables = { TABLE_NAME = aws_dynamodb_table.dashboard.name, MAX_PAGES_PER_RUN = "20", DEPLOYMENT_VERSION = var.image_uri } }
+  environment { variables = {
+    TABLE_NAME         = aws_dynamodb_table.dashboard.name
+    MAX_PAGES_PER_RUN  = "20"
+    DEPLOYMENT_VERSION = var.image_uri
+    GEMINI_API_KEY     = var.gemini_api_key
+  } }
   depends_on = [aws_cloudwatch_log_group.scraper]
   tags       = local.tags
   # CI updates the running image directly via lambda:UpdateFunctionCode; do not

@@ -3,7 +3,7 @@ name: Sync roster to AWS
 on:
   push:
     branches: [main]
-    paths: [roster.yaml, one-vs-one-results.yaml, division-overrides.yaml, .github/workflows/sync-roster.yml]
+    paths: [roster.yaml, one-vs-one-results.yaml, division-overrides.yaml, record-overrides.yaml, .github/workflows/sync-roster.yml]
   workflow_dispatch:
 
 permissions:
@@ -24,7 +24,7 @@ jobs:
           aws lambda invoke \
             --function-name "${{ secrets.AWS_ROSTER_SYNC_FUNCTION_NAME }}" \
             --cli-binary-format raw-in-base64-out \
-            --payload "$(jq -n --rawfile roster roster.yaml --rawfile results one-vs-one-results.yaml --rawfile overrides division-overrides.yaml \
-              '{rosterYaml: $roster, oneVsOneResultsYaml: $results, divisionOverridesYaml: $overrides}')" \
+            --payload "$(jq -n --rawfile roster roster.yaml --rawfile results one-vs-one-results.yaml --rawfile overrides division-overrides.yaml --rawfile recordOverrides record-overrides.yaml \
+              '{rosterYaml: $roster, oneVsOneResultsYaml: $results, divisionOverridesYaml: $overrides, recordOverridesYaml: $recordOverrides}')" \
             response.json
           cat response.json

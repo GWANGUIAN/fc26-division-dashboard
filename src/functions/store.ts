@@ -1,6 +1,6 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
-import type { DashboardSnapshot, OneVsOneApplication, OneVsOneResultsConfig, PromotionPost, RosterEntry, StreamerActivityPost, StreamerRecord } from "../shared/model.js";
+import type { DashboardSnapshot, OneVsOneApplication, OneVsOneResultsConfig, PromotionPost, RecordOverride, RosterEntry, StreamerActivityPost, StreamerRecord } from "../shared/model.js";
 import { DEFAULT_ONE_VS_ONE_CONFIG } from "../shared/one-vs-one-results.js";
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}), {
@@ -114,6 +114,18 @@ export async function putDivisionOverrides(overrides: Record<string, number>): P
   await client.send(new PutCommand({
     TableName: tableName,
     Item: { PK: "CONFIG", SK: "DIVISION_OVERRIDES", overrides, updatedAt: new Date().toISOString() },
+  }));
+}
+
+export async function getRecordOverrides(): Promise<RecordOverride[]> {
+  const output = await client.send(new GetCommand({ TableName: tableName, Key: { PK: "CONFIG", SK: "RECORD_OVERRIDES" } }));
+  return (output.Item?.overrides as RecordOverride[] | undefined) ?? [];
+}
+
+export async function putRecordOverrides(overrides: RecordOverride[]): Promise<void> {
+  await client.send(new PutCommand({
+    TableName: tableName,
+    Item: { PK: "CONFIG", SK: "RECORD_OVERRIDES", overrides, updatedAt: new Date().toISOString() },
   }));
 }
 
