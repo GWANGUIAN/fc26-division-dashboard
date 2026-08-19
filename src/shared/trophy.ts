@@ -1,4 +1,5 @@
 import type { PromotionPost, StreamerRecord } from "./model.js";
+import { winRatePercent } from "./record-extraction.js";
 
 export type DailyPromotionTrophy = {
   streamer: StreamerRecord;
@@ -21,14 +22,26 @@ export type PromotionTrophy = {
   totalCount: number;
 };
 
+export type MostMatchesTrophy = {
+  streamer: StreamerRecord;
+  totalGames: number;
+};
+
+export type BestWinRateTrophy = {
+  streamer: StreamerRecord;
+  winRate: number;
+};
+
 export type TrophyAwards = {
   dailyPromotion: DailyPromotionTrophy[];
   divisionOne: DivisionOneTrophy[];
   selfPromotion: PromotionTrophy[];
+  mostMatches: MostMatchesTrophy[];
+  bestWinRate: BestWinRateTrophy[];
 };
 
 export type TrophyBadge = {
-  key: "daily-promotion" | "division-one" | "self-promotion";
+  key: "daily-promotion" | "division-one" | "self-promotion" | "most-matches" | "best-win-rate";
   name: string;
   emoji: string;
 };
@@ -97,10 +110,25 @@ export function buildTrophyAwards(streamers: StreamerRecord[]): TrophyAwards {
   });
   const bestPromotionCount = Math.max(0, ...promotionRecords.map((record) => record.totalCount));
 
+  const matchRecords = streamers.flatMap((streamer) => {
+    if (!streamer.record) return [];
+    const totalGames = streamer.record.wins + streamer.record.draws + streamer.record.losses;
+    return totalGames > 0 ? [{ streamer, totalGames }] : [];
+  });
+  const mostGames = Math.max(0, ...matchRecords.map((record) => record.totalGames));
+
+  const winRateRecords = streamers.flatMap((streamer) => {
+    const winRate = streamer.record ? winRatePercent(streamer.record) : undefined;
+    return winRate !== undefined ? [{ streamer, winRate }] : [];
+  });
+  const bestRate = Math.max(-1, ...winRateRecords.map((record) => record.winRate));
+
   return {
     dailyPromotion: bestDailySteps > 0 ? dailyRecords.filter((record) => record.steps === bestDailySteps) : [],
     divisionOne: divisionOneCandidates,
     selfPromotion: bestPromotionCount > 0 ? promotionRecords.filter((record) => record.totalCount === bestPromotionCount) : [],
+    mostMatches: mostGames > 0 ? matchRecords.filter((record) => record.totalGames === mostGames) : [],
+    bestWinRate: bestRate >= 0 ? winRateRecords.filter((record) => record.winRate === bestRate) : [],
   };
 }
 
@@ -108,6 +136,8 @@ export function trophyBadgesFor(streamer: StreamerRecord, awards: TrophyAwards):
   const badges: TrophyBadge[] = [];
   const divisionOne = awards.divisionOne.find((award) => award.streamer.id === streamer.id);
   if (divisionOne) badges.push({ key: "division-one", name: DIVISION_ONE_LABEL[divisionOne.rank], emoji: DIVISION_ONE_EMOJI[divisionOne.rank] });
+  if (awards.mostMatches.some((award) => award.streamer.id === streamer.id)) badges.push({ key: "most-matches", name: "최다 경기 출전", emoji: "⚔️" });
+  if (awards.bestWinRate.some((award) => award.streamer.id === streamer.id)) badges.push({ key: "best-win-rate", name: "최고 승률", emoji: "👑" });
   if (awards.dailyPromotion.some((award) => award.streamer.id === streamer.id)) badges.push({ key: "daily-promotion", name: "하루 급성장", emoji: "🚀" });
   if (awards.selfPromotion.some((award) => award.streamer.id === streamer.id)) badges.push({ key: "self-promotion", name: "자기 PR 왕", emoji: "📣" });
   return badges;

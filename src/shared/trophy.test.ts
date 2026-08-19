@@ -65,7 +65,24 @@ describe("trophy awards", () => {
     const first = { ...streamer("A"), scopePosts: [{ articleId: "s", board: "scope" as const, cafeAuthor: "A", title: "홍보", category: "[내가 직접 홍보]", publishedAt: "2026-08-10T10:00:00+09:00", articleUrl: "https://example.test/s" }] };
     const second = { ...streamer("B"), elevenVsElevenPosts: [{ articleId: "v", board: "elevenVsEleven" as const, cafeAuthor: "B", title: "영상", category: "", publishedAt: "2026-08-10T10:00:00+09:00", articleUrl: "https://example.test/v" }] };
     expect(buildTrophyAwards([first, second]).selfPromotion.map((award) => award.streamer.id)).toEqual(["A", "B"]);
-    expect(buildTrophyAwards([])).toEqual({ dailyPromotion: [], divisionOne: [], selfPromotion: [] });
+    expect(buildTrophyAwards([])).toEqual({ dailyPromotion: [], divisionOne: [], selfPromotion: [], mostMatches: [], bestWinRate: [] });
+  });
+
+  it("awards most matches and best win rate from career records, preserving ties", () => {
+    const mostGames = { ...streamer("최다출전"), record: { wins: 10, draws: 5, losses: 15 } };
+    const fewerGames = { ...streamer("적은출전"), record: { wins: 3, draws: 0, losses: 1 } };
+    const highRate = { ...streamer("고승률A"), record: { wins: 9, draws: 0, losses: 1 } };
+    const tiedRate = { ...streamer("고승률B"), record: { wins: 18, draws: 0, losses: 2 } };
+    const noRecord = streamer("전적없음");
+    const awards = buildTrophyAwards([mostGames, fewerGames, highRate, tiedRate, noRecord]);
+    expect(awards.mostMatches).toEqual([{ streamer: mostGames, totalGames: 30 }]);
+    expect(awards.bestWinRate.map((award) => award.streamer.id)).toEqual(["고승률A", "고승률B"]);
+  });
+
+  it("returns no most-matches or win-rate awards when no streamer has a career record", () => {
+    const awards = buildTrophyAwards([streamer("전적없음")]);
+    expect(awards.mostMatches).toEqual([]);
+    expect(awards.bestWinRate).toEqual([]);
   });
 
   it("returns each earned badge once even when a daily record is tied more than once", () => {
