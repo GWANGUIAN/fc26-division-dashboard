@@ -225,14 +225,14 @@ body { isolation: isolate; }
 @media (max-width: 680px) { .card-board { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }.fifa-card__body { margin-top: -8px; padding: 0 12px 0; gap: 4px; }.fifa-card__avatar .avatar { width: 62px; height: 62px; }.fifa-card__division { top: 20px; font-size: 19px; }.fifa-card__name { font-size: 16px; }.fifa-card__stat-label { font-size: 10px; }.fifa-card__stat-value { font-size: 13px; }.fifa-card__stat .record-badge__w, .fifa-card__stat .record-badge__d, .fifa-card__stat .record-badge__l { font-size: 14px; } }
 
 .announcement-backdrop { z-index: 45; align-items: flex-start; padding-top: 72px; }
-.announcement-modal { width: min(560px, 100%); max-height: min(640px, 82vh); }
+.announcement-modal { width: min(580px, 100%); max-height: min(640px, 82vh); }
 .announcement-modal__title { display: flex; align-items: center; gap: 9px; color: #effff8; font: 800 30px/1 "Barlow Condensed", "Noto Sans KR"; }
 .announcement-modal__title svg { width: 22px; height: 22px; color: #00e9ae; }
 .announcement-modal__body { display: grid; padding-top: 30px; }
 .announcement-item { white-space: pre-wrap; }
-.announcement-item p { margin: 0; color: #d3e6de; font-size: 13px; line-height: 1.6; }
-.announcement-item p strong { color: #00e9ae; font-weight: 400; }
-.announcement-item__note { display: block; margin-top: 8px; color: #7f978c; font-size: 11px; }
+.announcement-item p { margin: 0; color: #d3e6de; font-size: 14px; line-height: 1.6; }
+.announcement-item p strong { color: #00e9ae; font-weight: 600; }
+.announcement-item__note { display: block; margin-top: 8px; color: #7f978c; font-size: 12px; }
 .announcement-modal__divider { margin: 18px 0; border: 0; border-top: 1px solid #ffffff18; }
 .announcement-icon-badge { display: inline-grid; width: 20px; height: 20px; margin: 0 1px; place-items: center; border: 1px solid #d7fff73a; border-radius: 4px; color: #eafffa; background: #ffffff08; vertical-align: middle; transform: translateY(-2px); }
 .announcement-icon-badge svg { width: 12px; height: 12px; stroke-width: 2.6; }
