@@ -670,6 +670,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "망야 {n}부 리그 승격해쓰야~~"
+    sfx: "/sfxes/mangya.mp3"
   - slug: leuni158
     displayName: "르니"
     cafeAliases: ["르니ㅡ"]
@@ -1018,6 +1019,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/yaguja.mp3"
     celebrationMessage: "링링이의 {n}부 리그 승격을 축하합니다~!!📜"
   - slug: foxyeon
     displayName: "여우연"
@@ -1036,6 +1038,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "왁육터의 {n}부 리그 승격을 축하합니다~!!💦"
+    sfx: "/sfxes/hobal.mp3"
   - slug: natty09
     displayName: "냐쵸♥"
     cafeAliases: ["냐 쵸"]
@@ -1068,6 +1071,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/honyang2.mp3"
   - slug: jkl1122
     displayName: "김나디"
     cafeAliases: ["김나디"]
@@ -1084,6 +1088,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/mockchuri.mp3"
   - slug: etwo22
     displayName: "이투__"
     cafeAliases: ["이투22"]
