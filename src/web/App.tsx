@@ -34,23 +34,28 @@ const koreaDateKey = (value: Date) => new Intl.DateTimeFormat("en-CA", {
   timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit",
 }).format(value);
 
-type Announcement = { id: string; body: ReactNode; note?: string };
+type Announcement = { id: string; date: string; body: ReactNode; note?: string };
 
 const ANNOUNCEMENTS: Announcement[] = [
   {
     id: "2026-08-ai-record-extraction",
+    date: "2026.08.19",
     body: <><strong>AI</strong>가 승격 보고 게시물의 이미지를 분석해서 <strong>전체 전적을 추출</strong>하는 기능을 구현했습니다.<br />스트리머분들께서는 전체 전적이 포함된 게임 화면을 캡쳐해서 첨부하기를 추천드립니다.</>,
     note: "자동 추출되지 않는 데이터는 별도 수동 업데이트됩니다.",
   },
   {
     id: "2026-08-card-view",
+    date: "2026.08.19",
     body: <><strong>카드 뷰</strong>가 추가되었습니다. <span className="announcement-icon-badge"><LayoutGrid aria-hidden="true" /></span> 버튼을 클릭하면 카드 뷰로 전환할 수 있고,<br />디비전순 / 승률순으로 정렬할 수 있습니다.</>,
   },
   {
     id: "2026-08-trophy",
+    date: "2026.08.18",
     body: <><strong>업적</strong> 기능이 추가되었습니다. 상단바 오른쪽 <span className="announcement-icon-badge announcement-icon-badge--trophy"><Trophy aria-hidden="true" /></span> 버튼을 누르면 각 카테고리별 업적을 확인할 수 있습니다.</>,
   },
 ];
+
+const ANNOUNCEMENTS_SORTED = [...ANNOUNCEMENTS].sort((a, b) => b.date.localeCompare(a.date));
 
 const SEEN_ANNOUNCEMENTS_STORAGE_KEY = "fc26-seen-announcements";
 
@@ -505,20 +510,45 @@ function DetailModal({ streamer, awards, onClose, latestPosts = [] }: { streamer
 function CafeLink({ href, label = "왁물원 게시글" }: { href: string; label?: string }) { return <a className="action cafe" href={href} target="_blank" rel="noreferrer"><i>{cafeIcon}</i> {label}</a>; }
 function SoopLink({ href, children }: { href: string; children: ReactNode }) { return <a className="action soop" href={href} target="_blank" rel="noreferrer"><img className="soop-icon" src={soopIcon} alt="" />{children}</a>; }
 
+function AnnouncementEntries({ announcements }: { announcements: Announcement[] }) {
+  return <>{announcements.map((item, index) => <div className="announcement-item" key={item.id}>
+    {index > 0 && <hr className="announcement-modal__divider" />}
+    <time className="announcement-item__date">{item.date}</time>
+    <p>{item.body}</p>
+    {item.note && <small className="announcement-item__note">{item.note}</small>}
+  </div>)}</>;
+}
+
 function AnnouncementModal({ announcements, onClose, onAcknowledge }: { announcements: Announcement[]; onClose: () => void; onAcknowledge: () => void }) {
   useEscape(onClose);
   return <div className="modal-backdrop announcement-backdrop" role="presentation">
     <section className="modal announcement-modal" role="dialog" aria-modal="true" aria-label="공지">
       <div className="modal__header"><div><p className="eyebrow">NOTICE</p><h2 className="announcement-modal__title"><Megaphone aria-hidden="true" /> 공지</h2></div><button className="close" onClick={onClose} aria-label="닫기">×</button></div>
-      <div className="modal__body announcement-modal__body">
-        {announcements.map((item, index) => <div className="announcement-item" key={item.id}>
-          {index > 0 && <hr className="announcement-modal__divider" />}
-          <p>{item.body}</p>
-          {item.note && <small className="announcement-item__note">{item.note}</small>}
-        </div>)}
-      </div>
+      <div className="modal__body announcement-modal__body"><AnnouncementEntries announcements={announcements} /></div>
       <div className="announcement-modal__actions"><button type="button" className="announcement-modal__ack" onClick={onAcknowledge}>다시 보지 않기</button></div>
     </section>
+  </div>;
+}
+
+function AnnouncementWidget() {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const closeOnOutsideClick = (event: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(event.target as Node)) setOpen(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => event.key === "Escape" && setOpen(false);
+    addEventListener("mousedown", closeOnOutsideClick);
+    addEventListener("keydown", closeOnEscape);
+    return () => { removeEventListener("mousedown", closeOnOutsideClick); removeEventListener("keydown", closeOnEscape); };
+  }, [open]);
+  return <div className="announcement-widget" ref={wrapRef}>
+    {open && <section className="announcement-popover" role="dialog" aria-label="공지">
+      <div className="announcement-popover__header"><h2 className="announcement-modal__title"><Megaphone aria-hidden="true" /> 공지</h2><button className="close" type="button" onClick={() => setOpen(false)} aria-label="닫기">×</button></div>
+      <div className="announcement-popover__body"><AnnouncementEntries announcements={ANNOUNCEMENTS_SORTED} /></div>
+    </section>}
+    <button type="button" className="announcement-toggle" onClick={() => setOpen((current) => !current)} aria-label={open ? "공지 닫기" : "공지 보기"} aria-expanded={open}><Megaphone aria-hidden="true" /></button>
   </div>;
 }
 
@@ -605,7 +635,7 @@ export function App() {
   const [pendingAnnouncements, setPendingAnnouncements] = useState<Announcement[]>([]);
   useEffect(() => {
     const seenIds = loadSeenAnnouncementIds();
-    const unseen = ANNOUNCEMENTS.filter((announcement) => !seenIds.has(announcement.id));
+    const unseen = ANNOUNCEMENTS_SORTED.filter((announcement) => !seenIds.has(announcement.id));
     if (unseen.length) setPendingAnnouncements(unseen);
   }, []);
   const { seenKeys, markSeen, todayKey } = useSeenUpdates();
@@ -695,7 +725,7 @@ export function App() {
   }
   const isDivision = view === "division";
   return <main>
-    <header className="topbar"><a className="brand" href="#top"><span className="brand-wak">WAK</span><span>JANDY</span><strong>동아리 후보 대시보드</strong></a><nav className="main-nav" aria-label="메인 메뉴"><button className={isDivision ? "active" : ""} onClick={() => setView("division")}>디비전 현황</button><button className={!isDivision ? "active" : ""} onClick={() => setView("evaluation")}>1:1 평가</button></nav><div className="topbar__actions"><button className="feed-toggle" onClick={() => setFeedOpen(true)}>최신 소식 <em>{latest.length}</em></button><button className="trophy-toggle" type="button" onClick={() => setTrophyOpen(true)} aria-label="업적 보기"><Trophy aria-hidden="true" /></button></div></header>
+    <header className="topbar"><div className="topbar__brand-group"><a className="brand" href="#top"><span className="brand-wak">WAK</span><span>JANDY</span><strong>동아리 후보 대시보드</strong></a><AnnouncementWidget /></div><nav className="main-nav" aria-label="메인 메뉴"><button className={isDivision ? "active" : ""} onClick={() => setView("division")}>디비전 현황</button><button className={!isDivision ? "active" : ""} onClick={() => setView("evaluation")}>1:1 평가</button></nav><div className="topbar__actions"><button className="feed-toggle" onClick={() => setFeedOpen(true)}>최신 소식 <em>{latest.length}</em></button><button className="trophy-toggle" type="button" onClick={() => setTrophyOpen(true)} aria-label="업적 보기"><Trophy aria-hidden="true" /></button></div></header>
     <FavoriteCelebration slides={celebrationSlides} />
     <section className="hero" id="top"><div><p className="eyebrow">FC26 · {isDivision ? "SEASON DIVISION BOARD" : "ONE VS ONE EVALUATION"}</p><h1>{isDivision ? <>잰디 <mark>동아리 후보</mark><br />대시보드</> : <>1:1 <mark>평가 신청</mark><br />현황</>}</h1><p className="intro">{isDivision ? "왁물원에 보고된 FC26 디비전 승격 현황을 추적합니다." : "1대1 평가 신청 게시글과 대결 결과를 표시합니다."}</p></div><div className="sync"><span className="sync-dot" /> <b>3 MINUTE REFRESH</b><small><span className="refresh-icon" aria-hidden="true">↻</span> 3분마다 갱신 · {snapshot ? `${formatDateTime(snapshot.generatedAt)} 기준` : "데이터 연결 중"}</small></div></section>
     <JandyVideoSection />
