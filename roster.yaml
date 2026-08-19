@@ -170,6 +170,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/pli.mp3"
   - slug: 
     displayName: 체비
     cafeAliases: ["체 비"]
