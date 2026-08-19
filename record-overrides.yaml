@@ -9,4 +9,7 @@
 #     division: 5
 #     record: { wins: 10, draws: 2, losses: 3 }
 
-overrides: []
+overrides:
+  - soopId: secymyong
+    division: 8
+    record: { wins: 11, draws: 3, losses: 27 }
