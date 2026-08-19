@@ -620,8 +620,8 @@ streamers:
     soopId: "cjstkdbsl3"
     autoUpdate: true
     override:
-      division: null
-      policy: auto
+      division: 8
+      policy: until-next-post
     sfx: "/sfxes/ggangdambi.mp3"
   - slug: irrilll
     displayName: "이릴_"

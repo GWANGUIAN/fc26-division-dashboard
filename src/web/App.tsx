@@ -377,23 +377,10 @@ function FifaShield({ color }: { color: string }) {
   </svg>;
 }
 
-const NAME_RIBBON_OUTER = "M28,0 L212,0 L240,32 L212,64 L28,64 L0,32 Z";
-const NAME_RIBBON_INNER = "M32,5 L208,5 L232,32 L208,59 L32,59 L8,32 Z";
-
-function NameRibbon({ color }: { color: string }) {
-  const uid = useId();
-  const gradientId = `${uid}-ribbon`;
-  return <svg className="fifa-card__name-shape" viewBox="0 0 240 64" preserveAspectRatio="none" aria-hidden="true">
-    <defs>
-      <linearGradient id={gradientId} x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" style={{ stopColor: mixHex(color, "white", 0.4), stopOpacity: 0.82 }} />
-        <stop offset="55%" style={{ stopColor: color, stopOpacity: 0.78 }} />
-        <stop offset="100%" style={{ stopColor: mixHex(color, "black", 0.35), stopOpacity: 0.85 }} />
-      </linearGradient>
-    </defs>
-    <path d={NAME_RIBBON_OUTER} fill={`url(#${gradientId})`} stroke={mixHex(color, "black", 0.5)} strokeWidth={3} vectorEffect="non-scaling-stroke" />
-    <path d={NAME_RIBBON_INNER} fill="none" stroke="rgba(255, 255, 255, 0.5)" strokeWidth={2} vectorEffect="non-scaling-stroke" />
-  </svg>;
+function hexToRgba(hex: string, alpha: number): string {
+  const num = parseInt(hex.replace("#", ""), 16);
+  const [r, g, b] = [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
 function StreamerFifaCard({ streamer, awards, onOpen }: { streamer: StreamerRecord; awards: TrophyAwards; onOpen: () => void }) {
@@ -405,8 +392,7 @@ function StreamerFifaCard({ streamer, awards, onOpen }: { streamer: StreamerReco
     <AchievementBadges streamer={streamer} awards={awards} />
     <span className="fifa-card__body">
       <span className="fifa-card__avatar" style={{ "--avatar-border": mixHex(color, "black", 0.45) } as React.CSSProperties}><Avatar {...streamer} />{streamer.sfx && <Volume2 className="fifa-card__sfx-badge" aria-hidden="true" />}</span>
-      <span className="fifa-card__name">
-        <NameRibbon color={color} />
+      <span className="fifa-card__name" style={{ background: `linear-gradient(180deg, ${hexToRgba(color, 0.12)}, ${hexToRgba(color, 0.05)})` }}>
         <strong>{streamer.displayName}</strong>
       </span>
       <span className="fifa-card__stats">
@@ -499,8 +485,14 @@ function DetailModal({ streamer, awards, onClose, latestPosts = [] }: { streamer
   const channel = soopChannelUrl(streamer.soopId);
   const [expandedImage, setExpandedImage] = useState<string>();
   useEscape(() => expandedImage ? setExpandedImage(undefined) : onClose());
+  // No matching post yet, but an operator override is pinning the division (roster.yaml override.policy !== "auto").
+  const manualOverrideNotice = !post && streamer.overridePolicy !== "auto" && streamer.overrideDivision !== undefined;
   return <Modal onClose={onClose} label="디비전 상세" header={<div className="modal__identity"><Avatar {...streamer} /><div><span className="eyebrow">CURRENT DIVISION</span><h2>{streamer.displayName} <b style={{ "--division-color": divisionColor(streamer.currentDivision) } as React.CSSProperties}>{streamer.currentDivision}부</b> <AchievementBadges streamer={streamer} awards={awards} /></h2><SoopTags tags={streamer.soopTags} /><RecordBadge streamer={streamer} className="record-badge--lg" />{!streamer.isMapped && <p>카페 작성자 · SOOP 정보 미연결</p>}</div></div>}>
-    {post ? <><div className="report"><span>{post.category}</span><h3>{post.title}</h3><time>{formatCafePostDate(post.publishedAt)}</time></div>{post.imageUrls.length > 0 && <div className="gallery">{post.imageUrls.map((url, index) => <button className="gallery__image" type="button" onClick={() => setExpandedImage(url)} aria-label={`${streamer.displayName} 게시글 이미지 확대`} key={url}><img src={url} alt={`${streamer.displayName} 게시글 이미지`} loading={index === 0 ? "eager" : "lazy"} referrerPolicy="no-referrer" /></button>)}</div>}<PromotionTimeline posts={promotionHistory} /></> : <p className="empty-detail">아직 확인된 디비전 보고 게시글이 없습니다.</p>}
+    {post
+      ? <><div className="report"><span>{post.category}</span><h3>{post.title}</h3><time>{formatCafePostDate(post.publishedAt)}</time></div>{post.imageUrls.length > 0 && <div className="gallery">{post.imageUrls.map((url, index) => <button className="gallery__image" type="button" onClick={() => setExpandedImage(url)} aria-label={`${streamer.displayName} 게시글 이미지 확대`} key={url}><img src={url} alt={`${streamer.displayName} 게시글 이미지`} loading={index === 0 ? "eager" : "lazy"} referrerPolicy="no-referrer" /></button>)}</div>}<PromotionTimeline posts={promotionHistory} /></>
+      : manualOverrideNotice
+        ? <p className="empty-detail">카페에 {streamer.currentDivision}부 승격 게시글이 아직 올라오지 않아 운영자가 수동으로 업데이트한 디비전입니다.</p>
+        : <p className="empty-detail">아직 확인된 디비전 보고 게시글이 없습니다.</p>}
     <PreviousPromotionSection posts={streamer.previousPromotionPosts} />
     <StreamerActivitySection title="잔디동 스코프" posts={streamer.scopePosts} />
     <StreamerActivitySection title="11대 11 플레이 영상" posts={streamer.elevenVsElevenPosts} />

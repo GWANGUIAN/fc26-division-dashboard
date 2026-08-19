@@ -16,12 +16,15 @@ overrides:
   - soopId: kirababy2
     division: 9
     record: { wins: 2, draws: 2, losses: 11 }
-  - soopId: 
-    division: 
-    record: { wins: , draws: , losses:  }
-  - soopId: 
-    division: 
-    record: { wins: , draws: , losses:  }
-  - soopId: 
-    division: 
-    record: { wins: , draws: , losses:  }
+  - soopId: cjstkdbsl3
+    division: 8
+    record: { wins: 7, draws: 4, losses: 7 }
+  # - soopId: 
+  #   division: 
+  #   record: { wins: , draws: , losses:  }
+  # - soopId: 
+  #   division: 
+  #   record: { wins: , draws: , losses:  }
+  # - soopId: 
+  #   division: 
+  #   record: { wins: , draws: , losses:  }
