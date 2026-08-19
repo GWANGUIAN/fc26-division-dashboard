@@ -505,7 +505,7 @@ function Avatar({
   );
 }
 
-const FANCY_SPARK_SLOTS = [1, 2, 3, 4] as const;
+const FANCY_SPARK_SLOTS = [1, 2, 3, 4, 5, 6] as const;
 
 function isStreamerFancy(streamer: Pick<StreamerRecord, "isFancy">): boolean {
   return !!streamer.isFancy;
@@ -544,7 +544,7 @@ function FancyAvatar({
   );
 }
 
-const FANCY_NAME_SPARK_SLOTS = [1, 2] as const;
+const FANCY_NAME_SPARK_SLOTS = [1, 2, 3] as const;
 
 function FancyName({
   streamer,
@@ -864,11 +864,21 @@ function StreamerCard({
   isNew: boolean;
   onOpen: () => void;
 }) {
+  const fancy = isStreamerFancy(streamer);
   return (
     <button
-      className={`streamer-card ${isNew ? "streamer-card--new" : ""}`}
+      className={`streamer-card ${isNew ? "streamer-card--new" : ""} ${fancy ? "fancy-border" : ""}`}
       onClick={onOpen}
       aria-label={`${streamer.displayName} 상세 보기${isNew ? " (24시간 이내 업데이트됨)" : ""}`}
+      style={
+        fancy
+          ? ({
+              "--fancy-color": "#00e9ae",
+              "--fancy-glow-soft": hexToRgba("#00e9ae", 0.4),
+              "--fancy-glow-strong": hexToRgba("#00e9ae", 0.9),
+            } as React.CSSProperties)
+          : undefined
+      }
     >
       <span className="streamer-card__avatar">
         <FancyAvatar streamer={streamer} />
@@ -1296,6 +1306,7 @@ function DetailModal({
       onClose={onClose}
       label="디비전 상세"
       decoration={isStreamerFancy(streamer) ? <FancyBurst /> : undefined}
+      fancyBorderColor={isStreamerFancy(streamer) ? "#00e9ae" : undefined}
       header={
         <div className="modal__identity">
           <FancyAvatar streamer={streamer} />
@@ -1553,31 +1564,54 @@ function Modal({
   onClose,
   label,
   decoration,
+  fancyBorderColor,
 }: {
   children: ReactNode;
   header: ReactNode;
   onClose: () => void;
   label: string;
   decoration?: ReactNode;
+  fancyBorderColor?: string;
 }) {
   return (
     <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
-      <section
-        className="modal"
-        role="dialog"
-        aria-modal="true"
-        aria-label={label}
-        onMouseDown={(event) => event.stopPropagation()}
+      <div
+        className="modal-frame"
+        style={
+          fancyBorderColor
+            ? ({
+                "--fancy-color": fancyBorderColor,
+                "--fancy-glow-soft": hexToRgba(fancyBorderColor, 0.4),
+                "--fancy-glow-strong": hexToRgba(fancyBorderColor, 0.9),
+              } as React.CSSProperties)
+            : undefined
+        }
       >
-        {decoration}
-        <div className="modal__header">
-          {header}
-          <button className="close" onClick={onClose} aria-label="닫기">
-            ×
-          </button>
-        </div>
-        <div className="modal__body">{children}</div>
-      </section>
+        <section
+          className={`modal ${fancyBorderColor ? "fancy-border" : ""}`}
+          role="dialog"
+          aria-modal="true"
+          aria-label={label}
+          onMouseDown={(event) => event.stopPropagation()}
+        >
+          {decoration}
+          <div className="modal__header">
+            {header}
+            <button className="close" onClick={onClose} aria-label="닫기">
+              ×
+            </button>
+          </div>
+          <div className="modal__body">{children}</div>
+        </section>
+        {fancyBorderColor && (
+          <img
+            className="fancy-ball"
+            src="/soccer_ball.webp"
+            alt=""
+            aria-hidden="true"
+          />
+        )}
+      </div>
     </div>
   );
 }
