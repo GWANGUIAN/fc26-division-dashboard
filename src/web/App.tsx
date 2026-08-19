@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Copy, Info, Trophy, Volume2, VolumeX } from "lucide-react";
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Copy, Info, LayoutGrid, List, Trophy, Volume2, VolumeX } from "lucide-react";
 import { A11y, Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperInstance } from "swiper/types";
@@ -9,7 +9,9 @@ import { defaultSoopProfileUrl, soopChannelUrl } from "../shared/model.js";
 import { DEFAULT_ONE_VS_ONE_CONFIG } from "../shared/one-vs-one-results.js";
 import { buildPromotionTimeline, summarizePromotionTimeline } from "../shared/promotion-timeline.js";
 import { normalizeCafeAlias } from "../shared/promotion.js";
+import { recordExtractionStatus, winRatePercent } from "../shared/record-extraction.js";
 import { buildTrophyAwards, DIVISION_ONE_EMOJI, trophyBadgesFor, type TrophyAwards } from "../shared/trophy.js";
+import { divisionColor } from "../shared/division-theme.js";
 import { loadSnapshot } from "./api.js";
 import soopIcon from "./assets/soop_icon.svg";
 import { DivisionHistogram } from "./DivisionHistogram";
@@ -287,14 +289,79 @@ function AchievementBadges({ streamer, awards }: { streamer: StreamerRecord; awa
   return <span className="achievement-badges" aria-label={`${streamer.displayName} 업적`}>{badges.map((badge) => <span className="achievement-badge" role="img" title={badge.name} key={badge.key} aria-label={badge.name}><span aria-hidden="true">{badge.emoji}</span><span role="tooltip">{badge.name}</span></span>)}</span>;
 }
 
+function RecordBadge({ streamer, className = "" }: { streamer: Pick<StreamerRecord, "record" | "lastPost">; className?: string }) {
+  if (streamer.record) {
+    const r = streamer.record;
+    return <span className={`record-badge ${className}`}><b className="record-badge__w">{r.wins}</b>/<b className="record-badge__d">{r.draws}</b>/<b className="record-badge__l">{r.losses}</b></span>;
+  }
+  if (!streamer.lastPost) return <span className={`record-badge record-badge--empty ${className}`}>-/-/-</span>;
+  const status = recordExtractionStatus(streamer.lastPost);
+  return status === "pending"
+    ? <span className={`record-badge record-badge--pending ${className}`}>집계중</span>
+    : <span className={`record-badge record-badge--empty ${className}`}>-/-/-</span>;
+}
+
 function StreamerCard({ streamer, awards, isNew, onOpen }: { streamer: StreamerRecord; awards: TrophyAwards; isNew: boolean; onOpen: () => void }) {
   return <button className={`streamer-card ${isNew ? "streamer-card--new" : ""}`} onClick={onOpen} aria-label={`${streamer.displayName} 상세 보기${isNew ? " (오늘 업데이트됨)" : ""}`}>
     <span className="streamer-card__avatar"><Avatar {...streamer} />{streamer.sfx && <Volume2 className="streamer-card__sfx-badge" aria-hidden="true" />}</span>
-    <span className="streamer-card__copy"><span className="streamer-card__name"><strong>{streamer.displayName}</strong><AchievementBadges streamer={streamer} awards={awards} /></span><SoopTags tags={streamer.soopTags} /><small>{streamer.lastPost ? formatBoardPostDate(streamer.lastPost.publishedAt) : "첫 보고 대기"}</small></span>
-    <span className="streamer-card__rank">D{streamer.currentDivision}</span>
+    <span className="streamer-card__copy"><span className="streamer-card__name"><strong>{streamer.displayName}</strong><AchievementBadges streamer={streamer} awards={awards} /></span><SoopTags tags={streamer.soopTags} /><RecordBadge streamer={streamer} /><small>{streamer.lastPost ? formatBoardPostDate(streamer.lastPost.publishedAt) : "첫 보고 대기"}</small></span>
+    <span className="streamer-card__rank" style={{ "--division-color": divisionColor(streamer.currentDivision) } as React.CSSProperties}>D{streamer.currentDivision}</span>
     {!streamer.isMapped && <span className="unmapped" title="SOOP 정보 미연결">카페</span>}
     {isNew && <span className="streamer-card__new-badge">NEW</span>}
   </button>;
+}
+
+function mixHex(hex: string, target: "white" | "black", amount: number): string {
+  const num = parseInt(hex.replace("#", ""), 16);
+  const [r, g, b] = [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+  const t = target === "white" ? 255 : 0;
+  const blend = (c: number) => Math.round(c + (t - c) * amount).toString(16).padStart(2, "0");
+  return `#${blend(r)}${blend(g)}${blend(b)}`;
+}
+
+const FIFA_SHIELD_OUTER = "M 150,6 C 215,6 270,14 286,28 C 295,36 298,46 298,60 L 298,350 C 298,370 278,400 150,444 C 22,400 2,370 2,350 L 2,60 C 2,46 5,36 14,28 C 30,14 85,6 150,6 Z";
+const FIFA_SHIELD_INNER = "M 150,14 C 210,14 262,21 278,33 C 285,39 288,48 288,60 L 288,346 C 288,363 269,391 150,432 C 31,391 12,363 12,346 L 12,60 C 12,48 15,39 22,33 C 38,21 90,14 150,14 Z";
+
+function FifaShield({ color }: { color: string }) {
+  const uid = useId();
+  const gradientId = `${uid}-grad`;
+  return <svg className="fifa-card__shield" viewBox="0 0 300 450" aria-hidden="true">
+    <defs>
+      <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: color, stopOpacity: 0.55 }} />
+        <stop offset="45%" style={{ stopColor: mixHex(color, "black", 0.5), stopOpacity: 0.4 }} />
+        <stop offset="100%" style={{ stopColor: "#06100c", stopOpacity: 0.94 }} />
+      </linearGradient>
+    </defs>
+    <path d={FIFA_SHIELD_OUTER} fill={`url(#${gradientId})`} stroke={mixHex(color, "black", 0.35)} strokeWidth={3} />
+    <path d={FIFA_SHIELD_INNER} fill="none" stroke="rgba(255, 255, 255, 0.35)" strokeWidth={2} />
+  </svg>;
+}
+
+function StreamerFifaCard({ streamer, awards, onOpen }: { streamer: StreamerRecord; awards: TrophyAwards; onOpen: () => void }) {
+  const rate = streamer.record ? winRatePercent(streamer.record) : undefined;
+  const color = divisionColor(streamer.currentDivision);
+  return <button className="fifa-card" onClick={onOpen} aria-label={`${streamer.displayName} 상세 보기`}>
+    <FifaShield color={color} />
+    <span className="fifa-card__division">D{streamer.currentDivision}</span>
+    <span className="fifa-card__body">
+      <span className="fifa-card__avatar" style={{ "--avatar-border": mixHex(color, "black", 0.45) } as React.CSSProperties}><Avatar {...streamer} />{streamer.sfx && <Volume2 className="fifa-card__sfx-badge" aria-hidden="true" />}</span>
+      <span className="fifa-card__name"><strong style={{ color: mixHex(color, "black", 0.4) }}>{streamer.displayName}</strong><AchievementBadges streamer={streamer} awards={awards} /></span>
+      <span className="fifa-card__stats">
+        <span className="fifa-card__stat"><RecordBadge streamer={streamer} /></span>
+        <span className="fifa-card__stat"><span className="fifa-card__stat-label">승률</span><b className="fifa-card__stat-value">{rate !== undefined ? `${rate.toFixed(1)}%` : "-"}</b></span>
+        <span className="fifa-card__stat"><span className="fifa-card__stat-label">최근 승급일</span><b className="fifa-card__stat-value">{streamer.lastPost ? formatBoardPostDate(streamer.lastPost.publishedAt) : "첫 보고 대기"}</b></span>
+      </span>
+    </span>
+    {!streamer.isMapped && <span className="unmapped" title="SOOP 정보 미연결">카페</span>}
+  </button>;
+}
+
+function CardBoard({ streamers, awards, onOpen }: { streamers: StreamerRecord[]; awards: TrophyAwards; onOpen: (streamer: StreamerRecord) => void }) {
+  return <section className="card-board" aria-label="스트리머 카드 보기">
+    {streamers.map((streamer) => <StreamerFifaCard key={streamer.id} streamer={streamer} awards={awards} onOpen={() => onOpen(streamer)} />)}
+    {streamers.length === 0 && <p className="empty-list">표시할 스트리머가 없습니다.</p>}
+  </section>;
 }
 
 function StreamerActivitySection({ title, posts }: { title: string; posts?: StreamerActivityPost[] }) {
@@ -370,7 +437,7 @@ function DetailModal({ streamer, awards, onClose, latestPosts = [] }: { streamer
   const channel = soopChannelUrl(streamer.soopId);
   const [expandedImage, setExpandedImage] = useState<string>();
   useEscape(() => expandedImage ? setExpandedImage(undefined) : onClose());
-  return <Modal onClose={onClose} label="디비전 상세" header={<div className="modal__identity"><Avatar {...streamer} /><div><span className="eyebrow">CURRENT DIVISION</span><h2>{streamer.displayName} <b>{streamer.currentDivision}부</b> <AchievementBadges streamer={streamer} awards={awards} /></h2><SoopTags tags={streamer.soopTags} />{!streamer.isMapped && <p>카페 작성자 · SOOP 정보 미연결</p>}</div></div>}>
+  return <Modal onClose={onClose} label="디비전 상세" header={<div className="modal__identity"><Avatar {...streamer} /><div><span className="eyebrow">CURRENT DIVISION</span><h2>{streamer.displayName} <b style={{ "--division-color": divisionColor(streamer.currentDivision) } as React.CSSProperties}>{streamer.currentDivision}부</b> <AchievementBadges streamer={streamer} awards={awards} /></h2><SoopTags tags={streamer.soopTags} /><RecordBadge streamer={streamer} className="record-badge--lg" />{!streamer.isMapped && <p>카페 작성자 · SOOP 정보 미연결</p>}</div></div>}>
     {post ? <><div className="report"><span>{post.category}</span><h3>{post.title}</h3><time>{formatCafePostDate(post.publishedAt)}</time></div>{post.imageUrls.length > 0 && <div className="gallery">{post.imageUrls.map((url, index) => <button className="gallery__image" type="button" onClick={() => setExpandedImage(url)} aria-label={`${streamer.displayName} 게시글 이미지 확대`} key={url}><img src={url} alt={`${streamer.displayName} 게시글 이미지`} loading={index === 0 ? "eager" : "lazy"} referrerPolicy="no-referrer" /></button>)}</div>}<PromotionTimeline posts={promotionHistory} /></> : <p className="empty-detail">아직 확인된 디비전 보고 게시글이 없습니다.</p>}
     <PreviousPromotionSection posts={streamer.previousPromotionPosts} />
     <StreamerActivitySection title="잔디동 스코프" posts={streamer.scopePosts} />
@@ -443,6 +510,8 @@ export function App() {
   const [query, setQuery] = useState("");
   const [activityOnly, setActivityOnly] = useState(false);
   const [sfxOnly, setSfxOnly] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "card">("list");
+  const [sortMode, setSortMode] = useState<"division" | "winRate">("division");
   const [evaluationFilter, setEvaluationFilter] = useState<"all" | "pending" | "completed">("all");
   const [selected, setSelected] = useState<StreamerRecord>();
   const [selectedApplication, setSelectedApplication] = useState<OneVsOneApplicationView>();
@@ -495,6 +564,17 @@ export function App() {
     searchable(streamer.displayName, streamer.cafeAliases, query)
     && (!activityOnly || Boolean(streamer.scopePosts?.length || streamer.elevenVsElevenPosts?.length))
     && (!sfxOnly || Boolean(streamer.sfx))), [snapshot, query, activityOnly, sfxOnly]);
+  const cardStreamers = useMemo(() => {
+    if (sortMode === "division") return [...streamers].sort((a, b) => a.currentDivision - b.currentDivision);
+    return [...streamers].sort((a, b) => {
+      const wa = a.record ? winRatePercent(a.record) : undefined;
+      const wb = b.record ? winRatePercent(b.record) : undefined;
+      if (wa === undefined && wb === undefined) return 0;
+      if (wa === undefined) return 1;
+      if (wb === undefined) return -1;
+      return wb - wa;
+    });
+  }, [streamers, sortMode]);
   async function handleCopyDivisionList() {
     try {
       await navigator.clipboard.writeText(buildDivisionListText(streamers));
@@ -522,6 +602,11 @@ export function App() {
     }).sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
     return [{ key: "default", message: DEFAULT_CELEBRATION_MESSAGE }, ...postSlides.map(({ key, message }) => ({ key, message })) ];
   }, [snapshot, latest]);
+  function openStreamer(streamer: StreamerRecord) {
+    if (streamer.lastPost) markSeen(seenKeyFor(streamer));
+    if (sfxEnabled && streamer.sfx) { playSfx(streamer.sfx, sfxVolume / 100); if (!hasHeardSfx()) setSfxIntroVisible(true); }
+    setSelected(streamer);
+  }
   const isDivision = view === "division";
   return <main>
     <header className="topbar"><a className="brand" href="#top"><span className="brand-wak">WAK</span><span>JANDY</span><strong>동아리 후보 대시보드</strong></a><nav className="main-nav" aria-label="메인 메뉴"><button className={isDivision ? "active" : ""} onClick={() => setView("division")}>디비전 현황</button><button className={!isDivision ? "active" : ""} onClick={() => setView("evaluation")}>1:1 평가</button></nav><div className="topbar__actions"><button className="feed-toggle" onClick={() => setFeedOpen(true)}>최신 소식 <em>{latest.length}</em></button><button className="trophy-toggle" type="button" onClick={() => setTrophyOpen(true)} aria-label="업적 보기"><Trophy aria-hidden="true" /></button></div></header>
@@ -530,7 +615,11 @@ export function App() {
     <JandyVideoSection />
     <div ref={controlsSentinelRef} className="controls-sentinel" aria-hidden="true" />
     <section className={`controls-bar ${controlsStuck ? "controls-bar--stuck" : ""}`} aria-label={isDivision ? "스트리머 검색" : "평가 신청 필터"}><div className="controls"><div className="controls__search"><label><span className="sr-only">검색</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="이름 또는 카페 닉네임 검색" /></label>{isDivision && <DivisionHistogram streamers={snapshot?.streamers ?? []} />}</div>{isDivision ? <div className="controls__actions"><div className="segmented"><button className={sfxOnly ? "active" : ""} onClick={() => setSfxOnly((current) => !current)} aria-pressed={sfxOnly}>효과음 있는 스트리머만</button></div><div className="segmented"><button className={activityOnly ? "active" : ""} onClick={() => setActivityOnly((current) => !current)} aria-pressed={activityOnly}>활동글 작성자만</button></div><button className="copy-list-button" type="button" onClick={handleCopyDivisionList}><Copy aria-hidden="true" /> 목록 복사</button></div> : <div className="segmented">{(["all", "pending", "completed"] as const).map((value) => <button key={value} className={evaluationFilter === value ? "active" : ""} onClick={() => setEvaluationFilter(value)}>{value === "all" ? "전체" : value === "pending" ? "대결 전" : "대결 완료"}</button>)}</div>}</div></section>
-    {isDivision ? <section className="board" aria-label="FC26 디비전 보드">{divisions.map((division) => { const entries = streamers.filter((streamer) => streamer.currentDivision === division); return <section className={`division division-${division}`} key={division}><div className="division__label"><span>{division === 10 ? "SEASON" : "DIVISION"}</span><strong>{division}</strong>{division === 10 && <small>미참여</small>}</div><div className="division__players">{entries.map((streamer) => <StreamerCard key={streamer.id} streamer={streamer} awards={trophyAwards} isNew={isUpdatedToday(streamer, todayKey) && !seenKeys.has(seenKeyFor(streamer))} onOpen={() => { if (streamer.lastPost) markSeen(seenKeyFor(streamer)); if (sfxEnabled && streamer.sfx) { playSfx(streamer.sfx, sfxVolume / 100); if (!hasHeardSfx()) setSfxIntroVisible(true); } setSelected(streamer); }} />)}{entries.length === 0 && <p className="vacant">{division === 10 ? "시즌 미참여 후보 없음" : "후보 대기 중"}</p>}</div></section>; })}</section> : <section className="evaluation-list" aria-label="1대1 평가 신청 목록">{applications.map((application) => <EvaluationCard key={application.articleId} application={application} onOpen={() => setSelectedApplication(application)} />)}{applications.length === 0 && <p className="empty-list">표시할 1대1 평가 신청자가 없습니다.</p>}</section>}
+    {isDivision && <section className="view-toolbar" aria-label="보기 설정">
+      {viewMode === "card" && <div className="segmented"><button className={sortMode === "division" ? "active" : ""} onClick={() => setSortMode("division")} aria-pressed={sortMode === "division"}>디비전순</button><button className={sortMode === "winRate" ? "active" : ""} onClick={() => setSortMode("winRate")} aria-pressed={sortMode === "winRate"}>승률순</button></div>}
+      <div className="segmented"><button className={viewMode === "list" ? "active" : ""} onClick={() => setViewMode("list")} aria-pressed={viewMode === "list"} aria-label="목록 보기"><List aria-hidden="true" /></button><button className={viewMode === "card" ? "active" : ""} onClick={() => setViewMode("card")} aria-pressed={viewMode === "card"} aria-label="카드 보기"><LayoutGrid aria-hidden="true" /></button></div>
+    </section>}
+    {isDivision ? (viewMode === "list" ? <section className="board" aria-label="FC26 디비전 보드">{divisions.map((division) => { const entries = streamers.filter((streamer) => streamer.currentDivision === division); return <section className={`division division-${division}`} style={{ "--division-color": divisionColor(division) } as React.CSSProperties} key={division}><div className="division__label"><span>{division === 10 ? "SEASON" : "DIVISION"}</span><strong>{division}</strong>{division === 10 && <small>미참여</small>}</div><div className="division__players">{entries.map((streamer) => <StreamerCard key={streamer.id} streamer={streamer} awards={trophyAwards} isNew={isUpdatedToday(streamer, todayKey) && !seenKeys.has(seenKeyFor(streamer))} onOpen={() => openStreamer(streamer)} />)}{entries.length === 0 && <p className="vacant">{division === 10 ? "시즌 미참여 후보 없음" : "후보 대기 중"}</p>}</div></section>; })}</section> : <CardBoard streamers={cardStreamers} awards={trophyAwards} onOpen={openStreamer} />) : <section className="evaluation-list" aria-label="1대1 평가 신청 목록">{applications.map((application) => <EvaluationCard key={application.articleId} application={application} onOpen={() => setSelectedApplication(application)} />)}{applications.length === 0 && <p className="empty-list">표시할 1대1 평가 신청자가 없습니다.</p>}</section>}
     <footer>왁물원 카페 게시글 기반 · 마지막 동기화 {snapshot ? formatDateTime(snapshot.generatedAt) : "확인 중"}</footer>
     {selected && <DetailModal streamer={selected} awards={trophyAwards} onClose={() => { stopSfx(); setSelected(undefined); }} latestPosts={snapshot?.latestPosts} />}{selectedApplication && <EvaluationModal application={selectedApplication} onClose={() => setSelectedApplication(undefined)} />}{trophyOpen && <TrophyModal awards={trophyAwards} onClose={() => setTrophyOpen(false)} />}
     {feedOpen && <div className="modal-backdrop" role="presentation" onMouseDown={() => setFeedOpen(false)}><aside className="feed" role="dialog" aria-modal="true" aria-label="최신 소식" onMouseDown={(event) => event.stopPropagation()}><button className="close" onClick={() => setFeedOpen(false)} aria-label="닫기">×</button><p className="eyebrow">TODAY'S REPORTS</p><h2>최신 소식</h2>{latest.length ? latest.slice(0, 25).map((post) => <a href={post.articleUrl} target="_blank" rel="noreferrer" key={post.articleId}><span>{post.category}</span><strong>{post.title}</strong><small>{post.cafeAuthor} · {formatCafePostDate(post.publishedAt)}</small></a>) : <p className="empty-list">오늘 등록된 디비전 보고가 없습니다.</p>}</aside></div>}

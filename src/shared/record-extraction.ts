@@ -22,6 +22,12 @@ export function recordExtractionStatus(
   return (post.recordExtractionAttempts ?? 0) >= maxAttempts ? "failed" : "pending";
 }
 
+/** Career win rate as a percentage (0-100), or undefined if no games are recorded. */
+export function winRatePercent(record: CareerRecord): number | undefined {
+  const total = record.wins + record.draws + record.losses;
+  return total === 0 ? undefined : (record.wins / total) * 100;
+}
+
 /** Validates one model response against the expected record-screen shape. */
 export function parseRecordScreenResult(value: unknown): ExtractedRecord | undefined {
   if (typeof value !== "object" || value === null) return undefined;
