@@ -383,9 +383,12 @@ function StreamerFifaCard({ streamer, awards, onOpen }: { streamer: StreamerReco
   return <button className="fifa-card" onClick={onOpen} aria-label={`${streamer.displayName} 상세 보기`}>
     <FifaShield color={color} />
     <span className="fifa-card__division">D{streamer.currentDivision}</span>
+    <AchievementBadges streamer={streamer} awards={awards} />
     <span className="fifa-card__body">
       <span className="fifa-card__avatar" style={{ "--avatar-border": mixHex(color, "black", 0.45) } as React.CSSProperties}><Avatar {...streamer} />{streamer.sfx && <Volume2 className="fifa-card__sfx-badge" aria-hidden="true" />}</span>
-      <span className="fifa-card__name"><strong style={{ color: mixHex(color, "black", 0.4) }}>{streamer.displayName}</strong><AchievementBadges streamer={streamer} awards={awards} /></span>
+      <span className="fifa-card__name" style={{ "--pill-light": mixHex(color, "white", 0.4), "--pill-color": color, "--pill-dark": mixHex(color, "black", 0.35), "--pill-border": mixHex(color, "black", 0.5) } as React.CSSProperties}>
+        <strong>{streamer.displayName}</strong>
+      </span>
       <span className="fifa-card__stats">
         <span className="fifa-card__stat"><RecordBadge streamer={streamer} /></span>
         <span className="fifa-card__stat"><span className="fifa-card__stat-label">승률</span><b className="fifa-card__stat-value">{rate !== undefined ? `${rate.toFixed(1)}%` : "-"}</b></span>
