@@ -69,6 +69,27 @@ pnpm sync:comments-roster -- --xlsx C:\\path\\comments.xlsx
 
 프로젝트의 Node 의존성만 사용하므로 Python이나 브라우저 설치는 필요 없습니다.
 
+### CollaBot 실시간 동기화 (GitHub Actions)
+
+`.github/workflows/sync-roster-collabot.yml`은 위 CollaBot 게시글(https://colla.bot/station/ecvhao/post/204050719)에서 "Excel로 내보내기"를 직접 자동화(Playwright)해 매번 최신 신청자 목록을 가져온 뒤 `roster.yaml`을 **양방향**으로 동기화합니다: 목록에 없어진 스트리머는 제거하고, 새 신청자는 SOOP 닉네임을 `cafeAliases` 기본값으로 삼아 추가합니다. 변경 사항은 `main`에 직접 커밋·push되며, 이 push가 기존 `sync-roster.yml`을 트리거해 AWS까지 자동 반영됩니다.
+
+같은 로직을 로컬에서 미리 확인하려면:
+
+```powershell
+pnpm exec playwright install chromium   # 최초 1회만 필요
+pnpm fetch:collabot -- --out collabot-export.xlsx
+pnpm sync:collabot-live -- --xlsx collabot-export.xlsx --dry-run
+```
+
+**필요한 GitHub Secrets** (Settings → Secrets and variables → Actions):
+
+- `MAIL_USERNAME` / `MAIL_PASSWORD`: 발신용 Gmail 주소와 앱 비밀번호(로그인 비밀번호 아님). 변경사항이 있거나 안전장치가 발동했을 때 `bbaa3218@gmail.com`으로 결과를 메일로 보냅니다.
+- `ROSTER_AUTOSYNC_TOKEN`: 이 저장소 전용 fine-grained PAT(Contents: Read and write 권한만). 기본 `GITHUB_TOKEN`으로 push하면 다른 워크플로(`sync-roster.yml`)가 자동으로 트리거되지 않는 GitHub 정책 때문에 필요합니다.
+
+**안전장치**: 새로 가져온 신청자 수가 0명이거나 현재 roster의 절반 미만이면 동기화 전체를 중단하고 `roster.yaml`을 건드리지 않습니다 — CollaBot 페이지 로딩 실패를 "다들 신청을 취소함"으로 오인해 로스터를 지우는 사고를 막기 위함입니다. 이 경우에도 이상 상황을 알리는 메일이 발송됩니다. 임계값은 워크플로의 `MIN_LIVE_APPLICANT_RATIO` 환경변수(기본 `0.5`)로 조정합니다.
+
+현재는 `workflow_dispatch`(수동 실행, `dry_run` 입력 기본 `true`)만 등록되어 있습니다. Actions 탭에서 실행해 로그와 커밋·메일을 확인한 뒤에만 `schedule: - cron: "0 0 * * *"`(09:00 KST)을 추가해 매일 자동 실행하도록 합니다.
+
 ## AWS 배포
 
 Terraform과 Docker, AWS CLI 로그인이 필요합니다.

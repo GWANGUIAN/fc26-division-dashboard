@@ -1,0 +1,105 @@
+name: Sync roster from CollaBot applicants
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Compute the diff and log it, but do not write roster.yaml or push.
+        type: boolean
+        default: true
+  # A `schedule:` trigger (09:00 KST daily = "0 0 * * *" UTC) is added in a
+  # follow-up commit only after a manual, non-dry-run workflow_dispatch run
+  # has been verified end to end (fetch succeeds, diff is correct, the push
+  # actually triggers sync-roster.yml, and the email arrives).
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-roster-collabot
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The default GITHUB_TOKEN's push does not trigger other workflows
+          # (GitHub's loop-prevention for GITHUB_TOKEN-authored events), which
+          # would silently stop this from ever reaching sync-roster.yml. A
+          # repo-scoped PAT makes the push look like a real user push.
+          token: ${{ secrets.ROSTER_AUTOSYNC_TOKEN }}
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm exec playwright install --with-deps chromium
+
+      - name: Fetch CollaBot export
+        run: node scripts/fetch-collabot-export.mjs --out "$RUNNER_TEMP/collabot-export.xlsx" --debug-prefix "$RUNNER_TEMP/collabot-debug"
+
+      - name: Diff & sync roster.yaml
+        id: sync
+        env:
+          MIN_LIVE_APPLICANT_RATIO: "0.5"
+        run: |
+          node scripts/sync-roster-from-collabot-xlsx.mjs \
+            --xlsx "$RUNNER_TEMP/collabot-export.xlsx" \
+            --summary-output "$RUNNER_TEMP/collabot-sync-summary.txt" \
+            ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      - name: Write step summary
+        if: always()
+        run: cat "$RUNNER_TEMP/collabot-sync-summary.txt" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+
+      - name: Commit and push
+        if: steps.sync.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add roster.yaml
+          git commit -m "chore: sync roster from CollaBot applicants"
+          git push
+
+      - name: Email diff/alert
+        if: steps.sync.outputs.changed == 'true' || steps.sync.outputs.aborted == 'true'
+        uses: dawidd6/action-send-mail@v18
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          to: bbaa3218@gmail.com
+          from: FC26 Dashboard Bot
+          subject: ${{ steps.sync.outputs.aborted == 'true' && '[FC26 Dashboard] 로스터 동기화 중단 - 이상 감지' || '[FC26 Dashboard] 로스터 동기화 완료' }}
+          body: file://${{ steps.sync.outputs.summary_file }}
+
+      - name: Upload debug artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: collabot-sync-debug
+          path: ${{ runner.temp }}/collabot-debug.*
+          if-no-files-found: ignore
+
+      - name: Email on crash
+        if: failure()
+        uses: dawidd6/action-send-mail@v18
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          to: bbaa3218@gmail.com
+          from: FC26 Dashboard Bot
+          subject: "[FC26 Dashboard] 로스터 동기화 실행 실패"
+          body: "워크플로우 실행이 실패했습니다. Actions 로그와 업로드된 debug 아티팩트를 확인하세요: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

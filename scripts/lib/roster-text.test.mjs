@@ -1,0 +1,145 @@
+import { describe, expect, it } from "vitest";
+import { parse as parseYaml } from "yaml";
+import { buildRosterBlock, detectEol, findEntryBlocks, removeEntriesBySoopIds, rosterValues, uniqueSlug } from "./roster-text.mjs";
+
+const sampleLf = [
+  "streamers:",
+  "  - slug: villlo",
+  "    displayName: 왜냐니",
+  "    cafeAliases: [\"왜냐니\"]",
+  "    soopId: \"villlo\"",
+  "    autoUpdate: true",
+  "    override:",
+  "      division: null",
+  "      policy: auto",
+  "    sfx: \"/sfxes/why.mp3\"",
+  "  - slug: nogood",
+  "    displayName: 노굿",
+  "    cafeAliases: []",
+  "    soopId: nogood",
+  "    autoUpdate: true",
+  "    override:",
+  "      division: null",
+  "      policy: auto",
+  "  - slug: \"015234\"",
+  "    displayName: 아눙",
+  "    cafeAliases: [\"아눙\"]",
+  "    soopId: \"015234\"",
+  "    autoUpdate: true",
+  "    override:",
+  "      division: null",
+  "      policy: auto",
+].join("\n") + "\n";
+
+describe("rosterValues", () => {
+  it("extracts quoted, single-quoted, and plain field values", () => {
+    expect(rosterValues(sampleLf, "soopId")).toEqual(["villlo", "nogood", "015234"]);
+    expect(rosterValues(sampleLf, "displayName")).toEqual(["왜냐니", "노굿", "아눙"]);
+  });
+
+  it("does not match a field on the same line as the `- ` list marker", () => {
+    // `^\s*field:` requires only whitespace before the field name, so
+    // `  - slug: x` (marker + field on one line) never matches — a known,
+    // pre-existing limitation carried over unchanged from the original script.
+    expect(rosterValues(sampleLf, "slug")).toEqual([]);
+  });
+});
+
+describe("uniqueSlug", () => {
+  it("returns the base id when unused", () => {
+    expect(uniqueSlug("fresh", new Set())).toBe("fresh");
+  });
+  it("appends a numeric suffix on collision", () => {
+    const used = new Set(["dup"]);
+    expect(uniqueSlug("dup", used)).toBe("dup-2");
+    expect(used.has("dup-2")).toBe(true);
+  });
+});
+
+describe("detectEol", () => {
+  it("detects CRLF when present", () => {
+    expect(detectEol("a\r\nb\r\n")).toBe("\r\n");
+  });
+  it("defaults to LF", () => {
+    expect(detectEol("a\nb\n")).toBe("\n");
+  });
+});
+
+describe("buildRosterBlock", () => {
+  it("produces a block that round-trips through the YAML parser", () => {
+    const block = buildRosterBlock({ slug: "newbie", displayName: "새싹", soopId: "newbie", cafeAliases: ["새싹"] });
+    const parsed = parseYaml("streamers:\n" + block + "\n");
+    expect(parsed.streamers).toEqual([{
+      slug: "newbie",
+      displayName: "새싹",
+      cafeAliases: ["새싹"],
+      soopId: "newbie",
+      autoUpdate: true,
+      override: { division: null, policy: "auto" },
+    }]);
+  });
+});
+
+describe("findEntryBlocks", () => {
+  it("finds one block per entry with no gaps", () => {
+    const blocks = findEntryBlocks(sampleLf);
+    expect(blocks).toHaveLength(3);
+    expect(blocks[2].end).toBe(sampleLf.length);
+  });
+});
+
+describe("removeEntriesBySoopIds", () => {
+  it("removes a middle entry, leaving the others intact", () => {
+    const { rosterText, removedSoopIds, skippedSoopIds } = removeEntriesBySoopIds(sampleLf, ["nogood"]);
+    expect(removedSoopIds).toEqual(["nogood"]);
+    expect(skippedSoopIds).toEqual([]);
+    expect(rosterText).not.toContain("nogood");
+    expect(rosterText).toContain("villlo");
+    expect(rosterText).toContain("015234");
+    expect(parseYaml(rosterText).streamers).toHaveLength(2);
+  });
+
+  it("removes the last entry in the file", () => {
+    const { rosterText, removedSoopIds } = removeEntriesBySoopIds(sampleLf, ["015234"]);
+    expect(removedSoopIds).toEqual(["015234"]);
+    expect(rosterText).not.toContain("아눙");
+    expect(parseYaml(rosterText).streamers).toHaveLength(2);
+  });
+
+  it("matches both quoted and unquoted soopId values", () => {
+    const quoted = removeEntriesBySoopIds(sampleLf, ["villlo"]);
+    const unquoted = removeEntriesBySoopIds(sampleLf, ["nogood"]);
+    expect(quoted.removedSoopIds).toEqual(["villlo"]);
+    expect(unquoted.removedSoopIds).toEqual(["nogood"]);
+  });
+
+  it("removes multiple entries in one call without corrupting offsets", () => {
+    const { rosterText, removedSoopIds } = removeEntriesBySoopIds(sampleLf, ["villlo", "015234"]);
+    expect(removedSoopIds.sort()).toEqual(["015234", "villlo"]);
+    const parsed = parseYaml(rosterText);
+    expect(parsed.streamers).toHaveLength(1);
+    expect(parsed.streamers[0].soopId).toBe("nogood");
+  });
+
+  it("skips a soopId with zero matches instead of guessing", () => {
+    const { rosterText, removedSoopIds, skippedSoopIds } = removeEntriesBySoopIds(sampleLf, ["doesnotexist"]);
+    expect(removedSoopIds).toEqual([]);
+    expect(skippedSoopIds).toEqual(["doesnotexist"]);
+    expect(rosterText).toBe(sampleLf);
+  });
+
+  it("skips a soopId that matches more than one block", () => {
+    const duplicated = sampleLf + sampleLf.split("\n").slice(1, 10).join("\n") + "\n";
+    const { removedSoopIds, skippedSoopIds } = removeEntriesBySoopIds(duplicated, ["villlo"]);
+    expect(removedSoopIds).toEqual([]);
+    expect(skippedSoopIds).toEqual(["villlo"]);
+  });
+
+  it("preserves CRLF line endings", () => {
+    const crlf = sampleLf.replace(/\n/g, "\r\n");
+    const { rosterText } = removeEntriesBySoopIds(crlf, ["nogood"]);
+    expect(rosterText).not.toContain("nogood");
+    expect(rosterText).toContain("\r\n");
+    expect(parseYaml(rosterText).streamers).toHaveLength(2);
+  });
+});
