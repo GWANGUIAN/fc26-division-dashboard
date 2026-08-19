@@ -51,6 +51,7 @@ GitHub push (roster/results/overrides YAML) → Config Sync Lambda → DynamoDB 
 | `src/functions/record-extraction.ts` | Gemini(`@google/genai`, `generateContent`) 호출, 이미지 fetch, 재시도·타임아웃 |
 | `src/shared/record-extraction.ts` | 응답 파싱(`parseRecordScreenResult`), 다중 이미지 선택(`chooseRecord`), 프런트용 상태(`recordExtractionStatus`) — 순수 함수라 단위 테스트 가능 |
 | `src/shared/record-overrides.ts` | `record-overrides.yaml` 파싱·검증 |
+| `src/shared/division-theme.ts` | 디비전 1~10 색상 매핑(`DIVISION_COLORS`, `divisionColor()`) — 리스트 뱃지·상세 모달·카드형 보기가 공유하는 단일 기준 |
 | `scripts/backfill-records.ts` | 기존 스트리머의 `lastPost`를 대상으로 한 번만 돌리는 백필 스크립트 (`pnpm run backfill:records -- --dry-run --limit 5`) |
 | `src/shared/*.ts` | 타입, 디비전 산정, 별칭 매칭, 1:1 판정, 타임라인, 트로피, 이미지 필터 |
 | `infrastructure/` | AWS 인프라 Terraform |
@@ -108,6 +109,13 @@ GitHub push (roster/results/overrides YAML) → Config Sync Lambda → DynamoDB 
 - `정상 정복자`: 현재 가장 높은 디비전(가장 작은 부수)의 후보를 표시한다. 동률이면 해당 디비전에 더 먼저 도달한 후보가 선정된다.
 - `자기 PR 왕`: 스코프의 `[내가 직접 홍보]` 글 수와 11대11 플레이 영상 글 수를 합산한다. 최다 기록은 동률자를 모두 표시한다.
 - 계산 기준은 `src/shared/trophy.ts`, 회귀 테스트는 `src/shared/trophy.test.ts`에 있다. 업적 기준을 바꾸면 UI 도움말(`TrophyHelp`)과 테스트를 함께 수정한다.
+
+### 디비전 색상·전적 배지·카드형 보기 (프런트엔드, `src/web/App.tsx`)
+
+- 디비전 1~10은 각각 다른 색을 쓴다(1~3부는 금·은·동). 색상 표는 `src/shared/division-theme.ts`의 `DIVISION_COLORS`가 유일한 기준이며, 리스트의 `D{n}` 뱃지·상세 모달의 `{n}부` 텍스트·카드형 보기의 방패 배경이 모두 이 값을 `--division-color` CSS 변수 또는 직접 hex로 넘겨받아 쓴다. 색을 바꾸려면 이 파일 하나만 고치면 된다.
+- 전적(W/D/L) 배지는 `RecordBadge` 컴포넌트(`App.tsx`)가 그린다. `streamer.record`가 있으면 파랑/회색/빨강으로 승/무/패를 표기하고, 없으면 두 경우로 나뉜다: `lastPost`가 아예 없으면(보고 없음) 회색 `-/-/-`, `lastPost`는 있는데 `record`가 없으면 `recordExtractionStatus(lastPost)`(`src/shared/record-extraction.ts`)를 봐서 `"pending"`이면 "집계중", 그 외(`"failed"`)는 마찬가지로 회색 `-/-/-`로 표시한다 — 추출 실패와 데이터 없음을 프런트에서 굳이 구분하지 않기로 한 의도적 선택이다.
+- 목록/카드 뷰 토글(`viewMode: "list" | "card"`)과 카드 뷰 전용 정렬 토글(`sortMode: "division" | "winRate"`, 승률 없는 스트리머는 정렬 방향과 무관하게 항상 맨 뒤)이 검색창과 디비전 보드 사이, `controls-bar`(스티키 영역) 바깥의 `view-toolbar`에 있다. 두 상태 모두 새로고침 시 초기화되며 의도적으로 localStorage에 저장하지 않는다.
+- 카드형 보기(`StreamerFifaCard`)는 디비전 구분 없이 정렬된 스트리머를 방패 모양 SVG(`FifaShield`) 위에 얹는다. `FIFA_SHIELD_OUTER`/`FIFA_SHIELD_INNER`의 path 좌표(`viewBox 0 0 300 450`)는 사용자가 제공한 참고 SVG를 그대로 가져온 것이라 임의로 좌표를 손보면 방패 윤곽이 깨질 수 있다 — 바깥 테두리·안쪽 흰색 하이라이트 테두리는 고정이고, 배경 그라데이션(`mixHex()`로 디비전 색을 검정/흰색과 섞어 생성)만 디비전별로 바뀐다. 이름은 카드색 계열의 진한 색, 나머지 텍스트는 흰색이며 전부 8방향 `text-shadow`(`--text-outline` CSS 변수)로 검정 외곽선을 둘러 어떤 배경 색에서도 읽히게 했다.
 
 ### 수집 안전 원칙
 
