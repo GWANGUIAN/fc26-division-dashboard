@@ -941,9 +941,16 @@ const FIFA_SHIELD_OUTER =
 const FIFA_SHIELD_INNER =
   "M 150,14 C 210,14 262,21 278,33 C 285,39 288,48 288,60 L 288,346 C 288,363 269,391 150,432 C 31,391 12,363 12,346 L 12,60 C 12,48 15,39 22,33 C 38,21 90,14 150,14 Z";
 
-function FifaShield({ color }: { color: string }) {
+function FifaShield({
+  color,
+  holo,
+}: {
+  color: string;
+  holo?: { x: number; y: number; opacity: number };
+}) {
   const uid = useId();
   const gradientId = `${uid}-grad`;
+  const holoId = `${uid}-holo`;
   return (
     <svg className="fifa-card__shield" viewBox="0 0 300 450" aria-hidden="true">
       <defs>
@@ -958,6 +965,22 @@ function FifaShield({ color }: { color: string }) {
             style={{ stopColor: "#06100c", stopOpacity: 0.94 }}
           />
         </linearGradient>
+        {holo && (
+          <radialGradient
+            id={holoId}
+            gradientUnits="objectBoundingBox"
+            cx={holo.x}
+            cy={holo.y}
+            r="0.7"
+          >
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.95" />
+            <stop offset="16%" stopColor="#8ff5ff" stopOpacity="0.6" />
+            <stop offset="34%" stopColor="#ff9bec" stopOpacity="0.45" />
+            <stop offset="52%" stopColor="#fff29b" stopOpacity="0.3" />
+            <stop offset="72%" stopColor="#9bffd6" stopOpacity="0.18" />
+            <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+          </radialGradient>
+        )}
       </defs>
       <path
         d={FIFA_SHIELD_OUTER}
@@ -971,6 +994,14 @@ function FifaShield({ color }: { color: string }) {
         stroke="rgba(255, 255, 255, 0.35)"
         strokeWidth={2}
       />
+      {holo && (
+        <path
+          d={FIFA_SHIELD_OUTER}
+          fill={`url(#${holoId})`}
+          opacity={holo.opacity}
+          style={{ mixBlendMode: "color-dodge", transition: "opacity .25s ease-out" }}
+        />
+      )}
     </svg>
   );
 }
@@ -992,13 +1023,46 @@ function StreamerFifaCard({
 }) {
   const rate = streamer.record ? winRatePercent(streamer.record) : undefined;
   const color = divisionColor(streamer.currentDivision);
+  const fancy = isStreamerFancy(streamer);
+  const cardRef = useRef<HTMLButtonElement>(null);
+  const [tilt, setTilt] = useState({ rx: 0, ry: 0, x: 0.5, y: 0.5, active: false });
+
+  const handleMouseMove = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = cardRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = (event.clientX - rect.left) / rect.width;
+    const y = (event.clientY - rect.top) / rect.height;
+    setTilt({
+      rx: (0.5 - y) * 16,
+      ry: (x - 0.5) * 18,
+      x,
+      y,
+      active: true,
+    });
+  };
+  const handleMouseLeave = () =>
+    setTilt((current) => ({ ...current, active: false }));
+
   return (
     <button
-      className="fifa-card"
+      ref={cardRef}
+      className={`fifa-card ${fancy ? "fifa-card--holo" : ""}`}
       onClick={onOpen}
+      onMouseMove={fancy ? handleMouseMove : undefined}
+      onMouseLeave={fancy ? handleMouseLeave : undefined}
+      style={
+        fancy && tilt.active
+          ? ({
+              transform: `perspective(700px) translateY(-3px) scale(1.035) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
+            } as React.CSSProperties)
+          : undefined
+      }
       aria-label={`${streamer.displayName} 상세 보기`}
     >
-      <FifaShield color={color} />
+      <FifaShield
+        color={color}
+        holo={fancy ? { x: tilt.x, y: tilt.y, opacity: tilt.active ? 0.85 : 0 } : undefined}
+      />
       <span className="fifa-card__division">D{streamer.currentDivision}</span>
       <AchievementBadges streamer={streamer} awards={awards} />
       <span className="fifa-card__body">

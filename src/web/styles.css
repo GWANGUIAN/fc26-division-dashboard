@@ -207,6 +207,7 @@ body { isolation: isolate; }
 .fifa-card { --text-outline: -1px -1px 0 #000, 0 -1px 0 #000, 1px -1px 0 #000, -1px 0 0 #000, 1px 0 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 1px 1px 0 #000; position: relative; display: block; width: 100%; aspect-ratio: 300 / 450; padding: 0; border: 0; color: #181206; text-align: center; background: transparent; cursor: pointer; transition: transform .18s, filter .18s; }
 .fifa-card:hover, .fifa-card:focus-within { z-index: 10; }
 .fifa-card:hover { transform: translateY(-3px); filter: drop-shadow(0 10px 20px #00000060); }
+.fifa-card--holo { transform-style: preserve-3d; }
 .fifa-card__shield { position: absolute; inset: 0; width: 100%; height: 100%; }
 .fifa-card__division { position: absolute; z-index: 1; top: 26px; left: 18px; opacity: .68; color: #f5fbf8; font: 800 24px/1 "Barlow Condensed"; text-shadow: -1px -1px 0 #000, 0 -1px 0 #000, 1px -1px 0 #000, -1px 0 0 #000, 1px 0 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 1px 1px 0 #000; }
 .fifa-card > .achievement-badges { position: absolute; z-index: 5; top: 30px; right: 18px; gap: 4px; }
