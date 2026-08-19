@@ -4,3 +4,8 @@ allowed_origins      = ["https://your-worker.your-subdomain.workers.dev", "https
 github_repository    = "your-github-org/your-repository"
 github_oidc_provider_arn = "arn:aws:iam::000000000000:oidc-provider/token.actions.githubusercontent.com"
 account_budget_limit_usd = 20
+# Optional: enables automatic W-D-L extraction from promotion screenshots.
+# Get a key at https://aistudio.google.com/apikey, then attach a billing
+# account to that key's Google Cloud project (the free tier is only 20
+# requests/day/model). Leave empty to disable extraction.
+gemini_api_key = ""
