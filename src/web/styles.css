@@ -170,7 +170,7 @@ body { isolation: isolate; }
 .division-histogram__toggle svg { width: 14px; height: 14px; stroke-width: 2.6; }
 .division-histogram__panel { position: absolute; z-index: 20; top: calc(100% + 10px); right: 0; left: auto; display: flex; flex-direction: column; overflow: hidden; width: min(380px, calc(100vw - 40px)); border: 1px solid #00e9ae62; background: linear-gradient(150deg, #0c1814, #050a08 60%); box-shadow: 0 20px 60px #000a; transform-origin: top right; transition: opacity .18s, transform .18s; }
 .division-histogram__panel--collapsed { width: 0; height: 0; padding: 0; border: 0; opacity: 0; pointer-events: none; transform: scale(.9); }
-.division-histogram__panel--open { opacity: 1; transform: scale(1); }
+.division-histogram__panel--open { overflow: visible; opacity: 1; transform: scale(1); }
 .division-histogram__heading { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px; border-bottom: 1px solid #ffffff18; color: #effff8; font-weight: 800; font-size: 13px; }
 .division-histogram__heading small { color: #8ca399; font-size: 11px; }
 .division-histogram__chart { display: flex; align-items: flex-end; gap: 6px; height: 160px; padding: 24px 14px 12px; }
