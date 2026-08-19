@@ -162,6 +162,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "거--성의 {n}부 리그 승격을 축하합니다~!!⭐"
+    sfx: "/sfxes/gudabyul.mp3"
   - slug: 
     displayName: 플리
     cafeAliases: ["플리 PLI"]
@@ -495,6 +496,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "단단묵직 센터백 뮤즈의 {n}부 리그 승격을 축하합니다~!!⚽"
+    sfx: "/sfxes/muse.mp3"
   - slug: tjdgk31470
     displayName: "성여올"
     cafeAliases: ["성여올"]
