@@ -212,6 +212,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/charlee.mp3"
   - slug: 
     displayName: 세온
     cafeAliases: ["세온이"]
@@ -801,6 +802,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "ㄴㄴㄴ의 {n}부 리그 승격을 축하합니다~!!"
+    sfx: "/sfxes/nanwoni.mp3"
   - slug: dougie0328
     displayName: "올어바웃설이"
     cafeAliases: ["올어바웃설이"]
@@ -1031,6 +1033,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/yeowooyeon.mp3"
   - slug: hobal115end
     displayName: "호발☆"
     cafeAliases: ["호발"]
