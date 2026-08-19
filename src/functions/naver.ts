@@ -60,7 +60,7 @@ type ArticleImageCandidate = {
 async function hydrateArticleImages(images: Locator): Promise<void> {
   await images.evaluateAll(async (nodes) => {
     const articleImages = nodes.filter((image) => image.classList.contains("se-image-resource")
-      || Boolean(image.closest(".se-main-container, .article_viewer, .ArticleContentBox, #tbody, [class*='ArticleContent'], [class*='article-content'], [class*='ContentRenderer']")));
+      || Boolean(image.closest(".se-main-container, .article_viewer")));
     await Promise.all(articleImages.map(async (image) => {
       const img = image as HTMLImageElement;
       img.scrollIntoView({ block: "center", inline: "nearest" });
@@ -80,7 +80,12 @@ async function inspectArticleImages(images: Locator): Promise<ArticleImageCandid
     className: image.className,
     width: (image as HTMLImageElement).naturalWidth,
     height: (image as HTMLImageElement).naturalHeight,
-    inPostBody: Boolean(image.closest(".se-main-container, .article_viewer, .ArticleContentBox, #tbody, [class*='ArticleContent'], [class*='article-content'], [class*='ContentRenderer']")),
+    // `.ArticleContentBox`/`#tbody`/`[class*='ArticleContent']` also wrap the
+    // writer-info box and the entire comment thread, so images living there
+    // (author/commenter profile photos) were previously misread as post
+    // media. `.se-main-container`/`.article_viewer` are the actual editor
+    // content wrappers and do not contain those surfaces.
+    inPostBody: Boolean(image.closest(".se-main-container, .article_viewer")),
   })));
 }
 
