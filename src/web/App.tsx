@@ -40,7 +40,7 @@ const ANNOUNCEMENTS: Announcement[] = [
   {
     id: "2026-08-ai-record-extraction",
     date: "2026.08.19",
-    body: <><strong>AI</strong>가 승격 보고 게시물의 이미지를 분석해서 <strong>전체 전적을 추출</strong>하는 기능을 구현했습니다.<br />스트리머분들께서는 전체 전적이 포함된 게임 화면을 캡쳐해서 첨부하기를 추천드립니다.</>,
+    body: <><strong>AI</strong>가 승격 보고 게시물의 이미지를 분석해서 <strong>전체 전적을 추출</strong>하는 기능을 구현했습니다.<br />스트리머분들께서는 전체 전적이 포함된 게임 화면을 캡쳐해서 첨부하기를 부탁드립니다.</>,
     note: "자동 추출되지 않는 데이터는 별도 수동 업데이트됩니다.",
   },
   {
