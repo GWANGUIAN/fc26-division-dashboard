@@ -505,6 +505,118 @@ function Avatar({
   );
 }
 
+const FANCY_SPARK_SLOTS = [1, 2, 3, 4] as const;
+
+function isStreamerFancy(streamer: Pick<StreamerRecord, "isFancy">): boolean {
+  return !!streamer.isFancy;
+}
+
+function FancyAvatar({
+  streamer,
+  color = "#00e9ae",
+  ring = true,
+}: {
+  streamer: StreamerRecord;
+  color?: string;
+  ring?: boolean;
+}) {
+  if (!isStreamerFancy(streamer)) return <Avatar {...streamer} />;
+  return (
+    <span
+      className={`fancy-avatar ${ring ? "fancy-avatar--ring" : ""}`}
+      style={
+        {
+          "--fancy-color": color,
+          "--fancy-glow-soft": hexToRgba(color, 0.4),
+          "--fancy-glow-strong": hexToRgba(color, 0.85),
+        } as React.CSSProperties
+      }
+    >
+      <Avatar {...streamer} />
+      <span className="fancy-avatar__sparks" aria-hidden="true">
+        {FANCY_SPARK_SLOTS.map((slot) => (
+          <i className={`fancy-avatar__spark fancy-avatar__spark--${slot}`} key={slot}>
+            ✦
+          </i>
+        ))}
+      </span>
+    </span>
+  );
+}
+
+const FANCY_NAME_SPARK_SLOTS = [1, 2] as const;
+
+function FancyName({
+  streamer,
+  color = "#00e9ae",
+  tag: Tag = "span",
+  children,
+}: {
+  streamer: StreamerRecord;
+  color?: string;
+  tag?: "span" | "strong";
+  children: ReactNode;
+}) {
+  if (!isStreamerFancy(streamer)) return <Tag>{children}</Tag>;
+  return (
+    <span
+      className="fancy-name"
+      style={
+        {
+          "--fancy-color": color,
+          "--fancy-glow-soft": hexToRgba(color, 0.4),
+          "--fancy-glow-strong": hexToRgba(color, 0.85),
+        } as React.CSSProperties
+      }
+    >
+      <Tag className="fancy-name__text">{children}</Tag>
+      <span className="fancy-name__sparks" aria-hidden="true">
+        {FANCY_NAME_SPARK_SLOTS.map((slot) => (
+          <i className={`fancy-name__spark fancy-name__spark--${slot}`} key={slot}>
+            ✦
+          </i>
+        ))}
+      </span>
+    </span>
+  );
+}
+
+const FANCY_BURST_STARS = [
+  { left: "6%", delay: "0s", duration: "1.5s", size: 13 },
+  { left: "18%", delay: ".18s", duration: "1.8s", size: 9 },
+  { left: "30%", delay: ".05s", duration: "1.4s", size: 15 },
+  { left: "43%", delay: ".32s", duration: "1.7s", size: 10 },
+  { left: "56%", delay: ".12s", duration: "1.6s", size: 12 },
+  { left: "68%", delay: ".26s", duration: "1.9s", size: 9 },
+  { left: "80%", delay: ".08s", duration: "1.5s", size: 14 },
+  { left: "92%", delay: ".2s", duration: "1.7s", size: 10 },
+];
+
+function FancyBurst({ color = "#00e9ae" }: { color?: string }) {
+  return (
+    <div
+      className="fancy-burst"
+      aria-hidden="true"
+      style={{ "--fancy-color": color } as React.CSSProperties}
+    >
+      {FANCY_BURST_STARS.map((star, index) => (
+        <span
+          className="fancy-burst__star"
+          key={index}
+          style={{
+            left: star.left,
+            fontSize: star.size,
+            animationDelay: star.delay,
+            animationDuration: star.duration,
+          }}
+        >
+          ✦
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function JandyVideoCard({ video }: { video: JandyVideo }) {
   const [thumbnailFailed, setThumbnailFailed] = useState(false);
   return (
@@ -759,14 +871,16 @@ function StreamerCard({
       aria-label={`${streamer.displayName} 상세 보기${isNew ? " (24시간 이내 업데이트됨)" : ""}`}
     >
       <span className="streamer-card__avatar">
-        <Avatar {...streamer} />
+        <FancyAvatar streamer={streamer} />
         {streamer.sfx && (
           <Volume2 className="streamer-card__sfx-badge" aria-hidden="true" />
         )}
       </span>
       <span className="streamer-card__copy">
         <span className="streamer-card__name">
-          <strong>{streamer.displayName}</strong>
+          <FancyName streamer={streamer} tag="strong">
+            {streamer.displayName}
+          </FancyName>
           <AchievementBadges streamer={streamer} awards={awards} />
         </span>
         <SoopTags tags={streamer.soopTags} />
@@ -886,7 +1000,7 @@ function StreamerFifaCard({
             } as React.CSSProperties
           }
         >
-          <Avatar {...streamer} />
+          <FancyAvatar streamer={streamer} color={color} ring={false} />
           {streamer.sfx && (
             <Volume2 className="fifa-card__sfx-badge" aria-hidden="true" />
           )}
@@ -897,7 +1011,9 @@ function StreamerFifaCard({
             background: `linear-gradient(180deg, ${hexToRgba(color, 0.12)}, ${hexToRgba(color, 0.05)})`,
           }}
         >
-          <strong>{streamer.displayName}</strong>
+          <FancyName streamer={streamer} color={color} tag="strong">
+            {streamer.displayName}
+          </FancyName>
         </span>
         <span className="fifa-card__stats">
           <span className="fifa-card__stat">
@@ -1179,13 +1295,14 @@ function DetailModal({
     <Modal
       onClose={onClose}
       label="디비전 상세"
+      decoration={isStreamerFancy(streamer) ? <FancyBurst /> : undefined}
       header={
         <div className="modal__identity">
-          <Avatar {...streamer} />
+          <FancyAvatar streamer={streamer} />
           <div>
             <span className="eyebrow">CURRENT DIVISION</span>
             <h2>
-              {streamer.displayName}{" "}
+              <FancyName streamer={streamer}>{streamer.displayName}</FancyName>{" "}
               <b
                 style={
                   {
@@ -1435,11 +1552,13 @@ function Modal({
   header,
   onClose,
   label,
+  decoration,
 }: {
   children: ReactNode;
   header: ReactNode;
   onClose: () => void;
   label: string;
+  decoration?: ReactNode;
 }) {
   return (
     <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
@@ -1450,6 +1569,7 @@ function Modal({
         aria-label={label}
         onMouseDown={(event) => event.stopPropagation()}
       >
+        {decoration}
         <div className="modal__header">
           {header}
           <button className="close" onClick={onClose} aria-label="닫기">

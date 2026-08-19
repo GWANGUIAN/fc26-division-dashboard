@@ -255,4 +255,29 @@ body { isolation: isolate; }
 .announcement-popover__header .announcement-modal__title { font-size: 20px; }
 .announcement-popover__header .close { top: 8px; right: 10px; font-size: 24px; }
 .announcement-popover__body { min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 16px 18px 20px; scrollbar-width: thin; scrollbar-color: #00e9ae8a #020805; }
+.fancy-avatar { position: relative; display: inline-flex; }
+.fancy-avatar--ring .avatar { border-color: var(--fancy-color); animation: fancy-ring-pulse 3.4s ease-in-out infinite; }
+.fancy-avatar__sparks { position: absolute; inset: 0; pointer-events: none; }
+.fancy-avatar__spark { position: absolute; color: var(--fancy-color); font-size: 6px; line-height: 1; font-style: normal; text-shadow: 0 0 5px var(--fancy-color); opacity: 0; animation: fancy-spark-twinkle 2.4s ease-in-out infinite; }
+.fancy-avatar__spark--1 { top: -3px; left: 2px; animation-delay: .2s; animation-duration: 2.6s; }
+.fancy-avatar__spark--2 { top: 32%; right: -6px; font-size: 5px; animation-delay: 1.3s; animation-duration: 3s; }
+.fancy-avatar__spark--3 { bottom: -3px; left: 38%; font-size: 5px; animation-delay: 2s; animation-duration: 2.2s; }
+.fancy-avatar__spark--4 { bottom: 18%; right: 6%; font-size: 6px; animation-delay: .8s; animation-duration: 2.8s; }
+.fifa-card__avatar .fancy-avatar__spark--1 { top: -2px; left: 8px; }
+.fifa-card__avatar .fancy-avatar__spark--2 { top: 28%; right: -2px; }
+.fifa-card__avatar .fancy-avatar__spark--3 { bottom: 2px; left: 44%; }
+.fifa-card__avatar .fancy-avatar__spark--4 { bottom: 20%; right: 8%; }
+@keyframes fancy-ring-pulse { 0%, 100% { box-shadow: 0 0 0 1px var(--fancy-glow-soft), 0 0 5px var(--fancy-glow-soft); } 50% { box-shadow: 0 0 0 1px var(--fancy-glow-strong), 0 0 12px var(--fancy-glow-strong); } }
+@keyframes fancy-spark-twinkle { 0%, 40%, 100% { opacity: 0; transform: scale(.4) rotate(0deg); } 15% { opacity: 1; transform: scale(1.1) rotate(20deg); } 25% { opacity: 0; transform: scale(.5) rotate(0deg); } }
+.fancy-burst { position: absolute; z-index: 5; inset: 0; overflow: hidden; pointer-events: none; }
+.fancy-burst__star { position: absolute; top: -24px; color: var(--fancy-color); text-shadow: 0 0 8px var(--fancy-color); opacity: 0; animation-name: fancy-burst-fall; animation-timing-function: ease-in; animation-fill-mode: forwards; }
+@keyframes fancy-burst-fall { 0% { opacity: 0; transform: translateY(0) rotate(0deg); } 8% { opacity: 1; } 85% { opacity: .8; } 100% { opacity: 0; transform: translateY(360px) rotate(200deg); } }
+.fancy-name { position: relative; display: inline-flex; min-width: 0; align-items: center; }
+.fancy-name__text { min-width: 0; animation: fancy-name-glow 3.4s ease-in-out infinite; }
+.streamer-card__name > .fancy-name { min-width: 0; }
+.fancy-name__sparks { position: absolute; inset: -7px -12px; pointer-events: none; }
+.fancy-name__spark { position: absolute; color: var(--fancy-color); font-size: 6px; line-height: 1; font-style: normal; text-shadow: 0 0 5px var(--fancy-color); opacity: 0; animation: fancy-spark-twinkle 2.4s ease-in-out infinite; }
+.fancy-name__spark--1 { top: -2px; left: -8px; animation-delay: .55s; animation-duration: 2.7s; }
+.fancy-name__spark--2 { bottom: -2px; right: -10px; font-size: 5px; animation-delay: 1.6s; animation-duration: 2.3s; }
+@keyframes fancy-name-glow { 0%, 100% { text-shadow: var(--text-outline, 0 0 0 transparent), 0 0 3px var(--fancy-glow-soft); } 50% { text-shadow: var(--text-outline, 0 0 0 transparent), 0 1px 9px var(--fancy-glow-strong); } }
 .announcement-popover__body .announcement-item p { font-size: 13px; }

@@ -107,6 +107,7 @@ export function buildStreamerRecords(
       isMapped: true,
       celebrationMessage: entry.celebrationMessage,
       sfx: entry.sfx,
+      isFancy: entry.isFancy,
     };
   });
 

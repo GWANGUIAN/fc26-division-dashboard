@@ -11,6 +11,7 @@ export interface RosterEntry {
   override?: { division: number | null; policy: OverridePolicy };
   celebrationMessage?: string;
   sfx?: string;
+  isFancy?: boolean;
 }
 
 export type SoopProfileTag = "파트너" | "베스트" | "루키존" | "스포츠" | "서포터즈";
@@ -88,6 +89,7 @@ export interface StreamerRecord {
   isMapped: boolean;
   celebrationMessage?: string;
   sfx?: string;
+  isFancy?: boolean;
 }
 
 export interface DashboardSnapshot {

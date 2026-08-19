@@ -135,6 +135,7 @@ streamers:
       policy: auto
     celebrationMessage: "핫짱의 {n}부 리그 승격을 축하합니다~!!🐉"
     sfx: "/sfxes/hachi.mp3"
+    isFancy: true
   - slug: 
     displayName: 미르_MIR
     cafeAliases: ["MIR미르"]
