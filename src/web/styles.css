@@ -190,7 +190,7 @@ body { isolation: isolate; }
 @media (max-width: 680px) { .division-histogram__toggle span { display: none; }.division-histogram__toggle { padding: 8px 10px; }.division-histogram__panel { width: min(320px, calc(100vw - 24px)); }.division-histogram__chart { height: 130px; padding: 20px 10px 10px; } }
 @media (prefers-reduced-motion: reduce) { .division-histogram__fill, .division-histogram__panel { transition: none; } }
 
-.record-badge { font: 700 12px "Barlow Condensed"; letter-spacing: .02em; }
+.record-badge { font: 700 12px "Barlow Condensed"; letter-spacing: .02em; color:#fff; }
 .record-badge__w { color: #4f8cff; }
 .record-badge__d { color: #9aaba4; }
 .record-badge__l { color: #ff5c5c; }
