@@ -955,6 +955,7 @@ streamers:
       division: null
       policy: auto
     profileImageUrl: "/profiles/profile_ohgu.webp"
+    sfx: "/sfxes/ogu.mp3"
   - slug: dw0672
     displayName: "단지이럴수가"
     cafeAliases: ["단지이럴수가"]
