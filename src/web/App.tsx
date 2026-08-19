@@ -1023,7 +1023,6 @@ function StreamerFifaCard({
 }) {
   const rate = streamer.record ? winRatePercent(streamer.record) : undefined;
   const color = divisionColor(streamer.currentDivision);
-  const fancy = isStreamerFancy(streamer);
   const cardRef = useRef<HTMLButtonElement>(null);
   const [tilt, setTilt] = useState({ rx: 0, ry: 0, x: 0.5, y: 0.5, active: false });
 
@@ -1033,8 +1032,8 @@ function StreamerFifaCard({
     const x = (event.clientX - rect.left) / rect.width;
     const y = (event.clientY - rect.top) / rect.height;
     setTilt({
-      rx: (0.5 - y) * 16,
-      ry: (x - 0.5) * 18,
+      rx: (0.5 - y) * 26,
+      ry: (x - 0.5) * 30,
       x,
       y,
       active: true,
@@ -1046,12 +1045,12 @@ function StreamerFifaCard({
   return (
     <button
       ref={cardRef}
-      className={`fifa-card ${fancy ? "fifa-card--holo" : ""}`}
+      className="fifa-card fifa-card--holo"
       onClick={onOpen}
-      onMouseMove={fancy ? handleMouseMove : undefined}
-      onMouseLeave={fancy ? handleMouseLeave : undefined}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
       style={
-        fancy && tilt.active
+        tilt.active
           ? ({
               transform: `perspective(700px) translateY(-3px) scale(1.035) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
             } as React.CSSProperties)
@@ -1061,7 +1060,7 @@ function StreamerFifaCard({
     >
       <FifaShield
         color={color}
-        holo={fancy ? { x: tilt.x, y: tilt.y, opacity: tilt.active ? 0.85 : 0 } : undefined}
+        holo={{ x: tilt.x, y: tilt.y, opacity: tilt.active ? 0.85 : 0 }}
       />
       <span className="fifa-card__division">D{streamer.currentDivision}</span>
       <AchievementBadges streamer={streamer} awards={awards} />
