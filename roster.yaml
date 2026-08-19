@@ -708,6 +708,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/doeasy.mp3"
   - slug: wellro314
     displayName: "김웰로"
     cafeAliases: ["김웰로"]
