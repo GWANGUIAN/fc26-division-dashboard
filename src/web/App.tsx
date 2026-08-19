@@ -377,6 +377,25 @@ function FifaShield({ color }: { color: string }) {
   </svg>;
 }
 
+const NAME_RIBBON_OUTER = "M28,0 L212,0 L240,32 L212,64 L28,64 L0,32 Z";
+const NAME_RIBBON_INNER = "M32,5 L208,5 L232,32 L208,59 L32,59 L8,32 Z";
+
+function NameRibbon({ color }: { color: string }) {
+  const uid = useId();
+  const gradientId = `${uid}-ribbon`;
+  return <svg className="fifa-card__name-shape" viewBox="0 0 240 64" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id={gradientId} x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style={{ stopColor: mixHex(color, "white", 0.4), stopOpacity: 0.82 }} />
+        <stop offset="55%" style={{ stopColor: color, stopOpacity: 0.78 }} />
+        <stop offset="100%" style={{ stopColor: mixHex(color, "black", 0.35), stopOpacity: 0.85 }} />
+      </linearGradient>
+    </defs>
+    <path d={NAME_RIBBON_OUTER} fill={`url(#${gradientId})`} stroke={mixHex(color, "black", 0.5)} strokeWidth={3} vectorEffect="non-scaling-stroke" />
+    <path d={NAME_RIBBON_INNER} fill="none" stroke="rgba(255, 255, 255, 0.5)" strokeWidth={2} vectorEffect="non-scaling-stroke" />
+  </svg>;
+}
+
 function StreamerFifaCard({ streamer, awards, onOpen }: { streamer: StreamerRecord; awards: TrophyAwards; onOpen: () => void }) {
   const rate = streamer.record ? winRatePercent(streamer.record) : undefined;
   const color = divisionColor(streamer.currentDivision);
@@ -386,7 +405,8 @@ function StreamerFifaCard({ streamer, awards, onOpen }: { streamer: StreamerReco
     <AchievementBadges streamer={streamer} awards={awards} />
     <span className="fifa-card__body">
       <span className="fifa-card__avatar" style={{ "--avatar-border": mixHex(color, "black", 0.45) } as React.CSSProperties}><Avatar {...streamer} />{streamer.sfx && <Volume2 className="fifa-card__sfx-badge" aria-hidden="true" />}</span>
-      <span className="fifa-card__name" style={{ "--pill-light": mixHex(color, "white", 0.4), "--pill-color": color, "--pill-dark": mixHex(color, "black", 0.35), "--pill-border": mixHex(color, "black", 0.5) } as React.CSSProperties}>
+      <span className="fifa-card__name">
+        <NameRibbon color={color} />
         <strong>{streamer.displayName}</strong>
       </span>
       <span className="fifa-card__stats">

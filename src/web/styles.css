@@ -215,8 +215,9 @@ body { isolation: isolate; }
 .fifa-card__avatar { position: relative; margin-top: 2px; }
 .fifa-card__avatar .avatar { width: 88px; height: 88px; border: 3px solid var(--avatar-border, #000); }
 .fifa-card__sfx-badge { position: absolute; right: -2px; bottom: -2px; width: 20px; height: 20px; padding: 3px; border-radius: 50%; color: #04140f; background: #00e9ae; box-shadow: 0 0 0 2px #0b1612; }
-.fifa-card__name { position: relative; display: inline-flex; align-items: center; gap: 4px; margin: 6px 0 2px; padding: 4px 22px; border: 2px solid var(--pill-border); border-radius: 999px; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .5), 0 3px 10px rgba(0, 0, 0, .4); background: linear-gradient(180deg, var(--pill-light) 0%, var(--pill-color) 55%, var(--pill-dark) 100%); font-size: 20px; font-weight: 800; letter-spacing: -.01em; }
-.fifa-card__name strong { color: #fff; text-shadow: var(--text-outline); }
+.fifa-card__name { position: relative; display: inline-flex; align-items: center; justify-content: center; margin: 6px 0 2px; padding: 6px 32px; filter: drop-shadow(0 3px 8px rgba(0, 0, 0, .4)); font-size: 20px; font-weight: 800; letter-spacing: -.01em; }
+.fifa-card__name-shape { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; }
+.fifa-card__name strong { position: relative; z-index: 1; color: #fff; text-shadow: var(--text-outline); }
 .fifa-card__stats { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 2px; }
 .fifa-card__stat { display: inline-flex; align-items: baseline; gap: 6px; font-size: 13px; }
 .fifa-card__stat-label { color: #f5fbf8; opacity: .66; font-size: 11px; font-weight: 500; letter-spacing: .01em; text-shadow: var(--text-outline); }
@@ -224,7 +225,7 @@ body { isolation: isolate; }
 .fifa-card__stat .record-badge { text-shadow: var(--text-outline); }
 .fifa-card__stat .record-badge__w, .fifa-card__stat .record-badge__d, .fifa-card__stat .record-badge__l { font-size: 16px; font-weight: 500; }
 .fifa-card .unmapped { position: absolute; z-index: 1; top: 44px; right: 18px; color: #4a4030; font-size: 10px; }
-@media (max-width: 680px) { .card-board { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }.fifa-card__body { margin-top: -8px; padding: 0 12px 0; gap: 4px; }.fifa-card__avatar .avatar { width: 62px; height: 62px; }.fifa-card__division { top: 20px; font-size: 19px; }.fifa-card__name { padding: 3px 16px; font-size: 16px; }.fifa-card__stat-label { font-size: 10px; }.fifa-card__stat-value { font-size: 13px; }.fifa-card__stat .record-badge__w, .fifa-card__stat .record-badge__d, .fifa-card__stat .record-badge__l { font-size: 14px; } }
+@media (max-width: 680px) { .card-board { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }.fifa-card__body { margin-top: -8px; padding: 0 12px 0; gap: 4px; }.fifa-card__avatar .avatar { width: 62px; height: 62px; }.fifa-card__division { top: 20px; font-size: 19px; }.fifa-card__name { padding: 5px 24px; font-size: 16px; }.fifa-card__stat-label { font-size: 10px; }.fifa-card__stat-value { font-size: 13px; }.fifa-card__stat .record-badge__w, .fifa-card__stat .record-badge__d, .fifa-card__stat .record-badge__l { font-size: 14px; } }
 
 .announcement-backdrop { z-index: 45; align-items: flex-start; padding-top: 72px; }
 .announcement-modal { width: min(580px, 100%); max-height: min(640px, 82vh); }
