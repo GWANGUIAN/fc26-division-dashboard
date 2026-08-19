@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Copy, Info, LayoutGrid, List, Trophy, Volume2, VolumeX } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Copy, Info, LayoutGrid, List, Megaphone, Trophy, Volume2, VolumeX } from "lucide-react";
 import { A11y, Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperInstance } from "swiper/types";
@@ -33,6 +33,41 @@ const jandyVideos: readonly JandyVideo[] = [
 const koreaDateKey = (value: Date) => new Intl.DateTimeFormat("en-CA", {
   timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit",
 }).format(value);
+
+type Announcement = { id: string; body: ReactNode; note?: string };
+
+const ANNOUNCEMENTS: Announcement[] = [
+  {
+    id: "2026-08-ai-record-extraction",
+    body: <><strong>AI</strong>가 승격 보고 게시물의 이미지를 읽고 전체 전적을 추출하는 기능을 구현했습니다.<br />스트리머분들께서는 전체 전적이 포함된 게임 화면을 캡쳐해서 첨부하기를 추천드립니다.</>,
+    note: "자동 추출되지 않는 데이터는 별도 수동 업데이트됩니다.",
+  },
+  {
+    id: "2026-08-card-view",
+    body: <><strong>카드 뷰</strong>가 추가되었습니다. <span className="announcement-icon-badge"><LayoutGrid aria-hidden="true" /></span> 버튼을 클릭하면 카드 뷰로 전환할 수 있고,<br />디비전순 / 승률순으로 정렬할 수 있습니다.</>,
+  },
+];
+
+const SEEN_ANNOUNCEMENTS_STORAGE_KEY = "fc26-seen-announcements";
+
+function loadSeenAnnouncementIds(): Set<string> {
+  try {
+    const raw = localStorage.getItem(SEEN_ANNOUNCEMENTS_STORAGE_KEY);
+    return raw ? new Set(JSON.parse(raw) as string[]) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+function markAnnouncementsSeen(ids: string[]) {
+  try {
+    const seen = loadSeenAnnouncementIds();
+    ids.forEach((id) => seen.add(id));
+    localStorage.setItem(SEEN_ANNOUNCEMENTS_STORAGE_KEY, JSON.stringify(Array.from(seen)));
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
 
 const SEEN_UPDATES_STORAGE_KEY = "fc26-seen-updates";
 const SFX_ENABLED_STORAGE_KEY = "fc26-sfx-enabled";
@@ -450,6 +485,23 @@ function DetailModal({ streamer, awards, onClose, latestPosts = [] }: { streamer
 function CafeLink({ href, label = "왁물원 게시글" }: { href: string; label?: string }) { return <a className="action cafe" href={href} target="_blank" rel="noreferrer"><i>{cafeIcon}</i> {label}</a>; }
 function SoopLink({ href, children }: { href: string; children: ReactNode }) { return <a className="action soop" href={href} target="_blank" rel="noreferrer"><img className="soop-icon" src={soopIcon} alt="" />{children}</a>; }
 
+function AnnouncementModal({ announcements, onClose, onAcknowledge }: { announcements: Announcement[]; onClose: () => void; onAcknowledge: () => void }) {
+  useEscape(onClose);
+  return <div className="modal-backdrop announcement-backdrop" role="presentation">
+    <section className="modal announcement-modal" role="dialog" aria-modal="true" aria-label="공지">
+      <div className="modal__header"><div><p className="eyebrow">NOTICE</p><h2 className="announcement-modal__title"><Megaphone aria-hidden="true" /> 공지</h2></div><button className="close" onClick={onClose} aria-label="닫기">×</button></div>
+      <div className="modal__body announcement-modal__body">
+        {announcements.map((item, index) => <div className="announcement-item" key={item.id}>
+          {index > 0 && <hr className="announcement-modal__divider" />}
+          <p>{item.body}</p>
+          {item.note && <small className="announcement-item__note">{item.note}</small>}
+        </div>)}
+      </div>
+      <div className="announcement-modal__actions"><button type="button" className="announcement-modal__ack" onClick={onAcknowledge}>다시 보지 않기</button></div>
+    </section>
+  </div>;
+}
+
 function Modal({ children, header, onClose, label }: { children: ReactNode; header: ReactNode; onClose: () => void; label: string }) {
   return <div className="modal-backdrop" role="presentation" onMouseDown={onClose}><section className="modal" role="dialog" aria-modal="true" aria-label={label} onMouseDown={(event) => event.stopPropagation()}><div className="modal__header">{header}<button className="close" onClick={onClose} aria-label="닫기">×</button></div><div className="modal__body">{children}</div></section></div>;
 }
@@ -522,6 +574,12 @@ export function App() {
   const [sfxEnabled, setSfxEnabled] = useState(loadSfxEnabled);
   const [sfxVolume, setSfxVolume] = useState(loadSfxVolume);
   const [sfxIntroVisible, setSfxIntroVisible] = useState(false);
+  const [pendingAnnouncements, setPendingAnnouncements] = useState<Announcement[]>([]);
+  useEffect(() => {
+    const seenIds = loadSeenAnnouncementIds();
+    const unseen = ANNOUNCEMENTS.filter((announcement) => !seenIds.has(announcement.id));
+    if (unseen.length) setPendingAnnouncements(unseen);
+  }, []);
   const { seenKeys, markSeen, todayKey } = useSeenUpdates();
   const controlsSentinelRef = useRef<HTMLDivElement>(null);
   const [controlsStuck, setControlsStuck] = useState(false);
@@ -625,6 +683,7 @@ export function App() {
     {feedOpen && <div className="modal-backdrop" role="presentation" onMouseDown={() => setFeedOpen(false)}><aside className="feed" role="dialog" aria-modal="true" aria-label="최신 소식" onMouseDown={(event) => event.stopPropagation()}><button className="close" onClick={() => setFeedOpen(false)} aria-label="닫기">×</button><p className="eyebrow">TODAY'S REPORTS</p><h2>최신 소식</h2>{latest.length ? latest.slice(0, 25).map((post) => <a href={post.articleUrl} target="_blank" rel="noreferrer" key={post.articleId}><span>{post.category}</span><strong>{post.title}</strong><small>{post.cafeAuthor} · {formatCafePostDate(post.publishedAt)}</small></a>) : <p className="empty-list">오늘 등록된 디비전 보고가 없습니다.</p>}</aside></div>}
     <div className="floating-toolbar"><SfxToggle enabled={sfxEnabled} volume={sfxVolume} onToggle={toggleSfx} onVolumeChange={changeSfxVolume} /><MusicPlayer /></div>
     {sfxIntroVisible && <SfxIntroNotice onDismiss={() => setSfxIntroVisible(false)} onAcknowledge={markSfxHeard} />}
+    {pendingAnnouncements.length > 0 && <AnnouncementModal announcements={pendingAnnouncements} onClose={() => setPendingAnnouncements([])} onAcknowledge={() => { markAnnouncementsSeen(pendingAnnouncements.map((announcement) => announcement.id)); setPendingAnnouncements([]); }} />}
     {toast && <div className="toast" role="status">{toast}</div>}
   </main>;
 }
