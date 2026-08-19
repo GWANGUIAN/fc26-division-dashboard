@@ -80,7 +80,7 @@ GitHub push (roster/results/overrides YAML) → Config Sync Lambda → DynamoDB 
 
 - 상단 `FavoriteCelebration` 배너는 공개 스냅샷의 `latestPosts[0]`(가장 최근 승격 글)이 **2시간 이내**일 때만 문구를 바꾼다. `src/web/App.tsx`의 `celebrationMessage`가 계산 위치다.
 - 해당 스트리머의 `roster.yaml` `celebrationMessage`가 있으면 그 문구의 `{n}`을 승격된 디비전 숫자로 치환해 보여준다. 없으면 `{displayName}의 {n}부 리그 승격을 축하합니다~!!` 기본 문구를 쓴다.
-- 2시간이 지나거나 오늘 승격 글이 없으면 기본값 `축 왁굳형 즐겨찾기 목록 입성`으로 돌아간다.
+- 2시간이 지나거나 오늘 승격 글이 없으면 기본값 `축 왁굳형, 핫짱 즐겨찾기 목록 입성`으로 돌아간다.
 - `celebrationMessage`는 `RosterEntry`와 `StreamerRecord` 양쪽 타입에 있어야 하며, `buildStreamerRecords`(`src/shared/promotion.ts`)가 로스터 → 스트리머 레코드 변환 시 이 필드를 빠뜨리지 않아야 프런트까지 전달된다. 백엔드 로직이라 반영에는 `deploy-backend.yml` 배포 + scraper의 다음 3분 주기 실행이 필요하다.
 
 ### 통산 전적(W-D-L) 자동 인식

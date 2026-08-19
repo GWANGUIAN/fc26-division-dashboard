@@ -615,7 +615,7 @@ function JandyVideoSection() {
   );
 }
 
-const DEFAULT_CELEBRATION_MESSAGE = "축 왁굳형 즐겨찾기 목록 입성";
+const DEFAULT_CELEBRATION_MESSAGE = "축 왁굳형, 핫짱 즐겨찾기 목록 입성";
 
 type CelebrationSlide = { key: string; message: string };
 
