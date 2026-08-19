@@ -476,6 +476,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/danchu.mp3"
   - slug: dbdnjfdl0216
     displayName: "유서리_"
     cafeAliases: ["유서리"]
@@ -648,6 +649,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "햇슨황의 {n}부 리그 승격을 축하합니다~!!🤤"
+    sfx: "/sfxes/hatbbi.mp3"
   - slug: tleod1818
     displayName: "빙밍_"
     cafeAliases: ["빙밍"]
@@ -876,6 +878,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/kano.mp3"
   - slug: jejong5
     displayName: "제이제이잉"
     cafeAliases: ["제이제이잉"]
