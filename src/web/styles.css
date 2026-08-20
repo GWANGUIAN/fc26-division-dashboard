@@ -80,7 +80,7 @@ body { isolation: isolate; }
 .trophy-award__empty { margin: 0; padding: 18px 14px; color: #799087; font-size: 12px; }
 .streamer-card__name { display: flex; min-width: 0; align-items: center; gap: 4px; }.streamer-card__name > strong { min-width: 0; }
 .achievement-badges { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 2px; vertical-align: middle; }.achievement-badge { position: relative; display: inline-grid; width: 16px; height: 16px; place-items: center; font-size: 12px; line-height: 1; cursor: help; }.achievement-badge [role="tooltip"] { position: absolute; z-index: 6; top: 20px; left: 50%; padding: 5px 7px; border: 1px solid #00e9ae67; color: #d8e8e1; background: #08120e; box-shadow: 0 5px 14px #0009; font-size: 10px; font-weight: 500; line-height: 1.2; white-space: nowrap; opacity: 0; pointer-events: none; transform: translateX(-50%) translateY(-2px); transition: .16s; }.achievement-badge:hover [role="tooltip"] { opacity: 1; transform: translateX(-50%) translateY(0); }
-.modal__identity .achievement-badges { margin-left: 3px; }.modal__identity .achievement-badge { width: 19px; height: 19px; font-size: 15px; }.modal__identity .achievement-badge [role="tooltip"] { top: 24px; }
+.modal__identity .achievement-badges { margin-left: 3px; }.modal__identity .achievement-badge { width: 19px; height: 19px; font-size: 15px; }.modal__identity .achievement-badge [role="tooltip"] { top: 24px; }.modal__record-row { display: inline-flex; align-items: center; gap: 7px; margin-top: 6px; }.modal__sfx-play { display: grid; flex: 0 0 auto; place-items: center; width: 22px; height: 22px; padding: 0; border: 1px solid #00e9ae55; border-radius: 50%; color: #00e9ae; background: #00e9ae14; line-height: 1; transition: .15s; }.modal__sfx-play:hover, .modal__sfx-play:focus-visible { background: #00e9ae2a; border-color: #00e9ae; outline: 0; }.modal__sfx-play svg { display: block; width: 12px; height: 12px; stroke-width: 2.6; }
 @media (max-width: 680px) { .topbar__actions { margin-left: auto; }.topbar__actions .feed-toggle, .trophy-toggle { height: 35px; }.trophy-toggle { width: 35px; }.trophy-modal__title { font-size: 30px; }.trophy-record { align-items: flex-start; }.trophy-record__metric { max-width: 52%; }.trophy-record__metric strong { font-size: 16px; } }
 .image-lightbox { position: fixed; z-index: 30; display: grid; place-items: center; inset: 0; padding: 46px 24px 24px; background: #000d0aef; backdrop-filter: blur(9px); }
 .image-lightbox .close { z-index: 1; color: #effff8; }
@@ -232,7 +232,7 @@ body { isolation: isolate; }
 .record-badge__d { color: #9aaba4; }
 .record-badge__l { color: #ff5c5c; }
 .record-badge--empty, .record-badge--pending { color: #6c7f76; }
-.record-badge--lg { display: inline-block; margin-top: 6px; font-size: 17px; }
+.record-badge--lg { display: inline-block; font-size: 17px; }
 .streamer-card__copy .record-badge { font-size: 11px; }
 .streamer-card__copy .record-badge__w, .streamer-card__copy .record-badge__d, .streamer-card__copy .record-badge__l { font-size: 13px; font-weight: 500; }
 

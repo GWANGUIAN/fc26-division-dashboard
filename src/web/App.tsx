@@ -1637,11 +1637,13 @@ function DetailModal({
   awards,
   onClose,
   latestPosts = [],
+  sfxVolume,
 }: {
   streamer: StreamerRecord;
   awards: TrophyAwards;
   onClose: () => void;
   latestPosts?: PromotionPost[];
+  sfxVolume: number;
 }) {
   // Combine promotionHistory with latestPosts to ensure we have all posts
   const historyPostIds = new Set(
@@ -1703,7 +1705,19 @@ function DetailModal({
               </b>{" "}
               <AchievementBadges streamer={streamer} awards={awards} />
             </h2>
-            <RecordBadge streamer={streamer} className="record-badge--lg" />
+            <span className="modal__record-row">
+              <RecordBadge streamer={streamer} className="record-badge--lg" />
+              {streamer.sfx && (
+                <button
+                  type="button"
+                  className="modal__sfx-play"
+                  onClick={() => playSfx(streamer.sfx!, sfxVolume / 100)}
+                  aria-label={`${streamer.displayName} 효과음 재생`}
+                >
+                  <Volume2 aria-hidden="true" />
+                </button>
+              )}
+            </span>
             {!streamer.isMapped && <p>카페 작성자 · SOOP 정보 미연결</p>}
           </div>
         </div>
@@ -2877,6 +2891,7 @@ export function App() {
             setSelected(undefined);
           }}
           latestPosts={snapshot?.latestPosts}
+          sfxVolume={sfxVolume}
         />
       )}
       {selectedApplication && (
