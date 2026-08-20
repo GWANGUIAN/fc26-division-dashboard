@@ -2328,6 +2328,45 @@ function TrophyModal({
             </p>
           )}
         </section>
+        <section className="trophy-award trophy-award--retention">
+          <div className="trophy-award__heading">
+            <span className="trophy-award__icon" aria-hidden="true">
+              🛏️
+            </span>
+            <div>
+              <h3>
+                잔류왕{" "}
+                <TrophyHelp>
+                  9부 이상으로 승격한 적이 있는 스트리머 중, 현재 디비전에
+                  가장 오랫동안 머무른 스트리머를 표시합니다. 1부 리그는
+                  제외되며, 마지막으로 디비전이 바뀐 시점부터 오늘까지 지난
+                  일수를 기준으로 동률자는 함께 표시합니다.
+                </TrophyHelp>
+              </h3>
+              <p>현재 디비전에 가장 오래 머문 스트리머</p>
+            </div>
+          </div>
+          {awards.retention.length ? (
+            <div className="trophy-award__winners">
+              {awards.retention.map((award) => (
+                <article className="trophy-record" key={award.streamer.id}>
+                  <TrophyWinner streamer={award.streamer} />
+                  <div className="trophy-record__metric">
+                    <strong>{award.days}일째 잔류 중</strong>
+                    <span>
+                      현재 {award.currentDivision}부 ·{" "}
+                      {formatCafePostDate(award.since)}부터
+                    </span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="trophy-award__empty">
+              아직 집계된 잔류 기록이 없습니다.
+            </p>
+          )}
+        </section>
       </div>
     </Modal>
   );
@@ -2451,6 +2490,7 @@ export function App() {
   const [query, setQuery] = useState("");
   const [activityOnly, setActivityOnly] = useState(false);
   const [sfxOnly, setSfxOnly] = useState(false);
+  const [achievementOnly, setAchievementOnly] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "card">(() =>
     loadViewMode(),
   );
@@ -2541,6 +2581,10 @@ export function App() {
     clearTimeout(toastTimeout.current);
     toastTimeout.current = window.setTimeout(() => setToast(undefined), 2200);
   }
+  const trophyAwards = useMemo(
+    () => buildTrophyAwards(snapshot?.streamers ?? []),
+    [snapshot],
+  );
   const streamers = useMemo(
     () =>
       (snapshot?.streamers ?? []).filter(
@@ -2551,9 +2595,11 @@ export function App() {
               streamer.scopePosts?.length ||
               streamer.elevenVsElevenPosts?.length,
             )) &&
-          (!sfxOnly || Boolean(streamer.sfx)),
+          (!sfxOnly || Boolean(streamer.sfx)) &&
+          (!achievementOnly ||
+            trophyBadgesFor(streamer, trophyAwards).length > 0),
       ),
-    [snapshot, query, activityOnly, sfxOnly],
+    [snapshot, query, activityOnly, sfxOnly, achievementOnly, trophyAwards],
   );
   const divisionStats = useMemo(() => {
     const all = snapshot?.streamers ?? [];
@@ -2615,10 +2661,6 @@ export function App() {
           .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
   ).filter(
     (post) => Date.now() - new Date(post.publishedAt).getTime() < DAY_MS,
-  );
-  const trophyAwards = useMemo(
-    () => buildTrophyAwards(snapshot?.streamers ?? []),
-    [snapshot],
   );
   const celebrationSlides = useMemo(() => {
     const postSlides = (snapshot?.streamers ?? [])
@@ -2779,7 +2821,7 @@ export function App() {
           </div>
           {isDivision ? (
             <div className="controls__actions">
-              <div className="segmented">
+              <div className="segmented segmented--filters">
                 <button
                   className={`segmented__sfx-toggle${sfxOnly ? " active" : ""}`}
                   onClick={() => setSfxOnly((current) => !current)}
@@ -2788,8 +2830,14 @@ export function App() {
                   <Volume2 aria-hidden="true" />
                   효과음 있는 스트리머만
                 </button>
-              </div>
-              <div className="segmented">
+                <button
+                  className={`segmented__trophy-toggle${achievementOnly ? " active" : ""}`}
+                  onClick={() => setAchievementOnly((current) => !current)}
+                  aria-pressed={achievementOnly}
+                >
+                  <Trophy aria-hidden="true" />
+                  업적 달성자만
+                </button>
                 <button
                   className={activityOnly ? "active" : ""}
                   onClick={() => setActivityOnly((current) => !current)}

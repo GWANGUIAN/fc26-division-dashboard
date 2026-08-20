@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PromotionPost, StreamerRecord } from "./model.js";
 import { buildTrophyAwards, trophyBadgesFor } from "./trophy.js";
 
@@ -65,7 +65,7 @@ describe("trophy awards", () => {
     const first = { ...streamer("A"), scopePosts: [{ articleId: "s", board: "scope" as const, cafeAuthor: "A", title: "홍보", category: "[내가 직접 홍보]", publishedAt: "2026-08-10T10:00:00+09:00", articleUrl: "https://example.test/s" }] };
     const second = { ...streamer("B"), elevenVsElevenPosts: [{ articleId: "v", board: "elevenVsEleven" as const, cafeAuthor: "B", title: "영상", category: "", publishedAt: "2026-08-10T10:00:00+09:00", articleUrl: "https://example.test/v" }] };
     expect(buildTrophyAwards([first, second]).selfPromotion.map((award) => award.streamer.id)).toEqual(["A", "B"]);
-    expect(buildTrophyAwards([])).toEqual({ dailyPromotion: [], divisionOne: [], selfPromotion: [], mostMatches: [], bestWinRate: [] });
+    expect(buildTrophyAwards([])).toEqual({ dailyPromotion: [], divisionOne: [], selfPromotion: [], mostMatches: [], bestWinRate: [], retention: [] });
   });
 
   it("awards most matches and best win rate from career records, preserving ties", () => {
@@ -91,5 +91,35 @@ describe("trophy awards", () => {
     expect(trophyBadgesFor(candidate, awards)).toEqual([
       { key: "division-one", name: "가장 먼저 1부 리그 달성", emoji: "🥇" }, { key: "daily-promotion", name: "하루 급성장", emoji: "🚀" },
     ]);
+  });
+
+  describe("retention award", () => {
+    beforeEach(() => vi.setSystemTime(new Date("2026-08-21T00:00:00+09:00")));
+    afterEach(() => vi.useRealTimers());
+
+    it("awards the streamer who has stayed longest in their current division, among 9부+ achievers", () => {
+      const longStay = streamer("오래머묾", [post("1", 9, "2026-08-01T00:00:00+09:00")]);
+      const shortStay = streamer("최근승격", [post("1", 9, "2026-08-05T00:00:00+09:00"), post("2", 8, "2026-08-15T00:00:00+09:00")]);
+      const awards = buildTrophyAwards([longStay, shortStay]);
+      expect(awards.retention.map((award) => award.streamer.id)).toEqual(["오래머묾"]);
+    });
+
+    it("only counts the ongoing streak in the current division, not earlier stays", () => {
+      const bounced = { ...streamer("왕복", [post("1", 9, "2026-08-01T00:00:00+09:00"), post("2", 8, "2026-08-10T00:00:00+09:00"), post("3", 9, "2026-08-19T00:00:00+09:00")]), currentDivision: 9 };
+      const awards = buildTrophyAwards([bounced]);
+      expect(awards.retention).toMatchObject([{ since: "2026-08-19T00:00:00+09:00", days: 2 }]);
+    });
+
+    it("excludes streamers who never reached division 9 or better", () => {
+      const neverTop = streamer("미승격", [post("1", 10, "2026-08-01T00:00:00+09:00")]);
+      expect(buildTrophyAwards([neverTop]).retention).toEqual([]);
+    });
+
+    it("excludes streamers currently in division 1, even if they stayed the longest", () => {
+      const topDivision = streamer("1부잔류", [post("1", 1, "2026-08-01T00:00:00+09:00")]);
+      const nineDivision = streamer("9부잔류", [post("2", 9, "2026-08-10T00:00:00+09:00")]);
+      const awards = buildTrophyAwards([topDivision, nineDivision]);
+      expect(awards.retention.map((award) => award.streamer.id)).toEqual(["9부잔류"]);
+    });
   });
 });

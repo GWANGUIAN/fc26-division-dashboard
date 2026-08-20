@@ -32,19 +32,30 @@ export type BestWinRateTrophy = {
   winRate: number;
 };
 
+export type RetentionTrophy = {
+  streamer: StreamerRecord;
+  currentDivision: number;
+  since: string;
+  days: number;
+};
+
 export type TrophyAwards = {
   dailyPromotion: DailyPromotionTrophy[];
   divisionOne: DivisionOneTrophy[];
   selfPromotion: PromotionTrophy[];
   mostMatches: MostMatchesTrophy[];
   bestWinRate: BestWinRateTrophy[];
+  retention: RetentionTrophy[];
 };
 
 export type TrophyBadge = {
-  key: "daily-promotion" | "division-one" | "self-promotion" | "most-matches" | "best-win-rate";
+  key: "daily-promotion" | "division-one" | "self-promotion" | "most-matches" | "best-win-rate" | "retention";
   name: string;
   emoji: string;
 };
+
+/** Streamers who never reached at least division 9 aren't eligible for the retention award. */
+const RETENTION_MIN_DIVISION = 9;
 
 export const DIVISION_ONE_EMOJI = { 1: "🥇", 2: "🥈", 3: "🥉" } as const;
 const DIVISION_ONE_LABEL = { 1: "가장 먼저 1부 리그 달성", 2: "두 번째로 1부 리그 달성", 3: "세 번째로 1부 리그 달성" } as const;
@@ -123,12 +134,33 @@ export function buildTrophyAwards(streamers: StreamerRecord[]): TrophyAwards {
   });
   const bestRate = Math.max(-1, ...winRateRecords.map((record) => record.winRate));
 
+  const retentionRecords = streamers.flatMap((streamer) => {
+    // Division 1 streamers are covered by the division-one award instead.
+    if (streamer.currentDivision === 1) return [];
+    const posts = promotionPostsFor(streamer);
+    const everReachedTopNine = streamer.currentDivision <= RETENTION_MIN_DIVISION
+      || posts.some((post) => post.division <= RETENTION_MIN_DIVISION);
+    if (!everReachedTopNine) return [];
+    // Walk backward from the newest report and keep the earliest one that still
+    // matches the current division, i.e. the start of the ongoing streak.
+    let since: string | undefined;
+    for (let i = posts.length - 1; i >= 0; i--) {
+      if (posts[i]!.division !== streamer.currentDivision) break;
+      since = posts[i]!.publishedAt;
+    }
+    if (!since) return [];
+    const days = Math.floor((Date.now() - new Date(since).getTime()) / 86_400_000);
+    return days >= 0 ? [{ streamer, currentDivision: streamer.currentDivision, since, days }] : [];
+  });
+  const longestRetention = Math.max(-1, ...retentionRecords.map((record) => record.days));
+
   return {
     dailyPromotion: bestDailySteps > 0 ? dailyRecords.filter((record) => record.steps === bestDailySteps) : [],
     divisionOne: divisionOneCandidates,
     selfPromotion: bestPromotionCount > 0 ? promotionRecords.filter((record) => record.totalCount === bestPromotionCount) : [],
     mostMatches: mostGames > 0 ? matchRecords.filter((record) => record.totalGames === mostGames) : [],
     bestWinRate: bestRate >= 0 ? winRateRecords.filter((record) => record.winRate === bestRate) : [],
+    retention: longestRetention >= 0 ? retentionRecords.filter((record) => record.days === longestRetention) : [],
   };
 }
 
@@ -140,5 +172,6 @@ export function trophyBadgesFor(streamer: StreamerRecord, awards: TrophyAwards):
   if (awards.bestWinRate.some((award) => award.streamer.id === streamer.id)) badges.push({ key: "best-win-rate", name: "최고 승률", emoji: "👑" });
   if (awards.dailyPromotion.some((award) => award.streamer.id === streamer.id)) badges.push({ key: "daily-promotion", name: "하루 급성장", emoji: "🚀" });
   if (awards.selfPromotion.some((award) => award.streamer.id === streamer.id)) badges.push({ key: "self-promotion", name: "자기 PR 왕", emoji: "📣" });
+  if (awards.retention.some((award) => award.streamer.id === streamer.id)) badges.push({ key: "retention", name: "잔류왕", emoji: "🛏️" });
   return badges;
 }
