@@ -254,6 +254,7 @@ const CARD_ZOOM_STORAGE_KEY = "fc26-card-zoom-level";
 const CARD_ZOOM_MIN = 0;
 const CARD_ZOOM_MAX = 4;
 const CARD_ZOOM_DEFAULT = 1;
+const HANGUL_PATTERN = /[가-힣]/;
 
 function loadViewMode(): "list" | "card" {
   try {
@@ -1340,6 +1341,9 @@ function StreamerFifaCard({
 }) {
   const rate = streamer.record ? winRatePercent(streamer.record) : undefined;
   const color = divisionColor(streamer.currentDivision);
+  const lastPostLabel = streamer.lastPost
+    ? formatBoardPostDate(streamer.lastPost.publishedAt)
+    : "첫 보고 대기";
   const cardRef = useRef<HTMLButtonElement>(null);
   const [tilt, setTilt] = useState({
     rx: 0,
@@ -1424,9 +1428,13 @@ function StreamerFifaCard({
           <span className="fifa-card__stat">
             <span className="fifa-card__stat-label">최근 승급일</span>
             <b className="fifa-card__stat-value">
-              {streamer.lastPost
-                ? formatBoardPostDate(streamer.lastPost.publishedAt)
-                : "첫 보고 대기"}
+              {HANGUL_PATTERN.test(lastPostLabel) ? (
+                <span className="fifa-card__stat-value-kr">
+                  {lastPostLabel}
+                </span>
+              ) : (
+                lastPostLabel
+              )}
             </b>
           </span>
         </span>
@@ -1445,29 +1453,57 @@ function CardBoard({
   awards,
   zoom,
   onOpen,
+  onZoomIn,
+  onZoomOut,
+  zoomMin,
+  zoomMax,
 }: {
   streamers: StreamerRecord[];
   awards: TrophyAwards;
   zoom: number;
   onOpen: (streamer: StreamerRecord) => void;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+  zoomMin: number;
+  zoomMax: number;
 }) {
   return (
-    <section
-      className={`card-board card-board--zoom-${zoom}`}
-      aria-label="스트리머 카드 보기"
-    >
-      {streamers.map((streamer) => (
-        <StreamerFifaCard
-          key={streamer.id}
-          streamer={streamer}
-          awards={awards}
-          onOpen={() => onOpen(streamer)}
-        />
-      ))}
-      {streamers.length === 0 && (
-        <p className="empty-list">표시할 스트리머가 없습니다.</p>
-      )}
-    </section>
+    <div className="card-board-wrap">
+      <div className="card-board-zoom-rail">
+        <div className="segmented segmented--zoom segmented--zoom-vertical">
+          <button
+            onClick={onZoomIn}
+            disabled={zoom >= zoomMax}
+            aria-label="카드 확대"
+          >
+            <Plus aria-hidden="true" />
+          </button>
+          <button
+            onClick={onZoomOut}
+            disabled={zoom <= zoomMin}
+            aria-label="카드 축소"
+          >
+            <Minus aria-hidden="true" />
+          </button>
+        </div>
+      </div>
+      <section
+        className={`card-board card-board--zoom-${zoom}`}
+        aria-label="스트리머 카드 보기"
+      >
+        {streamers.map((streamer) => (
+          <StreamerFifaCard
+            key={streamer.id}
+            streamer={streamer}
+            awards={awards}
+            onOpen={() => onOpen(streamer)}
+          />
+        ))}
+        {streamers.length === 0 && (
+          <p className="empty-list">표시할 스트리머가 없습니다.</p>
+        )}
+      </section>
+    </div>
   );
 }
 
@@ -3084,6 +3120,10 @@ export function App() {
             awards={trophyAwards}
             zoom={cardZoom}
             onOpen={openStreamer}
+            onZoomIn={handleZoomIn}
+            onZoomOut={handleZoomOut}
+            zoomMin={CARD_ZOOM_MIN}
+            zoomMax={CARD_ZOOM_MAX}
           />
         )
       ) : (

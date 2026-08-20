@@ -267,6 +267,20 @@ body { isolation: isolate; }
 .division-summary__item--unreported { border-bottom-color: #ffbb4470; } .division-summary__item--unreported svg { color: #ffbb44; } .division-summary__item--unreported strong { color: #ffcf7a; }
 @media (max-width: 680px) { .division-summary__item { padding: 0 12px; } .division-summary__item:first-child { padding-left: 0; } .division-summary__item strong { font-size: 17px; } }
 
+.card-board-wrap { display: grid; grid-template-columns: minmax(0, 1fr); }
+.card-board-wrap > .card-board, .card-board-wrap > .card-board-zoom-rail { grid-area: 1 / 1; }
+.card-board-zoom-rail { position: sticky; top: 108px; z-index: 5; justify-self: end; align-self: start; transform: translateX(calc(100% + 14px)); }
+.segmented--zoom-vertical { flex-direction: column; width: 48px; border: 1px solid #00e9ae40; border-radius: 5px; background: #0d1b16f2; box-shadow: 0 8px 24px #00000050; }
+.segmented--zoom-vertical button { padding: 16px 0; color: #c8fff0; background: transparent; transition: background .18s, color .18s; }
+.segmented--zoom-vertical button + button { border-top: 1px solid #00e9ae2a; }
+.segmented--zoom-vertical button:hover:not(:disabled), .segmented--zoom-vertical button:focus-visible:not(:disabled) { color: #04140f; background: #00e9ae; outline: 0; }
+.segmented--zoom-vertical button:disabled { color: #4a5a53; }
+.segmented--zoom.segmented--zoom-vertical svg { width: 19px; height: 19px; }
+.view-toolbar__controls .segmented--zoom { display: none; }
+@media (max-width: 1550px) {
+  .view-toolbar__controls .segmented--zoom { display: flex; }
+  .card-board-zoom-rail { display: none; }
+}
 .card-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 20px; }
 .fifa-card { --text-outline: -1px -1px 0 #000, 0 -1px 0 #000, 1px -1px 0 #000, -1px 0 0 #000, 1px 0 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 1px 1px 0 #000; position: relative; display: block; width: 100%; aspect-ratio: 300 / 450; padding: 0; border: 0; color: #181206; text-align: center; background: transparent; cursor: pointer; transition: transform .18s, filter .18s; }
 .fifa-card:hover, .fifa-card:focus-within { z-index: 10; }
@@ -286,6 +300,7 @@ body { isolation: isolate; }
 .fifa-card__stat { display: inline-flex; align-items: baseline; gap: 6px; font-size: 13px; }
 .fifa-card__stat-label { color: #f5fbf8; opacity: .66; font-size: 11px; font-weight: 500; letter-spacing: .01em; text-shadow: var(--text-outline); }
 .fifa-card__stat-value { color: #fff; font: 800 15px "Barlow Condensed", "Noto Sans KR"; letter-spacing: .01em; text-shadow: var(--text-outline); }
+.fifa-card__stat-value-kr { font-size: .78em; }
 .fifa-card__stat .record-badge { text-shadow: var(--text-outline); }
 .fifa-card__stat .record-badge__w, .fifa-card__stat .record-badge__d, .fifa-card__stat .record-badge__l { font-size: 16px; font-weight: 500; }
 .fifa-card .unmapped { position: absolute; z-index: 1; top: 44px; right: 18px; color: #4a4030; font-size: 10px; }
