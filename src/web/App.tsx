@@ -9,10 +9,12 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import {
+  CheckCircle2,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   ChevronUp,
+  Clock,
   Copy,
   Download,
   Info,
@@ -20,6 +22,7 @@ import {
   List,
   Megaphone,
   Trophy,
+  Users,
   Volume2,
   VolumeX,
 } from "lucide-react";
@@ -2450,6 +2453,13 @@ export function App() {
       ),
     [snapshot, query, activityOnly, sfxOnly],
   );
+  const divisionStats = useMemo(() => {
+    const all = snapshot?.streamers ?? [];
+    const unreported = all.filter(
+      (streamer) => streamer.currentDivision === 10,
+    ).length;
+    return { total: all.length, reported: all.length - unreported, unreported };
+  }, [snapshot]);
   const cardStreamers = useMemo(() => {
     if (sortMode === "division")
       return [...streamers].sort(
@@ -2725,41 +2735,66 @@ export function App() {
       </section>
       {isDivision && (
         <section className="view-toolbar" aria-label="보기 설정">
-          {viewMode === "card" && (
+          <div className="division-summary" aria-label="신청 현황 요약">
+            <div className="division-summary__item division-summary__item--total">
+              <Users aria-hidden="true" />
+              <div>
+                <strong>{divisionStats.total}</strong>
+                <span>총 신청자</span>
+              </div>
+            </div>
+            <div className="division-summary__item division-summary__item--reported">
+              <CheckCircle2 aria-hidden="true" />
+              <div>
+                <strong>{divisionStats.reported}</strong>
+                <span>승격 보고</span>
+              </div>
+            </div>
+            <div className="division-summary__item division-summary__item--unreported">
+              <Clock aria-hidden="true" />
+              <div>
+                <strong>{divisionStats.unreported}</strong>
+                <span>미보고</span>
+              </div>
+            </div>
+          </div>
+          <div className="view-toolbar__controls">
+            {viewMode === "card" && (
+              <div className="segmented">
+                <button
+                  className={sortMode === "division" ? "active" : ""}
+                  onClick={() => setSortMode("division")}
+                  aria-pressed={sortMode === "division"}
+                >
+                  디비전순
+                </button>
+                <button
+                  className={sortMode === "winRate" ? "active" : ""}
+                  onClick={() => setSortMode("winRate")}
+                  aria-pressed={sortMode === "winRate"}
+                >
+                  승률순
+                </button>
+              </div>
+            )}
             <div className="segmented">
               <button
-                className={sortMode === "division" ? "active" : ""}
-                onClick={() => setSortMode("division")}
-                aria-pressed={sortMode === "division"}
+                className={viewMode === "list" ? "active" : ""}
+                onClick={() => setViewMode("list")}
+                aria-pressed={viewMode === "list"}
+                aria-label="목록 보기"
               >
-                디비전순
+                <List aria-hidden="true" />
               </button>
               <button
-                className={sortMode === "winRate" ? "active" : ""}
-                onClick={() => setSortMode("winRate")}
-                aria-pressed={sortMode === "winRate"}
+                className={viewMode === "card" ? "active" : ""}
+                onClick={() => setViewMode("card")}
+                aria-pressed={viewMode === "card"}
+                aria-label="카드 보기"
               >
-                승률순
+                <LayoutGrid aria-hidden="true" />
               </button>
             </div>
-          )}
-          <div className="segmented">
-            <button
-              className={viewMode === "list" ? "active" : ""}
-              onClick={() => setViewMode("list")}
-              aria-pressed={viewMode === "list"}
-              aria-label="목록 보기"
-            >
-              <List aria-hidden="true" />
-            </button>
-            <button
-              className={viewMode === "card" ? "active" : ""}
-              onClick={() => setViewMode("card")}
-              aria-pressed={viewMode === "card"}
-              aria-label="카드 보기"
-            >
-              <LayoutGrid aria-hidden="true" />
-            </button>
           </div>
         </section>
       )}

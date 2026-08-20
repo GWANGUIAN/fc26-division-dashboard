@@ -235,9 +235,20 @@ body { isolation: isolate; }
 .streamer-card__copy .record-badge { font-size: 11px; }
 .streamer-card__copy .record-badge__w, .streamer-card__copy .record-badge__d, .streamer-card__copy .record-badge__l { font-size: 13px; font-weight: 500; }
 
-.view-toolbar { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 10px; }
+.view-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
 .view-toolbar .segmented button { display: inline-flex; align-items: center; justify-content: center; }
 .view-toolbar .segmented svg { width: 14px; height: 14px; stroke-width: 2.6; }
+.view-toolbar__controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-left: auto; }
+.division-summary { display: flex; flex-wrap: wrap; gap: 8px; }
+.division-summary__item { display: flex; align-items: center; gap: 9px; padding: 8px 13px; border: 1px solid #ffffff1c; border-radius: 4px; background: #0a1411c9; }
+.division-summary__item svg { width: 16px; height: 16px; flex: 0 0 16px; stroke-width: 2.4; }
+.division-summary__item div { display: flex; flex-direction: column; line-height: 1.15; }
+.division-summary__item strong { font: 800 20px/1 "Barlow Condensed"; }
+.division-summary__item span { color: #8ca399; font-size: 10px; letter-spacing: .02em; white-space: nowrap; }
+.division-summary__item--total svg { color: #7fd8ff; } .division-summary__item--total strong { color: #eafcff; }
+.division-summary__item--reported { border-color: #00e9ae3d; background: #00e9ae0f; } .division-summary__item--reported svg, .division-summary__item--reported strong { color: #00e9ae; }
+.division-summary__item--unreported { border-color: #ffbb4440; background: #ffbb4412; } .division-summary__item--unreported svg { color: #ffbb44; } .division-summary__item--unreported strong { color: #ffcf7a; }
+@media (max-width: 680px) { .division-summary__item { padding: 7px 10px; } .division-summary__item strong { font-size: 17px; } }
 
 .card-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 20px; }
 .fifa-card { --text-outline: -1px -1px 0 #000, 0 -1px 0 #000, 1px -1px 0 #000, -1px 0 0 #000, 1px 0 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 1px 1px 0 #000; position: relative; display: block; width: 100%; aspect-ratio: 300 / 450; padding: 0; border: 0; color: #181206; text-align: center; background: transparent; cursor: pointer; transition: transform .18s, filter .18s; }
