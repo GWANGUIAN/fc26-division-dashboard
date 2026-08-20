@@ -2674,9 +2674,6 @@ export function App() {
                 placeholder="이름 또는 카페 닉네임 검색"
               />
             </label>
-            {isDivision && (
-              <DivisionHistogram streamers={snapshot?.streamers ?? []} />
-            )}
           </div>
           {isDivision ? (
             <div className="controls__actions">
@@ -2757,6 +2754,7 @@ export function App() {
                 <span>미보고</span>
               </div>
             </div>
+            <DivisionHistogram streamers={snapshot?.streamers ?? []} />
           </div>
           <div className="view-toolbar__controls">
             {viewMode === "card" && (
