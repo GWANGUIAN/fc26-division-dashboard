@@ -274,6 +274,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/banta.mp3"
   - slug: choeunnn
     displayName: 초은.
     cafeAliases: ["초은"]
@@ -531,6 +532,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/ddatg.mp3"
   - slug: fishstory
     displayName: "뽀끔o3o"
     cafeAliases: ["뽀끔"]
@@ -836,6 +838,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/sulhong.mp3"
   - slug: "015234"
     displayName: "아눙"
     cafeAliases: ["아눙"]
@@ -989,6 +992,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/lir.mp3"
   - slug: lina0108
     displayName: "리냐_LINYA"
     cafeAliases: ["리냐 LINYA"]
