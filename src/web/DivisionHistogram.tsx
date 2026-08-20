@@ -39,7 +39,25 @@ export function DivisionHistogram({ streamers }: { streamers: StreamerRecord[] }
               <span className="division-histogram__fill" style={{ transform: isOpen ? `scaleY(${ratio})` : "scaleY(0)", transitionDelay: `${index * 25}ms` }} />
             </span>
             <small className="division-histogram__label">{label}</small>
-            {bucket.count > 0 && <span role="tooltip">{bucket.names.join(", ")}</span>}
+            {bucket.count > 0 && (
+              <span role="tooltip">
+                {bucket.entries.map((entry, entryIndex) => (
+                  <span key={entry.name}>
+                    <span
+                      className={
+                        entry.isFancy
+                          ? "division-histogram__entry division-histogram__entry--fancy"
+                          : "division-histogram__entry"
+                      }
+                    >
+                      {entry.isFancy && <span aria-hidden="true">✦ </span>}
+                      {entry.name}
+                    </span>
+                    {entryIndex < bucket.entries.length - 1 ? ", " : ""}
+                  </span>
+                ))}
+              </span>
+            )}
           </div>;
         })}
       </div>
