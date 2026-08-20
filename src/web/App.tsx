@@ -2747,25 +2747,33 @@ export function App() {
       {isDivision && (
         <section className="view-toolbar" aria-label="보기 설정">
           <div className="division-summary" aria-label="신청 현황 요약">
-            <div className="division-summary__item division-summary__item--total">
-              <Users aria-hidden="true" />
-              <div>
-                <strong>{divisionStats.total}</strong>
-                <span>총 신청자</span>
+            <div className="division-summary__stats">
+              <div
+                className="division-summary__item division-summary__item--total"
+                tabIndex={0}
+              >
+                <Users aria-hidden="true" />
+                <div>
+                  <strong>{divisionStats.total}</strong>
+                  <span>총 신청자</span>
+                </div>
+                <span role="tooltip">
+                  매일 오전 9시에 잔디동 모집글 댓글 기준으로 자동 업데이트 됩니다.
+                </span>
               </div>
-            </div>
-            <div className="division-summary__item division-summary__item--reported">
-              <CheckCircle2 aria-hidden="true" />
-              <div>
-                <strong>{divisionStats.reported}</strong>
-                <span>승격 보고</span>
+              <div className="division-summary__item division-summary__item--reported">
+                <CheckCircle2 aria-hidden="true" />
+                <div>
+                  <strong>{divisionStats.reported}</strong>
+                  <span>승격 보고</span>
+                </div>
               </div>
-            </div>
-            <div className="division-summary__item division-summary__item--unreported">
-              <Clock aria-hidden="true" />
-              <div>
-                <strong>{divisionStats.unreported}</strong>
-                <span>미보고</span>
+              <div className="division-summary__item division-summary__item--unreported">
+                <Clock aria-hidden="true" />
+                <div>
+                  <strong>{divisionStats.unreported}</strong>
+                  <span>미보고</span>
+                </div>
               </div>
             </div>
             <DivisionHistogram streamers={snapshot?.streamers ?? []} />

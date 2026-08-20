@@ -240,16 +240,21 @@ body { isolation: isolate; }
 .view-toolbar .segmented button { display: inline-flex; align-items: center; justify-content: center; }
 .view-toolbar .segmented svg { width: 14px; height: 14px; stroke-width: 2.6; }
 .view-toolbar__controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-left: auto; }
-.division-summary { display: flex; flex-wrap: wrap; gap: 8px; }
-.division-summary__item { display: flex; align-items: center; gap: 9px; min-height: 46px; padding: 8px 13px; border: 1px solid #ffffff1c; border-radius: 4px; background: #0a1411c9; }
+.division-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; }
+.division-summary__stats { display: flex; flex-wrap: wrap; align-items: stretch; }
+.division-summary__item { display: flex; align-items: center; gap: 9px; min-height: 46px; padding: 0 20px; border-bottom: 2px solid transparent; }
+.division-summary__item:first-child { padding-left: 0; }
+.division-summary__item + .division-summary__item { border-left: 1px solid #ffffff17; }
 .division-summary__item svg { width: 16px; height: 16px; flex: 0 0 16px; stroke-width: 2.4; }
 .division-summary__item div { display: flex; flex-direction: column; line-height: 1.15; }
 .division-summary__item strong { font: 800 20px/1 "Barlow Condensed"; }
 .division-summary__item span { color: #8ca399; font-size: 10px; letter-spacing: .02em; white-space: nowrap; }
-.division-summary__item--total svg { color: #7fd8ff; } .division-summary__item--total strong { color: #eafcff; }
-.division-summary__item--reported { border-color: #00e9ae3d; background: #00e9ae0f; } .division-summary__item--reported svg, .division-summary__item--reported strong { color: #00e9ae; }
-.division-summary__item--unreported { border-color: #ffbb4440; background: #ffbb4412; } .division-summary__item--unreported svg { color: #ffbb44; } .division-summary__item--unreported strong { color: #ffcf7a; }
-@media (max-width: 680px) { .division-summary__item { padding: 7px 10px; } .division-summary__item strong { font-size: 17px; } }
+.division-summary__item--total { position: relative; border-bottom-color: #7fd8ff70; cursor: help; } .division-summary__item--total svg { color: #7fd8ff; } .division-summary__item--total strong { color: #eafcff; }
+.division-summary__item--total [role="tooltip"] { position: absolute; z-index: 5; top: calc(100% + 10px); left: 0; width: max-content; max-width: 240px; padding: 9px 11px; border: 1px solid #7fd8ff55; border-radius: 3px; color: #dff3ff; background: #081018; box-shadow: 0 8px 22px #0009; font-size: 11px; font-weight: 400; letter-spacing: 0; line-height: 1.5; white-space: normal; opacity: 0; pointer-events: none; transform: translateY(-3px); transition: .16s; }
+.division-summary__item--total:hover [role="tooltip"], .division-summary__item--total:focus-within [role="tooltip"] { opacity: 1; transform: translateY(0); }
+.division-summary__item--reported { border-bottom-color: #00e9ae70; } .division-summary__item--reported svg, .division-summary__item--reported strong { color: #00e9ae; }
+.division-summary__item--unreported { border-bottom-color: #ffbb4470; } .division-summary__item--unreported svg { color: #ffbb44; } .division-summary__item--unreported strong { color: #ffcf7a; }
+@media (max-width: 680px) { .division-summary__item { padding: 0 12px; } .division-summary__item:first-child { padding-left: 0; } .division-summary__item strong { font-size: 17px; } }
 
 .card-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 20px; }
 .fifa-card { --text-outline: -1px -1px 0 #000, 0 -1px 0 #000, 1px -1px 0 #000, -1px 0 0 #000, 1px 0 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 1px 1px 0 #000; position: relative; display: block; width: 100%; aspect-ratio: 300 / 450; padding: 0; border: 0; color: #181206; text-align: center; background: transparent; cursor: pointer; transition: transform .18s, filter .18s; }
