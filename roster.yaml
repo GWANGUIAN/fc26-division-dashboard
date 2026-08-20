@@ -206,6 +206,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/magpee.mp3"
   - slug: 
     displayName: 쿠리_KURI
     cafeAliases: ["쿠리"]
@@ -619,6 +620,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/daki.mp3"
   - slug: 1004tangs2
     displayName: "천사탕"
     cafeAliases: ["천사탕"]
