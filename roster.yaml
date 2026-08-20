@@ -684,7 +684,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "빵망이의 {n}부 리그 승격을 축하합니다~!!🤤"
-    reviewNote: "배그 실력이 출중함"
+    reviewNote: "배그 실력이 출중함. 키빼몸(키(cm) - 몸무게(kg))이 +5일거라는 이미지가 있음"
     sfx: "/sfxes/bingming.mp3"
   - slug: habee511
     displayName: "망야_"
@@ -696,6 +696,7 @@ streamers:
       policy: auto
     celebrationMessage: "망야 {n}부 리그 승격해쓰야~~"
     sfx: "/sfxes/mangya.mp3"
+    reviewNote: "~해쓰야 라는 말투를 사용함 코멘트에 활용하면 좋을듯"
   - slug: leuni158
     displayName: "르니"
     cafeAliases: ["르니ㅡ"]
@@ -705,7 +706,6 @@ streamers:
       division: null
       policy: auto
     sfx: "/sfxes/rni.mp3"
-    reviewNote: "~해쓰야 라는 말투를 사용함 코멘트에 활용하면 좋을듯"
   - slug: daenggang
     displayName: "댕강"
     cafeAliases: ["댕강DaengGang"]
