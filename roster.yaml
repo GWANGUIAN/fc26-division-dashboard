@@ -96,6 +96,7 @@ streamers:
       division: null
       policy: auto
     sfx: "/sfxes/toonyangtz.mp3"
+    reviewNote: "농구게임을 굉장히 잘함"
   - slug: 
     displayName: 문모모
     cafeAliases: ["문 모모"]
@@ -105,6 +106,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "ㅁㅁㅁ의 {n}부 리그 승격을 축하합니다~!!😏"
+    reviewNote: "SOOP에서 원래 FC 1황이였음. 나나문, 플리, 빙밍, 임하밍, 김웰로, 체비와 함께 천타버스(수장: 천양) 크루 소속임"
     sfx: "/sfxes/doormomo.mp3"
     profileImageUrl: "/profiles/profile_doormomo.webp"
   - slug: 
@@ -118,6 +120,7 @@ streamers:
     celebrationMessage: "곰짱의 {n}부 리그 승격을 축하합니다~!!🧸"
     profileImageUrl: "/profiles/profile_mygomiee.webp"
     sfx: "/sfxes/mygomiee.mp3"
+    reviewNote: "곰짱이라는 별명 가지고 있고 팬닉은 곰돌이단임"
   - slug: 
     displayName: 찌미
     cafeAliases: ["찌 미"]
@@ -137,6 +140,7 @@ streamers:
       policy: auto
     celebrationMessage: "핫짱의 {n}부 리그 승격을 축하합니다~!!🐉"
     sfx: "/sfxes/hachi.mp3"
+    reviewNote: "하치쿤, 핫짱이라는 별명을 가지고 있음"
     isFancy: true
   - slug: 
     displayName: 미르_MIR
@@ -176,6 +180,7 @@ streamers:
       division: null
       policy: auto
     sfx: "/sfxes/pli.mp3"
+    reviewNote: "육수를 잘 우린다는 이미지가 있음"
   - slug: 
     displayName: 체비
     cafeAliases: ["체 비"]
@@ -253,6 +258,7 @@ streamers:
     celebrationMessage: "얼음공주의 {n}부 리그 승격을 축하합니다~!!🧊"
     profileImageUrl: "/profiles/profile_hangyeul.webp"
     sfx: "/sfxes/hangyeul.mp3"
+    reviewNote: "잔디(FC게임을 일컫는 말)를 굉장히 좋아해서 잔악귀라는 별명이 있음"
   - slug: amanemay
     displayName: 김메이
     cafeAliases: ["김메이kimmay"]
@@ -314,6 +320,7 @@ streamers:
       policy: auto
     profileImageUrl: "/profiles/profile_secretgirl.webp"
     sfx: "/sfxes/secretgirl.mp3"
+    reviewNote: "우왁굳은 이번에 5번째 동아리를 모집하는건데 비밀소녀는 이전에 계속 탈락했음"
   - slug: eun0333
     displayName: 우마이:>
     cafeAliases: ["우마이"]
@@ -504,6 +511,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "단단묵직 센터백 뮤즈의 {n}부 리그 승격을 축하합니다~!!⚽"
+    reviewNote: "자칭 단단묵직 센터백임"
     sfx: "/sfxes/muse.mp3"
   - slug: tjdgk31470
     displayName: "성여올"
@@ -628,6 +636,7 @@ streamers:
       division: null
       policy: auto
     sfx: "/sfxes/charlotte.mp3"
+    reviewNote: "실제 중세 기사 RP를 가지고 있음"
   - slug: cjstkdbsl3
     displayName: "깡담비"
     cafeAliases: ["깡담비"]
@@ -662,6 +671,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "햇슨황의 {n}부 리그 승격을 축하합니다~!!🤤"
+    reviewNote: "AI를 활용해서 프로그램들을 잘 만들어서 햇슨황이라는 별명 있음"
     sfx: "/sfxes/hatbbi.mp3"
   - slug: tleod1818
     displayName: "빙밍_"
@@ -672,6 +682,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "빵망이의 {n}부 리그 승격을 축하합니다~!!🤤"
+    reviewNote: "배그 실력이 출중함"
     sfx: "/sfxes/bingming.mp3"
   - slug: habee511
     displayName: "망야_"
@@ -692,6 +703,7 @@ streamers:
       division: null
       policy: auto
     sfx: "/sfxes/rni.mp3"
+    reviewNote: "~해쓰야 라는 말투를 사용함 코멘트에 활용하면 좋을듯"
   - slug: daenggang
     displayName: "댕강"
     cafeAliases: ["댕강DaengGang"]
@@ -812,6 +824,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "ㄴㄴㄴ의 {n}부 리그 승격을 축하합니다~!!"
+    reviewNote: "키가 177cm로 굉장히 큼"
     sfx: "/sfxes/nanwoni.mp3"
   - slug: dougie0328
     displayName: "올어바웃설이"
@@ -1028,6 +1041,7 @@ streamers:
       division: null
       policy: auto
     sfx: "/sfxes/yangzirap.mp3"
+    reviewNote: "목소리가 좋음 우왁굳이 목소리 굉장히 특이하다고 칭찬했음"
   - slug: yaguja00
     displayName: "야구자"
     cafeAliases: ["야구자"]
