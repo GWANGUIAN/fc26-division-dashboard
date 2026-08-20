@@ -8,9 +8,10 @@
 - 프런트: React 19 + Vite 정적 사이트를 Cloudflare Worker Static Assets로 제공한다.
 - 백엔드: AWS Lambda 컨테이너가 Naver Café를 Playwright로 수집하고 DynamoDB에 저장한다.
 - 공개 경로: 브라우저 → Cloudflare Worker(`/api/snapshot`) → Reader Lambda → DynamoDB.
-- 관리 데이터: `roster.yaml`, `one-vs-one-results.yaml`, `division-overrides.yaml`, `record-overrides.yaml`이 Git의 기준값이며, GitHub Actions가 Config Sync Lambda로 전송한다.
+- 관리 데이터: `roster.yaml`, `one-vs-one-results.yaml`, `division-overrides.yaml`, `record-overrides.yaml`, `review-context.yaml`이 Git의 기준값이며, GitHub Actions가 Config Sync Lambda로 전송한다.
 - 기준 시간대: 수집·표시는 Asia/Seoul. 야간 전체 재조정은 매일 03:00 KST(18:00 UTC)다.
 - 통산 전적(W-D-L): 승급 게시글 스크린샷을 Gemini(멀티모달 LLM)로 읽어 자동 추출한다. 실패/오탐 시 `record-overrides.yaml`로 수동 보정한다.
+- Gemini 한줄평: 통산 전적이 확정된 승급 게시글마다 Gemini(텍스트 전용)로 "방송각" 있는 짧은 코멘트를 생성해 상세 모달에 타이핑 애니메이션과 함께 보여준다.
 
 ## 데이터 흐름
 
@@ -22,7 +23,8 @@ EventBridge Scheduler
           ▼
 Scraper Lambda (Playwright + Naver Café)
   ├─ 디비전 보고소: 승격 글과 게시글 이미지
-  │     └─ 이미지가 있는데 record가 없는 글: Gemini로 W-D-L 추출 시도 (실행당 최대 5건, 글당 최대 3회 재시도)
+  │     ├─ 이미지가 있는데 record가 없는 글: Gemini로 W-D-L 추출 시도 (실행당 최대 5건, 글당 최대 3회 재시도)
+  │     └─ record는 있는데 review가 없는 글: Gemini로 한줄평 생성 시도 (실행당 최대 5건, 글당 최대 3회 재시도)
   ├─ 1대1 평가 신청: 신청 글
   ├─ 잔디동 스코프: [내가 직접 홍보] 글만
   └─ 11대11 플레이 영상: 전체 일반 글
@@ -51,6 +53,10 @@ GitHub push (roster/results/overrides YAML) → Config Sync Lambda → DynamoDB 
 | `src/functions/record-extraction.ts` | Gemini(`@google/genai`, `generateContent`) 호출, 이미지 fetch, 재시도·타임아웃 |
 | `src/shared/record-extraction.ts` | 응답 파싱(`parseRecordScreenResult`), 다중 이미지 선택(`chooseRecord`), 프런트용 상태(`recordExtractionStatus`) — 순수 함수라 단위 테스트 가능 |
 | `src/shared/record-overrides.ts` | `record-overrides.yaml` 파싱·검증 |
+| `src/functions/streamer-review.ts` | Gemini(텍스트 전용) 호출로 한줄평 생성, 프롬프트 조립(`buildPrompt`), 재시도·타임아웃 |
+| `src/shared/review-context.ts` | `review-context.yaml` 파싱·검증 |
+| `scripts/backfill-reviews.ts` | 기존 백로그(전적은 있는데 한줄평이 없는 게시글)를 한 번에 채우는 백필 스크립트 (`pnpm run backfill:reviews -- --dry-run`, `--exclude-top N`으로 최신 N명은 배포 후 스케줄러가 처리하도록 남겨둘 수 있음) |
+| `scripts/test-streamer-review.ts` | 실제 스트리머 한 명으로 한줄평 프롬프트 품질을 로컬에서 확인하는 스모크 테스트 (`pnpm run test:streamer-review -- --slug <slug>`, DB에 쓰지 않음) |
 | `src/shared/division-theme.ts` | 디비전 1~10 색상 매핑(`DIVISION_COLORS`, `divisionColor()`) — 리스트 뱃지·상세 모달·카드형 보기가 공유하는 단일 기준 |
 | `scripts/backfill-records.ts` | 기존 스트리머의 `lastPost`를 대상으로 한 번만 돌리는 백필 스크립트 (`pnpm run backfill:records -- --dry-run --limit 5`) |
 | `src/shared/*.ts` | 타입, 디비전 산정, 별칭 매칭, 1:1 판정, 타임라인, 트로피, 이미지 필터 |
@@ -95,6 +101,18 @@ GitHub push (roster/results/overrides YAML) → Config Sync Lambda → DynamoDB 
 - 수동 보정은 `record-overrides.yaml`(`src/shared/record-overrides.ts`)로 한다. `soopId` + `division`으로 스트리머를 특정하며, **그 스트리머의 현재 디비전이 `division`과 일치할 때만** 적용된다(`buildStreamerRecords`, `src/shared/promotion.ts`) — 승급/강등 후에는 자동으로 무효화되므로 오래된 값이 실수로 남아 적용될 수 없다. 적용된 값은 `StreamerRecord.record`에 실리며 없으면 `lastPost.record`로 폴백한다.
 - 기존 스트리머를 한 번에 채우는 백필은 `pnpm run backfill:records`(`scripts/backfill-records.ts`)로 한다. `--dry-run --limit N`으로 DB에 쓰지 않고 먼저 확인할 수 있다.
 
+### Gemini 한줄평 (AI 코멘트)
+
+- 트리거 조건은 정확히 하나다: `StreamerRecord.record`가 있고(자동 추출 성공이든 `record-overrides.yaml` 수동 지정이든 무관) 그 스트리머의 `lastPost.review`가 아직 없을 것. `backfillMissingReviews`(`src/functions/scraper.ts`)가 매 실행마다 조건을 만족하는 게시글을 최신순으로 최대 5건(`MAX_REVIEW_BACKFILLS_PER_RUN`) 골라 시도하고, 글당 최대 3회(`MAX_REVIEW_ATTEMPTS`)까지만 재시도한다 — 실패해도 무한정 재시도하지 않는다.
+- 이미지 없이 텍스트 프롬프트만 보낸다(`generateStreamerReview`, `src/functions/streamer-review.ts`). 모델은 `GEMINI_REVIEW_MODEL`이 없으면 record-extraction과 같은 `GEMINI_MODEL`(기본 `gemini-3.6-flash`)로 폴백한다 — 재배포 없이 record-extraction과 같은 모델을 그대로 쓴다.
+- 프롬프트는 (1) 사이트 목적(잔디동 지원자 디비전 현황 대시보드라는 고정 문구), (2) 이 스트리머의 디비전·전적·승급 이력, (3) `RosterEntry.reviewNote`(있으면), (4) 전체 로스터의 디비전 현황 목록, (5) `review-context.yaml`의 시사성 안내(있으면) 순으로 구성된다.
+- 톤 지침이 명확하다: 형식적인 "응원합니다/화이팅" 같은 멘트로 끝맺지 않고, 성적이 나쁘면 예능감 있게 신랄하게, 좋으면 오버스럽게 과장해서 극찬하는 "방송각" 톤을 쓴다(인신공격은 금지). `temperature: 0.9`로 표현력을 확보한다. 이 톤은 사용자가 명시적으로 요청한 것이라 임의로 밋밋하게 되돌리면 안 된다.
+- `review-context.yaml`은 "지금은 유효하지만 나중엔 바뀌거나 필요 없어질 수 있는 시사성 안내"(예: 진행 중인 잔디동 모집 공고)를 담는 용도다. `record-overrides.yaml`과 동일한 파이프라인(Git → `sync-roster.yml` → `config-sync.ts` → DynamoDB `CONFIG/REVIEW_CONTEXT`)을 타므로, 캠페인이 끝나면 `context`를 빈 문자열로 바꿔 push하기만 하면 되고 코드 재배포는 필요 없다.
+- `RosterEntry.reviewNote`(선택)는 스트리머 개인에 대한 자유 텍스트 배경 정보다. 값이 있으면 프롬프트의 "추가 정보"로 그대로 들어간다. `celebrationMessage`와 마찬가지로 `RosterEntry`/`StreamerRecord`/`buildStreamerRecords` 세 곳 모두에 반영돼 있어야 스냅샷까지 전달된다(아래 "변경 시 주의할 점" 참고).
+- 프런트(`GeminiReviewSection`, `src/web/App.tsx`)가 실제로 표시하는 건 게시글의 `review` 문자열이 아니라 `StreamerRecord.latestReview`라는 파생 필드다. `latestReviewFrom`(`src/shared/promotion.ts`)이 이 스트리머의 게시글 중 `review`가 있는 가장 최신 것을 찾고, 그 게시글이 `lastPost`와 같으면 `isCurrent: true`(현재 평가), 다르면 `isCurrent: false`(새 게시글은 올라왔지만 아직 조건 미충족이거나 분석 중 — UI에 "이전 평가" 뱃지와 별도 안내문으로 표시)로 표시한다.
+- `latestReview`는 저장되지 않고 매번 `buildStreamerRecords`가 게시글에서 다시 계산한다(`record`가 항상 재계산되는 것과 동일한 이유) — 따라서 이 필드가 화면에 보이려면 **`review`가 붙은 코드가 실제로 배포된 뒤** scraper가 최소 한 번 더 돌아야 한다. 코드 배포와 데이터 배포(3분 스케줄러)는 별개다.
+- 기존 백로그(record는 있는데 review가 없는 게시글)를 한 번에 채우는 백필은 `pnpm run backfill:reviews`로 한다. 처음 배포할 때는 `--exclude-top 5` 정도로 최신 몇 명은 일부러 남겨서, 실제 배포된 scraper가 정상적으로 한줄평을 만들어내는지 라이브로 확인하는 용도로 쓸 수 있다.
+
 ### 활동글·1:1 평가
 
 - 스코프 게시판은 `[내가 직접 홍보]` 카테고리만 후보 활동으로 반영한다.
@@ -136,6 +154,7 @@ GitHub push (roster/results/overrides YAML) → Config Sync Lambda → DynamoDB 
 | `CONFIG` | `ONE_VS_ONE_RESULTS` | 파싱된 결과 YAML |
 | `CONFIG` | `DIVISION_OVERRIDES` | 파싱된 `division-overrides.yaml` |
 | `CONFIG` | `RECORD_OVERRIDES` | 파싱된 `record-overrides.yaml` |
+| `CONFIG` | `REVIEW_CONTEXT` | 파싱된 `review-context.yaml` |
 | `SYNC` | `STATE` | 수집 상태, 각 게시판 페이지·최근 ID |
 | `STREAMER` | streamer ID | 파생 후보 레코드(참고용) |
 | `SNAPSHOT` | `CURRENT` | Reader가 반환하는 완성된 공개 스냅샷 |
@@ -161,7 +180,7 @@ pnpm dev
 
 ### 후보·결과 변경
 
-1. `roster.yaml`, `one-vs-one-results.yaml`, `division-overrides.yaml`, `record-overrides.yaml` 중 필요한 파일을 수정한다.
+1. `roster.yaml`, `one-vs-one-results.yaml`, `division-overrides.yaml`, `record-overrides.yaml`, `review-context.yaml` 중 필요한 파일을 수정한다.
 2. `pnpm typecheck && pnpm test`를 실행한다.
 3. main에 반영하면 GitHub Actions(`sync-roster.yml`)가 자동으로 네 파일을 모두 읽어 Config Sync Lambda를 호출한다.
 4. Actions를 쓸 수 없으면 README의 `aws lambda invoke` 명령으로 직접 동기화한다.
@@ -194,7 +213,7 @@ pnpm dev
 
 - **백엔드**(`src/functions`, `src/shared`, `Dockerfile` 등): main에 push하면 `deploy-backend.yml`이 이미지를 빌드·ECR 푸시하고 4개 Lambda를 `aws lambda update-function-code`로 갱신한다. Terraform은 이 이미지 태그를 관리하지 않도록 각 `aws_lambda_function`에 `lifecycle { ignore_changes = [image_uri] }`가 설정돼 있다 — 인프라 변경으로 `terraform apply`를 다시 돌려도 배포된 이미지가 되돌아가지 않는다.
 - **프런트**(`src/web`): Cloudflare가 GitHub 저장소와 연동돼 있어 push 시 자동 배포된다.
-- **로스터/결과/오버라이드 YAML**(`roster.yaml`, `one-vs-one-results.yaml`, `division-overrides.yaml`, `record-overrides.yaml`): `sync-roster.yml`이 Config Sync Lambda를 호출한다.
+- **로스터/결과/오버라이드 YAML**(`roster.yaml`, `one-vs-one-results.yaml`, `division-overrides.yaml`, `record-overrides.yaml`, `review-context.yaml`): `sync-roster.yml`이 Config Sync Lambda를 호출한다.
 - 세 워크플로 모두 `push` 파일 경로 기준으로 독립 트리거되므로, 한 커밋에 여러 영역이 섞여도 필요한 워크플로만 돈다.
 - **주의**: `sync-roster.yml`이 새 필드(예: `recordOverridesYaml`)를 Config Sync Lambda 이벤트에 실어 보내도, **그 필드를 읽는 코드가 실제로 배포된 Lambda에 없으면 조용히 무시된다** (핸들러가 모르는 키는 그냥 버려짐, 에러 없음). 즉 `record-overrides.yaml`처럼 YAML 스키마와 백엔드 파싱 로직을 같이 추가한 커밋은, `deploy-backend.yml`이 새 Lambda 코드를 실제로 배포한 **이후에** push된 YAML 변경부터 정상 반영된다. 같은 커밋에 코드와 YAML을 함께 올리면 두 워크플로가 동시에 트리거되어 순서가 보장되지 않으므로, 새 오버라이드 기능을 처음 쓸 때는 배포 완료를 확인한 뒤 YAML을 한 번 다시 push(또는 workflow_dispatch로 `sync-roster.yml` 재실행)해서 확실히 반영한다.
 
