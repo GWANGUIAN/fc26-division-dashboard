@@ -1,11 +1,13 @@
 import {
   useEffect,
   useId,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
 import {
   ChevronDown,
   ChevronLeft,
@@ -94,6 +96,30 @@ const jandyVideos: readonly JandyVideo[] = [
       "https://videoimg.sooplive.com/php/SnapshotLoad.php?rowKey=20260811_27F806A7_296281607_1_r&column=2&t=1786569806",
   },
 ];
+
+type JandyChapter = { title: string; seconds: number };
+
+const jandyChapterVideo: {
+  title: string;
+  videoUrl: string;
+  thumbnailUrl: string;
+  chapters: readonly JandyChapter[];
+} = {
+  title: "FC 26 포지션별 교본 영상",
+  videoUrl: "https://vod.sooplive.com/player/204798839",
+  thumbnailUrl: "/thumbnails/thumbnail_soccer_book.webp",
+  chapters: [
+    { title: "도입", seconds: 29468 },
+    { title: "센터백 교본", seconds: 29981 },
+    { title: "풀백 교본", seconds: 30815 },
+    { title: "수비 미드필더 교본", seconds: 31731 },
+    { title: "중앙 미드필더 교본", seconds: 32674 },
+    { title: "윙 포워드 교본", seconds: 33645 },
+    { title: "스트라이커 교본", seconds: 34686 },
+    { title: "스트라이커 2", seconds: 35625 },
+    { title: "수비 미드필더 2", seconds: 36609 },
+  ],
+};
 
 const koreaDateKey = (value: Date) =>
   new Intl.DateTimeFormat("en-CA", {
@@ -655,6 +681,157 @@ function JandyVideoCard({ video }: { video: JandyVideo }) {
   );
 }
 
+const CHAPTER_CLOSE_DELAY_MS = 220;
+const CHAPTER_MENU_GAP = 8;
+
+function JandyChapterVideoCard() {
+  const [thumbnailFailed, setThumbnailFailed] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [rect, setRect] = useState<{
+    left: number;
+    top: number;
+    bottom: number;
+    width: number;
+  } | null>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const thumbRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLUListElement>(null);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cancelClose = () => {
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+  };
+  const scheduleClose = () => {
+    cancelClose();
+    closeTimer.current = setTimeout(
+      () => setOpen(false),
+      CHAPTER_CLOSE_DELAY_MS,
+    );
+  };
+
+  useEffect(() => () => cancelClose(), []);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    const updateRect = () => {
+      const box = thumbRef.current?.getBoundingClientRect();
+      if (!box) return;
+      setRect({
+        left: box.left,
+        top: box.top,
+        bottom: box.bottom,
+        width: box.width,
+      });
+    };
+    updateRect();
+    addEventListener("resize", updateRect);
+    addEventListener("scroll", updateRect, true);
+    return () => {
+      removeEventListener("resize", updateRect);
+      removeEventListener("scroll", updateRect, true);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const closeOnOutsideClick = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (wrapRef.current?.contains(target)) return;
+      if (menuRef.current?.contains(target)) return;
+      setOpen(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) =>
+      event.key === "Escape" && setOpen(false);
+    addEventListener("mousedown", closeOnOutsideClick);
+    addEventListener("keydown", closeOnEscape);
+    return () => {
+      removeEventListener("mousedown", closeOnOutsideClick);
+      removeEventListener("keydown", closeOnEscape);
+    };
+  }, [open]);
+
+  const openAbove = rect ? rect.top > innerHeight - rect.bottom : true;
+
+  return (
+    <div
+      className="jandy-video jandy-video--chapters"
+      ref={wrapRef}
+      onMouseEnter={cancelClose}
+      onMouseLeave={scheduleClose}
+    >
+      <button
+        type="button"
+        className="jandy-video__thumbnail-btn"
+        ref={thumbRef}
+        aria-haspopup="true"
+        aria-expanded={open}
+        aria-label={`${jandyChapterVideo.title} 구간 선택 목록 열기`}
+        onClick={() => setOpen((current) => !current)}
+      >
+        <span
+          className={`jandy-video__thumbnail ${thumbnailFailed ? "jandy-video__thumbnail--fallback" : ""}`}
+        >
+          {thumbnailFailed ? (
+            <span className="jandy-video__fallback">
+              <List aria-hidden="true" size={38} />
+              <small>VOD</small>
+            </span>
+          ) : (
+            <img
+              src={jandyChapterVideo.thumbnailUrl}
+              alt=""
+              loading="lazy"
+              onError={() => setThumbnailFailed(true)}
+            />
+          )}
+          <span className="jandy-video__play" aria-hidden="true">
+            <List size={16} />
+          </span>
+        </span>
+        <span className="jandy-video__copy">
+          <strong>{jandyChapterVideo.title}</strong>
+        </span>
+      </button>
+      {open &&
+        rect &&
+        createPortal(
+          <ul
+            className={`jandy-video__chapters ${openAbove ? "jandy-video__chapters--above" : "jandy-video__chapters--below"}`}
+            role="menu"
+            aria-label={`${jandyChapterVideo.title} 구간 목록`}
+            ref={menuRef}
+            style={{
+              left: rect.left,
+              width: rect.width,
+              ...(openAbove
+                ? { bottom: innerHeight - rect.top + CHAPTER_MENU_GAP }
+                : { top: rect.bottom + CHAPTER_MENU_GAP }),
+            }}
+            onMouseEnter={cancelClose}
+            onMouseLeave={scheduleClose}
+          >
+            {jandyChapterVideo.chapters.map((chapter) => (
+              <li key={chapter.seconds}>
+                <a
+                  role="menuitem"
+                  href={`${jandyChapterVideo.videoUrl}?change_second=${chapter.seconds}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {chapter.title}
+                </a>
+              </li>
+            ))}
+          </ul>,
+          document.body,
+        )}
+    </div>
+  );
+}
+
 function JandyVideoSection() {
   const swiper = useRef<SwiperInstance | null>(null);
   const [canGoPrev, setCanGoPrev] = useState(false);
@@ -717,6 +894,9 @@ function JandyVideoSection() {
           nextSlideMessage: "다음 참고 영상",
         }}
       >
+        <SwiperSlide key="jandy-chapter-video">
+          <JandyChapterVideoCard />
+        </SwiperSlide>
         {jandyVideos.map((video) => (
           <SwiperSlide key={video.videoUrl}>
             <JandyVideoCard video={video} />
