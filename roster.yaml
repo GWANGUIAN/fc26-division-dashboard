@@ -184,6 +184,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/chebi.mp3"
   - slug: 
     displayName: 마리엘
     cafeAliases: ["마리엘"]
@@ -302,6 +303,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/jyumenge.mp3"
   - slug: secretto486
     displayName: 비밀소녀♥
     cafeAliases: ["비밀소녀"]
@@ -584,6 +586,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/haeparin.mp3"
   - slug: haettoing
     displayName: "해또잉"
     cafeAliases: ["해또잉"]
