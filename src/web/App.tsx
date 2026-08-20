@@ -104,27 +104,41 @@ const jandyVideos: readonly JandyVideo[] = [
 
 type JandyChapter = { title: string; seconds: number };
 
-const jandyChapterVideo: {
+type JandyChapterVideo = {
   title: string;
   videoUrl: string;
   thumbnailUrl: string;
   chapters: readonly JandyChapter[];
-} = {
-  title: "FC 26 포지션별 교본 영상",
-  videoUrl: "https://vod.sooplive.com/player/204798839",
-  thumbnailUrl: "/thumbnails/thumbnail_soccer_book.webp",
-  chapters: [
-    { title: "도입", seconds: 29468 },
-    { title: "센터백 교본", seconds: 29981 },
-    { title: "풀백 교본", seconds: 30815 },
-    { title: "수비 미드필더 교본 - 1", seconds: 31731 },
-    { title: "수비 미드필더 교본 - 2", seconds: 36609 },
-    { title: "중앙 미드필더 교본", seconds: 32674 },
-    { title: "윙 포워드 교본", seconds: 33645 },
-    { title: "스트라이커 교본 - 1", seconds: 34686 },
-    { title: "스트라이커 교본 - 2", seconds: 35625 },
-  ],
 };
+
+const jandyChapterVideos: readonly JandyChapterVideo[] = [
+  {
+    title: "버튜버 쥰내 패기",
+    videoUrl: "https://vod.sooplive.com/player/204887231",
+    thumbnailUrl: "/thumbnails/thumbnail_hit.webp",
+    chapters: [
+      { title: "양지랖편", seconds: 23529 },
+      { title: "오슈이편", seconds: 29976 },
+      { title: "빙밍편", seconds: 30924 },
+    ],
+  },
+  {
+    title: "FC 26 포지션별 교본 영상",
+    videoUrl: "https://vod.sooplive.com/player/204798839",
+    thumbnailUrl: "/thumbnails/thumbnail_soccer_book.webp",
+    chapters: [
+      { title: "도입", seconds: 29468 },
+      { title: "센터백 교본", seconds: 29981 },
+      { title: "풀백 교본", seconds: 30815 },
+      { title: "수비 미드필더 교본 - 1", seconds: 31731 },
+      { title: "수비 미드필더 교본 - 2", seconds: 36609 },
+      { title: "중앙 미드필더 교본", seconds: 32674 },
+      { title: "윙 포워드 교본", seconds: 33645 },
+      { title: "스트라이커 교본 - 1", seconds: 34686 },
+      { title: "스트라이커 교본 - 2", seconds: 35625 },
+    ],
+  },
+];
 
 const koreaDateKey = (value: Date) =>
   new Intl.DateTimeFormat("en-CA", {
@@ -800,7 +814,7 @@ function JandyVideoCard({ video }: { video: JandyVideo }) {
 const CHAPTER_CLOSE_DELAY_MS = 220;
 const CHAPTER_MENU_GAP = 8;
 
-function JandyChapterVideoCard() {
+function JandyChapterVideoCard({ video }: { video: JandyChapterVideo }) {
   const [thumbnailFailed, setThumbnailFailed] = useState(false);
   const [open, setOpen] = useState(false);
   const [rect, setRect] = useState<{
@@ -875,7 +889,10 @@ function JandyChapterVideoCard() {
     <div
       className="jandy-video jandy-video--chapters"
       ref={wrapRef}
-      onMouseEnter={cancelClose}
+      onMouseEnter={() => {
+        cancelClose();
+        setOpen(true);
+      }}
       onMouseLeave={scheduleClose}
     >
       <button
@@ -884,7 +901,7 @@ function JandyChapterVideoCard() {
         ref={thumbRef}
         aria-haspopup="true"
         aria-expanded={open}
-        aria-label={`${jandyChapterVideo.title} 구간 선택 목록 열기`}
+        aria-label={`${video.title} 구간 선택 목록 열기`}
         onClick={() => setOpen((current) => !current)}
       >
         <span
@@ -897,7 +914,7 @@ function JandyChapterVideoCard() {
             </span>
           ) : (
             <img
-              src={jandyChapterVideo.thumbnailUrl}
+              src={video.thumbnailUrl}
               alt=""
               loading="lazy"
               onError={() => setThumbnailFailed(true)}
@@ -908,7 +925,7 @@ function JandyChapterVideoCard() {
           </span>
         </span>
         <span className="jandy-video__copy">
-          <strong>{jandyChapterVideo.title}</strong>
+          <strong>{video.title}</strong>
         </span>
       </button>
       {open &&
@@ -917,7 +934,7 @@ function JandyChapterVideoCard() {
           <ul
             className={`jandy-video__chapters ${openAbove ? "jandy-video__chapters--above" : "jandy-video__chapters--below"}`}
             role="menu"
-            aria-label={`${jandyChapterVideo.title} 구간 목록`}
+            aria-label={`${video.title} 구간 목록`}
             ref={menuRef}
             style={{
               left: rect.left,
@@ -929,11 +946,11 @@ function JandyChapterVideoCard() {
             onMouseEnter={cancelClose}
             onMouseLeave={scheduleClose}
           >
-            {jandyChapterVideo.chapters.map((chapter) => (
+            {video.chapters.map((chapter) => (
               <li key={chapter.seconds}>
                 <a
                   role="menuitem"
-                  href={`${jandyChapterVideo.videoUrl}?change_second=${chapter.seconds}`}
+                  href={`${video.videoUrl}?change_second=${chapter.seconds}`}
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -1010,9 +1027,11 @@ function JandyVideoSection() {
           nextSlideMessage: "다음 참고 영상",
         }}
       >
-        <SwiperSlide key="jandy-chapter-video">
-          <JandyChapterVideoCard />
-        </SwiperSlide>
+        {jandyChapterVideos.map((video) => (
+          <SwiperSlide key={video.videoUrl}>
+            <JandyChapterVideoCard video={video} />
+          </SwiperSlide>
+        ))}
         {jandyVideos.map((video) => (
           <SwiperSlide key={video.videoUrl}>
             <JandyVideoCard video={video} />
