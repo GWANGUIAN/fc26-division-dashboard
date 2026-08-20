@@ -1678,7 +1678,7 @@ function GeminiReviewSection({
       <p className="gemini-review__note">
         {review && !review.isCurrent
           ? "현재 게시글이 분석 조건을 달성하지 않았거나 분석이 생성 중이라 이전 한줄평이 대신 표시됩니다."
-          : "왁물원에 승격 보고 게시글이 올라오고 전체 전적 분석이 성공하면 한줄평이 생성됩니다."}
+          : "왁물원에 승격 보고 게시글이 올라오고 전체 전적 분석이 성공하면 한줄평이 자동 생성됩니다."}
       </p>
       {review && (
         <>
