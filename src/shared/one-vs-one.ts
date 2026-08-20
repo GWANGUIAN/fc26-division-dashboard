@@ -41,7 +41,6 @@ export function buildOneVsOneApplications(
       cafeAliases: entry?.cafeAliases ?? [application.cafeAuthor],
       soopId: entry?.soopId || undefined,
       profileImageUrl: entry?.profileImageUrl,
-      soopTags: entry?.soopTags,
       isMapped: Boolean(entry),
       result: result ? { ...result, ...calculateOneVsOneVerdict(result.candidateScore, result.woowakgoodScore) } : undefined,
     };

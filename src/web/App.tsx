@@ -31,7 +31,6 @@ import type {
   DashboardSnapshot,
   OneVsOneApplicationView,
   PromotionPost,
-  SoopProfileTag,
   StreamerActivityPost,
   StreamerRecord,
 } from "../shared/model.js";
@@ -558,27 +557,6 @@ function formatDuration(milliseconds: number) {
   const hours = Math.floor(minutes / 60);
   const restMinutes = minutes % 60;
   return restMinutes ? `${hours}시간 ${restMinutes}분` : `${hours}시간`;
-}
-
-const tagStyle: Record<SoopProfileTag, string> = {
-  파트너: "partner",
-  베스트: "best",
-  루키존: "rookie",
-  스포츠: "sports",
-  서포터즈: "supporters",
-};
-
-function SoopTags({ tags }: { tags?: SoopProfileTag[] }) {
-  if (!tags?.length) return null;
-  return (
-    <span className="soop-tags" aria-label={`SOOP 등급: ${tags.join(", ")}`}>
-      {tags.map((tag) => (
-        <span className={`soop-tag soop-tag--${tagStyle[tag]}`} key={tag}>
-          {tag}
-        </span>
-      ))}
-    </span>
-  );
 }
 
 function Avatar({
@@ -1145,7 +1123,6 @@ function StreamerCard({
           </FancyName>
           <AchievementBadges streamer={streamer} awards={awards} />
         </span>
-        <SoopTags tags={streamer.soopTags} />
         <RecordBadge streamer={streamer} />
         <small>
           {streamer.lastPost
@@ -1723,7 +1700,6 @@ function DetailModal({
               </b>{" "}
               <AchievementBadges streamer={streamer} awards={awards} />
             </h2>
-            <SoopTags tags={streamer.soopTags} />
             <RecordBadge streamer={streamer} className="record-badge--lg" />
             {!streamer.isMapped && <p>카페 작성자 · SOOP 정보 미연결</p>}
           </div>
@@ -2051,7 +2027,6 @@ function TrophyWinner({
       <Avatar {...streamer} />
       <div>
         <strong>{streamer.displayName}</strong>
-        <SoopTags tags={streamer.soopTags} />
       </div>
     </div>
   );
@@ -2293,7 +2268,6 @@ function EvaluationCard({
         <Avatar {...application} />
         <span>
           <strong>{application.displayName}</strong>
-          <SoopTags tags={application.soopTags} />
           <small>
             {application.cafeAuthor} · 신청{" "}
             {formatCafePostDate(application.publishedAt)}
@@ -2339,7 +2313,6 @@ function EvaluationModal({
           <div>
             <span className="eyebrow">ONE VS ONE APPLICATION</span>
             <h2>{application.displayName}</h2>
-            <SoopTags tags={application.soopTags} />
             <p>
               {application.cafeAuthor} · 신청{" "}
               {formatCafePostDate(application.publishedAt)}
@@ -2357,10 +2330,7 @@ function EvaluationModal({
           <p className="eyebrow">MATCH RESULT</p>
           <div className="scoreboard__players">
             <span>{application.displayName}</span>
-            <span>
-              {opponent.displayName}
-              <SoopTags tags={opponent.soopTags} />
-            </span>
+            <span>{opponent.displayName}</span>
           </div>
           <strong>
             {result.candidateScore}

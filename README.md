@@ -45,7 +45,6 @@ streamers:
     cafeAliases: ["카페 닉네임", "이전 닉네임"]
     soopId: soop-channel-id # 선택
     profileImageUrl: https://... # 선택, 없으면 SOOP 규칙 URL을 시도
-    soopTags: ["루키존", "스포츠"] # 선택: 파트너 | 베스트 | 루키존 | 스포츠 | 서포터즈
     autoUpdate: true
     override:
       division: 7

@@ -118,7 +118,6 @@ export function buildStreamerRecords(
       cafeAliases: entry.cafeAliases,
       soopId: entry.soopId || undefined,
       profileImageUrl: entry.profileImageUrl,
-      soopTags: entry.soopTags,
       autoUpdate: entry.autoUpdate,
       overridePolicy: override.policy,
       overrideDivision: override.division ?? undefined,

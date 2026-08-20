@@ -2,7 +2,7 @@ import { parse } from "yaml";
 import type { OneVsOneResultsConfig } from "./model.js";
 
 export const DEFAULT_ONE_VS_ONE_CONFIG: OneVsOneResultsConfig = {
-  opponent: { displayName: "우왁굳", soopId: "ecvhao", soopTags: ["파트너", "베스트"] },
+  opponent: { displayName: "우왁굳", soopId: "ecvhao" },
   results: [],
 };
 
@@ -10,9 +10,6 @@ export function parseOneVsOneResults(source: string): OneVsOneResultsConfig {
   const parsed = parse(source) as OneVsOneResultsConfig | null;
   if (!parsed?.opponent?.displayName || !parsed.opponent.soopId || !Array.isArray(parsed.results)) {
     throw new Error("one-vs-one-results.yaml must contain opponent and results");
-  }
-  if (parsed.opponent.soopTags?.some((tag) => !["파트너", "베스트", "루키존", "스포츠", "서포터즈"].includes(tag))) {
-    throw new Error("one-vs-one-results.yaml opponent has an unsupported soop tag");
   }
   const articleIds = new Set<string>();
   for (const result of parsed.results) {

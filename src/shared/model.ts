@@ -6,7 +6,6 @@ export interface RosterEntry {
   cafeAliases: string[];
   soopId?: string;
   profileImageUrl?: string;
-  soopTags?: SoopProfileTag[];
   autoUpdate: boolean;
   override?: { division: number | null; policy: OverridePolicy };
   celebrationMessage?: string;
@@ -15,8 +14,6 @@ export interface RosterEntry {
   /** Free-text background info about this streamer, injected into the Gemini review prompt when present. */
   reviewNote?: string;
 }
-
-export type SoopProfileTag = "파트너" | "베스트" | "루키존" | "스포츠" | "서포터즈";
 
 export interface CareerRecord {
   wins: number;
@@ -84,7 +81,6 @@ export interface StreamerRecord {
   cafeAliases: string[];
   soopId?: string;
   profileImageUrl?: string;
-  soopTags?: SoopProfileTag[];
   autoUpdate: boolean;
   overridePolicy: OverridePolicy;
   overrideDivision?: number;
@@ -177,7 +173,6 @@ export interface OneVsOneResultsConfig {
     displayName: string;
     soopId: string;
     profileImageUrl?: string;
-    soopTags?: SoopProfileTag[];
   };
   results: OneVsOneResultInput[];
 }
@@ -188,7 +183,6 @@ export interface OneVsOneApplicationView extends OneVsOneApplication {
   cafeAliases: string[];
   soopId?: string;
   profileImageUrl?: string;
-  soopTags?: SoopProfileTag[];
   isMapped: boolean;
   result?: OneVsOneResultInput & { verdict: string; detail: string };
 }

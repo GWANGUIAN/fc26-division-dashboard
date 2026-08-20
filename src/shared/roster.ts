@@ -33,9 +33,6 @@ export function parseRoster(source: string): RosterEntry[] {
     if (entry.override?.division !== null && entry.override?.division !== undefined && (entry.override.division < 1 || entry.override.division > 10)) {
       throw new Error(`Invalid override division for ${entry.slug}`);
     }
-    if (entry.soopTags?.some((tag) => !["파트너", "베스트", "루키존", "스포츠", "서포터즈"].includes(tag))) {
-      throw new Error(`Invalid SOOP tag for ${entry.slug}`);
-    }
   }
   return entries;
 }

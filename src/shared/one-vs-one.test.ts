@@ -9,7 +9,7 @@ const application: OneVsOneApplication = {
   articleId: "21951534", cafeAuthor: "문 모모", title: "신청합니다", category: "[1대1 평가 신청]",
   publishedAt: "2026-08-14T20:00:00+09:00", articleUrl: "https://example.test/article",
 };
-const roster: RosterEntry[] = [{ slug: "momo", displayName: "문모모", cafeAliases: ["문모모"], soopTags: ["루키존", "스포츠"], autoUpdate: true }];
+const roster: RosterEntry[] = [{ slug: "momo", displayName: "문모모", cafeAliases: ["문모모"], autoUpdate: true }];
 
 describe("one vs one applications", () => {
   it("recognizes the application category", () => {
@@ -26,9 +26,9 @@ describe("one vs one applications", () => {
     expect(calculateOneVsOneVerdict(candidate, woowakgood).verdict).toBe(verdict);
   });
 
-  it("merges YAML results and roster profile tags", () => {
+  it("merges YAML results with the roster", () => {
     const results = parseOneVsOneResults(`opponent:\n  displayName: 우왁굳\n  soopId: ecvhao\nresults:\n  - applicationArticleId: "21951534"\n    playedAt: "2026-08-15T20:00:00+09:00"\n    candidateScore: 5\n    woowakgoodScore: 10`);
-    expect(buildOneVsOneApplications([application], roster, results)[0]).toMatchObject({ displayName: "문모모", soopTags: ["루키존", "스포츠"], result: { verdict: "잔디동 합격 조건 충족" } });
+    expect(buildOneVsOneApplications([application], roster, results)[0]).toMatchObject({ displayName: "문모모", result: { verdict: "잔디동 합격 조건 충족" } });
   });
 
   it("rejects duplicate IDs and invalid scores", () => {
