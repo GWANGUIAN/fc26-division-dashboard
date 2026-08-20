@@ -58,6 +58,7 @@ streamers:
       division: null
       policy: auto
     sfx: "/sfxes/dokkohaeji.mp3"
+    reviewNote: "우왁굳은 이번에 5번째 동아리를 모집하는건데 독고혜지는 이전에 계속 탈락했음"
   - slug: bboringirl
     displayName: 뽀린걸
     cafeAliases: ["뽀린걸"]
