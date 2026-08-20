@@ -240,6 +240,17 @@ body { isolation: isolate; }
 .view-toolbar .segmented button { display: inline-flex; align-items: center; justify-content: center; }
 .view-toolbar .segmented svg { width: 14px; height: 14px; stroke-width: 2.6; }
 .view-toolbar__controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-left: auto; }
+.segmented--view-mode { overflow: visible; }
+.segmented__card-view-toggle { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.view-toggle-card--attention { position: relative; z-index: 1; animation: view-toggle-bg-blink 2.6s ease-in-out infinite; }
+@keyframes view-toggle-bg-blink { 0%, 100% { background: #0a140f; color: #9aaba4; } 50% { background: var(--fancy-color); color: #00110b; font-weight: 800; } }
+.view-toggle-card__sparks { position: absolute; z-index: 2; inset: -6px -6px -6px -2px; pointer-events: none; }
+.view-toggle-card__spark { position: absolute; color: var(--fancy-color); font-size: 11px; line-height: 1; font-style: normal; text-shadow: 0 0 6px var(--fancy-color), 0 0 12px var(--fancy-color); opacity: 0; animation: fancy-spark-twinkle 2.8s ease-in-out infinite; }
+.view-toggle-card__spark--1 { top: -4px; left: 4%; animation-delay: 0s; }
+.view-toggle-card__spark--2 { top: -4px; left: 48%; animation-delay: 1.15s; }
+.view-toggle-card__spark--3 { top: -4px; right: -2px; animation-delay: .45s; }
+.view-toggle-card__spark--4 { bottom: -4px; left: 22%; animation-delay: 1.75s; }
+.view-toggle-card__spark--5 { bottom: -4px; right: -2px; animation-delay: .9s; }
 .division-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; }
 .division-summary__stats { display: flex; flex-wrap: wrap; align-items: stretch; }
 .division-summary__item { display: flex; align-items: center; gap: 9px; min-height: 46px; padding: 0 20px; border-bottom: 2px solid transparent; }
@@ -280,6 +291,41 @@ body { isolation: isolate; }
 .fifa-card .unmapped { position: absolute; z-index: 1; top: 44px; right: 18px; color: #4a4030; font-size: 10px; }
 @media (max-width: 680px) { .card-board { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }.fifa-card__body { margin-top: -8px; padding: 0 12px 0; gap: 4px; }.fifa-card__avatar .avatar { width: 62px; height: 62px; }.fifa-card__division { top: 20px; font-size: 19px; }.fifa-card__name { padding: 4px 8px; font-size: 16px; }.fifa-card__stat-label { font-size: 10px; }.fifa-card__stat-value { font-size: 13px; }.fifa-card__stat .record-badge__w, .fifa-card__stat .record-badge__d, .fifa-card__stat .record-badge__l { font-size: 14px; } }
 
+.card-board.card-board--zoom-0 { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 12px; }
+.card-board.card-board--zoom-0 .fifa-card__body { margin-top: -6px; padding: 0 8px 0; gap: 4px; }
+.card-board.card-board--zoom-0 .fifa-card__avatar .avatar { width: 58px; height: 58px; }
+.card-board.card-board--zoom-0 .fifa-card__division { top: 14px; left: 12px; font-size: 14px; }
+.card-board.card-board--zoom-0 .fifa-card__name { padding: 4px 7px; font-size: 14px; }
+.card-board.card-board--zoom-0 .fifa-card > .achievement-badges,
+.card-board.card-board--zoom-0 .fifa-card__stats,
+.card-board.card-board--zoom-0 .fifa-card .unmapped,
+.card-board.card-board--zoom-0 .fifa-card__sfx-badge { display: none; }
+
+.card-board.card-board--zoom-1 { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+.card-board.card-board--zoom-1 .fifa-card__body { margin-top: -8px; padding: 0 12px 0; gap: 4px; }
+.card-board.card-board--zoom-1 .fifa-card__avatar .avatar { width: 62px; height: 62px; }
+.card-board.card-board--zoom-1 .fifa-card__division { top: 20px; font-size: 19px; }
+.card-board.card-board--zoom-1 .fifa-card__name { padding: 4px 8px; font-size: 16px; }
+.card-board.card-board--zoom-1 .fifa-card__stat-label { font-size: 10px; }
+.card-board.card-board--zoom-1 .fifa-card__stat-value { font-size: 13px; }
+.card-board.card-board--zoom-1 .fifa-card__stat .record-badge__w, .card-board.card-board--zoom-1 .fifa-card__stat .record-badge__d, .card-board.card-board--zoom-1 .fifa-card__stat .record-badge__l { font-size: 14px; }
+
+.card-board.card-board--zoom-3 { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
+.card-board.card-board--zoom-3 .fifa-card__avatar .avatar { width: 104px; height: 104px; }
+.card-board.card-board--zoom-3 .fifa-card__division { top: 30px; left: 22px; font-size: 28px; }
+.card-board.card-board--zoom-3 .fifa-card__name { font-size: 24px; }
+.card-board.card-board--zoom-3 .fifa-card__stat-label { font-size: 13px; }
+.card-board.card-board--zoom-3 .fifa-card__stat-value { font-size: 17px; }
+
+.card-board.card-board--zoom-4 { grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 28px; }
+.card-board.card-board--zoom-4 .fifa-card__avatar .avatar { width: 120px; height: 120px; }
+.card-board.card-board--zoom-4 .fifa-card__division { top: 32px; left: 24px; font-size: 32px; }
+.card-board.card-board--zoom-4 .fifa-card__name { font-size: 28px; }
+.card-board.card-board--zoom-4 .fifa-card__stat-label { font-size: 14px; }
+.card-board.card-board--zoom-4 .fifa-card__stat-value { font-size: 19px; }
+.segmented--zoom button svg { width: 15px; height: 15px; }
+.segmented--zoom button:disabled { opacity: .35; cursor: default; }
+
 .announcement-backdrop { z-index: 45; align-items: flex-start; padding-top: 72px; }
 .announcement-modal { width: min(580px, 100%); max-height: min(640px, 82vh); }
 .announcement-modal__title { display: flex; align-items: center; gap: 9px; color: #effff8; font: 800 30px/1 "Barlow Condensed", "Noto Sans KR"; }
@@ -294,6 +340,8 @@ body { isolation: isolate; }
 .announcement-icon-badge { display: inline-grid; width: 30px; height: 30px; margin: 0 2px; place-items: center; border: 1px solid #d7fff73a; border-radius: 5px; color: #eafffa; background: #ffffff08; vertical-align: middle; transform: translateY(-3px); }
 .announcement-icon-badge svg { width: 18px; height: 18px; stroke-width: 2.6; }
 .announcement-icon-badge--trophy { color: #f6c95e; }
+.announcement-card-view-btn { display: inline-flex; align-items: center; gap: 6px; margin: 0 2px; padding: 9px 12px; border: 1px solid #ffffff20; border-radius: 3px; color: #00110b; background: #00e9ae; font-weight: 800; font-size: 12px; white-space: nowrap; vertical-align: middle; transform: translateY(-3px); }
+.announcement-card-view-btn svg { width: 14px; height: 14px; stroke-width: 2.6; }
 .announcement-modal__actions { display: flex; flex: 0 0 auto; justify-content: flex-end; padding: 16px 30px 26px; border-top: 1px solid #ffffff14; }
 .announcement-modal__ack { padding: 10px 16px; border: 1px solid #00e9ae55; border-radius: 3px; color: #c8fff0; font-weight: 700; font-size: 12px; background: #00e9ae22; transition: .2s; }
 .announcement-modal__ack:hover, .announcement-modal__ack:focus-visible { border-color: #00e9ae80; background: #00e9ae33; outline: 0; }

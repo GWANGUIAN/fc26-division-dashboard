@@ -18,9 +18,11 @@ import {
   Copy,
   Download,
   Info,
-  LayoutGrid,
   List,
   Megaphone,
+  Minus,
+  Plus,
+  Shield,
   Trophy,
   Users,
   Volume2,
@@ -175,8 +177,9 @@ const ANNOUNCEMENTS: Announcement[] = [
     body: (
       <>
         <strong>카드 뷰</strong>가 추가되었습니다.{" "}
-        <span className="announcement-icon-badge">
-          <LayoutGrid aria-hidden="true" />
+        <span className="announcement-card-view-btn">
+          <Shield aria-hidden="true" />
+          <span>카드뷰로 보기</span>
         </span>{" "}
         버튼을 클릭하면 카드 뷰로 전환할 수 있고,
         <br />
@@ -231,6 +234,50 @@ const SEEN_UPDATES_STORAGE_KEY = "fc26-seen-updates";
 const SFX_ENABLED_STORAGE_KEY = "fc26-sfx-enabled";
 const SFX_VOLUME_STORAGE_KEY = "fc26-sfx-volume";
 const SFX_HEARD_STORAGE_KEY = "fc26-sfx-heard";
+const CARD_VIEW_DISCOVERED_STORAGE_KEY = "fc26-card-view-discovered";
+const VIEW_MODE_STORAGE_KEY = "fc26-view-mode";
+const CARD_ZOOM_STORAGE_KEY = "fc26-card-zoom-level";
+const CARD_ZOOM_MIN = 0;
+const CARD_ZOOM_MAX = 4;
+const CARD_ZOOM_DEFAULT = 1;
+
+function loadViewMode(): "list" | "card" {
+  try {
+    return localStorage.getItem(VIEW_MODE_STORAGE_KEY) === "card"
+      ? "card"
+      : "list";
+  } catch {
+    return "list";
+  }
+}
+
+function saveViewMode(mode: "list" | "card") {
+  try {
+    localStorage.setItem(VIEW_MODE_STORAGE_KEY, mode);
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
+
+function loadCardZoomLevel(): number {
+  try {
+    const stored = localStorage.getItem(CARD_ZOOM_STORAGE_KEY);
+    if (stored === null) return CARD_ZOOM_DEFAULT;
+    const raw = Number(stored);
+    if (!Number.isInteger(raw)) return CARD_ZOOM_DEFAULT;
+    return Math.min(CARD_ZOOM_MAX, Math.max(CARD_ZOOM_MIN, raw));
+  } catch {
+    return CARD_ZOOM_DEFAULT;
+  }
+}
+
+function saveCardZoomLevel(level: number) {
+  try {
+    localStorage.setItem(CARD_ZOOM_STORAGE_KEY, String(level));
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
 
 function hasHeardSfx(): boolean {
   try {
@@ -243,6 +290,22 @@ function hasHeardSfx(): boolean {
 function markSfxHeard() {
   try {
     localStorage.setItem(SFX_HEARD_STORAGE_KEY, "1");
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
+
+function hasDiscoveredCardView(): boolean {
+  try {
+    return localStorage.getItem(CARD_VIEW_DISCOVERED_STORAGE_KEY) === "1";
+  } catch {
+    return true;
+  }
+}
+
+function markCardViewDiscovered() {
+  try {
+    localStorage.setItem(CARD_VIEW_DISCOVERED_STORAGE_KEY, "1");
   } catch {
     // ignore storage failures (e.g. private browsing)
   }
@@ -1361,14 +1424,19 @@ function StreamerFifaCard({
 function CardBoard({
   streamers,
   awards,
+  zoom,
   onOpen,
 }: {
   streamers: StreamerRecord[];
   awards: TrophyAwards;
+  zoom: number;
   onOpen: (streamer: StreamerRecord) => void;
 }) {
   return (
-    <section className="card-board" aria-label="스트리머 카드 보기">
+    <section
+      className={`card-board card-board--zoom-${zoom}`}
+      aria-label="스트리머 카드 보기"
+    >
       {streamers.map((streamer) => (
         <StreamerFifaCard
           key={streamer.id}
@@ -2383,8 +2451,28 @@ export function App() {
   const [query, setQuery] = useState("");
   const [activityOnly, setActivityOnly] = useState(false);
   const [sfxOnly, setSfxOnly] = useState(false);
-  const [viewMode, setViewMode] = useState<"list" | "card">("list");
+  const [viewMode, setViewMode] = useState<"list" | "card">(() =>
+    loadViewMode(),
+  );
+  const [cardViewDiscovered, setCardViewDiscovered] = useState(() =>
+    hasDiscoveredCardView(),
+  );
   const [sortMode, setSortMode] = useState<"division" | "winRate">("division");
+  const [cardZoom, setCardZoom] = useState(() => loadCardZoomLevel());
+  const handleZoomOut = () => {
+    setCardZoom((level) => {
+      const next = Math.max(CARD_ZOOM_MIN, level - 1);
+      saveCardZoomLevel(next);
+      return next;
+    });
+  };
+  const handleZoomIn = () => {
+    setCardZoom((level) => {
+      const next = Math.min(CARD_ZOOM_MAX, level + 1);
+      saveCardZoomLevel(next);
+      return next;
+    });
+  };
   const [evaluationFilter, setEvaluationFilter] = useState<
     "all" | "pending" | "completed"
   >("all");
@@ -2780,6 +2868,24 @@ export function App() {
           </div>
           <div className="view-toolbar__controls">
             {viewMode === "card" && (
+              <div className="segmented segmented--zoom">
+                <button
+                  onClick={handleZoomOut}
+                  disabled={cardZoom <= CARD_ZOOM_MIN}
+                  aria-label="카드 축소"
+                >
+                  <Minus aria-hidden="true" />
+                </button>
+                <button
+                  onClick={handleZoomIn}
+                  disabled={cardZoom >= CARD_ZOOM_MAX}
+                  aria-label="카드 확대"
+                >
+                  <Plus aria-hidden="true" />
+                </button>
+              </div>
+            )}
+            {viewMode === "card" && (
               <div className="segmented">
                 <button
                   className={sortMode === "division" ? "active" : ""}
@@ -2797,22 +2903,62 @@ export function App() {
                 </button>
               </div>
             )}
-            <div className="segmented">
+            <div className="segmented segmented--view-mode">
               <button
                 className={viewMode === "list" ? "active" : ""}
-                onClick={() => setViewMode("list")}
+                onClick={() => {
+                  setViewMode("list");
+                  saveViewMode("list");
+                }}
                 aria-pressed={viewMode === "list"}
                 aria-label="목록 보기"
               >
                 <List aria-hidden="true" />
               </button>
               <button
-                className={viewMode === "card" ? "active" : ""}
-                onClick={() => setViewMode("card")}
+                className={`segmented__card-view-toggle ${
+                  viewMode === "card" ? "active" : ""
+                } ${cardViewDiscovered ? "" : "fancy-border view-toggle-card--attention"}`}
+                onClick={() => {
+                  setViewMode("card");
+                  saveViewMode("card");
+                  if (!cardViewDiscovered) {
+                    markCardViewDiscovered();
+                    setCardViewDiscovered(true);
+                  }
+                }}
                 aria-pressed={viewMode === "card"}
-                aria-label="카드 보기"
+                style={
+                  cardViewDiscovered
+                    ? undefined
+                    : ({
+                        "--fancy-color": "#00e9ae",
+                        "--fancy-glow-soft": hexToRgba("#00e9ae", 0.4),
+                        "--fancy-glow-strong": hexToRgba("#00e9ae", 0.85),
+                      } as React.CSSProperties)
+                }
               >
-                <LayoutGrid aria-hidden="true" />
+                <Shield aria-hidden="true" />
+                <span>카드뷰로 보기</span>
+                {!cardViewDiscovered && (
+                  <span className="view-toggle-card__sparks" aria-hidden="true">
+                    <i className="view-toggle-card__spark view-toggle-card__spark--1">
+                      ✦
+                    </i>
+                    <i className="view-toggle-card__spark view-toggle-card__spark--2">
+                      ✦
+                    </i>
+                    <i className="view-toggle-card__spark view-toggle-card__spark--3">
+                      ✦
+                    </i>
+                    <i className="view-toggle-card__spark view-toggle-card__spark--4">
+                      ✦
+                    </i>
+                    <i className="view-toggle-card__spark view-toggle-card__spark--5">
+                      ✦
+                    </i>
+                  </span>
+                )}
               </button>
             </div>
           </div>
@@ -2869,6 +3015,7 @@ export function App() {
           <CardBoard
             streamers={cardStreamers}
             awards={trophyAwards}
+            zoom={cardZoom}
             onOpen={openStreamer}
           />
         )
