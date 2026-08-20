@@ -2672,10 +2672,11 @@ export function App() {
             <div className="controls__actions">
               <div className="segmented">
                 <button
-                  className={sfxOnly ? "active" : ""}
+                  className={`segmented__sfx-toggle${sfxOnly ? " active" : ""}`}
                   onClick={() => setSfxOnly((current) => !current)}
                   aria-pressed={sfxOnly}
                 >
+                  <Volume2 aria-hidden="true" />
                   효과음 있는 스트리머만
                 </button>
               </div>
