@@ -112,12 +112,12 @@ const jandyChapterVideo: {
     { title: "도입", seconds: 29468 },
     { title: "센터백 교본", seconds: 29981 },
     { title: "풀백 교본", seconds: 30815 },
-    { title: "수비 미드필더 교본", seconds: 31731 },
+    { title: "수비 미드필더 교본 - 1", seconds: 31731 },
+    { title: "수비 미드필더 교본 - 2", seconds: 36609 },
     { title: "중앙 미드필더 교본", seconds: 32674 },
     { title: "윙 포워드 교본", seconds: 33645 },
-    { title: "스트라이커 교본", seconds: 34686 },
-    { title: "스트라이커 2", seconds: 35625 },
-    { title: "수비 미드필더 2", seconds: 36609 },
+    { title: "스트라이커 교본 - 1", seconds: 34686 },
+    { title: "스트라이커 교본 - 2", seconds: 35625 },
   ],
 };
 
