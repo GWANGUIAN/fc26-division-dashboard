@@ -27,9 +27,9 @@ overrides:
     record: { wins: 9, draws: 5, losses: 14 }
   - soopId: hobal115end
     division: 8
-    record: { wins: 7, draws: 2, losses: 16 }
-  # - soopId: 
-  #   division: 
+    record: { wins: 15, draws: 5, losses: 23 }
+  # - soopId: ju010228
+  #   division: 8
   #   record: { wins: , draws: , losses:  }
   # - soopId: 
   #   division: 
