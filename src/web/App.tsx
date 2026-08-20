@@ -147,8 +147,8 @@ const ANNOUNCEMENTS: Announcement[] = [
           <img src={geminiLogo} alt="" />
         </span>{" "}
         <strong>Gemini 한줄평</strong> 기능이 추가되었습니다. 왁물원에 승격 보고
-        게시글이 올라오고 전체 전적 분석이 성공하면, 스트리머 상세 정보에서
-        AI가 남긴 짧은 한줄평을 확인할 수 있습니다.
+        게시글이 올라오고 전체 전적 분석이 성공하면, 스트리머 상세 정보에서 AI가
+        남긴 짧은 한줄평을 확인할 수 있습니다.
       </>
     ),
     note: "조건이 아직 충족되지 않았거나 분석 전/분석 중이면 이전 평가가 대신 표시됩니다.",
@@ -402,19 +402,19 @@ function SfxIntroNotice({
         />
         <p className="sfx-intro__title">놀라셨나요?</p>
         <p className="sfx-intro__body">
-          효과음 볼륨은{" "}
-          <mark className="sfx-intro__highlight">바로 아래</mark> 또는{" "}
+          프로필 사진에{" "}
+          <Volume2 className="sfx-intro__icon" aria-hidden="true" /> 아이콘이
+          있는 스트리머는 상세 팝업이 열릴 때 효과음이 재생됩니다.
+          <br />
+          <br />
+          효과음 볼륨은 <mark className="sfx-intro__highlight">
+            바로 아래
+          </mark>{" "}
+          또는{" "}
           <mark className="sfx-intro__highlight">
             화면 오른쪽 아래 플로팅 영역
           </mark>
           에서 조절할 수 있습니다.
-          <br />
-          <br />
-          프로필 사진에 <Volume2
-            className="sfx-intro__icon"
-            aria-hidden="true"
-          />{" "}
-          아이콘이 있는 스트리머는 상세 팝업이 열릴 때 효과음이 재생됩니다.
         </p>
         <div className="sfx-intro__volume">
           <button
@@ -627,7 +627,10 @@ function FancyAvatar({
       <Avatar {...streamer} />
       <span className="fancy-avatar__sparks" aria-hidden="true">
         {FANCY_SPARK_SLOTS.map((slot) => (
-          <i className={`fancy-avatar__spark fancy-avatar__spark--${slot}`} key={slot}>
+          <i
+            className={`fancy-avatar__spark fancy-avatar__spark--${slot}`}
+            key={slot}
+          >
             ✦
           </i>
         ))}
@@ -664,7 +667,10 @@ function FancyName({
       <Tag className="fancy-name__text">{children}</Tag>
       <span className="fancy-name__sparks" aria-hidden="true">
         {FANCY_NAME_SPARK_SLOTS.map((slot) => (
-          <i className={`fancy-name__spark fancy-name__spark--${slot}`} key={slot}>
+          <i
+            className={`fancy-name__spark fancy-name__spark--${slot}`}
+            key={slot}
+          >
             ✦
           </i>
         ))}
@@ -1245,7 +1251,10 @@ function FifaShield({
           d={FIFA_SHIELD_OUTER}
           fill={`url(#${holoId})`}
           opacity={holo.opacity}
-          style={{ mixBlendMode: "color-dodge", transition: "opacity .25s ease-out" }}
+          style={{
+            mixBlendMode: "color-dodge",
+            transition: "opacity .25s ease-out",
+          }}
         />
       )}
     </svg>
@@ -1270,7 +1279,13 @@ function StreamerFifaCard({
   const rate = streamer.record ? winRatePercent(streamer.record) : undefined;
   const color = divisionColor(streamer.currentDivision);
   const cardRef = useRef<HTMLButtonElement>(null);
-  const [tilt, setTilt] = useState({ rx: 0, ry: 0, x: 0.5, y: 0.5, active: false });
+  const [tilt, setTilt] = useState({
+    rx: 0,
+    ry: 0,
+    x: 0.5,
+    y: 0.5,
+    active: false,
+  });
 
   const handleMouseMove = (event: React.MouseEvent<HTMLButtonElement>) => {
     const rect = cardRef.current?.getBoundingClientRect();
@@ -1597,9 +1612,12 @@ function GeminiReviewSection({
   // The live API can briefly still return the pre-mild/spicy shape (just
   // `text`) while a deploy is in flight. Treat that the same as "not yet
   // reviewed" instead of crashing on a missing mild/spicy string.
-  const review = rawReview && typeof rawReview.mild === "string" && typeof rawReview.spicy === "string"
-    ? rawReview
-    : undefined;
+  const review =
+    rawReview &&
+    typeof rawReview.mild === "string" &&
+    typeof rawReview.spicy === "string"
+      ? rawReview
+      : undefined;
   return (
     <section className="gemini-review">
       <div className="gemini-review__header">
@@ -2610,15 +2628,30 @@ export function App() {
           <h1>
             {isDivision ? (
               <>
-                잰디 <mark>동아리 후보</mark>
+                <span className="hero-title__line hero-title__line--1">
+                  잰디 <mark>동아리 후보</mark>
+                </span>
                 <br />
-                대시보드
+                <span className="hero-title__line hero-title__line--2">
+                  대시보드
+                  <img
+                    className="hero-ball"
+                    src="/soccer_ball.webp"
+                    alt=""
+                    aria-hidden="true"
+                  />
+                  <span className="hero-ball-impact" aria-hidden="true" />
+                </span>
               </>
             ) : (
               <>
-                1:1 <mark>평가 신청</mark>
+                <span className="hero-title__line hero-title__line--1">
+                  1:1 <mark>평가 신청</mark>
+                </span>
                 <br />
-                현황
+                <span className="hero-title__line hero-title__line--2">
+                  현황
+                </span>
               </>
             )}
           </h1>
