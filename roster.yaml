@@ -154,6 +154,7 @@ streamers:
       division: null
       policy: auto
     profileImageUrl: "/profiles/profile_nanamoon.webp"
+    sfx: "/sfxes/nanamoon.mp3"
   - slug: 
     displayName: 거대별
     cafeAliases: ["거대별"]
@@ -727,6 +728,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/wello.mp3"
   - slug: miwoomiwoo
     displayName: "미우"
     cafeAliases: ["미우"]
@@ -1074,6 +1076,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/ggumtl.mp3"
   - slug: yaya1787
     displayName: "호냥2"
     cafeAliases: ["호냥2"]
@@ -1108,3 +1111,4 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/etoo.mp3"
