@@ -1563,18 +1563,13 @@ function PreviousPromotionSection({ posts }: { posts?: PromotionPost[] }) {
   );
 }
 
-function GeminiReviewSection({
-  review,
-}: {
-  review?: StreamerRecord["latestReview"];
-}) {
+function AnimatedReviewText({ text }: { text: string }) {
   const [typedLength, setTypedLength] = useState(0);
   useEffect(() => {
-    if (!review) return;
     setTypedLength(0);
     const interval = setInterval(() => {
       setTypedLength((current) => {
-        if (current >= review.text.length) {
+        if (current >= text.length) {
           clearInterval(interval);
           return current;
         }
@@ -1582,8 +1577,29 @@ function GeminiReviewSection({
       });
     }, 10);
     return () => clearInterval(interval);
-  }, [review?.text]);
+  }, [text]);
 
+  return (
+    <p className="gemini-review__text">
+      {text.slice(0, typedLength)}
+      {typedLength < text.length && (
+        <span className="gemini-review__cursor" aria-hidden="true" />
+      )}
+    </p>
+  );
+}
+
+function GeminiReviewSection({
+  review: rawReview,
+}: {
+  review?: StreamerRecord["latestReview"];
+}) {
+  // The live API can briefly still return the pre-mild/spicy shape (just
+  // `text`) while a deploy is in flight. Treat that the same as "not yet
+  // reviewed" instead of crashing on a missing mild/spicy string.
+  const review = rawReview && typeof rawReview.mild === "string" && typeof rawReview.spicy === "string"
+    ? rawReview
+    : undefined;
   return (
     <section className="gemini-review">
       <div className="gemini-review__header">
@@ -1599,12 +1615,20 @@ function GeminiReviewSection({
           : "왁물원에 승격 보고 게시글이 올라오고 전체 전적 분석이 성공하면 한줄평이 생성됩니다."}
       </p>
       {review && (
-        <p className="gemini-review__text">
-          {review.text.slice(0, typedLength)}
-          {typedLength < review.text.length && (
-            <span className="gemini-review__cursor" aria-hidden="true" />
-          )}
-        </p>
+        <>
+          <div className="gemini-review__flavor">
+            <span className="gemini-review__flavor-tag gemini-review__flavor-tag--mild">
+              순한맛
+            </span>
+            <AnimatedReviewText text={review.mild} />
+          </div>
+          <div className="gemini-review__flavor">
+            <span className="gemini-review__flavor-tag gemini-review__flavor-tag--spicy">
+              매운맛
+            </span>
+            <AnimatedReviewText text={review.spicy} />
+          </div>
+        </>
       )}
     </section>
   );

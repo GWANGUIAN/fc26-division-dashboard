@@ -39,7 +39,8 @@ async function main(): Promise<void> {
     return;
   }
 
-  console.log(`결과 (${review.length}자):\n${review}`);
+  console.log(`순한맛 (${review.mild.length}자):\n${review.mild}`);
+  console.log(`\n매운맛 (${review.spicy.length}자):\n${review.spicy}`);
 }
 
 main().catch((error) => {

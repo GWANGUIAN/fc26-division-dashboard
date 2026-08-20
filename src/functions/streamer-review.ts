@@ -1,21 +1,23 @@
 import { GoogleGenAI } from "@google/genai";
-import type { StreamerRecord } from "../shared/model.js";
+import type { StreamerRecord, StreamerReview } from "../shared/model.js";
 
 const apiKey = process.env.GEMINI_API_KEY;
 // Falls back to the same model as record-extraction.ts so this feature works
 // without a redeploy; override independently via GEMINI_REVIEW_MODEL if needed.
 const model = process.env.GEMINI_REVIEW_MODEL ?? process.env.GEMINI_MODEL ?? "gemini-3.6-flash";
 const requestTimeoutMs = Number(process.env.GEMINI_REVIEW_REQUEST_TIMEOUT_MS ?? 30_000);
-// Unlike OCR, there's no ambiguous screen to misread, so fewer retries are needed.
-const maxAttempts = Number(process.env.GEMINI_REVIEW_MAX_ATTEMPTS ?? 2);
+// Generating two flavors in one call takes longer and hits transient
+// 503/504s a bit more often than the single-flavor version did.
+const maxAttempts = Number(process.env.GEMINI_REVIEW_MAX_ATTEMPTS ?? 3);
 const client = apiKey ? new GoogleGenAI({ apiKey }) : undefined;
 
 const reviewSchema = {
   type: "OBJECT",
   properties: {
-    review: { type: "STRING", description: "스트리머에게 보여줄 한줄평. 200자 내외의 한국어 존댓말. 형식적인 응원 멘트 없이, 방송각 있게 신랄하거나 과장된 톤의 데이터 분석." },
+    mild: { type: "STRING", description: "순한맛 한줄평. 200자 내외의 한국어 존댓말. 따뜻하고 다정한 톤이며 마무리에 응원·격려를 포함해도 된다." },
+    spicy: { type: "STRING", description: "매운맛 한줄평. 200자 내외의 한국어 존댓말. 형식적인 응원 멘트 없이 방송각 있게 신랄하거나 과장된 톤. 다만 성적이 이미 매우 뛰어나 비판할 거리가 없으면 억지로 깎아내리지 말고 객관적이되 냉소적인 톤으로 담담하게 서술한다." },
   },
-  required: ["review"],
+  required: ["mild", "spicy"],
 };
 
 function formatRecord(record?: { wins: number; draws: number; losses: number }): string {
@@ -68,13 +70,13 @@ function buildPrompt(streamer: StreamerRecord, allStreamers: StreamerRecord[], r
   sections.push(
     "",
     "[작성 지침]",
-    "- 한국어 존댓말로, 200자 내외의 짧은 한줄평만 작성하세요.",
+    "- 같은 데이터를 근거로 톤이 다른 한줄평 두 개(순한맛 mild, 매운맛 spicy)를 함께 작성하세요. 각각 한국어 존댓말, 200자 내외입니다.",
     "- 이 스트리머의 승급/전적/동료 대비 위치 중 데이터로 뒷받침되는 내용만 근거로 분석하세요. 추측하지 마세요.",
-    "- 순수한 데이터 분석/평가만 작성하세요. '응원합니다', '화이팅', '기대할게요' 같은 형식적인 응원·격려 멘트로 끝맺지 마세요.",
-    "- 시청자가 보고 웃을 수 있는 '방송각'을 뽑아내세요: 성적이 안 좋으면 예능감 있게 신랄하게 디스하거나, 성적이 좋으면 오버스럽게 과장해서 극찬하는 등 캐릭터 있는 톤으로 쓰세요. 밋밋하고 무난한 코멘트는 피하세요.",
-    "- 다만 조롱이나 인신공격이 아니라, 팬들이 웃으며 볼 수 있는 애정 어린 드립 수준을 유지하세요.",
+    "- [순한맛 mild] 따뜻하고 다정한 톤으로 쓰세요. 응원이나 격려하는 말로 마무리해도 좋습니다.",
+    "- [매운맛 spicy] '응원합니다', '화이팅', '기대할게요' 같은 형식적인 응원·격려 멘트로 끝맺지 마세요. 시청자가 보고 웃을 수 있는 '방송각'을 뽑아내세요: 성적이 안 좋으면 예능감 있게 신랄하게 디스하고, 성적이 좋으면 오버스럽게 과장해서 극찬하는 등 캐릭터 있는 톤으로 쓰세요. 밋밋하고 무난한 코멘트는 피하세요. 단, 성적이 이미 매우 뛰어나서 신랄하게 깎아내릴 근거가 없다면 억지로 비판하지 말고, 그 격차를 객관적이지만 냉소적인 어조로 담담하게 서술하세요.",
+    "- 매운맛도 조롱이나 인신공격은 아니고, 팬들이 웃으며 볼 수 있는 애정 어린 드립 수준을 유지하세요.",
     "- '현재 진행 중인 안내'가 있고 이 스트리머와 관련 있으면 자연스럽게 참고하되, 억지로 끼워넣지 마세요.",
-    "- 응답은 반드시 지정된 JSON 스키마 형식(review)으로만 반환하세요. 다른 설명이나 텍스트를 추가하지 마세요.",
+    "- 응답은 반드시 지정된 JSON 스키마 형식(mild, spicy)으로만 반환하세요. 다른 설명이나 텍스트를 추가하지 마세요.",
   );
 
   return sections.join("\n");
@@ -87,7 +89,7 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   ]);
 }
 
-async function generateOnce(prompt: string): Promise<string | undefined> {
+async function generateOnce(prompt: string): Promise<StreamerReview | undefined> {
   const response = await withTimeout(client!.models.generateContent({
     model,
     contents: [{ role: "user", parts: [{ text: prompt }] }],
@@ -99,16 +101,19 @@ async function generateOnce(prompt: string): Promise<string | undefined> {
     },
   }), requestTimeoutMs);
   if (!response.text) return undefined;
-  const parsed = JSON.parse(response.text) as { review?: unknown };
-  return typeof parsed.review === "string" && parsed.review.trim() ? parsed.review.trim() : undefined;
+  const parsed = JSON.parse(response.text) as { mild?: unknown; spicy?: unknown };
+  if (typeof parsed.mild !== "string" || !parsed.mild.trim() || typeof parsed.spicy !== "string" || !parsed.spicy.trim()) {
+    return undefined;
+  }
+  return { mild: parsed.mild.trim(), spicy: parsed.spicy.trim() };
 }
 
-/** Generates a short Gemini one-line commentary for a streamer once their career record is known. */
+/** Generates paired mild/spicy Gemini one-line commentary for a streamer once their career record is known. */
 export async function generateStreamerReview(
   streamer: StreamerRecord,
   allStreamers: StreamerRecord[],
   reviewContext: string,
-): Promise<string | undefined> {
+): Promise<StreamerReview | undefined> {
   if (!client) return undefined;
   const prompt = buildPrompt(streamer, allStreamers, reviewContext);
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {

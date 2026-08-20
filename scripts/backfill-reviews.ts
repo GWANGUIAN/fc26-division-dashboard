@@ -1,10 +1,11 @@
 /**
- * One-time backfill: generates a Gemini one-line review for every streamer
- * whose career record is already known but who has no review yet, mirroring
- * scraper.ts's own backfillMissingReviews() so the deployed scraper doesn't
- * have to spend Gemini calls working through the existing backlog after
- * launch. New reports going forward are handled automatically by the
- * scraper's own loop; this script only exists to seed the backlog once.
+ * One-time backfill: generates a Gemini mild/spicy review pair for every
+ * streamer whose career record is already known but whose review is missing
+ * or still in the legacy single-flavor string shape, mirroring scraper.ts's
+ * own backfillMissingReviews() so the deployed scraper doesn't have to spend
+ * Gemini calls working through the existing backlog after launch. New
+ * reports going forward are handled automatically by the scraper's own
+ * loop; this script only exists to seed/migrate the backlog once.
  *
  * Requires the same environment as the scraper Lambda: TABLE_NAME, AWS
  * credentials/region for DynamoDB, and GEMINI_API_KEY.
@@ -16,7 +17,7 @@
  */
 import { generateStreamerReview } from "../src/functions/streamer-review.js";
 import { getPosts, getRecordOverrides, getReviewContext, getRoster, putPost, putStreamers } from "../src/functions/store.js";
-import { buildStreamerRecords } from "../src/shared/promotion.js";
+import { buildStreamerRecords, isCompleteReview } from "../src/shared/promotion.js";
 import type { PromotionPost, StreamerRecord } from "../src/shared/model.js";
 
 function option(name: string, fallback?: string): string | undefined {
@@ -36,7 +37,7 @@ async function main(): Promise<void> {
 
   const candidates = streamers
     .filter((s): s is StreamerRecord & { lastPost: PromotionPost } =>
-      Boolean(s.lastPost) && Boolean(s.record) && !s.lastPost!.review)
+      Boolean(s.lastPost) && Boolean(s.record) && !isCompleteReview(s.lastPost!.review))
     .sort((a, b) => b.lastPost.publishedAt.localeCompare(a.lastPost.publishedAt));
 
   const skipped = candidates.slice(0, excludeTop);
@@ -63,7 +64,9 @@ async function main(): Promise<void> {
       updatedById.set(updated.articleId, updated);
       if (review) {
         succeeded += 1;
-        console.log(`  OK  ${streamer.displayName} (${review.length}자): ${review}`);
+        console.log(`  OK  ${streamer.displayName}`);
+        console.log(`      순한맛 (${review.mild.length}자): ${review.mild}`);
+        console.log(`      매운맛 (${review.spicy.length}자): ${review.spicy}`);
       } else {
         failed += 1;
         console.log(`  FAIL ${streamer.displayName}: undefined 반환`);

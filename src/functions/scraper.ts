@@ -4,7 +4,7 @@ import {
   type StreamerActivityBoard, type StreamerActivityPost, type StreamerRecord,
 } from "../shared/model.js";
 import { isOneVsOneApplication } from "../shared/one-vs-one.js";
-import { buildStreamerRecords } from "../shared/promotion.js";
+import { buildStreamerRecords, isCompleteReview } from "../shared/promotion.js";
 import { isDirectPromotionPost } from "../shared/streamer-activity.js";
 import { buildDashboardSnapshot } from "../shared/snapshot.js";
 import { collectArticle, collectPage, normalizeCafeDate, SourceBlockedError } from "./naver.js";
@@ -168,7 +168,9 @@ async function backfillMissingReviews(posts: PromotionPost[], streamers: Streame
   const candidates = streamers
     // Only attempt a review once the post's career record is settled, whether
     // via successful Gemini OCR or a matching record-overrides.yaml entry.
-    .filter((streamer) => streamer.lastPost && streamer.record && !streamer.lastPost.review
+    // A legacy single-flavor string (pre mild/spicy split) also counts as
+    // missing, so old data self-heals into the new shape over time.
+    .filter((streamer) => streamer.lastPost && streamer.record && !isCompleteReview(streamer.lastPost.review)
       && (streamer.lastPost.reviewAttempts ?? 0) < maxReviewAttempts)
     .sort((a, b) => b.lastPost!.publishedAt.localeCompare(a.lastPost!.publishedAt))
     .slice(0, maxReviewBackfillsPerRun);

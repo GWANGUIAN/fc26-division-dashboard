@@ -1,4 +1,4 @@
-import type { OverridePolicy, PromotionPost, RecordOverride, RosterEntry, StreamerRecord } from "./model.js";
+import type { OverridePolicy, PromotionPost, RecordOverride, RosterEntry, StreamerRecord, StreamerReview } from "./model.js";
 
 const firstDivision = /^\s*\[\s*1부\s*리거\s*달성\s*\]/u;
 const promotionDivision = /^\s*\[\s*([2-9])부\s*승격\s*\]/u;
@@ -45,16 +45,23 @@ function automaticDivision(posts: PromotionPost[]): number | undefined {
     best === undefined ? post.division : Math.min(best, post.division), undefined);
 }
 
+/** A plain string is a legacy single-flavor value from before the mild/spicy split and is treated as stale. */
+export function isCompleteReview(review: PromotionPost["review"]): review is StreamerReview {
+  return typeof review === "object" && review !== null && Boolean(review.mild) && Boolean(review.spicy);
+}
+
 function latestReviewFrom(
   posts: PromotionPost[],
   lastPost: PromotionPost | undefined,
 ): StreamerRecord["latestReview"] {
   const latestReviewedPost = posts
-    .filter((post) => post.review)
+    .filter((post) => isCompleteReview(post.review))
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))[0];
   if (!latestReviewedPost) return undefined;
+  const review = latestReviewedPost.review as StreamerReview;
   return {
-    text: latestReviewedPost.review!,
+    mild: review.mild,
+    spicy: review.spicy,
     generatedAt: latestReviewedPost.reviewCheckedAt!,
     isCurrent: latestReviewedPost.articleId === lastPost?.articleId,
   };
