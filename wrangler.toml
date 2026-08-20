@@ -8,4 +8,16 @@ binding = "ASSETS"
 not_found_handling = "single-page-application"
 # The zone has a broad cache rule. Run the Worker before asset resolution so
 # app shell and entry-bundle responses can be made deployment-safe below.
-run_worker_first = true
+# Scoped to only the paths that actually need Worker logic (API/health, and
+# the HTML shell + entry bundle that need cache-control/stale-hash handling)
+# so plain static assets (images, sfx, fonts, etc.) bypass the Worker and
+# don't count against the daily Workers request quota.
+run_worker_first = [
+  "/api/*",
+  "/healthz",
+  "/",
+  "/index.html",
+  "/assets/app.js",
+  "/assets/app.css",
+  "/assets/index-*",
+]
