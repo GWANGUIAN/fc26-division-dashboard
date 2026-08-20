@@ -3,7 +3,7 @@ name: Sync roster to AWS
 on:
   push:
     branches: [main]
-    paths: [roster.yaml, one-vs-one-results.yaml, division-overrides.yaml, record-overrides.yaml, .github/workflows/sync-roster.yml]
+    paths: [roster.yaml, one-vs-one-results.yaml, division-overrides.yaml, record-overrides.yaml, review-context.yaml, .github/workflows/sync-roster.yml]
   workflow_dispatch:
 
 permissions:

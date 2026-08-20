@@ -62,6 +62,23 @@ describe("promotion parsing", () => {
     const withRecord = [{ ...posts[1], record: { wins: 5, draws: 5, losses: 5 } }, posts[0]];
     expect(buildStreamerRecords(withRecord, roster)[0].record).toEqual({ wins: 5, draws: 5, losses: 5 });
   });
+  it("marks the newest reviewed post's review as current when it matches lastPost", () => {
+    const withReview = [posts[0], { ...posts[1], review: "한줄평", reviewCheckedAt: "2026-08-11T01:00:00+09:00" }];
+    const result = buildStreamerRecords(withReview, roster);
+    expect(result[0].latestReview).toEqual({ text: "한줄평", generatedAt: "2026-08-11T01:00:00+09:00", isCurrent: true });
+  });
+  it("marks a review as not current once a newer, still-unreviewed post arrives", () => {
+    const withStaleReview = [
+      { ...posts[0], review: "예전 한줄평", reviewCheckedAt: "2026-08-10T01:00:00+09:00" },
+      posts[1],
+      { ...posts[1], articleId: "3", title: "6부", category: "[6부 승격]", division: 6, publishedAt: "2026-08-12T00:00:00+09:00" },
+    ];
+    const result = buildStreamerRecords(withStaleReview, roster);
+    expect(result[0].latestReview).toEqual({ text: "예전 한줄평", generatedAt: "2026-08-10T01:00:00+09:00", isCurrent: false });
+  });
+  it("leaves latestReview undefined when no post has a review", () => {
+    expect(buildStreamerRecords(posts, roster)[0].latestReview).toBeUndefined();
+  });
 });
 
 describe("article image filtering", () => {

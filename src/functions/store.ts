@@ -1,6 +1,6 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
-import type { DashboardSnapshot, OneVsOneApplication, OneVsOneResultsConfig, PromotionPost, RecordOverride, RosterEntry, StreamerActivityPost, StreamerRecord } from "../shared/model.js";
+import type { DashboardSnapshot, OneVsOneApplication, OneVsOneResultsConfig, PromotionPost, RecordOverride, ReviewContextConfig, RosterEntry, StreamerActivityPost, StreamerRecord } from "../shared/model.js";
 import { DEFAULT_ONE_VS_ONE_CONFIG } from "../shared/one-vs-one-results.js";
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}), {
@@ -126,6 +126,18 @@ export async function putRecordOverrides(overrides: RecordOverride[]): Promise<v
   await client.send(new PutCommand({
     TableName: tableName,
     Item: { PK: "CONFIG", SK: "RECORD_OVERRIDES", overrides, updatedAt: new Date().toISOString() },
+  }));
+}
+
+export async function getReviewContext(): Promise<ReviewContextConfig> {
+  const output = await client.send(new GetCommand({ TableName: tableName, Key: { PK: "CONFIG", SK: "REVIEW_CONTEXT" } }));
+  return (output.Item?.config as ReviewContextConfig | undefined) ?? { context: "" };
+}
+
+export async function putReviewContext(config: ReviewContextConfig): Promise<void> {
+  await client.send(new PutCommand({
+    TableName: tableName,
+    Item: { PK: "CONFIG", SK: "REVIEW_CONTEXT", config, updatedAt: new Date().toISOString() },
   }));
 }
 

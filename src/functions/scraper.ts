@@ -9,8 +9,9 @@ import { isDirectPromotionPost } from "../shared/streamer-activity.js";
 import { buildDashboardSnapshot } from "../shared/snapshot.js";
 import { collectArticle, collectPage, normalizeCafeDate, SourceBlockedError } from "./naver.js";
 import { extractRecordFromImages } from "./record-extraction.js";
+import { generateStreamerReview } from "./streamer-review.js";
 import {
-  getDivisionOverrides, getOneVsOneApplications, getOneVsOneResults, getPosts, getRecordOverrides, getRoster,
+  getDivisionOverrides, getOneVsOneApplications, getOneVsOneResults, getPosts, getRecordOverrides, getReviewContext, getRoster,
   getStreamerActivityPosts, getSyncState, putDashboardSnapshot, putOneVsOneApplication, putPost, putStreamerActivityPost,
   putStreamers, putSyncState, type SyncState,
 } from "./store.js";
@@ -22,6 +23,8 @@ const maxImageBackfillsPerRun = Number(process.env.MAX_IMAGE_BACKFILLS_PER_RUN ?
 const maxImageCollectionAttempts = Number(process.env.MAX_IMAGE_COLLECTION_ATTEMPTS ?? 3);
 const maxRecordBackfillsPerRun = Number(process.env.MAX_RECORD_BACKFILLS_PER_RUN ?? 5);
 const maxRecordExtractionAttempts = Number(process.env.MAX_RECORD_EXTRACTION_ATTEMPTS ?? 3);
+const maxReviewBackfillsPerRun = Number(process.env.MAX_REVIEW_BACKFILLS_PER_RUN ?? 5);
+const maxReviewAttempts = Number(process.env.MAX_REVIEW_ATTEMPTS ?? 3);
 const activityBoards: StreamerActivityBoard[] = ["scope", "elevenVsEleven"];
 
 export async function handler(event: ScrapeEvent = {}): Promise<void> {
@@ -89,7 +92,10 @@ export async function handler(event: ScrapeEvent = {}): Promise<void> {
     const roster = await getRoster();
     await backfillMissingReportImages(knownPosts, roster, divisionOverrides);
     await backfillMissingRecords(knownPosts);
-    const streamers = buildStreamerRecords(knownPosts, roster, recordOverrides);
+    let streamers = buildStreamerRecords(knownPosts, roster, recordOverrides);
+    const reviewContext = await getReviewContext();
+    await backfillMissingReviews(knownPosts, streamers, reviewContext.context);
+    streamers = buildStreamerRecords(knownPosts, roster, recordOverrides);
     await putStreamers(streamers);
     const nextState = await writeState("ok", undefined, nextPages, newest);
     await publishSnapshot({
@@ -153,6 +159,32 @@ async function backfillMissingRecords(posts: PromotionPost[]): Promise<void> {
     };
     if (await putPost(updated, true)) {
       const index = posts.findIndex((post) => post.articleId === candidate.articleId);
+      if (index >= 0) posts[index] = updated;
+    }
+  }
+}
+
+async function backfillMissingReviews(posts: PromotionPost[], streamers: StreamerRecord[], reviewContext: string): Promise<void> {
+  const candidates = streamers
+    // Only attempt a review once the post's career record is settled, whether
+    // via successful Gemini OCR or a matching record-overrides.yaml entry.
+    .filter((streamer) => streamer.lastPost && streamer.record && !streamer.lastPost.review
+      && (streamer.lastPost.reviewAttempts ?? 0) < maxReviewAttempts)
+    .sort((a, b) => b.lastPost!.publishedAt.localeCompare(a.lastPost!.publishedAt))
+    .slice(0, maxReviewBackfillsPerRun);
+  for (const streamer of candidates) {
+    const review = await generateStreamerReview(streamer, streamers, reviewContext).catch((error) => {
+      console.warn(`Review generation failed for ${streamer.lastPost!.articleId}: ${(error as Error).message}`);
+      return undefined;
+    });
+    const updated: PromotionPost = {
+      ...streamer.lastPost!,
+      review: review ?? streamer.lastPost!.review,
+      reviewCheckedAt: new Date().toISOString(),
+      reviewAttempts: (streamer.lastPost!.reviewAttempts ?? 0) + 1,
+    };
+    if (await putPost(updated, true)) {
+      const index = posts.findIndex((post) => post.articleId === updated.articleId);
       if (index >= 0) posts[index] = updated;
     }
   }

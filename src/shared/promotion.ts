@@ -45,6 +45,21 @@ function automaticDivision(posts: PromotionPost[]): number | undefined {
     best === undefined ? post.division : Math.min(best, post.division), undefined);
 }
 
+function latestReviewFrom(
+  posts: PromotionPost[],
+  lastPost: PromotionPost | undefined,
+): StreamerRecord["latestReview"] {
+  const latestReviewedPost = posts
+    .filter((post) => post.review)
+    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))[0];
+  if (!latestReviewedPost) return undefined;
+  return {
+    text: latestReviewedPost.review!,
+    generatedAt: latestReviewedPost.reviewCheckedAt!,
+    isCurrent: latestReviewedPost.articleId === lastPost?.articleId,
+  };
+}
+
 function previousPromotionPosts(posts: PromotionPost[], currentDivision: number): PromotionPost[] {
   return posts
     .filter((post) => post.division > currentDivision)
@@ -89,6 +104,7 @@ export function buildStreamerRecords(
     const recordOverride = entry.soopId
       ? recordOverrides.find((candidate) => candidate.soopId === entry.soopId && candidate.division === currentDivision)
       : undefined;
+    const latestReview = latestReviewFrom(entryPosts, lastPost);
     return {
       id: entry.slug,
       displayName: entry.displayName,
@@ -108,6 +124,8 @@ export function buildStreamerRecords(
       celebrationMessage: entry.celebrationMessage,
       sfx: entry.sfx,
       isFancy: entry.isFancy,
+      reviewNote: entry.reviewNote,
+      latestReview,
     };
   });
 
@@ -128,6 +146,7 @@ export function buildStreamerRecords(
       promotionHistory: chronological(entryPosts),
       previousPromotionPosts: previousPromotionPosts(entryPosts, division),
       isMapped: false,
+      latestReview: latestReviewFrom(entryPosts, lastPost),
     });
   }
 

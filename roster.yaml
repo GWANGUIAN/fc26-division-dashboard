@@ -1,5 +1,7 @@
 # Git에서 관리하는 스트리머 매핑 및 수동 보정 목록입니다.
 # cafeAliases는 카페에 보이는 작성자 이름을 정확히 적습니다.
+# reviewNote(선택): 이 스트리머에 대한 자유 텍스트 추가 정보. 값이 있으면
+# Gemini 한줄평 프롬프트에 그대로 포함됩니다. (예: 캐릭터 설정, 특징, 별명 유래 등)
 streamers:
   - slug: villlo
     displayName: 왜냐니

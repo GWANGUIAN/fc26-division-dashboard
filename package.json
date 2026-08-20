@@ -12,6 +12,10 @@
     "sync:collabot-live": "node scripts/sync-roster-from-collabot-xlsx.mjs",
     "build:backfill-records": "esbuild scripts/backfill-records.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/backfill-records.mjs --external:@aws-sdk/* --external:@google/genai --external:yaml",
     "backfill:records": "pnpm run build:backfill-records && node dist/backfill-records.mjs",
+    "build:test-streamer-review": "esbuild scripts/test-streamer-review.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/test-streamer-review.mjs --external:@aws-sdk/* --external:@google/genai --external:yaml",
+    "test:streamer-review": "pnpm run build:test-streamer-review && node dist/test-streamer-review.mjs",
+    "build:backfill-reviews": "esbuild scripts/backfill-reviews.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/backfill-reviews.mjs --external:@aws-sdk/* --external:@google/genai --external:yaml",
+    "backfill:reviews": "pnpm run build:backfill-reviews && node dist/backfill-reviews.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"

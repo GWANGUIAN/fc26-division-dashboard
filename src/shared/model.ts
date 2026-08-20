@@ -12,6 +12,8 @@ export interface RosterEntry {
   celebrationMessage?: string;
   sfx?: string;
   isFancy?: boolean;
+  /** Free-text background info about this streamer, injected into the Gemini review prompt when present. */
+  reviewNote?: string;
 }
 
 export type SoopProfileTag = "파트너" | "베스트" | "루키존" | "스포츠" | "서포터즈";
@@ -52,6 +54,12 @@ export interface PromotionPost {
   recordExtractionAttempts?: number;
   /** Set when a later image in the same post produced a different record than the one kept, so it needs a human look. */
   recordNeedsReview?: boolean;
+  /** Gemini one-line commentary (~200 chars), generated once the post's career record is known. */
+  review?: string;
+  /** Set after a review-generation attempt, successfully or not. */
+  reviewCheckedAt?: string;
+  /** Limits retries for posts whose review generation failed. */
+  reviewAttempts?: number;
 }
 
 export type StreamerActivityBoard = "scope" | "elevenVsEleven";
@@ -90,6 +98,15 @@ export interface StreamerRecord {
   celebrationMessage?: string;
   sfx?: string;
   isFancy?: boolean;
+  /** Free-text background info about this streamer, injected into the Gemini review prompt when present. */
+  reviewNote?: string;
+  /** Newest generated review among this streamer's posts. isCurrent is false when a newer report exists that hasn't produced a review yet (not eligible, or still pending). */
+  latestReview?: { text: string; generatedAt: string; isCurrent: boolean };
+}
+
+/** Free-text background info (e.g. an active recruitment announcement) injected into the review prompt. */
+export interface ReviewContextConfig {
+  context: string;
 }
 
 export interface DashboardSnapshot {
