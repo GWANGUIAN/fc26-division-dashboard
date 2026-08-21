@@ -1447,8 +1447,10 @@ function AnimatedReviewText({ text }: { text: string }) {
 
 function GeminiReviewSection({
   review: rawReview,
+  hasPost,
 }: {
   review?: StreamerRecord["latestReview"];
+  hasPost?: boolean;
 }) {
   // The live API can briefly still return the pre-mild/spicy shape (just
   // `text`) while a deploy is in flight. Treat that the same as "not yet
@@ -1473,6 +1475,12 @@ function GeminiReviewSection({
           ? "현재 게시글이 분석 조건을 달성하지 않았거나 분석이 생성 중이라 이전 한줄평이 대신 표시됩니다."
           : "왁물원에 승격 보고 게시글이 올라오고 전체 전적 분석이 성공하면 한줄평이 자동 생성됩니다."}
       </p>
+      {!review && hasPost && (
+        <p className="gemini-review__note">
+          인증샷에 전체 전적이 포함되지 않으면 한줄평은 생성되지 않습니다.
+          관리자가 수동 업데이트 할때까지 기다리세요.
+        </p>
+      )}
       {review && (
         <>
           <div className="gemini-review__flavor">
@@ -1584,7 +1592,7 @@ function DetailModal({
         </div>
       }
     >
-      <GeminiReviewSection review={streamer.latestReview} />
+      <GeminiReviewSection review={streamer.latestReview} hasPost={!!post} />
       {post ? (
         <>
           <div className="report">
