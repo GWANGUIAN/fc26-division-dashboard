@@ -1032,6 +1032,7 @@ streamers:
     isFancy: true
     celebrationMessage: "사시노 리냐의 {n}부 리그 승격을 축하합니다~!!🤪"
     sfx: "/sfxes/linya.mp3"
+    reviewNote: "별명이 사시노 리냐야.(버추얼 아바타로 사시 얼굴을 종종 많을어서)"
   - slug: hikicomoring
     displayName: "히키☆"
     cafeAliases: ["히 키"]
@@ -1096,6 +1097,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/popo.mp3"
   - slug: wggumteuli
     displayName: "꿈틀__"
     cafeAliases: ["꿈틀"]
