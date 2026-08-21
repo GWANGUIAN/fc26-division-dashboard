@@ -347,6 +347,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/kawuri.mp3"
   - slug: rmrss2
     displayName: 르미루~
     cafeAliases: ["진짜르미루"]
