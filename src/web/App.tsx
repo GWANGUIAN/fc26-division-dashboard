@@ -1475,6 +1475,9 @@ function GeminiReviewSection({
           ? "현재 게시글이 분석 조건을 달성하지 않았거나 분석이 생성 중이라 이전 한줄평이 대신 표시됩니다."
           : "왁물원에 승격 보고 게시글이 올라오고 전체 전적 분석이 성공하면 한줄평이 자동 생성됩니다."}
       </p>
+      <p className="gemini-review__note">
+        일부 스트리머는 미리 작성된 추가 정보도 같이 Gemini에게 전달됩니다.
+      </p>
       {!review && hasPost && (
         <p className="gemini-review__note">
           인증샷에 전체 전적이 포함되어 있어야 AI가 이미지를 분석해서 전적을
