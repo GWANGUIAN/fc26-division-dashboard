@@ -413,6 +413,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/suttori.mp3"
   - slug: dlalswl8811
     displayName: "이깨굴"
     cafeAliases: ["이깨굴"]
