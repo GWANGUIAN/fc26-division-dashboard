@@ -168,10 +168,8 @@ const ANNOUNCEMENTS: Announcement[] = [
     date: "2026.08.21",
     body: (
       <>
-        <strong>나만의 스쿼드 빌더</strong> 기능이 추가되었습니다.
-        <br />
-        <br />
-        디비전 목록 오른쪽의{" "}
+        <strong>나만의 스쿼드 빌더</strong> 기능이 추가되었습니다. 디비전 목록
+        오른쪽의{" "}
         <span className="announcement-squad-builder-btn">
           <Users aria-hidden="true" />
           <span>나만의 스쿼드 빌더</span>
@@ -939,7 +937,7 @@ function JandyVideoSection() {
   );
 }
 
-const DEFAULT_CELEBRATION_MESSAGE = "축 왁굳형, 핫짱 즐겨찾기 목록 입성";
+const DEFAULT_CELEBRATION_MESSAGE = "축 왁굳형&핫짱 즐겨찾기 목록 입성";
 
 type CelebrationSlide = { key: string; message: string };
 
