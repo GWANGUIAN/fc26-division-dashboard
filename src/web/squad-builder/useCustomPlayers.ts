@@ -111,6 +111,7 @@ export function useCustomPlayers() {
               ...normalizeInput(input),
               staticPhotoUrl:
                 photoAction === "remove" ? undefined : player.staticPhotoUrl,
+              isFancy: player.isFancy,
             }
           : player,
       ),

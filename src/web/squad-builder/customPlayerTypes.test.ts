@@ -60,6 +60,16 @@ describe("customPlayerToSquadPlayer", () => {
     );
     expect(result.profileImageUrl).toBe("blob:uploaded");
   });
+
+  it("defaults isFancy to false when unset", () => {
+    const result = customPlayerToSquadPlayer(player());
+    expect(result.isFancy).toBe(false);
+  });
+
+  it("carries the hidden isFancy flag through for seeded players", () => {
+    const result = customPlayerToSquadPlayer(player({ isFancy: true }));
+    expect(result.isFancy).toBe(true);
+  });
 });
 
 describe("effectiveWinRatePercent", () => {

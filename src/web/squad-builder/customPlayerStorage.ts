@@ -14,6 +14,7 @@ const DEFAULT_CUSTOM_PLAYERS: CustomPlayer[] = [
     name: "우왁굳",
     division: 1,
     staticPhotoUrl: "/profiles/profile_wakgood.webp",
+    isFancy: true,
   },
 ];
 

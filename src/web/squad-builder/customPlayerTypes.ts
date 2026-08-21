@@ -15,6 +15,8 @@ export interface CustomPlayer {
    * uploaded photo whenever one exists — see customPlayerToSquadPlayer.
    */
   staticPhotoUrl?: string;
+  /** Hidden field (not exposed in the add/edit form) — set on seeded/default players only. */
+  isFancy?: boolean;
 }
 
 export interface CustomPlayerInput {
@@ -56,7 +58,7 @@ export function customPlayerToSquadPlayer(
     record: player.record,
     customWinRatePercent: player.record ? undefined : player.winRatePercent,
     isMapped: true,
-    isFancy: false,
+    isFancy: !!player.isFancy,
     isCustomPlayer: true,
   };
 }
