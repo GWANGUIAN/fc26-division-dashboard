@@ -40,6 +40,9 @@ overrides:
     - soopId: suddory2
     division: 8
     record: { wins: 8, draws: 2, losses: 19 }
+      - soopId: htvv2i
+    division: 9
+    record: { wins: 6, draws: 1, losses: 19 }
       # - soopId: 
   #   division: 
   #   record: { wins: , draws: , losses:  }
