@@ -88,8 +88,7 @@ const jandyVideos: readonly JandyVideo[] = [
   {
     title: "FC 수비 강의.",
     videoUrl: "https://vod.sooplive.com/player/204537485",
-    thumbnailUrl:
-      "https://videoimg.sooplive.com/php/SnapshotLoad.php?rowKey=20260816_2F2AD58F_296407469_3_r",
+    thumbnailUrl: "/thumbnails/thumbnail_defense.webp",
   },
   {
     title: "잔디동 1:1 교육 영상 찍기.",
@@ -155,7 +154,6 @@ const jandyChapterVideos: readonly JandyChapterVideo[] = [
   },
 ];
 
-
 type Announcement = {
   id: string;
   date: string;
@@ -177,8 +175,8 @@ const ANNOUNCEMENTS: Announcement[] = [
           <Users aria-hidden="true" />
           <span>나만의 스쿼드 빌더</span>
         </span>{" "}
-        버튼을 누르면 스쿼드를 추가하고 원하는 포메이션에 선수들을 자유롭게 배치해볼 수
-        있습니다.
+        버튼을 누르면 스쿼드를 추가하고 원하는 포메이션에 선수들을 자유롭게
+        배치해볼 수 있습니다.
       </>
     ),
   },
@@ -2131,10 +2129,10 @@ function TrophyModal({
               <h3>
                 잔류왕{" "}
                 <TrophyHelp>
-                  9부 이상으로 승격한 적이 있는 스트리머 중, 현재 디비전에
-                  가장 오랫동안 머무른 스트리머를 표시합니다. 1부 리그는
-                  제외되며, 마지막으로 디비전이 바뀐 시점부터 오늘까지 지난
-                  일수를 기준으로 동률자는 함께 표시합니다.
+                  9부 이상으로 승격한 적이 있는 스트리머 중, 현재 디비전에 가장
+                  오랫동안 머무른 스트리머를 표시합니다. 1부 리그는 제외되며,
+                  마지막으로 디비전이 바뀐 시점부터 오늘까지 지난 일수를
+                  기준으로 동률자는 함께 표시합니다.
                 </TrophyHelp>
               </h3>
               <p>현재 디비전에 가장 오래 머문 스트리머</p>
@@ -2367,7 +2365,9 @@ export function App() {
   }
   useEffect(() => {
     loadSnapshot()
-      .then((data) => setSnapshot(applyFancyMembersOverride(data, window.location.search)))
+      .then((data) =>
+        setSnapshot(applyFancyMembersOverride(data, window.location.search)),
+      )
       .catch(() => undefined);
   }, []);
   useEffect(() => () => clearTimeout(toastTimeout.current), []);
@@ -2689,7 +2689,8 @@ export function App() {
                   <span>총 신청자</span>
                 </div>
                 <span role="tooltip">
-                  매일 오전 9시에 잔디동 모집글 댓글 기준으로 자동 업데이트 됩니다.
+                  매일 오전 9시에 잔디동 모집글 댓글 기준으로 자동 업데이트
+                  됩니다.
                 </span>
               </div>
               <div className="division-summary__item division-summary__item--reported">
@@ -2817,75 +2818,75 @@ export function App() {
       )}
       {isDivision ? (
         <div className="results-wrap">
-        {viewMode === "list" ? (
-          <section className="board" aria-label="FC26 디비전 보드">
-            {divisions.map((division) => {
-              const entries = streamers.filter(
-                (streamer) => streamer.currentDivision === division,
-              );
-              return (
-                <section
-                  className={`division division-${division}`}
-                  style={
-                    {
-                      "--division-color": divisionColor(division),
-                    } as React.CSSProperties
-                  }
-                  key={division}
+          {viewMode === "list" ? (
+            <section className="board" aria-label="FC26 디비전 보드">
+              {divisions.map((division) => {
+                const entries = streamers.filter(
+                  (streamer) => streamer.currentDivision === division,
+                );
+                return (
+                  <section
+                    className={`division division-${division}`}
+                    style={
+                      {
+                        "--division-color": divisionColor(division),
+                      } as React.CSSProperties
+                    }
+                    key={division}
+                  >
+                    <div className="division__label">
+                      <span>{division === 10 ? "SEASON" : "DIVISION"}</span>
+                      <strong>{division}</strong>
+                      {division === 10 && <small>미참여</small>}
+                    </div>
+                    <div className="division__players">
+                      {entries.map((streamer) => (
+                        <StreamerCard
+                          key={streamer.id}
+                          streamer={streamer}
+                          awards={trophyAwards}
+                          isNew={
+                            isUpdatedToday(streamer) &&
+                            !seenKeys.has(seenKeyFor(streamer))
+                          }
+                          onOpen={() => openStreamer(streamer)}
+                        />
+                      ))}
+                      {entries.length === 0 && (
+                        <p className="vacant">
+                          {division === 10
+                            ? "시즌 미참여 후보 없음"
+                            : "후보 대기 중"}
+                        </p>
+                      )}
+                    </div>
+                  </section>
+                );
+              })}
+            </section>
+          ) : (
+            <CardBoard
+              streamers={cardStreamers}
+              awards={trophyAwards}
+              zoom={cardZoom}
+              onOpen={openStreamer}
+              onZoomIn={handleZoomIn}
+              onZoomOut={handleZoomOut}
+              zoomMin={CARD_ZOOM_MIN}
+              zoomMax={CARD_ZOOM_MAX}
+              railExtra={
+                <button
+                  type="button"
+                  className="squad-builder-rail__button"
+                  onClick={() => setSquadBuilderOpen(true)}
+                  aria-label="나만의 스쿼드 빌더"
                 >
-                  <div className="division__label">
-                    <span>{division === 10 ? "SEASON" : "DIVISION"}</span>
-                    <strong>{division}</strong>
-                    {division === 10 && <small>미참여</small>}
-                  </div>
-                  <div className="division__players">
-                    {entries.map((streamer) => (
-                      <StreamerCard
-                        key={streamer.id}
-                        streamer={streamer}
-                        awards={trophyAwards}
-                        isNew={
-                          isUpdatedToday(streamer) &&
-                          !seenKeys.has(seenKeyFor(streamer))
-                        }
-                        onOpen={() => openStreamer(streamer)}
-                      />
-                    ))}
-                    {entries.length === 0 && (
-                      <p className="vacant">
-                        {division === 10
-                          ? "시즌 미참여 후보 없음"
-                          : "후보 대기 중"}
-                      </p>
-                    )}
-                  </div>
-                </section>
-              );
-            })}
-          </section>
-        ) : (
-          <CardBoard
-            streamers={cardStreamers}
-            awards={trophyAwards}
-            zoom={cardZoom}
-            onOpen={openStreamer}
-            onZoomIn={handleZoomIn}
-            onZoomOut={handleZoomOut}
-            zoomMin={CARD_ZOOM_MIN}
-            zoomMax={CARD_ZOOM_MAX}
-            railExtra={
-              <button
-                type="button"
-                className="squad-builder-rail__button"
-                onClick={() => setSquadBuilderOpen(true)}
-                aria-label="나만의 스쿼드 빌더"
-              >
-                <Users aria-hidden="true" />
-                <span>나만의 스쿼드 빌더</span>
-              </button>
-            }
-          />
-        )}
+                  <Users aria-hidden="true" />
+                  <span>나만의 스쿼드 빌더</span>
+                </button>
+              }
+            />
+          )}
           {viewMode === "list" && (
             <div className="squad-builder-rail">
               <button
@@ -3040,7 +3041,10 @@ export function App() {
  * to every streamer; otherwise each comma-separated entry is matched against
  * a streamer's slug, SOOP ID, display name, or cafe aliases.
  */
-function parseFancyMembersParam(search: string): { all: boolean; matchers: Set<string> } {
+function parseFancyMembersParam(search: string): {
+  all: boolean;
+  matchers: Set<string>;
+} {
   const raw = new URLSearchParams(search).get("fancyMembers");
   const parts = (raw ?? "")
     .split(",")
@@ -3049,21 +3053,33 @@ function parseFancyMembersParam(search: string): { all: boolean; matchers: Set<s
   return { all: parts.includes("all"), matchers: new Set(parts) };
 }
 
-function matchesFancyMembers(streamer: StreamerRecord, matchers: Set<string>): boolean {
-  const candidates = [streamer.id, streamer.soopId, streamer.displayName, ...streamer.cafeAliases].filter(
-    (value): value is string => Boolean(value),
+function matchesFancyMembers(
+  streamer: StreamerRecord,
+  matchers: Set<string>,
+): boolean {
+  const candidates = [
+    streamer.id,
+    streamer.soopId,
+    streamer.displayName,
+    ...streamer.cafeAliases,
+  ].filter((value): value is string => Boolean(value));
+  return candidates.some((candidate) =>
+    matchers.has(candidate.toLocaleLowerCase("ko-KR")),
   );
-  return candidates.some((candidate) => matchers.has(candidate.toLocaleLowerCase("ko-KR")));
 }
 
-function applyFancyMembersOverride(snapshot: DashboardSnapshot, search: string): DashboardSnapshot {
+function applyFancyMembersOverride(
+  snapshot: DashboardSnapshot,
+  search: string,
+): DashboardSnapshot {
   const { all, matchers } = parseFancyMembersParam(search);
   if (!all && matchers.size === 0) return snapshot;
   return {
     ...snapshot,
     streamers: snapshot.streamers.map((streamer) => ({
       ...streamer,
-      isFancy: streamer.isFancy || all || matchesFancyMembers(streamer, matchers),
+      isFancy:
+        streamer.isFancy || all || matchesFancyMembers(streamer, matchers),
     })),
   };
 }
