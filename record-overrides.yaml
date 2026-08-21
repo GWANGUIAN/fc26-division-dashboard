@@ -34,6 +34,9 @@ overrides:
   - soopId: ju010228
     division: 8
     record: { wins: 6, draws: 1, losses: 2 }
-    # - soopId: 
+    - soopId: alice427
+    division: 8
+    record: { wins: 15, draws: 6, losses: 17 }
+      # - soopId: 
   #   division: 
   #   record: { wins: , draws: , losses:  }
