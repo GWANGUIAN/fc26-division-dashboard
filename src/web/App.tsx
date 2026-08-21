@@ -2883,7 +2883,7 @@ export function App() {
                       )}
                       {division === 7 && (
                         <small className="division__label-tag division__label-tag--conditional">
-                          조건부 합격
+                          1차 조건부 합격
                         </small>
                       )}
                     </div>
