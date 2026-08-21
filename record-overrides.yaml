@@ -31,6 +31,9 @@ overrides:
   - soopId: hachi97
     division: 8
     record: { wins: 10, draws: 8, losses: 21 }
-  # - soopId: 
+  - soopId: ju010228
+    division: 8
+    record: { wins: 6, draws: 1, losses: 2 }
+    # - soopId: 
   #   division: 
   #   record: { wins: , draws: , losses:  }
