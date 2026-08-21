@@ -937,6 +937,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "유키라의 잔디 놀이 {n}부 리그 승격!!"
+    reviewNote: "~놀이 라는 상활극 컨텐츠를 진행해서 뭘하면 ~놀이라고 채팅이 올라옴 ex)잔디놀이"
     sfx: "/sfxes/yukira.mp3"
   - slug: toryvac
     displayName: "빅토리~!"
