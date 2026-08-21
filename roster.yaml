@@ -1083,6 +1083,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/nyacho.mp3"
   - slug: roundpopo
     displayName: "땡글땡글포포"
     cafeAliases: ["땡글땡글포포"]
