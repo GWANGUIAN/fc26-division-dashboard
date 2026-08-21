@@ -22,9 +22,6 @@ overrides:
   - soopId: dokkhye0000
     division: 8
     record: { wins: 8, draws: 4, losses: 19 }
-  - soopId: alice427
-    division: 8
-    record: { wins: 9, draws: 5, losses: 14 }
   - soopId: hobal115end
     division: 8
     record: { wins: 15, draws: 5, losses: 23 }
