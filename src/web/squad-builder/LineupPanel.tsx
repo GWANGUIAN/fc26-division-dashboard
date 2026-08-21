@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Copy } from "lucide-react";
-import type { StreamerRecord } from "../../shared/model.js";
+import type { SquadPlayer } from "./customPlayerTypes.js";
 import type { FormationPreset, SquadPlacement } from "./types.js";
 
 function buildLineupText(
   formation: FormationPreset,
   placements: SquadPlacement[],
-  streamerById: Map<string, StreamerRecord>,
+  streamerById: Map<string, SquadPlayer>,
 ) {
   const streamerIdBySlot = new Map(
     placements.map((placement) => [placement.slotId, placement.streamerId]),
@@ -28,7 +28,7 @@ export function LineupPanel({
 }: {
   formation: FormationPreset;
   placements: SquadPlacement[];
-  streamerById: Map<string, StreamerRecord>;
+  streamerById: Map<string, SquadPlayer>;
 }) {
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">(
     "idle",

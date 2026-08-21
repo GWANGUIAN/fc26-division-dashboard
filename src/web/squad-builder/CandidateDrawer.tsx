@@ -1,10 +1,9 @@
 import { useMemo, useState } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import { rectSortingStrategy, SortableContext, useSortable } from "@dnd-kit/sortable";
-import { UserRoundPlus } from "lucide-react";
-import type { StreamerRecord } from "../../shared/model.js";
-import { winRatePercent } from "../../shared/record-extraction.js";
+import { Plus, UserRoundPlus } from "lucide-react";
 import { searchable } from "../../shared/search.js";
+import { effectiveWinRatePercent, type SquadPlayer } from "./customPlayerTypes.js";
 import {
   type DragActiveData,
   type DragOverData,
@@ -22,19 +21,24 @@ const SORT_OPTIONS: { mode: SortMode; label: string }[] = [
 
 function sortCandidateIds(
   ids: string[],
-  streamerById: Map<string, StreamerRecord>,
+  streamerById: Map<string, SquadPlayer>,
   mode: SortMode,
 ): string[] {
   const streamers = ids
     .map((id) => streamerById.get(id))
-    .filter((streamer): streamer is StreamerRecord => !!streamer);
+    .filter((streamer): streamer is SquadPlayer => !!streamer);
   const sorted = [...streamers];
   if (mode === "division") {
-    sorted.sort((a, b) => a.currentDivision - b.currentDivision);
+    sorted.sort((a, b) => {
+      if (a.currentDivision === b.currentDivision) return 0;
+      if (a.currentDivision === 0) return 1;
+      if (b.currentDivision === 0) return -1;
+      return a.currentDivision - b.currentDivision;
+    });
   } else if (mode === "winRate") {
     sorted.sort((a, b) => {
-      const wa = a.record ? winRatePercent(a.record) : undefined;
-      const wb = b.record ? winRatePercent(b.record) : undefined;
+      const wa = effectiveWinRatePercent(a);
+      const wb = effectiveWinRatePercent(b);
       if (wa === undefined && wb === undefined) return 0;
       if (wa === undefined) return 1;
       if (wb === undefined) return -1;
@@ -48,7 +52,7 @@ function sortCandidateIds(
 
 interface CandidateDrawerProps {
   candidateIds: string[];
-  streamerById: Map<string, StreamerRecord>;
+  streamerById: Map<string, SquadPlayer>;
   /** `null` when nothing is being dragged (normal hover behavior). `true`/`false` forces the drawer open/closed for the active drag — see SquadBuilderOverlay for the pointer-position logic that decides this. */
   dragExpandOverride: boolean | null;
   dragIntent: { targetId: string; intent: DropIntent } | null;
@@ -58,6 +62,9 @@ interface CandidateDrawerProps {
    * return" hint instead of highlighting any one card. */
   showReturnHint: boolean;
   onSort: (order: string[]) => void;
+  onAddCustomPlayer: () => void;
+  onRequestEditCustomPlayer: (id: string) => void;
+  onRequestDeleteCustomPlayer: (id: string, name: string) => void;
 }
 
 export function CandidateDrawer({
@@ -67,6 +74,9 @@ export function CandidateDrawer({
   dragIntent,
   showReturnHint,
   onSort,
+  onAddCustomPlayer,
+  onRequestEditCustomPlayer,
+  onRequestDeleteCustomPlayer,
 }: CandidateDrawerProps) {
   const [query, setQuery] = useState("");
   // Deliberately NOT disabled based on drawer-open state: toggling a
@@ -127,6 +137,14 @@ export function CandidateDrawer({
             </button>
           ))}
         </div>
+        <button
+          type="button"
+          className="candidate-drawer__add-custom"
+          onClick={onAddCustomPlayer}
+        >
+          <Plus aria-hidden="true" />
+          커스텀 선수 추가
+        </button>
       </div>
       <div className="candidate-drawer__panel-wrap">
         <div
@@ -143,6 +161,8 @@ export function CandidateDrawer({
                     key={id}
                     streamer={streamer}
                     dragIntent={dragIntent}
+                    onRequestEditCustomPlayer={onRequestEditCustomPlayer}
+                    onRequestDeleteCustomPlayer={onRequestDeleteCustomPlayer}
                   />
                 );
               })}
@@ -172,9 +192,13 @@ export function CandidateDrawer({
 function CandidateCard({
   streamer,
   dragIntent,
+  onRequestEditCustomPlayer,
+  onRequestDeleteCustomPlayer,
 }: {
-  streamer: StreamerRecord;
+  streamer: SquadPlayer;
   dragIntent: { targetId: string; intent: DropIntent } | null;
+  onRequestEditCustomPlayer: (id: string) => void;
+  onRequestDeleteCustomPlayer: (id: string, name: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, isDragging } = useSortable({
     id: `candidate:${streamer.id}`,
@@ -193,7 +217,20 @@ function CandidateCard({
       {...listeners}
       {...attributes}
     >
-      <SquadBuilderCard streamer={streamer} variant="candidate" />
+      <SquadBuilderCard
+        streamer={streamer}
+        variant="candidate"
+        onEdit={
+          streamer.isCustomPlayer
+            ? () => onRequestEditCustomPlayer(streamer.id)
+            : undefined
+        }
+        onDelete={
+          streamer.isCustomPlayer
+            ? () => onRequestDeleteCustomPlayer(streamer.id, streamer.displayName)
+            : undefined
+        }
+      />
     </div>
   );
 }

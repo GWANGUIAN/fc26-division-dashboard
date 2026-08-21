@@ -31,7 +31,12 @@ export type SquadBuilderAction =
       streamerId: string;
       toIndex: number;
     }
-  | { type: "RECONCILE_ROSTER"; liveStreamerIds: string[] };
+  | {
+      type: "RECONCILE_ROSTER";
+      liveStreamerIds: string[];
+      /** Newly-discovered ids to put at the front of candidateOrder instead of the end. */
+      frontStreamerIds?: string[];
+    };
 
 function updateSquad(
   state: SquadBuilderState,
@@ -202,7 +207,11 @@ export function squadBuilderReducer(
       });
     }
     case "RECONCILE_ROSTER": {
-      const squads = reconcileAllSquads(state.squads, action.liveStreamerIds);
+      const squads = reconcileAllSquads(
+        state.squads,
+        action.liveStreamerIds,
+        action.frontStreamerIds,
+      );
       const changed = squads.some((squad, index) => squad !== state.squads[index]);
       return changed ? { ...state, squads } : state;
     }

@@ -1,6 +1,5 @@
+import { Pencil, Trash2 } from "lucide-react";
 import { divisionColor } from "../../shared/division-theme.js";
-import type { StreamerRecord } from "../../shared/model.js";
-import { winRatePercent } from "../../shared/record-extraction.js";
 import {
   FancyAvatar,
   FancyName,
@@ -8,6 +7,7 @@ import {
   hexToRgba,
   RecordBadge,
 } from "../cardVisuals.js";
+import { effectiveWinRatePercent, type SquadPlayer } from "./customPlayerTypes.js";
 
 /**
  * Presentational-only card for the squad builder: reuses the FIFA card's
@@ -24,17 +24,55 @@ import {
 export function SquadBuilderCard({
   streamer,
   variant,
+  onEdit,
+  onDelete,
 }: {
-  streamer: StreamerRecord;
+  streamer: SquadPlayer;
   variant: "candidate" | "placed";
+  onEdit?: () => void;
+  onDelete?: () => void;
 }) {
   const color = divisionColor(streamer.currentDivision);
-  const rate = streamer.record ? winRatePercent(streamer.record) : undefined;
+  const rate = effectiveWinRatePercent(streamer);
 
   return (
     <div className={`squad-card squad-card--${variant}`}>
+      {(onEdit || onDelete) && (
+        <span className="squad-card__actions">
+          {onEdit && (
+            <button
+              type="button"
+              className="squad-card__action-button"
+              onPointerDown={(event) => event.stopPropagation()}
+              onClick={(event) => {
+                event.stopPropagation();
+                onEdit();
+              }}
+              aria-label={`${streamer.displayName} 수정`}
+            >
+              <Pencil aria-hidden="true" />
+            </button>
+          )}
+          {onDelete && (
+            <button
+              type="button"
+              className="squad-card__action-button squad-card__action-button--danger"
+              onPointerDown={(event) => event.stopPropagation()}
+              onClick={(event) => {
+                event.stopPropagation();
+                onDelete();
+              }}
+              aria-label={`${streamer.displayName} 삭제`}
+            >
+              <Trash2 aria-hidden="true" />
+            </button>
+          )}
+        </span>
+      )}
       <FifaShield color={color} />
-      <span className="squad-card__division">D{streamer.currentDivision}</span>
+      <span className="squad-card__division">
+        {streamer.currentDivision > 0 ? `D${streamer.currentDivision}` : ""}
+      </span>
       <span className="squad-card__body">
         <span
           className="squad-card__avatar"

@@ -1,9 +1,9 @@
 import { useEffect, useReducer } from "react";
-import type { StreamerRecord } from "../../shared/model.js";
+import type { SquadPlayer } from "./customPlayerTypes.js";
 import { squadBuilderReducer } from "./squadBuilderReducer.js";
 import { loadSquadBuilderState, saveSquadBuilderState } from "./storage.js";
 
-export function useSquadBuilder(streamers: StreamerRecord[]) {
+export function useSquadBuilder(players: SquadPlayer[]) {
   const [state, dispatch] = useReducer(
     squadBuilderReducer,
     undefined,
@@ -17,9 +17,12 @@ export function useSquadBuilder(streamers: StreamerRecord[]) {
   useEffect(() => {
     dispatch({
       type: "RECONCILE_ROSTER",
-      liveStreamerIds: streamers.map((streamer) => streamer.id),
+      liveStreamerIds: players.map((player) => player.id),
+      frontStreamerIds: players
+        .filter((player) => player.isCustomPlayer)
+        .map((player) => player.id),
     });
-  }, [streamers]);
+  }, [players]);
 
   const activeSquad =
     state.squads.find((squad) => squad.id === state.activeSquadId) ??

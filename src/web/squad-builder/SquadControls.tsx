@@ -128,14 +128,16 @@ export function SquadControls({
   );
 }
 
-function MiniDialog({
+export function MiniDialog({
   title,
   onClose,
   children,
+  className,
 }: {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  className?: string;
 }) {
   return (
     <div
@@ -144,7 +146,7 @@ function MiniDialog({
       onMouseDown={onClose}
     >
       <div
-        className="squad-mini-dialog"
+        className={`squad-mini-dialog ${className ?? ""}`}
         role="dialog"
         aria-modal="true"
         aria-label={title}
@@ -199,7 +201,7 @@ function SquadNameDialog({
   );
 }
 
-function ConfirmDialog({
+export function ConfirmDialog({
   title,
   message,
   confirmLabel,

@@ -15,6 +15,8 @@ import { X } from "lucide-react";
 import type { StreamerRecord } from "../../shared/model.js";
 import "./squad-builder.css";
 import { CandidateDrawer } from "./CandidateDrawer";
+import { CustomPlayerDialog } from "./CustomPlayerDialog";
+import type { SquadPlayer } from "./customPlayerTypes.js";
 import {
   createSquadBuilderCollisionDetection,
   classifyDropIntent,
@@ -27,7 +29,8 @@ import { getFormation } from "./formations.js";
 import { LineupPanel } from "./LineupPanel";
 import { Pitch } from "./Pitch";
 import { SquadBuilderCard } from "./SquadBuilderCard";
-import { SquadControls } from "./SquadControls";
+import { ConfirmDialog, SquadControls } from "./SquadControls";
+import { useCustomPlayers } from "./useCustomPlayers.js";
 import { useSquadBuilder } from "./useSquadBuilder.js";
 
 /** Must match `--drawer-peek` in squad-builder.css (the collapsed drawer's height). */
@@ -100,12 +103,31 @@ export function SquadBuilderOverlay({
 }) {
   useEscape(onClose);
   useBodyScrollLock();
-  const { state, dispatch, activeSquad } = useSquadBuilder(streamers);
+  const {
+    customPlayers,
+    photoUrlById,
+    customPlayerStreamerRecords,
+    addCustomPlayer,
+    updateCustomPlayer,
+    deleteCustomPlayer,
+  } = useCustomPlayers();
+  const allPlayers = useMemo<SquadPlayer[]>(
+    () => [...customPlayerStreamerRecords, ...streamers],
+    [streamers, customPlayerStreamerRecords],
+  );
+  const { state, dispatch, activeSquad } = useSquadBuilder(allPlayers);
 
   const streamerById = useMemo(
-    () => new Map(streamers.map((streamer) => [streamer.id, streamer])),
-    [streamers],
+    () => new Map(allPlayers.map((player) => [player.id, player])),
+    [allPlayers],
   );
+
+  const [dialogMode, setDialogMode] = useState<
+    { mode: "add" } | { mode: "edit"; id: string } | null
+  >(null);
+  const [pendingDelete, setPendingDelete] = useState<
+    { id: string; name: string } | null
+  >(null);
   const formation = useMemo(
     () => getFormation(activeSquad.formationId),
     [activeSquad.formationId],
@@ -344,7 +366,7 @@ export function SquadBuilderOverlay({
               dispatch({
                 type: "ADD_SQUAD",
                 name,
-                candidateOrder: streamers.map((streamer) => streamer.id),
+                candidateOrder: allPlayers.map((player) => player.id),
               })
             }
             onRename={(squadId, name) =>
@@ -382,6 +404,8 @@ export function SquadBuilderOverlay({
             streamerById={streamerById}
             overSlotId={overSlotId}
             snapStreamerId={snapStreamerId}
+            onRequestEditCustomPlayer={(id) => setDialogMode({ mode: "edit", id })}
+            onRequestDeleteCustomPlayer={(id, name) => setPendingDelete({ id, name })}
           />
         </div>
 
@@ -396,6 +420,9 @@ export function SquadBuilderOverlay({
           onSort={(order) =>
             dispatch({ type: "SORT_CANDIDATES", squadId: activeSquad.id, order })
           }
+          onAddCustomPlayer={() => setDialogMode({ mode: "add" })}
+          onRequestEditCustomPlayer={(id) => setDialogMode({ mode: "edit", id })}
+          onRequestDeleteCustomPlayer={(id, name) => setPendingDelete({ id, name })}
         />
 
         <DragOverlay>
@@ -409,6 +436,44 @@ export function SquadBuilderOverlay({
           )}
         </DragOverlay>
       </DndContext>
+
+      {dialogMode?.mode === "add" && (
+        <CustomPlayerDialog
+          onSubmit={(input, photoAction) => {
+            addCustomPlayer(input, photoAction instanceof File ? photoAction : null);
+            setDialogMode(null);
+          }}
+          onClose={() => setDialogMode(null)}
+        />
+      )}
+      {dialogMode?.mode === "edit" &&
+        (() => {
+          const player = customPlayers.find((p) => p.id === dialogMode.id);
+          if (!player) return null;
+          return (
+            <CustomPlayerDialog
+              player={player}
+              currentPhotoUrl={photoUrlById.get(player.id) ?? player.staticPhotoUrl}
+              onSubmit={(input, photoAction) => {
+                updateCustomPlayer(player.id, input, photoAction);
+                setDialogMode(null);
+              }}
+              onClose={() => setDialogMode(null)}
+            />
+          );
+        })()}
+      {pendingDelete && (
+        <ConfirmDialog
+          title="커스텀 선수 삭제"
+          message={`"${pendingDelete.name}" 선수를 삭제할까요? 스쿼드에 배치되어 있었다면 함께 제거됩니다.`}
+          confirmLabel="삭제"
+          onConfirm={() => {
+            deleteCustomPlayer(pendingDelete.id);
+            setPendingDelete(null);
+          }}
+          onClose={() => setPendingDelete(null)}
+        />
+      )}
     </div>
   );
 }

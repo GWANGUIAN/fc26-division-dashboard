@@ -1,18 +1,20 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
-import type { StreamerRecord } from "../../shared/model.js";
 import { FIFA_SHIELD_INNER, FIFA_SHIELD_OUTER } from "../cardVisuals.js";
 import { SquadBuilderCard } from "./SquadBuilderCard";
+import type { SquadPlayer } from "./customPlayerTypes.js";
 import type { DragActiveData, DragOverData } from "./dragInteraction.js";
 import type { FormationPreset, FormationSlot, SquadPlacement } from "./types.js";
 
 interface PitchProps {
   formation: FormationPreset;
   placements: SquadPlacement[];
-  streamerById: Map<string, StreamerRecord>;
+  streamerById: Map<string, SquadPlayer>;
   /** id of the slot a drag is currently hovering over, for the swap-target fade. */
   overSlotId: string | null;
   /** streamer whose card should skip its position transition on this render (see SquadBuilderOverlay). */
   snapStreamerId: string | null;
+  onRequestEditCustomPlayer: (id: string) => void;
+  onRequestDeleteCustomPlayer: (id: string, name: string) => void;
 }
 
 /**
@@ -29,6 +31,8 @@ export function Pitch({
   streamerById,
   overSlotId,
   snapStreamerId,
+  onRequestEditCustomPlayer,
+  onRequestDeleteCustomPlayer,
 }: PitchProps) {
   const occupiedSlotIds = new Set(placements.map((p) => p.slotId));
   const slotById = new Map(formation.slots.map((slot) => [slot.id, slot]));
@@ -54,6 +58,8 @@ export function Pitch({
             slot={slot}
             isSwapTarget={overSlotId === placement.slotId}
             snap={snapStreamerId === streamer.id}
+            onRequestEditCustomPlayer={onRequestEditCustomPlayer}
+            onRequestDeleteCustomPlayer={onRequestDeleteCustomPlayer}
           />
         );
       })}
@@ -122,11 +128,15 @@ function PitchCard({
   slot,
   isSwapTarget,
   snap,
+  onRequestEditCustomPlayer,
+  onRequestDeleteCustomPlayer,
 }: {
-  streamer: StreamerRecord;
+  streamer: SquadPlayer;
   slot: FormationSlot;
   isSwapTarget: boolean;
   snap: boolean;
+  onRequestEditCustomPlayer: (id: string) => void;
+  onRequestDeleteCustomPlayer: (id: string, name: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `placed:${streamer.id}`,
@@ -144,7 +154,20 @@ function PitchCard({
       {...listeners}
       {...attributes}
     >
-      <SquadBuilderCard streamer={streamer} variant="placed" />
+      <SquadBuilderCard
+        streamer={streamer}
+        variant="placed"
+        onEdit={
+          streamer.isCustomPlayer
+            ? () => onRequestEditCustomPlayer(streamer.id)
+            : undefined
+        }
+        onDelete={
+          streamer.isCustomPlayer
+            ? () => onRequestDeleteCustomPlayer(streamer.id, streamer.displayName)
+            : undefined
+        }
+      />
     </div>
   );
 }

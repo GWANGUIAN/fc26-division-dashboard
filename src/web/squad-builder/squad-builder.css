@@ -314,6 +314,39 @@
 .squad-card--placed .squad-card__avatar .avatar { width: 32cqw; height: 32cqw; }
 .squad-card--placed .squad-card__name { font-size: 10cqw; }
 
+/* Edit/delete affordance for custom players. Not hover-only — pitch cards
+   already declare touch-action:none for real touch support, so a hover-only
+   button would be unreachable there. */
+.squad-card__actions {
+  position: absolute;
+  z-index: 2;
+  top: 4%;
+  right: 4%;
+  display: flex;
+  gap: 5cqw;
+}
+.squad-card__action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26cqw;
+  height: 26cqw;
+  min-width: 30px;
+  min-height: 30px;
+  border: 1px solid #ffffff40;
+  border-radius: 50%;
+  color: #f5fbf8;
+  background: #05130dcc;
+  opacity: .85;
+  cursor: pointer;
+  transition: .15s;
+}
+.squad-card__action-button svg { width: 60%; height: 60%; stroke-width: 2.4; }
+.squad-card__action-button:hover,
+.squad-card__action-button:focus-visible { opacity: 1; border-color: #00e9ae; color: #00e9ae; }
+.squad-card__action-button--danger:hover,
+.squad-card__action-button--danger:focus-visible { border-color: #ff6b6b; color: #ff6b6b; }
+
 /* --- Candidate drawer --- */
 
 .candidate-drawer {
@@ -403,6 +436,25 @@
 .candidate-drawer__sort button { border: 0; padding: 8px 11px; color: #9aaba4; background: transparent; font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer; transition: .18s; }
 .candidate-drawer__sort button:hover { color: #effff9; background: #ffffff0f; }
 .candidate-drawer__sort button + button { border-left: 1px solid #ffffff20; }
+
+.candidate-drawer__add-custom {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding: 8px 12px;
+  border: 1px solid #00e9ae55;
+  border-radius: 3px;
+  color: #c8fff0;
+  background: #00e9ae14;
+  font: 700 12px "Noto Sans KR";
+  white-space: nowrap;
+  cursor: pointer;
+  transition: .18s;
+}
+.candidate-drawer__add-custom svg { width: 14px; height: 14px; stroke-width: 2.4; }
+.candidate-drawer__add-custom:hover { background: #00e9ae26; border-color: #00e9ae80; }
 
 /* Non-scrolling — exists purely so the return-hint overlay below has a
    stable containing block that never moves, regardless of where the
@@ -621,6 +673,84 @@
 .squad-mini-dialog__actions button[type="submit"]:disabled { opacity: .4; cursor: not-allowed; }
 .squad-mini-dialog__danger { border-color: #ff6b6b55; color: #ffd6d6; background: #ff6b6b1f; }
 .squad-mini-dialog__danger:hover { background: #ff6b6b33; border-color: #ff6b6b80; }
+
+.squad-mini-dialog--wide { width: min(440px, 100%); }
+
+.squad-mini-dialog select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ffffff25;
+  border-radius: 3px;
+  outline: none;
+  color: #effff9;
+  background: #09100e;
+  font-size: 14px;
+}
+.squad-mini-dialog select:focus { border-color: #00e9ae; box-shadow: 0 0 0 3px #00e9ae12; }
+
+/* --- Custom player add/edit form --- */
+
+.custom-player-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.custom-player-form__field > span:first-child {
+  color: #9aaba4;
+  font: 700 12px "Noto Sans KR";
+}
+.custom-player-form__required { color: #ff6b6b; font-weight: 800; }
+
+.custom-player-form__record-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.custom-player-form__record-row input {
+  width: 100%;
+  padding: 12px 10px;
+  border: 1px solid #ffffff25;
+  border-radius: 3px;
+  outline: none;
+  color: #effff9;
+  background: #09100e;
+  font-size: 14px;
+  text-align: center;
+}
+.custom-player-form__record-row input:focus { border-color: #00e9ae; box-shadow: 0 0 0 3px #00e9ae12; }
+
+.custom-player-form__photo-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.custom-player-form__photo-preview {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #ffffff30;
+}
+.custom-player-form__photo-controls input[type="file"] {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: #c3d3cc;
+  font-size: 12px;
+}
+.custom-player-form__photo-controls button {
+  padding: 7px 12px;
+  border: 1px solid #ffffff28;
+  border-radius: 3px;
+  color: #c3d3cc;
+  background: transparent;
+  font: 700 11px "Noto Sans KR";
+  cursor: pointer;
+  transition: .18s;
+}
+.custom-player-form__photo-controls button:hover { border-color: #ff6b6b55; color: #ffd6d6; }
+.custom-player-form__error { margin: 6px 0 0; color: #ff8a8a; font-size: 12px; }
 
 @media (max-width: 680px) {
   .squad-builder-overlay { display: none; }
