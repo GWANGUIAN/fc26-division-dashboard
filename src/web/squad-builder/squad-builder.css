@@ -50,6 +50,95 @@
   overflow: hidden;
 }
 
+/* --- Lineup panel --- */
+
+/* Positioned to float over the pitch's top-left corner rather than taking
+   up flex/grid space, so it never pushes the pitch off-center. */
+.lineup-panel {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  z-index: 3;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100% - 32px);
+  border: 1px solid #ffffff1a;
+  border-radius: 10px;
+  background: #071a12cc;
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+}
+
+.lineup-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid #ffffff1a;
+}
+
+.lineup-panel__formation {
+  font-family: "Barlow Condensed", "Noto Sans KR";
+  font-weight: 800;
+  font-size: 16px;
+  color: #00e9ae;
+}
+
+.lineup-panel__copy { padding: 6px 9px; font-size: 11px; white-space: nowrap; }
+
+.lineup-panel__list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px 8px;
+  list-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: #00e9ae80 transparent;
+}
+.lineup-panel__list::-webkit-scrollbar { width: 8px; }
+.lineup-panel__list::-webkit-scrollbar-track { background: transparent; }
+.lineup-panel__list::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #00e9ae66;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.lineup-panel__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 4px;
+  border-bottom: 1px solid #ffffff0f;
+  font-size: 13px;
+}
+.lineup-panel__row:last-child { border-bottom: 0; }
+
+.lineup-panel__pos {
+  flex: 0 0 36px;
+  color: #9aaba4;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: .04em;
+}
+
+.lineup-panel__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+  color: #f5fbf8;
+}
+.lineup-panel__name--empty { color: #9aaba480; font-weight: 500; }
+
+@media (max-width: 900px) {
+  .lineup-panel { display: none; }
+}
+
 /* --- Pitch --- */
 
 /* Sized to "contain" within the wrap (whichever of width/height is the
@@ -315,12 +404,48 @@
 .candidate-drawer__sort button:hover { color: #effff9; background: #ffffff0f; }
 .candidate-drawer__sort button + button { border-left: 1px solid #ffffff20; }
 
+/* Non-scrolling — exists purely so the return-hint overlay below has a
+   stable containing block that never moves, regardless of where the
+   *inner* .candidate-drawer__panel is scrolled to. */
+.candidate-drawer__panel-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
 .candidate-drawer__panel {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 4px 16px 16px;
   scrollbar-width: thin;
   scrollbar-color: #00e9ae80 transparent;
+}
+/* While the return-to-candidates hint is showing, also freeze scrolling —
+   not needed for the overlay's positioning anymore (see the wrap above),
+   but scrolling the list while a plain "drop here" hint covers it isn't
+   useful anyway. */
+.candidate-drawer__panel--scroll-locked {
+  overflow-y: hidden;
+}
+.candidate-drawer__return-hint {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  background: #04140fc2;
+  color: #f5fbf8;
+  pointer-events: none;
+}
+.candidate-drawer__return-hint svg {
+  width: 56px;
+  height: 56px;
+  stroke-width: 1.5;
+  opacity: .92;
 }
 .candidate-drawer__panel::-webkit-scrollbar { width: 8px; }
 .candidate-drawer__panel::-webkit-scrollbar-track { background: transparent; }
@@ -345,6 +470,7 @@
   cursor: grab;
   touch-action: none;
   transition: opacity .18s ease;
+  overflow: hidden;
 }
 .candidate-card--dragging { opacity: .35; }
 .candidate-card--swap-target .squad-card { opacity: .45; }

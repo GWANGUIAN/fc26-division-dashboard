@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import { rectSortingStrategy, SortableContext, useSortable } from "@dnd-kit/sortable";
+import { UserRoundPlus } from "lucide-react";
 import type { StreamerRecord } from "../../shared/model.js";
 import { winRatePercent } from "../../shared/record-extraction.js";
 import { searchable } from "../../shared/search.js";
@@ -51,6 +52,11 @@ interface CandidateDrawerProps {
   /** `null` when nothing is being dragged (normal hover behavior). `true`/`false` forces the drawer open/closed for the active drag — see SquadBuilderOverlay for the pointer-position logic that decides this. */
   dragExpandOverride: boolean | null;
   dragIntent: { targetId: string; intent: DropIntent } | null;
+  /** True while a *pitch* card is being dragged into the (open) drawer — a
+   * placed card can only ever be returned to the candidate list here, never
+   * swapped with a specific candidate, so this shows a plain "drop to
+   * return" hint instead of highlighting any one card. */
+  showReturnHint: boolean;
   onSort: (order: string[]) => void;
 }
 
@@ -59,6 +65,7 @@ export function CandidateDrawer({
   streamerById,
   dragExpandOverride,
   dragIntent,
+  showReturnHint,
   onSort,
 }: CandidateDrawerProps) {
   const [query, setQuery] = useState("");
@@ -121,25 +128,42 @@ export function CandidateDrawer({
           ))}
         </div>
       </div>
-      <div className="candidate-drawer__panel" ref={setPanelRef}>
-        <SortableContext items={sortableItems} strategy={rectSortingStrategy}>
-          <div className="candidate-drawer__grid">
-            {visibleIds.map((id) => {
-              const streamer = streamerById.get(id);
-              if (!streamer) return null;
-              return (
-                <CandidateCard
-                  key={id}
-                  streamer={streamer}
-                  dragIntent={dragIntent}
-                />
-              );
-            })}
-            {visibleIds.length === 0 && (
-              <p className="candidate-drawer__empty">표시할 후보가 없습니다.</p>
-            )}
+      <div className="candidate-drawer__panel-wrap">
+        <div
+          className={`candidate-drawer__panel ${showReturnHint ? "candidate-drawer__panel--scroll-locked" : ""}`}
+          ref={setPanelRef}
+        >
+          <SortableContext items={sortableItems} strategy={rectSortingStrategy}>
+            <div className="candidate-drawer__grid">
+              {visibleIds.map((id) => {
+                const streamer = streamerById.get(id);
+                if (!streamer) return null;
+                return (
+                  <CandidateCard
+                    key={id}
+                    streamer={streamer}
+                    dragIntent={dragIntent}
+                  />
+                );
+              })}
+              {visibleIds.length === 0 && (
+                <p className="candidate-drawer__empty">표시할 후보가 없습니다.</p>
+              )}
+            </div>
+          </SortableContext>
+        </div>
+        {showReturnHint && (
+          // Deliberately a sibling of the *scrolling* panel above (not
+          // nested inside it) — an absolutely positioned child of a scroll
+          // container is still part of its scrollable content, so if the
+          // list was already scrolled down before this hint appeared, an
+          // inset:0 overlay nested inside the panel would be offset from
+          // what's actually visible. This wrapper never scrolls, so the
+          // overlay always lines up with the panel's current viewport.
+          <div className="candidate-drawer__return-hint" aria-hidden="true">
+            <UserRoundPlus aria-hidden="true" />
           </div>
-        </SortableContext>
+        )}
       </div>
     </div>
   );

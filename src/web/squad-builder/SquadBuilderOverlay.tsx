@@ -24,6 +24,7 @@ import {
   type DropIntent,
 } from "./dragInteraction.js";
 import { getFormation } from "./formations.js";
+import { LineupPanel } from "./LineupPanel";
 import { Pitch } from "./Pitch";
 import { SquadBuilderCard } from "./SquadBuilderCard";
 import { SquadControls } from "./SquadControls";
@@ -120,13 +121,14 @@ export function SquadBuilderOverlay({
   /**
    * Whether the drawer should be forced open/closed for the duration of the
    * active drag, `null` when nothing is being dragged (normal hover behavior
-   * applies). A pitch card drag starts assuming the drawer is collapsed and
-   * only forces it open once the pointer reaches down into the collapsed
-   * drawer's own strip at the bottom of the screen — so dragging within the
-   * pitch (even past the halfway point) never blocks the lower rows. A
-   * candidate drag starts assuming the drawer is open (you were hovering it
-   * to grab the card) and only forces it collapsed once the pointer leaves
-   * that open area upward, onto the pitch.
+   * applies). The two drag kinds only differ in their *starting* value: a
+   * pitch card drag starts assuming collapsed (so dragging within the pitch,
+   * even to the back line/GK, never gets blocked by the drawer), a
+   * candidate drag starts assuming open (you were hovering the drawer to
+   * grab the card). From there both follow the same hysteresis (see the
+   * pointermove effect below) — once opened, only crossing the drawer's
+   * actual open-height line collapses it again; once collapsed, only
+   * reaching back down into its small collapsed strip reopens it.
    */
   const [dragDrawerExpanded, setDragDrawerExpanded] = useState<boolean | null>(
     null,
@@ -187,20 +189,16 @@ export function SquadBuilderOverlay({
    */
   useEffect(() => {
     if (!activeDragData) return;
-    const kind = activeDragData.kind;
     const onPointerMove = (event: PointerEvent) => {
       const pointerY = event.clientY;
-      if (kind === "placed") {
-        // Starts collapsed; expands only once the pointer reaches down into
-        // the collapsed drawer's own small strip, so dragging within the
-        // pitch (even to the back line/GK) never gets blocked by the drawer.
-        setDragDrawerExpanded(pointerY > innerHeight - DRAWER_PEEK_PX);
-        return;
-      }
-      // Candidate drags start from inside the open drawer. Hysteresis on
-      // purpose: once open, only leaving the drawer's actual open area
-      // (crossing the 46vh line) closes it; once closed, only reaching
-      // back down into the small collapsed strip reopens it.
+      // Same hysteresis for both drag kinds, regardless of which state they
+      // started in (see handleDragStart): while expanded, only leaving the
+      // drawer's actual open area (crossing the 46vh line) collapses it
+      // again; while collapsed, only reaching back down into the small
+      // collapsed strip (132px) expands it. A single shared threshold used
+      // to flip a pitch-card drag closed again the instant it stepped back
+      // out of that small strip, which felt like it was using the wrong
+      // (too-low) line once the drawer had actually opened.
       // collisionDetection (see dragInteraction.ts) is what keeps a
       // still-open drawer from swallowing drops onto the pitch underneath
       // it — this threshold only needs to match what the drawer visually
@@ -373,6 +371,11 @@ export function SquadBuilderOverlay({
         </header>
 
         <div className="squad-builder-overlay__pitch-wrap">
+          <LineupPanel
+            formation={formation}
+            placements={activeSquad.placements}
+            streamerById={streamerById}
+          />
           <Pitch
             formation={formation}
             placements={activeSquad.placements}
@@ -387,6 +390,9 @@ export function SquadBuilderOverlay({
           streamerById={streamerById}
           dragExpandOverride={dragDrawerExpanded}
           dragIntent={dragIntent}
+          showReturnHint={
+            activeDragData?.kind === "placed" && dragDrawerExpanded === true
+          }
           onSort={(order) =>
             dispatch({ type: "SORT_CANDIDATES", squadId: activeSquad.id, order })
           }
