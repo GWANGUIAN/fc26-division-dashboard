@@ -165,6 +165,24 @@ type Announcement = {
 
 const ANNOUNCEMENTS: Announcement[] = [
   {
+    id: "2026-08-squad-builder",
+    date: "2026.08.21",
+    body: (
+      <>
+        <strong>나만의 스쿼드 빌더</strong> 기능이 추가되었습니다.
+        <br />
+        <br />
+        디비전 목록 오른쪽의{" "}
+        <span className="announcement-squad-builder-btn">
+          <Users aria-hidden="true" />
+          <span>나만의 스쿼드 빌더</span>
+        </span>{" "}
+        버튼을 누르면 스쿼드를 추가하고 원하는 포메이션에 스트리머들을 자유롭게 배치해볼 수
+        있습니다.
+      </>
+    ),
+  },
+  {
     id: "2026-08-gemini-review",
     date: "2026.08.20",
     body: (
