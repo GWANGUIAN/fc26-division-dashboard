@@ -1477,8 +1477,10 @@ function GeminiReviewSection({
       </p>
       {!review && hasPost && (
         <p className="gemini-review__note">
-          인증샷에 전체 전적이 포함되지 않으면 한줄평은 생성되지 않습니다.
-          관리자가 수동 업데이트 할때까지 기다리세요.
+          인증샷에 전체 전적이 포함되어 있어야 AI가 이미지를 분석해서 전적을
+          추출하고 한줄평을 생성합니다.
+          <br />
+          잘못된 인증샷을 올린 경우, 관리자가 수동 업데이트 할때까지 기다리세요.
         </p>
       )}
       {review && (

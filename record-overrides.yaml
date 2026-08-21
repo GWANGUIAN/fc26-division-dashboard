@@ -43,6 +43,15 @@ overrides:
       - soopId: htvv2i
     division: 9
     record: { wins: 6, draws: 1, losses: 19 }
+      - soopId: toryvac
+    division: 9
+    record: { wins: 4, draws: 1, losses: 7 }
+      # - soopId: 
+  #   division: 
+  #   record: { wins: , draws: , losses:  }
+      # - soopId: 
+  #   division: 
+  #   record: { wins: , draws: , losses:  }
       # - soopId: 
   #   division: 
   #   record: { wins: , draws: , losses:  }
