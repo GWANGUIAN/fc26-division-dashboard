@@ -141,7 +141,7 @@ streamers:
       policy: auto
     celebrationMessage: "핫짱의 {n}부 리그 승격을 축하합니다~!!🐉"
     sfx: "/sfxes/hachi.mp3"
-    reviewNote: "하치쿤, 핫짱이라는 별명을 가지고 있음"
+    reviewNote: "하치쿤, 핫짱이라는 별명을 가지고 있음, RP가 용이고 리냐_LINYA, 유샥크와 함께 해물탕즈라고 모임이 있어"
     isFancy: true
   - slug: 
     displayName: 미르_MIR
