@@ -1026,7 +1026,6 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "사시노 리냐의 {n}부 리그 승격을 축하합니다~!!🤪"
-    profileImageUrl: "/profiles/profile_linya.webp"
     sfx: "/sfxes/linya.mp3"
   - slug: hikicomoring
     displayName: "히키☆"
