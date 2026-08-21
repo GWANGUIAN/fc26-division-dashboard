@@ -37,15 +37,15 @@ overrides:
     - soopId: suddory2
     division: 8
     record: { wins: 8, draws: 2, losses: 19 }
-      - soopId: htvv2i
+    - soopId: htvv2i
     division: 9
     record: { wins: 6, draws: 1, losses: 19 }
-      - soopId: toryvac
+    - soopId: toryvac
     division: 9
     record: { wins: 4, draws: 1, losses: 7 }
-      # - soopId: 
-  #   division: 
-  #   record: { wins: , draws: , losses:  }
+    - soopId: dokkhye0000
+    division: 7
+    record: { wins: 11, draws: 5, losses: 20 }
       # - soopId: 
   #   division: 
   #   record: { wins: , draws: , losses:  }
