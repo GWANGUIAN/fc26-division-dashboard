@@ -88,7 +88,7 @@ const jandyVideos: readonly JandyVideo[] = [
   {
     title: "FC 수비 강의.",
     videoUrl: "https://vod.sooplive.com/player/204537485",
-    thumbnailUrl: "/thumbnails/thumbnail_defense.webp",
+    thumbnailUrl: "/thumbnails/thumnail_defense.webp",
   },
   {
     title: "잔디동 1:1 교육 영상 찍기.",
@@ -132,6 +132,7 @@ const jandyChapterVideos: readonly JandyChapterVideo[] = [
     thumbnailUrl: "/thumbnails/thumbnail_hit.webp",
     chapters: [
       { title: "양지랖편", seconds: 23529 },
+      { title: "공격 강의", seconds: 26074 },
       { title: "오슈이편", seconds: 29976 },
       { title: "빙밍편", seconds: 30924 },
     ],
