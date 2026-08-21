@@ -1,0 +1,42 @@
+import type { Squad } from "./types.js";
+
+/**
+ * Drops placements/candidates for streamers no longer in the live roster,
+ * and appends any streamer the squad has never seen before to the end of
+ * the candidate list. Returns the same object when nothing changed, so
+ * callers can cheaply skip re-renders.
+ */
+export function reconcileRosterChange(
+  squad: Squad,
+  liveStreamerIds: Set<string>,
+): Squad {
+  const placements = squad.placements.filter((placement) =>
+    liveStreamerIds.has(placement.streamerId),
+  );
+  const placedIds = new Set(placements.map((placement) => placement.streamerId));
+  const candidateOrder = squad.candidateOrder.filter(
+    (id) => liveStreamerIds.has(id) && !placedIds.has(id),
+  );
+  const knownIds = new Set([...placedIds, ...candidateOrder]);
+  const newIds = [...liveStreamerIds].filter((id) => !knownIds.has(id));
+
+  const unchanged =
+    placements.length === squad.placements.length &&
+    candidateOrder.length === squad.candidateOrder.length &&
+    newIds.length === 0;
+  if (unchanged) return squad;
+
+  return {
+    ...squad,
+    placements,
+    candidateOrder: [...candidateOrder, ...newIds],
+  };
+}
+
+export function reconcileAllSquads(
+  squads: Squad[],
+  liveStreamerIds: string[],
+): Squad[] {
+  const idSet = new Set(liveStreamerIds);
+  return squads.map((squad) => reconcileRosterChange(squad, idSet));
+}

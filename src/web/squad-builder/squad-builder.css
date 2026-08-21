@@ -1,0 +1,501 @@
+/* Squad Builder — fullscreen formation editor overlay. */
+
+.squad-builder-overlay {
+  --drawer-peek: 132px;
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  background: #05130d;
+  color: #f5fbf8;
+}
+
+.squad-builder-overlay__header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid #ffffff1a;
+  background: #071a12;
+}
+
+.squad-builder-overlay__header-spacer { min-width: 0; }
+
+.squad-builder-overlay__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: end;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 999px;
+  color: #f5fbf8;
+  background: #ffffff14;
+  cursor: pointer;
+}
+.squad-builder-overlay__close:hover { background: #ffffff26; }
+.squad-builder-overlay__close svg { width: 18px; height: 18px; }
+
+.squad-builder-overlay__pitch-wrap {
+  container-type: size;
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px 16px calc(var(--drawer-peek) + 18px);
+  overflow: hidden;
+}
+
+/* --- Pitch --- */
+
+/* Sized to "contain" within the wrap (whichever of width/height is the
+   limiting dimension), so it always fits above the drawer's peek height
+   regardless of window shape — no fixed vh-based guess that can overflow. */
+.pitch {
+  position: relative;
+  width: min(100cqw, calc(100cqh * 105 / 68));
+  aspect-ratio: 105 / 68;
+  border-radius: 10px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #1c8a4c 0,
+      #1c8a4c 8%,
+      #17793f 8%,
+      #17793f 16%
+    );
+  box-shadow: 0 20px 60px #00000080, inset 0 0 0 1px #ffffff1a;
+  overflow: visible;
+}
+
+.pitch__markings {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: #ffffff59;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.pitch-slot {
+  position: absolute;
+  width: 7.7%;
+  max-width: 140px;
+  aspect-ratio: 300 / 450;
+  transform: translate(-50%, -50%);
+  transition: left .4s ease, top .4s ease;
+}
+
+.pitch-slot__placeholder {
+  width: 100%;
+  height: 100%;
+}
+.pitch-slot__placeholder-outer {
+  fill: #ffffff1f;
+  stroke: #ffffff66;
+  stroke-width: 5;
+  stroke-dasharray: 14 10;
+  transition: fill .18s, stroke .18s;
+}
+.pitch-slot__placeholder-inner {
+  fill: none;
+  stroke: #ffffff33;
+  stroke-width: 2;
+}
+
+.pitch-slot--over .pitch-slot__placeholder-outer {
+  fill: #00e9ae26;
+  stroke: #00e9ae;
+}
+
+.pitch-slot__label {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 3px;
+  padding: 1px 7px;
+  border-radius: 3px;
+  background: #00000059;
+  font: 800 13px/1.4 "Barlow Condensed", "Noto Sans KR";
+  letter-spacing: .04em;
+  color: #f5fbf8;
+  opacity: .9;
+  white-space: nowrap;
+  -webkit-text-stroke: .5px #000;
+  paint-order: stroke fill;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+
+.pitch-card {
+  position: absolute;
+  width: 7.7%;
+  max-width: 140px;
+  aspect-ratio: 300 / 450;
+  transform: translate(-50%, -50%);
+  transition: left .4s ease, top .4s ease;
+  cursor: grab;
+  touch-action: none;
+}
+.pitch-card--dragging { opacity: .35; }
+.pitch-card--swap-target .squad-card { opacity: .45; }
+/* The card just dropped already visually arrived via the DragOverlay following
+   the cursor — skip its own slide so it doesn't replay the old->new path. */
+.pitch-card--snap { transition: none; }
+
+/* --- Shared squad-builder card (reuses FifaShield/FancyAvatar/etc. from cardVisuals) --- */
+
+.squad-card {
+  container-type: inline-size;
+  --text-outline: -1px -1px 0 #000, 0 -1px 0 #000, 1px -1px 0 #000, -1px 0 0 #000, 1px 0 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 1px 1px 0 #000;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  color: #181206;
+  text-align: center;
+  user-select: none;
+}
+
+.squad-card__division {
+  position: absolute;
+  z-index: 1;
+  top: 7%;
+  left: 8%;
+  opacity: .72;
+  color: #f5fbf8;
+  font-family: "Barlow Condensed";
+  font-weight: 800;
+  line-height: 1;
+  text-shadow: var(--text-outline);
+}
+
+.squad-card__body {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5cqw;
+  padding: 8cqw 9cqw;
+}
+
+.squad-card__avatar { position: relative; flex-shrink: 0; }
+.squad-card__avatar .avatar { border: 2px solid var(--avatar-border, #000); }
+
+.squad-card__name {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 2cqw 4cqw;
+  border-top: 1px solid #ffffff59;
+  border-bottom: 1px solid #ffffff59;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.squad-card__name strong { color: #fff; text-shadow: var(--text-outline); }
+
+.squad-card__stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3cqw;
+  margin-top: 1cqw;
+}
+.squad-card__stat { display: inline-flex; align-items: baseline; gap: 5cqw; }
+.squad-card__stat .record-badge { text-shadow: var(--text-outline); font-size: 10cqw; }
+.squad-card__stat-label { color: #f5fbf8; opacity: .68; font-size: 7.5cqw; text-shadow: var(--text-outline); }
+.squad-card__stat-value { color: #fff; font-size: 9cqw; text-shadow: var(--text-outline); }
+.squad-card__stat-value-kr { font-size: .78em; }
+
+/* candidate: division/avatar/name only, sized generously since nothing else competes for space */
+.squad-card--candidate .squad-card__division { font-size: 15cqw; }
+.squad-card--candidate .squad-card__avatar .avatar { width: 48cqw; height: 48cqw; }
+.squad-card--candidate .squad-card__name { font-size: 14cqw; }
+
+/* placed: smaller avatar/name to make room for the stat footer */
+.squad-card--placed .squad-card__division { font-size: 11cqw; }
+.squad-card--placed .squad-card__avatar .avatar { width: 32cqw; height: 32cqw; }
+.squad-card--placed .squad-card__name { font-size: 10cqw; }
+
+/* --- Candidate drawer --- */
+
+.candidate-drawer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  max-height: var(--drawer-peek);
+  border-top: 1px solid #ffffff26;
+  background: #071a12ee;
+  backdrop-filter: blur(6px);
+  /* Closing (falling back to this base rule from :hover/:focus-within) is
+     delayed, so a momentary slip of the cursor while aiming for the search
+     input doesn't collapse the drawer out from under it. Re-entering (or
+     focusing the search input) before the delay elapses cancels the close
+     entirely, since the target max-height flips back before the transition
+     ever starts. */
+  transition: max-height .28s ease .15s;
+  overflow: hidden;
+}
+.candidate-drawer:hover,
+.candidate-drawer:focus-within {
+  max-height: 46vh;
+  /* Opening has no delay — only closing should feel deliberate. */
+  transition: max-height .28s ease;
+}
+/* Drag-driven open/close (see dragExpandOverride in SquadBuilderOverlay)
+   always stays instant — these explicitly set their own no-delay
+   transition so the hover-close delay above never leaks into it, even
+   though the cursor is often still physically over the drawer (matching
+   :hover) at the moment a drag collapses it. Chained to match (or beat)
+   the :hover/:focus-within specificity above; only one of
+   --drag-collapsed/--drag-expanded is ever applied at a time, so there's
+   no ordering conflict between them. */
+.candidate-drawer.candidate-drawer--drag-collapsed,
+.candidate-drawer.candidate-drawer--drag-collapsed:hover,
+.candidate-drawer.candidate-drawer--drag-collapsed:focus-within {
+  /* Same height as the normal idle peek — no need to squeeze it in even
+     further than usual just because a drag is in progress. */
+  max-height: var(--drawer-peek);
+  transition: max-height .28s ease;
+}
+.candidate-drawer.candidate-drawer--drag-expanded,
+.candidate-drawer.candidate-drawer--drag-expanded:hover,
+.candidate-drawer.candidate-drawer--drag-expanded:focus-within {
+  max-height: 46vh;
+  transition: max-height .28s ease;
+}
+
+.candidate-drawer__handle {
+  width: 44px;
+  height: 4px;
+  margin: 8px auto 0;
+  border-radius: 999px;
+  background: #ffffff33;
+  flex-shrink: 0;
+}
+
+.candidate-drawer__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  flex-shrink: 0;
+}
+
+.candidate-drawer__title { flex-shrink: 0; font: 700 13px "Noto Sans KR"; opacity: .85; }
+.candidate-drawer__title b { color: #00e9ae; font-size: 15px; }
+
+.candidate-drawer__search { flex: 0 1 260px; min-width: 140px; }
+.candidate-drawer__search input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 3px;
+  border: 1px solid #ffffff25;
+  outline: none;
+  color: #effff9;
+  background: #09100e;
+  font-size: 13px;
+}
+.candidate-drawer__search input:focus { border-color: #00e9ae; box-shadow: 0 0 0 3px #00e9ae12; }
+
+.candidate-drawer__sort { display: flex; flex: 0 0 auto; overflow: hidden; border: 1px solid #ffffff20; border-radius: 3px; white-space: nowrap; }
+.candidate-drawer__sort button { border: 0; padding: 8px 11px; color: #9aaba4; background: transparent; font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer; transition: .18s; }
+.candidate-drawer__sort button:hover { color: #effff9; background: #ffffff0f; }
+.candidate-drawer__sort button + button { border-left: 1px solid #ffffff20; }
+
+.candidate-drawer__panel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 16px 16px;
+  scrollbar-width: thin;
+  scrollbar-color: #00e9ae80 transparent;
+}
+.candidate-drawer__panel::-webkit-scrollbar { width: 8px; }
+.candidate-drawer__panel::-webkit-scrollbar-track { background: transparent; }
+.candidate-drawer__panel::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #00e9ae66;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.candidate-drawer__panel::-webkit-scrollbar-thumb:hover { background: #00e9aeb3; background-clip: padding-box; }
+
+.candidate-drawer__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 10px;
+}
+
+.candidate-drawer__empty { grid-column: 1 / -1; opacity: .6; font-size: 13px; text-align: center; padding: 24px 0; }
+
+.candidate-card {
+  aspect-ratio: 300 / 450;
+  cursor: grab;
+  touch-action: none;
+  transition: opacity .18s ease;
+}
+.candidate-card--dragging { opacity: .35; }
+.candidate-card--swap-target .squad-card { opacity: .45; }
+.candidate-card--insert-before { box-shadow: inset 3px 0 0 #00e9ae; }
+.candidate-card--insert-after { box-shadow: inset -3px 0 0 #00e9ae; }
+
+/* --- Drag overlay (floating copy following the cursor) --- */
+
+.squad-builder-drag-overlay {
+  width: 128px;
+  aspect-ratio: 300 / 450;
+  filter: drop-shadow(0 12px 24px #00000080);
+  cursor: grabbing;
+}
+
+/* --- Squad controls: dropdown + edit/delete/add + formation picker --- */
+
+.squad-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  grid-column: 2;
+}
+
+.squad-controls__select { max-width: 220px; }
+
+.squad-controls__icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #ffffff28;
+  border-radius: 3px;
+  color: #c8d6cf;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color .18s, color .18s, background .18s;
+}
+.squad-controls__icon-button:hover:not(:disabled) { border-color: #00e9ae; color: #00e9ae; background: #00e9ae14; }
+.squad-controls__icon-button:disabled { opacity: .35; cursor: not-allowed; }
+.squad-controls__icon-button svg { width: 15px; height: 15px; stroke-width: 2.4; }
+.squad-controls__icon-button--danger:hover:not(:disabled) { border-color: #ff6b6b; color: #ff6b6b; background: #ff6b6b14; }
+
+.squad-controls__formation { margin-left: 6px; }
+
+/* --- Radix Select, styled to match the app's dark/teal theme (square corners, like .segmented) --- */
+
+.squad-dropdown__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px 9px 12px;
+  border: 1px solid #ffffff25;
+  border-radius: 3px;
+  color: #effff9;
+  background: #09100e;
+  font: 700 13px "Noto Sans KR";
+  cursor: pointer;
+  transition: border-color .15s;
+}
+.squad-dropdown__trigger:hover { border-color: #ffffff45; }
+.squad-dropdown__trigger:focus-visible,
+.squad-dropdown__trigger[data-state="open"] { border-color: #00e9ae; outline: 0; }
+.squad-dropdown__trigger .squad-dropdown__chevron { display: inline-flex; margin-left: auto; color: #8ca399; }
+.squad-dropdown__trigger .squad-dropdown__chevron svg { width: 14px; height: 14px; transition: transform .15s; }
+.squad-dropdown__trigger[data-state="open"] .squad-dropdown__chevron svg { transform: rotate(180deg); }
+
+.squad-dropdown__content {
+  z-index: 95;
+  overflow: hidden;
+  min-width: var(--radix-select-trigger-width);
+  border: 1px solid #00e9ae40;
+  background: #0c1814;
+  box-shadow: 0 16px 40px #000000a0;
+}
+.squad-dropdown__viewport { padding: 3px; max-height: 320px; }
+.squad-dropdown__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 10px;
+  color: #dfeee8;
+  font: 700 13px "Noto Sans KR";
+  cursor: pointer;
+  outline: 0;
+  user-select: none;
+}
+.squad-dropdown__item[data-highlighted] { background: #00e9ae1a; color: #00e9ae; }
+.squad-dropdown__item[data-state="checked"] { color: #00e9ae; }
+.squad-dropdown__item-indicator { display: inline-flex; }
+.squad-dropdown__item-indicator svg { width: 13px; height: 13px; }
+
+/* --- Mini dialogs (add/rename squad, delete confirm) — mirrors the app's .modal --- */
+
+.squad-mini-dialog-backdrop {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: #000b08d9;
+  backdrop-filter: blur(7px);
+}
+
+.squad-mini-dialog {
+  width: min(360px, 100%);
+  padding: 26px;
+  border: 1px solid #00e9ae62;
+  background: linear-gradient(150deg, #0c1814, #050a08 60%);
+  box-shadow: 0 20px 70px #000;
+}
+.squad-mini-dialog h3 { margin: 0 0 16px; font: 800 18px "Barlow Condensed", "Noto Sans KR"; letter-spacing: .01em; }
+.squad-mini-dialog__message { margin: 0 0 20px; color: #b0c3bd; font-size: 13px; line-height: 1.6; }
+.squad-mini-dialog input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ffffff25;
+  border-radius: 3px;
+  outline: none;
+  color: #effff9;
+  background: #09100e;
+  font-size: 14px;
+}
+.squad-mini-dialog input:focus { border-color: #00e9ae; box-shadow: 0 0 0 3px #00e9ae12; }
+.squad-mini-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 22px;
+}
+.squad-mini-dialog__actions button {
+  padding: 9px 16px;
+  border: 1px solid #ffffff28;
+  border-radius: 3px;
+  color: #c3d3cc;
+  background: transparent;
+  font: 700 12px "Noto Sans KR";
+  cursor: pointer;
+  transition: .18s;
+}
+.squad-mini-dialog__actions button[type="button"]:first-child:hover { border-color: #ffffff55; color: #effff9; }
+.squad-mini-dialog__actions button[type="submit"] { border-color: #00e9ae55; color: #c8fff0; background: #00e9ae22; }
+.squad-mini-dialog__actions button[type="submit"]:hover:not(:disabled) { background: #00e9ae33; border-color: #00e9ae80; }
+.squad-mini-dialog__actions button[type="submit"]:disabled { opacity: .4; cursor: not-allowed; }
+.squad-mini-dialog__danger { border-color: #ff6b6b55; color: #ffd6d6; background: #ff6b6b1f; }
+.squad-mini-dialog__danger:hover { background: #ff6b6b33; border-color: #ff6b6b80; }
+
+@media (max-width: 680px) {
+  .squad-builder-overlay { display: none; }
+}

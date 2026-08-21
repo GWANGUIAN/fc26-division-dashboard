@@ -1,6 +1,5 @@
 import {
   useEffect,
-  useId,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -39,17 +38,21 @@ import type {
   StreamerActivityPost,
   StreamerRecord,
 } from "../shared/model.js";
-import { defaultSoopProfileUrl, soopChannelUrl } from "../shared/model.js";
+import { soopChannelUrl } from "../shared/model.js";
 import { DEFAULT_ONE_VS_ONE_CONFIG } from "../shared/one-vs-one-results.js";
 import {
   buildPromotionTimeline,
   summarizePromotionTimeline,
 } from "../shared/promotion-timeline.js";
 import { normalizeCafeAlias } from "../shared/promotion.js";
+import { searchable } from "../shared/search.js";
 import {
-  recordExtractionStatus,
-  winRatePercent,
-} from "../shared/record-extraction.js";
+  formatBoardPostDate,
+  formatCafePostDate,
+  HANGUL_PATTERN,
+  koreaDateKey,
+} from "../shared/dates.js";
+import { winRatePercent } from "../shared/record-extraction.js";
 import {
   buildTrophyAwards,
   DIVISION_ONE_EMOJI,
@@ -57,12 +60,24 @@ import {
   type TrophyAwards,
 } from "../shared/trophy.js";
 import { divisionColor } from "../shared/division-theme.js";
+import {
+  AchievementBadges,
+  Avatar,
+  FancyAvatar,
+  FancyName,
+  FifaShield,
+  hexToRgba,
+  isStreamerFancy,
+  mixHex,
+  RecordBadge,
+} from "./cardVisuals";
 import { loadSnapshot } from "./api.js";
 import { downloadStreamersXlsx } from "./xlsx-export.js";
 import soopIcon from "./assets/soop_icon.svg";
 import geminiLogo from "./assets/gemini-logo.svg";
 import { DivisionHistogram } from "./DivisionHistogram";
 import { MusicPlayer } from "./MusicPlayer";
+import { SquadBuilderOverlay } from "./squad-builder/SquadBuilderOverlay";
 
 const divisions = Array.from({ length: 10 }, (_, index) => index + 1);
 const cafeIcon = "N";
@@ -140,13 +155,6 @@ const jandyChapterVideos: readonly JandyChapterVideo[] = [
   },
 ];
 
-const koreaDateKey = (value: Date) =>
-  new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Seoul",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(value);
 
 type Announcement = {
   id: string;
@@ -254,7 +262,6 @@ const CARD_ZOOM_STORAGE_KEY = "fc26-card-zoom-level";
 const CARD_ZOOM_MIN = 0;
 const CARD_ZOOM_MAX = 4;
 const CARD_ZOOM_DEFAULT = 1;
-const HANGUL_PATTERN = /[가-힣]/;
 
 function loadViewMode(): "list" | "card" {
   try {
@@ -583,38 +590,6 @@ function formatDateTime(value?: string) {
   }).format(new Date(value));
 }
 
-function formatCafePostDate(value?: string) {
-  if (!value) return "보고 없음";
-  const date = new Date(value);
-  if (koreaDateKey(date) === koreaDateKey(new Date())) {
-    return new Intl.DateTimeFormat("ko-KR", {
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "Asia/Seoul",
-    }).format(date);
-  }
-  return new Intl.DateTimeFormat("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    timeZone: "Asia/Seoul",
-  }).format(date);
-}
-
-function formatBoardPostDate(value?: string) {
-  if (!value) return "보고 없음";
-  const date = new Date(value);
-  const dateKey = koreaDateKey(date);
-  const today = new Date();
-  if (dateKey === koreaDateKey(today)) {
-    return `오늘 ${new Intl.DateTimeFormat("ko-KR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" }).format(date)}`;
-  }
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-  if (dateKey === koreaDateKey(yesterday)) return "어제";
-  return formatCafePostDate(value);
-}
-
 function formatTimelineDate(value: string) {
   return new Intl.DateTimeFormat("ko-KR", {
     month: "long",
@@ -638,104 +613,6 @@ function formatDuration(milliseconds: number) {
   const hours = Math.floor(minutes / 60);
   const restMinutes = minutes % 60;
   return restMinutes ? `${hours}시간 ${restMinutes}분` : `${hours}시간`;
-}
-
-function Avatar({
-  profileImageUrl,
-  soopId,
-  displayName,
-}: Pick<StreamerRecord, "profileImageUrl" | "soopId" | "displayName">) {
-  const [failed, setFailed] = useState(false);
-  const src = profileImageUrl ?? defaultSoopProfileUrl(soopId);
-  return src && !failed ? (
-    <img className="avatar" src={src} alt="" onError={() => setFailed(true)} />
-  ) : (
-    <span className="avatar avatar-fallback" aria-hidden="true">
-      {displayName.slice(0, 1)}
-    </span>
-  );
-}
-
-const FANCY_SPARK_SLOTS = [1, 2, 3, 4, 5, 6] as const;
-
-function isStreamerFancy(streamer: Pick<StreamerRecord, "isFancy">): boolean {
-  return !!streamer.isFancy;
-}
-
-function FancyAvatar({
-  streamer,
-  color = "#00e9ae",
-  ring = true,
-}: {
-  streamer: StreamerRecord;
-  color?: string;
-  ring?: boolean;
-}) {
-  if (!isStreamerFancy(streamer)) return <Avatar {...streamer} />;
-  return (
-    <span
-      className={`fancy-avatar ${ring ? "fancy-avatar--ring" : ""}`}
-      style={
-        {
-          "--fancy-color": color,
-          "--fancy-glow-soft": hexToRgba(color, 0.4),
-          "--fancy-glow-strong": hexToRgba(color, 0.85),
-        } as React.CSSProperties
-      }
-    >
-      <Avatar {...streamer} />
-      <span className="fancy-avatar__sparks" aria-hidden="true">
-        {FANCY_SPARK_SLOTS.map((slot) => (
-          <i
-            className={`fancy-avatar__spark fancy-avatar__spark--${slot}`}
-            key={slot}
-          >
-            ✦
-          </i>
-        ))}
-      </span>
-    </span>
-  );
-}
-
-const FANCY_NAME_SPARK_SLOTS = [1, 2, 3] as const;
-
-function FancyName({
-  streamer,
-  color = "#00e9ae",
-  tag: Tag = "span",
-  children,
-}: {
-  streamer: StreamerRecord;
-  color?: string;
-  tag?: "span" | "strong";
-  children: ReactNode;
-}) {
-  if (!isStreamerFancy(streamer)) return <Tag>{children}</Tag>;
-  return (
-    <span
-      className="fancy-name"
-      style={
-        {
-          "--fancy-color": color,
-          "--fancy-glow-soft": hexToRgba(color, 0.4),
-          "--fancy-glow-strong": hexToRgba(color, 0.85),
-        } as React.CSSProperties
-      }
-    >
-      <Tag className="fancy-name__text">{children}</Tag>
-      <span className="fancy-name__sparks" aria-hidden="true">
-        {FANCY_NAME_SPARK_SLOTS.map((slot) => (
-          <i
-            className={`fancy-name__spark fancy-name__spark--${slot}`}
-            key={slot}
-          >
-            ✦
-          </i>
-        ))}
-      </span>
-    </span>
-  );
 }
 
 const FANCY_BURST_STARS = [
@@ -1104,71 +981,6 @@ function FavoriteCelebration({ slides }: { slides: CelebrationSlide[] }) {
   );
 }
 
-function AchievementBadges({
-  streamer,
-  awards,
-}: {
-  streamer: StreamerRecord;
-  awards: TrophyAwards;
-}) {
-  const badges = trophyBadgesFor(streamer, awards);
-  if (!badges.length) return null;
-  return (
-    <span
-      className="achievement-badges"
-      aria-label={`${streamer.displayName} 업적`}
-    >
-      {badges.map((badge) => (
-        <span
-          className="achievement-badge"
-          role="img"
-          title={badge.name}
-          key={badge.key}
-          aria-label={badge.name}
-        >
-          <span aria-hidden="true">{badge.emoji}</span>
-          <span role="tooltip">{badge.name}</span>
-        </span>
-      ))}
-    </span>
-  );
-}
-
-function RecordBadge({
-  streamer,
-  className = "",
-}: {
-  streamer: Pick<StreamerRecord, "record" | "lastPost">;
-  className?: string;
-}) {
-  if (streamer.record) {
-    const r = streamer.record;
-    return (
-      <span className={`record-badge ${className}`}>
-        <b className="record-badge__w">{r.wins}</b>/
-        <b className="record-badge__d">{r.draws}</b>/
-        <b className="record-badge__l">{r.losses}</b>
-      </span>
-    );
-  }
-  if (!streamer.lastPost)
-    return (
-      <span className={`record-badge record-badge--empty ${className}`}>
-        -/-/-
-      </span>
-    );
-  const status = recordExtractionStatus(streamer.lastPost);
-  return status === "pending" ? (
-    <span className={`record-badge record-badge--pending ${className}`}>
-      집계중
-    </span>
-  ) : (
-    <span className={`record-badge record-badge--empty ${className}`}>
-      -/-/-
-    </span>
-  );
-}
-
 function StreamerCard({
   streamer,
   awards,
@@ -1234,100 +1046,6 @@ function StreamerCard({
       {isNew && <span className="streamer-card__new-badge">NEW</span>}
     </button>
   );
-}
-
-function mixHex(
-  hex: string,
-  target: "white" | "black",
-  amount: number,
-): string {
-  const num = parseInt(hex.replace("#", ""), 16);
-  const [r, g, b] = [(num >> 16) & 255, (num >> 8) & 255, num & 255];
-  const t = target === "white" ? 255 : 0;
-  const blend = (c: number) =>
-    Math.round(c + (t - c) * amount)
-      .toString(16)
-      .padStart(2, "0");
-  return `#${blend(r)}${blend(g)}${blend(b)}`;
-}
-
-const FIFA_SHIELD_OUTER =
-  "M 150,6 C 215,6 270,14 286,28 C 295,36 298,46 298,60 L 298,350 C 298,370 278,400 150,444 C 22,400 2,370 2,350 L 2,60 C 2,46 5,36 14,28 C 30,14 85,6 150,6 Z";
-const FIFA_SHIELD_INNER =
-  "M 150,14 C 210,14 262,21 278,33 C 285,39 288,48 288,60 L 288,346 C 288,363 269,391 150,432 C 31,391 12,363 12,346 L 12,60 C 12,48 15,39 22,33 C 38,21 90,14 150,14 Z";
-
-function FifaShield({
-  color,
-  holo,
-}: {
-  color: string;
-  holo?: { x: number; y: number; opacity: number };
-}) {
-  const uid = useId();
-  const gradientId = `${uid}-grad`;
-  const holoId = `${uid}-holo`;
-  return (
-    <svg className="fifa-card__shield" viewBox="0 0 300 450" aria-hidden="true">
-      <defs>
-        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style={{ stopColor: color, stopOpacity: 0.55 }} />
-          <stop
-            offset="45%"
-            style={{ stopColor: mixHex(color, "black", 0.5), stopOpacity: 0.4 }}
-          />
-          <stop
-            offset="100%"
-            style={{ stopColor: "#06100c", stopOpacity: 0.94 }}
-          />
-        </linearGradient>
-        {holo && (
-          <radialGradient
-            id={holoId}
-            gradientUnits="objectBoundingBox"
-            cx={holo.x}
-            cy={holo.y}
-            r="0.7"
-          >
-            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.95" />
-            <stop offset="16%" stopColor="#8ff5ff" stopOpacity="0.6" />
-            <stop offset="34%" stopColor="#ff9bec" stopOpacity="0.45" />
-            <stop offset="52%" stopColor="#fff29b" stopOpacity="0.3" />
-            <stop offset="72%" stopColor="#9bffd6" stopOpacity="0.18" />
-            <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-          </radialGradient>
-        )}
-      </defs>
-      <path
-        d={FIFA_SHIELD_OUTER}
-        fill={`url(#${gradientId})`}
-        stroke={mixHex(color, "black", 0.35)}
-        strokeWidth={3}
-      />
-      <path
-        d={FIFA_SHIELD_INNER}
-        fill="none"
-        stroke="rgba(255, 255, 255, 0.35)"
-        strokeWidth={2}
-      />
-      {holo && (
-        <path
-          d={FIFA_SHIELD_OUTER}
-          fill={`url(#${holoId})`}
-          opacity={holo.opacity}
-          style={{
-            mixBlendMode: "color-dodge",
-            transition: "opacity .25s ease-out",
-          }}
-        />
-      )}
-    </svg>
-  );
-}
-
-function hexToRgba(hex: string, alpha: number): string {
-  const num = parseInt(hex.replace("#", ""), 16);
-  const [r, g, b] = [(num >> 16) & 255, (num >> 8) & 255, num & 255];
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
 function StreamerFifaCard({
@@ -1457,6 +1175,7 @@ function CardBoard({
   onZoomOut,
   zoomMin,
   zoomMax,
+  railExtra,
 }: {
   streamers: StreamerRecord[];
   awards: TrophyAwards;
@@ -1466,6 +1185,7 @@ function CardBoard({
   onZoomOut: () => void;
   zoomMin: number;
   zoomMax: number;
+  railExtra?: ReactNode;
 }) {
   return (
     <div className="card-board-wrap">
@@ -1486,6 +1206,7 @@ function CardBoard({
             <Minus aria-hidden="true" />
           </button>
         </div>
+        {railExtra}
       </div>
       <section
         className={`card-board card-board--zoom-${zoom}`}
@@ -2554,6 +2275,7 @@ export function App() {
   );
   const [sortMode, setSortMode] = useState<"division" | "winRate">("division");
   const [cardZoom, setCardZoom] = useState(() => loadCardZoomLevel());
+  const [squadBuilderOpen, setSquadBuilderOpen] = useState(false);
   const handleZoomOut = () => {
     setCardZoom((level) => {
       const next = Math.max(CARD_ZOOM_MIN, level - 1);
@@ -3006,6 +2728,14 @@ export function App() {
                 </button>
               </div>
             )}
+            <button
+              type="button"
+              className="squad-builder-toggle"
+              onClick={() => setSquadBuilderOpen(true)}
+            >
+              <Users aria-hidden="true" />
+              <span>나만의 스쿼드 빌더</span>
+            </button>
             <div className="segmented segmented--view-mode">
               <button
                 className={viewMode === "list" ? "active" : ""}
@@ -3068,7 +2798,8 @@ export function App() {
         </section>
       )}
       {isDivision ? (
-        viewMode === "list" ? (
+        <div className="results-wrap">
+        {viewMode === "list" ? (
           <section className="board" aria-label="FC26 디비전 보드">
             {divisions.map((division) => {
               const entries = streamers.filter(
@@ -3124,8 +2855,33 @@ export function App() {
             onZoomOut={handleZoomOut}
             zoomMin={CARD_ZOOM_MIN}
             zoomMax={CARD_ZOOM_MAX}
+            railExtra={
+              <button
+                type="button"
+                className="squad-builder-rail__button"
+                onClick={() => setSquadBuilderOpen(true)}
+                aria-label="나만의 스쿼드 빌더"
+              >
+                <Users aria-hidden="true" />
+                <span>나만의 스쿼드 빌더</span>
+              </button>
+            }
           />
-        )
+        )}
+          {viewMode === "list" && (
+            <div className="squad-builder-rail">
+              <button
+                type="button"
+                className="squad-builder-rail__button"
+                onClick={() => setSquadBuilderOpen(true)}
+                aria-label="나만의 스쿼드 빌더"
+              >
+                <Users aria-hidden="true" />
+                <span>나만의 스쿼드 빌더</span>
+              </button>
+            </div>
+          )}
+        </div>
       ) : (
         <section className="evaluation-list" aria-label="1대1 평가 신청 목록">
           {applications.map((application) => (
@@ -3166,6 +2922,12 @@ export function App() {
         <TrophyModal
           awards={trophyAwards}
           onClose={() => setTrophyOpen(false)}
+        />
+      )}
+      {squadBuilderOpen && (
+        <SquadBuilderOverlay
+          streamers={snapshot?.streamers ?? []}
+          onClose={() => setSquadBuilderOpen(false)}
         />
       )}
       {feedOpen && (
@@ -3252,13 +3014,6 @@ export function App() {
       )}
     </main>
   );
-}
-
-function searchable(displayName: string, aliases: string[], query: string) {
-  return [displayName, ...aliases]
-    .join(" ")
-    .toLocaleLowerCase("ko-KR")
-    .includes(query.toLocaleLowerCase("ko-KR"));
 }
 
 /**
