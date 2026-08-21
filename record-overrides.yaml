@@ -31,19 +31,19 @@ overrides:
   - soopId: ju010228
     division: 8
     record: { wins: 6, draws: 1, losses: 2 }
-    - soopId: alice427
+  - soopId: alice427
     division: 7
     record: { wins: 15, draws: 6, losses: 17 }
-    - soopId: suddory2
+  - soopId: suddory2
     division: 8
     record: { wins: 8, draws: 2, losses: 19 }
-    - soopId: htvv2i
+  - soopId: htvv2i
     division: 9
     record: { wins: 6, draws: 1, losses: 19 }
-    - soopId: toryvac
+  - soopId: toryvac
     division: 9
     record: { wins: 4, draws: 1, losses: 7 }
-    - soopId: dokkhye0000
+  - soopId: dokkhye0000
     division: 7
     record: { wins: 11, draws: 5, losses: 20 }
       # - soopId: 
