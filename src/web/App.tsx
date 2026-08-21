@@ -63,11 +63,11 @@ import { divisionColor } from "../shared/division-theme.js";
 import {
   AchievementBadges,
   Avatar,
+  fancyTierOf,
   FancyAvatar,
   FancyName,
   FifaShield,
   hexToRgba,
-  isStreamerFancy,
   mixHex,
   RecordBadge,
 } from "./cardVisuals";
@@ -643,27 +643,42 @@ const FANCY_BURST_STARS = [
   { left: "92%", delay: ".2s", duration: "1.7s", size: 10 },
 ];
 
-function FancyBurst({ color = "#00e9ae" }: { color?: string }) {
+// The lite tier gets barely any of the stars, dawdling in twice as slowly.
+const FANCY_BURST_LITE_STARS = [
+  { left: "24%", delay: "0s", duration: "3.4s", size: 7 },
+  { left: "74%", delay: "1.7s", duration: "3.8s", size: 6 },
+];
+
+function FancyBurst({
+  color = "#00e9ae",
+  tier = "full",
+}: {
+  color?: string;
+  tier?: "full" | "lite";
+}) {
+  const lite = tier === "lite";
   return (
     <div
-      className="fancy-burst"
+      className={`fancy-burst ${lite ? "fancy-burst--lite" : ""}`}
       aria-hidden="true"
       style={{ "--fancy-color": color } as React.CSSProperties}
     >
-      {FANCY_BURST_STARS.map((star, index) => (
-        <span
-          className="fancy-burst__star"
-          key={index}
-          style={{
-            left: star.left,
-            fontSize: star.size,
-            animationDelay: star.delay,
-            animationDuration: star.duration,
-          }}
-        >
-          ✦
-        </span>
-      ))}
+      {(lite ? FANCY_BURST_LITE_STARS : FANCY_BURST_STARS).map(
+        (star, index) => (
+          <span
+            className="fancy-burst__star"
+            key={index}
+            style={{
+              left: star.left,
+              fontSize: star.size,
+              animationDelay: star.delay,
+              animationDuration: star.duration,
+            }}
+          >
+            ✦
+          </span>
+        ),
+      )}
     </div>
   );
 }
@@ -1009,18 +1024,20 @@ function StreamerCard({
   isNew: boolean;
   onOpen: () => void;
 }) {
-  const fancy = isStreamerFancy(streamer);
+  const tier = fancyTierOf(streamer);
+  const lite = tier === "lite";
+  const fancyColor = lite ? mixHex("#00e9ae", "white", 0.65) : "#00e9ae";
   return (
     <button
-      className={`streamer-card ${isNew ? "streamer-card--new" : ""} ${fancy ? "fancy-border" : ""}`}
+      className={`streamer-card ${isNew ? "streamer-card--new" : ""} ${tier !== "none" ? "fancy-border" : ""} ${lite ? "fancy-border--lite" : ""}`}
       onClick={onOpen}
       aria-label={`${streamer.displayName} 상세 보기${isNew ? " (24시간 이내 업데이트됨)" : ""}`}
       style={
-        fancy
+        tier !== "none"
           ? ({
-              "--fancy-color": "#00e9ae",
-              "--fancy-glow-soft": hexToRgba("#00e9ae", 0.4),
-              "--fancy-glow-strong": hexToRgba("#00e9ae", 0.9),
+              "--fancy-color": fancyColor,
+              "--fancy-glow-soft": hexToRgba(fancyColor, lite ? 0.16 : 0.4),
+              "--fancy-glow-strong": hexToRgba(fancyColor, lite ? 0.35 : 0.9),
             } as React.CSSProperties)
           : undefined
       }
@@ -1555,12 +1572,20 @@ function DetailModal({
   const channel = soopChannelUrl(streamer.soopId);
   const [expandedImage, setExpandedImage] = useState<string>();
   useEscape(() => (expandedImage ? setExpandedImage(undefined) : onClose()));
+  const fancyTier = fancyTierOf(streamer);
+  const fancyLite = fancyTier === "lite";
+  const fancyModalColor = fancyLite
+    ? mixHex("#00e9ae", "white", 0.65)
+    : "#00e9ae";
   return (
     <Modal
       onClose={onClose}
       label="디비전 상세"
-      decoration={isStreamerFancy(streamer) ? <FancyBurst /> : undefined}
-      fancyBorderColor={isStreamerFancy(streamer) ? "#00e9ae" : undefined}
+      decoration={
+        fancyTier !== "none" ? <FancyBurst tier={fancyTier} /> : undefined
+      }
+      fancyBorderColor={fancyTier !== "none" ? fancyModalColor : undefined}
+      fancyLite={fancyLite}
       header={
         <div className="modal__identity">
           <FancyAvatar streamer={streamer} />
@@ -1831,6 +1856,7 @@ function Modal({
   label,
   decoration,
   fancyBorderColor,
+  fancyLite,
 }: {
   children: ReactNode;
   header: ReactNode;
@@ -1838,6 +1864,7 @@ function Modal({
   label: string;
   decoration?: ReactNode;
   fancyBorderColor?: string;
+  fancyLite?: boolean;
 }) {
   return (
     <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
@@ -1847,14 +1874,20 @@ function Modal({
           fancyBorderColor
             ? ({
                 "--fancy-color": fancyBorderColor,
-                "--fancy-glow-soft": hexToRgba(fancyBorderColor, 0.4),
-                "--fancy-glow-strong": hexToRgba(fancyBorderColor, 0.9),
+                "--fancy-glow-soft": hexToRgba(
+                  fancyBorderColor,
+                  fancyLite ? 0.16 : 0.4,
+                ),
+                "--fancy-glow-strong": hexToRgba(
+                  fancyBorderColor,
+                  fancyLite ? 0.35 : 0.9,
+                ),
               } as React.CSSProperties)
             : undefined
         }
       >
         <section
-          className={`modal ${fancyBorderColor ? "fancy-border" : ""}`}
+          className={`modal ${fancyBorderColor ? "fancy-border" : ""} ${fancyBorderColor && fancyLite ? "fancy-border--lite" : ""}`}
           role="dialog"
           aria-modal="true"
           aria-label={label}
@@ -1871,8 +1904,8 @@ function Modal({
         </section>
         {fancyBorderColor && (
           <img
-            className="fancy-ball"
-            src="/soccer_ball.webp"
+            className={`fancy-ball ${fancyLite ? "fancy-ball--lite" : ""}`}
+            src={fancyLite ? "/burst_soccer_ball.webp" : "/soccer_ball.webp"}
             alt=""
             aria-hidden="true"
           />

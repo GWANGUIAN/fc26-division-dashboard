@@ -11,6 +11,8 @@ export interface RosterEntry {
   celebrationMessage?: string;
   sfx?: string;
   isFancy?: boolean;
+  /** A toned-down version of isFancy's decoration: fewer/slower/paler effects. Ignored when isFancy is also set. */
+  isFancyLite?: boolean;
   /** Free-text background info about this streamer, injected into the Gemini review prompt when present. */
   reviewNote?: string;
 }
@@ -98,6 +100,8 @@ export interface StreamerRecord {
   celebrationMessage?: string;
   sfx?: string;
   isFancy?: boolean;
+  /** A toned-down version of isFancy's decoration: fewer/slower/paler effects. Ignored when isFancy is also set. */
+  isFancyLite?: boolean;
   /** Free-text background info about this streamer, injected into the Gemini review prompt when present. */
   reviewNote?: string;
   /** Newest generated review among this streamer's posts. isCurrent is false when a newer report exists that hasn't produced a review yet (not eligible, or still pending). */

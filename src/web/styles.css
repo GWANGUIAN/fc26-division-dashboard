@@ -413,9 +413,13 @@ body { isolation: isolate; }
 .fifa-card__avatar .fancy-avatar__spark--6 { top: 0; right: 22%; }
 @keyframes fancy-ring-pulse { 0%, 100% { box-shadow: 0 0 0 2px var(--fancy-glow-soft), 0 0 8px var(--fancy-glow-soft); } 50% { box-shadow: 0 0 0 2px var(--fancy-glow-strong), 0 0 20px var(--fancy-glow-strong), 0 0 34px var(--fancy-glow-soft); } }
 @keyframes fancy-spark-twinkle { 0%, 100% { opacity: 0; transform: scale(.3) rotate(0deg); } 20% { opacity: 1; transform: scale(1.35) rotate(25deg); } 40% { opacity: .12; transform: scale(.55) rotate(0deg); } 60% { opacity: 1; transform: scale(1.2) rotate(-18deg); } 80% { opacity: 0; transform: scale(.4) rotate(0deg); } }
+/* isFancyLite: same decoration family, deliberately dialed down so it barely reads as an effect. */
+.fancy-avatar--lite.fancy-avatar--ring .avatar { animation-duration: 6s; border-width: 1px; }
+.fancy-avatar__sparks--lite .fancy-avatar__spark { animation-duration: 4.6s !important; animation-timing-function: ease-in-out; font-size: 6px !important; }
 .fancy-burst { position: absolute; z-index: 5; inset: 0; overflow: hidden; pointer-events: none; }
 .fancy-burst__star { position: absolute; top: -24px; color: var(--fancy-color); text-shadow: 0 0 8px var(--fancy-color); opacity: 0; animation-name: fancy-burst-fall; animation-timing-function: ease-in; animation-fill-mode: forwards; }
 @keyframes fancy-burst-fall { 0% { opacity: 0; transform: translateY(0) rotate(0deg); } 8% { opacity: 1; } 85% { opacity: .8; } 100% { opacity: 0; transform: translateY(360px) rotate(200deg); } }
+.fancy-burst--lite .fancy-burst__star { filter: opacity(.6); }
 .fancy-name { position: relative; display: inline-flex; min-width: 0; align-items: center; }
 .fancy-name__text { min-width: 0; animation: fancy-name-glow 2.6s ease-in-out infinite; }
 .streamer-card__name > .fancy-name { min-width: 0; }
@@ -424,15 +428,22 @@ body { isolation: isolate; }
 .fancy-name__spark--1 { top: -5px; left: -11px; animation-delay: .2s; animation-duration: 2.1s; }
 .fancy-name__spark--2 { bottom: -5px; right: -13px; font-size: 8px; animation-delay: 1.1s; animation-duration: 2.4s; }
 .fancy-name__spark--3 { top: 25%; right: -19px; font-size: 7px; animation-delay: .7s; animation-duration: 1.9s; }
+.fancy-name--lite .fancy-name__text { animation-duration: 6.5s; }
+.fancy-name__sparks--lite .fancy-name__spark { animation-duration: 4.8s !important; font-size: 6px !important; }
 @property --fancy-border-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
 .streamer-card.fancy-border { border-width: 2px; }
 .modal.fancy-border { border-width: 2px; }
 .fancy-border { position: relative; }
 .fancy-border::before { content: ""; position: absolute; z-index: 2; inset: 0; border-radius: inherit; padding: 3px; background: conic-gradient(from var(--fancy-border-angle), var(--fancy-color) 0deg, var(--fancy-glow-soft) 26deg, transparent 60deg, transparent 360deg); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; filter: drop-shadow(0 0 4px var(--fancy-color)); opacity: 0; animation: fancy-border-trace 5.5s ease-in-out infinite; pointer-events: none; }
+.fancy-border--lite::before { padding: 1.5px; animation-duration: 12s; filter: drop-shadow(0 0 2px var(--fancy-color)); }
 .modal-frame { position: relative; width: min(680px, 100%); }
-.fancy-ball { position: absolute; z-index: 3; top: -25px; left: -25px; width: 25px; height: 25px; object-fit: contain; pointer-events: none; filter: drop-shadow(0 0 5px var(--fancy-color)) drop-shadow(0 0 10px var(--fancy-color)); animation: fancy-ball-travel 24s linear infinite, fancy-ball-spin 2s linear infinite; }
-@keyframes fancy-ball-travel { 0% { top: -25px; left: -25px; } 25% { top: -25px; left: 100%; } 50% { top: 100%; left: 100%; } 75% { top: 100%; left: -25px; } 100% { top: -25px; left: -25px; } }
+.fancy-ball { position: absolute; z-index: 3; top: -75px; left: -75px; width: 75px; height: 75px; object-fit: contain; pointer-events: none; filter: drop-shadow(0 0 5px var(--fancy-color)) drop-shadow(0 0 10px var(--fancy-color)); animation: fancy-ball-travel 24s linear infinite, fancy-ball-spin 2s linear infinite; }
+@keyframes fancy-ball-travel { 0% { top: -75px; left: -75px; } 25% { top: -75px; left: 100%; } 50% { top: 100%; left: 100%; } 75% { top: 100%; left: -75px; } 100% { top: -75px; left: -75px; } }
 @keyframes fancy-ball-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+/* The lite ball is a burst/deflated soccer ball that waddles and drags itself around the modal instead of rolling cleanly. */
+.fancy-ball--lite { top: -54px; left: -54px; width: 60px; height: 60px; animation: fancy-ball-waddle-travel 32s linear infinite, fancy-ball-waddle-wobble .85s ease-in-out infinite; }
+@keyframes fancy-ball-waddle-travel { 0% { top: -54px; left: -54px; } 11% { top: -36px; left: 22%; } 25% { top: -60px; left: 100%; } 36% { top: 22%; left: 96%; } 50% { top: 100%; left: 100%; } 61% { top: 96%; left: 58%; } 75% { top: 100%; left: -54px; } 86% { top: 55%; left: -36px; } 100% { top: -54px; left: -54px; } }
+@keyframes fancy-ball-waddle-wobble { 0%, 100% { transform: rotate(-9deg) scale(1.06, .9); } 50% { transform: rotate(11deg) scale(.9, 1.06); } }
 @keyframes fancy-border-trace { 0% { --fancy-border-angle: 0deg; opacity: 0; } 6% { opacity: 1; } 55% { --fancy-border-angle: 360deg; opacity: 1; } 64% { opacity: 0; } 100% { --fancy-border-angle: 360deg; opacity: 0; } }
 @keyframes fancy-name-glow { 0%, 100% { text-shadow: var(--text-outline, 0 0 0 transparent), 0 0 4px var(--fancy-glow-soft); } 50% { text-shadow: var(--text-outline, 0 0 0 transparent), 0 1px 14px var(--fancy-glow-strong), 0 0 6px var(--fancy-glow-strong); } }
 .gemini-review { position: relative; z-index: 0; margin-top: 20px; padding: 16px 18px 18px; overflow: hidden; border: 1px solid #ffffff22; border-radius: 10px; background: radial-gradient(circle at 16% -12%, #ffffff0d, transparent 55%), linear-gradient(155deg, #23272a4d, #17191b4d 68%); box-shadow: inset 0 1px #ffffff0c, 0 16px 34px -14px #000000a0; }.gemini-review::after { content: ""; position: absolute; z-index: -1; top: -45%; right: -12%; width: 55%; height: 130%; background: radial-gradient(circle, #ffffff12, transparent 72%); pointer-events: none; }.announcement-icon-badge--gemini { width: 20px; height: 20px; margin-right: 0; border: none; background: none; }.announcement-icon-badge--gemini img { width: 15px; height: 15px; }.gemini-review__header { display: flex; align-items: center; gap: 3px; padding-bottom: 10px; border-bottom: 1px dashed #00e9ae30; }.gemini-review__logo { width: 20px; height: 20px; flex: 0 0 20px; padding: 3px; }.gemini-review__header h3 { margin: 0; color: #eafffa; font: 800 15px "Barlow Condensed", "Noto Sans KR"; letter-spacing: .01em; }.gemini-review__badge { padding: 2px 8px; border: 1px solid #ffffff28; border-radius: 999px; color: #9fb3aa; font-size: 10px; font-weight: 700; }.gemini-review__note { margin: 8px 0 0; color: #7f978c; font-size: 12px; line-height: 1.5; }.gemini-review__text { margin: 10px 0 0; color: #d3e6de; font-size: 13.5px; line-height: 1.65; }.gemini-review__cursor { display: inline-block; width: 2px; height: 13px; margin-left: 2px; background: #00e9ae; vertical-align: -2px; animation: gemini-review-blink .9s steps(1) infinite; }

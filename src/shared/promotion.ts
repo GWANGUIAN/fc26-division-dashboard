@@ -130,6 +130,7 @@ export function buildStreamerRecords(
       celebrationMessage: entry.celebrationMessage,
       sfx: entry.sfx,
       isFancy: entry.isFancy,
+      isFancyLite: entry.isFancyLite,
       reviewNote: entry.reviewNote,
       latestReview,
     };

@@ -21,11 +21,39 @@ export function Avatar({
 }
 
 export const FANCY_SPARK_SLOTS = [1, 2, 3, 4, 5, 6] as const;
+export const FANCY_LITE_SPARK_SLOTS = [1, 2] as const;
+
+export type FancyTier = "full" | "lite" | "none";
+
+/** isFancyLite is ignored once isFancy is set, so a streamer never gets both effects at once. */
+export function fancyTierOf(
+  streamer: Pick<StreamerRecord, "isFancy" | "isFancyLite">,
+): FancyTier {
+  if (streamer.isFancy) return "full";
+  if (streamer.isFancyLite) return "lite";
+  return "none";
+}
 
 export function isStreamerFancy(
   streamer: Pick<StreamerRecord, "isFancy">,
 ): boolean {
   return !!streamer.isFancy;
+}
+
+export function isStreamerFancyLite(
+  streamer: Pick<StreamerRecord, "isFancy" | "isFancyLite">,
+): boolean {
+  return fancyTierOf(streamer) === "lite";
+}
+
+/** The lite tier washes the given color toward white so it barely reads as decoration. */
+function fancyCssVars(color: string, tier: "full" | "lite"): React.CSSProperties {
+  const tint = tier === "lite" ? mixHex(color, "white", 0.65) : color;
+  return {
+    "--fancy-color": tint,
+    "--fancy-glow-soft": hexToRgba(tint, tier === "lite" ? 0.16 : 0.4),
+    "--fancy-glow-strong": hexToRgba(tint, tier === "lite" ? 0.35 : 0.85),
+  } as React.CSSProperties;
 }
 
 export function FancyAvatar({
@@ -37,21 +65,20 @@ export function FancyAvatar({
   color?: string;
   ring?: boolean;
 }) {
-  if (!isStreamerFancy(streamer)) return <Avatar {...streamer} />;
+  const tier = fancyTierOf(streamer);
+  if (tier === "none") return <Avatar {...streamer} />;
+  const lite = tier === "lite";
   return (
     <span
-      className={`fancy-avatar ${ring ? "fancy-avatar--ring" : ""}`}
-      style={
-        {
-          "--fancy-color": color,
-          "--fancy-glow-soft": hexToRgba(color, 0.4),
-          "--fancy-glow-strong": hexToRgba(color, 0.85),
-        } as React.CSSProperties
-      }
+      className={`fancy-avatar ${ring ? "fancy-avatar--ring" : ""} ${lite ? "fancy-avatar--lite" : ""}`}
+      style={fancyCssVars(color, tier)}
     >
       <Avatar {...streamer} />
-      <span className="fancy-avatar__sparks" aria-hidden="true">
-        {FANCY_SPARK_SLOTS.map((slot) => (
+      <span
+        className={`fancy-avatar__sparks ${lite ? "fancy-avatar__sparks--lite" : ""}`}
+        aria-hidden="true"
+      >
+        {(lite ? FANCY_LITE_SPARK_SLOTS : FANCY_SPARK_SLOTS).map((slot) => (
           <i
             className={`fancy-avatar__spark fancy-avatar__spark--${slot}`}
             key={slot}
@@ -65,6 +92,7 @@ export function FancyAvatar({
 }
 
 export const FANCY_NAME_SPARK_SLOTS = [1, 2, 3] as const;
+export const FANCY_NAME_LITE_SPARK_SLOTS = [1] as const;
 
 export function FancyName({
   streamer,
@@ -77,28 +105,29 @@ export function FancyName({
   tag?: "span" | "strong";
   children: ReactNode;
 }) {
-  if (!isStreamerFancy(streamer)) return <Tag>{children}</Tag>;
+  const tier = fancyTierOf(streamer);
+  if (tier === "none") return <Tag>{children}</Tag>;
+  const lite = tier === "lite";
   return (
     <span
-      className="fancy-name"
-      style={
-        {
-          "--fancy-color": color,
-          "--fancy-glow-soft": hexToRgba(color, 0.4),
-          "--fancy-glow-strong": hexToRgba(color, 0.85),
-        } as React.CSSProperties
-      }
+      className={`fancy-name ${lite ? "fancy-name--lite" : ""}`}
+      style={fancyCssVars(color, tier)}
     >
       <Tag className="fancy-name__text">{children}</Tag>
-      <span className="fancy-name__sparks" aria-hidden="true">
-        {FANCY_NAME_SPARK_SLOTS.map((slot) => (
-          <i
-            className={`fancy-name__spark fancy-name__spark--${slot}`}
-            key={slot}
-          >
-            ✦
-          </i>
-        ))}
+      <span
+        className={`fancy-name__sparks ${lite ? "fancy-name__sparks--lite" : ""}`}
+        aria-hidden="true"
+      >
+        {(lite ? FANCY_NAME_LITE_SPARK_SLOTS : FANCY_NAME_SPARK_SLOTS).map(
+          (slot) => (
+            <i
+              className={`fancy-name__spark fancy-name__spark--${slot}`}
+              key={slot}
+            >
+              ✦
+            </i>
+          ),
+        )}
       </span>
     </span>
   );
