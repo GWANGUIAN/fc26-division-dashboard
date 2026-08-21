@@ -481,6 +481,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/haeri.mp3"
   - slug: rariruro
     displayName: "제리츄"
     cafeAliases: ["제리츄"]
@@ -1002,6 +1003,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/hincok.mp3"
   - slug: ttu0221
     displayName: "흠냥b"
     cafeAliases: ["흠냥b"]
