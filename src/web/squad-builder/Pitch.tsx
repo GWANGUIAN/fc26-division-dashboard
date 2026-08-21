@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { FIFA_SHIELD_INNER, FIFA_SHIELD_OUTER } from "../cardVisuals.js";
 import { SquadBuilderCard } from "./SquadBuilderCard";
@@ -13,6 +14,8 @@ interface PitchProps {
   overSlotId: string | null;
   /** streamer whose card should skip its position transition on this render (see SquadBuilderOverlay). */
   snapStreamerId: string | null;
+  /** user-controlled card size multiplier, applied via --squad-zoom (see squad-builder.css). */
+  zoom: number;
   onRequestEditCustomPlayer: (id: string) => void;
   onRequestDeleteCustomPlayer: (id: string, name: string) => void;
 }
@@ -31,6 +34,7 @@ export function Pitch({
   streamerById,
   overSlotId,
   snapStreamerId,
+  zoom,
   onRequestEditCustomPlayer,
   onRequestDeleteCustomPlayer,
 }: PitchProps) {
@@ -38,7 +42,12 @@ export function Pitch({
   const slotById = new Map(formation.slots.map((slot) => [slot.id, slot]));
 
   return (
-    <div className="pitch" aria-label="포메이션 피치">
+    <div
+      className="pitch"
+      aria-label="포메이션 피치"
+      style={{ "--squad-zoom": zoom } as CSSProperties}
+    >
+
       <PitchMarkings />
       {formation.slots.map((slot) => (
         <PitchDropZone

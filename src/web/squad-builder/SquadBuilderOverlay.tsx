@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -59,6 +59,39 @@ const DRAWER_EXPANDED_FRACTION = 0.46;
 const MEASURING_CONFIG = {
   droppable: { strategy: MeasuringStrategy.Always },
 };
+
+/**
+ * Card size preference for the pitch — a continuous multiplier (not the
+ * discrete card-board--zoom-N steps used for the main card grid in App.tsx)
+ * since squad-card's internals are already cqw-based and scale cleanly at
+ * any ratio. Kept as a plain UI preference outside the squad reducer/storage
+ * (see storage.ts) since it isn't squad data.
+ */
+const SQUAD_ZOOM_STORAGE_KEY = "fc26-squad-zoom";
+const SQUAD_ZOOM_MIN = 0.5;
+const SQUAD_ZOOM_MAX = 2;
+const SQUAD_ZOOM_DEFAULT = 1.65;
+const SQUAD_ZOOM_STEP = 0.05;
+
+function loadSquadZoom(): number {
+  try {
+    const raw = localStorage.getItem(SQUAD_ZOOM_STORAGE_KEY);
+    if (!raw) return SQUAD_ZOOM_DEFAULT;
+    const value = Number(raw);
+    if (!Number.isFinite(value)) return SQUAD_ZOOM_DEFAULT;
+    return Math.min(SQUAD_ZOOM_MAX, Math.max(SQUAD_ZOOM_MIN, value));
+  } catch {
+    return SQUAD_ZOOM_DEFAULT;
+  }
+}
+
+function saveSquadZoom(value: number) {
+  try {
+    localStorage.setItem(SQUAD_ZOOM_STORAGE_KEY, String(value));
+  } catch {
+    /* ignore quota/private-browsing errors */
+  }
+}
 
 function useEscape(onClose: () => void) {
   useEffect(() => {
@@ -121,6 +154,9 @@ export function SquadBuilderOverlay({
     () => new Map(allPlayers.map((player) => [player.id, player])),
     [allPlayers],
   );
+
+  const [zoom, setZoom] = useState(() => loadSquadZoom());
+  useEffect(() => saveSquadZoom(zoom), [zoom]);
 
   const [dialogMode, setDialogMode] = useState<
     { mode: "add" } | { mode: "edit"; id: string } | null
@@ -398,12 +434,30 @@ export function SquadBuilderOverlay({
             placements={activeSquad.placements}
             streamerById={streamerById}
           />
+          <div className="squad-zoom-panel">
+            <span className="squad-zoom-panel__label">카드 크기</span>
+            <div className="squad-zoom-panel__row">
+              <input
+                type="range"
+                min={SQUAD_ZOOM_MIN}
+                max={SQUAD_ZOOM_MAX}
+                step={SQUAD_ZOOM_STEP}
+                value={zoom}
+                onChange={(event) => setZoom(Number(event.target.value))}
+                aria-label="카드 크기 조절"
+              />
+              <span className="squad-zoom-panel__value">
+                {Math.round(zoom * 100)}%
+              </span>
+            </div>
+          </div>
           <Pitch
             formation={formation}
             placements={activeSquad.placements}
             streamerById={streamerById}
             overSlotId={overSlotId}
             snapStreamerId={snapStreamerId}
+            zoom={zoom}
             onRequestEditCustomPlayer={(id) => setDialogMode({ mode: "edit", id })}
             onRequestDeleteCustomPlayer={(id, name) => setPendingDelete({ id, name })}
           />
@@ -427,7 +481,10 @@ export function SquadBuilderOverlay({
 
         <DragOverlay>
           {draggedStreamer && activeDragData && (
-            <div className="squad-builder-drag-overlay">
+            <div
+              className="squad-builder-drag-overlay"
+              style={{ "--squad-zoom": zoom } as CSSProperties}
+            >
               <SquadBuilderCard
                 streamer={draggedStreamer}
                 variant={activeDragData.kind === "placed" ? "placed" : "candidate"}

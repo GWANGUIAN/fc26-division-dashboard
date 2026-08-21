@@ -21,7 +21,52 @@
   background: #071a12;
 }
 
-.squad-builder-overlay__header-spacer { min-width: 0; }
+/* --- Zoom panel --- */
+
+/* Positioned to float over the pitch's top-right corner (mirrors
+   .lineup-panel on the left), given a brighter accent border so it reads as
+   an actionable control rather than blending in like the read-only lineup
+   panel. */
+.squad-zoom-panel {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  z-index: 3;
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #00e9ae40;
+  border-radius: 3px;
+  background: #0d1b16f2;
+  box-shadow: 0 8px 24px #00000050;
+}
+
+.squad-zoom-panel__label {
+  font: 800 14px/1 "Barlow Condensed", "Noto Sans KR";
+  letter-spacing: .04em;
+  color: #f5fbf8;
+}
+
+.squad-zoom-panel__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.squad-zoom-panel__row input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  accent-color: #00e9ae;
+  cursor: pointer;
+}
+.squad-zoom-panel__value {
+  flex-shrink: 0;
+  width: 3.2em;
+  text-align: right;
+  font: 700 14px/1 "Barlow Condensed", "Noto Sans KR";
+  color: #f5fbf8a6;
+}
 
 .squad-builder-overlay__close {
   display: inline-flex;
@@ -38,6 +83,8 @@
 }
 .squad-builder-overlay__close:hover { background: #ffffff26; }
 .squad-builder-overlay__close svg { width: 18px; height: 18px; }
+
+.squad-builder-overlay__header-spacer { min-width: 0; }
 
 .squad-builder-overlay__pitch-wrap {
   container-type: size;
@@ -63,10 +110,10 @@
   display: flex;
   flex-direction: column;
   max-height: calc(100% - 32px);
-  border: 1px solid #ffffff1a;
-  border-radius: 10px;
-  background: #071a12cc;
-  backdrop-filter: blur(8px);
+  border: 1px solid #ffffff28;
+  border-radius: 3px;
+  background: #0d1b16f2;
+  box-shadow: 0 8px 24px #00000050;
   overflow: hidden;
 }
 
@@ -137,6 +184,7 @@
 
 @media (max-width: 900px) {
   .lineup-panel { display: none; }
+  .squad-zoom-panel { width: 140px; padding: 8px 10px; }
 }
 
 /* --- Pitch --- */
@@ -148,7 +196,7 @@
   position: relative;
   width: min(100cqw, calc(100cqh * 105 / 68));
   aspect-ratio: 105 / 68;
-  border-radius: 10px;
+  border-radius: 3px;
   background:
     repeating-linear-gradient(
       90deg,
@@ -167,17 +215,17 @@
   width: 100%;
   height: 100%;
   color: #ffffff59;
-  border-radius: 10px;
+  border-radius: 3px;
   overflow: hidden;
 }
 
 .pitch-slot {
   position: absolute;
-  width: 7.7%;
-  max-width: 140px;
+  width: calc(7.7% * var(--squad-zoom, 1));
+  max-width: calc(140px * var(--squad-zoom, 1));
   aspect-ratio: 300 / 450;
   transform: translate(-50%, -50%);
-  transition: left .4s ease, top .4s ease;
+  transition: left .4s ease, top .4s ease, width .15s ease, max-width .15s ease;
 }
 
 .pitch-slot__placeholder {
@@ -211,7 +259,10 @@
   padding: 1px 7px;
   border-radius: 3px;
   background: #00000059;
-  font: 800 13px/1.4 "Barlow Condensed", "Noto Sans KR";
+  font-family: "Barlow Condensed", "Noto Sans KR";
+  font-weight: 800;
+  font-size: calc(13px * var(--squad-zoom, 1));
+  line-height: 1.4;
   letter-spacing: .04em;
   color: #f5fbf8;
   opacity: .9;
@@ -223,11 +274,11 @@
 
 .pitch-card {
   position: absolute;
-  width: 7.7%;
-  max-width: 140px;
+  width: calc(7.7% * var(--squad-zoom, 1));
+  max-width: calc(140px * var(--squad-zoom, 1));
   aspect-ratio: 300 / 450;
   transform: translate(-50%, -50%);
-  transition: left .4s ease, top .4s ease;
+  transition: left .4s ease, top .4s ease, width .15s ease, max-width .15s ease;
   cursor: grab;
   touch-action: none;
 }
@@ -316,32 +367,34 @@
 
 /* Edit/delete affordance for custom players. Not hover-only — pitch cards
    already declare touch-action:none for real touch support, so a hover-only
-   button would be unreachable there. */
+   button would be unreachable there. Fixed px sizing (not cqw) so the
+   buttons stay a constant, comfortably tappable size regardless of card
+   zoom instead of ballooning alongside it; low resting opacity keeps them
+   from covering the card art until the user actually reaches for them. */
 .squad-card__actions {
   position: absolute;
   z-index: 2;
   top: 4%;
   right: 4%;
   display: flex;
-  gap: 5cqw;
+  gap: 4px;
 }
 .squad-card__action-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 26cqw;
-  height: 26cqw;
-  min-width: 30px;
-  min-height: 30px;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
   border: 1px solid #ffffff40;
   border-radius: 50%;
   color: #f5fbf8;
   background: #05130dcc;
-  opacity: .85;
+  opacity: .4;
   cursor: pointer;
-  transition: .15s;
+  transition: opacity .15s, border-color .15s, color .15s;
 }
-.squad-card__action-button svg { width: 60%; height: 60%; stroke-width: 2.4; }
+.squad-card__action-button svg { width: 90%; height: 90%; stroke-width: 2.4; }
 .squad-card__action-button:hover,
 .squad-card__action-button:focus-visible { opacity: 1; border-color: #00e9ae; color: #00e9ae; }
 .squad-card__action-button--danger:hover,
@@ -532,7 +585,7 @@
 /* --- Drag overlay (floating copy following the cursor) --- */
 
 .squad-builder-drag-overlay {
-  width: 128px;
+  width: calc(128px * var(--squad-zoom, 1));
   aspect-ratio: 300 / 450;
   filter: drop-shadow(0 12px 24px #00000080);
   cursor: grabbing;
