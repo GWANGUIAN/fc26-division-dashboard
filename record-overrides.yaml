@@ -35,7 +35,7 @@ overrides:
     division: 8
     record: { wins: 6, draws: 1, losses: 2 }
     - soopId: alice427
-    division: 8
+    division: 7
     record: { wins: 15, draws: 6, losses: 17 }
     - soopId: suddory2
     division: 8
