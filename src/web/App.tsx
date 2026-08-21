@@ -2410,7 +2410,19 @@ export function App() {
     const unreported = all.filter(
       (streamer) => streamer.currentDivision === 10,
     ).length;
-    return { total: all.length, reported: all.length - unreported, unreported };
+    const sixOrHigher = all.filter(
+      (streamer) => streamer.currentDivision <= 6,
+    ).length;
+    const sevenOrHigher = all.filter(
+      (streamer) => streamer.currentDivision <= 7,
+    ).length;
+    return {
+      total: all.length,
+      reported: all.length - unreported,
+      unreported,
+      sixOrHigher,
+      sevenOrHigher,
+    };
   }, [snapshot]);
   const cardStreamers = useMemo(() => {
     if (sortMode === "division")
@@ -2717,6 +2729,23 @@ export function App() {
                 </div>
               </div>
             </div>
+            <div
+              className="division-summary__stats division-summary__stats--pass"
+              aria-label="1차 합격 기준 요약"
+            >
+              <div className="division-summary__item division-summary__item--pass6">
+                <div>
+                  <strong>{divisionStats.sixOrHigher}</strong>
+                  <span>6부 이상</span>
+                </div>
+              </div>
+              <div className="division-summary__item division-summary__item--pass7">
+                <div>
+                  <strong>{divisionStats.sevenOrHigher}</strong>
+                  <span>7부 이상</span>
+                </div>
+              </div>
+            </div>
             <DivisionHistogram streamers={snapshot?.streamers ?? []} />
           </div>
           <div className="view-toolbar__controls">
@@ -2847,6 +2876,16 @@ export function App() {
                       <span>{division === 10 ? "SEASON" : "DIVISION"}</span>
                       <strong>{division}</strong>
                       {division === 10 && <small>미참여</small>}
+                      {division <= 6 && (
+                        <small className="division__label-tag division__label-tag--pass">
+                          1차 합격 조건 충족
+                        </small>
+                      )}
+                      {division === 7 && (
+                        <small className="division__label-tag division__label-tag--conditional">
+                          조건부 합격
+                        </small>
+                      )}
                     </div>
                     <div className="division__players">
                       {entries.map((streamer) => (
