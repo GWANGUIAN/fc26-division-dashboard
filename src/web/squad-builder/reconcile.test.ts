@@ -45,6 +45,16 @@ describe("reconcileRosterChange", () => {
     const after = reconcileRosterChange(before, new Set(["a", "b"]));
     expect(after).toBe(before);
   });
+
+  it("puts newly-discovered frontIds at the front instead of the end", () => {
+    const before = squad({ candidateOrder: ["a", "b"] });
+    const after = reconcileRosterChange(
+      before,
+      new Set(["a", "b", "custom", "c"]),
+      new Set(["custom"]),
+    );
+    expect(after.candidateOrder).toEqual(["custom", "a", "b", "c"]);
+  });
 });
 
 describe("reconcileAllSquads", () => {

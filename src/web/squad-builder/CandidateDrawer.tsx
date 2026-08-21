@@ -39,10 +39,13 @@ function sortCandidateIds(
     sorted.sort((a, b) => {
       const wa = effectiveWinRatePercent(a);
       const wb = effectiveWinRatePercent(b);
-      if (wa === undefined && wb === undefined) return 0;
+      if (wa === undefined && wb === undefined) {
+        return a.displayName.localeCompare(b.displayName, "ko");
+      }
       if (wa === undefined) return 1;
       if (wb === undefined) return -1;
-      return wb - wa;
+      if (wa !== wb) return wb - wa;
+      return a.displayName.localeCompare(b.displayName, "ko");
     });
   } else {
     sorted.sort((a, b) => a.displayName.localeCompare(b.displayName, "ko"));
