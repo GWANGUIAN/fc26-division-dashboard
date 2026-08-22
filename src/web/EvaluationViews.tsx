@@ -108,7 +108,9 @@ export function EvaluationModal({
         <div className="modal__identity">
           <span className="avatar-frame">
             <Avatar {...application} />
-            {result && <ResultStamp result={result} />}
+            {result && (
+              <ResultStamp result={result} className="result-stamp--modal" />
+            )}
           </span>
           <div>
             <span className="eyebrow">ONE VS ONE APPLICATION</span>

@@ -687,3 +687,8 @@ body { isolation: isolate; }
   top: 34px;
   left: 34px;
 }
+.result-stamp--modal {
+  padding: 3px 8px;
+  border-width: 3px;
+  font-size: 14px;
+}
