@@ -6,6 +6,42 @@ import { Avatar } from "./cardVisuals";
 import { formatDateTime } from "./formatters";
 import { CafeLink, Modal, SoopLink, useEscape } from "./Modal";
 
+type ResultStampTone = "pass" | "warn" | "fail";
+
+const RESULT_STAMP_LABELS: Record<ResultStampTone, string> = {
+  pass: "합격 충족",
+  warn: "조건 필요",
+  fail: "불투명",
+};
+
+function resultStampTone(result: {
+  candidateScore: number;
+  woowakgoodScore: number;
+}): ResultStampTone {
+  const gap = result.woowakgoodScore - result.candidateScore;
+  if (gap <= 5) return "pass";
+  if (gap <= 9) return "warn";
+  return "fail";
+}
+
+function ResultStamp({
+  result,
+  className = "",
+}: {
+  result: { candidateScore: number; woowakgoodScore: number };
+  className?: string;
+}) {
+  const tone = resultStampTone(result);
+  return (
+    <span
+      className={`result-stamp result-stamp--${tone} ${className}`}
+      aria-hidden="true"
+    >
+      {RESULT_STAMP_LABELS[tone]}
+    </span>
+  );
+}
+
 export function EvaluationCard({
   application,
   onOpen,
@@ -15,38 +51,41 @@ export function EvaluationCard({
 }) {
   const result = application.result;
   return (
-    <article
-      className={`evaluation-card ${result ? "evaluation-card--completed" : ""}`}
-    >
-      <button
-        className="evaluation-card__main"
-        onClick={onOpen}
-        aria-label={`${application.displayName} 1대1 평가 상세 보기`}
+    <article className="evaluation-card">
+      <div
+        className={`evaluation-card__body ${result ? "evaluation-card--completed" : ""}`}
       >
-        <Avatar {...application} />
-        <span>
-          <strong>{application.displayName}</strong>
-          <small>
-            {application.cafeAuthor} · 신청{" "}
-            {formatCafePostDate(application.publishedAt)}
-          </small>
-        </span>
-        <b className={`evaluation-status ${result ? "done" : "waiting"}`}>
-          {result ? "대결 완료" : "대결 전"}
-        </b>
-      </button>
-      {result && (
-        <button className="evaluation-result" onClick={onOpen}>
+        <button
+          className="evaluation-card__main"
+          onClick={onOpen}
+          aria-label={`${application.displayName} 1대1 평가 상세 보기`}
+        >
+          <Avatar {...application} />
           <span>
-            {result.candidateScore} : {result.woowakgoodScore}
+            <strong>{application.displayName}</strong>
+            <small>
+              {application.cafeAuthor} · 신청{" "}
+              {formatCafePostDate(application.publishedAt)}
+            </small>
           </span>
-          <strong>{result.verdict}</strong>
-          <small>{formatDateTime(result.playedAt)}</small>
+          <b className={`evaluation-status ${result ? "done" : "waiting"}`}>
+            {result ? "대결 완료" : "대결 전"}
+          </b>
         </button>
-      )}
-      <div className="evaluation-card__actions">
-        <CafeLink href={application.articleUrl} label="신청글" />
+        {result && (
+          <button className="evaluation-result" onClick={onOpen}>
+            <span>
+              {result.candidateScore} : {result.woowakgoodScore}
+            </span>
+            <strong>{result.verdict}</strong>
+            <small>{formatDateTime(result.playedAt)}</small>
+          </button>
+        )}
+        <div className="evaluation-card__actions">
+          <CafeLink href={application.articleUrl} label="신청글" />
+        </div>
       </div>
+      {result && <ResultStamp result={result} className="result-stamp--card" />}
     </article>
   );
 }
@@ -67,7 +106,10 @@ export function EvaluationModal({
       label="1대1 평가 상세"
       header={
         <div className="modal__identity">
-          <Avatar {...application} />
+          <span className="avatar-frame">
+            <Avatar {...application} />
+            {result && <ResultStamp result={result} />}
+          </span>
           <div>
             <span className="eyebrow">ONE VS ONE APPLICATION</span>
             <h2>{application.displayName}</h2>
