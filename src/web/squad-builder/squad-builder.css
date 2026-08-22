@@ -32,7 +32,7 @@
   right: 16px;
   top: 16px;
   z-index: 3;
-  width: 180px;
+  width: 260px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -184,7 +184,7 @@
 
 @media (max-width: 900px) {
   .lineup-panel { display: none; }
-  .squad-zoom-panel { width: 140px; padding: 8px 10px; }
+  .squad-zoom-panel { width: 190px; padding: 8px 10px; }
 }
 
 /* --- Pitch --- */
@@ -346,13 +346,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3cqw;
-  margin-top: 1cqw;
+  gap: 1.5cqw;
+  margin-top: 0;
 }
-.squad-card__stat { display: inline-flex; align-items: baseline; gap: 5cqw; }
-.squad-card__stat .record-badge { color: #fff; text-shadow: var(--text-outline); font-size: 10cqw; }
-.squad-card__stat-label { color: #f5fbf8; opacity: .68; font-size: 7.5cqw; text-shadow: var(--text-outline); }
-.squad-card__stat-value { color: #fff; font-size: 9cqw; text-shadow: var(--text-outline); }
+.squad-card__stat { display: inline-flex; align-items: baseline; gap: 4cqw; }
+.squad-card__stat .record-badge { color: #fff; text-shadow: var(--text-outline); font-size: 15cqw; }
+.squad-card__stat-label { color: #f5fbf8; opacity: .68; font-size: 10.5cqw; text-shadow: var(--text-outline); }
+.squad-card__stat-value { color: #fff; font-size: 13cqw; text-shadow: var(--text-outline); }
 .squad-card__stat-value-kr { font-size: .78em; }
 
 /* candidate: division/avatar/name only, sized generously since nothing else competes for space */
@@ -360,10 +360,13 @@
 .squad-card--candidate .squad-card__avatar .avatar { width: 48cqw; height: 48cqw; }
 .squad-card--candidate .squad-card__name { font-size: 14cqw; }
 
-/* placed: smaller avatar/name to make room for the stat footer */
+/* placed: smaller avatar than candidate to make room for the stat footer, but
+   content is pulled to the top and tightened up (vs. the shared centered
+   .squad-card__body) so the freed-up space can go toward bigger text. */
+.squad-card--placed .squad-card__body { justify-content: flex-start; gap: 3cqw; padding-top: 17cqw; }
 .squad-card--placed .squad-card__division { font-size: 11cqw; }
-.squad-card--placed .squad-card__avatar .avatar { width: 32cqw; height: 32cqw; }
-.squad-card--placed .squad-card__name { font-size: 10cqw; }
+.squad-card--placed .squad-card__avatar .avatar { width: 44cqw; height: 44cqw; }
+.squad-card--placed .squad-card__name { padding: 1.5cqw 3cqw; font-size: 15cqw; }
 
 /* Edit/delete affordance for custom players. Not hover-only — pitch cards
    already declare touch-action:none for real touch support, so a hover-only
