@@ -10,6 +10,7 @@ export function BrightnessGag() {
     const audio = new Audio(active ? "/sfxes/light-off.mp3" : "/sfxes/light-on.mp3");
     const finish = () => {
       setPlaying(false);
+      new Audio("/sfxes/turn-on.mp3").play().catch(() => {});
       setActive((current) => !current);
     };
     audio.addEventListener("ended", finish);
