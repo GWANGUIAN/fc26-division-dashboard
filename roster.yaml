@@ -1014,6 +1014,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/hmnyang.mp3"
   - slug: allure282
     displayName: "리르"
     cafeAliases: ["리르Lirr"]
