@@ -60,8 +60,7 @@ export function GeminiReviewSection({
         {review && !review.isCurrent
           ? "현재 게시글 인증샷에 전체 전적이 없거나 분석이 생성 중이라 이전 한줄평이 대신 표시됩니다."
           : "왁물원에 승격 보고 게시글이 올라오고 전체 전적 분석이 성공하면 한줄평이 자동 생성됩니다."}
-      </p>
-      <p className="gemini-review__note">
+        <br />
         일부 스트리머는 미리 작성된 추가 정보도 같이 Gemini에게 전달됩니다.
       </p>
       {!review && hasPost && (
@@ -69,7 +68,8 @@ export function GeminiReviewSection({
           인증샷에 전체 전적이 포함되어 있어야 AI가 이미지를 분석해서 전적을
           추출하고 한줄평을 생성합니다.
           <br />
-          잘못된 인증샷을 올린 경우, 관리자가 수동 업데이트 할때까지 기다려주세요.
+          잘못된 인증샷을 올린 경우, 관리자가 수동 업데이트 할때까지
+          기다려주세요.
         </p>
       )}
       {review && (
