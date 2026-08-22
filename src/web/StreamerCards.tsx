@@ -7,6 +7,7 @@ import { divisionColor } from "../shared/division-theme.js";
 import type { TrophyAwards } from "../shared/trophy.js";
 import {
   AchievementBadges,
+  DivisionBadge,
   fancyTierOf,
   FancyAvatar,
   FancyName,
@@ -144,7 +145,10 @@ export function StreamerFifaCard({
         color={color}
         holo={{ x: tilt.x, y: tilt.y, opacity: tilt.active ? 0.85 : 0 }}
       />
-      <span className="fifa-card__division">D{streamer.currentDivision}</span>
+      <DivisionBadge
+        division={streamer.currentDivision}
+        className="fifa-card__division"
+      />
       <AchievementBadges streamer={streamer} awards={awards} />
       <span className="fifa-card__body">
         <span

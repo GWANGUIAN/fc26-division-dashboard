@@ -221,6 +221,191 @@ export function FifaShield({
   );
 }
 
+/**
+ * Gold division-rank emblem (banner + striped shield + ball), based on a
+ * supplied artwork template. The template ships blank (no digits printed on
+ * it) so the division number is drawn in as its own gradient-filled <text>
+ * layer in the shield's body, between the "DIV" banner and the ball icon.
+ * Gradient/pattern/clip ids are scoped with useId since many of these render
+ * on one page (one per card) and SVG ids are a global namespace.
+ */
+export function DivisionBadge({
+  division,
+  className = "",
+}: {
+  division: number;
+  className?: string;
+}) {
+  const uid = useId();
+  const outerId = `${uid}-outer`;
+  const innerId = `${uid}-inner`;
+  const bannerId = `${uid}-banner`;
+  const bgId = `${uid}-bg`;
+  const stripesId = `${uid}-stripes`;
+  const clipId = `${uid}-clip`;
+  const numberId = `${uid}-number`;
+
+  return (
+    <svg
+      className={`division-badge ${className}`}
+      viewBox="0 0 300 380"
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id={outerId} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FFF7B8" />
+          <stop offset="30%" stopColor="#E2B73B" />
+          <stop offset="70%" stopColor="#93721C" />
+          <stop offset="100%" stopColor="#4A3708" />
+        </linearGradient>
+        <linearGradient id={innerId} x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#FFF1A1" />
+          <stop offset="45%" stopColor="#DCAE32" />
+          <stop offset="100%" stopColor="#856314" />
+        </linearGradient>
+        <linearGradient id={bannerId} x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#FFF5B2" />
+          <stop offset="50%" stopColor="#E5C14B" />
+          <stop offset="100%" stopColor="#B08A23" />
+        </linearGradient>
+        <linearGradient id={bgId} x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#252527" />
+          <stop offset="100%" stopColor="#0E0E0F" />
+        </linearGradient>
+        <linearGradient id={numberId} x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#FFFAD8" />
+          <stop offset="38%" stopColor="#FFDE72" />
+          <stop offset="70%" stopColor="#E2A93A" />
+          <stop offset="100%" stopColor="#8B5F12" />
+        </linearGradient>
+        <pattern
+          id={stripesId}
+          width="26"
+          height="10"
+          patternUnits="userSpaceOnUse"
+        >
+          <rect x="0" y="0" width="13" height="10" fill="#2D2D30" />
+          <rect x="13" y="0" width="13" height="10" fill="#18181A" />
+        </pattern>
+        <clipPath id={clipId}>
+          <path d="M 150 28 L 263 48 L 263 112 L 37 112 L 37 48 Z" />
+        </clipPath>
+      </defs>
+
+      <path
+        d="M 150 12 L 277 35 L 277 277 L 150 368 L 23 277 L 23 35 Z"
+        fill={`url(#${outerId})`}
+      />
+      <path
+        d="M 150 18 L 271 39 L 271 273 L 150 361 L 29 273 L 29 39 Z"
+        fill="#1A150A"
+        opacity={0.4}
+      />
+      <path
+        d="M 150 22 L 267 43 L 267 271 L 150 355 L 33 271 L 33 43 Z"
+        fill={`url(#${innerId})`}
+      />
+      <path
+        d="M 150 28 L 263 48 L 263 268 L 150 350 L 37 268 L 37 48 Z"
+        fill={`url(#${bgId})`}
+      />
+      <path
+        d="M 150 28 L 263 48 L 263 268 L 150 350 L 37 268 L 37 48 Z"
+        fill={`url(#${stripesId})`}
+      />
+
+      <g clipPath={`url(#${clipId})`}>
+        <rect x="30" y="20" width="240" height="100" fill={`url(#${bannerId})`} />
+      </g>
+      <line x1="37" y1="112" x2="263" y2="112" stroke="#120E06" strokeWidth={3} />
+      <line
+        x1="37"
+        y1="114"
+        x2="263"
+        y2="114"
+        stroke="#FFF1A1"
+        strokeWidth={1.5}
+        opacity={0.5}
+      />
+
+      <text
+        x="150"
+        y="90"
+        textAnchor="middle"
+        fontFamily="'Arial Black', 'Impact', sans-serif"
+        fontWeight={900}
+        fontSize={52}
+        fill="#0A0A0A"
+        letterSpacing={1}
+      >
+        DIV
+      </text>
+
+      <text
+        x="150"
+        y="200"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fontFamily="'Arial Black', 'Impact', sans-serif"
+        fontWeight={900}
+        fontSize={130}
+        fill={`url(#${numberId})`}
+        stroke="#241804"
+        strokeWidth={4}
+        paintOrder="stroke fill"
+      >
+        {division}
+      </text>
+
+      <g transform="translate(150, 305)">
+        <circle
+          cx="0"
+          cy="0"
+          r="23"
+          fill={`url(#${bannerId})`}
+          stroke="#0D0D0E"
+          strokeWidth={2.5}
+        />
+        <polygon
+          points="0,-7 6.6,-2.1 4.1,5.6 -4.1,5.6 -6.6,-2.1"
+          fill="#0D0D0E"
+        />
+        <line x1="0" y1="-7" x2="0" y2="-22" stroke="#0D0D0E" strokeWidth={2} />
+        <line
+          x1="6.6"
+          y1="-2.1"
+          x2="21"
+          y2="-7"
+          stroke="#0D0D0E"
+          strokeWidth={2}
+        />
+        <line x1="4.1" y1="5.6" x2="13" y2="18" stroke="#0D0D0E" strokeWidth={2} />
+        <line
+          x1="-4.1"
+          y1="5.6"
+          x2="-13"
+          y2="18"
+          stroke="#0D0D0E"
+          strokeWidth={2}
+        />
+        <line
+          x1="-6.6"
+          y1="-2.1"
+          x2="-21"
+          y2="-7"
+          stroke="#0D0D0E"
+          strokeWidth={2}
+        />
+        <polygon points="0,-23 -6,-18 6,-18" fill="#0D0D0E" />
+        <polygon points="22,-8 16,-1 20,6" fill="#0D0D0E" />
+        <polygon points="14,19 7,21 16,13" fill="#0D0D0E" />
+        <polygon points="-14,19 -7,21 -16,13" fill="#0D0D0E" />
+        <polygon points="-22,-8 -16,-1 -20,6" fill="#0D0D0E" />
+      </g>
+    </svg>
+  );
+}
+
 export function hexToRgba(hex: string, alpha: number): string {
   const num = parseInt(hex.replace("#", ""), 16);
   const [r, g, b] = [(num >> 16) & 255, (num >> 8) & 255, num & 255];

@@ -433,7 +433,7 @@ body { isolation: isolate; }
 .fifa-card:hover { transform: translateY(-3px); filter: drop-shadow(0 10px 20px rgba(var(--shadow-color), .38)); }
 .fifa-card--holo { transform-style: preserve-3d; }
 .fifa-card__shield { position: absolute; inset: 0; width: 100%; height: 100%; }
-.fifa-card__division { position: absolute; z-index: 1; top: 26px; left: 18px; opacity: .68; color: #f5fbf8; font: 800 24px/1 "Barlow Condensed"; text-shadow: -1px -1px 0 #000, 0 -1px 0 #000, 1px -1px 0 #000, -1px 0 0 #000, 1px 0 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 1px 1px 0 #000; }
+.fifa-card__division { position: absolute; z-index: 1; top: 8px; left: 10px; width: 42px; height: auto; aspect-ratio: 300 / 380; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .55)); pointer-events: none; }
 .fifa-card > .achievement-badges { position: absolute; z-index: 5; top: 30px; right: 18px; gap: 4px; }
 .fifa-card > .achievement-badges .achievement-badge { width: 20px; height: 20px; font-size: 15px; text-shadow: var(--text-outline); }
 .fifa-card__body { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; margin-top: -14px; padding: 0 20px 0; }
@@ -450,12 +450,12 @@ body { isolation: isolate; }
 .fifa-card__stat .record-badge { color: #fff; text-shadow: var(--text-outline); }
 .fifa-card__stat .record-badge__w, .fifa-card__stat .record-badge__d, .fifa-card__stat .record-badge__l { font-size: 16px; font-weight: 500; }
 .fifa-card .unmapped { position: absolute; z-index: 1; top: 44px; right: 18px; color: #4a4030; font-size: 10px; }
-@media (max-width: 680px) { .card-board { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }.fifa-card__body { margin-top: -8px; padding: 0 12px 0; gap: 4px; }.fifa-card__avatar .avatar { width: 62px; height: 62px; }.fifa-card__division { top: 20px; font-size: 19px; }.fifa-card__name { padding: 4px 8px; font-size: 16px; }.fifa-card__stat-label { font-size: 10px; }.fifa-card__stat-value { font-size: 13px; }.fifa-card__stat .record-badge__w, .fifa-card__stat .record-badge__d, .fifa-card__stat .record-badge__l { font-size: 14px; } }
+@media (max-width: 680px) { .card-board { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }.fifa-card__body { margin-top: -8px; padding: 0 12px 0; gap: 4px; }.fifa-card__avatar .avatar { width: 62px; height: 62px; }.fifa-card__division { top: 8px; left: 8px; width: 32px; }.fifa-card__name { padding: 4px 8px; font-size: 16px; }.fifa-card__stat-label { font-size: 10px; }.fifa-card__stat-value { font-size: 13px; }.fifa-card__stat .record-badge__w, .fifa-card__stat .record-badge__d, .fifa-card__stat .record-badge__l { font-size: 14px; } }
 
 .card-board.card-board--zoom-0 { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 12px; }
 .card-board.card-board--zoom-0 .fifa-card__body { margin-top: -6px; padding: 0 8px 0; gap: 4px; }
 .card-board.card-board--zoom-0 .fifa-card__avatar .avatar { width: 58px; height: 58px; }
-.card-board.card-board--zoom-0 .fifa-card__division { top: 14px; left: 12px; font-size: 14px; }
+.card-board.card-board--zoom-0 .fifa-card__division { top: 6px; left: 6px; width: 26px; }
 .card-board.card-board--zoom-0 .fifa-card__name { padding: 4px 7px; font-size: 14px; }
 .card-board.card-board--zoom-0 .fifa-card > .achievement-badges,
 .card-board.card-board--zoom-0 .fifa-card__stats,
@@ -465,7 +465,7 @@ body { isolation: isolate; }
 .card-board.card-board--zoom-1 { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
 .card-board.card-board--zoom-1 .fifa-card__body { margin-top: -8px; padding: 0 12px 0; gap: 4px; }
 .card-board.card-board--zoom-1 .fifa-card__avatar .avatar { width: 62px; height: 62px; }
-.card-board.card-board--zoom-1 .fifa-card__division { top: 20px; font-size: 19px; }
+.card-board.card-board--zoom-1 .fifa-card__division { top: 8px; left: 8px; width: 32px; }
 .card-board.card-board--zoom-1 .fifa-card__name { padding: 4px 8px; font-size: 16px; }
 .card-board.card-board--zoom-1 .fifa-card__stat-label { font-size: 10px; }
 .card-board.card-board--zoom-1 .fifa-card__stat-value { font-size: 13px; }
@@ -473,14 +473,14 @@ body { isolation: isolate; }
 
 .card-board.card-board--zoom-3 { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
 .card-board.card-board--zoom-3 .fifa-card__avatar .avatar { width: 104px; height: 104px; }
-.card-board.card-board--zoom-3 .fifa-card__division { top: 30px; left: 22px; font-size: 28px; }
+.card-board.card-board--zoom-3 .fifa-card__division { top: 10px; left: 12px; width: 50px; }
 .card-board.card-board--zoom-3 .fifa-card__name { font-size: 24px; }
 .card-board.card-board--zoom-3 .fifa-card__stat-label { font-size: 13px; }
 .card-board.card-board--zoom-3 .fifa-card__stat-value { font-size: 17px; }
 
 .card-board.card-board--zoom-4 { grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 28px; }
 .card-board.card-board--zoom-4 .fifa-card__avatar .avatar { width: 120px; height: 120px; }
-.card-board.card-board--zoom-4 .fifa-card__division { top: 32px; left: 24px; font-size: 32px; }
+.card-board.card-board--zoom-4 .fifa-card__division { top: 12px; left: 14px; width: 56px; }
 .card-board.card-board--zoom-4 .fifa-card__name { font-size: 28px; }
 .card-board.card-board--zoom-4 .fifa-card__stat-label { font-size: 14px; }
 .card-board.card-board--zoom-4 .fifa-card__stat-value { font-size: 19px; }
@@ -580,12 +580,12 @@ body { isolation: isolate; }
   100%   { --fancy-border-angle: 360deg; inset: 0px    0px    0px    -3.5px; padding: 2.2px; transform: rotate(0deg); }
 }
 .modal-frame { position: relative; width: min(680px, 100%); }
-.fancy-ball { position: absolute; z-index: 3; top: -112.5px; left: -112.5px; width: 112.5px; height: 112.5px; object-fit: contain; pointer-events: none; filter: drop-shadow(0 0 5px var(--fancy-color)) drop-shadow(0 0 10px var(--fancy-color)); animation: fancy-ball-travel 24s linear infinite, fancy-ball-spin 2s linear infinite; }
-@keyframes fancy-ball-travel { 0% { top: -112.5px; left: -112.5px; } 25% { top: -112.5px; left: 100%; } 50% { top: 100%; left: 100%; } 75% { top: 100%; left: -112.5px; } 100% { top: -112.5px; left: -112.5px; } }
+.fancy-ball { position: absolute; z-index: 3; top: -25px; left: -25px; width: 25px; height: 25px; object-fit: contain; pointer-events: none; filter: drop-shadow(0 0 5px var(--fancy-color)) drop-shadow(0 0 10px var(--fancy-color)); animation: fancy-ball-travel 24s linear infinite, fancy-ball-spin 2s linear infinite; }
+@keyframes fancy-ball-travel { 0% { top: -25px; left: -25px; } 25% { top: -25px; left: 100%; } 50% { top: 100%; left: 100%; } 75% { top: 100%; left: -25px; } 100% { top: -25px; left: -25px; } }
 @keyframes fancy-ball-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 /* The lite ball is a burst/deflated soccer ball that waddles and drags itself around the modal instead of rolling cleanly. */
-.fancy-ball--lite { top: -81px; left: -81px; width: 90px; height: 90px; animation: fancy-ball-waddle-travel 32s linear infinite, fancy-ball-waddle-wobble .85s ease-in-out infinite; }
-@keyframes fancy-ball-waddle-travel { 0% { top: -81px; left: -81px; } 11% { top: -54px; left: 22%; } 25% { top: -90px; left: 100%; } 36% { top: 22%; left: 96%; } 50% { top: 100%; left: 100%; } 61% { top: 96%; left: 58%; } 75% { top: 100%; left: -81px; } 86% { top: 55%; left: -54px; } 100% { top: -81px; left: -81px; } }
+.fancy-ball--lite { top: -54px; left: -54px; width: 60px; height: 60px; animation: fancy-ball-waddle-travel 32s linear infinite, fancy-ball-waddle-wobble .85s ease-in-out infinite; }
+@keyframes fancy-ball-waddle-travel { 0% { top: -54px; left: -54px; } 11% { top: -36px; left: 22%; } 25% { top: -60px; left: 100%; } 36% { top: 22%; left: 96%; } 50% { top: 100%; left: 100%; } 61% { top: 96%; left: 58%; } 75% { top: 100%; left: -54px; } 86% { top: 55%; left: -36px; } 100% { top: -54px; left: -54px; } }
 @keyframes fancy-ball-waddle-wobble { 0%, 100% { transform: rotate(-9deg) scale(1.06, .9); } 50% { transform: rotate(11deg) scale(.9, 1.06); } }
 @keyframes fancy-border-trace { 0% { --fancy-border-angle: 0deg; opacity: 0; } 6% { opacity: 1; } 55% { --fancy-border-angle: 360deg; opacity: 1; } 64% { opacity: 0; } 100% { --fancy-border-angle: 360deg; opacity: 0; } }
 @keyframes fancy-name-glow { 0%, 100% { text-shadow: var(--text-outline, 0 0 0 transparent), 0 0 4px var(--fancy-glow-soft); } 50% { text-shadow: var(--text-outline, 0 0 0 transparent), 0 1px 14px var(--fancy-glow-strong), 0 0 6px var(--fancy-glow-strong); } }
