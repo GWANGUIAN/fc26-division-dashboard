@@ -249,6 +249,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/paggang.mp3"
   - slug: kaksjak0730
     displayName: 한결___
     cafeAliases: ["한결8008"]
@@ -923,6 +924,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/jayjaing.mp3"
   - slug: nyaming0505
     displayName: "냐밍_"
     cafeAliases: ["냐밍"]
