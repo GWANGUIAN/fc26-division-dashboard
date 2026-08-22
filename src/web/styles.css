@@ -560,20 +560,24 @@ body { isolation: isolate; }
 .modal.fancy-border { border-width: 2px; }
 .fancy-border { position: relative; }
 .fancy-border::before { content: ""; position: absolute; z-index: 2; inset: 0; border-radius: inherit; padding: 3px; background: conic-gradient(from var(--fancy-border-angle), var(--fancy-color) 0deg, var(--fancy-glow-soft) 26deg, transparent 60deg, transparent 360deg); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; filter: drop-shadow(0 0 4px var(--fancy-color)); opacity: 0; animation: fancy-border-trace 5.5s ease-in-out infinite; pointer-events: none; }
-.fancy-border--lite::before { filter: drop-shadow(0 0 2px var(--fancy-color)); animation: fancy-border-inchworm 9s ease-in-out infinite; }
-@keyframes fancy-border-inchworm {
-  0%   { --fancy-border-angle: 0deg;   opacity: 0;   inset: 0px;    padding: 1.5px; }
-  4%   { opacity: .9; }
-  14%  { --fancy-border-angle: 70deg;  opacity: .5;  inset: -2px;   padding: 3px; }
-  24%  { --fancy-border-angle: 46deg;  opacity: .95; inset: 1.5px;  padding: 1px; }
-  36%  { --fancy-border-angle: 150deg; opacity: .5;  inset: -2px;   padding: 3px; }
-  46%  { --fancy-border-angle: 122deg; opacity: .95; inset: 1.5px;  padding: 1px; }
-  58%  { --fancy-border-angle: 230deg; opacity: .5;  inset: -2px;   padding: 3px; }
-  68%  { --fancy-border-angle: 198deg; opacity: .95; inset: 1.5px;  padding: 1px; }
-  80%  { --fancy-border-angle: 320deg; opacity: .5;  inset: -2px;   padding: 3px; }
-  90%  { --fancy-border-angle: 360deg; opacity: .8;  inset: 0px;    padding: 1.5px; }
-  96%  { opacity: 0; }
-  100% { --fancy-border-angle: 360deg; opacity: 0;   inset: 0px;    padding: 1.5px; }
+.fancy-border--lite::before { filter: drop-shadow(0 0 2px var(--fancy-color)); opacity: .8; animation: fancy-border-squiggle 16s linear infinite; }
+/* Unlike the full-tier trace (uniform ring, clean sweep), the lite trace keeps top/bottom and left/right
+   insets on their own sine-ish cycles (out of phase) so the band undulates like a wave as it travels around
+   the card — continuously, at constant speed, with no fade/hold at the loop point to break the motion. */
+@keyframes fancy-border-squiggle {
+  0%     { --fancy-border-angle: 0deg;   inset: 0px    0px    0px    -3.5px; padding: 2.2px; transform: rotate(0deg); }
+  8.33%  { --fancy-border-angle: 30deg;  inset: 2.5px  3px    -2.5px -1.75px; padding: 2.8px; transform: rotate(1.7deg); }
+  16.67% { --fancy-border-angle: 60deg;  inset: 4.3px  3px    -4.3px 1.75px;  padding: 3.2px; transform: rotate(1.7deg); }
+  25%    { --fancy-border-angle: 90deg;  inset: 5px    0px    -5px   3.5px;   padding: 3.4px; transform: rotate(0deg); }
+  33.33% { --fancy-border-angle: 120deg; inset: 4.3px  -3px   -4.3px 1.75px;  padding: 3.2px; transform: rotate(-1.7deg); }
+  41.67% { --fancy-border-angle: 150deg; inset: 2.5px  -3px   -2.5px -1.75px; padding: 2.8px; transform: rotate(-1.7deg); }
+  50%    { --fancy-border-angle: 180deg; inset: 0px    0px    0px    -3.5px; padding: 2.2px; transform: rotate(0deg); }
+  58.33% { --fancy-border-angle: 210deg; inset: -2.5px 3px    2.5px  -1.75px; padding: 1.6px; transform: rotate(1.7deg); }
+  66.67% { --fancy-border-angle: 240deg; inset: -4.3px 3px    4.3px  1.75px;  padding: 1.2px; transform: rotate(1.7deg); }
+  75%    { --fancy-border-angle: 270deg; inset: -5px   0px    5px    3.5px;   padding: 1px;   transform: rotate(0deg); }
+  83.33% { --fancy-border-angle: 300deg; inset: -4.3px -3px   4.3px  1.75px;  padding: 1.2px; transform: rotate(-1.7deg); }
+  91.67% { --fancy-border-angle: 330deg; inset: -2.5px -3px   2.5px  -1.75px; padding: 1.6px; transform: rotate(-1.7deg); }
+  100%   { --fancy-border-angle: 360deg; inset: 0px    0px    0px    -3.5px; padding: 2.2px; transform: rotate(0deg); }
 }
 .modal-frame { position: relative; width: min(680px, 100%); }
 .fancy-ball { position: absolute; z-index: 3; top: -112.5px; left: -112.5px; width: 112.5px; height: 112.5px; object-fit: contain; pointer-events: none; filter: drop-shadow(0 0 5px var(--fancy-color)) drop-shadow(0 0 10px var(--fancy-color)); animation: fancy-ball-travel 24s linear infinite, fancy-ball-spin 2s linear infinite; }
