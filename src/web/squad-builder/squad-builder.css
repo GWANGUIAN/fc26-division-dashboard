@@ -340,6 +340,14 @@
   font-weight: 800;
   line-height: 1.2;
 }
+.squad-card__name > * { min-width: 0; max-width: 100%; }
+.squad-card__name strong,
+.squad-card__name .fancy-name__text {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
 .squad-card__name strong { color: #fff; text-shadow: var(--text-outline); }
 
 .squad-card__stats {
