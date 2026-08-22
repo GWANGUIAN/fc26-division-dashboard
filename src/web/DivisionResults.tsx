@@ -1,4 +1,4 @@
-import { Users } from "lucide-react";
+import { CirclePile } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
 import { divisionColor } from "../shared/division-theme.js";
 import type { TrophyAwards } from "../shared/trophy.js";
@@ -108,7 +108,7 @@ export function DivisionResults({
               onClick={onSquadBuilderOpen}
               aria-label="나만의 스쿼드 빌더"
             >
-              <Users aria-hidden="true" />
+              <CirclePile aria-hidden="true" />
               <span>나만의 스쿼드 빌더</span>
             </button>
           }
@@ -122,7 +122,7 @@ export function DivisionResults({
             onClick={onSquadBuilderOpen}
             aria-label="나만의 스쿼드 빌더"
           >
-            <Users aria-hidden="true" />
+            <CirclePile aria-hidden="true" />
             <span>나만의 스쿼드 빌더</span>
           </button>
         </div>

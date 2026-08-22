@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock, List, Minus, Plus, Shield, Users } from "lucide-react";
+import { CheckCircle2, CirclePile, Clock, List, Minus, Plus, Shield, Users } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
 import { hexToRgba } from "./cardVisuals";
 import { DivisionHistogram } from "./DivisionHistogram";
@@ -139,7 +139,7 @@ export function ViewToolbar({
           className="squad-builder-toggle"
           onClick={onSquadBuilderOpen}
         >
-          <Users aria-hidden="true" />
+          <CirclePile aria-hidden="true" />
           <span>나만의 스쿼드 빌더</span>
         </button>
         <div className="segmented segmented--view-mode">

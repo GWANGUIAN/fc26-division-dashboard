@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Shield, Trophy, Users } from "lucide-react";
+import { CirclePile, Shield, Trophy } from "lucide-react";
 import geminiLogo from "./assets/gemini-logo.svg";
 
 export type Announcement = {
@@ -19,7 +19,7 @@ export const ANNOUNCEMENTS: Announcement[] = [
         오른쪽의 <br />
         <br />
         <span className="announcement-squad-builder-btn">
-          <Users aria-hidden="true" />
+          <CirclePile aria-hidden="true" />
           <span>나만의 스쿼드 빌더</span>
         </span>{" "}
         버튼을 누르면 스쿼드를 추가하고 원하는 포메이션에 선수들을 자유롭게
