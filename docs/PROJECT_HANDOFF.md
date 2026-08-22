@@ -42,7 +42,7 @@ GitHub push (roster/results/overrides YAML) → Config Sync Lambda → DynamoDB 
 
 | 위치 | 책임 |
 | --- | --- |
-| `src/web/App.tsx` | 두 화면(디비전/1:1), 검색·필터, 상세 모달, 승급 타임라인, 업적, VOD 카드 |
+| `src/web/App.tsx` | 두 화면(디비전/1:1)을 그리는 오케스트레이터. 상태는 `use*.ts` 훅에서 모으고 화면은 섹션 컴포넌트에 위임한다 — 아래 "프런트엔드 구조" 참고 |
 | `src/web/api.ts` | 개발 시 데모 데이터, 운영 시 같은 출처 `/api/snapshot` 호출 |
 | `src/worker.ts` | Cloudflare API 프록시·2분 Edge 캐시·`/healthz`·정적 자산 캐시 방어 |
 | `src/functions/scraper.ts` | 스케줄 수집, 게시판별 체크포인트, 이미지 재시도, 전적 추출 재시도, 스냅샷 발행 |
@@ -69,6 +69,57 @@ GitHub push (roster/results/overrides YAML) → Config Sync Lambda → DynamoDB 
 | `scripts/sync-roster-from-comments-xlsx.mjs` | 로컬에 수동으로 내려받은 같은 xlsx에서 신규 신청자만 추가(제거 없음, 수동 실행용) |
 | `scripts/lib/collabot-xlsx.mjs`, `scripts/lib/roster-text.mjs` | 위 두 xlsx→roster 스크립트가 공유하는 xlsx 파싱·`roster.yaml` 원문 텍스트 편집 헬퍼 |
 
+### 프런트엔드 구조 (`src/web`)
+
+원래 하나의 파일(약 3,200줄)이던 `App.tsx`를 상태 로직(훅)과 화면(섹션 컴포넌트)으로 분리했다. `App.tsx`는 훅으로 상태를 모아 컴포넌트에 props로 넘기는 얇은 오케스트레이터만 남아 있다. 아래 표 이후 이 문서의 다른 절에서 "`src/web/App.tsx`"를 언급하는 부분은 실제로는 이 파일들에 있을 수 있으니 먼저 이 표에서 찾는다.
+
+커스텀 훅(상태·파생 데이터):
+
+| 파일 | 책임 |
+| --- | --- |
+| `useDashboardSnapshot.ts` | 스냅샷 로딩(`api.ts`) + `?fancyMembers=` URL 오버라이드 적용 |
+| `useToast.ts` | 하단 토스트 알림 표시·자동 소멸 |
+| `useSfxSettings.ts` | 효과음 on/off·볼륨 상태와 localStorage 동기화 |
+| `usePendingAnnouncements.ts` | 미확인 공지 계산·확인 처리 |
+| `useViewPreferences.ts` | 목록/카드 뷰 모드, 카드 줌, 카드 정렬 모드 |
+| `useControlsStuck.ts` | 검색바가 상단에 고정됐는지(`IntersectionObserver`) |
+| `useStreamerFilters.ts` | 검색·활동/효과음/업적 필터, 업적 판정, 디비전 통계, 카드 정렬 |
+| `useEvaluationApplications.ts` | 1:1 평가 신청 검색·상태 필터 |
+| `useLatestActivity.ts` | 최근 24시간 게시글(`latest`)과 축하 배너 슬라이드 계산 |
+
+섹션 컴포넌트(화면)와 공용 UI:
+
+| 파일 | 책임 |
+| --- | --- |
+| `TopBar.tsx` | 상단 브랜드·네비·최신소식/업적 버튼 |
+| `HeroSection.tsx` | 히어로 타이틀, 동기화 상태 표시 |
+| `ControlsBar.tsx` | 검색창 + 디비전 필터 or 1:1 평가 필터 세그먼트 |
+| `ViewToolbar.tsx` | 신청 현황 요약, 뷰 모드/줌/정렬 컨트롤 |
+| `DivisionResults.tsx` | 디비전 보드(목록 `StreamerCard` / 카드 `CardBoard`), 스쿼드 빌더 진입 버튼 |
+| `EvaluationList.tsx`, `EvaluationViews.tsx` | 1:1 평가 카드 목록과 상세 모달 |
+| `LatestFeedDrawer.tsx` | 최신 소식(24시간) 드로어 |
+| `DetailModal.tsx` | 스트리머 상세 모달(승급 타임라인·활동글·Gemini 한줄평 포함) |
+| `TrophyModal.tsx` | 업적 모달 |
+| `GeminiReviewSection.tsx` | Gemini 한줄평 표시(타이핑 애니메이션) |
+| `StreamerActivitySection.tsx` | 스코프/11대11 활동 목록, 승급 타임라인, 이전 승격 게시글 |
+| `StreamerCards.tsx` | `StreamerCard`(목록), `StreamerFifaCard`·`CardBoard`(카드형 보기) |
+| `cardVisuals.tsx` | `RecordBadge`, `FifaShield`, `FancyAvatar`/`FancyName` 등 카드 시각 요소(리팩터 이전부터 별도 파일) |
+| `Modal.tsx` | 공용 모달 셸, `FancyBurst`, `CafeLink`/`SoopLink` |
+| `AnnouncementModal.tsx` | 공지 모달·상단 공지 위젯 |
+| `SfxControls.tsx` | 효과음 토글, 최초 진입 안내 팝업 |
+| `JandyVideoSection.tsx` | 잔디동 참고 영상 캐러셀 |
+| `FavoriteCelebration.tsx` | 상단 축하 배너 |
+
+데이터·유틸:
+
+| 파일 | 책임 |
+| --- | --- |
+| `appHelpers.ts` | `divisions` 배열, `?fancyMembers=` 오버라이드, 목록 텍스트 빌더 |
+| `storage.ts` | localStorage 헬퍼 전체(공지/업데이트 seen, sfx, 뷰 모드, 카드 줌) |
+| `sfxAudio.ts` | 효과음 재생/정지 |
+| `formatters.ts` | 날짜·기간 포맷터 |
+| `jandyVideosData.ts`, `announcementsData.tsx` | 정적 콘텐츠 데이터 |
+
 ## 핵심 도메인 규칙
 
 ### 디비전과 후보 매칭
@@ -84,7 +135,7 @@ GitHub push (roster/results/overrides YAML) → Config Sync Lambda → DynamoDB 
 
 ### 축하 배너
 
-- 상단 `FavoriteCelebration` 배너는 공개 스냅샷의 `latestPosts[0]`(가장 최근 승격 글)이 **2시간 이내**일 때만 문구를 바꾼다. `src/web/App.tsx`의 `celebrationMessage`가 계산 위치다.
+- 상단 `FavoriteCelebration` 배너는 공개 스냅샷의 `latestPosts[0]`(가장 최근 승격 글)이 **2시간 이내**일 때만 문구를 바꾼다. `src/web/useLatestActivity.ts`의 `celebrationSlides` 계산이 이 로직의 위치다.
 - 해당 스트리머의 `roster.yaml` `celebrationMessage`가 있으면 그 문구의 `{n}`을 승격된 디비전 숫자로 치환해 보여준다. 없으면 `{displayName}의 {n}부 리그 승격을 축하합니다~!!` 기본 문구를 쓴다.
 - 2시간이 지나거나 오늘 승격 글이 없으면 기본값 `축 왁굳형, 핫짱 즐겨찾기 목록 입성`으로 돌아간다.
 - `celebrationMessage`는 `RosterEntry`와 `StreamerRecord` 양쪽 타입에 있어야 하며, `buildStreamerRecords`(`src/shared/promotion.ts`)가 로스터 → 스트리머 레코드 변환 시 이 필드를 빠뜨리지 않아야 프런트까지 전달된다. 백엔드 로직이라 반영에는 `deploy-backend.yml` 배포 + scraper의 다음 3분 주기 실행이 필요하다.
@@ -109,7 +160,7 @@ GitHub push (roster/results/overrides YAML) → Config Sync Lambda → DynamoDB 
 - 톤 지침이 명확하다: 형식적인 "응원합니다/화이팅" 같은 멘트로 끝맺지 않고, 성적이 나쁘면 예능감 있게 신랄하게, 좋으면 오버스럽게 과장해서 극찬하는 "방송각" 톤을 쓴다(인신공격은 금지). `temperature: 0.9`로 표현력을 확보한다. 이 톤은 사용자가 명시적으로 요청한 것이라 임의로 밋밋하게 되돌리면 안 된다.
 - `review-context.yaml`은 "지금은 유효하지만 나중엔 바뀌거나 필요 없어질 수 있는 시사성 안내"(예: 진행 중인 잔디동 모집 공고)를 담는 용도다. `record-overrides.yaml`과 동일한 파이프라인(Git → `sync-roster.yml` → `config-sync.ts` → DynamoDB `CONFIG/REVIEW_CONTEXT`)을 타므로, 캠페인이 끝나면 `context`를 빈 문자열로 바꿔 push하기만 하면 되고 코드 재배포는 필요 없다.
 - `RosterEntry.reviewNote`(선택)는 스트리머 개인에 대한 자유 텍스트 배경 정보다. 값이 있으면 프롬프트의 "추가 정보"로 그대로 들어간다. `celebrationMessage`와 마찬가지로 `RosterEntry`/`StreamerRecord`/`buildStreamerRecords` 세 곳 모두에 반영돼 있어야 스냅샷까지 전달된다(아래 "변경 시 주의할 점" 참고).
-- 프런트(`GeminiReviewSection`, `src/web/App.tsx`)가 실제로 표시하는 건 게시글의 `review` 문자열이 아니라 `StreamerRecord.latestReview`라는 파생 필드다. `latestReviewFrom`(`src/shared/promotion.ts`)이 이 스트리머의 게시글 중 `review`가 있는 가장 최신 것을 찾고, 그 게시글이 `lastPost`와 같으면 `isCurrent: true`(현재 평가), 다르면 `isCurrent: false`(새 게시글은 올라왔지만 아직 조건 미충족이거나 분석 중 — UI에 "이전 평가" 뱃지와 별도 안내문으로 표시)로 표시한다.
+- 프런트(`src/web/GeminiReviewSection.tsx`)가 실제로 표시하는 건 게시글의 `review` 문자열이 아니라 `StreamerRecord.latestReview`라는 파생 필드다. `latestReviewFrom`(`src/shared/promotion.ts`)이 이 스트리머의 게시글 중 `review`가 있는 가장 최신 것을 찾고, 그 게시글이 `lastPost`와 같으면 `isCurrent: true`(현재 평가), 다르면 `isCurrent: false`(새 게시글은 올라왔지만 아직 조건 미충족이거나 분석 중 — UI에 "이전 평가" 뱃지와 별도 안내문으로 표시)로 표시한다.
 - `latestReview`는 저장되지 않고 매번 `buildStreamerRecords`가 게시글에서 다시 계산한다(`record`가 항상 재계산되는 것과 동일한 이유) — 따라서 이 필드가 화면에 보이려면 **`review`가 붙은 코드가 실제로 배포된 뒤** scraper가 최소 한 번 더 돌아야 한다. 코드 배포와 데이터 배포(3분 스케줄러)는 별개다.
 - 기존 백로그(record는 있는데 review가 없는 게시글)를 한 번에 채우는 백필은 `pnpm run backfill:reviews`로 한다. 처음 배포할 때는 `--exclude-top 5` 정도로 최신 몇 명은 일부러 남겨서, 실제 배포된 scraper가 정상적으로 한줄평을 만들어내는지 라이브로 확인하는 용도로 쓸 수 있다.
 
@@ -128,12 +179,12 @@ GitHub push (roster/results/overrides YAML) → Config Sync Lambda → DynamoDB 
 - `자기 PR 왕`: 스코프의 `[내가 직접 홍보]` 글 수와 11대11 플레이 영상 글 수를 합산한다. 최다 기록은 동률자를 모두 표시한다.
 - 계산 기준은 `src/shared/trophy.ts`, 회귀 테스트는 `src/shared/trophy.test.ts`에 있다. 업적 기준을 바꾸면 UI 도움말(`TrophyHelp`)과 테스트를 함께 수정한다.
 
-### 디비전 색상·전적 배지·카드형 보기 (프런트엔드, `src/web/App.tsx`)
+### 디비전 색상·전적 배지·카드형 보기 (프런트엔드, `src/web/StreamerCards.tsx` · `cardVisuals.tsx` · `ViewToolbar.tsx`)
 
 - 디비전 1~10은 각각 다른 색을 쓴다(1~3부는 금·은·동). 색상 표는 `src/shared/division-theme.ts`의 `DIVISION_COLORS`가 유일한 기준이며, 리스트의 `D{n}` 뱃지·상세 모달의 `{n}부` 텍스트·카드형 보기의 방패 배경이 모두 이 값을 `--division-color` CSS 변수 또는 직접 hex로 넘겨받아 쓴다. 색을 바꾸려면 이 파일 하나만 고치면 된다.
-- 전적(W/D/L) 배지는 `RecordBadge` 컴포넌트(`App.tsx`)가 그린다. `streamer.record`가 있으면 파랑/회색/빨강으로 승/무/패를 표기하고, 없으면 두 경우로 나뉜다: `lastPost`가 아예 없으면(보고 없음) 회색 `-/-/-`, `lastPost`는 있는데 `record`가 없으면 `recordExtractionStatus(lastPost)`(`src/shared/record-extraction.ts`)를 봐서 `"pending"`이면 "집계중", 그 외(`"failed"`)는 마찬가지로 회색 `-/-/-`로 표시한다 — 추출 실패와 데이터 없음을 프런트에서 굳이 구분하지 않기로 한 의도적 선택이다.
-- 목록/카드 뷰 토글(`viewMode: "list" | "card"`)과 카드 뷰 전용 정렬 토글(`sortMode: "division" | "winRate"`, 승률 없는 스트리머는 정렬 방향과 무관하게 항상 맨 뒤)이 검색창과 디비전 보드 사이, `controls-bar`(스티키 영역) 바깥의 `view-toolbar`에 있다. 두 상태 모두 새로고침 시 초기화되며 의도적으로 localStorage에 저장하지 않는다.
-- 카드형 보기(`StreamerFifaCard`)는 디비전 구분 없이 정렬된 스트리머를 방패 모양 SVG(`FifaShield`) 위에 얹는다. `FIFA_SHIELD_OUTER`/`FIFA_SHIELD_INNER`의 path 좌표(`viewBox 0 0 300 450`)는 사용자가 제공한 참고 SVG를 그대로 가져온 것이라 임의로 좌표를 손보면 방패 윤곽이 깨질 수 있다 — 바깥 테두리·안쪽 흰색 하이라이트 테두리는 고정이고, 배경 그라데이션(`mixHex()`로 디비전 색을 검정/흰색과 섞어 생성)만 디비전별로 바뀐다. 이름은 카드색 계열의 진한 색, 나머지 텍스트는 흰색이며 전부 8방향 `text-shadow`(`--text-outline` CSS 변수)로 검정 외곽선을 둘러 어떤 배경 색에서도 읽히게 했다.
+- 전적(W/D/L) 배지는 `RecordBadge` 컴포넌트(`src/web/cardVisuals.tsx`)가 그린다. `streamer.record`가 있으면 파랑/회색/빨강으로 승/무/패를 표기하고, 없으면 두 경우로 나뉜다: `lastPost`가 아예 없으면(보고 없음) 회색 `-/-/-`, `lastPost`는 있는데 `record`가 없으면 `recordExtractionStatus(lastPost)`(`src/shared/record-extraction.ts`)를 봐서 `"pending"`이면 "집계중", 그 외(`"failed"`)는 마찬가지로 회색 `-/-/-`로 표시한다 — 추출 실패와 데이터 없음을 프런트에서 굳이 구분하지 않기로 한 의도적 선택이다.
+- 목록/카드 뷰 토글(`viewMode: "list" | "card"`, `src/web/useViewPreferences.ts`)과 카드 뷰 전용 정렬 토글(`sortMode: "division" | "winRate"`, 승률 없는 스트리머는 정렬 방향과 무관하게 항상 맨 뒤)이 검색창과 디비전 보드 사이, `controls-bar`(스티키 영역) 바깥의 `view-toolbar`(`src/web/ViewToolbar.tsx`)에 있다. `viewMode`와 카드 줌 단계는 새로고침 후에도 유지되도록 localStorage에 저장한다(`loadViewMode`/`saveViewMode`, `loadCardZoomLevel`/`saveCardZoomLevel`, `src/web/storage.ts`). `sortMode`만 새로고침 시 `"division"`으로 초기화되며 의도적으로 저장하지 않는다.
+- 카드형 보기(`StreamerFifaCard`, `src/web/StreamerCards.tsx`)는 디비전 구분 없이 정렬된 스트리머를 방패 모양 SVG(`FifaShield`, `src/web/cardVisuals.tsx`) 위에 얹는다. `FIFA_SHIELD_OUTER`/`FIFA_SHIELD_INNER`의 path 좌표(`viewBox 0 0 300 450`)는 사용자가 제공한 참고 SVG를 그대로 가져온 것이라 임의로 좌표를 손보면 방패 윤곽이 깨질 수 있다 — 바깥 테두리·안쪽 흰색 하이라이트 테두리는 고정이고, 배경 그라데이션(`mixHex()`로 디비전 색을 검정/흰색과 섞어 생성)만 디비전별로 바뀐다. 이름은 카드색 계열의 진한 색, 나머지 텍스트는 흰색이며 전부 8방향 `text-shadow`(`--text-outline` CSS 변수)로 검정 외곽선을 둘러 어떤 배경 색에서도 읽히게 했다.
 
 ### 수집 안전 원칙
 
@@ -241,5 +292,5 @@ pnpm dev
 
 1. 이 문서와 `README.md`를 읽는다.
 2. `git status --short`, `git log --oneline -8`로 작업 상태와 최근 의도를 확인한다.
-3. UI는 `src/web/App.tsx`, 수집은 `src/functions/scraper.ts`, Naver 셀렉터는 `src/functions/naver.ts`, 배포는 `infrastructure/main.tf`부터 본다.
+3. UI는 `src/web/App.tsx`(오케스트레이터, 상태는 `use*.ts` 훅·화면은 섹션 컴포넌트로 분리 — "프런트엔드 구조" 표 참고), 수집은 `src/functions/scraper.ts`, Naver 셀렉터는 `src/functions/naver.ts`, 배포는 `infrastructure/main.tf`부터 본다.
 4. 변경 전 `pnpm typecheck && pnpm test`를 기준선으로 실행한다.
