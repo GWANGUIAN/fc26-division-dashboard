@@ -63,7 +63,7 @@ export function TrophyModal({
           <p className="trophy-modal__intro">이제야 이쪽을 봐주는구나</p>
           {excludedNames.length > 0 && (
             <p className="trophy-modal__note">
-              {excludedNames.join(", ")}은 제외됩니다.
+              * {excludedNames.join(", ")}은 제외됩니다.
             </p>
           )}
         </div>
