@@ -111,7 +111,7 @@ export function App() {
     ? [
         {
           key: "iro-celebration",
-          message: "천년돌 아이로의 하루고멤 합격을 축하합니다 - 플러그 일동 -",
+          message: "천년돌 아이로의 하루고멤 합격을 축하합니다🎤 - 플러그 일동 -",
         },
       ]
     : celebrationSlides;
