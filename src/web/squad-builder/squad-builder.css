@@ -412,7 +412,7 @@
   flex-direction: column;
   max-height: var(--drawer-peek);
   border-top: 1px solid var(--border-strong);
-  background: var(--surface-3)ee;
+  background: color-mix(in srgb, var(--surface-3) 93%, transparent);
   backdrop-filter: blur(6px);
   /* Closing (falling back to this base rule from :hover/:focus-within) is
      delayed, so a momentary slip of the cursor while aiming for the search
