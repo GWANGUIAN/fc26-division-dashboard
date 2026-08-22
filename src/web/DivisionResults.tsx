@@ -1,0 +1,132 @@
+import { Users } from "lucide-react";
+import type { StreamerRecord } from "../shared/model.js";
+import { divisionColor } from "../shared/division-theme.js";
+import type { TrophyAwards } from "../shared/trophy.js";
+import { divisions } from "./appHelpers";
+import { CardBoard, StreamerCard } from "./StreamerCards";
+import { isUpdatedToday, seenKeyFor } from "./storage";
+
+export function DivisionResults({
+  viewMode,
+  streamers,
+  cardStreamers,
+  trophyAwards,
+  seenKeys,
+  onOpenStreamer,
+  cardZoom,
+  onZoomIn,
+  onZoomOut,
+  zoomMin,
+  zoomMax,
+  onSquadBuilderOpen,
+}: {
+  viewMode: "list" | "card";
+  streamers: StreamerRecord[];
+  cardStreamers: StreamerRecord[];
+  trophyAwards: TrophyAwards;
+  seenKeys: Set<string>;
+  onOpenStreamer: (streamer: StreamerRecord) => void;
+  cardZoom: number;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+  zoomMin: number;
+  zoomMax: number;
+  onSquadBuilderOpen: () => void;
+}) {
+  return (
+    <div className="results-wrap">
+      {viewMode === "list" ? (
+        <section className="board" aria-label="FC26 디비전 보드">
+          {divisions.map((division) => {
+            const entries = streamers.filter(
+              (streamer) => streamer.currentDivision === division,
+            );
+            return (
+              <section
+                className={`division division-${division}`}
+                style={
+                  {
+                    "--division-color": divisionColor(division),
+                  } as React.CSSProperties
+                }
+                key={division}
+              >
+                <div className="division__label">
+                  <span>{division === 10 ? "SEASON" : "DIVISION"}</span>
+                  <strong>{division}</strong>
+                  {division === 10 && <small>미참여</small>}
+                  {division <= 6 && (
+                    <small className="division__label-tag division__label-tag--pass">
+                      1차 합격 조건 충족
+                    </small>
+                  )}
+                  {division === 7 && (
+                    <small className="division__label-tag division__label-tag--conditional">
+                      1차 조건부 합격
+                    </small>
+                  )}
+                </div>
+                <div className="division__players">
+                  {entries.map((streamer) => (
+                    <StreamerCard
+                      key={streamer.id}
+                      streamer={streamer}
+                      awards={trophyAwards}
+                      isNew={
+                        isUpdatedToday(streamer) &&
+                        !seenKeys.has(seenKeyFor(streamer))
+                      }
+                      onOpen={() => onOpenStreamer(streamer)}
+                    />
+                  ))}
+                  {entries.length === 0 && (
+                    <p className="vacant">
+                      {division === 10
+                        ? "시즌 미참여 후보 없음"
+                        : "후보 대기 중"}
+                    </p>
+                  )}
+                </div>
+              </section>
+            );
+          })}
+        </section>
+      ) : (
+        <CardBoard
+          streamers={cardStreamers}
+          awards={trophyAwards}
+          zoom={cardZoom}
+          onOpen={onOpenStreamer}
+          onZoomIn={onZoomIn}
+          onZoomOut={onZoomOut}
+          zoomMin={zoomMin}
+          zoomMax={zoomMax}
+          railExtra={
+            <button
+              type="button"
+              className="squad-builder-rail__button"
+              onClick={onSquadBuilderOpen}
+              aria-label="나만의 스쿼드 빌더"
+            >
+              <Users aria-hidden="true" />
+              <span>나만의 스쿼드 빌더</span>
+            </button>
+          }
+        />
+      )}
+      {viewMode === "list" && (
+        <div className="squad-builder-rail">
+          <button
+            type="button"
+            className="squad-builder-rail__button"
+            onClick={onSquadBuilderOpen}
+            aria-label="나만의 스쿼드 빌더"
+          >
+            <Users aria-hidden="true" />
+            <span>나만의 스쿼드 빌더</span>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
