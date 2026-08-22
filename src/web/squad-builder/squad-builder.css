@@ -264,7 +264,7 @@
   font-size: calc(13px * var(--squad-zoom, 1));
   line-height: 1.4;
   letter-spacing: .04em;
-  color: var(--text-primary);
+  color: #f5fbf8;
   opacity: .9;
   white-space: nowrap;
   -webkit-text-stroke: .5px #000;
@@ -307,7 +307,7 @@
   top: 7%;
   left: 8%;
   opacity: .72;
-  color: var(--text-primary);
+  color: #f5fbf8;
   font-family: "Barlow Condensed";
   font-weight: 800;
   line-height: 1;
@@ -351,7 +351,7 @@
 }
 .squad-card__stat { display: inline-flex; align-items: baseline; gap: 5cqw; }
 .squad-card__stat .record-badge { color: #fff; text-shadow: var(--text-outline); font-size: 10cqw; }
-.squad-card__stat-label { color: var(--text-primary); opacity: .68; font-size: 7.5cqw; text-shadow: var(--text-outline); }
+.squad-card__stat-label { color: #f5fbf8; opacity: .68; font-size: 7.5cqw; text-shadow: var(--text-outline); }
 .squad-card__stat-value { color: #fff; font-size: 9cqw; text-shadow: var(--text-outline); }
 .squad-card__stat-value-kr { font-size: .78em; }
 
@@ -632,7 +632,7 @@
   padding: 9px 10px 9px 12px;
   border: 1px solid var(--border-strong);
   border-radius: 3px;
-  color: #effff9;
+  color: var(--text-primary);
   background: var(--surface-input);
   font: 700 13px "Noto Sans KR";
   cursor: pointer;

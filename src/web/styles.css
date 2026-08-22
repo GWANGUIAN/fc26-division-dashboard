@@ -433,7 +433,7 @@ body { isolation: isolate; }
 .fifa-card:hover { transform: translateY(-3px); filter: drop-shadow(0 10px 20px rgba(var(--shadow-color), .38)); }
 .fifa-card--holo { transform-style: preserve-3d; }
 .fifa-card__shield { position: absolute; inset: 0; width: 100%; height: 100%; }
-.fifa-card__division { position: absolute; z-index: 1; top: 26px; left: 18px; opacity: .68; color: var(--text-primary); font: 800 24px/1 "Barlow Condensed"; text-shadow: -1px -1px 0 #000, 0 -1px 0 #000, 1px -1px 0 #000, -1px 0 0 #000, 1px 0 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 1px 1px 0 #000; }
+.fifa-card__division { position: absolute; z-index: 1; top: 26px; left: 18px; opacity: .68; color: #f5fbf8; font: 800 24px/1 "Barlow Condensed"; text-shadow: -1px -1px 0 #000, 0 -1px 0 #000, 1px -1px 0 #000, -1px 0 0 #000, 1px 0 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 1px 1px 0 #000; }
 .fifa-card > .achievement-badges { position: absolute; z-index: 5; top: 30px; right: 18px; gap: 4px; }
 .fifa-card > .achievement-badges .achievement-badge { width: 20px; height: 20px; font-size: 15px; text-shadow: var(--text-outline); }
 .fifa-card__body { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; margin-top: -14px; padding: 0 20px 0; }
@@ -444,7 +444,7 @@ body { isolation: isolate; }
 .fifa-card__name strong { color: #fff; text-shadow: var(--text-outline); }
 .fifa-card__stats { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 2px; }
 .fifa-card__stat { display: inline-flex; align-items: baseline; gap: 6px; font-size: 13px; }
-.fifa-card__stat-label { color: var(--text-primary); opacity: .66; font-size: 11px; font-weight: 500; letter-spacing: .01em; text-shadow: var(--text-outline); }
+.fifa-card__stat-label { color: #f5fbf8; opacity: .66; font-size: 11px; font-weight: 500; letter-spacing: .01em; text-shadow: var(--text-outline); }
 .fifa-card__stat-value { color: #fff; font: 800 15px "Barlow Condensed", "Noto Sans KR"; letter-spacing: .01em; text-shadow: var(--text-outline); }
 .fifa-card__stat-value-kr { font-size: .78em; }
 .fifa-card__stat .record-badge { color: #fff; text-shadow: var(--text-outline); }

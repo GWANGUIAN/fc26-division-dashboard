@@ -1,4 +1,6 @@
-import { DEFAULT_FORMATION_ID } from "./formations.js";
+import { DEFAULT_FORMATION_ID, FORMATIONS, getFormation } from "./formations.js";
+import { remapPlacementsToFormation } from "./formationRemap.js";
+import { LEGACY_FORMATIONS } from "./legacyFormations.js";
 import type { Squad, SquadBuilderState } from "./types.js";
 
 const SQUAD_BUILDER_STORAGE_KEY = "fc26-squad-builder-v1";
@@ -41,12 +43,54 @@ function isValidState(value: unknown): value is SquadBuilderState {
   );
 }
 
+/**
+ * Remaps a squad saved under a formation id that no longer exists (e.g. a
+ * "(2)"/"(3)" variant collapsed into its base formation) onto the
+ * surviving formation, so previously-placed streamers reappear on the pitch
+ * (or fall back to the candidate pool) instead of silently disappearing.
+ */
+function migrateSquad(squad: Squad): Squad {
+  if (FORMATIONS.some((formation) => formation.id === squad.formationId)) {
+    return squad;
+  }
+  const legacy = LEGACY_FORMATIONS[squad.formationId];
+  if (!legacy) {
+    return {
+      ...squad,
+      formationId: DEFAULT_FORMATION_ID,
+      placements: [],
+      candidateOrder: [
+        ...squad.candidateOrder,
+        ...squad.placements.map((placement) => placement.streamerId),
+      ],
+    };
+  }
+  const toFormation = getFormation(legacy.baseId);
+  const { placements, returnedToCandidateIds } = remapPlacementsToFormation(
+    squad.placements,
+    legacy.preset,
+    toFormation,
+  );
+  return {
+    ...squad,
+    formationId: toFormation.id,
+    placements,
+    candidateOrder: [...squad.candidateOrder, ...returnedToCandidateIds],
+  };
+}
+
+function migrateState(state: SquadBuilderState): SquadBuilderState {
+  const squads = state.squads.map(migrateSquad);
+  const changed = squads.some((squad, index) => squad !== state.squads[index]);
+  return changed ? { ...state, squads } : state;
+}
+
 export function loadSquadBuilderState(): SquadBuilderState {
   try {
     const raw = localStorage.getItem(SQUAD_BUILDER_STORAGE_KEY);
     if (!raw) return createDefaultState();
     const parsed = JSON.parse(raw) as unknown;
-    return isValidState(parsed) ? parsed : createDefaultState();
+    return isValidState(parsed) ? migrateState(parsed) : createDefaultState();
   } catch {
     return createDefaultState();
   }
