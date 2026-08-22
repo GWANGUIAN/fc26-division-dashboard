@@ -592,6 +592,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/imhaming.mp3"
   - slug: haepalin
     displayName: "해파린~"
     cafeAliases: ["해파린"]
