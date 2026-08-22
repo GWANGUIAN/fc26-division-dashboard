@@ -2,7 +2,35 @@ import { FORMATIONS, getFormation } from "./formations.js";
 import { remapPlacementsToFormation } from "./formationRemap.js";
 import { reconcileAllSquads } from "./reconcile.js";
 import { createId } from "./storage.js";
-import type { Squad, SquadBuilderState } from "./types.js";
+import type { Squad, SlotOffset, SquadBuilderState } from "./types.js";
+
+/**
+ * Margin from the pitch edge a nudged card's center may not cross, in pitch
+ * %. Lets a card be dragged across virtually the whole pitch (not just a
+ * small range around its formation slot) while still keeping it visibly on
+ * the field.
+ */
+export const PITCH_EDGE_MARGIN_PCT = 4;
+
+/**
+ * Clamps a slot's manual offset so the card's resulting absolute position
+ * (slot position + offset) stays within the pitch edges. Takes the slot's
+ * own base xPct/yPct since the allowed offset range depends on where the
+ * slot already sits (e.g. a slot near x=90 can only be nudged a little
+ * further right before hitting the edge, but can move much further left).
+ */
+export function clampSlotOffset(
+  slotXPct: number,
+  slotYPct: number,
+  dxPct: number,
+  dyPct: number,
+): SlotOffset {
+  const min = PITCH_EDGE_MARGIN_PCT;
+  const max = 100 - PITCH_EDGE_MARGIN_PCT;
+  const clampedX = Math.max(min, Math.min(max, slotXPct + dxPct));
+  const clampedY = Math.max(min, Math.min(max, slotYPct + dyPct));
+  return { dxPct: clampedX - slotXPct, dyPct: clampedY - slotYPct };
+}
 
 export type SquadBuilderAction =
   | { type: "ADD_SQUAD"; name?: string; candidateOrder?: string[] }
@@ -36,7 +64,18 @@ export type SquadBuilderAction =
       liveStreamerIds: string[];
       /** Newly-discovered ids to put at the front of candidateOrder instead of the end. */
       frontStreamerIds?: string[];
-    };
+    }
+  | {
+      type: "NUDGE_SLOT";
+      squadId: string;
+      slotId: string;
+      /** The slot's own formation position, needed to clamp against the pitch edges. */
+      slotXPct: number;
+      slotYPct: number;
+      dxPct: number;
+      dyPct: number;
+    }
+  | { type: "RESET_SLOT_OFFSETS"; squadId: string };
 
 function updateSquad(
   state: SquadBuilderState,
@@ -65,6 +104,7 @@ export function squadBuilderReducer(
         formationId: FORMATIONS[0].id,
         placements: [],
         candidateOrder: action.candidateOrder ?? [],
+        slotOffsets: {},
       };
       return {
         ...state,
@@ -113,6 +153,10 @@ export function squadBuilderReducer(
           formationId: action.formationId,
           placements,
           candidateOrder: [...squad.candidateOrder, ...returnedToCandidateIds],
+          // A new formation's slots sit at different coordinates, so any
+          // manual nudges made under the old formation no longer apply —
+          // cards fall back to the new formation's default positions.
+          slotOffsets: {},
         };
       });
     }
@@ -214,6 +258,28 @@ export function squadBuilderReducer(
       );
       const changed = squads.some((squad, index) => squad !== state.squads[index]);
       return changed ? { ...state, squads } : state;
+    }
+    case "NUDGE_SLOT": {
+      return updateSquad(state, action.squadId, (squad) => ({
+        ...squad,
+        slotOffsets: {
+          ...squad.slotOffsets,
+          [action.slotId]: clampSlotOffset(
+            action.slotXPct,
+            action.slotYPct,
+            action.dxPct,
+            action.dyPct,
+          ),
+        },
+      }));
+    }
+    case "RESET_SLOT_OFFSETS": {
+      return updateSquad(state, action.squadId, (squad) => {
+        if (!squad.slotOffsets || Object.keys(squad.slotOffsets).length === 0) {
+          return squad;
+        }
+        return { ...squad, slotOffsets: {} };
+      });
     }
     default:
       return state;

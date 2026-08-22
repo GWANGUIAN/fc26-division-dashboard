@@ -106,7 +106,7 @@
   left: 16px;
   top: 16px;
   z-index: 3;
-  width: 200px;
+  width: 236px;
   display: flex;
   flex-direction: column;
   max-height: calc(100% - 32px);
@@ -127,13 +127,31 @@
 }
 
 .lineup-panel__formation {
+  flex-shrink: 0;
   font-family: "Barlow Condensed", "Noto Sans KR";
   font-weight: 800;
   font-size: 16px;
   color: var(--accent-text);
 }
 
-.lineup-panel__copy { padding: 6px 9px; font-size: 11px; white-space: nowrap; }
+.lineup-panel__actions { display: flex; flex-shrink: 0; align-items: stretch; gap: 6px; }
+/* Icon-only, fixed square — a text label doesn't fit here alongside the
+   reset button without wrapping, and the copy action doesn't need one. */
+.lineup-panel__copy {
+  flex: 0 0 auto;
+  padding: 6px 8px;
+  justify-content: center;
+}
+.lineup-panel__reset {
+  flex: 0 0 auto;
+  justify-content: center;
+  gap: 5px;
+  padding: 6px 9px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.lineup-panel__reset:disabled,
+.lineup-panel__reset:disabled:hover { opacity: .35; cursor: not-allowed; background: #00e9ae22; border-color: #00e9ae55; }
 
 .lineup-panel__list {
   flex: 1;
@@ -287,6 +305,52 @@
 /* The card just dropped already visually arrived via the DragOverlay following
    the cursor — skip its own slide so it doesn't replay the old->new path. */
 .pitch-card--snap { transition: none; }
+/* A live nudge-handle drag also skips the left/top transition — the offset
+   changes every pointermove and should track the cursor directly, not ease
+   toward it. */
+.pitch-card--nudging { transition: none; }
+
+/* Fine-position nudge handle: hidden until the card is hovered, then click
+   + drag moves the card a little within its slot (see PitchNudgeHandle in
+   Pitch.tsx). Opposite corner from the edit/delete actions so they never
+   overlap. Hover-only is intentional here (unlike .squad-card__actions) —
+   this is a mouse-driven fine-tune affordance, not a required control. */
+.pitch-card__nudge-handle {
+  position: absolute;
+  z-index: 2;
+  top: 4%;
+  left: 4%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Scales with card zoom (26px base ≈ today's 42px at the default 1.65x
+     zoom) but never shrinks past a still-comfortably-tappable floor. */
+  width: max(22px, calc(26px * var(--squad-zoom, 1)));
+  height: max(22px, calc(26px * var(--squad-zoom, 1)));
+  flex-shrink: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--bg-base) 80%, transparent);
+  opacity: 0;
+  cursor: grab;
+  touch-action: none;
+  transition: opacity .15s, border-color .15s, color .15s;
+}
+.pitch-card:hover .pitch-card__nudge-handle,
+.pitch-card__nudge-handle:focus-visible,
+.pitch-card--nudging .pitch-card__nudge-handle {
+  opacity: .85;
+}
+.pitch-card__nudge-handle:hover,
+.pitch-card__nudge-handle:focus-visible,
+.pitch-card--nudging .pitch-card__nudge-handle {
+  opacity: 1;
+  border-color: var(--accent-border);
+  color: var(--accent-text);
+}
+.pitch-card--nudging .pitch-card__nudge-handle { cursor: grabbing; }
+.pitch-card__nudge-handle svg { width: 90%; height: 90%; stroke-width: 2.4; }
 
 /* --- Shared squad-builder card (reuses FifaShield/FancyAvatar/etc. from cardVisuals) --- */
 
@@ -376,12 +440,15 @@
 .squad-card--placed .squad-card__avatar .avatar { width: 44cqw; height: 44cqw; }
 .squad-card--placed .squad-card__name { padding: 1.5cqw 3cqw; font-size: 15cqw; }
 
-/* Edit/delete affordance for custom players. Not hover-only — pitch cards
-   already declare touch-action:none for real touch support, so a hover-only
-   button would be unreachable there. Fixed px sizing (not cqw) so the
-   buttons stay a constant, comfortably tappable size regardless of card
-   zoom instead of ballooning alongside it; low resting opacity keeps them
-   from covering the card art until the user actually reaches for them. */
+/* Edit/delete affordance for custom players. Candidate-drawer cards (not
+   yet placed) keep a low resting opacity rather than hover-only — pitch
+   cards declare touch-action:none for drag support, so a hover-only button
+   would be unreachable there for touch users still browsing the drawer.
+   Once placed on the pitch, though, the buttons are hover-only (see the
+   .squad-card--placed override below) so they don't compete for space with
+   the position label/nudge handle that also live in that corner area.
+   Fixed px sizing (not cqw) so the buttons stay a constant, comfortably
+   tappable size regardless of card zoom instead of ballooning alongside it. */
 .squad-card__actions {
   position: absolute;
   z-index: 2;
@@ -405,11 +472,22 @@
   cursor: pointer;
   transition: opacity .15s, border-color .15s, color .15s;
 }
+/* ~1.6x the resting candidate-drawer size (26px base ≈ today's 42px at the
+   default 1.65x zoom) — placed cards only reveal these on hover, so they
+   can afford to be bigger, easier hover/click targets without crowding the
+   always-visible drawer cards. Scales with card zoom like the nudge
+   handle, down to a floor so they stay tappable at low zoom. */
+.squad-card--placed .squad-card__action-button {
+  width: max(22px, calc(26px * var(--squad-zoom, 1)));
+  height: max(22px, calc(26px * var(--squad-zoom, 1)));
+  opacity: 0;
+}
 .squad-card__action-button svg { width: 90%; height: 90%; stroke-width: 2.4; }
 .squad-card__action-button:hover,
 .squad-card__action-button:focus-visible { opacity: 1; border-color: var(--accent-border); color: var(--accent-text); }
 .squad-card__action-button--danger:hover,
 .squad-card__action-button--danger:focus-visible { border-color: #ff6b6b; color: #ff6b6b; }
+.pitch-card:hover .squad-card--placed .squad-card__action-button { opacity: .4; }
 
 /* --- Candidate drawer --- */
 

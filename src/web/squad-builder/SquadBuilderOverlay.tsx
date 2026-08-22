@@ -433,6 +433,12 @@ export function SquadBuilderOverlay({
             formation={formation}
             placements={activeSquad.placements}
             streamerById={streamerById}
+            hasSlotOffsets={
+              Object.keys(activeSquad.slotOffsets ?? {}).length > 0
+            }
+            onResetPositions={() =>
+              dispatch({ type: "RESET_SLOT_OFFSETS", squadId: activeSquad.id })
+            }
           />
           <div className="squad-zoom-panel">
             <span className="squad-zoom-panel__label">카드 크기</span>
@@ -458,6 +464,18 @@ export function SquadBuilderOverlay({
             overSlotId={overSlotId}
             snapStreamerId={snapStreamerId}
             zoom={zoom}
+            slotOffsets={activeSquad.slotOffsets ?? {}}
+            onNudgeSlot={(slotId, slotXPct, slotYPct, dxPct, dyPct) =>
+              dispatch({
+                type: "NUDGE_SLOT",
+                squadId: activeSquad.id,
+                slotId,
+                slotXPct,
+                slotYPct,
+                dxPct,
+                dyPct,
+              })
+            }
             onRequestEditCustomPlayer={(id) => setDialogMode({ mode: "edit", id })}
             onRequestDeleteCustomPlayer={(id, name) => setPendingDelete({ id, name })}
           />

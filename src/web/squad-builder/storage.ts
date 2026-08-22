@@ -20,6 +20,7 @@ function createDefaultSquad(): Squad {
     formationId: DEFAULT_FORMATION_ID,
     placements: [],
     candidateOrder: [],
+    slotOffsets: {},
   };
 }
 
@@ -63,6 +64,7 @@ function migrateSquad(squad: Squad): Squad {
         ...squad.candidateOrder,
         ...squad.placements.map((placement) => placement.streamerId),
       ],
+      slotOffsets: {},
     };
   }
   const toFormation = getFormation(legacy.baseId);
@@ -76,6 +78,7 @@ function migrateSquad(squad: Squad): Squad {
     formationId: toFormation.id,
     placements,
     candidateOrder: [...squad.candidateOrder, ...returnedToCandidateIds],
+    slotOffsets: {},
   };
 }
 

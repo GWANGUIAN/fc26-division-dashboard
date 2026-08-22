@@ -1,10 +1,12 @@
-import type { CSSProperties } from "react";
+import { useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
+import { Move } from "lucide-react";
 import { FIFA_SHIELD_INNER, FIFA_SHIELD_OUTER } from "../cardVisuals.js";
 import { SquadBuilderCard } from "./SquadBuilderCard";
 import type { SquadPlayer } from "./customPlayerTypes.js";
 import type { DragActiveData, DragOverData } from "./dragInteraction.js";
-import type { FormationPreset, FormationSlot, SquadPlacement } from "./types.js";
+import { clampSlotOffset } from "./squadBuilderReducer.js";
+import type { FormationPreset, FormationSlot, SlotOffset, SquadPlacement } from "./types.js";
 
 interface PitchProps {
   formation: FormationPreset;
@@ -16,6 +18,15 @@ interface PitchProps {
   snapStreamerId: string | null;
   /** user-controlled card size multiplier, applied via --squad-zoom (see squad-builder.css). */
   zoom: number;
+  /** Manual per-slot position nudges, keyed by slot id (see squadBuilderReducer NUDGE_SLOT). */
+  slotOffsets: Record<string, SlotOffset>;
+  onNudgeSlot: (
+    slotId: string,
+    slotXPct: number,
+    slotYPct: number,
+    dxPct: number,
+    dyPct: number,
+  ) => void;
   onRequestEditCustomPlayer: (id: string) => void;
   onRequestDeleteCustomPlayer: (id: string, name: string) => void;
 }
@@ -35,6 +46,8 @@ export function Pitch({
   overSlotId,
   snapStreamerId,
   zoom,
+  slotOffsets,
+  onNudgeSlot,
   onRequestEditCustomPlayer,
   onRequestDeleteCustomPlayer,
 }: PitchProps) {
@@ -67,6 +80,8 @@ export function Pitch({
             slot={slot}
             isSwapTarget={overSlotId === placement.slotId}
             snap={snapStreamerId === streamer.id}
+            offset={slotOffsets[slot.id]}
+            onNudgeSlot={onNudgeSlot}
             onRequestEditCustomPlayer={onRequestEditCustomPlayer}
             onRequestDeleteCustomPlayer={onRequestDeleteCustomPlayer}
           />
@@ -113,8 +128,12 @@ function PitchDropZone({
       className={`pitch-slot ${isOver ? "pitch-slot--over" : ""}`}
       style={{ left: `${slot.xPct}%`, top: `${slot.yPct}%` }}
     >
-      {!occupied && <PitchSlotPlaceholder />}
-      <span className="pitch-slot__label">{slot.label}</span>
+      {!occupied && (
+        <>
+          <PitchSlotPlaceholder />
+          <span className="pitch-slot__label">{slot.label}</span>
+        </>
+      )}
     </div>
   );
 }
@@ -137,6 +156,8 @@ function PitchCard({
   slot,
   isSwapTarget,
   snap,
+  offset,
+  onNudgeSlot,
   onRequestEditCustomPlayer,
   onRequestDeleteCustomPlayer,
 }: {
@@ -144,6 +165,14 @@ function PitchCard({
   slot: FormationSlot;
   isSwapTarget: boolean;
   snap: boolean;
+  offset: SlotOffset | undefined;
+  onNudgeSlot: (
+    slotId: string,
+    slotXPct: number,
+    slotYPct: number,
+    dxPct: number,
+    dyPct: number,
+  ) => void;
   onRequestEditCustomPlayer: (id: string) => void;
   onRequestDeleteCustomPlayer: (id: string, name: string) => void;
 }) {
@@ -155,11 +184,21 @@ function PitchCard({
       slotId: slot.id,
     } satisfies DragActiveData,
   });
+
+  // Live nudge in progress (see PitchNudgeHandle) overrides the committed
+  // offset so the card tracks the cursor 1:1 while dragging, without
+  // dispatching (and localStorage-persisting) on every pointermove.
+  const [liveOffset, setLiveOffset] = useState<SlotOffset | null>(null);
+  const activeOffset = liveOffset ?? offset ?? { dxPct: 0, dyPct: 0 };
+
   return (
     <div
       ref={setNodeRef}
-      className={`pitch-card ${isDragging ? "pitch-card--dragging" : ""} ${isSwapTarget ? "pitch-card--swap-target" : ""} ${snap ? "pitch-card--snap" : ""}`}
-      style={{ left: `${slot.xPct}%`, top: `${slot.yPct}%` }}
+      className={`pitch-card ${isDragging ? "pitch-card--dragging" : ""} ${isSwapTarget ? "pitch-card--swap-target" : ""} ${snap ? "pitch-card--snap" : ""} ${liveOffset ? "pitch-card--nudging" : ""}`}
+      style={{
+        left: `${slot.xPct + activeOffset.dxPct}%`,
+        top: `${slot.yPct + activeOffset.dyPct}%`,
+      }}
       {...listeners}
       {...attributes}
     >
@@ -177,6 +216,104 @@ function PitchCard({
             : undefined
         }
       />
+      <span className="pitch-slot__label">{slot.label}</span>
+      <PitchNudgeHandle
+        slotXPct={slot.xPct}
+        slotYPct={slot.yPct}
+        baseOffset={offset ?? { dxPct: 0, dyPct: 0 }}
+        onLiveChange={setLiveOffset}
+        onCommit={(next) =>
+          onNudgeSlot(slot.id, slot.xPct, slot.yPct, next.dxPct, next.dyPct)
+        }
+      />
     </div>
+  );
+}
+
+/**
+ * Small hover-revealed handle that lets the user fine-tune a card's position
+ * within its slot via mouse drag, independent of the dnd-kit slot-swap drag
+ * on the rest of the card (pointerdown here stops propagation so it never
+ * reaches the card's dnd-kit listeners). Position is tracked locally while
+ * dragging and only committed (dispatched/persisted) on release.
+ */
+function PitchNudgeHandle({
+  slotXPct,
+  slotYPct,
+  baseOffset,
+  onLiveChange,
+  onCommit,
+}: {
+  slotXPct: number;
+  slotYPct: number;
+  baseOffset: SlotOffset;
+  onLiveChange: (offset: SlotOffset | null) => void;
+  onCommit: (offset: SlotOffset) => void;
+}) {
+  const dragState = useRef<{
+    pointerId: number;
+    startClientX: number;
+    startClientY: number;
+    pitchWidth: number;
+    pitchHeight: number;
+    baseOffset: SlotOffset;
+    current: SlotOffset;
+  } | null>(null);
+
+  const handlePointerDown = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    if (event.button !== 0) return;
+    event.stopPropagation();
+    event.preventDefault();
+    const pitchEl = event.currentTarget.closest(".pitch") as HTMLElement | null;
+    if (!pitchEl) return;
+    const rect = pitchEl.getBoundingClientRect();
+    dragState.current = {
+      pointerId: event.pointerId,
+      startClientX: event.clientX,
+      startClientY: event.clientY,
+      pitchWidth: rect.width,
+      pitchHeight: rect.height,
+      baseOffset,
+      current: baseOffset,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const handlePointerMove = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    const drag = dragState.current;
+    if (!drag || event.pointerId !== drag.pointerId) return;
+    const dxPct = ((event.clientX - drag.startClientX) / drag.pitchWidth) * 100;
+    const dyPct = ((event.clientY - drag.startClientY) / drag.pitchHeight) * 100;
+    const next = clampSlotOffset(
+      slotXPct,
+      slotYPct,
+      drag.baseOffset.dxPct + dxPct,
+      drag.baseOffset.dyPct + dyPct,
+    );
+    drag.current = next;
+    onLiveChange(next);
+  };
+
+  const endDrag = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    const drag = dragState.current;
+    if (!drag || event.pointerId !== drag.pointerId) return;
+    event.currentTarget.releasePointerCapture(event.pointerId);
+    dragState.current = null;
+    onLiveChange(null);
+    onCommit(drag.current);
+  };
+
+  return (
+    <button
+      type="button"
+      className="pitch-card__nudge-handle"
+      aria-label="카드 위치 조정"
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={endDrag}
+      onPointerCancel={endDrag}
+    >
+      <Move aria-hidden="true" />
+    </button>
   );
 }
