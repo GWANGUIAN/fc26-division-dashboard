@@ -336,6 +336,7 @@ body { isolation: isolate; }
 .division-histogram__panel--open { overflow: visible; opacity: 1; transform: scale(1); }
 .division-histogram__heading { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px; border-bottom: 1px solid var(--border-default); color: var(--text-primary); font-weight: 800; font-size: 13px; }
 .division-histogram__heading small { color: var(--histogram-text-muted); font-size: 11px; }
+.division-histogram__unjoined { color: #8a8a94; }
 .division-histogram__chart { display: flex; align-items: flex-end; gap: 6px; height: 160px; padding: 24px 14px 12px; }
 .division-histogram__bar { position: relative; display: flex; flex: 1 1 0; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
 .division-histogram__count { margin-bottom: 4px; color: var(--histogram-accent); font: 800 12px "Barlow Condensed"; }
