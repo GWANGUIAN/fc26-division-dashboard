@@ -40,6 +40,7 @@ import { EvaluationModal } from "./EvaluationViews";
 import { SfxIntroNotice, SfxToggle } from "./SfxControls";
 import { MusicPlayer } from "./MusicPlayer";
 import { ThemeToggle } from "./ThemeToggle";
+import { BrightnessGag } from "./BrightnessGag";
 import { SquadBuilderOverlay } from "./squad-builder/SquadBuilderOverlay";
 
 export function App() {
@@ -239,6 +240,7 @@ export function App() {
         posts={latest}
       />
       <ThemeToggle theme={theme} onToggle={toggleTheme} />
+      <BrightnessGag />
       <div className="floating-toolbar">
         <SfxToggle
           enabled={sfxEnabled}
