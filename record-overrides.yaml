@@ -52,12 +52,12 @@ overrides:
   - soopId: wellro314
     division: 9
     record: { wins: 4, draws: 0, losses: 2 }
-  # - soopId: syusyuang
-  #   division: 9
-  #   record: { wins: 3, draws: 2, losses: 11 }
-  # - soopId: 
-  #   division: 
-  #   record: { wins: , draws: , losses:  }
+  - soopId: syusyuang
+    division: 9
+    record: { wins: 3, draws: 2, losses: 11 }
+  - soopId: kawri3
+    division: 9
+    record: { wins: 4, draws: 3, losses: 29 }
   # - soopId: 
   #   division: 
   #   record: { wins: , draws: , losses:  }
