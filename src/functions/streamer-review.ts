@@ -115,7 +115,11 @@ export async function generateStreamerReview(
   reviewContext: string,
 ): Promise<StreamerReview | undefined> {
   if (!client) return undefined;
-  const prompt = buildPrompt(streamer, allStreamers, reviewContext);
+  // Excluded streamers (e.g. non-applicants who still post division reports)
+  // never appear in the roster context handed to Gemini, whether they're the
+  // review's own subject or a bystander in the full-roster listing.
+  const rosterForPrompt = allStreamers.filter((candidate) => !candidate.isExcluded);
+  const prompt = buildPrompt(streamer, rosterForPrompt, reviewContext);
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     try {
       const result = await generateOnce(prompt);

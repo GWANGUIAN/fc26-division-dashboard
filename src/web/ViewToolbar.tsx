@@ -7,6 +7,7 @@ import { CARD_ZOOM_MAX, CARD_ZOOM_MIN } from "./storage";
 export function ViewToolbar({
   divisionStats,
   streamersForHistogram,
+  excludedNames,
   viewMode,
   onViewModeChange,
   cardViewDiscovered,
@@ -25,6 +26,7 @@ export function ViewToolbar({
     sevenOrHigher: number;
   };
   streamersForHistogram: StreamerRecord[];
+  excludedNames: string[];
   viewMode: "list" | "card";
   onViewModeChange: (mode: "list" | "card") => void;
   cardViewDiscovered: boolean;
@@ -38,6 +40,11 @@ export function ViewToolbar({
   return (
     <section className="view-toolbar" aria-label="보기 설정">
       <div className="division-summary" aria-label="신청 현황 요약">
+        {excludedNames.length > 0 && (
+          <small className="division-summary__note">
+            * 모든 통계에서 {excludedNames.join(", ")}은 제외됩니다.
+          </small>
+        )}
         <div className="division-summary__stats">
           <div
             className="division-summary__item division-summary__item--total"
@@ -85,7 +92,10 @@ export function ViewToolbar({
             </div>
           </div>
         </div>
-        <DivisionHistogram streamers={streamersForHistogram} />
+        <DivisionHistogram
+          streamers={streamersForHistogram}
+          excludedNames={excludedNames}
+        />
       </div>
       <div className="view-toolbar__controls">
         {viewMode === "card" && (

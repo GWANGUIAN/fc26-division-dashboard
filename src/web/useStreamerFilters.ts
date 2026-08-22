@@ -13,9 +13,22 @@ export function useStreamerFilters(
   const [sfxOnly, setSfxOnly] = useState(false);
   const [achievementOnly, setAchievementOnly] = useState(false);
 
-  const trophyAwards = useMemo(
-    () => buildTrophyAwards(snapshot?.streamers ?? []),
+  // Some streamers (e.g. non-applicants who post division reports anyway) are
+  // flagged isExcluded so they're kept off every aggregate calculation while
+  // still showing up normally in the list/cards.
+  const includedStreamers = useMemo(
+    () => (snapshot?.streamers ?? []).filter((streamer) => !streamer.isExcluded),
     [snapshot],
+  );
+  const excludedNames = useMemo(
+    () => (snapshot?.streamers ?? [])
+      .filter((streamer) => streamer.isExcluded)
+      .map((streamer) => streamer.displayName),
+    [snapshot],
+  );
+  const trophyAwards = useMemo(
+    () => buildTrophyAwards(includedStreamers),
+    [includedStreamers],
   );
   const streamers = useMemo(
     () =>
@@ -34,7 +47,7 @@ export function useStreamerFilters(
     [snapshot, query, activityOnly, sfxOnly, achievementOnly, trophyAwards],
   );
   const divisionStats = useMemo(() => {
-    const all = snapshot?.streamers ?? [];
+    const all = includedStreamers;
     const unreported = all.filter(
       (streamer) => streamer.currentDivision === 10,
     ).length;
@@ -51,7 +64,7 @@ export function useStreamerFilters(
       sixOrHigher,
       sevenOrHigher,
     };
-  }, [snapshot]);
+  }, [includedStreamers]);
   const cardStreamers = useMemo(() => {
     if (sortMode === "division")
       return [...streamers].sort(
@@ -78,6 +91,8 @@ export function useStreamerFilters(
     setAchievementOnly,
     trophyAwards,
     streamers,
+    includedStreamers,
+    excludedNames,
     divisionStats,
     cardStreamers,
   };

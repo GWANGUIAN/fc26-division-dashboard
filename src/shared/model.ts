@@ -15,6 +15,8 @@ export interface RosterEntry {
   isFancyLite?: boolean;
   /** Free-text background info about this streamer, injected into the Gemini review prompt when present. */
   reviewNote?: string;
+  /** Excludes this streamer from aggregate calculations (division stats, distribution, achievements, Gemini roster context) and from the CollaBot auto-removal sync, while still showing their card/profile normally. */
+  isExcluded?: boolean;
 }
 
 export interface CareerRecord {
@@ -104,6 +106,8 @@ export interface StreamerRecord {
   isFancyLite?: boolean;
   /** Free-text background info about this streamer, injected into the Gemini review prompt when present. */
   reviewNote?: string;
+  /** Excludes this streamer from aggregate calculations (division stats, distribution, achievements, Gemini roster context) and from the CollaBot auto-removal sync, while still showing their card/profile normally. */
+  isExcluded?: boolean;
   /** Newest generated review among this streamer's posts. isCurrent is false when a newer report exists that hasn't produced a review yet (not eligible, or still pending). */
   latestReview?: { mild: string; spicy: string; generatedAt: string; isCurrent: boolean };
 }

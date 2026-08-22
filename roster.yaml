@@ -1145,3 +1145,15 @@ streamers:
       division: null
       policy: auto
     sfx: "/sfxes/etoo.mp3"
+  - slug: "243000"
+    displayName: "천양"
+    cafeAliases: ["천양"]
+    soopId: "243000"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+    celebrationMessage: "오른팔의 {n}부 리그 승격을 축하합니다~!!🩵🐷"
+    reviewNote: "우왁굳의 오른팔이란 별명이 있음. 오랫동안 우왁굳과 친해서 가족계라는 이미지가 있음. 잔디동 신청자가 아닌데 승격 보고를 함. 남자임."
+    sfx: "/sfxes/chunyang.mp3"
+    isExcluded: true

@@ -92,6 +92,8 @@ export function App() {
     setAchievementOnly,
     trophyAwards,
     streamers,
+    includedStreamers,
+    excludedNames,
     divisionStats,
     cardStreamers,
   } = useStreamerFilters(snapshot, sortMode);
@@ -162,7 +164,8 @@ export function App() {
       {isDivision && (
         <ViewToolbar
           divisionStats={divisionStats}
-          streamersForHistogram={snapshot?.streamers ?? []}
+          streamersForHistogram={includedStreamers}
+          excludedNames={excludedNames}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
           cardViewDiscovered={cardViewDiscovered}
@@ -220,6 +223,7 @@ export function App() {
       {trophyOpen && (
         <TrophyModal
           awards={trophyAwards}
+          excludedNames={excludedNames}
           onClose={() => setTrophyOpen(false)}
         />
       )}

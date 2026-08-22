@@ -42,9 +42,11 @@ function TrophyWinner({
 
 export function TrophyModal({
   awards,
+  excludedNames = [],
   onClose,
 }: {
   awards: TrophyAwards;
+  excludedNames?: string[];
   onClose: () => void;
 }) {
   useEscape(onClose);
@@ -59,6 +61,11 @@ export function TrophyModal({
             <Trophy aria-hidden="true" /> 업적
           </h2>
           <p className="trophy-modal__intro">이제야 이쪽을 봐주는구나</p>
+          {excludedNames.length > 0 && (
+            <p className="trophy-modal__note">
+              {excludedNames.join(", ")}은 제외됩니다.
+            </p>
+          )}
         </div>
       }
     >

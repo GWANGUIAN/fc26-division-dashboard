@@ -13,6 +13,10 @@
  * Usage:
  *   pnpm run backfill:reviews -- --dry-run          # inspect candidates only, no writes
  *   pnpm run backfill:reviews -- --exclude-top 5     # skip the N most recent (default 5)
+ *   pnpm run backfill:reviews -- --slug <slug>       # regenerate one streamer only, bypassing
+ *                                                     # the isExcluded/isCompleteReview candidate
+ *                                                     # filters (e.g. a one-off manual refresh for
+ *                                                     # a roster entry normally skipped by isExcluded)
  *   pnpm run backfill:reviews                        # write reviews for real
  */
 import { generateStreamerReview } from "../src/functions/streamer-review.js";
@@ -29,23 +33,38 @@ async function main(): Promise<void> {
   if (!process.env.GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is required");
   const dryRun = process.argv.includes("--dry-run");
   const excludeTop = Number(option("--exclude-top", "5"));
+  const targetSlug = option("--slug");
 
   const [posts, roster, recordOverrides, reviewContext] = await Promise.all([
     getPosts(), getRoster(), getRecordOverrides(), getReviewContext(),
   ]);
   const streamers = buildStreamerRecords(posts, roster, recordOverrides);
 
-  const candidates = streamers
-    .filter((s): s is StreamerRecord & { lastPost: PromotionPost } =>
-      Boolean(s.lastPost) && Boolean(s.record) && !isCompleteReview(s.lastPost!.review))
-    .sort((a, b) => b.lastPost.publishedAt.localeCompare(a.lastPost.publishedAt));
+  let skipped: (StreamerRecord & { lastPost: PromotionPost })[] = [];
+  let toProcess: (StreamerRecord & { lastPost: PromotionPost })[];
 
-  const skipped = candidates.slice(0, excludeTop);
-  const toProcess = candidates.slice(excludeTop);
+  if (targetSlug) {
+    // Manual single-streamer refresh: bypasses isExcluded/isCompleteReview so
+    // an excluded roster entry's review can still be generated/refreshed on
+    // demand (e.g. once, before automatic backfill starts skipping them).
+    const target = streamers.find((s) => s.id === targetSlug);
+    if (!target) throw new Error(`--slug ${targetSlug} 에 해당하는 스트리머를 roster에서 찾을 수 없습니다.`);
+    if (!target.lastPost) throw new Error(`${target.displayName}에게 아직 수집된 게시글이 없습니다.`);
+    toProcess = [target as StreamerRecord & { lastPost: PromotionPost }];
+    console.log(`--slug 지정: ${target.displayName} 1명만 처리합니다${dryRun ? " [dry-run: DB에 쓰지 않음]" : ""}.`);
+  } else {
+    const candidates = streamers
+      .filter((s): s is StreamerRecord & { lastPost: PromotionPost } =>
+        Boolean(s.lastPost) && Boolean(s.record) && !isCompleteReview(s.lastPost!.review) && !s.isExcluded)
+      .sort((a, b) => b.lastPost.publishedAt.localeCompare(a.lastPost.publishedAt));
 
-  console.log(`대상 ${candidates.length}명 중 최신 ${skipped.length}명은 배포 후 스케줄러가 처리하도록 남겨둡니다.`);
-  console.log(`이번에 로컬에서 처리할 대상: ${toProcess.length}명${dryRun ? " [dry-run: DB에 쓰지 않음]" : ""}`);
-  if (skipped.length) console.log(`  남겨둠: ${skipped.map((s) => s.displayName).join(", ")}`);
+    skipped = candidates.slice(0, excludeTop);
+    toProcess = candidates.slice(excludeTop);
+
+    console.log(`대상 ${candidates.length}명 중 최신 ${skipped.length}명은 배포 후 스케줄러가 처리하도록 남겨둡니다.`);
+    console.log(`이번에 로컬에서 처리할 대상: ${toProcess.length}명${dryRun ? " [dry-run: DB에 쓰지 않음]" : ""}`);
+    if (skipped.length) console.log(`  남겨둠: ${skipped.map((s) => s.displayName).join(", ")}`);
+  }
 
   let succeeded = 0;
   let failed = 0;

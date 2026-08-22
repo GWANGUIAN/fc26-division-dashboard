@@ -171,7 +171,8 @@ async function backfillMissingReviews(posts: PromotionPost[], streamers: Streame
     // A legacy single-flavor string (pre mild/spicy split) also counts as
     // missing, so old data self-heals into the new shape over time.
     .filter((streamer) => streamer.lastPost && streamer.record && !isCompleteReview(streamer.lastPost.review)
-      && (streamer.lastPost.reviewAttempts ?? 0) < maxReviewAttempts)
+      && (streamer.lastPost.reviewAttempts ?? 0) < maxReviewAttempts
+      && !streamer.isExcluded)
     .sort((a, b) => b.lastPost!.publishedAt.localeCompare(a.lastPost!.publishedAt))
     .slice(0, maxReviewBackfillsPerRun);
   for (const streamer of candidates) {

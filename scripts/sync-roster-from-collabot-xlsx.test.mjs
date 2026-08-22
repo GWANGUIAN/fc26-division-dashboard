@@ -49,4 +49,11 @@ describe("decideSync", () => {
     expect(result.aborted).toBe(false);
     expect(result.removals).toEqual([]);
   });
+
+  it("never removes an isExcluded entry, even when absent from the live list", () => {
+    const excluded = [{ slug: "chunyang", displayName: "천양", soopId: "chunyang", isExcluded: true }];
+    const result = decideSync([...entries(["a", "b"]), ...excluded], applicants(["a", "b"]), 0.5);
+    expect(result.aborted).toBe(false);
+    expect(result.removals).toEqual([]);
+  });
 });

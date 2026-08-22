@@ -3,7 +3,13 @@ import { ChartColumn } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
 import { buildDivisionHistogram } from "../shared/division-histogram.js";
 
-export function DivisionHistogram({ streamers }: { streamers: StreamerRecord[] }) {
+export function DivisionHistogram({
+  streamers,
+  excludedNames = [],
+}: {
+  streamers: StreamerRecord[];
+  excludedNames?: string[];
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const buckets = useMemo(() => buildDivisionHistogram(streamers), [streamers]);
@@ -28,7 +34,7 @@ export function DivisionHistogram({ streamers }: { streamers: StreamerRecord[] }
       <ChartColumn aria-hidden="true" /> <span>분포 현황</span>
     </button>
     <section className={`division-histogram__panel ${isOpen ? "division-histogram__panel--open" : "division-histogram__panel--collapsed"}`} role="region" aria-label="디비전 분포" aria-hidden={!isOpen}>
-      <div className="division-histogram__heading"><span>디비전 분포</span><small>총 {streamers.length}명</small></div>
+      <div className="division-histogram__heading"><span>디비전 분포</span><small>총 {streamers.length}명{excludedNames.length > 0 ? ` (${excludedNames.join(", ")} 제외)` : ""}</small></div>
       <div className="division-histogram__chart">
         {buckets.map((bucket, index) => {
           const ratio = bucket.count / maxCount;

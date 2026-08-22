@@ -37,7 +37,10 @@ export function decideSync(existingEntries, liveApplicants, minRatio) {
   }
   const liveIds = new Set(liveApplicants.map((applicant) => normaliseSoopId(applicant.soopId)));
   const additions = liveApplicants.filter((applicant) => !existingIds.has(normaliseSoopId(applicant.soopId)));
-  const removals = withSoopId.filter((entry) => !liveIds.has(normaliseSoopId(entry.soopId)));
+  // isExcluded entries (e.g. non-applicants who still post division reports)
+  // are protected from this comment-based removal even if they drop off the
+  // live applicant list.
+  const removals = withSoopId.filter((entry) => !liveIds.has(normaliseSoopId(entry.soopId)) && !entry.isExcluded);
   return { aborted: false, additions, removals };
 }
 

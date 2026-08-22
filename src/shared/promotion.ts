@@ -132,6 +132,7 @@ export function buildStreamerRecords(
       isFancy: entry.isFancy,
       isFancyLite: entry.isFancyLite,
       reviewNote: entry.reviewNote,
+      isExcluded: entry.isExcluded,
       latestReview,
     };
   });
