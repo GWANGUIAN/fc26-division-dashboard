@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { OneVsOneApplicationView, StreamerRecord } from "../shared/model.js";
 import { buildDivisionListText } from "./appHelpers";
 import { downloadStreamersXlsx } from "./xlsx-export.js";
@@ -102,6 +102,20 @@ export function App() {
     useEvaluationApplications(snapshot, query);
   const { latest, celebrationSlides } = useLatestActivity(snapshot, streamers);
 
+  const [showIroCelebration, setShowIroCelebration] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setShowIroCelebration(false), 180_000);
+    return () => clearTimeout(timer);
+  }, []);
+  const celebrationSlidesWithIro = showIroCelebration
+    ? [
+        {
+          key: "iro-celebration",
+          message: "천년돌 아이로의 하루고멤 합격을 축하합니다 - 플러그 일동 -",
+        },
+      ]
+    : celebrationSlides;
+
   async function handleCopyDivisionList() {
     try {
       await navigator.clipboard.writeText(buildDivisionListText(streamers));
@@ -140,7 +154,7 @@ export function App() {
         onFeedOpen={() => setFeedOpen(true)}
         onTrophyOpen={() => setTrophyOpen(true)}
       />
-      <FavoriteCelebration slides={celebrationSlides} />
+      <FavoriteCelebration slides={celebrationSlidesWithIro} />
       <HeroSection isDivision={isDivision} snapshot={snapshot} />
       <JandyVideoSection />
       <ControlsBar
