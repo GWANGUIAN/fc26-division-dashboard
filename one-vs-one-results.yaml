@@ -3,4 +3,24 @@ opponent:
   soopId: ecvhao
 
 # 신청자 : 우왁굳 점수 순서입니다. 신청 게시글 ID로 결과를 연결합니다.
-results: []
+#
+# 작성 예시 (아래 주석을 해제하고 값만 채워 넣으면 됩니다):
+# results:
+#   - applicationArticleId: "123456"   # 신청 게시글의 네이버 카페 게시글 ID (숫자만)
+#     playedAt: "2026-08-22"           # 경기 진행 날짜 (YYYY-MM-DD)
+#     candidateScore: 3                # 신청자 점수 (0 이상 정수)
+#     woowakgoodScore: 1                # 우왁굳 점수 (0 이상 정수)
+#     note: "연장 승부차기"             # 선택 항목, 비고
+#   - applicationArticleId: "234567"
+#     playedAt: "2026-08-23"
+#     candidateScore: 0
+#     woowakgoodScore: 5
+results:
+  - applicationArticleId: "21971278"
+    playedAt: "2026-08-22T23:34:00+09:00"
+    candidateScore: 0
+    woowakgoodScore: 7
+  # - applicationArticleId: "21951534"
+  #   playedAt: "2026-08-23"
+  #   candidateScore: 0
+  #   woowakgoodScore: 5
