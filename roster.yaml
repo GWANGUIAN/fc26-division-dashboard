@@ -1044,6 +1044,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/hiki.mp3"
   - slug: tadka56
     displayName: "양지랖"
     cafeAliases: ["양지랖"]
