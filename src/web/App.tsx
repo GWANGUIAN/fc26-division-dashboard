@@ -206,6 +206,7 @@ export function App() {
           zoomMin={CARD_ZOOM_MIN}
           zoomMax={CARD_ZOOM_MAX}
           onSquadBuilderOpen={() => setSquadBuilderOpen(true)}
+          hideEmptyDivisions={query.trim().length > 0}
         />
       ) : (
         <EvaluationList

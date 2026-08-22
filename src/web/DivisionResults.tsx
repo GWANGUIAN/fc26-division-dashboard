@@ -19,6 +19,7 @@ export function DivisionResults({
   zoomMin,
   zoomMax,
   onSquadBuilderOpen,
+  hideEmptyDivisions,
 }: {
   viewMode: "list" | "card";
   streamers: StreamerRecord[];
@@ -32,6 +33,7 @@ export function DivisionResults({
   zoomMin: number;
   zoomMax: number;
   onSquadBuilderOpen: () => void;
+  hideEmptyDivisions?: boolean;
 }) {
   return (
     <div className="results-wrap">
@@ -41,6 +43,7 @@ export function DivisionResults({
             const entries = streamers.filter(
               (streamer) => streamer.currentDivision === division,
             );
+            if (hideEmptyDivisions && entries.length === 0) return null;
             return (
               <section
                 className={`division division-${division}`}
