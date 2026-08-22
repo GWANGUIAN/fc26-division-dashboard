@@ -164,7 +164,7 @@ export function DetailModal({
       )}
       <PreviousPromotionSection posts={streamer.previousPromotionPosts} />
       <StreamerActivitySection
-        title="잔디동 스코프"
+        title="잔디동 스코프 [내가 직접 홍보]"
         posts={streamer.scopePosts}
       />
       <StreamerActivitySection
