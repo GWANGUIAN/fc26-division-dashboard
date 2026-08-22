@@ -44,8 +44,8 @@ overrides:
     division: 9
     record: { wins: 4, draws: 1, losses: 7 }
   - soopId: dokkhye0000
-    division: 7
-    record: { wins: 11, draws: 5, losses: 20 }
+    division: 6
+    record: { wins: 17, draws: 8, losses: 30 }
   - soopId: kirababy2
     division: 8
     record: { wins: 4, draws: 5, losses: 16 }
