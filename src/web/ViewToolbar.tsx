@@ -42,7 +42,7 @@ export function ViewToolbar({
       <div className="division-summary" aria-label="신청 현황 요약">
         {excludedNames.length > 0 && (
           <small className="division-summary__note">
-            * 모든 통계에서 {excludedNames.join(", ")}은 제외됩니다.
+            * 모든 통계에서 {excludedNames.map(name => name + '님').join(", ")}은 제외됩니다.
           </small>
         )}
         <div className="division-summary__stats">
