@@ -8,6 +8,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import {
+  Activity,
   CheckCircle2,
   ChevronDown,
   ChevronLeft,
@@ -2680,39 +2681,49 @@ export function App() {
                   className={`segmented__sfx-toggle${sfxOnly ? " active" : ""}`}
                   onClick={() => setSfxOnly((current) => !current)}
                   aria-pressed={sfxOnly}
+                  aria-label="효과음 있는 스트리머만"
                 >
                   <Volume2 aria-hidden="true" />
-                  효과음 있는 스트리머만
+                  <span className="control-btn__label">
+                    효과음 있는 스트리머만
+                  </span>
                 </button>
                 <button
                   className={`segmented__trophy-toggle${achievementOnly ? " active" : ""}`}
                   onClick={() => setAchievementOnly((current) => !current)}
                   aria-pressed={achievementOnly}
+                  aria-label="업적 달성자만"
                 >
                   <Trophy aria-hidden="true" />
-                  업적 달성자만
+                  <span className="control-btn__label">업적 달성자만</span>
                 </button>
                 <button
-                  className={activityOnly ? "active" : ""}
+                  className={`segmented__activity-toggle${activityOnly ? " active" : ""}`}
                   onClick={() => setActivityOnly((current) => !current)}
                   aria-pressed={activityOnly}
+                  aria-label="활동글 작성자만"
                 >
-                  활동글 작성자만
+                  <Activity aria-hidden="true" />
+                  <span className="control-btn__label">활동글 작성자만</span>
                 </button>
               </div>
               <button
                 className="copy-list-button"
                 type="button"
                 onClick={handleCopyDivisionList}
+                aria-label="목록 복사"
               >
-                <Copy aria-hidden="true" /> 목록 복사
+                <Copy aria-hidden="true" />
+                <span className="control-btn__label">목록 복사</span>
               </button>
               <button
                 className="copy-list-button"
                 type="button"
                 onClick={handleDownloadDivisionList}
+                aria-label="엑셀 다운로드"
               >
-                <Download aria-hidden="true" /> 엑셀 다운로드
+                <Download aria-hidden="true" />
+                <span className="control-btn__label">엑셀 다운로드</span>
               </button>
             </div>
           ) : (
