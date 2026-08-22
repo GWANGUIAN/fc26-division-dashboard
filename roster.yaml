@@ -823,6 +823,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/sususuang.mp3"
   - slug: whiteone325
     displayName: "난워니-_-+"
     cafeAliases: ["난워니"]
