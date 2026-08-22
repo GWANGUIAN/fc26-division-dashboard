@@ -15,6 +15,7 @@ import {
 
 import { useDashboardSnapshot } from "./useDashboardSnapshot";
 import { useToast } from "./useToast";
+import { useTheme } from "./useTheme";
 import { useSfxSettings } from "./useSfxSettings";
 import { usePendingAnnouncements } from "./usePendingAnnouncements";
 import { useViewPreferences } from "./useViewPreferences";
@@ -38,6 +39,7 @@ import { TrophyModal } from "./TrophyModal";
 import { EvaluationModal } from "./EvaluationViews";
 import { SfxIntroNotice, SfxToggle } from "./SfxControls";
 import { MusicPlayer } from "./MusicPlayer";
+import { ThemeToggle } from "./ThemeToggle";
 import { SquadBuilderOverlay } from "./squad-builder/SquadBuilderOverlay";
 
 export function App() {
@@ -51,6 +53,7 @@ export function App() {
   const [squadBuilderOpen, setSquadBuilderOpen] = useState(false);
 
   const { toast, showToast } = useToast();
+  const { theme, toggleTheme } = useTheme();
   const {
     sfxEnabled,
     sfxVolume,
@@ -231,6 +234,7 @@ export function App() {
         onClose={() => setFeedOpen(false)}
         posts={latest}
       />
+      <ThemeToggle theme={theme} onToggle={toggleTheme} />
       <div className="floating-toolbar">
         <SfxToggle
           enabled={sfxEnabled}

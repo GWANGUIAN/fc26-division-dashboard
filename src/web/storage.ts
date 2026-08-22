@@ -26,6 +26,7 @@ export function markAnnouncementsSeen(ids: string[]) {
   }
 }
 
+export const THEME_STORAGE_KEY = "fc26-theme";
 export const SEEN_UPDATES_STORAGE_KEY = "fc26-seen-updates";
 export const SFX_ENABLED_STORAGE_KEY = "fc26-sfx-enabled";
 export const SFX_VOLUME_STORAGE_KEY = "fc26-sfx-volume";
@@ -36,6 +37,24 @@ const CARD_ZOOM_STORAGE_KEY = "fc26-card-zoom-level";
 export const CARD_ZOOM_MIN = 0;
 export const CARD_ZOOM_MAX = 4;
 const CARD_ZOOM_DEFAULT = 1;
+
+export function loadTheme(): "dark" | "light" {
+  try {
+    return localStorage.getItem(THEME_STORAGE_KEY) === "light"
+      ? "light"
+      : "dark";
+  } catch {
+    return "dark";
+  }
+}
+
+export function saveTheme(theme: "dark" | "light") {
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
 
 export function loadViewMode(): "list" | "card" {
   try {

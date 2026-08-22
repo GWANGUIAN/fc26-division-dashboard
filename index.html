@@ -20,6 +20,14 @@
     <title>잰디 동아리 후보 대시보드</title>
   </head>
   <body>
+    <script>
+      try {
+        var savedTheme = localStorage.getItem("fc26-theme");
+        if (savedTheme === "light") {
+          document.documentElement.dataset.theme = "light";
+        }
+      } catch (e) {}
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/web/main.tsx"></script>
   </body>
