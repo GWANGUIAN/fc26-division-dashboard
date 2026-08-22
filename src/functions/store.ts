@@ -1,5 +1,6 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
+import { gunzipSync, gzipSync } from "node:zlib";
 import type { DashboardSnapshot, OneVsOneApplication, OneVsOneResultsConfig, PromotionPost, RecordOverride, ReviewContextConfig, RosterEntry, StreamerActivityPost, StreamerRecord } from "../shared/model.js";
 import { DEFAULT_ONE_VS_ONE_CONFIG } from "../shared/one-vs-one-results.js";
 
@@ -178,12 +179,19 @@ export async function putSyncState(state: SyncState): Promise<void> {
 
 export async function getDashboardSnapshot(): Promise<DashboardSnapshot | undefined> {
   const output = await client.send(new GetCommand({ TableName: tableName, Key: { PK: "SNAPSHOT", SK: "CURRENT" } }));
+  const gzipped = output.Item?.snapshotGzip as Uint8Array | undefined;
+  if (gzipped) return JSON.parse(gunzipSync(gzipped).toString("utf-8")) as DashboardSnapshot;
+  // Fallback for an item written before compression was introduced.
   return output.Item?.snapshot as DashboardSnapshot | undefined;
 }
 
 export async function putDashboardSnapshot(snapshot: DashboardSnapshot): Promise<void> {
+  // Stored gzip-compressed (and as a single Binary attribute rather than a
+  // JSON map) because the uncompressed snapshot has grown past DynamoDB's
+  // 400KB item size limit, which silently failed every write once crossed.
+  const snapshotGzip = gzipSync(Buffer.from(JSON.stringify(snapshot), "utf-8"));
   await client.send(new PutCommand({
     TableName: tableName,
-    Item: { PK: "SNAPSHOT", SK: "CURRENT", snapshot, updatedAt: snapshot.generatedAt },
+    Item: { PK: "SNAPSHOT", SK: "CURRENT", snapshotGzip, updatedAt: snapshot.generatedAt },
   }));
 }
