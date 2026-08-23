@@ -154,6 +154,10 @@ export const cafeArticleUrl = (articleId: string, menuId: string = BOARDS.divisi
 export const soopChannelUrl = (soopId?: string) =>
   soopId ? `https://ch.sooplive.co.kr/${encodeURIComponent(soopId)}` : undefined;
 
+/** Deep-links straight into a streamer's live broadcast, unlike soopChannelUrl's channel home page. */
+export const soopLiveBroadcastUrl = (soopId?: string) =>
+  soopId ? `https://play.sooplive.com/${encodeURIComponent(soopId)}` : undefined;
+
 export const defaultSoopProfileUrl = (soopId?: string) =>
   soopId
     ? `https://stimg.sooplive.com/LOGO/${encodeURIComponent(soopId.slice(0, 2).toLowerCase())}/${encodeURIComponent(soopId)}/m/${encodeURIComponent(soopId)}.webp`

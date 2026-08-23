@@ -5,18 +5,35 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperInstance } from "swiper/types";
 import "swiper/css";
 import type { StreamerRecord } from "../shared/model.js";
-import { soopChannelUrl } from "../shared/model.js";
+import { soopLiveBroadcastUrl } from "../shared/model.js";
 import type { LiveRosterEntry } from "../shared/soop-live.js";
 import { Avatar } from "./cardVisuals";
 import { formatDateTime } from "./formatters";
 import { useSoopLiveStreamers } from "./useSoopLiveStreamers";
+
+const SKELETON_SLOTS = [1, 2, 3, 4, 5] as const;
+
+function SoopLiveSkeletonCard() {
+  return (
+    <div className="soop-live-card soop-live-card--skeleton" aria-hidden="true">
+      <span className="soop-live-card__thumbnail soop-live-card__skeleton-shimmer" />
+      <span className="soop-live-card__meta">
+        <span className="soop-live-card__skeleton-avatar soop-live-card__skeleton-shimmer" />
+        <span className="soop-live-card__copy">
+          <span className="soop-live-card__skeleton-bar soop-live-card__skeleton-bar--name soop-live-card__skeleton-shimmer" />
+          <span className="soop-live-card__skeleton-bar soop-live-card__skeleton-bar--title soop-live-card__skeleton-shimmer" />
+        </span>
+      </span>
+    </div>
+  );
+}
 
 function SoopLiveCard({ entry }: { entry: LiveRosterEntry }) {
   const [thumbnailFailed, setThumbnailFailed] = useState(false);
   return (
     <a
       className="soop-live-card"
-      href={soopChannelUrl(entry.soopId)}
+      href={soopLiveBroadcastUrl(entry.soopId)}
       target="_blank"
       rel="noreferrer"
       aria-label={`${entry.displayName} 방송 보기: ${entry.title}`}
@@ -62,10 +79,12 @@ export function SoopLiveSection({ streamers }: { streamers: StreamerRecord[] }) 
     setCanGoNext(!instance.isEnd);
   };
 
-  // Nothing to show yet: stay hidden until the first fetch resolves so the
-  // empty-state message doesn't flash before real data arrives.
-  if (!enabled || !loaded) return null;
-  const hasLiveStreamers = entries.length > 0;
+  // Disabled is a permanent, deploy-time state — nothing ever appears, so
+  // there's no layout shift to worry about. Loading/empty/live, in
+  // contrast, all render the same section shell so the section's presence
+  // and height never jump once the section is in the layout.
+  if (!enabled) return null;
+  const hasLiveStreamers = loaded && entries.length > 0;
 
   return (
     <section className="soop-live" aria-labelledby="soop-live-title">
@@ -73,7 +92,7 @@ export function SoopLiveSection({ streamers }: { streamers: StreamerRecord[] }) 
         <div>
           <p className="eyebrow">NOW STREAMING</p>
           <h2 id="soop-live-title">
-            FC26 카테고리 LIVE
+            FC26 <span className="soop-live__title-sub">카테고리</span> LIVE
             <span className="soop-live__live-dot" aria-hidden="true" />
           </h2>
         </div>
@@ -82,7 +101,7 @@ export function SoopLiveSection({ streamers }: { streamers: StreamerRecord[] }) 
             className="soop-live__refresh-note"
             title={updatedAt ? `마지막 갱신: ${formatDateTime(updatedAt)}` : undefined}
           >
-            <span className="sync-dot" aria-hidden="true" /> 1분마다 갱신
+            <span className="sync-dot" aria-hidden="true" /> 1분마다 업데이트
           </span>
           {hasLiveStreamers && (
             <div className="soop-live__navigation" aria-label="스트리밍 목록 넘기기">
@@ -106,7 +125,13 @@ export function SoopLiveSection({ streamers }: { streamers: StreamerRecord[] }) 
           )}
         </div>
       </div>
-      {hasLiveStreamers ? (
+      {!loaded ? (
+        <div className="soop-live__skeleton" aria-hidden="true">
+          {SKELETON_SLOTS.map((slot) => (
+            <SoopLiveSkeletonCard key={slot} />
+          ))}
+        </div>
+      ) : hasLiveStreamers ? (
         <Swiper
           className="soop-live__swiper"
           modules={[A11y]}

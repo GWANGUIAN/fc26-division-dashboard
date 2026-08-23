@@ -4,6 +4,7 @@ import {
   matchLiveStreamers,
   type LiveRosterEntry,
   type SoopLiveSnapshot,
+  type SoopLiveStreamer,
 } from "../shared/soop-live.js";
 
 const POLL_INTERVAL_MS = 60_000;
@@ -32,15 +33,16 @@ function reorder(orderRef: { current: string[] }, matched: LiveRosterEntry[]): L
 }
 
 export function useSoopLiveStreamers(streamers: StreamerRecord[]) {
-  const [entries, setEntries] = useState<LiveRosterEntry[]>([]);
+  // Raw sooplive feed, kept separate from the roster match below: the
+  // dashboard snapshot (and therefore `streamers`) loads on its own
+  // schedule and can resolve before or after this fetch. Matching in a
+  // dedicated effect keyed on both values means a late-arriving roster
+  // still triggers a fresh match instead of waiting up to 60s for the next
+  // poll to happen to catch it.
+  const [rawStreamers, setRawStreamers] = useState<SoopLiveStreamer[]>();
   const [updatedAt, setUpdatedAt] = useState<string>();
-  // Distinguishes "haven't heard back from the first fetch yet" (render
-  // nothing) from "fetched, and zero of the roster is currently live"
-  // (render the section with an empty-state message).
-  const [loaded, setLoaded] = useState(false);
+  const [entries, setEntries] = useState<LiveRosterEntry[]>([]);
   const orderRef = useRef<string[]>([]);
-  const streamersRef = useRef(streamers);
-  streamersRef.current = streamers;
 
   useEffect(() => {
     if (!SOOP_LIVE_ENABLED) return;
@@ -49,18 +51,22 @@ export function useSoopLiveStreamers(streamers: StreamerRecord[]) {
     async function tick() {
       if (document.visibilityState !== "visible") return;
       try {
-        const response = await fetch("/api/soop-live", { headers: { Accept: "application/json" } });
+        // The Worker's response carries a cache-control for Cloudflare's edge
+        // cache (55s). Without no-store, the browser's own HTTP cache would
+        // also honor it and skip the network entirely on a page reload,
+        // silently replaying whatever (possibly empty) list was last cached.
+        const response = await fetch("/api/soop-live", {
+          cache: "no-store",
+          headers: { Accept: "application/json" },
+        });
         if (!response.ok || cancelled) return;
         const snapshot = await response.json() as SoopLiveSnapshot;
         if (cancelled) return;
-        const matched = matchLiveStreamers(streamersRef.current, snapshot.streamers);
-        setEntries(reorder(orderRef, matched));
+        setRawStreamers(snapshot.streamers);
         setUpdatedAt(snapshot.generatedAt);
       } catch {
         // A network hiccup just skips this refresh; the next tick (or the
         // next time the tab becomes visible) retries.
-      } finally {
-        if (!cancelled) setLoaded(true);
       }
     }
 
@@ -74,5 +80,10 @@ export function useSoopLiveStreamers(streamers: StreamerRecord[]) {
     };
   }, []);
 
-  return { enabled: SOOP_LIVE_ENABLED, loaded, entries, updatedAt };
+  useEffect(() => {
+    if (!rawStreamers) return;
+    setEntries(reorder(orderRef, matchLiveStreamers(streamers, rawStreamers)));
+  }, [streamers, rawStreamers]);
+
+  return { enabled: SOOP_LIVE_ENABLED, loaded: rawStreamers !== undefined, entries, updatedAt };
 }
