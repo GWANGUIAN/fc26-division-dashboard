@@ -1,9 +1,23 @@
 import JSZip from "jszip";
 import type { CareerRecord, StreamerRecord } from "../shared/model.js";
+import { soopChannelUrl } from "../shared/model.js";
+import { koreaDateKey } from "../shared/dates.js";
 import { winRatePercent } from "../shared/record-extraction.js";
 
-const HEADERS = ["이름", "숲 아이디", "카페 닉네임", "디비전", "승률"];
-const COLUMN_LETTERS = ["A", "B", "C", "D", "E"];
+const HEADERS = [
+  "이름",
+  "숲 아이디",
+  "카페 닉네임",
+  "디비전",
+  "승",
+  "무",
+  "패",
+  "경기수",
+  "승률",
+  "최근 보고일",
+  "SOOP 채널",
+];
+const COLUMN_LETTERS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K"];
 
 type Cell = { value: string; type: "str" | "num" };
 
@@ -32,13 +46,30 @@ function winRateLabel(record?: CareerRecord): string {
   return rate === undefined ? "-" : `${rate.toFixed(1)}%`;
 }
 
+function totalGames(record?: CareerRecord): number | undefined {
+  if (!record) return undefined;
+  return record.wins + record.draws + record.losses;
+}
+
+function lastReportDateLabel(streamer: StreamerRecord): string {
+  return streamer.lastPost ? koreaDateKey(new Date(streamer.lastPost.publishedAt)) : "-";
+}
+
 function streamerRow(streamer: StreamerRecord): Cell[] {
+  const record = streamer.record;
+  const games = totalGames(record);
   return [
     { value: streamer.displayName, type: "str" },
     { value: streamer.soopId ?? "-", type: "str" },
     { value: streamer.cafeAliases.join(", ") || "-", type: "str" },
     { value: String(streamer.currentDivision), type: "num" },
-    { value: winRateLabel(streamer.record), type: "str" },
+    { value: record ? String(record.wins) : "-", type: record ? "num" : "str" },
+    { value: record ? String(record.draws) : "-", type: record ? "num" : "str" },
+    { value: record ? String(record.losses) : "-", type: record ? "num" : "str" },
+    { value: games !== undefined ? String(games) : "-", type: games !== undefined ? "num" : "str" },
+    { value: winRateLabel(record), type: "str" },
+    { value: lastReportDateLabel(streamer), type: "str" },
+    { value: soopChannelUrl(streamer.soopId) ?? "-", type: "str" },
   ];
 }
 
