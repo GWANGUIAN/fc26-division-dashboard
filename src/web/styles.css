@@ -714,6 +714,7 @@ body { isolation: isolate; }
 .growth-graph-toggle { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 6px 14px; border: 1px solid #ffb45455; border-radius: 0; color: #ffcf94; background: #ffb4541f; font-weight: 700; font-size: 12px; transition: .2s; }
 .growth-graph-toggle:hover, .growth-graph-toggle:focus-visible { background: #ffb45433; border-color: #ffb45485; outline: 0; }
 .growth-graph-toggle svg { width: 14px; height: 14px; stroke-width: 2.6; color: #ffb454; }
+.growth-graph-toggle.view-toggle-card--attention svg { color: inherit; }
 
 .modal-frame--wide { width: min(1160px, 90vw); }
 .modal--wide { width: min(1160px, 90vw); max-height: 94vh; }
