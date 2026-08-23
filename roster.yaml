@@ -636,6 +636,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/seki.mp3"
   - slug: htvv2i
     displayName: "햇비"
     cafeAliases: ["햇비1"]
