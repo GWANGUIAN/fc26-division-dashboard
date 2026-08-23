@@ -165,11 +165,7 @@ export function App() {
       />
       <FavoriteCelebration slides={celebrationSlidesWithIro} />
       <HeroSection isDivision={isDivision} snapshot={snapshot} />
-      <SoopLiveSection
-        soopLive={soopLive}
-        sfxEnabled={sfxEnabled}
-        sfxVolume={sfxVolume}
-      />
+      <SoopLiveSection soopLive={soopLive} />
       <JandyVideoSection />
       <ControlsBar
         sentinelRef={controlsSentinelRef}
