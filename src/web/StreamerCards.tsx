@@ -21,11 +21,13 @@ export function StreamerCard({
   streamer,
   awards,
   isNew,
+  isLive,
   onOpen,
 }: {
   streamer: StreamerRecord;
   awards: TrophyAwards;
   isNew: boolean;
+  isLive?: boolean;
   onOpen: () => void;
 }) {
   const tier = fancyTierOf(streamer);
@@ -52,6 +54,14 @@ export function StreamerCard({
           <Volume2 className="streamer-card__sfx-badge" aria-hidden="true" />
         )}
       </span>
+      {isLive && (
+        <span
+          className="live-badge streamer-card__live-badge"
+          role="img"
+          aria-label={`${streamer.displayName} 방송중`}
+          title="현재 방송중"
+        />
+      )}
       <span className="streamer-card__copy">
         <span className="streamer-card__name">
           <FancyName streamer={streamer} tag="strong">

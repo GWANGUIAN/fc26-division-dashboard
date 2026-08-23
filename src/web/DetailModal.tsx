@@ -26,12 +26,14 @@ import {
 export function DetailModal({
   streamer,
   awards,
+  isLive,
   onClose,
   latestPosts = [],
   sfxVolume,
 }: {
   streamer: StreamerRecord;
   awards: TrophyAwards;
+  isLive?: boolean;
   onClose: () => void;
   latestPosts?: PromotionPost[];
   sfxVolume: number;
@@ -88,7 +90,17 @@ export function DetailModal({
       fancyLite={fancyLite}
       header={
         <div className="modal__identity">
-          <FancyAvatar streamer={streamer} />
+          <span className="modal__avatar-wrap">
+            <FancyAvatar streamer={streamer} />
+            {isLive && (
+              <span
+                className="live-badge"
+                role="img"
+                aria-label={`${streamer.displayName} 방송중`}
+                title="현재 방송중"
+              />
+            )}
+          </span>
           <div>
             <span className="eyebrow">CURRENT DIVISION</span>
             <h2>

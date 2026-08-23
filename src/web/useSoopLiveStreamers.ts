@@ -10,6 +10,13 @@ import {
 const POLL_INTERVAL_MS = 60_000;
 export const SOOP_LIVE_ENABLED = import.meta.env.VITE_ENABLE_SOOP_LIVE === "true";
 
+export interface SoopLiveState {
+  enabled: boolean;
+  loaded: boolean;
+  entries: LiveRosterEntry[];
+  updatedAt?: string;
+}
+
 function shuffled<T>(items: T[]): T[] {
   const result = [...items];
   for (let i = result.length - 1; i > 0; i--) {
@@ -32,7 +39,7 @@ function reorder(orderRef: { current: string[] }, matched: LiveRosterEntry[]): L
   return orderRef.current.flatMap((soopId) => bySoopId.get(soopId) ?? []);
 }
 
-export function useSoopLiveStreamers(streamers: StreamerRecord[]) {
+export function useSoopLiveStreamers(streamers: StreamerRecord[]): SoopLiveState {
   // Raw sooplive feed, kept separate from the roster match below: the
   // dashboard snapshot (and therefore `streamers`) loads on its own
   // schedule and can resolve before or after this fetch. Matching in a

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { OneVsOneApplicationView, StreamerRecord } from "../shared/model.js";
 import { buildDivisionListText } from "./appHelpers";
 import { downloadStreamersXlsx } from "./xlsx-export.js";
@@ -23,6 +23,7 @@ import { useControlsStuck } from "./useControlsStuck";
 import { useStreamerFilters } from "./useStreamerFilters";
 import { useEvaluationApplications } from "./useEvaluationApplications";
 import { useLatestActivity } from "./useLatestActivity";
+import { useSoopLiveStreamers } from "./useSoopLiveStreamers";
 
 import { TopBar } from "./TopBar";
 import { HeroSection } from "./HeroSection";
@@ -106,6 +107,11 @@ export function App() {
   const { evaluationFilter, setEvaluationFilter, applications } =
     useEvaluationApplications(snapshot, query);
   const { latest, celebrationSlides } = useLatestActivity(snapshot, streamers);
+  const soopLive = useSoopLiveStreamers(snapshot?.streamers ?? []);
+  const liveStreamerIds = useMemo(
+    () => new Set(soopLive.entries.map((entry) => entry.streamerId)),
+    [soopLive.entries],
+  );
 
   const [showIroCelebration, setShowIroCelebration] = useState(true);
   useEffect(() => {
@@ -161,7 +167,7 @@ export function App() {
       />
       <FavoriteCelebration slides={celebrationSlidesWithIro} />
       <HeroSection isDivision={isDivision} snapshot={snapshot} />
-      <SoopLiveSection streamers={snapshot?.streamers ?? []} />
+      <SoopLiveSection soopLive={soopLive} />
       <JandyVideoSection />
       <ControlsBar
         sentinelRef={controlsSentinelRef}
@@ -218,6 +224,7 @@ export function App() {
           zoomMax={CARD_ZOOM_MAX}
           onSquadBuilderOpen={() => setSquadBuilderOpen(true)}
           hideEmptyDivisions={query.trim().length > 0}
+          liveStreamerIds={liveStreamerIds}
         />
       ) : (
         <EvaluationList
@@ -233,6 +240,7 @@ export function App() {
         <DetailModal
           streamer={selected}
           awards={trophyAwards}
+          isLive={liveStreamerIds.has(selected.id)}
           onClose={() => {
             stopSfx();
             setSelected(undefined);

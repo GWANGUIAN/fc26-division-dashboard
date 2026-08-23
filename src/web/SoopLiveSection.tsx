@@ -4,12 +4,11 @@ import { A11y } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperInstance } from "swiper/types";
 import "swiper/css";
-import type { StreamerRecord } from "../shared/model.js";
 import { soopLiveBroadcastUrl } from "../shared/model.js";
 import type { LiveRosterEntry } from "../shared/soop-live.js";
 import { Avatar } from "./cardVisuals";
 import { formatDateTime } from "./formatters";
-import { useSoopLiveStreamers } from "./useSoopLiveStreamers";
+import type { SoopLiveState } from "./useSoopLiveStreamers";
 
 const SKELETON_SLOTS = [1, 2, 3, 4, 5] as const;
 
@@ -69,8 +68,8 @@ function SoopLiveCard({ entry }: { entry: LiveRosterEntry }) {
   );
 }
 
-export function SoopLiveSection({ streamers }: { streamers: StreamerRecord[] }) {
-  const { enabled, loaded, entries, updatedAt } = useSoopLiveStreamers(streamers);
+export function SoopLiveSection({ soopLive }: { soopLive: SoopLiveState }) {
+  const { enabled, loaded, entries, updatedAt } = soopLive;
   const swiper = useRef<SwiperInstance | null>(null);
   const [canGoPrev, setCanGoPrev] = useState(false);
   const [canGoNext, setCanGoNext] = useState(true);

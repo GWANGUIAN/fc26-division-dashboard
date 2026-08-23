@@ -26,6 +26,7 @@ export function DivisionResults({
   zoomMax,
   onSquadBuilderOpen,
   hideEmptyDivisions,
+  liveStreamerIds,
 }: {
   viewMode: "list" | "card";
   streamers: StreamerRecord[];
@@ -40,6 +41,7 @@ export function DivisionResults({
   zoomMax: number;
   onSquadBuilderOpen: () => void;
   hideEmptyDivisions?: boolean;
+  liveStreamerIds: Set<string>;
 }) {
   const [division10Collapsed, setDivision10Collapsed] = useState(
     loadDivision10Collapsed,
@@ -117,6 +119,7 @@ export function DivisionResults({
                           isUpdatedToday(streamer) &&
                           !seenKeys.has(seenKeyFor(streamer))
                         }
+                        isLive={liveStreamerIds.has(streamer.id)}
                         onOpen={() => onOpenStreamer(streamer)}
                       />
                     ))}
