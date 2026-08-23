@@ -33,14 +33,21 @@ describe("chooseRecord", () => {
       .toEqual({ record: { wins: 5, draws: 3, losses: 12 } });
   });
 
-  it("flags for review when a later image disagrees with the first match", () => {
+  it("picks the higher-total record (e.g. previous vs. current record screenshots)", () => {
     expect(chooseRecord([{ wins: 53, draws: 10, losses: 20 }, { wins: 54, draws: 10, losses: 20 }]))
-      .toEqual({ record: { wins: 53, draws: 10, losses: 20 }, needsReview: true });
+      .toEqual({ record: { wins: 54, draws: 10, losses: 20 } });
+    expect(chooseRecord([{ wins: 54, draws: 10, losses: 20 }, { wins: 53, draws: 10, losses: 20 }]))
+      .toEqual({ record: { wins: 54, draws: 10, losses: 20 } });
   });
 
-  it("does not flag for review when later images agree", () => {
+  it("does not flag for review when images agree", () => {
     expect(chooseRecord([{ wins: 53, draws: 10, losses: 20 }, { wins: 53, draws: 10, losses: 20 }]))
       .toEqual({ record: { wins: 53, draws: 10, losses: 20 } });
+  });
+
+  it("flags for review when totals match but the win/draw/loss split disagrees", () => {
+    expect(chooseRecord([{ wins: 53, draws: 10, losses: 20 }, { wins: 52, draws: 11, losses: 20 }]))
+      .toEqual({ record: { wins: 53, draws: 10, losses: 20 }, needsReview: true });
   });
 });
 

@@ -37,16 +37,25 @@ export function parseRecordScreenResult(value: unknown): ExtractedRecord | undef
   return { wins: wins as number, draws: draws as number, losses: losses as number };
 }
 
+function totalGames(record: ExtractedRecord): number {
+  return record.wins + record.draws + record.losses;
+}
+
 /**
- * Picks the record to keep when a post has multiple images. The first valid
- * record screen wins; if a later image in the same post yields a different
- * total, that is flagged for manual review rather than silently overwritten,
- * averaged, or majority-voted.
+ * Picks the record to keep when a post has multiple images. Streamers
+ * sometimes post a "previous record" screenshot alongside a "current record"
+ * one, so a higher total from a later image is expected, not an error: the
+ * record with the highest total games wins. Only a genuine tie — two images
+ * agreeing on the total but disagreeing on the win/draw/loss split — is
+ * flagged for manual review rather than picked arbitrarily.
  */
 export function chooseRecord(results: Array<ExtractedRecord | undefined>): { record?: ExtractedRecord; needsReview?: boolean } {
   const valid = results.filter((result): result is ExtractedRecord => result !== undefined);
   if (!valid.length) return {};
-  const [record, ...rest] = valid;
-  const needsReview = rest.some((other) => other.wins !== record.wins || other.draws !== record.draws || other.losses !== record.losses);
-  return needsReview ? { record, needsReview: true } : { record };
+  const best = valid.reduce((a, b) => (totalGames(b) > totalGames(a) ? b : a));
+  const needsReview = valid.some(
+    (other) => totalGames(other) === totalGames(best)
+      && (other.wins !== best.wins || other.draws !== best.draws || other.losses !== best.losses),
+  );
+  return needsReview ? { record: best, needsReview: true } : { record: best };
 }
