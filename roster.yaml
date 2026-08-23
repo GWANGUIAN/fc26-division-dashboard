@@ -392,6 +392,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/kurosha.mp3"
   - slug: xxxkimmickey
     displayName: "#김미키"
     cafeAliases: ["김미키"]
