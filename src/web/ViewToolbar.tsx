@@ -11,6 +11,7 @@ export function ViewToolbar({
   viewMode,
   onViewModeChange,
   cardViewDiscovered,
+  growthGraphDiscovered,
   cardZoom,
   onZoomIn,
   onZoomOut,
@@ -31,6 +32,7 @@ export function ViewToolbar({
   viewMode: "list" | "card";
   onViewModeChange: (mode: "list" | "card") => void;
   cardViewDiscovered: boolean;
+  growthGraphDiscovered: boolean;
   cardZoom: number;
   onZoomIn: () => void;
   onZoomOut: () => void;
@@ -101,11 +103,43 @@ export function ViewToolbar({
           />
           <button
             type="button"
-            className="growth-graph-toggle"
+            className={`growth-graph-toggle ${
+              growthGraphDiscovered
+                ? ""
+                : "fancy-border view-toggle-card--attention"
+            }`}
             onClick={onGrowthGraphOpen}
             aria-label="디비전 성장 그래프 보기"
+            style={
+              growthGraphDiscovered
+                ? undefined
+                : ({
+                    "--fancy-color": "#ffb454",
+                    "--fancy-glow-soft": hexToRgba("#ffb454", 0.4),
+                    "--fancy-glow-strong": hexToRgba("#ffb454", 0.85),
+                  } as React.CSSProperties)
+            }
           >
             <TrendingUp aria-hidden="true" /> <span>성장 그래프</span>
+            {!growthGraphDiscovered && (
+              <span className="view-toggle-card__sparks" aria-hidden="true">
+                <i className="view-toggle-card__spark view-toggle-card__spark--1">
+                  ✦
+                </i>
+                <i className="view-toggle-card__spark view-toggle-card__spark--2">
+                  ✦
+                </i>
+                <i className="view-toggle-card__spark view-toggle-card__spark--3">
+                  ✦
+                </i>
+                <i className="view-toggle-card__spark view-toggle-card__spark--4">
+                  ✦
+                </i>
+                <i className="view-toggle-card__spark view-toggle-card__spark--5">
+                  ✦
+                </i>
+              </span>
+            )}
           </button>
         </div>
       </div>

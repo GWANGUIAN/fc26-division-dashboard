@@ -74,6 +74,8 @@ export function App() {
     viewMode,
     setViewMode,
     cardViewDiscovered,
+    growthGraphDiscovered,
+    handleGrowthGraphOpen,
     sortMode,
     setSortMode,
     cardZoom,
@@ -186,13 +188,17 @@ export function App() {
           viewMode={viewMode}
           onViewModeChange={setViewMode}
           cardViewDiscovered={cardViewDiscovered}
+          growthGraphDiscovered={growthGraphDiscovered}
           cardZoom={cardZoom}
           onZoomIn={handleZoomIn}
           onZoomOut={handleZoomOut}
           sortMode={sortMode}
           onSortModeChange={setSortMode}
           onSquadBuilderOpen={() => setSquadBuilderOpen(true)}
-          onGrowthGraphOpen={() => setGrowthGraphOpen(true)}
+          onGrowthGraphOpen={() => {
+            handleGrowthGraphOpen();
+            setGrowthGraphOpen(true);
+          }}
         />
       )}
       {isDivision ? (

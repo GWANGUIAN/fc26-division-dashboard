@@ -3,9 +3,11 @@ import {
   CARD_ZOOM_MAX,
   CARD_ZOOM_MIN,
   hasDiscoveredCardView,
+  hasDiscoveredGrowthGraph,
   loadCardZoomLevel,
   loadViewMode,
   markCardViewDiscovered,
+  markGrowthGraphDiscovered,
   saveCardZoomLevel,
   saveViewMode,
 } from "./storage";
@@ -17,6 +19,9 @@ export function useViewPreferences() {
   const [cardViewDiscovered, setCardViewDiscovered] = useState(() =>
     hasDiscoveredCardView(),
   );
+  const [growthGraphDiscovered, setGrowthGraphDiscovered] = useState(() =>
+    hasDiscoveredGrowthGraph(),
+  );
   const [sortMode, setSortMode] = useState<"division" | "winRate">("division");
   const [cardZoom, setCardZoom] = useState(() => loadCardZoomLevel());
 
@@ -26,6 +31,12 @@ export function useViewPreferences() {
     if (mode === "card" && !cardViewDiscovered) {
       markCardViewDiscovered();
       setCardViewDiscovered(true);
+    }
+  }
+  function handleGrowthGraphOpen() {
+    if (!growthGraphDiscovered) {
+      markGrowthGraphDiscovered();
+      setGrowthGraphDiscovered(true);
     }
   }
   function handleZoomOut() {
@@ -47,6 +58,8 @@ export function useViewPreferences() {
     viewMode,
     setViewMode,
     cardViewDiscovered,
+    growthGraphDiscovered,
+    handleGrowthGraphOpen,
     sortMode,
     setSortMode,
     cardZoom,
