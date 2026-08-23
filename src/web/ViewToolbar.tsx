@@ -1,4 +1,4 @@
-import { CheckCircle2, CirclePile, Clock, List, Minus, Plus, Shield, TrendingUp, Users } from "lucide-react";
+import { CheckCircle2, CirclePile, Clock, List, Minus, Plus, Rows3, Shield, TrendingUp, Users } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
 import { hexToRgba } from "./cardVisuals";
 import { DivisionHistogram } from "./DivisionHistogram";
@@ -29,8 +29,8 @@ export function ViewToolbar({
   };
   streamersForHistogram: StreamerRecord[];
   excludedNames: string[];
-  viewMode: "list" | "card";
-  onViewModeChange: (mode: "list" | "card") => void;
+  viewMode: "list" | "table" | "card";
+  onViewModeChange: (mode: "list" | "table" | "card") => void;
   cardViewDiscovered: boolean;
   growthGraphDiscovered: boolean;
   cardZoom: number;
@@ -196,6 +196,14 @@ export function ViewToolbar({
             aria-label="목록 보기"
           >
             <List aria-hidden="true" />
+          </button>
+          <button
+            className={viewMode === "table" ? "active" : ""}
+            onClick={() => onViewModeChange("table")}
+            aria-pressed={viewMode === "table"}
+            aria-label="표로 보기"
+          >
+            <Rows3 aria-hidden="true" />
           </button>
           <button
             className={`segmented__card-view-toggle ${

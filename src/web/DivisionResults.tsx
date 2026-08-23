@@ -5,6 +5,7 @@ import { divisionColor } from "../shared/division-theme.js";
 import type { TrophyAwards } from "../shared/trophy.js";
 import { divisions } from "./appHelpers";
 import { CardBoard, StreamerCard } from "./StreamerCards";
+import { StreamerTable } from "./StreamerTable";
 import {
   isUpdatedToday,
   loadDivision10Collapsed,
@@ -28,7 +29,7 @@ export function DivisionResults({
   hideEmptyDivisions,
   liveStreamerIds,
 }: {
-  viewMode: "list" | "card";
+  viewMode: "list" | "table" | "card";
   streamers: StreamerRecord[];
   cardStreamers: StreamerRecord[];
   trophyAwards: TrophyAwards;
@@ -138,6 +139,14 @@ export function DivisionResults({
             );
           })}
         </section>
+      ) : viewMode === "table" ? (
+        <StreamerTable
+          streamers={streamers}
+          awards={trophyAwards}
+          seenKeys={seenKeys}
+          liveStreamerIds={liveStreamerIds}
+          onOpen={onOpenStreamer}
+        />
       ) : (
         <CardBoard
           streamers={cardStreamers}
@@ -161,7 +170,7 @@ export function DivisionResults({
           }
         />
       )}
-      {viewMode === "list" && (
+      {(viewMode === "list" || viewMode === "table") && (
         <div className="squad-builder-rail">
           <button
             type="button"

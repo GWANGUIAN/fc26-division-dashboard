@@ -13,7 +13,7 @@ import {
 } from "./storage";
 
 export function useViewPreferences() {
-  const [viewMode, setViewModeState] = useState<"list" | "card">(() =>
+  const [viewMode, setViewModeState] = useState<"list" | "table" | "card">(() =>
     loadViewMode(),
   );
   const [cardViewDiscovered, setCardViewDiscovered] = useState(() =>
@@ -25,7 +25,7 @@ export function useViewPreferences() {
   const [sortMode, setSortMode] = useState<"division" | "winRate">("division");
   const [cardZoom, setCardZoom] = useState(() => loadCardZoomLevel());
 
-  function setViewMode(mode: "list" | "card") {
+  function setViewMode(mode: "list" | "table" | "card") {
     setViewModeState(mode);
     saveViewMode(mode);
     if (mode === "card" && !cardViewDiscovered) {

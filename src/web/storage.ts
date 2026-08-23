@@ -79,17 +79,16 @@ export function saveDivision10Collapsed(collapsed: boolean) {
   }
 }
 
-export function loadViewMode(): "list" | "card" {
+export function loadViewMode(): "list" | "table" | "card" {
   try {
-    return localStorage.getItem(VIEW_MODE_STORAGE_KEY) === "card"
-      ? "card"
-      : "list";
+    const stored = localStorage.getItem(VIEW_MODE_STORAGE_KEY);
+    return stored === "card" || stored === "table" ? stored : "list";
   } catch {
     return "list";
   }
 }
 
-export function saveViewMode(mode: "list" | "card") {
+export function saveViewMode(mode: "list" | "table" | "card") {
   try {
     localStorage.setItem(VIEW_MODE_STORAGE_KEY, mode);
   } catch {
