@@ -7,7 +7,12 @@ import {
   type SoopLiveStreamer,
 } from "../shared/soop-live.js";
 
-const POLL_INTERVAL_MS = 60_000;
+const POLL_INTERVAL_MS = 120_000;
+// Beyond visibility, also require actual mouse/keyboard/touch activity
+// within this window — a tab left visible but unattended (e.g. a
+// background browser window) stops polling until the user comes back.
+const IDLE_THRESHOLD_MS = 5 * 60_000;
+const ACTIVITY_EVENTS = ["mousemove", "mousedown", "keydown", "touchstart", "scroll", "wheel"] as const;
 export const SOOP_LIVE_ENABLED = import.meta.env.VITE_ENABLE_SOOP_LIVE === "true";
 
 export interface SoopLiveState {
@@ -29,7 +34,7 @@ function shuffled<T>(items: T[]): T[] {
 /**
  * Keeps previously-seen streamers in their established position and only
  * randomizes where newly-live streamers land, so the rail doesn't reshuffle
- * on every 60s refresh (only the first time a streamer appears).
+ * on every refresh (only the first time a streamer appears).
  */
 function reorder(orderRef: { current: string[] }, matched: LiveRosterEntry[]): LiveRosterEntry[] {
   const bySoopId = new Map(matched.map((entry) => [entry.soopId, entry]));
@@ -44,12 +49,28 @@ export function useSoopLiveStreamers(streamers: StreamerRecord[]): SoopLiveState
   // dashboard snapshot (and therefore `streamers`) loads on its own
   // schedule and can resolve before or after this fetch. Matching in a
   // dedicated effect keyed on both values means a late-arriving roster
-  // still triggers a fresh match instead of waiting up to 60s for the next
-  // poll to happen to catch it.
+  // still triggers a fresh match instead of waiting for the next poll to
+  // happen to catch it.
   const [rawStreamers, setRawStreamers] = useState<SoopLiveStreamer[]>();
   const [updatedAt, setUpdatedAt] = useState<string>();
   const [entries, setEntries] = useState<LiveRosterEntry[]>([]);
   const orderRef = useRef<string[]>([]);
+  const lastActivityRef = useRef(Date.now());
+
+  useEffect(() => {
+    if (!SOOP_LIVE_ENABLED) return;
+    const markActive = () => {
+      lastActivityRef.current = Date.now();
+    };
+    for (const eventName of ACTIVITY_EVENTS) {
+      document.addEventListener(eventName, markActive, { passive: true });
+    }
+    return () => {
+      for (const eventName of ACTIVITY_EVENTS) {
+        document.removeEventListener(eventName, markActive);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!SOOP_LIVE_ENABLED) return;
@@ -57,11 +78,12 @@ export function useSoopLiveStreamers(streamers: StreamerRecord[]): SoopLiveState
 
     async function tick() {
       if (document.visibilityState !== "visible") return;
+      if (Date.now() - lastActivityRef.current > IDLE_THRESHOLD_MS) return;
       try {
         // The Worker's response carries a cache-control for Cloudflare's edge
-        // cache (55s). Without no-store, the browser's own HTTP cache would
-        // also honor it and skip the network entirely on a page reload,
-        // silently replaying whatever (possibly empty) list was last cached.
+        // cache. Without no-store, the browser's own HTTP cache would also
+        // honor it and skip the network entirely on a page reload, silently
+        // replaying whatever (possibly empty) list was last cached.
         const response = await fetch("/api/soop-live", {
           cache: "no-store",
           headers: { Accept: "application/json" },

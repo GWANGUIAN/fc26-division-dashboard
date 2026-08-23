@@ -20,9 +20,10 @@ export interface Env {
 
 const API_CACHE_SECONDS = 120;
 const API_CACHE_VERSION = "v3";
-// The frontend polls this every 60s while a tab is visible. Cache slightly
-// under that so a visible tab never serves the exact same minute twice.
-const SOOP_LIVE_CACHE_SECONDS = 55;
+// The frontend polls this every 2 minutes while a tab is visible and the
+// user is active. Cache slightly under that so a visible tab never serves
+// the exact same poll cycle twice.
+const SOOP_LIVE_CACHE_SECONDS = 115;
 const SOOP_LIVE_CACHE_VERSION = "v1";
 // sooplive's internal id for the "EA Sports FC 26" directory category, found
 // via the category's own directory page network calls. Not documented

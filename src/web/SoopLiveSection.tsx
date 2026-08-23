@@ -132,7 +132,7 @@ export function SoopLiveSection({
             className="soop-live__refresh-note"
             title={updatedAt ? `마지막 갱신: ${formatDateTime(updatedAt)}` : undefined}
           >
-            <span className="sync-dot" aria-hidden="true" /> 1분마다 업데이트
+            <span className="sync-dot" aria-hidden="true" /> 2분마다 업데이트
           </span>
           {hasLiveStreamers && (
             <div className="soop-live__navigation" aria-label="스트리밍 목록 넘기기">
