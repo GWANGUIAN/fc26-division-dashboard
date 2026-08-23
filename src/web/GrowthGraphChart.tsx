@@ -189,7 +189,7 @@ export function GrowthGraphChart({
       </div>
       <div className="growth-graph__overlay">
         {geometries.length === 0 && (
-          <p className="growth-graph__overlay-hint">아래에서 표시할 인원을 선택해주세요.</p>
+          <p className="growth-graph__overlay-hint">표시할 인원을 선택해주세요.</p>
         )}
         {[...groups.entries()].map(([division, members]) =>
           members.length === 1 ? (
