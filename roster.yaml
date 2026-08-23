@@ -556,6 +556,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/haring.mp3"
   - slug: imha22
     displayName: "임하밍"
     cafeAliases: ["임하밍"]
