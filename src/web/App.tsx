@@ -36,6 +36,7 @@ import { LatestFeedDrawer } from "./LatestFeedDrawer";
 import { AnnouncementModal } from "./AnnouncementModal";
 import { DetailModal } from "./DetailModal";
 import { TrophyModal } from "./TrophyModal";
+import { GrowthGraphModal } from "./GrowthGraphModal";
 import { EvaluationModal } from "./EvaluationViews";
 import { SfxIntroNotice, SfxToggle } from "./SfxControls";
 import { MusicPlayer } from "./MusicPlayer";
@@ -52,6 +53,7 @@ export function App() {
   const [feedOpen, setFeedOpen] = useState(false);
   const [trophyOpen, setTrophyOpen] = useState(false);
   const [squadBuilderOpen, setSquadBuilderOpen] = useState(false);
+  const [growthGraphOpen, setGrowthGraphOpen] = useState(false);
 
   const { toast, showToast } = useToast();
   const { theme, toggleTheme } = useTheme();
@@ -190,6 +192,7 @@ export function App() {
           sortMode={sortMode}
           onSortModeChange={setSortMode}
           onSquadBuilderOpen={() => setSquadBuilderOpen(true)}
+          onGrowthGraphOpen={() => setGrowthGraphOpen(true)}
         />
       )}
       {isDivision ? (
@@ -241,6 +244,12 @@ export function App() {
           awards={trophyAwards}
           excludedNames={excludedNames}
           onClose={() => setTrophyOpen(false)}
+        />
+      )}
+      {growthGraphOpen && (
+        <GrowthGraphModal
+          streamers={snapshot?.streamers ?? []}
+          onClose={() => setGrowthGraphOpen(false)}
         />
       )}
       {squadBuilderOpen && (

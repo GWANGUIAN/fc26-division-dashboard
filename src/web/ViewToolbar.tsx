@@ -1,4 +1,4 @@
-import { CheckCircle2, CirclePile, Clock, List, Minus, Plus, Shield, Users } from "lucide-react";
+import { CheckCircle2, CirclePile, Clock, List, Minus, Plus, Shield, TrendingUp, Users } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
 import { hexToRgba } from "./cardVisuals";
 import { DivisionHistogram } from "./DivisionHistogram";
@@ -17,6 +17,7 @@ export function ViewToolbar({
   sortMode,
   onSortModeChange,
   onSquadBuilderOpen,
+  onGrowthGraphOpen,
 }: {
   divisionStats: {
     total: number;
@@ -36,6 +37,7 @@ export function ViewToolbar({
   sortMode: "division" | "winRate";
   onSortModeChange: (mode: "division" | "winRate") => void;
   onSquadBuilderOpen: () => void;
+  onGrowthGraphOpen: () => void;
 }) {
   return (
     <section className="view-toolbar" aria-label="보기 설정">
@@ -92,10 +94,20 @@ export function ViewToolbar({
             </div>
           </div>
         </div>
-        <DivisionHistogram
-          streamers={streamersForHistogram}
-          excludedNames={excludedNames}
-        />
+        <div className="division-summary__chart-group">
+          <DivisionHistogram
+            streamers={streamersForHistogram}
+            excludedNames={excludedNames}
+          />
+          <button
+            type="button"
+            className="growth-graph-toggle"
+            onClick={onGrowthGraphOpen}
+            aria-label="디비전 성장 그래프 보기"
+          >
+            <TrendingUp aria-hidden="true" /> <span>성장 그래프</span>
+          </button>
+        </div>
       </div>
       <div className="view-toolbar__controls">
         {viewMode === "card" && (

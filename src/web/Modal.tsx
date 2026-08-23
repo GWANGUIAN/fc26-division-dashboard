@@ -92,6 +92,7 @@ export function Modal({
   decoration,
   fancyBorderColor,
   fancyLite,
+  wide,
 }: {
   children: ReactNode;
   header: ReactNode;
@@ -100,11 +101,12 @@ export function Modal({
   decoration?: ReactNode;
   fancyBorderColor?: string;
   fancyLite?: boolean;
+  wide?: boolean;
 }) {
   return (
     <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
       <div
-        className="modal-frame"
+        className={`modal-frame ${wide ? "modal-frame--wide" : ""}`}
         style={
           fancyBorderColor
             ? ({
@@ -122,7 +124,7 @@ export function Modal({
         }
       >
         <section
-          className={`modal ${fancyBorderColor ? "fancy-border" : ""} ${fancyBorderColor && fancyLite ? "fancy-border--lite" : ""}`}
+          className={`modal ${wide ? "modal--wide" : ""} ${fancyBorderColor ? "fancy-border" : ""} ${fancyBorderColor && fancyLite ? "fancy-border--lite" : ""}`}
           role="dialog"
           aria-modal="true"
           aria-label={label}

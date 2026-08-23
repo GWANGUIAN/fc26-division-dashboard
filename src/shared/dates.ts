@@ -26,6 +26,21 @@ export function formatCafePostDate(value?: string) {
   }).format(date);
 }
 
+/**
+ * Takes a dateKey (YYYY-MM-DD) rather than an ISO string like its siblings above,
+ * since the growth-graph pipeline that calls this already works entirely in dateKey space.
+ */
+export function formatGrowthAxisDate(dateKey: string): string {
+  const today = new Date();
+  const todayKey = koreaDateKey(today);
+  if (dateKey === todayKey) return "오늘";
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (dateKey === koreaDateKey(yesterday)) return "어제";
+  const [, month, day] = dateKey.split("-");
+  return `${month}.${day}`;
+}
+
 export function formatBoardPostDate(value?: string) {
   if (!value) return "보고 없음";
   const date = new Date(value);
