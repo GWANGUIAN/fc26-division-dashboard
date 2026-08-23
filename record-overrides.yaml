@@ -55,9 +55,9 @@ overrides:
   - soopId: kawri3
     division: 9
     record: { wins: 4, draws: 3, losses: 29 }
-  # - soopId: 
-  #   division: 
-  #   record: { wins: , draws: , losses:  }
+  - soopId: ditosak
+    division: 8
+    record: { wins: 7, draws: 4, losses: 9 }
   # - soopId: 
   #   division: 
   #   record: { wins: , draws: , losses:  }
