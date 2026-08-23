@@ -864,6 +864,10 @@ body { isolation: isolate; }
 }
 
 .streamer-table-wrap {
+  /* Without this, the grid cell it shares with the sticky squad-builder
+     rail stretches it to the rail's height, leaving visible blank space
+     below a short (e.g. single search result) table. */
+  align-self: start;
   overflow-x: auto;
   border: 1px solid var(--border-default);
   background: var(--surface-2);
