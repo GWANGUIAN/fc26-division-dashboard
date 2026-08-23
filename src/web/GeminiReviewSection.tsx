@@ -64,13 +64,31 @@ export function GeminiReviewSection({
         일부 스트리머는 미리 작성된 추가 정보도 같이 Gemini에게 전달됩니다.
       </p>
       {!review && hasPost && (
-        <p className="gemini-review__note">
-          인증샷에 전체 전적이 포함되어 있어야 AI가 이미지를 분석해서 전적을
-          추출하고 한줄평을 생성합니다.
-          <br />
-          잘못된 인증샷을 올린 경우, 관리자가 수동 업데이트 할때까지
-          기다려주세요.
-        </p>
+        <div className="gemini-review__warning">
+          <svg
+            className="gemini-review__warning-icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"
+              fill="#ffbb44"
+            />
+            <path
+              d="M12 9v4M12 16.5h.01"
+              stroke="#4a330d"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+            />
+          </svg>
+          <p className="gemini-review__warning-text">
+            인증샷에 전체 전적이 포함되어 있어야 AI가 이미지를 분석해서
+            전적을 추출하고 한줄평을 생성합니다.
+            <br />
+            잘못된 인증샷을 올린 경우, 관리자가 수동 업데이트 할때까지
+            기다려주세요.
+          </p>
+        </div>
       )}
       {review && (
         <>
