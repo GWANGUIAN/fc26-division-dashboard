@@ -8,6 +8,7 @@ import { soopLiveBroadcastUrl } from "../shared/model.js";
 import type { LiveRosterEntry } from "../shared/soop-live.js";
 import { Avatar } from "./cardVisuals";
 import { formatDateTime } from "./formatters";
+import { playSfx, stopSfx } from "./sfxAudio";
 import type { SoopLiveState } from "./useSoopLiveStreamers";
 
 const SKELETON_SLOTS = [1, 2, 3, 4, 5] as const;
@@ -27,7 +28,15 @@ function SoopLiveSkeletonCard() {
   );
 }
 
-function SoopLiveCard({ entry }: { entry: LiveRosterEntry }) {
+function SoopLiveCard({
+  entry,
+  sfxEnabled,
+  sfxVolume,
+}: {
+  entry: LiveRosterEntry;
+  sfxEnabled: boolean;
+  sfxVolume: number;
+}) {
   const [thumbnailFailed, setThumbnailFailed] = useState(false);
   return (
     <a
@@ -36,6 +45,14 @@ function SoopLiveCard({ entry }: { entry: LiveRosterEntry }) {
       target="_blank"
       rel="noreferrer"
       aria-label={`${entry.displayName} 방송 보기: ${entry.title}`}
+      onMouseEnter={() => {
+        // playSfx already stops whatever was playing before starting the new
+        // clip, so hovering across cards never overlaps two sounds.
+        if (sfxEnabled && entry.sfx) playSfx(entry.sfx, sfxVolume / 100);
+      }}
+      onMouseLeave={() => {
+        if (sfxEnabled && entry.sfx) stopSfx();
+      }}
     >
       <span className="soop-live-card__thumbnail">
         {!thumbnailFailed && (
@@ -68,7 +85,15 @@ function SoopLiveCard({ entry }: { entry: LiveRosterEntry }) {
   );
 }
 
-export function SoopLiveSection({ soopLive }: { soopLive: SoopLiveState }) {
+export function SoopLiveSection({
+  soopLive,
+  sfxEnabled,
+  sfxVolume,
+}: {
+  soopLive: SoopLiveState;
+  sfxEnabled: boolean;
+  sfxVolume: number;
+}) {
   const { enabled, loaded, entries, updatedAt } = soopLive;
   const swiper = useRef<SwiperInstance | null>(null);
   const [canGoPrev, setCanGoPrev] = useState(false);
@@ -93,7 +118,15 @@ export function SoopLiveSection({ soopLive }: { soopLive: SoopLiveState }) {
           <h2 id="soop-live-title">
             FC26 <span className="soop-live__title-sub">카테고리</span> LIVE
             <span className="soop-live__live-dot" aria-hidden="true" />
+            {hasLiveStreamers && (
+              <span className="soop-live__count">{entries.length}명 방송중</span>
+            )}
           </h2>
+          <p className="soop-live__hint">
+            지금 FC26 카테고리에서 방송 중인 스트리머는 목록 보기와 상세 정보에서{" "}
+            <span className="soop-live__hint-dot" aria-hidden="true" />
+            으로 표시됩니다.
+          </p>
         </div>
         <div className="soop-live__actions">
           <span
@@ -155,7 +188,11 @@ export function SoopLiveSection({ soopLive }: { soopLive: SoopLiveState }) {
         >
           {entries.map((entry) => (
             <SwiperSlide key={entry.streamerId}>
-              <SoopLiveCard entry={entry} />
+              <SoopLiveCard
+                entry={entry}
+                sfxEnabled={sfxEnabled}
+                sfxVolume={sfxVolume}
+              />
             </SwiperSlide>
           ))}
         </Swiper>
