@@ -1,10 +1,16 @@
-import { CirclePile } from "lucide-react";
+import { useState } from "react";
+import { ChevronDown, CirclePile } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
 import { divisionColor } from "../shared/division-theme.js";
 import type { TrophyAwards } from "../shared/trophy.js";
 import { divisions } from "./appHelpers";
 import { CardBoard, StreamerCard } from "./StreamerCards";
-import { isUpdatedToday, seenKeyFor } from "./storage";
+import {
+  isUpdatedToday,
+  loadDivision10Collapsed,
+  saveDivision10Collapsed,
+  seenKeyFor,
+} from "./storage";
 
 export function DivisionResults({
   viewMode,
@@ -35,6 +41,19 @@ export function DivisionResults({
   onSquadBuilderOpen: () => void;
   hideEmptyDivisions?: boolean;
 }) {
+  const [division10Collapsed, setDivision10Collapsed] = useState(
+    loadDivision10Collapsed,
+  );
+  const toggleDivision10 = () => {
+    setDivision10Collapsed((current) => {
+      const next = !current;
+      saveDivision10Collapsed(next);
+      return next;
+    });
+  };
+  // hideEmptyDivisions is only ever set while a search query is active, so it
+  // doubles as the "search in progress" signal here.
+  const isSearching = Boolean(hideEmptyDivisions);
   return (
     <div className="results-wrap">
       {viewMode === "list" ? (
@@ -44,6 +63,9 @@ export function DivisionResults({
               (streamer) => streamer.currentDivision === division,
             );
             if (hideEmptyDivisions && entries.length === 0) return null;
+            const isDivision10 = division === 10;
+            const showEntries =
+              !isDivision10 || isSearching || !division10Collapsed;
             return (
               <section
                 className={`division division-${division}`}
@@ -70,19 +92,35 @@ export function DivisionResults({
                   )}
                 </div>
                 <div className="division__players">
-                  {entries.map((streamer) => (
-                    <StreamerCard
-                      key={streamer.id}
-                      streamer={streamer}
-                      awards={trophyAwards}
-                      isNew={
-                        isUpdatedToday(streamer) &&
-                        !seenKeys.has(seenKeyFor(streamer))
-                      }
-                      onOpen={() => onOpenStreamer(streamer)}
-                    />
-                  ))}
-                  {entries.length === 0 && (
+                  {isDivision10 && !isSearching && (
+                    <button
+                      type="button"
+                      className="division__players-toggle"
+                      onClick={toggleDivision10}
+                      aria-expanded={showEntries}
+                    >
+                      <ChevronDown aria-hidden="true" />
+                      <span>
+                        {showEntries
+                          ? "접기"
+                          : `${entries.length}명 접힘 · 펼쳐서 보기`}
+                      </span>
+                    </button>
+                  )}
+                  {showEntries &&
+                    entries.map((streamer) => (
+                      <StreamerCard
+                        key={streamer.id}
+                        streamer={streamer}
+                        awards={trophyAwards}
+                        isNew={
+                          isUpdatedToday(streamer) &&
+                          !seenKeys.has(seenKeyFor(streamer))
+                        }
+                        onOpen={() => onOpenStreamer(streamer)}
+                      />
+                    ))}
+                  {showEntries && entries.length === 0 && (
                     <p className="vacant">
                       {division === 10
                         ? "시즌 미참여 후보 없음"
