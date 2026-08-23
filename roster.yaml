@@ -621,6 +621,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/tamago.mp3"
   - slug: yourdarky
     displayName: "다키_"
     cafeAliases: ["다 키"]
