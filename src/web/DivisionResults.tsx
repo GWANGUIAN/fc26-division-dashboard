@@ -60,6 +60,9 @@ export function DivisionResults({
     <div className="results-wrap">
       {viewMode === "list" ? (
         <section className="board" aria-label="FC26 디비전 보드">
+          {isSearching && streamers.length === 0 && (
+            <p className="empty-list">검색 결과가 없습니다.</p>
+          )}
           {divisions.map((division) => {
             const entries = streamers.filter(
               (streamer) => streamer.currentDivision === division,
