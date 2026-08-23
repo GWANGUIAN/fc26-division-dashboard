@@ -33,6 +33,7 @@ export const SFX_VOLUME_STORAGE_KEY = "fc26-sfx-volume";
 const SFX_HEARD_STORAGE_KEY = "fc26-sfx-heard";
 const CARD_VIEW_DISCOVERED_STORAGE_KEY = "fc26-card-view-discovered";
 const GROWTH_GRAPH_DISCOVERED_STORAGE_KEY = "fc26-growth-graph-discovered";
+const GROWTH_PICKER_DISCOVERED_STORAGE_KEY = "fc26-growth-picker-discovered";
 const VIEW_MODE_STORAGE_KEY = "fc26-view-mode";
 const DIVISION_10_COLLAPSED_STORAGE_KEY = "fc26-division-10-collapsed";
 const CARD_ZOOM_STORAGE_KEY = "fc26-card-zoom-level";
@@ -159,6 +160,22 @@ export function hasDiscoveredGrowthGraph(): boolean {
 export function markGrowthGraphDiscovered() {
   try {
     localStorage.setItem(GROWTH_GRAPH_DISCOVERED_STORAGE_KEY, "1");
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
+
+export function hasDiscoveredGrowthPicker(): boolean {
+  try {
+    return localStorage.getItem(GROWTH_PICKER_DISCOVERED_STORAGE_KEY) === "1";
+  } catch {
+    return true;
+  }
+}
+
+export function markGrowthPickerDiscovered() {
+  try {
+    localStorage.setItem(GROWTH_PICKER_DISCOVERED_STORAGE_KEY, "1");
   } catch {
     // ignore storage failures (e.g. private browsing)
   }
