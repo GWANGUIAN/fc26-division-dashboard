@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { OneVsOneApplicationView, StreamerRecord } from "../shared/model.js";
 import { buildDivisionListText } from "./appHelpers";
 import { downloadStreamersXlsx } from "./xlsx-export.js";
@@ -113,19 +113,17 @@ export function App() {
     [soopLive.entries],
   );
 
-  const [showIroCelebration, setShowIroCelebration] = useState(true);
-  useEffect(() => {
-    const timer = setTimeout(() => setShowIroCelebration(false), 180_000);
-    return () => clearTimeout(timer);
-  }, []);
-  const celebrationSlidesWithIro = showIroCelebration
-    ? [
-        {
-          key: "iro-celebration",
-          message: "천년돌 아이로의 하루고멤 합격을 축하합니다🎤 - 플러그 일동 -",
-        },
-      ]
-    : celebrationSlides;
+  const celebrationSlidesWithIro = useMemo(() => {
+    const iroMessage =
+      "천년돌 아이로의 하루고멤 합격을 축하합니다🎤 - 플러그 일동 -";
+    if (celebrationSlides.length === 0) {
+      return [{ key: "iro-celebration", message: iroMessage }];
+    }
+    return celebrationSlides.flatMap((slide, index) => [
+      { key: `iro-celebration-${index}`, message: iroMessage },
+      slide,
+    ]);
+  }, [celebrationSlides]);
 
   async function handleCopyDivisionList() {
     try {
