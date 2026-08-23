@@ -122,7 +122,7 @@ export function SoopLiveSection({
             )}
           </h2>
           <p className="soop-live__hint">
-            지금 FC26 카테고리에서 방송 중인 스트리머는 목록 보기와 상세 정보에서{" "}
+            현재 FC26 카테고리에서 방송 중인 스트리머는 목록 보기와 상세 정보에서{" "}
             <span className="soop-live__hint-dot" aria-hidden="true" />
             으로 표시됩니다.
           </p>
