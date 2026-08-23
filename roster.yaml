@@ -200,6 +200,7 @@ streamers:
     override:
       division: null
       policy: auto
+    sfx: "/sfxes/mariel.mp3"
   - slug: 
     displayName: 매그피이
     cafeAliases: ["매그피이"]
