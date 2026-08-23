@@ -23,8 +23,8 @@ overrides:
     division: 8
     record: { wins: 15, draws: 5, losses: 23 }
   - soopId: hachi97
-    division: 8
-    record: { wins: 10, draws: 8, losses: 21 }
+    division: 7
+    record: { wins: 17, draws: 9, losses: 31 }
   - soopId: ju010228
     division: 8
     record: { wins: 6, draws: 1, losses: 2 }
