@@ -39,6 +39,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "재--신의 {n}부 리그 승격을 축하합니다~!!🥅"
+    reviewNote: "골키퍼를 너무 잘해서 재신(야신에서 따옴)이라는 별명이 있음"
     sfx: "/sfxes/jaenin.mp3"
   - slug: sookbong777
     displayName: 숙봉이
@@ -141,7 +142,7 @@ streamers:
       policy: auto
     celebrationMessage: "핫짱의 {n}부 리그 승격을 축하합니다~!!🐉"
     sfx: "/sfxes/hachi.mp3"
-    reviewNote: "하치쿤, 핫짱이라는 별명을 가지고 있음, RP가 용이고 리냐_LINYA, 유샥크와 함께 해물탕즈라고 모임이 있어"
+    reviewNote: "하치쿤, 핫짱이라는 별명을 가지고 있음. 팬닉은 용볼. RP는 용임. 리냐_LINYA, 유샥크와 함께 해물탕즈라고 모임이 있어"
     isFancy: true
   - slug: 
     displayName: 미르_MIR
@@ -225,6 +226,7 @@ streamers:
       division: null
       policy: auto
     sfx: "/sfxes/charlee.mp3"
+    reviewNote: "여성 버추얼 스트리머인데 콧수염이 있음"
   - slug: 
     displayName: 세온
     cafeAliases: ["세온이"]
@@ -690,7 +692,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "빵망이의 {n}부 리그 승격을 축하합니다~!!🤤"
-    reviewNote: "배그 실력이 출중함. 키빼몸(키(cm) - 몸무게(kg))이 +5일거라는 이미지가 있음"
+    reviewNote: "배그 실력이 출중함. 성격이 좋고 귀여워서 수은(리그오브레전드의 수은 장식띠에서 나온 말로 분위기를 애교, 웃음 등으로 좋게 환기시키는 역할)력이 높음"
     sfx: "/sfxes/bingming.mp3"
   - slug: habee511
     displayName: "망야_"
@@ -789,6 +791,7 @@ streamers:
       division: null
       policy: auto
     sfx: "/sfxes/ushark.mp3"
+    reviewNote: "하치, 리냐와 함께 해물탕즈라는 모임에 속해 있음. RP가 상어임."
   - slug: y0unggam
     displayName: "영감__"
     cafeAliases: ["영감"]
@@ -956,6 +959,7 @@ streamers:
       policy: auto
     celebrationMessage: "VICTORY 빅토리 {n}부 리그 승격!!🙌"
     sfx: "/sfxes/victory.mp3"
+    reviewNote: "항상 긍정적인 사고와 밝은 목소리로 수은(리그오브레전드의 수은 장식띠에서 나온 말로 분위기를 애교, 웃음 등으로 좋게 환기시키는 역할)력이 높음"
   - slug: imleeyo
     displayName: "리요"
     cafeAliases: ["리요"]
@@ -1123,6 +1127,7 @@ streamers:
       division: null
       policy: auto
     sfx: "/sfxes/honyang2.mp3"
+    reviewNote: "방송 텐션이 높음"
   - slug: jkl1122
     displayName: "김나디"
     cafeAliases: ["김나디"]
