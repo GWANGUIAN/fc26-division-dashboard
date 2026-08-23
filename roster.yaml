@@ -630,7 +630,7 @@ streamers:
       policy: auto
   - slug: se450502
     displayName: "세기"
-    cafeAliases: ["세기"]
+    cafeAliases: ["김세기"]
     soopId: "se450502"
     autoUpdate: true
     override:
@@ -1087,7 +1087,7 @@ streamers:
     sfx: "/sfxes/mockchuri.mp3"
   - slug: etwo22
     displayName: "이투__"
-    cafeAliases: ["이투22"]
+    cafeAliases: ["이투222"]
     soopId: "etwo22"
     autoUpdate: true
     override:
