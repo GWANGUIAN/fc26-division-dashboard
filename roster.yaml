@@ -142,7 +142,7 @@ streamers:
       policy: auto
     celebrationMessage: "핫짱의 {n}부 리그 승격을 축하합니다~!!🐉"
     sfx: "/sfxes/hachi.mp3"
-    reviewNote: "하치쿤, 핫짱이라는 별명을 가지고 있음. 팬닉은 용볼. RP는 용임. 리냐_LINYA, 유샥크와 함께 해물탕즈라고 모임이 있어"
+    reviewNote: "하치쿤, 핫짱이라는 별명을 가지고 있음. 팬닉은 용볼. RP는 용임."
     isFancy: true
   - slug: 
     displayName: 미르_MIR
@@ -747,7 +747,7 @@ streamers:
       division: null
       policy: auto
     sfx: "/sfxes/ushark.mp3"
-    reviewNote: "하치, 리냐와 함께 해물탕즈라는 모임에 속해 있음. RP가 상어임."
+    reviewNote: "RP가 상어임."
   - slug: y0unggam
     displayName: "영감__"
     cafeAliases: ["영감"]
