@@ -58,17 +58,19 @@ export function DivisionHistogram({
           <span>디비전 분포</span>
           <small>
             총 {streamers.length}명
+            <>
+              {excludedNames.length > 0
+                ? ` (${excludedNames.map((name) => name + "님").join(", ")} 제외)`
+                : ""}
+            </>
             {unjoinedBucket && unjoinedBucket.count > 0 ? (
               <span className="division-histogram__unjoined">
                 {" "}
-                · 미참여 {unjoinedBucket.count}명
+                · 미보고 {unjoinedBucket.count}명
               </span>
             ) : (
               ""
             )}
-            {excludedNames.length > 0
-              ? ` (${excludedNames.map((name) => name + "님").join(", ")} 제외)`
-              : ""}
           </small>
         </div>
         <div className="division-histogram__chart">
