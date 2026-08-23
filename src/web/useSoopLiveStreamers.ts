@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { StreamerRecord } from "../shared/model.js";
 import {
   matchLiveStreamers,
@@ -47,13 +47,12 @@ function reorder(orderRef: { current: string[] }, matched: LiveRosterEntry[]): L
 export function useSoopLiveStreamers(streamers: StreamerRecord[]): SoopLiveState {
   // Raw sooplive feed, kept separate from the roster match below: the
   // dashboard snapshot (and therefore `streamers`) loads on its own
-  // schedule and can resolve before or after this fetch. Matching in a
-  // dedicated effect keyed on both values means a late-arriving roster
-  // still triggers a fresh match instead of waiting for the next poll to
-  // happen to catch it.
+  // schedule and can resolve before or after this fetch. Matching is
+  // recomputed (see the memo below) whenever either value changes, so a
+  // late-arriving roster still triggers a fresh match instead of waiting
+  // for the next poll to happen to catch it.
   const [rawStreamers, setRawStreamers] = useState<SoopLiveStreamer[]>();
   const [updatedAt, setUpdatedAt] = useState<string>();
-  const [entries, setEntries] = useState<LiveRosterEntry[]>([]);
   const orderRef = useRef<string[]>([]);
   const lastActivityRef = useRef(Date.now());
 
@@ -109,10 +108,14 @@ export function useSoopLiveStreamers(streamers: StreamerRecord[]): SoopLiveState
     };
   }, []);
 
-  useEffect(() => {
-    if (!rawStreamers) return;
-    setEntries(reorder(orderRef, matchLiveStreamers(streamers, rawStreamers)));
-  }, [streamers, rawStreamers]);
+  // Computed during render (not in a follow-up effect) so `loaded` and
+  // `entries` always land in the same commit — an effect-based version
+  // caused a one-render flash of the empty state between "raw feed just
+  // arrived" and "matched against the roster" for every fetch.
+  const entries = useMemo(
+    () => (rawStreamers ? reorder(orderRef, matchLiveStreamers(streamers, rawStreamers)) : []),
+    [streamers, rawStreamers],
+  );
 
   return { enabled: SOOP_LIVE_ENABLED, loaded: rawStreamers !== undefined, entries, updatedAt };
 }
