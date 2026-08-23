@@ -53,7 +53,7 @@ function SoopLiveCard({ entry }: { entry: LiveRosterEntry }) {
 }
 
 export function SoopLiveSection({ streamers }: { streamers: StreamerRecord[] }) {
-  const { enabled, entries, updatedAt } = useSoopLiveStreamers(streamers);
+  const { enabled, loaded, entries, updatedAt } = useSoopLiveStreamers(streamers);
   const swiper = useRef<SwiperInstance | null>(null);
   const [canGoPrev, setCanGoPrev] = useState(false);
   const [canGoNext, setCanGoNext] = useState(true);
@@ -62,7 +62,10 @@ export function SoopLiveSection({ streamers }: { streamers: StreamerRecord[] }) 
     setCanGoNext(!instance.isEnd);
   };
 
-  if (!enabled || entries.length === 0) return null;
+  // Nothing to show yet: stay hidden until the first fetch resolves so the
+  // empty-state message doesn't flash before real data arrives.
+  if (!enabled || !loaded) return null;
+  const hasLiveStreamers = entries.length > 0;
 
   return (
     <section className="soop-live" aria-labelledby="soop-live-title">
@@ -81,54 +84,60 @@ export function SoopLiveSection({ streamers }: { streamers: StreamerRecord[] }) 
           >
             <span className="sync-dot" aria-hidden="true" /> 1분마다 갱신
           </span>
-          <div className="soop-live__navigation" aria-label="스트리밍 목록 넘기기">
-            <button
-              type="button"
-              onClick={() => swiper.current?.slidePrev()}
-              aria-label="이전 스트리머"
-              disabled={!canGoPrev}
-            >
-              <ChevronLeft aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              onClick={() => swiper.current?.slideNext()}
-              aria-label="다음 스트리머"
-              disabled={!canGoNext}
-            >
-              <ChevronRight aria-hidden="true" />
-            </button>
-          </div>
+          {hasLiveStreamers && (
+            <div className="soop-live__navigation" aria-label="스트리밍 목록 넘기기">
+              <button
+                type="button"
+                onClick={() => swiper.current?.slidePrev()}
+                aria-label="이전 스트리머"
+                disabled={!canGoPrev}
+              >
+                <ChevronLeft aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                onClick={() => swiper.current?.slideNext()}
+                aria-label="다음 스트리머"
+                disabled={!canGoNext}
+              >
+                <ChevronRight aria-hidden="true" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
-      <Swiper
-        className="soop-live__swiper"
-        modules={[A11y]}
-        onSwiper={(instance) => {
-          swiper.current = instance;
-          syncNavigation(instance);
-        }}
-        onSlideChange={syncNavigation}
-        onResize={syncNavigation}
-        watchOverflow
-        spaceBetween={10}
-        slidesPerView={1.4}
-        breakpoints={{
-          481: { slidesPerView: 2.3 },
-          760: { slidesPerView: 3.3 },
-          1100: { slidesPerView: 4.3 },
-        }}
-        a11y={{
-          prevSlideMessage: "이전 스트리머",
-          nextSlideMessage: "다음 스트리머",
-        }}
-      >
-        {entries.map((entry) => (
-          <SwiperSlide key={entry.streamerId}>
-            <SoopLiveCard entry={entry} />
-          </SwiperSlide>
-        ))}
-      </Swiper>
+      {hasLiveStreamers ? (
+        <Swiper
+          className="soop-live__swiper"
+          modules={[A11y]}
+          onSwiper={(instance) => {
+            swiper.current = instance;
+            syncNavigation(instance);
+          }}
+          onSlideChange={syncNavigation}
+          onResize={syncNavigation}
+          watchOverflow
+          spaceBetween={10}
+          slidesPerView={1.4}
+          breakpoints={{
+            481: { slidesPerView: 2.3 },
+            760: { slidesPerView: 3.3 },
+            1100: { slidesPerView: 4.3 },
+          }}
+          a11y={{
+            prevSlideMessage: "이전 스트리머",
+            nextSlideMessage: "다음 스트리머",
+          }}
+        >
+          {entries.map((entry) => (
+            <SwiperSlide key={entry.streamerId}>
+              <SoopLiveCard entry={entry} />
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      ) : (
+        <p className="soop-live__empty">현재 방송중인 스트리머가 없습니다</p>
+      )}
     </section>
   );
 }

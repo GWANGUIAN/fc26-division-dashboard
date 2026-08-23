@@ -34,6 +34,10 @@ function reorder(orderRef: { current: string[] }, matched: LiveRosterEntry[]): L
 export function useSoopLiveStreamers(streamers: StreamerRecord[]) {
   const [entries, setEntries] = useState<LiveRosterEntry[]>([]);
   const [updatedAt, setUpdatedAt] = useState<string>();
+  // Distinguishes "haven't heard back from the first fetch yet" (render
+  // nothing) from "fetched, and zero of the roster is currently live"
+  // (render the section with an empty-state message).
+  const [loaded, setLoaded] = useState(false);
   const orderRef = useRef<string[]>([]);
   const streamersRef = useRef(streamers);
   streamersRef.current = streamers;
@@ -55,6 +59,8 @@ export function useSoopLiveStreamers(streamers: StreamerRecord[]) {
       } catch {
         // A network hiccup just skips this refresh; the next tick (or the
         // next time the tab becomes visible) retries.
+      } finally {
+        if (!cancelled) setLoaded(true);
       }
     }
 
@@ -68,5 +74,5 @@ export function useSoopLiveStreamers(streamers: StreamerRecord[]) {
     };
   }, []);
 
-  return { enabled: SOOP_LIVE_ENABLED, entries, updatedAt };
+  return { enabled: SOOP_LIVE_ENABLED, loaded, entries, updatedAt };
 }

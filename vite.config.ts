@@ -11,6 +11,10 @@ export default defineConfig({
         target: "https://wakjandy.stream",
         changeOrigin: true,
       },
+      "/api/soop-live": {
+        target: "https://wakjandy.stream",
+        changeOrigin: true,
+      },
     },
   },
   build: {
