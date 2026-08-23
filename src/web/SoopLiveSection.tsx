@@ -64,7 +64,6 @@ function SoopLiveCard({
             onError={() => setThumbnailFailed(true)}
           />
         )}
-        <span className="soop-live-card__live-badge">LIVE</span>
         <span className="soop-live-card__viewers">
           <span className="soop-live-card__viewers-dot" aria-hidden="true" />
           {entry.viewerCount.toLocaleString("ko-KR")}
