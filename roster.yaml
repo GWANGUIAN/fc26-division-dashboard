@@ -290,14 +290,6 @@ streamers:
       division: null
       policy: auto
     sfx: "/sfxes/banta.mp3"
-  - slug: choeunnn
-    displayName: 초은.
-    cafeAliases: ["초은"]
-    soopId: choeunnn
-    autoUpdate: true
-    override:
-      division: null
-      policy: auto
   - slug: guqlswls123
     displayName: 따스히
     cafeAliases: ["따스히"]
@@ -330,14 +322,6 @@ streamers:
     displayName: 우마이:>
     cafeAliases: ["우마이"]
     soopId: eun0333
-    autoUpdate: true
-    override:
-      division: null
-      policy: auto
-  - slug: meia0510
-    displayName: 메이아
-    cafeAliases: ["메이아"]
-    soopId: meia0510
     autoUpdate: true
     override:
       division: null
@@ -503,14 +487,6 @@ streamers:
       division: null
       policy: auto
     sfx: "/sfxes/danchu.mp3"
-  - slug: dbdnjfdl0216
-    displayName: "유서리_"
-    cafeAliases: ["유서리"]
-    soopId: "dbdnjfdl0216"
-    autoUpdate: true
-    override:
-      division: null
-      policy: auto
   - slug: muse0116
     displayName: "뮤즈_MUSE"
     cafeAliases: ["뮤즈 MUSE"]
@@ -579,14 +555,6 @@ streamers:
     override:
       division: null
       policy: auto
-  - slug: ironyan
-    displayName: "이로냥_"
-    cafeAliases: ["이로냥"]
-    soopId: "ironyan"
-    autoUpdate: true
-    override:
-      division: null
-      policy: auto
   - slug: imha22
     displayName: "임하밍"
     cafeAliases: ["임하밍"]
@@ -605,14 +573,6 @@ streamers:
       division: null
       policy: auto
     sfx: "/sfxes/haeparin.mp3"
-  - slug: haettoing
-    displayName: "해또잉"
-    cafeAliases: ["해또잉"]
-    soopId: "haettoing"
-    autoUpdate: true
-    override:
-      division: null
-      policy: auto
   - slug: krtl6798
     displayName: "(타)마고"
     cafeAliases: ["(타)마고"]
@@ -758,14 +718,6 @@ streamers:
       division: null
       policy: auto
     sfx: "/sfxes/wello.mp3"
-  - slug: miwoomiwoo
-    displayName: "미우"
-    cafeAliases: ["미우"]
-    soopId: "miwoomiwoo"
-    autoUpdate: true
-    override:
-      division: null
-      policy: auto
   - slug: tdw0926
     displayName: "하루아_"
     cafeAliases: ["하루아1"]
@@ -962,14 +914,6 @@ streamers:
     celebrationMessage: "VICTORY 빅토리 {n}부 리그 승격!!🙌"
     sfx: "/sfxes/victory.mp3"
     reviewNote: "항상 긍정적인 사고와 밝은 목소리로 수은(리그오브레전드의 수은 장식띠에서 나온 말로 분위기를 애교, 웃음 등으로 좋게 환기시키는 역할)력이 높음"
-  - slug: imleeyo
-    displayName: "리요"
-    cafeAliases: ["리요"]
-    soopId: "imleeyo"
-    autoUpdate: true
-    override:
-      division: null
-      policy: auto
   - slug: ditosak
     displayName: "오슈이"
     cafeAliases: ["오슈이"]
@@ -1102,15 +1046,6 @@ streamers:
       division: null
       policy: auto
     sfx: "/sfxes/nyacho.mp3"
-  - slug: roundpopo
-    displayName: "땡글땡글포포"
-    cafeAliases: ["땡글땡글포포"]
-    soopId: "roundpopo"
-    autoUpdate: true
-    override:
-      division: null
-      policy: auto
-    sfx: "/sfxes/popo.mp3"
   - slug: wggumteuli
     displayName: "꿈틀__"
     cafeAliases: ["꿈틀"]
@@ -1168,3 +1103,11 @@ streamers:
     reviewNote: "우왁굳의 오른팔이란 별명이 있음. 오랫동안 우왁굳과 친해서 가족계라는 이미지가 있음. 잔디동 신청자가 아닌데 승격 보고를 함. 남자임."
     sfx: "/sfxes/chunyang.mp3"
     isExcluded: true
+  - slug: duke1224
+    displayName: "두깨:P"
+    cafeAliases: ["두깨:P"]
+    soopId: "duke1224"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
