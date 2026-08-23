@@ -27,6 +27,7 @@ import { useLatestActivity } from "./useLatestActivity";
 import { TopBar } from "./TopBar";
 import { HeroSection } from "./HeroSection";
 import { FavoriteCelebration } from "./FavoriteCelebration";
+import { SoopLiveSection } from "./SoopLiveSection";
 import { JandyVideoSection } from "./JandyVideoSection";
 import { ControlsBar } from "./ControlsBar";
 import { ViewToolbar } from "./ViewToolbar";
@@ -160,6 +161,7 @@ export function App() {
       />
       <FavoriteCelebration slides={celebrationSlidesWithIro} />
       <HeroSection isDivision={isDivision} snapshot={snapshot} />
+      <SoopLiveSection streamers={snapshot?.streamers ?? []} />
       <JandyVideoSection />
       <ControlsBar
         sentinelRef={controlsSentinelRef}

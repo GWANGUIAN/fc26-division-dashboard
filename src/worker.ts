@@ -1,3 +1,5 @@
+import type { SoopLiveStreamer } from "./shared/soop-live.js";
+
 interface Fetcher {
   fetch(request: Request): Promise<Response>;
 }
@@ -18,6 +20,15 @@ export interface Env {
 
 const API_CACHE_SECONDS = 120;
 const API_CACHE_VERSION = "v3";
+// The frontend polls this every 60s while a tab is visible. Cache slightly
+// under that so a visible tab never serves the exact same minute twice.
+const SOOP_LIVE_CACHE_SECONDS = 55;
+const SOOP_LIVE_CACHE_VERSION = "v1";
+// sooplive's internal id for the "EA Sports FC 26" directory category, found
+// via the category's own directory page network calls. Not documented
+// anywhere public, so it can only be rediscovered by re-inspecting that page
+// if sooplive ever reassigns it.
+const SOOP_LIVE_CATEGORY_NO = "00040354";
 const HEALTH_MAX_SNAPSHOT_AGE_MS = 12 * 60 * 1_000;
 // Bump whenever the static entry bundle changes. It is used only for the
 // internal asset-binding request, bypassing the zone's broad cache rule while
@@ -90,6 +101,65 @@ async function serveHealth(env: Env): Promise<Response> {
   }
 }
 
+interface SoopLiveApiEntry {
+  broad_no: number;
+  user_id: string;
+  user_nick: string;
+  broad_title: string;
+  view_cnt: number;
+  thumbnail: string;
+  user_profile_img: string;
+}
+
+/**
+ * Proxies sooplive's own (uncredentialed, CORS-less) category feed so the
+ * frontend can read it same-origin. Edge-cached like serveApi so any number
+ * of visitors polling every 60s collapses into ~1 upstream fetch/minute per
+ * Cloudflare PoP instead of one per visitor.
+ */
+async function serveSoopLive(request: Request, ctx: ExecutionContext): Promise<Response> {
+  if (request.method !== "GET") return new Response("Method Not Allowed", { status: 405 });
+
+  const url = new URL(request.url);
+  const cacheKey = new Request(`${url.origin}/api/soop-live?edge-cache=${SOOP_LIVE_CACHE_VERSION}`, { method: "GET" });
+  const cached = await edgeCache.default.match(cacheKey);
+  if (cached) return cached;
+
+  const upstreamUrl = new URL("https://sch.sooplive.com/api.php");
+  upstreamUrl.searchParams.set("m", "categoryContentsList");
+  upstreamUrl.searchParams.set("szType", "live");
+  upstreamUrl.searchParams.set("nPageNo", "1");
+  upstreamUrl.searchParams.set("nListCnt", "60");
+  upstreamUrl.searchParams.set("szPlatform", "pc");
+  upstreamUrl.searchParams.set("szCateNo", SOOP_LIVE_CATEGORY_NO);
+  upstreamUrl.searchParams.set("szOrder", "view_cnt_desc");
+
+  const upstream = await fetch(upstreamUrl, {
+    headers: { Accept: "application/json", Referer: "https://www.sooplive.com/" },
+  });
+  if (!upstream.ok) return Response.json({ message: "soop live lookup failed" }, { status: 502 });
+
+  const payload = await upstream.json() as { data?: { list?: SoopLiveApiEntry[] } };
+  const streamers: SoopLiveStreamer[] = (payload.data?.list ?? []).map((entry) => ({
+    broadNo: entry.broad_no,
+    userId: entry.user_id,
+    nickname: entry.user_nick,
+    title: entry.broad_title,
+    viewerCount: entry.view_cnt,
+    thumbnailUrl: entry.thumbnail,
+    profileImageUrl: entry.user_profile_img,
+  }));
+
+  const response = Response.json({ generatedAt: new Date().toISOString(), streamers }, {
+    headers: {
+      "cache-control": `public, max-age=${SOOP_LIVE_CACHE_SECONDS}, stale-while-revalidate=30`,
+      "x-content-type-options": "nosniff",
+    },
+  });
+  ctx.waitUntil(edgeCache.default.put(cacheKey, response.clone()));
+  return response;
+}
+
 function healthResponse(status: number, statusText: string): Response {
   return Response.json({ ok: status === 200, status: statusText }, {
     status,
@@ -128,6 +198,7 @@ export default {
       ? serveHealth(env)
       : new Response("Method Not Allowed", { status: 405 });
     if (path === "/api/snapshot" || path.startsWith("/api/snapshot/")) return serveApi(request, env, ctx);
+    if (path === "/api/soop-live") return serveSoopLive(request, ctx);
     return serveAsset(request, env);
   },
 } satisfies ExportedHandler<Env>;
