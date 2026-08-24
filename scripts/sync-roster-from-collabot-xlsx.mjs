@@ -89,9 +89,16 @@ async function main() {
   // applicants.length once any entry carries deleted: true, since those never
   // count toward the live-applicant comparison — spell out the split so a
   // "변경사항이 없습니다" summary with mismatched counts doesn't look like a bug.
+  // "삭제됨"/"제외" here describe the roster's existing state (as of before this
+  // run); they're named differently from the "이번 실행 삭제 처리" section below
+  // so the two don't read as the same number.
   const deletedCount = existingEntries.filter((entry) => entry.deleted).length;
-  const rosterLabel = "roster " + existingEntries.length + "명"
-    + (deletedCount ? " (활성 " + (existingEntries.length - deletedCount) + "명 · 삭제 처리 " + deletedCount + "명)" : "");
+  const excludedCount = existingEntries.filter((entry) => entry.isExcluded && !entry.deleted).length;
+  const activeCount = existingEntries.length - deletedCount;
+  const rosterLabelDetails = ["활성 " + activeCount + "명"];
+  if (deletedCount) rosterLabelDetails.push("삭제됨 " + deletedCount + "명");
+  if (excludedCount) rosterLabelDetails.push("제외 " + excludedCount + "명(신청자 목록에 없어도 유지)");
+  const rosterLabel = "roster " + existingEntries.length + "명 (" + rosterLabelDetails.join(" · ") + ")";
 
   if (decision.aborted) {
     const reason = "신청자 수(" + decision.liveCount + "명)가 현재 roster(" + decision.existingCount + "명) 대비 너무 적어 동기화를 중단했습니다. "
@@ -139,10 +146,10 @@ async function main() {
     "",
     "신청자 " + applicants.length + "명 · 기존 " + rosterLabel,
     "",
-    "추가 (" + additions.length + "):",
+    "이번 실행 신규 추가 (" + additions.length + "명):",
     ...additions.map((applicant) => "  + " + applicant.displayName + " (" + applicant.soopId + ")"),
     "",
-    "삭제 처리 (" + markResult.markedSoopIds.length + "):",
+    "이번 실행 신규 삭제 처리 (" + markResult.markedSoopIds.length + "명, deleted: true로 표시만 하고 파일에서 지우지는 않음):",
     ...removals
       .filter((entry) => markResult.markedSoopIds.includes(entry.soopId))
       .map((entry) => "  - " + entry.displayName + " (" + entry.soopId + ")"),
