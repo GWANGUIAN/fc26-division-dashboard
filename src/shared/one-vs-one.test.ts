@@ -46,4 +46,9 @@ describe("one vs one applications", () => {
     const noAliasRoster = parseRoster(`streamers:\n  - { displayName: 별칭 없는 후보, soopId: noalias, autoUpdate: true }`);
     expect(buildStreamerRecords([], noAliasRoster)).toMatchObject([{ displayName: "별칭 없는 후보", soopId: "noalias", cafeAliases: [], currentDivision: 10 }]);
   });
+
+  it("hides an application from a deleted roster entry entirely", () => {
+    const results = parseOneVsOneResults(`opponent:\n  displayName: 우왁굳\n  soopId: ecvhao\nresults: []`);
+    expect(buildOneVsOneApplications([application], [{ ...roster[0], deleted: true }], results)).toEqual([]);
+  });
 });

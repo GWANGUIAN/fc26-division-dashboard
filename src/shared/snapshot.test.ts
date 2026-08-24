@@ -34,4 +34,18 @@ describe("dashboard snapshot", () => {
     expect(snapshot.latestPosts.map((item) => item.articleId)).toEqual(["new", "old", "earlier"]);
     expect(snapshot.streamers[0].previousPromotionPosts?.map((item) => item.articleId)).toEqual(["earlier"]);
   });
+
+  it("omits a deleted streamer's own posts from both streamers and latestPosts", () => {
+    const snapshot = buildDashboardSnapshot({
+      state: { status: "ok", updatedAt: "2026-08-16T12:00:00+09:00" },
+      streamers,
+      posts: [post("new", "2026-08-16T12:00:00+09:00")],
+      applications: [], roster: [{ ...roster[0], deleted: true }],
+      results: { opponent: { displayName: "우왁굳", soopId: "ecvhao" }, results: [] },
+      activityPosts: [],
+    });
+
+    expect(snapshot.streamers).toEqual([]);
+    expect(snapshot.latestPosts).toEqual([]);
+  });
 });

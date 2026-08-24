@@ -84,6 +84,10 @@ describe("promotion parsing", () => {
     const result = buildStreamerRecords(withLegacyReview, roster);
     expect(result[0].latestReview).toBeUndefined();
   });
+  it("omits a deleted roster entry from the output, without falling back to an unmapped writer card", () => {
+    const result = buildStreamerRecords(posts, [{ ...roster[0], deleted: true }]);
+    expect(result).toHaveLength(0);
+  });
 });
 
 describe("article image filtering", () => {

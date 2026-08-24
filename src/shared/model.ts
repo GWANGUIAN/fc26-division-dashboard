@@ -17,6 +17,15 @@ export interface RosterEntry {
   reviewNote?: string;
   /** Excludes this streamer from aggregate calculations (division stats, distribution, achievements, Gemini roster context) and from the CollaBot auto-removal sync, while still showing their card/profile normally. */
   isExcluded?: boolean;
+  /**
+   * Soft-delete marker. The CollaBot sync sets this instead of removing the
+   * entry outright when a streamer's SOOP recruitment comment disappears, so
+   * a lingering Naver cafe post (comment deleted, post left up) never falls
+   * back to matching by alias into an "unmapped applicant" card. A deleted
+   * entry is kept for alias-matching purposes but excluded from the built
+   * snapshot (streamers, latestPosts, one-vs-one applications) entirely.
+   */
+  deleted?: boolean;
 }
 
 export interface CareerRecord {

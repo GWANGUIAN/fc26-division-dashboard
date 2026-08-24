@@ -97,7 +97,11 @@ export function buildStreamerRecords(
     grouped.set(key, [...(grouped.get(key) ?? []), post]);
   }
 
-  const records: StreamerRecord[] = roster.map((entry) => {
+  // Deleted entries still participate in grouped-post matching above (via
+  // matchRosterEntry) so their cafe posts attach to the roster slug instead
+  // of falling through to the "unmapped applicant" branch below, but they
+  // never produce a visible record themselves.
+  const records: StreamerRecord[] = roster.filter((entry) => !entry.deleted).map((entry) => {
     const entryPosts = grouped.get(entry.slug) ?? [];
     const override = entry.override ?? { policy: "auto" as const, division: undefined };
     const currentDivision = entry.autoUpdate

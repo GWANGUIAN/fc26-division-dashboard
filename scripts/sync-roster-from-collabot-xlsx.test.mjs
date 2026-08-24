@@ -56,4 +56,19 @@ describe("decideSync", () => {
     expect(result.aborted).toBe(false);
     expect(result.removals).toEqual([]);
   });
+
+  it("excludes an already-deleted entry from the ratio threshold and from removals", () => {
+    const deleted = [{ slug: "gone", displayName: "gone", soopId: "gone", deleted: true }];
+    const result = decideSync([...entries(["a", "b"]), ...deleted], applicants(["a", "b"]), 0.5);
+    expect(result.aborted).toBe(false);
+    expect(result.existingCount).toBeUndefined();
+    expect(result.removals).toEqual([]);
+  });
+
+  it("never re-adds a live applicant whose soopId already belongs to a deleted entry", () => {
+    const deleted = [{ slug: "gone", displayName: "gone", soopId: "gone", deleted: true }];
+    const result = decideSync([...entries(["a"]), ...deleted], applicants(["a", "gone"]), 0.5);
+    expect(result.aborted).toBe(false);
+    expect(result.additions).toEqual([]);
+  });
 });

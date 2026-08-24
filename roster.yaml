@@ -112,6 +112,19 @@ streamers:
     sfx: "/sfxes/doormomo.mp3"
     profileImageUrl: "/profiles/profile_doormomo.webp"
   - slug: 
+    displayName: 마이곰이
+    cafeAliases: ["마이곰이"]
+    soopId: "mygomiee"
+    autoUpdate: true
+    override:
+      division: null
+      policy: auto
+    celebrationMessage: "곰짱의 {n}부 리그 승격을 축하합니다~!!🧸"
+    profileImageUrl: "/profiles/profile_mygomiee.webp"
+    sfx: "/sfxes/mygomiee.mp3"
+    reviewNote: "곰짱이라는 별명 가지고 있고 팬닉은 곰돌이단임"
+    deleted: true
+  - slug: 
     displayName: 찌미
     cafeAliases: ["찌 미"]
     soopId: "zzimio3o"

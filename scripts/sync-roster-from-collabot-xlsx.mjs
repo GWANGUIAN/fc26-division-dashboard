@@ -12,7 +12,7 @@ import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { parse as parseYaml } from "yaml";
 import { normaliseSoopId, readApplicantsFromXlsx } from "./lib/collabot-xlsx.mjs";
-import { buildRosterBlock, detectEol, removeEntriesBySoopIds, uniqueSlug } from "./lib/roster-text.mjs";
+import { buildRosterBlock, detectEol, markEntriesDeletedBySoopIds, uniqueSlug } from "./lib/roster-text.mjs";
 
 const defaultRosterPath = resolve("roster.yaml");
 const defaultMinRatio = 0.5;
@@ -30,13 +30,19 @@ function readExistingEntries(rosterText) {
 }
 
 export function decideSync(existingEntries, liveApplicants, minRatio) {
-  const withSoopId = existingEntries.filter((entry) => entry.soopId);
+  // Already-deleted entries are excluded from the live-applicant comparison
+  // entirely: they can never be re-marked for removal, and they don't count
+  // toward the ratio-abort threshold. Their soopId still counts as "known"
+  // below so a lingering cafe post/comment never causes them to be re-added
+  // as a fresh applicant.
+  const withSoopId = existingEntries.filter((entry) => entry.soopId && !entry.deleted);
   const existingIds = new Set(withSoopId.map((entry) => normaliseSoopId(entry.soopId)));
   if (liveApplicants.length === 0 || liveApplicants.length < existingIds.size * minRatio) {
     return { aborted: true, liveCount: liveApplicants.length, existingCount: existingIds.size };
   }
   const liveIds = new Set(liveApplicants.map((applicant) => normaliseSoopId(applicant.soopId)));
-  const additions = liveApplicants.filter((applicant) => !existingIds.has(normaliseSoopId(applicant.soopId)));
+  const knownIds = new Set(existingEntries.filter((entry) => entry.soopId).map((entry) => normaliseSoopId(entry.soopId)));
+  const additions = liveApplicants.filter((applicant) => !knownIds.has(normaliseSoopId(applicant.soopId)));
   // isExcluded entries (e.g. non-applicants who still post division reports)
   // are protected from this comment-based removal even if they drop off the
   // live applicant list.
@@ -96,15 +102,19 @@ async function main() {
     return;
   }
 
-  const removalResult = removeEntriesBySoopIds(rosterText, removals.map((entry) => entry.soopId));
+  // Removals are soft-deleted (a `deleted: true` line appended to the
+  // existing block) rather than deleted from the file, so a soopId that
+  // resurfaces later (comment un-deleted, or a fresh applicant re-using a
+  // stale entry's soopId) is never silently re-added as a duplicate.
+  const markResult = markEntriesDeletedBySoopIds(rosterText, removals.map((entry) => entry.soopId));
   const eol = detectEol(rosterText);
   // rosterValues() cannot reliably match `slug:` (its `- ` list-marker prefix
-  // isn't whitespace), so the surviving slugs are taken from the already
-  // yaml-parsed entries instead, matching the app's own slug-or-soopId rule.
-  const removedSoopIds = new Set(removalResult.removedSoopIds.map(normaliseSoopId));
+  // isn't whitespace), so slugs are taken from the already yaml-parsed
+  // entries instead, matching the app's own slug-or-soopId rule. Every
+  // existing slug stays in the file (soft-delete keeps the block), so all of
+  // them count as used.
   const usedSlugs = new Set(
     existingEntries
-      .filter((entry) => !entry.soopId || !removedSoopIds.has(normaliseSoopId(entry.soopId)))
       .map((entry) => (entry.slug || entry.soopId || "").toLowerCase())
       .filter(Boolean),
   );
@@ -112,8 +122,8 @@ async function main() {
     .map(({ displayName, soopId }) => buildRosterBlock({ slug: uniqueSlug(soopId, usedSlugs), displayName, soopId, cafeAliases: [displayName] }))
     .join(eol);
   const finalText = additions.length
-    ? removalResult.rosterText.trimEnd() + eol + appended + eol
-    : removalResult.rosterText.trimEnd() + eol;
+    ? markResult.rosterText.trimEnd() + eol + appended + eol
+    : markResult.rosterText.trimEnd() + eol;
 
   validateRosterText(finalText);
 
@@ -125,13 +135,13 @@ async function main() {
     "추가 (" + additions.length + "):",
     ...additions.map((applicant) => "  + " + applicant.displayName + " (" + applicant.soopId + ")"),
     "",
-    "제거 (" + removalResult.removedSoopIds.length + "):",
+    "삭제 처리 (" + markResult.markedSoopIds.length + "):",
     ...removals
-      .filter((entry) => removalResult.removedSoopIds.includes(entry.soopId))
+      .filter((entry) => markResult.markedSoopIds.includes(entry.soopId))
       .map((entry) => "  - " + entry.displayName + " (" + entry.soopId + ")"),
   ];
-  if (removalResult.skippedSoopIds.length) {
-    summaryLines.push("", "경고: 아래 SOOP ID는 roster.yaml에서 정확히 1개 항목으로 특정되지 않아 건드리지 않았습니다:", ...removalResult.skippedSoopIds.map((id) => "  ? " + id));
+  if (markResult.skippedSoopIds.length) {
+    summaryLines.push("", "경고: 아래 SOOP ID는 roster.yaml에서 정확히 1개 항목으로 특정되지 않아 건드리지 않았습니다:", ...markResult.skippedSoopIds.map((id) => "  ? " + id));
   }
   const summary = summaryLines.join("\n") + "\n";
   console.log(summary);

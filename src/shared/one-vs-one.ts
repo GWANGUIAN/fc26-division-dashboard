@@ -31,18 +31,21 @@ export function buildOneVsOneApplications(
   results: OneVsOneResultsConfig,
 ): OneVsOneApplicationView[] {
   const byArticle = new Map(results.results.map((result) => [result.applicationArticleId, result]));
-  return applications.map((application) => {
-    const entry = matchRosterEntry(application.cafeAuthor, roster);
-    const result = byArticle.get(application.articleId);
-    return {
-      ...application,
-      id: entry?.slug ?? `application:${normalizeCafeAlias(application.cafeAuthor)}`,
-      displayName: entry?.displayName ?? application.cafeAuthor,
-      cafeAliases: entry?.cafeAliases ?? [application.cafeAuthor],
-      soopId: entry?.soopId || undefined,
-      profileImageUrl: entry?.profileImageUrl,
-      isMapped: Boolean(entry),
-      result: result ? { ...result, ...calculateOneVsOneVerdict(result.candidateScore, result.woowakgoodScore) } : undefined,
-    };
-  }).sort((a, b) => Number(Boolean(a.result)) - Number(Boolean(b.result)) || b.publishedAt.localeCompare(a.publishedAt));
+  return applications
+    .filter((application) => !matchRosterEntry(application.cafeAuthor, roster)?.deleted)
+    .map((application) => {
+      const entry = matchRosterEntry(application.cafeAuthor, roster);
+      const result = byArticle.get(application.articleId);
+      return {
+        ...application,
+        id: entry?.slug ?? `application:${normalizeCafeAlias(application.cafeAuthor)}`,
+        displayName: entry?.displayName ?? application.cafeAuthor,
+        cafeAliases: entry?.cafeAliases ?? [application.cafeAuthor],
+        soopId: entry?.soopId || undefined,
+        profileImageUrl: entry?.profileImageUrl,
+        isMapped: Boolean(entry),
+        result: result ? { ...result, ...calculateOneVsOneVerdict(result.candidateScore, result.woowakgoodScore) } : undefined,
+      };
+    })
+    .sort((a, b) => Number(Boolean(a.result)) - Number(Boolean(b.result)) || b.publishedAt.localeCompare(a.publishedAt));
 }

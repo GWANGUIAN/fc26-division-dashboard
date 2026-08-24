@@ -9,7 +9,7 @@ import type {
   StreamerRecord,
 } from "./model.js";
 import { buildOneVsOneApplications } from "./one-vs-one.js";
-import { buildStreamerRecords } from "./promotion.js";
+import { buildStreamerRecords, matchRosterEntry } from "./promotion.js";
 import { attachStreamerActivityPosts } from "./streamer-activity.js";
 
 export interface SnapshotState {
@@ -44,7 +44,13 @@ export function buildDashboardSnapshot(input: SnapshotInput): DashboardSnapshot 
     // newly added derived field such as previous promotion history.
     streamers: attachStreamerActivityPosts(buildStreamerRecords(posts, roster, recordOverrides), roster, activityPosts)
       .sort((a, b) => a.currentDivision - b.currentDivision || a.displayName.localeCompare(b.displayName, "ko")),
-    latestPosts: [...posts].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)).slice(0, 50),
+    // A deleted streamer's own posts are still matched by cafeAlias (see
+    // buildStreamerRecords), so they must be filtered out here too, or a
+    // post from before deletion would still surface in the activity feed.
+    latestPosts: posts
+      .filter((post) => !matchRosterEntry(post.cafeAuthor, roster)?.deleted)
+      .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+      .slice(0, 50),
     oneVsOneApplications: buildOneVsOneApplications(applications, roster, results),
   };
 }

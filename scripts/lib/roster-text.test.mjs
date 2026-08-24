@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parse as parseYaml } from "yaml";
-import { buildRosterBlock, detectEol, findEntryBlocks, removeEntriesBySoopIds, rosterValues, uniqueSlug } from "./roster-text.mjs";
+import { buildRosterBlock, detectEol, findEntryBlocks, markEntriesDeletedBySoopIds, removeEntriesBySoopIds, rosterValues, uniqueSlug } from "./roster-text.mjs";
 
 const sampleLf = [
   "streamers:",
@@ -141,5 +141,50 @@ describe("removeEntriesBySoopIds", () => {
     expect(rosterText).not.toContain("nogood");
     expect(rosterText).toContain("\r\n");
     expect(parseYaml(rosterText).streamers).toHaveLength(2);
+  });
+});
+
+describe("markEntriesDeletedBySoopIds", () => {
+  it("appends deleted: true to a middle entry, leaving the others untouched", () => {
+    const { rosterText, markedSoopIds, skippedSoopIds } = markEntriesDeletedBySoopIds(sampleLf, ["nogood"]);
+    expect(markedSoopIds).toEqual(["nogood"]);
+    expect(skippedSoopIds).toEqual([]);
+    const parsed = parseYaml(rosterText);
+    expect(parsed.streamers).toHaveLength(3);
+    expect(parsed.streamers.find((s) => s.soopId === "nogood").deleted).toBe(true);
+    expect(parsed.streamers.find((s) => s.soopId === "villlo").deleted).toBeUndefined();
+    expect(parsed.streamers.find((s) => s.soopId === "015234").deleted).toBeUndefined();
+  });
+
+  it("appends deleted: true to the last entry in the file", () => {
+    const { rosterText } = markEntriesDeletedBySoopIds(sampleLf, ["015234"]);
+    const parsed = parseYaml(rosterText);
+    expect(parsed.streamers).toHaveLength(3);
+    expect(parsed.streamers.find((s) => s.soopId === "015234").deleted).toBe(true);
+  });
+
+  it("marks multiple entries in one call without corrupting offsets", () => {
+    const { rosterText, markedSoopIds } = markEntriesDeletedBySoopIds(sampleLf, ["villlo", "015234"]);
+    expect(markedSoopIds.sort()).toEqual(["015234", "villlo"]);
+    const parsed = parseYaml(rosterText);
+    expect(parsed.streamers).toHaveLength(3);
+    expect(parsed.streamers.find((s) => s.soopId === "villlo").deleted).toBe(true);
+    expect(parsed.streamers.find((s) => s.soopId === "015234").deleted).toBe(true);
+    expect(parsed.streamers.find((s) => s.soopId === "nogood").deleted).toBeUndefined();
+  });
+
+  it("skips a soopId with zero matches instead of guessing", () => {
+    const { rosterText, markedSoopIds, skippedSoopIds } = markEntriesDeletedBySoopIds(sampleLf, ["doesnotexist"]);
+    expect(markedSoopIds).toEqual([]);
+    expect(skippedSoopIds).toEqual(["doesnotexist"]);
+    expect(rosterText).toBe(sampleLf);
+  });
+
+  it("preserves CRLF line endings", () => {
+    const crlf = sampleLf.replace(/\n/g, "\r\n");
+    const { rosterText } = markEntriesDeletedBySoopIds(crlf, ["nogood"]);
+    expect(rosterText).toContain("\r\n");
+    const parsed = parseYaml(rosterText);
+    expect(parsed.streamers.find((s) => s.soopId === "nogood").deleted).toBe(true);
   });
 });

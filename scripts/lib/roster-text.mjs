@@ -79,3 +79,37 @@ export function removeEntriesBySoopIds(rosterText, soopIdsToRemove) {
 
   return { rosterText: result, removedSoopIds, skippedSoopIds };
 }
+
+/**
+ * Soft-delete every entry block whose soopId matches one of soopIdsToMark, by
+ * appending a `deleted: true` line to it, instead of removing the block. A
+ * soopId with zero or more than one matching block is left untouched and
+ * reported back as skipped rather than guessed at, matching
+ * removeEntriesBySoopIds's behaviour.
+ */
+export function markEntriesDeletedBySoopIds(rosterText, soopIdsToMark) {
+  const blocks = findEntryBlocks(rosterText);
+  const markedSoopIds = [];
+  const skippedSoopIds = [];
+  const blocksToMark = [];
+  const eol = detectEol(rosterText);
+
+  for (const soopId of soopIdsToMark) {
+    const pattern = soopIdPattern(soopId);
+    const matches = blocks.filter((block) => pattern.test(rosterText.slice(block.start, block.end)));
+    if (matches.length !== 1) {
+      skippedSoopIds.push(soopId);
+      continue;
+    }
+    markedSoopIds.push(soopId);
+    blocksToMark.push(matches[0]);
+  }
+
+  blocksToMark.sort((a, b) => b.start - a.start);
+  let result = rosterText;
+  for (const block of blocksToMark) {
+    result = result.slice(0, block.end) + "    deleted: true" + eol + result.slice(block.end);
+  }
+
+  return { rosterText: result, markedSoopIds, skippedSoopIds };
+}
