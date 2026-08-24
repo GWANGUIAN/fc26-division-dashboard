@@ -1,6 +1,7 @@
 export type MusicTrack = { videoId: string; title: string; artist: string };
 
 export const musicPlaylist: readonly MusicTrack[] = [
+  { videoId: "jXN23Gqr5rQ", title: "잔디에 꺾이려는 스트리머들에게", artist: "지치고 힘들때 보세요 (아이네 반응) - 데친 숙주나물" },
   { videoId: "ilgEJDnsUss", title: "We are DINOS - 버축대 천양 다이노스 / cover 하디아", artist: "하디아" },
   { videoId: "aYBdAjG02Zg", title: "우왁굳 - Ballin (왁컬로이드 COVER) [버축대 두세븐일레븐 MV]", artist: "진코2" },
   { videoId: "79rDMDll-IY", title: "Ballin - 버축대 두세븐일레븐 MV", artist: "왁타버스 WAKTAVERSE" },
