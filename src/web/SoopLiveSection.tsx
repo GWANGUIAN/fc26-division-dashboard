@@ -6,7 +6,7 @@ import type { Swiper as SwiperInstance } from "swiper/types";
 import "swiper/css";
 import { soopLiveBroadcastUrl } from "../shared/model.js";
 import type { LiveRosterEntry } from "../shared/soop-live.js";
-import { Avatar } from "./cardVisuals";
+import { Avatar, DivisionBadge } from "./cardVisuals";
 import { formatDateTime } from "./formatters";
 import type { SoopLiveState } from "./useSoopLiveStreamers";
 
@@ -47,6 +47,10 @@ function SoopLiveCard({ entry }: { entry: LiveRosterEntry }) {
             onError={() => setThumbnailFailed(true)}
           />
         )}
+        <DivisionBadge
+          division={entry.currentDivision}
+          className="soop-live-card__division"
+        />
         <span className="soop-live-card__viewers">
           <span className="soop-live-card__viewers-dot" aria-hidden="true" />
           {entry.viewerCount.toLocaleString("ko-KR")}

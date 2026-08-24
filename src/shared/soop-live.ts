@@ -24,6 +24,7 @@ export interface LiveRosterEntry {
   viewerCount: number;
   thumbnailUrl: string;
   sfx?: string;
+  currentDivision: number;
 }
 
 /**
@@ -32,7 +33,7 @@ export interface LiveRosterEntry {
  * 잔디동 신청 스트리머, never unrelated FC26 broadcasters in the category.
  */
 export function matchLiveStreamers(
-  roster: Pick<StreamerRecord, "id" | "displayName" | "profileImageUrl" | "soopId" | "sfx">[],
+  roster: Pick<StreamerRecord, "id" | "displayName" | "profileImageUrl" | "soopId" | "sfx" | "currentDivision">[],
   live: SoopLiveStreamer[],
 ): LiveRosterEntry[] {
   const bySoopId = new Map(
@@ -52,6 +53,7 @@ export function matchLiveStreamers(
       viewerCount: entry.viewerCount,
       thumbnailUrl: entry.thumbnailUrl,
       sfx: streamer.sfx,
+      currentDivision: streamer.currentDivision,
     }];
   });
 }
