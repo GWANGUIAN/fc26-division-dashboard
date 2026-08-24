@@ -374,7 +374,7 @@ body { isolation: isolate; }
 .music-player__playlist button.active strong { color: var(--accent-text); }
 .music-player__playlist strong { overflow: hidden; color: var(--text-primary); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 .music-player__playlist small { color: var(--text-muted); font-size: 10px; }
-@media (max-width: 680px) { .floating-toolbar { right: 12px; bottom: 12px; }.bottom-left-toolbar { left: 12px; bottom: 12px; }.music-player__panel { width: min(320px, calc(100vw - 24px)); }.music-player__toggle-title { flex-basis: 84px; width: 84px; }.sfx-intro { width: min(280px, calc(100vw - 24px)); } }
+@media (max-width: 680px) { .floating-toolbar { right: 12px; bottom: 12px; }.bottom-left-toolbar { left: 12px; bottom: 12px; }.music-player__panel { width: min(320px, calc(100vw - 24px)); }.music-player__toggle-title { flex-basis: 84px; width: 84px; }.sfx-intro { width: min(280px, calc(100vw - 24px)); }.sfx-toggle span { display: none; } }
 
 .division-histogram { position: relative; display: inline-flex; flex: 0 0 auto; }
 .division-histogram__toggle { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 6px 14px; border: 1px solid #a78bfa55; border-radius: 0; color: var(--histogram-text); background: #a78bfa1f; font-weight: 700; font-size: 12px; transition: .2s; }
