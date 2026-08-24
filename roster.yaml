@@ -656,7 +656,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "빵망이의 {n}부 리그 승격을 축하합니다~!!🤤"
-    reviewNote: "배그 실력이 출중함. 성격이 좋고 귀여워서 수은(리그오브레전드의 수은 장식띠에서 나온 말로 분위기를 애교, 웃음 등으로 좋게 환기시키는 역할)력이 높음"
+    reviewNote: "배그 실력이 출중함. 성격이 좋고 귀여워서 수은(리그오브레전드의 수은 장식띠에서 나온 말로 분위기를 애교, 웃음 등으로 좋게 환기시키는 역할)력이 높음. 문모모, 나나문, 플리, 임하밍, 김웰로, 체비와 함께 천타버스(수장: 천양) 크루 소속임"
     sfx: "/sfxes/bingming.mp3"
   - slug: habee511
     displayName: "망야_"
