@@ -94,13 +94,39 @@ export function GeminiReviewSection({
         <>
           <div className="gemini-review__flavor">
             <span className="gemini-review__flavor-tag gemini-review__flavor-tag--mild">
+              <img
+                className="gemini-review__flavor-icon"
+                src="/icons/icon_mild.webp"
+                alt=""
+                aria-hidden="true"
+              />
               순한맛
+              <span
+                className="gemini-review__flavor-tooltip gemini-review__flavor-tooltip--mild"
+                aria-hidden="true"
+              >
+                <span className="gemini-review__flavor-tooltip-emoji gemini-review__flavor-tooltip-emoji--flip">
+                  👍
+                </span>
+              </span>
             </span>
             <AnimatedReviewText text={review.mild} />
           </div>
           <div className="gemini-review__flavor">
             <span className="gemini-review__flavor-tag gemini-review__flavor-tag--spicy">
+              <img
+                className="gemini-review__flavor-icon"
+                src="/icons/icon_spicy.webp"
+                alt=""
+                aria-hidden="true"
+              />
               매운맛
+              <span
+                className="gemini-review__flavor-tooltip gemini-review__flavor-tooltip--spicy"
+                aria-hidden="true"
+              >
+                <span className="gemini-review__flavor-tooltip-emoji">👍</span>
+              </span>
             </span>
             <AnimatedReviewText text={review.spicy} />
           </div>

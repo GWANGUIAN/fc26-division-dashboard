@@ -53,6 +53,15 @@ function JandyVideoCard({ video }: { video: JandyVideo }) {
 const CHAPTER_CLOSE_DELAY_MS = 220;
 const CHAPTER_MENU_GAP = 8;
 
+function formatChapterTime(totalSeconds: number) {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = Math.floor(totalSeconds % 60);
+  return [hours, minutes, seconds]
+    .map((unit) => String(unit).padStart(2, "0"))
+    .join(":");
+}
+
 function JandyChapterVideoCard({ video }: { video: JandyChapterVideo }) {
   const [thumbnailFailed, setThumbnailFailed] = useState(false);
   const [open, setOpen] = useState(false);
@@ -193,7 +202,12 @@ function JandyChapterVideoCard({ video }: { video: JandyChapterVideo }) {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  {chapter.title}
+                  <span className="jandy-video__chapter-title">
+                    {chapter.title}
+                  </span>
+                  <span className="jandy-video__chapter-time">
+                    ({formatChapterTime(chapter.seconds)})
+                  </span>
                 </a>
               </li>
             ))}

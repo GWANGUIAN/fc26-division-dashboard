@@ -51,8 +51,8 @@
   --celebration-text-strong: #fff8d8;
   --gemini-bg-1: #23272a4d;
   --gemini-bg-2: #17191b4d;
-  --flavor-mild-text: #b9f5da;
-  --flavor-spicy-text: #ffb4a8;
+  --flavor-mild-text: #b9d4ff;
+  --flavor-spicy-text: #ffb3ad;
   --histogram-text: #e4d9ff;
   --histogram-text-muted: #9c93ba;
   --histogram-accent: #b9a3ff;
@@ -113,8 +113,8 @@
   --celebration-text-strong: #543a0e;
   --gemini-bg-1: #ffffff;
   --gemini-bg-2: #f4faf7;
-  --flavor-mild-text: #067a56;
-  --flavor-spicy-text: #c23c1f;
+  --flavor-mild-text: #0b4fc4;
+  --flavor-spicy-text: #c81e1e;
   --histogram-text: #3f2b7a;
   --histogram-text-muted: #6a5f92;
   --histogram-accent: #7c4dff;
@@ -241,8 +241,10 @@ body { isolation: isolate; }
 .jandy-video__chapters::-webkit-scrollbar-track { border-left: 1px solid #ffffff0e; background: var(--scrollbar-track); }
 .jandy-video__chapters::-webkit-scrollbar-thumb { border: 2px solid var(--scrollbar-track); border-radius: 999px; background: linear-gradient(#00e9ae, #00a8bd); box-shadow: 0 0 10px #00e9ae70; }
 .jandy-video__chapters::-webkit-scrollbar-thumb:hover { background: #7effda; }
-.jandy-video__chapters li a { display: block; padding: 8px 10px; color: var(--text-primary); font: 600 13px/1.3 "Noto Sans KR"; text-decoration: none; transition: background .15s, color .15s; }
+.jandy-video__chapters li a { display: flex; align-items: baseline; gap: 8px; padding: 8px 10px; color: var(--text-primary); font: 600 13px/1.3 "Noto Sans KR"; text-decoration: none; transition: background .15s, color .15s; }
 .jandy-video__chapters li a:hover, .jandy-video__chapters li a:focus-visible { background: #00e9ae1f; color: var(--accent-text); outline: 0; }
+.jandy-video__chapter-title { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.jandy-video__chapter-time { flex: 0 0 auto; color: var(--accent-text, #00e9ae); font: 700 11px/1 "Roboto Mono", ui-monospace, monospace; opacity: .82; letter-spacing: .02em; }
 @media (max-width: 680px) { .jandy-videos { margin-bottom: 22px; padding: 14px; }.jandy-videos__heading h2 { font-size: 25px; }.jandy-videos__actions { gap: 7px; }.jandy-videos__actions > span { display: none; }.jandy-video__copy { min-height: 50px; } }
 .soop-live { margin: 0 0 30px; padding: 18px; border: 1px solid #00e9ae38; background: linear-gradient(112deg, var(--jandy-bg-1), var(--jandy-bg-2) 58%, var(--jandy-bg-3)); box-shadow: inset 0 1px var(--fill-faint), 0 14px 42px #001f161f; }
 .soop-live__heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 15px; }.soop-live__heading .eyebrow { margin-bottom: 6px; }.soop-live__heading h2 { display: inline-flex; align-items: center; gap: 11px; color: var(--text-primary); font: 800 italic 28px/.95 "Barlow Condensed", "Noto Sans KR"; letter-spacing: -.02em; }
@@ -664,7 +666,17 @@ body { isolation: isolate; }
 
 .gemini-review { position: relative; z-index: 0; margin-top: 20px; padding: 16px 18px 18px; overflow: hidden; border: 1px solid var(--border-strong); border-radius: 10px; background: radial-gradient(circle at 16% -12%, #ffffff0d, transparent 55%), linear-gradient(155deg, var(--gemini-bg-1), var(--gemini-bg-2) 68%); box-shadow: inset 0 1px #ffffff0c, 0 16px 34px -14px rgba(var(--shadow-color), .63); }.gemini-review::after { content: ""; position: absolute; z-index: -1; top: -45%; right: -12%; width: 55%; height: 130%; background: radial-gradient(circle, var(--border-faint), transparent 72%); pointer-events: none; }.announcement-icon-badge--gemini { width: 20px; height: 20px; margin-right: 0; border: none; background: none; }.announcement-icon-badge--gemini img { width: 15px; height: 15px; }.gemini-review__header { display: flex; align-items: center; gap: 3px; padding-bottom: 10px; border-bottom: 1px dashed #00e9ae30; }.gemini-review__logo { width: 20px; height: 20px; flex: 0 0 20px; padding: 3px; }.gemini-review__header h3 { margin: 0; color: var(--text-primary); font: 800 15px "Barlow Condensed", "Noto Sans KR"; letter-spacing: .01em; }.gemini-review__badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border: 1px solid #ffbb444f; border-radius: 999px; color: #ffe1a2; background: #4a330d45; font-size: 10px; font-weight: 700; }.gemini-review__note { margin: 8px 0 0; color: var(--text-secondary); font-size: 12px; line-height: 1.5; }.gemini-review__text { margin: 10px 0 0; color: var(--text-primary); font-size: 13.5px; line-height: 1.65; }.gemini-review__cursor { display: inline-block; width: 2px; height: 13px; margin-left: 2px; background: #00e9ae; vertical-align: -2px; animation: gemini-review-blink .9s steps(1) infinite; }
 @keyframes gemini-review-blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
-.gemini-review__flavor { position: relative; margin-top: 12px; padding: 11px 13px; border: 1px solid var(--border-faint); border-radius: 8px; background: var(--fill-faint); }.gemini-review__flavor:first-of-type { margin-top: 14px; }.gemini-review__flavor:has(.gemini-review__flavor-tag--mild) { border-color: #00e9ae2e; background: linear-gradient(135deg, #00e9ae14, #00e9ae05); }.gemini-review__flavor:has(.gemini-review__flavor-tag--spicy) { border-color: #ff5f432e; background: linear-gradient(135deg, #ff5f4314, #ff5f4305); }.gemini-review__flavor .gemini-review__text { margin-top: 6px; }.gemini-review__flavor-tag { display: inline-block; padding: 2px 9px; border-radius: 999px; font: 800 11px "Barlow Condensed", "Noto Sans KR"; letter-spacing: .02em; }.gemini-review__flavor-tag--mild { color: var(--flavor-mild-text); border: 1px solid #00e9ae40; background: #00e9ae22; }.gemini-review__flavor-tag--spicy { color: var(--flavor-spicy-text); border: 1px solid #ff5f4340; background: #ff5f4322; }
+.gemini-review__flavor { position: relative; margin-top: 12px; padding: 11px 13px; border: 1px solid var(--border-faint); border-radius: 8px; background: var(--fill-faint); }.gemini-review__flavor:first-of-type { margin-top: 14px; }.gemini-review__flavor:has(.gemini-review__flavor-tag--mild) { border-color: #2f6fed2e; background: linear-gradient(135deg, #2f6fed17, #2f6fed05); }.gemini-review__flavor:has(.gemini-review__flavor-tag--spicy) { border-color: #ff3b3b2e; background: linear-gradient(135deg, #ff3b3b17, #ff3b3b05); }.gemini-review__flavor .gemini-review__text { margin-top: 6px; }.gemini-review__flavor-tag { position: relative; display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 999px; font: 800 11px "Barlow Condensed", "Noto Sans KR"; letter-spacing: .02em; }.gemini-review__flavor-tag--mild { color: var(--flavor-mild-text); border: 1px solid #2f6fed45; background: #2f6fed24; }.gemini-review__flavor-tag--spicy { color: var(--flavor-spicy-text); border: 1px solid #ff3b3b45; background: #ff3b3b24; }
+.gemini-review__flavor-icon { width: 18px; height: 18px; flex: 0 0 auto; object-fit: contain; border-radius: 2px; }
+.gemini-review__flavor-tooltip { position: absolute; z-index: 5; left: 50%; padding: 4px 9px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface-elevated); font-size: 16px; line-height: 1; opacity: 0; pointer-events: none; box-shadow: 0 8px 18px rgba(var(--shadow-color), .4); transition: opacity .16s ease, transform .16s ease; }
+.gemini-review__flavor-tag:hover .gemini-review__flavor-tooltip { opacity: 1; }
+.gemini-review__flavor-tooltip--spicy { bottom: calc(100% + 9px); transform: translateX(-50%) translateY(6px) scale(.85); }
+.gemini-review__flavor-tag:hover .gemini-review__flavor-tooltip--spicy { transform: translateX(-50%) translateY(0) scale(1); }
+.gemini-review__flavor-tooltip--spicy::after { content: ""; position: absolute; top: 100%; left: 50%; border: 5px solid transparent; border-top-color: var(--surface-elevated); transform: translateX(-50%); }
+.gemini-review__flavor-tooltip--mild { top: calc(100% + 9px); transform: translateX(-50%) translateY(-6px) scale(.85); }
+.gemini-review__flavor-tag:hover .gemini-review__flavor-tooltip--mild { transform: translateX(-50%) translateY(0) scale(1); }
+.gemini-review__flavor-tooltip--mild::after { content: ""; position: absolute; bottom: 100%; left: 50%; border: 5px solid transparent; border-bottom-color: var(--surface-elevated); transform: translateX(-50%); }
+.gemini-review__flavor-tooltip-emoji--flip { display: inline-block; transform: rotate(180deg); }
 .gemini-review__warning { display: flex; align-items: flex-start; gap: 10px; margin-top: 10px; padding: 10px 12px; border: 1px solid #ffbb444f; border-radius: 8px; background: #4a330d45; }
 .gemini-review__warning-icon { flex: 0 0 15px; width: 15px; height: 15px; margin-top: 2px; }
 .gemini-review__warning-text { margin: 0; color: #ffe1a2; font-size: 12px; line-height: 1.5; }
