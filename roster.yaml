@@ -255,6 +255,7 @@ streamers:
       division: null
       policy: auto
     sfx: "/sfxes/paggang.mp3"
+    deleted: true
   - slug: kaksjak0730
     displayName: 한결___
     cafeAliases: ["한결8008"]
@@ -413,6 +414,7 @@ streamers:
     override:
       division: null
       policy: auto
+    deleted: true
   - slug: owozzz
     displayName: "샤르망"
     cafeAliases: ["샤르망owo"]
@@ -422,6 +424,7 @@ streamers:
       division: null
       policy: auto
     celebrationMessage: "맹주님의 {n}부 리그 승격을 축하합니다~!!"
+    deleted: true
   - slug: tndk321
     displayName: "단수아"
     cafeAliases: ["단수아"]
@@ -493,6 +496,7 @@ streamers:
     celebrationMessage: "단단묵직 센터백 뮤즈의 {n}부 리그 승격을 축하합니다~!!⚽"
     reviewNote: "자칭 단단묵직 센터백임"
     sfx: "/sfxes/muse.mp3"
+    deleted: true
   - slug: tjdgk31470
     displayName: "성여올"
     cafeAliases: ["성여올"]
@@ -569,6 +573,7 @@ streamers:
       division: null
       policy: auto
     sfx: "/sfxes/haeparin.mp3"
+    deleted: true
   - slug: krtl6798
     displayName: "(타)마고"
     cafeAliases: ["(타)마고"]
