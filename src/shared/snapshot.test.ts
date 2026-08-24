@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildDashboardSnapshot } from "./snapshot.js";
-import type { PromotionPost, RosterEntry, StreamerRecord } from "./model.js";
+import type { PromotionPost, RosterEntry, StreamerActivityPost, StreamerRecord } from "./model.js";
 
 const roster: RosterEntry[] = [{ slug: "candidate", displayName: "후보", cafeAliases: ["후 보"], autoUpdate: true }];
 const streamers: StreamerRecord[] = [{
@@ -47,5 +47,22 @@ describe("dashboard snapshot", () => {
 
     expect(snapshot.streamers).toEqual([]);
     expect(snapshot.latestPosts).toEqual([]);
+  });
+
+  it("collects promo posts from both scope categories and all elevenVsEleven posts, regardless of roster mapping", () => {
+    const activityPosts: StreamerActivityPost[] = [
+      { articleId: "s1", board: "scope", cafeAuthor: "후 보", title: "직접 홍보글", category: "[내가 직접 홍보]", publishedAt: "2026-08-15T12:00:00+09:00", articleUrl: "https://example.test/s1" },
+      { articleId: "s2", board: "scope", cafeAuthor: "미연결", title: "응원 버튜버 홍보글", category: "[응원버튜버홍보]", publishedAt: "2026-08-16T12:00:00+09:00", articleUrl: "https://example.test/s2" },
+      { articleId: "s3", board: "scope", cafeAuthor: "후 보", title: "잡담", category: "[잡담]", publishedAt: "2026-08-16T13:00:00+09:00", articleUrl: "https://example.test/s3" },
+      { articleId: "e1", board: "elevenVsEleven", cafeAuthor: "미연결", title: "11대11 영상", category: "", publishedAt: "2026-08-14T12:00:00+09:00", articleUrl: "https://example.test/e1" },
+    ];
+    const snapshot = buildDashboardSnapshot({
+      state: { status: "ok", updatedAt: "2026-08-16T12:00:00+09:00" },
+      streamers, posts: [], applications: [], roster,
+      results: { opponent: { displayName: "우왁굳", soopId: "ecvhao" }, results: [] },
+      activityPosts,
+    });
+
+    expect(snapshot.promoPosts.map((item) => item.articleId)).toEqual(["s2", "s1", "e1"]);
   });
 });

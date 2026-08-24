@@ -10,7 +10,7 @@ import type {
 } from "./model.js";
 import { buildOneVsOneApplications } from "./one-vs-one.js";
 import { buildStreamerRecords, matchRosterEntry } from "./promotion.js";
-import { attachStreamerActivityPosts } from "./streamer-activity.js";
+import { attachStreamerActivityPosts, isDirectPromotionPost } from "./streamer-activity.js";
 
 export interface SnapshotState {
   status: "ok" | "degraded";
@@ -52,5 +52,10 @@ export function buildDashboardSnapshot(input: SnapshotInput): DashboardSnapshot 
       .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
       .slice(0, 50),
     oneVsOneApplications: buildOneVsOneApplications(applications, roster, results),
+    // Unlike attachStreamerActivityPosts, this is not restricted to roster-matched
+    // authors — the promo post picker draws from every qualifying post.
+    promoPosts: activityPosts
+      .filter((post) => post.board === "elevenVsEleven" || isDirectPromotionPost(post))
+      .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)),
   };
 }

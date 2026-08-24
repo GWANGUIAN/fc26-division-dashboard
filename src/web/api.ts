@@ -12,6 +12,11 @@ const demo: DashboardSnapshot = {
   oneVsOneApplications: [
     { id: "application:mir", articleId: "21951534", cafeAuthor: "MIR미르", displayName: "MIR미르", cafeAliases: ["MIR미르"], title: "왁굳님, 저의 희망을 밟아주세요", category: "[1대1 평가 신청]", publishedAt: "2026-08-14T20:00:00+09:00", articleUrl: "https://cafe.naver.com/f-e/cafes/27842958/articles/21951534?menuid=1361", isMapped: false },
   ],
+  promoPosts: [
+    { articleId: "21960001", board: "scope", cafeAuthor: "문 모모", title: "문모모 방송 놀러오세요! 오늘도 열심히 합니다", category: "[내가 직접 홍보]", publishedAt: "2026-08-17T09:00:00+09:00", articleUrl: "https://cafe.naver.com/f-e/cafes/27842958/articles/21960001?menuid=1358" },
+    { articleId: "21960002", board: "scope", cafeAuthor: "찌 미", title: "제가 응원하는 버튜버 소개합니다", category: "[응원버튜버홍보]", publishedAt: "2026-08-17T10:30:00+09:00", articleUrl: "https://cafe.naver.com/f-e/cafes/27842958/articles/21960002?menuid=1358" },
+    { articleId: "21960003", board: "elevenVsEleven", cafeAuthor: "마이곰이", title: "11대11 하이라이트 모음.mp4", category: "", publishedAt: "2026-08-17T12:00:00+09:00", articleUrl: "https://cafe.naver.com/f-e/cafes/27842958/articles/21960003?menuid=1360" },
+  ],
 };
 
 export async function loadSnapshot(): Promise<DashboardSnapshot> {

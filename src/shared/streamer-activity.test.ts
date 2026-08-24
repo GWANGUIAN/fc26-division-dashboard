@@ -17,9 +17,11 @@ const scopePost: StreamerActivityPost = {
 };
 
 describe("streamer activity", () => {
-  it("accepts only the direct-promotion scope category", () => {
+  it("accepts both direct-promotion scope categories and rejects unrelated ones", () => {
     expect(isDirectPromotionPost(scopePost)).toBe(true);
-    expect(isDirectPromotionPost({ category: "[응원 버튜버 홍보]" })).toBe(false);
+    expect(isDirectPromotionPost({ category: "[응원 버튜버 홍보]" })).toBe(true);
+    expect(isDirectPromotionPost({ category: "[응원버튜버홍보]" })).toBe(true);
+    expect(isDirectPromotionPost({ category: "[잡담]" })).toBe(false);
   });
 
   it("maps alias-matched posts, sorts them newest-first, and omits unmapped authors", () => {

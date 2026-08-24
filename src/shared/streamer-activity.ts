@@ -2,9 +2,10 @@ import type { RosterEntry, StreamerActivityPost, StreamerRecord } from "./model.
 import { matchRosterEntry } from "./promotion.js";
 
 const directPromotionCategory = /^\s*\[\s*내가\s*직접\s*홍보\s*\]\s*$/u;
+const cheerVtuberPromotionCategory = /^\s*\[\s*응원\s*버튜버\s*홍보\s*\]\s*$/u;
 
 export function isDirectPromotionPost(post: Pick<StreamerActivityPost, "category">): boolean {
-  return directPromotionCategory.test(post.category);
+  return directPromotionCategory.test(post.category) || cheerVtuberPromotionCategory.test(post.category);
 }
 
 export function attachStreamerActivityPosts(

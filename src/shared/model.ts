@@ -145,6 +145,8 @@ export interface DashboardSnapshot {
   streamers: StreamerRecord[];
   latestPosts: PromotionPost[];
   oneVsOneApplications: OneVsOneApplicationView[];
+  /** All 잔디동 스코프 (both promo categories) + 11대11 posts, unfiltered by roster mapping — feeds the promo post random picker. */
+  promoPosts: StreamerActivityPost[];
 }
 
 export const CAFE = {
