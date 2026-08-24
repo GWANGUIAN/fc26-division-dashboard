@@ -455,6 +455,7 @@ body { isolation: isolate; }
 .division-summary__item--unreported { border-bottom-color: #ffbb4470; } .division-summary__item--unreported svg { color: #ffbb44; } .division-summary__item--unreported strong { color: #ffcf7a; }
 .division-summary__stats--pass { padding-left: 18px; border-left: 1px solid var(--border-default); }
 .division-summary__stats--pass .division-summary__item:first-child { padding-left: 20px; }
+.division-summary__item--pass5 { border-bottom-color: #41f7c670; } .division-summary__item--pass5 svg { color: #41f7c6; } .division-summary__item--pass5 strong { color: #bdfeed; }
 .division-summary__item--pass6 { border-bottom-color: #00e9ae70; } .division-summary__item--pass6 svg { color: var(--accent-text); } .division-summary__item--pass6 strong { color: #baffef; }
 .division-summary__item--pass7 { border-bottom-color: #ffcf7a70; } .division-summary__item--pass7 svg { color: #ffcf7a; } .division-summary__item--pass7 strong { color: #ffe3b0; }
 @media (max-width: 680px) { .division-summary__item { padding: 0 12px; } .division-summary__item:first-child { padding-left: 0; } .division-summary__item strong { font-size: 17px; } .division-summary__stats--pass { padding-left: 12px; } .division-summary__stats--pass .division-summary__item:first-child { padding-left: 12px; } }
@@ -650,8 +651,6 @@ body { isolation: isolate; }
 .streamer-card.savior-border, .modal.savior-border { border-width: 2px; }
 .savior-border::before { content: ""; position: absolute; z-index: 2; inset: 0; border-radius: inherit; padding: 2px; background: linear-gradient(155deg, var(--savior-color), var(--savior-glow-soft) 45%, var(--savior-color)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; pointer-events: none; animation: savior-border-breathe 3.4s ease-in-out infinite; }
 @keyframes savior-border-breathe { 0%, 100% { opacity: .4; filter: drop-shadow(0 0 2px var(--savior-color)); } 50% { opacity: .75; filter: drop-shadow(0 0 7px var(--savior-color)) drop-shadow(0 0 12px var(--savior-glow-soft)); } }
-.streamer-card.savior-border { animation: savior-card-glow 3.4s ease-in-out infinite; }
-@keyframes savior-card-glow { 0%, 100% { box-shadow: 0 0 4px var(--savior-glow-soft), 0 8px 22px rgba(var(--shadow-color), .4); } 50% { box-shadow: 0 0 9px var(--savior-glow-strong), 0 9px 26px rgba(var(--shadow-color), .48); } }
 /* fifa-card is shield-shaped (see FifaShield's SVG path), so its glow traces the shield outline (crisp stroke) and casts a shadow that follows that same silhouette via filter:drop-shadow — a plain box-shadow would come out as a rectangle behind the shield's curved edges. */
 .fifa-card__shield-glow { fill: none; stroke: var(--savior-color); stroke-width: 3.5; pointer-events: none; animation: savior-shield-glow 3.4s ease-in-out infinite; }
 @keyframes savior-shield-glow { 0%, 100% { opacity: .4; filter: drop-shadow(0 0 2px var(--savior-color)); } 50% { opacity: .75; filter: drop-shadow(0 0 6px var(--savior-color)) drop-shadow(0 0 12px var(--savior-glow-soft)); } }
