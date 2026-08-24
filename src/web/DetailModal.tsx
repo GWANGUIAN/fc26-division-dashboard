@@ -4,6 +4,7 @@ import type { PromotionPost, StreamerRecord } from "../shared/model.js";
 import { soopChannelUrl } from "../shared/model.js";
 import { normalizeCafeAlias } from "../shared/promotion.js";
 import { formatCafePostDate } from "../shared/dates.js";
+import { winRatePercent } from "../shared/record-extraction.js";
 import { divisionColor } from "../shared/division-theme.js";
 import type { TrophyAwards } from "../shared/trophy.js";
 import {
@@ -51,6 +52,7 @@ export function DetailModal({
   const normalizedAliases = new Set(
     streamer.cafeAliases.map(normalizeCafeAlias),
   );
+  const winRate = streamer.record ? winRatePercent(streamer.record) : undefined;
   const allPosts = [
     ...(streamer.promotionHistory ?? []),
     ...latestPosts.filter(
@@ -140,6 +142,11 @@ export function DetailModal({
             </h2>
             <span className="modal__record-row">
               <RecordBadge streamer={streamer} className="record-badge--lg" />
+              {winRate !== undefined && (
+                <span className="record-badge__rate">
+                  ({winRate.toFixed(1)}%)
+                </span>
+              )}
               {streamer.sfx && (
                 <button
                   type="button"

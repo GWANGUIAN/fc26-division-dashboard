@@ -41,6 +41,7 @@ export function StreamerCard({
   const lite = tier === "lite";
   const fancyColor = lite ? mixHex("#00e9ae", "white", 0.65) : "#00e9ae";
   const savior = isStreamerSavior(streamer);
+  const rate = streamer.record ? winRatePercent(streamer.record) : undefined;
   return (
     <button
       className={`streamer-card ${isNew ? "streamer-card--new" : ""} ${tier !== "none" ? "fancy-border" : ""} ${lite ? "fancy-border--lite" : ""} ${savior ? "savior-border" : ""}`}
@@ -90,7 +91,12 @@ export function StreamerCard({
             onClick={onOpenTrophy}
           />
         </span>
-        <RecordBadge streamer={streamer} />
+        <span className="streamer-card__record-row">
+          <RecordBadge streamer={streamer} />
+          {rate !== undefined && (
+            <span className="record-badge__rate">({rate.toFixed(1)}%)</span>
+          )}
+        </span>
         <small>
           {streamer.lastPost
             ? formatBoardPostDate(streamer.lastPost.publishedAt)

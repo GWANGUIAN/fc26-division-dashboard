@@ -405,8 +405,12 @@ body { isolation: isolate; }
 .record-badge__l { color: #ff5c5c; }
 .record-badge--empty, .record-badge--pending { color: #6c7f76; }
 .record-badge--lg { display: inline-block; font-size: 17px; }
+.record-badge__rate { margin-left: 4px; color: var(--text-secondary); font: 300 11px "Barlow Condensed"; letter-spacing: .01em; }
+.modal__record-row .record-badge__rate { font-size: 13px; }
+.streamer-card__record-row { display: flex; align-items: baseline; gap: 0; }
 .streamer-card__copy .record-badge { font-size: 11px; }
 .streamer-card__copy .record-badge__w, .streamer-card__copy .record-badge__d, .streamer-card__copy .record-badge__l { font-size: 13px; font-weight: 500; }
+.streamer-card__copy .record-badge__rate { font-size: 10px; }
 
 .view-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
 .view-toolbar .segmented button { display: inline-flex; align-items: center; justify-content: center; }
