@@ -48,7 +48,8 @@ import { BrightnessGag } from "./BrightnessGag";
 import { SquadBuilderOverlay } from "./squad-builder/SquadBuilderOverlay";
 
 export function App() {
-  const snapshot = useDashboardSnapshot();
+  const { snapshot, loading: snapshotLoading, refresh: refreshSnapshot } =
+    useDashboardSnapshot();
   const [view, setView] = useState<"division" | "evaluation">("division");
   const [selected, setSelected] = useState<StreamerRecord>();
   const [selectedApplication, setSelectedApplication] =
@@ -120,10 +121,15 @@ export function App() {
     if (celebrationSlides.length === 0) {
       return [{ key: "iro-celebration", message: iroMessage }];
     }
-    return celebrationSlides.flatMap((slide, index) => [
-      { key: `iro-celebration-${index}`, message: iroMessage },
-      slide,
-    ]);
+    const result: typeof celebrationSlides = [];
+    let iroCount = 0;
+    celebrationSlides.forEach((slide, index) => {
+      if (index % 2 === 0) {
+        result.push({ key: `iro-celebration-${iroCount++}`, message: iroMessage });
+      }
+      result.push(slide);
+    });
+    return result;
   }, [celebrationSlides]);
 
   async function handleCopyDivisionList() {
@@ -206,11 +212,14 @@ export function App() {
             handleGrowthGraphOpen();
             setGrowthGraphOpen(true);
           }}
+          onRefresh={refreshSnapshot}
+          refreshing={snapshotLoading}
         />
       )}
       {isDivision ? (
         <DivisionResults
           viewMode={viewMode}
+          loading={snapshotLoading}
           streamers={streamers}
           cardStreamers={cardStreamers}
           trophyAwards={trophyAwards}

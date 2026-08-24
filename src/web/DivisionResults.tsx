@@ -7,6 +7,11 @@ import { divisions } from "./appHelpers";
 import { CardBoard, StreamerCard } from "./StreamerCards";
 import { StreamerTable } from "./StreamerTable";
 import {
+  CardResultsSkeleton,
+  ListResultsSkeleton,
+  TableResultsSkeleton,
+} from "./ResultsSkeleton";
+import {
   isUpdatedToday,
   loadDivision10Collapsed,
   saveDivision10Collapsed,
@@ -15,6 +20,7 @@ import {
 
 export function DivisionResults({
   viewMode,
+  loading,
   streamers,
   cardStreamers,
   trophyAwards,
@@ -31,6 +37,7 @@ export function DivisionResults({
   liveStreamerIds,
 }: {
   viewMode: "list" | "table" | "card";
+  loading?: boolean;
   streamers: StreamerRecord[];
   cardStreamers: StreamerRecord[];
   trophyAwards: TrophyAwards;
@@ -59,6 +66,21 @@ export function DivisionResults({
   // hideEmptyDivisions is only ever set while a search query is active, so it
   // doubles as the "search in progress" signal here.
   const isSearching = Boolean(hideEmptyDivisions);
+
+  if (loading) {
+    return (
+      <div className="results-wrap">
+        {viewMode === "list" ? (
+          <ListResultsSkeleton />
+        ) : viewMode === "table" ? (
+          <TableResultsSkeleton />
+        ) : (
+          <CardResultsSkeleton zoom={cardZoom} />
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="results-wrap">
       {viewMode === "list" ? (

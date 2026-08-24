@@ -1020,3 +1020,37 @@ body { isolation: isolate; }
 @media (max-width: 680px) {
   .streamer-table__th, .streamer-table__row td { padding: 9px 10px; }
 }
+
+.view-toolbar__refresh { display: grid; flex: 0 0 auto; width: 33px; height: 33px; place-items: center; border: 1px solid var(--border-strong); border-radius: 3px; color: var(--text-secondary); background: var(--fill-faint); transition: .2s; }
+.view-toolbar__refresh:hover, .view-toolbar__refresh:focus-visible { border-color: var(--accent-border); color: var(--accent-text); background: #00e9ae18; outline: 0; }
+.view-toolbar__refresh:disabled { cursor: not-allowed; opacity: .65; }
+.view-toolbar__refresh svg { width: 15px; height: 15px; stroke-width: 2.6; }
+.view-toolbar__refresh-icon--spinning { animation: view-toolbar-refresh-spin .7s linear infinite; }
+@keyframes view-toolbar-refresh-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .view-toolbar__refresh-icon--spinning { animation: none; } }
+
+.skeleton-shimmer { background: linear-gradient(90deg, var(--surface-1-alt) 25%, var(--fill-faint) 50%, var(--surface-1-alt) 75%); background-size: 200% 100%; animation: skeleton-shimmer 1.5s ease-in-out infinite; }
+@keyframes skeleton-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .skeleton-shimmer { animation: none; } }
+.skeleton-bar { display: block; height: 10px; border-radius: 2px; }
+.skeleton-circle { border-radius: 50%; }
+.skeleton-bar--name { width: 62%; height: 12px; }
+.skeleton-bar--record { width: 44%; }
+.skeleton-bar--date { width: 34%; height: 9px; }
+.skeleton-bar--rank { width: 30px; height: 20px; margin-left: auto; }
+.skeleton-bar--label { width: 60px; height: 9px; }
+.skeleton-bar--number { width: 40px; height: 30px; margin-top: 6px; }
+.skeleton-bar--num { width: 70%; margin-left: auto; }
+
+.division--skeleton { border-color: var(--border-default); }
+.division--skeleton .division__label { gap: 2px; }
+.streamer-card--skeleton { cursor: default; }
+.streamer-card--skeleton:hover { transform: none; border-color: var(--border-default); background: var(--surface-1); box-shadow: none; }
+.streamer-card--skeleton .streamer-card__avatar { flex: 0 0 42px; width: 42px; height: 42px; }
+.streamer-card--skeleton .streamer-card__copy { display: grid; gap: 6px; }
+
+.streamer-table--skeleton .streamer-table__row { cursor: default; }
+.streamer-table--skeleton .streamer-table__row:hover { background: transparent; }
+.streamer-table--skeleton .skeleton-bar { max-width: 90%; }
+
+.card-board--skeleton .fifa-card--skeleton { display: block; width: 100%; aspect-ratio: 300 / 450; border-radius: 4px; cursor: default; }

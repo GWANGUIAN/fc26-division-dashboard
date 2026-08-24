@@ -1,4 +1,4 @@
-import { CheckCircle2, CirclePile, Clock, List, Minus, Plus, Rows3, Shield, TrendingUp, Users } from "lucide-react";
+import { CheckCircle2, CirclePile, Clock, List, Minus, Plus, RefreshCw, Rows3, Shield, TrendingUp, Users } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
 import { hexToRgba } from "./cardVisuals";
 import { DivisionHistogram } from "./DivisionHistogram";
@@ -19,6 +19,8 @@ export function ViewToolbar({
   onSortModeChange,
   onSquadBuilderOpen,
   onGrowthGraphOpen,
+  onRefresh,
+  refreshing,
 }: {
   divisionStats: {
     total: number;
@@ -41,6 +43,8 @@ export function ViewToolbar({
   onSortModeChange: (mode: "division" | "winRate") => void;
   onSquadBuilderOpen: () => void;
   onGrowthGraphOpen: () => void;
+  onRefresh: () => void;
+  refreshing: boolean;
 }) {
   return (
     <section className="view-toolbar" aria-label="보기 설정">
@@ -251,6 +255,19 @@ export function ViewToolbar({
             )}
           </button>
         </div>
+        <button
+          type="button"
+          className="view-toolbar__refresh"
+          onClick={onRefresh}
+          disabled={refreshing}
+          aria-label="새로고침"
+          title="새로고침"
+        >
+          <RefreshCw
+            aria-hidden="true"
+            className={refreshing ? "view-toolbar__refresh-icon--spinning" : ""}
+          />
+        </button>
       </div>
     </section>
   );
