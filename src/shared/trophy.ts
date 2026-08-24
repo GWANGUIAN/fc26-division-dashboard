@@ -39,6 +39,13 @@ export type RetentionTrophy = {
   days: number;
 };
 
+export type LatecomerTrophy = {
+  streamer: StreamerRecord;
+  publishedAt: string;
+  division: number;
+  currentDivision: number;
+};
+
 export type TrophyAwards = {
   dailyPromotion: DailyPromotionTrophy[];
   divisionOne: DivisionOneTrophy[];
@@ -46,10 +53,11 @@ export type TrophyAwards = {
   mostMatches: MostMatchesTrophy[];
   bestWinRate: BestWinRateTrophy[];
   retention: RetentionTrophy[];
+  latecomer: LatecomerTrophy[];
 };
 
 export type TrophyBadge = {
-  key: "daily-promotion" | "division-one" | "self-promotion" | "most-matches" | "best-win-rate" | "retention";
+  key: "daily-promotion" | "division-one" | "self-promotion" | "most-matches" | "best-win-rate" | "retention" | "latecomer";
   name: string;
   emoji: string;
 };
@@ -154,6 +162,17 @@ export function buildTrophyAwards(streamers: StreamerRecord[]): TrophyAwards {
   });
   const longestRetention = Math.max(-1, ...retentionRecords.map((record) => record.days));
 
+  const latecomerRecords = streamers.flatMap((streamer) => {
+    const first = promotionPostsFor(streamer)[0];
+    return first
+      ? [{ streamer, publishedAt: first.publishedAt, division: first.division, currentDivision: streamer.currentDivision }]
+      : [];
+  });
+  const latestPublishedAt = latecomerRecords.reduce<string | undefined>(
+    (latest, record) => (latest === undefined || record.publishedAt > latest ? record.publishedAt : latest),
+    undefined,
+  );
+
   return {
     dailyPromotion: bestDailySteps > 0 ? dailyRecords.filter((record) => record.steps === bestDailySteps) : [],
     divisionOne: divisionOneCandidates,
@@ -161,6 +180,9 @@ export function buildTrophyAwards(streamers: StreamerRecord[]): TrophyAwards {
     mostMatches: mostGames > 0 ? matchRecords.filter((record) => record.totalGames === mostGames) : [],
     bestWinRate: bestRate >= 0 ? winRateRecords.filter((record) => record.winRate === bestRate) : [],
     retention: longestRetention >= 0 ? retentionRecords.filter((record) => record.days === longestRetention) : [],
+    latecomer: latestPublishedAt !== undefined
+      ? latecomerRecords.filter((record) => record.publishedAt === latestPublishedAt)
+      : [],
   };
 }
 
@@ -173,5 +195,6 @@ export function trophyBadgesFor(streamer: StreamerRecord, awards: TrophyAwards):
   if (awards.dailyPromotion.some((award) => award.streamer.id === streamer.id)) badges.push({ key: "daily-promotion", name: "하루 급성장", emoji: "🚀" });
   if (awards.selfPromotion.some((award) => award.streamer.id === streamer.id)) badges.push({ key: "self-promotion", name: "자기 PR 왕", emoji: "📣" });
   if (awards.retention.some((award) => award.streamer.id === streamer.id)) badges.push({ key: "retention", name: "잔류왕", emoji: "🛏️" });
+  if (awards.latecomer.some((award) => award.streamer.id === streamer.id)) badges.push({ key: "latecomer", name: "지각왕", emoji: "⏰" });
   return badges;
 }

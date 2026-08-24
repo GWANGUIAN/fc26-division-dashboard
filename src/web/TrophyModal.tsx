@@ -4,7 +4,7 @@ import type { StreamerRecord } from "../shared/model.js";
 import { formatCafePostDate } from "../shared/dates.js";
 import { DIVISION_ONE_EMOJI, type TrophyAwards } from "../shared/trophy.js";
 import { Avatar } from "./cardVisuals";
-import { formatTimelineDate } from "./formatters";
+import { formatDateTime, formatTimelineDate } from "./formatters";
 import { Modal, useEscape } from "./Modal";
 
 function TrophyHelp({ children }: { children: ReactNode }) {
@@ -294,6 +294,44 @@ export function TrophyModal({
           ) : (
             <p className="trophy-award__empty">
               아직 집계된 잔류 기록이 없습니다.
+            </p>
+          )}
+        </section>
+        <section className="trophy-award trophy-award--latecomer">
+          <div className="trophy-award__heading">
+            <span className="trophy-award__icon" aria-hidden="true">
+              ⏰
+            </span>
+            <div>
+              <h3>
+                지각왕{" "}
+                <TrophyHelp>
+                  승격 보고 게시글을 1개 이상 올린 스트리머 중, 첫 승격 보고를
+                  가장 늦게 올린 스트리머를 표시합니다. 동률자는 함께
+                  표시합니다.
+                </TrophyHelp>
+              </h3>
+              <p>첫 승격 보고를 가장 늦게 올린 스트리머</p>
+            </div>
+          </div>
+          {awards.latecomer.length ? (
+            <div className="trophy-award__winners">
+              {awards.latecomer.map((award) => (
+                <article className="trophy-record" key={award.streamer.id}>
+                  <TrophyWinner streamer={award.streamer} />
+                  <div className="trophy-record__metric">
+                    <strong>{formatDateTime(award.publishedAt)}</strong>
+                    <span>
+                      첫 승격 보고 {award.division}부 · 현재{" "}
+                      {award.currentDivision}부
+                    </span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="trophy-award__empty">
+              아직 집계된 승격 보고가 없습니다.
             </p>
           )}
         </section>
