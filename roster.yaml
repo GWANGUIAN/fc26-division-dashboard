@@ -573,7 +573,6 @@ streamers:
       division: null
       policy: auto
     sfx: "/sfxes/haeparin.mp3"
-    deleted: true
   - slug: krtl6798
     displayName: "(타)마고"
     cafeAliases: ["(타)마고"]
