@@ -52,18 +52,18 @@ export function StreamerCard({
     >
       <span className="streamer-card__avatar">
         <FancyAvatar streamer={streamer} />
+        {isLive && (
+          <span
+            className="live-ring"
+            role="img"
+            aria-label={`${streamer.displayName} 방송중`}
+            title="현재 방송중"
+          />
+        )}
         {streamer.sfx && (
           <Volume2 className="streamer-card__sfx-badge" aria-hidden="true" />
         )}
       </span>
-      {isLive && (
-        <span
-          className="live-badge streamer-card__live-badge"
-          role="img"
-          aria-label={`${streamer.displayName} 방송중`}
-          title="현재 방송중"
-        />
-      )}
       <span className="streamer-card__copy">
         <span className="streamer-card__name">
           <FancyName streamer={streamer} tag="strong">

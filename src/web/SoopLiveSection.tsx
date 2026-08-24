@@ -53,11 +53,14 @@ function SoopLiveCard({ entry }: { entry: LiveRosterEntry }) {
         </span>
       </span>
       <span className="soop-live-card__meta">
-        <Avatar
-          profileImageUrl={entry.profileImageUrl}
-          soopId={entry.soopId}
-          displayName={entry.displayName}
-        />
+        <span className="soop-live-card__avatar">
+          <Avatar
+            profileImageUrl={entry.profileImageUrl}
+            soopId={entry.soopId}
+            displayName={entry.displayName}
+          />
+          <span className="live-ring" aria-hidden="true" />
+        </span>
         <span className="soop-live-card__copy">
           <strong>{entry.displayName}</strong>
           <small>{entry.title}</small>
@@ -93,24 +96,33 @@ export function SoopLiveSection({ soopLive }: { soopLive: SoopLiveState }) {
             FC26 <span className="soop-live__title-sub">카테고리</span> LIVE
             <span className="soop-live__live-dot" aria-hidden="true" />
             {hasLiveStreamers && (
-              <span className="soop-live__count">{entries.length}명 방송중</span>
+              <span className="soop-live__count">
+                {entries.length}명 방송중
+              </span>
             )}
           </h2>
           <p className="soop-live__hint">
-            현재 FC26 카테고리에서 방송 중인 스트리머는 목록 보기와 상세 정보에서{" "}
-            <span className="soop-live__hint-dot" aria-hidden="true" />
-            으로 표시됩니다.
+            현재 FC26 카테고리에서 방송 중인 스트리머는 프로필 사진에{" "}
+            <span className="soop-live__hint-dot" aria-hidden="true" /> 테두리로
+            표시됩니다.
           </p>
         </div>
         <div className="soop-live__actions">
           <span
             className="soop-live__refresh-note"
-            title={updatedAt ? `마지막 갱신: ${formatDateTime(updatedAt)}` : undefined}
+            title={
+              updatedAt
+                ? `마지막 갱신: ${formatDateTime(updatedAt)}`
+                : undefined
+            }
           >
             <span className="sync-dot" aria-hidden="true" /> 2분마다 업데이트
           </span>
           {hasLiveStreamers && (
-            <div className="soop-live__navigation" aria-label="스트리밍 목록 넘기기">
+            <div
+              className="soop-live__navigation"
+              aria-label="스트리밍 목록 넘기기"
+            >
               <button
                 type="button"
                 onClick={() => swiper.current?.slidePrev()}

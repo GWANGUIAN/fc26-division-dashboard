@@ -96,7 +96,7 @@ export function DetailModal({
             <FancyAvatar streamer={streamer} />
             {isLive && (
               <span
-                className="live-badge"
+                className="live-ring"
                 role="img"
                 aria-label={`${streamer.displayName} 방송중`}
                 title="현재 방송중"

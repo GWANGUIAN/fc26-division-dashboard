@@ -155,7 +155,7 @@ export function StreamerTable({
                     <FancyAvatar streamer={streamer} />
                     {isLive && (
                       <span
-                        className="live-badge streamer-table__live-badge"
+                        className="live-ring"
                         role="img"
                         aria-label="방송중"
                         title="현재 방송중"
