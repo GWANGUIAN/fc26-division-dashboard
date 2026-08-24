@@ -60,9 +60,32 @@ export function GeminiReviewSection({
         {review && !review.isCurrent
           ? "현재 게시글 인증샷에 전체 전적이 없거나 분석이 생성 중이라 이전 한줄평이 대신 표시됩니다."
           : "왁물원에 승격 보고 게시글이 올라오고 전체 전적 분석이 성공하면 한줄평이 자동 생성됩니다."}
-        <br />
-        일부 스트리머는 미리 작성된 추가 정보도 같이 Gemini에게 전달됩니다.
       </p>
+      <div className="gemini-review__info">
+        <svg
+          className="gemini-review__info-icon"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <circle
+            cx="12"
+            cy="12"
+            r="9.25"
+            fill="#00e9ae1f"
+            stroke="#00e9ae"
+            strokeWidth="1.6"
+          />
+          <path
+            d="M12 11v5.2M12 7.4h.01"
+            stroke="#00e9ae"
+            strokeWidth="1.9"
+            strokeLinecap="round"
+          />
+        </svg>
+        <p className="gemini-review__info-text">
+          일부 스트리머는 미리 작성된 추가 정보도 같이 Gemini에게 전달됩니다.
+        </p>
+      </div>
       {!review && hasPost && (
         <div className="gemini-review__warning">
           <svg

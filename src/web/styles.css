@@ -677,6 +677,9 @@ body { isolation: isolate; }
 .gemini-review__flavor-tag:hover .gemini-review__flavor-tooltip--mild { transform: translateX(-50%) translateY(0) scale(1); }
 .gemini-review__flavor-tooltip--mild::after { content: ""; position: absolute; bottom: 100%; left: 50%; border: 5px solid transparent; border-bottom-color: var(--surface-elevated); transform: translateX(-50%); }
 .gemini-review__flavor-tooltip-emoji--flip { display: inline-block; transform: rotate(180deg); }
+.gemini-review__info { display: flex; align-items: flex-start; gap: 8px; margin-top: 12px; padding: 8px 11px; border: 1px solid #00e9ae35; border-radius: 8px; background: #00e9ae12; }
+.gemini-review__info-icon { flex: 0 0 15px; width: 15px; height: 15px; margin-top: 1px; }
+.gemini-review__info-text { margin: 0; color: var(--text-secondary); font-size: 12px; line-height: 1.5; }
 .gemini-review__warning { display: flex; align-items: flex-start; gap: 10px; margin-top: 10px; padding: 10px 12px; border: 1px solid #ffbb444f; border-radius: 8px; background: #4a330d45; }
 .gemini-review__warning-icon { flex: 0 0 15px; width: 15px; height: 15px; margin-top: 2px; }
 .gemini-review__warning-text { margin: 0; color: #ffe1a2; font-size: 12px; line-height: 1.5; }
