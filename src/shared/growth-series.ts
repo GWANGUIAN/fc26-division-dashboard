@@ -88,7 +88,9 @@ function buildPoints(allReports: GrowthReportEntry[], todayKey: string): GrowthP
     } else {
       points.push({ dateKey, division: current });
     }
-    if (dateKey === todayKey) break;
+    // >= rather than === so a post dated after "today" (clock skew, bad data)
+    // can never turn this into an infinite loop — it just stops one point in.
+    if (dateKey >= todayKey) break;
     dateKey = nextDateKey(dateKey);
   }
   return points;
@@ -98,7 +100,9 @@ function buildTicks(domainStartKey: string, domainEndKey: string): string[] {
   const days: string[] = [];
   for (let key = domainStartKey; ; key = nextDateKey(key)) {
     days.push(key);
-    if (key === domainEndKey) break;
+    // >= for the same reason as buildPoints above: domainStartKey could in
+    // principle land after domainEndKey if a report's date is in the future.
+    if (key >= domainEndKey) break;
   }
   return days;
 }

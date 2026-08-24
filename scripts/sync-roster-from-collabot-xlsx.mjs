@@ -85,6 +85,13 @@ async function main() {
   const existingEntries = readExistingEntries(rosterText);
   const decision = decideSync(existingEntries, applicants, minRatio);
   const now = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
+  // roster.length alone (active + soft-deleted) reads as a mismatch against
+  // applicants.length once any entry carries deleted: true, since those never
+  // count toward the live-applicant comparison — spell out the split so a
+  // "변경사항이 없습니다" summary with mismatched counts doesn't look like a bug.
+  const deletedCount = existingEntries.filter((entry) => entry.deleted).length;
+  const rosterLabel = "roster " + existingEntries.length + "명"
+    + (deletedCount ? " (활성 " + (existingEntries.length - deletedCount) + "명 · 삭제 처리 " + deletedCount + "명)" : "");
 
   if (decision.aborted) {
     const reason = "신청자 수(" + decision.liveCount + "명)가 현재 roster(" + decision.existingCount + "명) 대비 너무 적어 동기화를 중단했습니다. "
@@ -97,7 +104,7 @@ async function main() {
 
   const { additions, removals } = decision;
   if (!additions.length && !removals.length) {
-    await writeFile(summaryPath, "CollaBot 로스터 동기화 (" + now + ")\n\n변경사항이 없습니다. (신청자 " + applicants.length + "명, roster " + existingEntries.length + "명)\n", "utf8");
+    await writeFile(summaryPath, "CollaBot 로스터 동기화 (" + now + ")\n\n변경사항이 없습니다. (신청자 " + applicants.length + "명, " + rosterLabel + ")\n", "utf8");
     await writeGithubOutput({ changed: "false", aborted: "false", summary_file: summaryPath });
     return;
   }
@@ -130,7 +137,7 @@ async function main() {
   const summaryLines = [
     "CollaBot 로스터 동기화 (" + now + ")",
     "",
-    "신청자 " + applicants.length + "명 · 기존 roster " + existingEntries.length + "명",
+    "신청자 " + applicants.length + "명 · 기존 " + rosterLabel,
     "",
     "추가 (" + additions.length + "):",
     ...additions.map((applicant) => "  + " + applicant.displayName + " (" + applicant.soopId + ")"),

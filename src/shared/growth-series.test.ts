@@ -187,8 +187,8 @@ describe("buildGrowthSeries", () => {
         displayName: "동시각",
         currentDivision: 6,
         promotionHistory: [
-          post("11", 7, "2026-08-15T00:00:00+09:00"),
-          post("12", 6, "2026-08-15T00:00:00+09:00"),
+          post("11", 7, "2026-08-01T00:00:00+09:00"),
+          post("12", 6, "2026-08-01T00:00:00+09:00"),
         ],
       }),
     ]);
