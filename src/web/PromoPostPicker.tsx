@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Shuffle, Vote } from "lucide-react";
+import { ChevronDown, Shuffle, Vote } from "lucide-react";
 import type { StreamerActivityPost } from "../shared/model.js";
 import { formatCafePostDate } from "../shared/dates.js";
 import { playRevealChime, startSpinSound, stopSpinSound } from "./rouletteSfx";
+import { loadPromoPickerOpen, savePromoPickerOpen } from "./storage";
 
 const SPIN_DURATION_MS = 2000;
 const REEL_ROW_COUNT = 8;
@@ -20,11 +21,20 @@ export function PromoPostPicker({
   sfxEnabled: boolean;
   sfxVolume: number;
 }) {
+  const [isOpen, setIsOpen] = useState(loadPromoPickerOpen);
   const [mode, setMode] = useState<"idle" | "spinning" | "stopped">("idle");
   const [reelSeed, setReelSeed] = useState(0);
   const [result, setResult] = useState<StreamerActivityPost>();
   const spinTimeoutRef = useRef<number | undefined>(undefined);
   const lastResultIdRef = useRef<string | undefined>(undefined);
+
+  function toggleOpen() {
+    setIsOpen((current) => {
+      const next = !current;
+      savePromoPickerOpen(next);
+      return next;
+    });
+  }
 
   function spin() {
     if (posts.length === 0 || mode === "spinning") return;
@@ -59,11 +69,29 @@ export function PromoPostPicker({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [posts, reelSeed]);
 
+  if (!isOpen) {
+    return (
+      <button
+        type="button"
+        className="theme-toggle promo-picker__reopen"
+        onClick={toggleOpen}
+        aria-label="홍보글 랜덤 선택기 열기"
+      >
+        <Vote aria-hidden="true" />
+      </button>
+    );
+  }
+
   return (
     <div className="promo-picker">
-      <p className="promo-picker__title">
-        <Vote aria-hidden="true" /> 홍보글 랜덤 선택기
-      </p>
+      <div className="promo-picker__title-row">
+        <p className="promo-picker__title">
+          <Vote aria-hidden="true" /> 홍보글 랜덤 선택기
+        </p>
+        <button type="button" className="promo-picker__collapse" onClick={toggleOpen} aria-label="닫기">
+          <ChevronDown aria-hidden="true" />
+        </button>
+      </div>
       <div className={`promo-picker__reel-window promo-picker__reel-window--${mode}`}>
         {mode === "spinning" && (
           <div className="promo-picker__reel-strip">
