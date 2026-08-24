@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from "react";
-import { hexToRgba } from "./cardVisuals";
+import { hexToRgba, saviorCssVars } from "./cardVisuals";
 import soopIcon from "./assets/soop_icon.svg";
 
 const cafeIcon = "N";
@@ -92,6 +92,7 @@ export function Modal({
   decoration,
   fancyBorderColor,
   fancyLite,
+  saviorBorder,
   wide,
 }: {
   children: ReactNode;
@@ -101,6 +102,7 @@ export function Modal({
   decoration?: ReactNode;
   fancyBorderColor?: string;
   fancyLite?: boolean;
+  saviorBorder?: boolean;
   wide?: boolean;
 }) {
   return (
@@ -108,23 +110,28 @@ export function Modal({
       <div
         className={`modal-frame ${wide ? "modal-frame--wide" : ""}`}
         style={
-          fancyBorderColor
+          fancyBorderColor || saviorBorder
             ? ({
-                "--fancy-color": fancyBorderColor,
-                "--fancy-glow-soft": hexToRgba(
-                  fancyBorderColor,
-                  fancyLite ? 0.16 : 0.4,
-                ),
-                "--fancy-glow-strong": hexToRgba(
-                  fancyBorderColor,
-                  fancyLite ? 0.35 : 0.9,
-                ),
+                ...(fancyBorderColor
+                  ? {
+                      "--fancy-color": fancyBorderColor,
+                      "--fancy-glow-soft": hexToRgba(
+                        fancyBorderColor,
+                        fancyLite ? 0.16 : 0.4,
+                      ),
+                      "--fancy-glow-strong": hexToRgba(
+                        fancyBorderColor,
+                        fancyLite ? 0.35 : 0.9,
+                      ),
+                    }
+                  : {}),
+                ...(saviorBorder ? saviorCssVars() : {}),
               } as React.CSSProperties)
             : undefined
         }
       >
         <section
-          className={`modal ${wide ? "modal--wide" : ""} ${fancyBorderColor ? "fancy-border" : ""} ${fancyBorderColor && fancyLite ? "fancy-border--lite" : ""}`}
+          className={`modal ${wide ? "modal--wide" : ""} ${fancyBorderColor ? "fancy-border" : ""} ${fancyBorderColor && fancyLite ? "fancy-border--lite" : ""} ${saviorBorder ? "savior-border" : ""}`}
           role="dialog"
           aria-modal="true"
           aria-label={label}

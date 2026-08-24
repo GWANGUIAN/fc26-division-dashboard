@@ -13,6 +13,8 @@ export interface RosterEntry {
   isFancy?: boolean;
   /** A toned-down version of isFancy's decoration: fewer/slower/paler effects. Ignored when isFancy is also set. */
   isFancyLite?: boolean;
+  /** Marks a streamer as a "은인" (savior/benefactor) for a halo/god-ray decoration, independent of isFancy/isFancyLite. */
+  isSavior?: boolean;
   /** Free-text background info about this streamer, injected into the Gemini review prompt when present. */
   reviewNote?: string;
   /** Excludes this streamer from aggregate calculations (division stats, distribution, achievements, Gemini roster context) and from the CollaBot auto-removal sync, while still showing their card/profile normally. */
@@ -113,6 +115,8 @@ export interface StreamerRecord {
   isFancy?: boolean;
   /** A toned-down version of isFancy's decoration: fewer/slower/paler effects. Ignored when isFancy is also set. */
   isFancyLite?: boolean;
+  /** Marks a streamer as a "은인" (savior/benefactor) for a halo/god-ray decoration, independent of isFancy/isFancyLite. */
+  isSavior?: boolean;
   /** Free-text background info about this streamer, injected into the Gemini review prompt when present. */
   reviewNote?: string;
   /** Excludes this streamer from aggregate calculations (division stats, distribution, achievements, Gemini roster context) and from the CollaBot auto-removal sync, while still showing their card/profile normally. */

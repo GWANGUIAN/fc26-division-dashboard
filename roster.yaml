@@ -111,6 +111,7 @@ streamers:
     reviewNote: "SOOP에서 원래 FC 1황이였음. 나나문, 플리, 빙밍, 임하밍, 김웰로, 체비와 함께 천타버스(수장: 천양) 크루 소속임"
     sfx: "/sfxes/doormomo.mp3"
     profileImageUrl: "/profiles/profile_doormomo.webp"
+    isSavior: true
   - slug: 
     displayName: 마이곰이
     cafeAliases: ["마이곰이"]

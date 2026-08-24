@@ -11,8 +11,12 @@ import {
   fancyTierOf,
   FancyAvatar,
   FancyName,
+  isStreamerSavior,
   mixHex,
   RecordBadge,
+  SAVIOR_COLOR,
+  SaviorAvatar,
+  SaviorName,
 } from "./cardVisuals";
 import { GeminiReviewSection } from "./GeminiReviewSection";
 import { CafeLink, FancyBurst, Modal, SoopLink, useEscape } from "./Modal";
@@ -81,19 +85,27 @@ export function DetailModal({
   const fancyModalColor = fancyLite
     ? mixHex("#00e9ae", "white", 0.65)
     : "#00e9ae";
+  const savior = isStreamerSavior(streamer);
   return (
     <Modal
       onClose={onClose}
       label="디비전 상세"
       decoration={
-        fancyTier !== "none" ? <FancyBurst tier={fancyTier} /> : undefined
+        savior ? (
+          <FancyBurst color={SAVIOR_COLOR} tier="lite" />
+        ) : fancyTier !== "none" ? (
+          <FancyBurst tier={fancyTier} />
+        ) : undefined
       }
       fancyBorderColor={fancyTier !== "none" ? fancyModalColor : undefined}
       fancyLite={fancyLite}
+      saviorBorder={savior}
       header={
         <div className="modal__identity">
           <span className="modal__avatar-wrap">
-            <FancyAvatar streamer={streamer} />
+            <SaviorAvatar streamer={streamer}>
+              <FancyAvatar streamer={streamer} />
+            </SaviorAvatar>
             {isLive && (
               <span
                 className="live-ring"
@@ -106,7 +118,11 @@ export function DetailModal({
           <div>
             <span className="eyebrow">CURRENT DIVISION</span>
             <h2>
-              <FancyName streamer={streamer}>{streamer.displayName}</FancyName>{" "}
+              <SaviorName streamer={streamer}>
+                <FancyName streamer={streamer}>
+                  {streamer.displayName}
+                </FancyName>
+              </SaviorName>{" "}
               <b
                 style={
                   {

@@ -139,6 +139,69 @@ export function FancyName({
   );
 }
 
+export const SAVIOR_COLOR = "#ffd76a";
+
+export function isStreamerSavior(
+  streamer: Pick<StreamerRecord, "isSavior">,
+): boolean {
+  return !!streamer.isSavior;
+}
+
+export function saviorCssVars(): React.CSSProperties {
+  return {
+    "--savior-color": SAVIOR_COLOR,
+    "--savior-glow-soft": hexToRgba(SAVIOR_COLOR, 0.32),
+    "--savior-glow-strong": hexToRgba(SAVIOR_COLOR, 0.85),
+  } as React.CSSProperties;
+}
+
+/** Wraps an avatar with a halo ring + god-rays for isSavior streamers; a transparent passthrough otherwise. */
+export function SaviorAvatar({
+  streamer,
+  children,
+}: {
+  streamer: Pick<StreamerRecord, "isSavior">;
+  children: ReactNode;
+}) {
+  if (!isStreamerSavior(streamer)) return <>{children}</>;
+  return (
+    <span className="savior-avatar" style={saviorCssVars()}>
+      <span className="savior-avatar__rays" aria-hidden="true" />
+      {children}
+    </span>
+  );
+}
+
+/** Small "은인" chip anchored above an avatar (card-board view) for isSavior streamers. */
+export function SaviorTag({
+  streamer,
+}: {
+  streamer: Pick<StreamerRecord, "isSavior">;
+}) {
+  if (!isStreamerSavior(streamer)) return null;
+  return (
+    <span className="savior-tag" style={saviorCssVars()}>
+      은인
+    </span>
+  );
+}
+
+/** Wraps a streamer's name with a warm golden glow for isSavior streamers; a transparent passthrough otherwise. */
+export function SaviorName({
+  streamer,
+  children,
+}: {
+  streamer: Pick<StreamerRecord, "isSavior">;
+  children: ReactNode;
+}) {
+  if (!isStreamerSavior(streamer)) return <>{children}</>;
+  return (
+    <span className="savior-name" style={saviorCssVars()}>
+      {children}
+    </span>
+  );
+}
+
 export function mixHex(
   hex: string,
   target: "white" | "black",
@@ -162,9 +225,11 @@ export const FIFA_SHIELD_INNER =
 export function FifaShield({
   color,
   holo,
+  savior,
 }: {
   color: string;
   holo?: { x: number; y: number; opacity: number };
+  savior?: boolean;
 }) {
   const uid = useId();
   const gradientId = `${uid}-grad`;
@@ -222,6 +287,9 @@ export function FifaShield({
             transition: "opacity .25s ease-out",
           }}
         />
+      )}
+      {savior && (
+        <path className="fifa-card__shield-glow" d={FIFA_SHIELD_OUTER} />
       )}
     </svg>
   );

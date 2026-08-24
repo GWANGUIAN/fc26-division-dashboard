@@ -13,8 +13,13 @@ import {
   FancyName,
   FifaShield,
   hexToRgba,
+  isStreamerSavior,
   mixHex,
   RecordBadge,
+  saviorCssVars,
+  SaviorAvatar,
+  SaviorName,
+  SaviorTag,
 } from "./cardVisuals";
 
 export function StreamerCard({
@@ -35,23 +40,31 @@ export function StreamerCard({
   const tier = fancyTierOf(streamer);
   const lite = tier === "lite";
   const fancyColor = lite ? mixHex("#00e9ae", "white", 0.65) : "#00e9ae";
+  const savior = isStreamerSavior(streamer);
   return (
     <button
-      className={`streamer-card ${isNew ? "streamer-card--new" : ""} ${tier !== "none" ? "fancy-border" : ""} ${lite ? "fancy-border--lite" : ""}`}
+      className={`streamer-card ${isNew ? "streamer-card--new" : ""} ${tier !== "none" ? "fancy-border" : ""} ${lite ? "fancy-border--lite" : ""} ${savior ? "savior-border" : ""}`}
       onClick={onOpen}
       aria-label={`${streamer.displayName} 상세 보기${isNew ? " (24시간 이내 업데이트됨)" : ""}`}
       style={
-        tier !== "none"
+        tier !== "none" || savior
           ? ({
-              "--fancy-color": fancyColor,
-              "--fancy-glow-soft": hexToRgba(fancyColor, lite ? 0.16 : 0.4),
-              "--fancy-glow-strong": hexToRgba(fancyColor, lite ? 0.35 : 0.9),
+              ...(tier !== "none"
+                ? {
+                    "--fancy-color": fancyColor,
+                    "--fancy-glow-soft": hexToRgba(fancyColor, lite ? 0.16 : 0.4),
+                    "--fancy-glow-strong": hexToRgba(fancyColor, lite ? 0.35 : 0.9),
+                  }
+                : {}),
+              ...(savior ? saviorCssVars() : {}),
             } as React.CSSProperties)
           : undefined
       }
     >
       <span className="streamer-card__avatar">
-        <FancyAvatar streamer={streamer} />
+        <SaviorAvatar streamer={streamer}>
+          <FancyAvatar streamer={streamer} />
+        </SaviorAvatar>
         {isLive && (
           <span
             className="live-ring"
@@ -66,9 +79,11 @@ export function StreamerCard({
       </span>
       <span className="streamer-card__copy">
         <span className="streamer-card__name">
-          <FancyName streamer={streamer} tag="strong">
-            {streamer.displayName}
-          </FancyName>
+          <SaviorName streamer={streamer}>
+            <FancyName streamer={streamer} tag="strong">
+              {streamer.displayName}
+            </FancyName>
+          </SaviorName>
           <AchievementBadges
             streamer={streamer}
             awards={awards}
@@ -115,6 +130,7 @@ export function StreamerFifaCard({
 }) {
   const rate = streamer.record ? winRatePercent(streamer.record) : undefined;
   const color = divisionColor(streamer.currentDivision);
+  const savior = isStreamerSavior(streamer);
   const lastPostLabel = streamer.lastPost
     ? formatBoardPostDate(streamer.lastPost.publishedAt)
     : "첫 보고 대기";
@@ -146,14 +162,19 @@ export function StreamerFifaCard({
   return (
     <button
       ref={cardRef}
-      className="fifa-card fifa-card--holo"
+      className={`fifa-card fifa-card--holo ${savior ? "fifa-card--savior" : ""}`}
       onClick={onOpen}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={
-        tilt.active
+        tilt.active || savior
           ? ({
-              transform: `perspective(700px) translateY(-3px) scale(1.035) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
+              ...(savior ? saviorCssVars() : {}),
+              ...(tilt.active
+                ? {
+                    transform: `perspective(700px) translateY(-3px) scale(1.035) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
+                  }
+                : {}),
             } as React.CSSProperties)
           : undefined
       }
@@ -162,6 +183,7 @@ export function StreamerFifaCard({
       <FifaShield
         color={color}
         holo={{ x: tilt.x, y: tilt.y, opacity: tilt.active ? 0.85 : 0 }}
+        savior={savior}
       />
       <DivisionBadge
         division={streamer.currentDivision}
@@ -181,7 +203,10 @@ export function StreamerFifaCard({
             } as React.CSSProperties
           }
         >
-          <FancyAvatar streamer={streamer} color={color} ring={false} />
+          <SaviorAvatar streamer={streamer}>
+            <FancyAvatar streamer={streamer} color={color} ring={false} />
+          </SaviorAvatar>
+          <SaviorTag streamer={streamer} />
           {streamer.sfx && (
             <Volume2 className="fifa-card__sfx-badge" aria-hidden="true" />
           )}
@@ -192,9 +217,11 @@ export function StreamerFifaCard({
             background: `linear-gradient(180deg, ${hexToRgba(color, 0.12)}, ${hexToRgba(color, 0.05)})`,
           }}
         >
-          <FancyName streamer={streamer} color={color} tag="strong">
-            {streamer.displayName}
-          </FancyName>
+          <SaviorName streamer={streamer}>
+            <FancyName streamer={streamer} color={color} tag="strong">
+              {streamer.displayName}
+            </FancyName>
+          </SaviorName>
         </span>
         <span className="fifa-card__stats">
           <span className="fifa-card__stat">

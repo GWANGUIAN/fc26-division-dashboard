@@ -135,6 +135,7 @@ export function buildStreamerRecords(
       sfx: entry.sfx,
       isFancy: entry.isFancy,
       isFancyLite: entry.isFancyLite,
+      isSavior: entry.isSavior,
       reviewNote: entry.reviewNote,
       isExcluded: entry.isExcluded,
       latestReview,

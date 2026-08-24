@@ -10,6 +10,8 @@ import {
   FancyAvatar,
   FancyName,
   RecordBadge,
+  SaviorAvatar,
+  SaviorName,
 } from "./cardVisuals";
 import { isUpdatedToday, seenKeyFor } from "./storage";
 
@@ -152,7 +154,9 @@ export function StreamerTable({
                 <td className="streamer-table__rank">{index + 1}</td>
                 <td className="streamer-table__identity">
                   <span className="streamer-table__avatar">
-                    <FancyAvatar streamer={streamer} />
+                    <SaviorAvatar streamer={streamer}>
+                      <FancyAvatar streamer={streamer} />
+                    </SaviorAvatar>
                     {isLive && (
                       <span
                         className="live-ring"
@@ -169,9 +173,11 @@ export function StreamerTable({
                     )}
                   </span>
                   <span className="streamer-table__name">
-                    <FancyName streamer={streamer} tag="strong">
-                      {streamer.displayName}
-                    </FancyName>
+                    <SaviorName streamer={streamer}>
+                      <FancyName streamer={streamer} tag="strong">
+                        {streamer.displayName}
+                      </FancyName>
+                    </SaviorName>
                     <AchievementBadges
                       streamer={streamer}
                       awards={awards}
