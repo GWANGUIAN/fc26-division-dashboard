@@ -28,6 +28,7 @@ export function DetailModal({
   awards,
   isLive,
   onClose,
+  onOpenTrophy,
   latestPosts = [],
   sfxVolume,
 }: {
@@ -35,6 +36,7 @@ export function DetailModal({
   awards: TrophyAwards;
   isLive?: boolean;
   onClose: () => void;
+  onOpenTrophy?: () => void;
   latestPosts?: PromotionPost[];
   sfxVolume: number;
 }) {
@@ -114,7 +116,11 @@ export function DetailModal({
               >
                 {streamer.currentDivision}부
               </b>{" "}
-              <AchievementBadges streamer={streamer} awards={awards} />
+              <AchievementBadges
+                streamer={streamer}
+                awards={awards}
+                onClick={onOpenTrophy}
+              />
             </h2>
             <span className="modal__record-row">
               <RecordBadge streamer={streamer} className="record-badge--lg" />

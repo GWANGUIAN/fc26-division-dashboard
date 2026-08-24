@@ -39,12 +39,14 @@ export function StreamerTable({
   seenKeys,
   liveStreamerIds,
   onOpen,
+  onOpenTrophy,
 }: {
   streamers: StreamerRecord[];
   awards: TrophyAwards;
   seenKeys: Set<string>;
   liveStreamerIds: Set<string>;
   onOpen: (streamer: StreamerRecord) => void;
+  onOpenTrophy?: () => void;
 }) {
   const [sort, setSort] = useState<Sort | null>(null);
 
@@ -170,7 +172,11 @@ export function StreamerTable({
                     <FancyName streamer={streamer} tag="strong">
                       {streamer.displayName}
                     </FancyName>
-                    <AchievementBadges streamer={streamer} awards={awards} />
+                    <AchievementBadges
+                      streamer={streamer}
+                      awards={awards}
+                      onClick={onOpenTrophy}
+                    />
                     {!streamer.isMapped && (
                       <span className="unmapped" title="SOOP 정보 미연결">
                         카페

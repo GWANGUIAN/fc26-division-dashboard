@@ -23,12 +23,14 @@ export function StreamerCard({
   isNew,
   isLive,
   onOpen,
+  onOpenTrophy,
 }: {
   streamer: StreamerRecord;
   awards: TrophyAwards;
   isNew: boolean;
   isLive?: boolean;
   onOpen: () => void;
+  onOpenTrophy?: () => void;
 }) {
   const tier = fancyTierOf(streamer);
   const lite = tier === "lite";
@@ -67,7 +69,11 @@ export function StreamerCard({
           <FancyName streamer={streamer} tag="strong">
             {streamer.displayName}
           </FancyName>
-          <AchievementBadges streamer={streamer} awards={awards} />
+          <AchievementBadges
+            streamer={streamer}
+            awards={awards}
+            onClick={onOpenTrophy}
+          />
         </span>
         <RecordBadge streamer={streamer} />
         <small>
@@ -100,10 +106,12 @@ export function StreamerFifaCard({
   streamer,
   awards,
   onOpen,
+  onOpenTrophy,
 }: {
   streamer: StreamerRecord;
   awards: TrophyAwards;
   onOpen: () => void;
+  onOpenTrophy?: () => void;
 }) {
   const rate = streamer.record ? winRatePercent(streamer.record) : undefined;
   const color = divisionColor(streamer.currentDivision);
@@ -159,7 +167,11 @@ export function StreamerFifaCard({
         division={streamer.currentDivision}
         className="fifa-card__division"
       />
-      <AchievementBadges streamer={streamer} awards={awards} />
+      <AchievementBadges
+        streamer={streamer}
+        awards={awards}
+        onClick={onOpenTrophy}
+      />
       <span className="fifa-card__body">
         <span
           className="fifa-card__avatar"
@@ -222,6 +234,7 @@ export function CardBoard({
   awards,
   zoom,
   onOpen,
+  onOpenTrophy,
   onZoomIn,
   onZoomOut,
   zoomMin,
@@ -232,6 +245,7 @@ export function CardBoard({
   awards: TrophyAwards;
   zoom: number;
   onOpen: (streamer: StreamerRecord) => void;
+  onOpenTrophy?: () => void;
   onZoomIn: () => void;
   onZoomOut: () => void;
   zoomMin: number;
@@ -269,6 +283,7 @@ export function CardBoard({
             streamer={streamer}
             awards={awards}
             onOpen={() => onOpen(streamer)}
+            onOpenTrophy={onOpenTrophy}
           />
         ))}
         {streamers.length === 0 && (

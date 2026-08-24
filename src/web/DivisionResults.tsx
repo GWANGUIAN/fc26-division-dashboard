@@ -26,6 +26,7 @@ export function DivisionResults({
   zoomMin,
   zoomMax,
   onSquadBuilderOpen,
+  onOpenTrophy,
   hideEmptyDivisions,
   liveStreamerIds,
 }: {
@@ -41,6 +42,7 @@ export function DivisionResults({
   zoomMin: number;
   zoomMax: number;
   onSquadBuilderOpen: () => void;
+  onOpenTrophy: () => void;
   hideEmptyDivisions?: boolean;
   liveStreamerIds: Set<string>;
 }) {
@@ -125,6 +127,7 @@ export function DivisionResults({
                         }
                         isLive={liveStreamerIds.has(streamer.id)}
                         onOpen={() => onOpenStreamer(streamer)}
+                        onOpenTrophy={onOpenTrophy}
                       />
                     ))}
                   {showEntries && entries.length === 0 && (
@@ -146,6 +149,7 @@ export function DivisionResults({
           seenKeys={seenKeys}
           liveStreamerIds={liveStreamerIds}
           onOpen={onOpenStreamer}
+          onOpenTrophy={onOpenTrophy}
         />
       ) : (
         <CardBoard
@@ -153,6 +157,7 @@ export function DivisionResults({
           awards={trophyAwards}
           zoom={cardZoom}
           onOpen={onOpenStreamer}
+          onOpenTrophy={onOpenTrophy}
           onZoomIn={onZoomIn}
           onZoomOut={onZoomOut}
           zoomMin={zoomMin}

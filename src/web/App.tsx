@@ -221,6 +221,7 @@ export function App() {
           zoomMin={CARD_ZOOM_MIN}
           zoomMax={CARD_ZOOM_MAX}
           onSquadBuilderOpen={() => setSquadBuilderOpen(true)}
+          onOpenTrophy={() => setTrophyOpen(true)}
           hideEmptyDivisions={query.trim().length > 0}
           liveStreamerIds={liveStreamerIds}
         />
@@ -243,6 +244,7 @@ export function App() {
             stopSfx();
             setSelected(undefined);
           }}
+          onOpenTrophy={() => setTrophyOpen(true)}
           latestPosts={snapshot?.latestPosts}
           sfxVolume={sfxVolume}
         />

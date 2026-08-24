@@ -1,4 +1,10 @@
-import { useId, useState, type ReactNode } from "react";
+import {
+  useId,
+  useState,
+  type KeyboardEvent,
+  type MouseEvent,
+  type ReactNode,
+} from "react";
 import type { StreamerRecord } from "../shared/model.js";
 import { defaultSoopProfileUrl } from "../shared/model.js";
 import { recordExtractionStatus } from "../shared/record-extraction.js";
@@ -415,16 +421,37 @@ export function hexToRgba(hex: string, alpha: number): string {
 export function AchievementBadges({
   streamer,
   awards,
+  onClick,
 }: {
   streamer: StreamerRecord;
   awards: TrophyAwards;
+  onClick?: () => void;
 }) {
   const badges = trophyBadgesFor(streamer, awards);
   if (!badges.length) return null;
+  const handleClick = (event: MouseEvent) => {
+    if (!onClick) return;
+    // Badges usually sit inside a larger clickable card/row that opens the
+    // detail modal — stop the click there so only the trophy modal opens.
+    event.stopPropagation();
+    onClick();
+  };
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (!onClick) return;
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      event.stopPropagation();
+      onClick();
+    }
+  };
   return (
     <span
-      className="achievement-badges"
-      aria-label={`${streamer.displayName} 업적`}
+      className={`achievement-badges${onClick ? " achievement-badges--clickable" : ""}`}
+      aria-label={`${streamer.displayName} 업적${onClick ? " · 클릭하면 전체 업적 보기" : ""}`}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onClick={onClick ? handleClick : undefined}
+      onKeyDown={onClick ? handleKeyDown : undefined}
     >
       {badges.map((badge) => (
         <span
