@@ -16,14 +16,6 @@ import type { PassEntry } from "./types.js";
 
 type CopyStatus = "idle" | "copying" | "success" | "success-no-photos" | "error";
 
-/** The fancy/fancyLite sparkle decoration is a card-board flourish that's
- * distracting in the compact reveal rail — stripped here (a local copy, not
- * the shared streamer data) rather than in FancyAvatar/FancyName themselves,
- * which stay untouched for the big center reveal card and every other view. */
-function withoutFancyDecoration(streamer: StreamerRecord): StreamerRecord {
-  return { ...streamer, isFancy: false, isFancyLite: false };
-}
-
 export function AnnouncementScreen({
   title,
   passList,
@@ -36,6 +28,9 @@ export function AnnouncementScreen({
 }: {
   title: string;
   passList: PassEntry[];
+  /** Already run through toPassAnnouncementStreamer (see
+   * PassAnnouncementOverlay) — fancy decoration stripped, photo forced to
+   * the SOOP-id default. */
   streamerById: Map<string, StreamerRecord>;
   sfxEnabled: boolean;
   sfxVolume: number;
@@ -66,8 +61,7 @@ export function AnnouncementScreen({
       passList
         .filter((entry) => entry.revealed && entry.streamerId !== revealingId)
         .map((entry) => streamerById.get(entry.streamerId))
-        .filter((streamer): streamer is StreamerRecord => !!streamer)
-        .map(withoutFancyDecoration),
+        .filter((streamer): streamer is StreamerRecord => !!streamer),
     [passList, streamerById, revealingId],
   );
 

@@ -390,7 +390,7 @@
   border-radius: 3px;
   color: #002219;
   background: var(--accent-text);
-  font: 800 18px/1 "Barlow Condensed", "Noto Sans KR";
+  font: 400 18px/1 "Black Han Sans", "Barlow Condensed", "Noto Sans KR";
   letter-spacing: .04em;
   box-shadow: 0 10px 26px #00e9ae4a;
   cursor: pointer;

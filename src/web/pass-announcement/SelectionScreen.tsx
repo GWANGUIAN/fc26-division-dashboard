@@ -36,14 +36,6 @@ function computeInsertIndex(
   return side === "after" ? index + 1 : index;
 }
 
-/** The fancy/fancyLite sparkle decoration is a card-board flourish that's
- * distracting on the selection screen's small drag cards — stripped here
- * (a local copy, not the shared streamer data) rather than in FancyAvatar/
- * FancyName themselves, which stay untouched for every other view. */
-function withoutFancyDecoration(streamer: StreamerRecord): StreamerRecord {
-  return { ...streamer, isFancy: false, isFancyLite: false };
-}
-
 export function SelectionScreen({
   streamers,
   passList,
@@ -53,6 +45,9 @@ export function SelectionScreen({
   onClearAll,
   onConfirm,
 }: {
+  /** Already run through toPassAnnouncementStreamer (see
+   * PassAnnouncementOverlay) — fancy decoration stripped, photo forced to
+   * the SOOP-id default. */
   streamers: StreamerRecord[];
   passList: PassEntry[];
   onAdd: (streamerId: string, index?: number) => void;
@@ -61,13 +56,9 @@ export function SelectionScreen({
   onClearAll: () => void;
   onConfirm: () => void;
 }) {
-  const plainStreamers = useMemo(
-    () => streamers.map(withoutFancyDecoration),
-    [streamers],
-  );
   const streamerById = useMemo(
-    () => new Map(plainStreamers.map((streamer) => [streamer.id, streamer])),
-    [plainStreamers],
+    () => new Map(streamers.map((streamer) => [streamer.id, streamer])),
+    [streamers],
   );
   const passIds = useMemo(
     () => new Set(passList.map((entry) => entry.streamerId)),
@@ -75,10 +66,10 @@ export function SelectionScreen({
   );
   const poolStreamers = useMemo(
     () =>
-      plainStreamers.filter(
+      streamers.filter(
         (streamer) => !passIds.has(streamer.id) && !streamer.isExcluded,
       ),
-    [plainStreamers, passIds],
+    [streamers, passIds],
   );
 
   const [activeDragData, setActiveDragData] = useState<PassDragData | null>(null);

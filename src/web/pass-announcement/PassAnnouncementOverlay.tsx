@@ -10,6 +10,7 @@ import {
   saveAnnouncementTitle,
 } from "./announcementTitleStorage";
 import { loadPassAnnouncementState, savePassAnnouncementState } from "./storage";
+import { toPassAnnouncementStreamer } from "./streamerAdapter";
 import type { PassAnnouncementState, PassEntry } from "./types.js";
 
 function useEscape(onClose: () => void) {
@@ -77,9 +78,13 @@ export function PassAnnouncementOverlay({
     saveAnnouncementTitle(title);
   }
 
-  const streamerById = useMemo(
-    () => new Map(streamers.map((streamer) => [streamer.id, streamer])),
+  const adaptedStreamers = useMemo(
+    () => streamers.map(toPassAnnouncementStreamer),
     [streamers],
+  );
+  const streamerById = useMemo(
+    () => new Map(adaptedStreamers.map((streamer) => [streamer.id, streamer])),
+    [adaptedStreamers],
   );
 
   // A passer whose player record has disappeared from the live snapshot
@@ -160,7 +165,7 @@ export function PassAnnouncementOverlay({
       </header>
       {screen === "selection" ? (
         <SelectionScreen
-          streamers={streamers}
+          streamers={adaptedStreamers}
           passList={state.passList}
           onAdd={addToPassList}
           onRemove={removeFromPassList}
