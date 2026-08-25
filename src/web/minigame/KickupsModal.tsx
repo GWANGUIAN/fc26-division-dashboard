@@ -1,6 +1,8 @@
+import { Music4 } from "lucide-react";
 import { Modal, useEscape } from "../Modal";
 import { KickupsCanvas } from "./KickupsCanvas";
 import { useKickupsGame } from "./useKickupsGame";
+import { useKickupsMusic } from "./useKickupsMusic";
 
 export function KickupsModal({
   onClose,
@@ -13,6 +15,7 @@ export function KickupsModal({
 }) {
   useEscape(onClose);
   const { state, quip, handleStart, handleCanvasClick } = useKickupsGame({ sfxEnabled, sfxVolume });
+  const { musicOn, toggleMusic } = useKickupsMusic();
 
   return (
     <Modal
@@ -29,6 +32,15 @@ export function KickupsModal({
     >
       <div className="kickups-play-area">
         <div className="kickups-badge kickups-badge--high">최고기록 {state.highScore}</div>
+        <button
+          type="button"
+          className={`kickups-music-toggle ${musicOn ? "" : "kickups-music-toggle--muted"}`}
+          onClick={toggleMusic}
+          aria-pressed={musicOn}
+          aria-label={musicOn ? "배경음악 끄기" : "배경음악 켜기"}
+        >
+          <Music4 aria-hidden="true" />
+        </button>
         {state.phase === "idle" ? (
           <button type="button" className="kickups-start" onClick={handleStart}>
             시작

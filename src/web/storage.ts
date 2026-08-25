@@ -154,6 +154,25 @@ export function saveKickupsHighScore(score: number) {
   }
 }
 
+const KICKUPS_MUSIC_ENABLED_KEY = "fc26-kickups-music-enabled";
+
+export function loadKickupsMusicEnabled(): boolean {
+  try {
+    const raw = localStorage.getItem(KICKUPS_MUSIC_ENABLED_KEY);
+    return raw === null ? true : raw === "1";
+  } catch {
+    return true;
+  }
+}
+
+export function saveKickupsMusicEnabled(enabled: boolean) {
+  try {
+    localStorage.setItem(KICKUPS_MUSIC_ENABLED_KEY, enabled ? "1" : "0");
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
+
 export function hasHeardSfx(): boolean {
   try {
     return localStorage.getItem(SFX_HEARD_STORAGE_KEY) === "1";
