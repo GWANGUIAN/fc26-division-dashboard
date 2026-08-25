@@ -33,12 +33,12 @@ export const KICKUPS_QUIPS: QuipTier[] = [
   {
     minScore: 16,
     maxScore: 25,
-    lines: ["잔디동 에이스급 실력이시네요", "이 정도면 문모모한테 리스펙 받을 수도 있겠는데요"],
+    lines: ["잔디동 에이스급 실력이시네요", "이 정도면 문모모님한테 리스펙 받을 수도 있겠는데요"],
   },
   {
     minScore: 26,
     maxScore: 32,
-    lines: ["잔디동 반장급 실력이시네요", "{name}도 놀랄 발재간이시네요"],
+    lines: ["잔디동 반장급 실력이시네요", "{name}님도 놀랄 발재간이시네요"],
   },
   {
     minScore: 33,
