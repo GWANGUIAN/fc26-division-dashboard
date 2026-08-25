@@ -51,6 +51,23 @@ function colorForNickname(name: string) {
   return CHAT_COLORS[hash % CHAT_COLORS.length];
 }
 
+const CHAT_BADGES = [
+  "/icons/flug-1.webp",
+  "/icons/flug-2.webp",
+  "/icons/flug-3.webp",
+  "/icons/flug-4.webp",
+  "/icons/flug-5.webp",
+  "/icons/flug-6.webp",
+];
+
+function badgeForNickname(name: string) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = (hash * 17 + name.charCodeAt(i)) >>> 0;
+  }
+  return CHAT_BADGES[hash % CHAT_BADGES.length];
+}
+
 export function BrightnessGag() {
   useEffect(() => {
     const warmups = SFX_URLS.map((src) => {
@@ -229,6 +246,11 @@ export function BrightnessGag() {
         <div className="brightness-gag-chat" aria-hidden="true">
           {chatFeed.map((message) => (
             <div className="brightness-gag-chat__line" key={message.id}>
+              <img
+                src={badgeForNickname(message.nickname)}
+                alt=""
+                className="brightness-gag-chat__badge"
+              />
               <span
                 className="brightness-gag-chat__nick"
                 style={{ color: colorForNickname(message.nickname) }}
