@@ -63,12 +63,14 @@ describe("decideSync", () => {
     expect(result.aborted).toBe(false);
     expect(result.existingCount).toBeUndefined();
     expect(result.removals).toEqual([]);
+    expect(result.revivals).toEqual([]);
   });
 
-  it("never re-adds a live applicant whose soopId already belongs to a deleted entry", () => {
+  it("revives an already-deleted entry whose soopId reapplies, instead of re-adding it as new", () => {
     const deleted = [{ slug: "gone", displayName: "gone", soopId: "gone", deleted: true }];
     const result = decideSync([...entries(["a"]), ...deleted], applicants(["a", "gone"]), 0.5);
     expect(result.aborted).toBe(false);
     expect(result.additions).toEqual([]);
+    expect(result.revivals).toEqual(deleted);
   });
 });

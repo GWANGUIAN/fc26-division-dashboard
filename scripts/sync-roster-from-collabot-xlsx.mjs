@@ -12,7 +12,7 @@ import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { parse as parseYaml } from "yaml";
 import { normaliseSoopId, readApplicantsFromXlsx } from "./lib/collabot-xlsx.mjs";
-import { buildRosterBlock, detectEol, markEntriesDeletedBySoopIds, uniqueSlug } from "./lib/roster-text.mjs";
+import { buildRosterBlock, detectEol, markEntriesDeletedBySoopIds, uniqueSlug, unmarkEntriesDeletedBySoopIds } from "./lib/roster-text.mjs";
 
 const defaultRosterPath = resolve("roster.yaml");
 const defaultMinRatio = 0.5;
@@ -34,8 +34,10 @@ export function decideSync(existingEntries, liveApplicants, minRatio) {
   // entirely: they can never be re-marked for removal, and they don't count
   // toward the ratio-abort threshold. Their soopId still counts as "known"
   // below so a lingering cafe post/comment never causes them to be re-added
-  // as a fresh applicant.
+  // as a fresh applicant — reapplying revives the existing entry instead (see
+  // revivals below).
   const withSoopId = existingEntries.filter((entry) => entry.soopId && !entry.deleted);
+  const deletedWithSoopId = existingEntries.filter((entry) => entry.soopId && entry.deleted);
   const existingIds = new Set(withSoopId.map((entry) => normaliseSoopId(entry.soopId)));
   if (liveApplicants.length === 0 || liveApplicants.length < existingIds.size * minRatio) {
     return { aborted: true, liveCount: liveApplicants.length, existingCount: existingIds.size };
@@ -47,7 +49,11 @@ export function decideSync(existingEntries, liveApplicants, minRatio) {
   // are protected from this comment-based removal even if they drop off the
   // live applicant list.
   const removals = withSoopId.filter((entry) => !liveIds.has(normaliseSoopId(entry.soopId)) && !entry.isExcluded);
-  return { aborted: false, additions, removals };
+  // A previously-deleted entry whose soopId reappears among live applicants
+  // (they reapplied) is un-deleted in place rather than re-added as a
+  // duplicate entry.
+  const revivals = deletedWithSoopId.filter((entry) => liveIds.has(normaliseSoopId(entry.soopId)));
+  return { aborted: false, additions, removals, revivals };
 }
 
 function validateRosterText(rosterText) {
@@ -109,8 +115,8 @@ async function main() {
     return;
   }
 
-  const { additions, removals } = decision;
-  if (!additions.length && !removals.length) {
+  const { additions, removals, revivals } = decision;
+  if (!additions.length && !removals.length && !revivals.length) {
     await writeFile(summaryPath, "CollaBot 로스터 동기화 (" + now + ")\n\n변경사항이 없습니다. (신청자 " + applicants.length + "명, " + rosterLabel + ")\n", "utf8");
     await writeGithubOutput({ changed: "false", aborted: "false", summary_file: summaryPath });
     return;
@@ -118,9 +124,11 @@ async function main() {
 
   // Removals are soft-deleted (a `deleted: true` line appended to the
   // existing block) rather than deleted from the file, so a soopId that
-  // resurfaces later (comment un-deleted, or a fresh applicant re-using a
-  // stale entry's soopId) is never silently re-added as a duplicate.
+  // resurfaces later is never silently re-added as a duplicate — instead it
+  // goes through revivals below, which strips the `deleted: true` line back
+  // out of the same block.
   const markResult = markEntriesDeletedBySoopIds(rosterText, removals.map((entry) => entry.soopId));
+  const unmarkResult = unmarkEntriesDeletedBySoopIds(markResult.rosterText, revivals.map((entry) => entry.soopId));
   const eol = detectEol(rosterText);
   // rosterValues() cannot reliably match `slug:` (its `- ` list-marker prefix
   // isn't whitespace), so slugs are taken from the already yaml-parsed
@@ -136,8 +144,8 @@ async function main() {
     .map(({ displayName, soopId }) => buildRosterBlock({ slug: uniqueSlug(soopId, usedSlugs), displayName, soopId, cafeAliases: [displayName] }))
     .join(eol);
   const finalText = additions.length
-    ? markResult.rosterText.trimEnd() + eol + appended + eol
-    : markResult.rosterText.trimEnd() + eol;
+    ? unmarkResult.rosterText.trimEnd() + eol + appended + eol
+    : unmarkResult.rosterText.trimEnd() + eol;
 
   validateRosterText(finalText);
 
@@ -153,9 +161,15 @@ async function main() {
     ...removals
       .filter((entry) => markResult.markedSoopIds.includes(entry.soopId))
       .map((entry) => "  - " + entry.displayName + " (" + entry.soopId + ")"),
+    "",
+    "이번 실행 복구 처리 (" + unmarkResult.unmarkedSoopIds.length + "명, 삭제됐다가 다시 신청 댓글이 확인되어 deleted 표시 해제):",
+    ...revivals
+      .filter((entry) => unmarkResult.unmarkedSoopIds.includes(entry.soopId))
+      .map((entry) => "  ↺ " + entry.displayName + " (" + entry.soopId + ")"),
   ];
-  if (markResult.skippedSoopIds.length) {
-    summaryLines.push("", "경고: 아래 SOOP ID는 roster.yaml에서 정확히 1개 항목으로 특정되지 않아 건드리지 않았습니다:", ...markResult.skippedSoopIds.map((id) => "  ? " + id));
+  const skippedSoopIds = [...markResult.skippedSoopIds, ...unmarkResult.skippedSoopIds];
+  if (skippedSoopIds.length) {
+    summaryLines.push("", "경고: 아래 SOOP ID는 roster.yaml에서 정확히 1개 항목으로 특정되지 않아 건드리지 않았습니다:", ...skippedSoopIds.map((id) => "  ? " + id));
   }
   const summary = summaryLines.join("\n") + "\n";
   console.log(summary);

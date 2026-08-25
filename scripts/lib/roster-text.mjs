@@ -113,3 +113,42 @@ export function markEntriesDeletedBySoopIds(rosterText, soopIdsToMark) {
 
   return { rosterText: result, markedSoopIds, skippedSoopIds };
 }
+
+/**
+ * Reverse of markEntriesDeletedBySoopIds: strip the `deleted: true` line from
+ * every entry block whose soopId matches one of soopIdsToUnmark, so a
+ * previously-removed applicant who reapplies is restored in place instead of
+ * being re-added as a fresh duplicate entry. A soopId with zero or more than
+ * one matching block is left untouched and reported back as skipped.
+ */
+export function unmarkEntriesDeletedBySoopIds(rosterText, soopIdsToUnmark) {
+  const blocks = findEntryBlocks(rosterText);
+  const unmarkedSoopIds = [];
+  const skippedSoopIds = [];
+  const blocksToUnmark = [];
+  // No anchors: "deleted: true" is distinctive enough within a block that
+  // matching it anywhere is safe, and it sidesteps having to reason about
+  // whether the line is mid-block (followed by an eol) or the file's very
+  // last line (no trailing eol).
+  const deletedLinePattern = /[ \t]*deleted:\s*true[ \t]*\r?\n?/;
+
+  for (const soopId of soopIdsToUnmark) {
+    const pattern = soopIdPattern(soopId);
+    const matches = blocks.filter((block) => pattern.test(rosterText.slice(block.start, block.end)));
+    if (matches.length !== 1) {
+      skippedSoopIds.push(soopId);
+      continue;
+    }
+    unmarkedSoopIds.push(soopId);
+    blocksToUnmark.push(matches[0]);
+  }
+
+  blocksToUnmark.sort((a, b) => b.start - a.start);
+  let result = rosterText;
+  for (const block of blocksToUnmark) {
+    const blockText = result.slice(block.start, block.end);
+    result = result.slice(0, block.start) + blockText.replace(deletedLinePattern, "") + result.slice(block.end);
+  }
+
+  return { rosterText: result, unmarkedSoopIds, skippedSoopIds };
+}

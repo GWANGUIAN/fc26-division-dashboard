@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parse as parseYaml } from "yaml";
-import { buildRosterBlock, detectEol, findEntryBlocks, markEntriesDeletedBySoopIds, removeEntriesBySoopIds, rosterValues, uniqueSlug } from "./roster-text.mjs";
+import { buildRosterBlock, detectEol, findEntryBlocks, markEntriesDeletedBySoopIds, removeEntriesBySoopIds, rosterValues, uniqueSlug, unmarkEntriesDeletedBySoopIds } from "./roster-text.mjs";
 
 const sampleLf = [
   "streamers:",
@@ -186,5 +186,52 @@ describe("markEntriesDeletedBySoopIds", () => {
     expect(rosterText).toContain("\r\n");
     const parsed = parseYaml(rosterText);
     expect(parsed.streamers.find((s) => s.soopId === "nogood").deleted).toBe(true);
+  });
+});
+
+describe("unmarkEntriesDeletedBySoopIds", () => {
+  it("reverses markEntriesDeletedBySoopIds for a middle entry", () => {
+    const { rosterText: marked } = markEntriesDeletedBySoopIds(sampleLf, ["nogood"]);
+    const { rosterText, unmarkedSoopIds, skippedSoopIds } = unmarkEntriesDeletedBySoopIds(marked, ["nogood"]);
+    expect(unmarkedSoopIds).toEqual(["nogood"]);
+    expect(skippedSoopIds).toEqual([]);
+    expect(rosterText).toBe(sampleLf);
+    expect(parseYaml(rosterText).streamers.find((s) => s.soopId === "nogood").deleted).toBeUndefined();
+  });
+
+  it("reverses markEntriesDeletedBySoopIds for the last entry in the file", () => {
+    const { rosterText: marked } = markEntriesDeletedBySoopIds(sampleLf, ["015234"]);
+    const { rosterText } = unmarkEntriesDeletedBySoopIds(marked, ["015234"]);
+    expect(rosterText).toBe(sampleLf);
+  });
+
+  it("unmarks multiple entries in one call without corrupting offsets", () => {
+    const { rosterText: marked } = markEntriesDeletedBySoopIds(sampleLf, ["villlo", "015234"]);
+    const { rosterText, unmarkedSoopIds } = unmarkEntriesDeletedBySoopIds(marked, ["villlo", "015234"]);
+    expect(unmarkedSoopIds.sort()).toEqual(["015234", "villlo"]);
+    expect(rosterText).toBe(sampleLf);
+  });
+
+  it("leaves other fields on the entry untouched", () => {
+    const { rosterText: marked } = markEntriesDeletedBySoopIds(sampleLf, ["nogood"]);
+    const { rosterText } = unmarkEntriesDeletedBySoopIds(marked, ["nogood"]);
+    const parsed = parseYaml(rosterText);
+    expect(parsed.streamers.find((s) => s.soopId === "villlo").deleted).toBeUndefined();
+    expect(parsed.streamers.find((s) => s.soopId === "015234").deleted).toBeUndefined();
+  });
+
+  it("skips a soopId with zero matches instead of guessing", () => {
+    const { rosterText, unmarkedSoopIds, skippedSoopIds } = unmarkEntriesDeletedBySoopIds(sampleLf, ["doesnotexist"]);
+    expect(unmarkedSoopIds).toEqual([]);
+    expect(skippedSoopIds).toEqual(["doesnotexist"]);
+    expect(rosterText).toBe(sampleLf);
+  });
+
+  it("preserves CRLF line endings", () => {
+    const crlf = sampleLf.replace(/\n/g, "\r\n");
+    const { rosterText: marked } = markEntriesDeletedBySoopIds(crlf, ["nogood"]);
+    const { rosterText } = unmarkEntriesDeletedBySoopIds(marked, ["nogood"]);
+    expect(rosterText).toBe(crlf);
+    expect(rosterText).toContain("\r\n");
   });
 });
