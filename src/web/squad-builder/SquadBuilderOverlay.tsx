@@ -21,6 +21,7 @@ import {
   createSquadBuilderCollisionDetection,
   classifyDropIntent,
   resolveInsertIndex,
+  snapOverlayCenterToCursor,
   type DragActiveData,
   type DragOverData,
   type DropIntent,
@@ -172,6 +173,29 @@ export function SquadBuilderOverlay({
   const [activeDragData, setActiveDragData] = useState<DragActiveData | null>(
     null,
   );
+  /**
+   * The pitch slot's own on-screen size at grab time, applied to the
+   * DragOverlay instead of the CSS fallback fixed-px width below. This must
+   * mirror the *slot* (not whatever the user actually grabbed) because a
+   * candidate dragged out of the drawer should preview at the size it'll
+   * have once placed on the pitch, not at the drawer's own much smaller,
+   * squad-zoom-independent grid size (`.candidate-drawer__grid` uses a
+   * fixed `minmax(90px, 1fr)` track, unrelated to `--squad-zoom`) — using
+   * the dragged element's own rect made every drawer→pitch drag look
+   * shrunk to drawer-card size.
+   *
+   * `.pitch-slot` and `.pitch-card` share the exact same width/max-width
+   * formula (see squad-builder.css) and a slot always exists for every
+   * formation slot regardless of drag kind or whether it's occupied, so
+   * measuring it directly avoids duplicating that formula's constants here
+   * — and, being measured live via `getBoundingClientRect()`, it already
+   * reflects whatever the browser's zoom is doing, unlike a hardcoded px
+   * constant.
+   */
+  const [draggedSize, setDraggedSize] = useState<{
+    width: number;
+    height: number;
+  } | null>(null);
   const [overSlotId, setOverSlotId] = useState<string | null>(null);
   const [dragIntent, setDragIntent] = useState<
     { targetId: string; intent: DropIntent } | null
@@ -225,6 +249,7 @@ export function SquadBuilderOverlay({
 
   const resetDragState = () => {
     setActiveDragData(null);
+    setDraggedSize(null);
     setOverSlotId(null);
     setDragIntent(null);
     setDragDrawerExpanded(null);
@@ -234,6 +259,9 @@ export function SquadBuilderOverlay({
     const data = event.active.data.current as DragActiveData | undefined;
     if (!data) return;
     setActiveDragData(data);
+    const slotEl = document.querySelector<HTMLElement>(".pitch-slot");
+    const rect = slotEl?.getBoundingClientRect() ?? null;
+    setDraggedSize(rect ? { width: rect.width, height: rect.height } : null);
     // Candidate drags start from inside the (hovered, open) drawer; pitch
     // drags start from the pitch, where the drawer is presumably collapsed.
     setDragDrawerExpanded(data.kind === "candidate");
@@ -497,11 +525,18 @@ export function SquadBuilderOverlay({
           onRequestDeleteCustomPlayer={(id, name) => setPendingDelete({ id, name })}
         />
 
-        <DragOverlay>
+        <DragOverlay modifiers={[snapOverlayCenterToCursor]}>
           {draggedStreamer && activeDragData && (
             <div
               className="squad-builder-drag-overlay"
-              style={{ "--squad-zoom": zoom } as CSSProperties}
+              style={
+                {
+                  "--squad-zoom": zoom,
+                  ...(draggedSize
+                    ? { width: draggedSize.width, height: draggedSize.height }
+                    : {}),
+                } as CSSProperties
+              }
             >
               <SquadBuilderCard
                 streamer={draggedStreamer}

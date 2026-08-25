@@ -1,4 +1,5 @@
-import { rectIntersection, type CollisionDetection } from "@dnd-kit/core";
+import { rectIntersection, type CollisionDetection, type Modifier } from "@dnd-kit/core";
+import { getEventCoordinates } from "@dnd-kit/utilities";
 
 /** `data` payload attached to every draggable in the squad builder's single shared DndContext. */
 export type DragActiveData =
@@ -111,3 +112,29 @@ export function resolveInsertIndex(
   if (index === -1) return orderWithoutDragged.length;
   return intent === "insert-before" ? index : index + 1;
 }
+
+/**
+ * dnd-kit's `DragOverlay` defaults to preserving wherever on the card the
+ * user originally clicked (grab a corner, the cursor stays pinned to that
+ * corner for the whole drag) — for a small pitch/candidate card that reads
+ * as the cursor drifting noticeably off-card. This re-centers the overlay
+ * on the pointer instead, every frame, regardless of grab point (the same
+ * behavior as `@dnd-kit/modifiers`' `snapCenterToCursor`, inlined here to
+ * avoid pulling in the whole package for one function).
+ */
+export const snapOverlayCenterToCursor: Modifier = ({
+  activatorEvent,
+  draggingNodeRect,
+  transform,
+}) => {
+  if (!draggingNodeRect || !activatorEvent) return transform;
+  const activatorCoordinates = getEventCoordinates(activatorEvent);
+  if (!activatorCoordinates) return transform;
+  const offsetX = activatorCoordinates.x - draggingNodeRect.left;
+  const offsetY = activatorCoordinates.y - draggingNodeRect.top;
+  return {
+    ...transform,
+    x: transform.x + offsetX - draggingNodeRect.width / 2,
+    y: transform.y + offsetY - draggingNodeRect.height / 2,
+  };
+};
