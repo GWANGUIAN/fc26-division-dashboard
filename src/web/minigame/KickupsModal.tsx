@@ -17,12 +17,12 @@ export function KickupsModal({
   return (
     <Modal
       onClose={onClose}
-      label="축구공 오래 튕기기"
+      label="축구공 튕기기"
       wide
       header={
         <div>
           <p className="eyebrow">MINIGAME</p>
-          <h2 className="kickups__title">⚽ 축구공 오래 튕기기</h2>
+          <h2 className="kickups__title">⚽ 축구공 튕기기</h2>
           <p className="kickups__intro">공을 클릭해서 최대한 오래 리프팅해보세요. 떨어뜨리면 끝, 바닥에 놓인 공을 다시 클릭하면 바로 재시작!</p>
         </div>
       }
