@@ -46,6 +46,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { PromoPostPicker } from "./PromoPostPicker";
 import { BrightnessGag } from "./BrightnessGag";
 import { SquadBuilderOverlay } from "./squad-builder/SquadBuilderOverlay";
+import { PassAnnouncementOverlay } from "./pass-announcement/PassAnnouncementOverlay";
 import { KickupsToggle } from "./minigame/KickupsToggle";
 import { KickupsModal } from "./minigame/KickupsModal";
 
@@ -59,6 +60,7 @@ export function App() {
   const [feedOpen, setFeedOpen] = useState(false);
   const [trophyOpen, setTrophyOpen] = useState(false);
   const [squadBuilderOpen, setSquadBuilderOpen] = useState(false);
+  const [passAnnouncementOpen, setPassAnnouncementOpen] = useState(false);
   const [growthGraphOpen, setGrowthGraphOpen] = useState(false);
   const [kickupsOpen, setKickupsOpen] = useState(false);
 
@@ -195,6 +197,7 @@ export function App() {
           sortMode={sortMode}
           onSortModeChange={setSortMode}
           onSquadBuilderOpen={() => setSquadBuilderOpen(true)}
+          onPassAnnouncementOpen={() => setPassAnnouncementOpen(true)}
           onGrowthGraphOpen={() => {
             handleGrowthGraphOpen();
             setGrowthGraphOpen(true);
@@ -269,6 +272,15 @@ export function App() {
         <SquadBuilderOverlay
           streamers={snapshot?.streamers ?? []}
           onClose={() => setSquadBuilderOpen(false)}
+        />
+      )}
+      {passAnnouncementOpen && (
+        <PassAnnouncementOverlay
+          streamers={snapshot?.streamers ?? []}
+          sfxEnabled={sfxEnabled}
+          sfxVolume={sfxVolume}
+          onSfxVolumeChange={changeSfxVolume}
+          onClose={() => setPassAnnouncementOpen(false)}
         />
       )}
       {kickupsOpen && (

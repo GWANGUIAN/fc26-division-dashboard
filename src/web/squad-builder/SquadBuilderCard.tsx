@@ -24,19 +24,30 @@ import { effectiveWinRatePercent, type SquadPlayer } from "./customPlayerTypes.j
 export function SquadBuilderCard({
   streamer,
   variant,
+  showGamesPlayed,
   onEdit,
   onDelete,
 }: {
   streamer: SquadPlayer;
   variant: "candidate" | "placed";
+  /** Only meaningful for variant="placed" — adds a third "경기" (games
+   * played) stat alongside the record/win-rate footer, and a modifier class
+   * a caller can use to re-tune spacing for the extra row without affecting
+   * every other "placed" card (see pass-announcement.css). */
+  showGamesPlayed?: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
 }) {
   const color = divisionColor(streamer.currentDivision);
   const rate = effectiveWinRatePercent(streamer);
+  const gamesPlayed = streamer.record
+    ? streamer.record.wins + streamer.record.draws + streamer.record.losses
+    : undefined;
 
   return (
-    <div className={`squad-card squad-card--${variant}`}>
+    <div
+      className={`squad-card squad-card--${variant} ${showGamesPlayed ? "squad-card--stats-extended" : ""}`}
+    >
       {(onEdit || onDelete) && (
         <span className="squad-card__actions">
           {onEdit && (
@@ -92,6 +103,13 @@ export function SquadBuilderCard({
         </span>
         {variant === "placed" && (
           <span className="squad-card__stats">
+            {showGamesPlayed && (
+              <span className="squad-card__stat">
+                <b className="squad-card__stat-value">
+                  {gamesPlayed !== undefined ? `${gamesPlayed}경기` : "-"}
+                </b>
+              </span>
+            )}
             <span className="squad-card__stat">
               <RecordBadge streamer={streamer} />
             </span>

@@ -1,4 +1,4 @@
-import { CheckCircle2, CirclePile, Clock, List, Minus, Plus, RefreshCw, Rows3, Shield, TrendingUp, Users } from "lucide-react";
+import { BadgeCheck, CheckCircle2, CirclePile, Clock, List, Minus, Plus, RefreshCw, Rows3, Shield, TrendingUp, Users } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
 import { hexToRgba } from "./cardVisuals";
 import { DivisionHistogram } from "./DivisionHistogram";
@@ -18,6 +18,7 @@ export function ViewToolbar({
   sortMode,
   onSortModeChange,
   onSquadBuilderOpen,
+  onPassAnnouncementOpen,
   onGrowthGraphOpen,
   onRefresh,
   refreshing,
@@ -42,6 +43,7 @@ export function ViewToolbar({
   sortMode: "division" | "winRate";
   onSortModeChange: (mode: "division" | "winRate") => void;
   onSquadBuilderOpen: () => void;
+  onPassAnnouncementOpen: () => void;
   onGrowthGraphOpen: () => void;
   onRefresh: () => void;
   refreshing: boolean;
@@ -198,6 +200,14 @@ export function ViewToolbar({
         >
           <CirclePile aria-hidden="true" />
           <span>나만의 스쿼드 빌더</span>
+        </button>
+        <button
+          type="button"
+          className="pass-announcement-toggle"
+          onClick={onPassAnnouncementOpen}
+        >
+          <BadgeCheck aria-hidden="true" />
+          <span>합격자 발표</span>
         </button>
         <div className="segmented segmented--view-mode">
           <button

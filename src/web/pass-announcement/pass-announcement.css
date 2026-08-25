@@ -1,0 +1,959 @@
+/* 합격자 발표 (Pass Announcement) — fullscreen selection + reveal overlay. */
+
+/* --- Toolbar trigger button --- */
+
+.pass-announcement-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 12px;
+  border: 1px solid #00e9ae55;
+  border-radius: 3px;
+  color: var(--text-secondary);
+  background: #00e9ae14;
+  font-weight: 700;
+  font-size: 12px;
+  white-space: nowrap;
+  transition: .2s;
+}
+.pass-announcement-toggle:hover,
+.pass-announcement-toggle:focus-visible { background: #00e9ae28; border-color: #00e9ae80; outline: 0; }
+.pass-announcement-toggle svg { width: 14px; height: 14px; stroke-width: 2.6; }
+
+/* --- "showGamesPlayed" squad-card stats override ---
+   Scoped to the opt-in .squad-card--stats-extended modifier (set by
+   SquadBuilderCard when showGamesPlayed is passed) so this only affects the
+   pool/pass-list cards here, never squad-builder's own pitch cards. This
+   file loads after squad-builder.css, so same-specificity rules here win. */
+.squad-card--stats-extended .squad-card__body {
+  padding-top: 16cqw;
+  gap: 2cqw;
+}
+.squad-card--stats-extended .squad-card__avatar .avatar {
+  width: 30cqw;
+  height: 30cqw;
+}
+.squad-card--stats-extended .squad-card__name {
+  padding: 1cqw 3cqw;
+  font-size: 12cqw;
+}
+.squad-card--stats-extended .squad-card__stats {
+  gap: 1cqw;
+  margin-top: 1cqw;
+}
+.squad-card--stats-extended .squad-card__stat .record-badge {
+  font-size: 12cqw;
+}
+.squad-card--stats-extended .squad-card__stat-label {
+  font-size: 8.5cqw;
+}
+.squad-card--stats-extended .squad-card__stat-value {
+  font-size: 10.5cqw;
+}
+
+.pass-announcement-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-base);
+  color: var(--text-primary);
+}
+
+/* 3-column grid (spacer / title / close) — same trick as
+   squad-builder-overlay__header — so the title sits dead center on the
+   header regardless of the close button's width, rather than merely
+   centered within the leftover space next to it. */
+.pass-announcement-overlay__header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-default);
+  background: var(--surface-3);
+}
+
+.pass-announcement-overlay__header-spacer { min-width: 0; }
+
+.pass-announcement-overlay__title {
+  font: 400 28px "Black Han Sans", "Barlow Condensed", "Noto Sans KR";
+  letter-spacing: .02em;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+/* Wraps the (announcement-screen-only) editable title + its hover-reveal
+   pencil button — occupies the same header-center grid cell as the plain
+   title span above. */
+.pass-announcement-overlay__title-group {
+  grid-column: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.pass-announcement-overlay__title-edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  color: var(--text-secondary);
+  background: color-mix(in srgb, var(--bg-base) 80%, transparent);
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity .15s, border-color .15s, color .15s;
+}
+.pass-announcement-overlay__title-group:hover .pass-announcement-overlay__title-edit,
+.pass-announcement-overlay__title-edit:focus-visible {
+  opacity: 1;
+}
+.pass-announcement-overlay__title-edit:hover,
+.pass-announcement-overlay__title-edit:focus-visible {
+  border-color: var(--accent-border);
+  color: var(--accent-text);
+}
+.pass-announcement-overlay__title-edit svg { width: 13px; height: 13px; stroke-width: 2.4; }
+
+.pass-announcement-overlay__title-input {
+  grid-column: 2;
+  width: min(420px, 60vw);
+  padding: 4px 10px;
+  border: 1px solid var(--accent-border);
+  border-radius: 3px;
+  outline: none;
+  color: #ffffff;
+  background: var(--surface-input);
+  font: 400 22px "Black Han Sans", "Barlow Condensed", "Noto Sans KR";
+  letter-spacing: .02em;
+  text-align: center;
+}
+
+.pass-announcement-overlay__close {
+  grid-column: 3;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--text-primary);
+  background: var(--border-faint);
+  cursor: pointer;
+}
+.pass-announcement-overlay__close:hover { background: var(--border-strong); }
+.pass-announcement-overlay__close svg { width: 18px; height: 18px; }
+
+/* --- Selection screen --- */
+
+.pass-selection {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  gap: 16px;
+  padding: 16px 16px 0;
+}
+
+.pass-pool,
+.pass-list {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 3px;
+  background: var(--surface-panel);
+}
+
+.pass-pool { flex: 1; min-width: 0; }
+.pass-list { flex: 0 0 380px; }
+
+.pass-pool__header,
+.pass-list__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-default);
+  flex-shrink: 0;
+}
+
+.pass-pool__title,
+.pass-list__title { flex-shrink: 0; font: 700 13px "Noto Sans KR"; opacity: .85; }
+.pass-pool__title b,
+.pass-list__title b { color: var(--accent-text); font-size: 15px; }
+
+.pass-list__clear {
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: 7px 11px;
+  border: 1px solid var(--border-strong);
+  border-radius: 3px;
+  color: var(--text-secondary);
+  background: transparent;
+  font: 700 12px "Noto Sans KR";
+  cursor: pointer;
+  transition: .18s;
+}
+.pass-list__clear:hover { border-color: #ff6b6b80; color: #ffd6d6; background: #ff6b6b14; }
+
+.pass-pool__search { flex: 0 1 260px; min-width: 140px; }
+.pass-pool__search input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 3px;
+  border: 1px solid var(--border-strong);
+  outline: none;
+  color: #effff9;
+  background: var(--surface-input);
+  font-size: 13px;
+}
+.pass-pool__search input:focus { border-color: var(--accent-border); box-shadow: 0 0 0 3px #00e9ae12; }
+
+.pass-pool__sort {
+  display: flex;
+  flex: 0 0 auto;
+  margin-left: auto;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.pass-pool__sort button {
+  border: 0;
+  padding: 8px 11px;
+  color: var(--text-secondary);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: .18s;
+}
+.pass-pool__sort button:hover { color: #effff9; background: var(--fill-faint); }
+.pass-pool__sort button.active { color: var(--accent-text); background: #00e9ae1a; }
+.pass-pool__sort button + button { border-left: 1px solid var(--border-strong); }
+
+.pass-pool__panel,
+.pass-list__panel {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px 14px;
+  scrollbar-width: thin;
+  scrollbar-color: #00e9ae80 transparent;
+}
+.pass-pool__panel::-webkit-scrollbar,
+.pass-list__panel::-webkit-scrollbar { width: 8px; }
+.pass-pool__panel::-webkit-scrollbar-track,
+.pass-list__panel::-webkit-scrollbar-track { background: transparent; }
+.pass-pool__panel::-webkit-scrollbar-thumb,
+.pass-list__panel::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #00e9ae66;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.pass-pool__grid,
+.pass-list__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 10px;
+}
+
+.pass-pool__empty,
+.pass-list__empty {
+  grid-column: 1 / -1;
+  opacity: .6;
+  font-size: 13px;
+  text-align: center;
+  padding: 24px 12px;
+}
+
+.pass-pool-card,
+.pass-list-card {
+  position: relative;
+  aspect-ratio: 300 / 450;
+  cursor: grab;
+  touch-action: none;
+  transition: opacity .18s ease, box-shadow .12s ease;
+}
+.pass-pool-card--dragging,
+.pass-list-card--dragging { opacity: .35; }
+
+/* Insertion-line preview shown while dragging a card over this one — the
+   left/right edge indicates which side the dragged card will land on. */
+.pass-list-card--insert-before { box-shadow: inset 4px 0 0 var(--accent-text); }
+.pass-list-card--insert-after { box-shadow: inset -4px 0 0 var(--accent-text); }
+
+/* Always-reserved empty row so there's never a "no room to drop" edge —
+   dragging a card toward the bottom of a full list always has somewhere
+   to land. */
+.pass-list__spacer {
+  aspect-ratio: 300 / 450;
+  border: 1px dashed var(--border-strong);
+  border-radius: 3px;
+  opacity: .45;
+  pointer-events: none;
+}
+
+.pass-list-card__remove,
+.pass-list-card__revealed-badge {
+  position: absolute;
+  z-index: 2;
+  top: 4%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--bg-base) 80%, transparent);
+}
+.pass-list-card__remove {
+  right: 4%;
+  opacity: .55;
+  cursor: pointer;
+  transition: opacity .15s, border-color .15s, color .15s;
+}
+.pass-list-card__remove:hover,
+.pass-list-card__remove:focus-visible {
+  opacity: 1;
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+}
+/* Purely informational (not a lock — the card stays fully
+   draggable/removable even once already announced on stream). */
+.pass-list-card__revealed-badge {
+  left: 4%;
+  opacity: .8;
+  color: var(--accent-text);
+  border-color: var(--accent-border);
+  pointer-events: none;
+}
+.pass-list-card__remove svg,
+.pass-list-card__revealed-badge svg { width: 12px; height: 12px; stroke-width: 2.4; }
+
+/* Click-to-add on a pool card (no drag needed) — same neutral corner-icon
+   look as the remove/revealed-badge buttons above, just green on hover
+   instead of red since this is an additive action. */
+.pass-pool-card__add {
+  position: absolute;
+  z-index: 2;
+  top: 4%;
+  right: 4%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--bg-base) 80%, transparent);
+  opacity: .55;
+  cursor: pointer;
+  transition: opacity .15s, border-color .15s, color .15s;
+}
+.pass-pool-card__add:hover,
+.pass-pool-card__add:focus-visible {
+  opacity: 1;
+  border-color: var(--accent-border);
+  color: var(--accent-text);
+}
+.pass-pool-card__add svg { width: 12px; height: 12px; stroke-width: 2.4; }
+
+.pass-selection__footer {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  flex-shrink: 0;
+}
+/* --- CTA buttons (선정 완료 / 합격자 공개) ---
+   Solid filled green pill, same language as the site's other primary CTAs
+   (e.g. .kickups-start in styles.css): dark text on the bright accent fill
+   with a soft glow — no translucent tint, no gradient/shine gimmicks. */
+.pass-selection__confirm,
+.pass-announcement-screen__reveal-button {
+  border: 1px solid var(--accent-border);
+  border-radius: 3px;
+  color: #002219;
+  background: var(--accent-text);
+  font: 800 18px/1 "Barlow Condensed", "Noto Sans KR";
+  letter-spacing: .04em;
+  box-shadow: 0 10px 26px #00e9ae4a;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .18s, opacity .18s;
+}
+.pass-selection__confirm:hover:not(:disabled),
+.pass-announcement-screen__reveal-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px #00e9ae66;
+}
+.pass-selection__confirm:disabled,
+.pass-announcement-screen__reveal-button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.pass-selection__confirm {
+  padding: 14px 34px;
+}
+
+.pass-drag-overlay {
+  width: 128px;
+  aspect-ratio: 300 / 450;
+  filter: drop-shadow(0 12px 24px #00000080);
+  cursor: grabbing;
+}
+
+@media (max-width: 900px) {
+  .pass-selection { flex-direction: column; }
+  .pass-list { flex: 0 0 260px; }
+}
+
+/* --- Announcement (reveal) screen --- */
+
+.pass-announcement-screen {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  background:
+    radial-gradient(120% 90% at 50% -10%, rgba(13, 43, 34, .55) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(5, 11, 9, .55) 0%, rgba(1, 16, 12, .62) 60%, rgba(1, 6, 4, .75) 100%),
+    url("/background_pass.webp") center / cover no-repeat;
+}
+
+.pass-announcement-screen__back {
+  position: absolute;
+  z-index: 4;
+  top: 16px;
+  left: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--surface-3) 80%, transparent);
+  font: 700 12px "Noto Sans KR";
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.pass-announcement-screen__back:hover { border-color: var(--accent-border); color: var(--accent-text); }
+.pass-announcement-screen__back svg { width: 14px; height: 14px; stroke-width: 2.4; }
+
+/* Absolutely positioned (not a flex sibling of the stage) so its width
+   never shifts the stage's center — the reveal button/card stay dead
+   center on the full screen regardless of how many names are in the
+   list. A 2-column grid so a long roster fills top-to-bottom across both
+   columns instead of one tall single-file list that can run past the
+   bottom of the screen and hide people. */
+.pass-reveal-rail {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 560px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  align-content: start;
+  gap: 10px;
+  padding: 76px 16px 16px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #00e9ae80 transparent;
+}
+
+/* Photo + name on the left, division pinned to the right edge. */
+.pass-reveal-rail__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 9px 13px 9px 8px;
+  border: 1px solid color-mix(in srgb, var(--item-color) 45%, var(--border-strong));
+  border-radius: 6px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--item-color) 20%, var(--surface-3)), var(--surface-3) 75%);
+  opacity: 0;
+  animation: pass-reveal-card-in .4s ease forwards;
+}
+.pass-reveal-rail__avatar { flex-shrink: 0; display: inline-flex; }
+/* `.avatar`'s base rule sets `flex: 0 0 42px` — without overriding the
+   flex-basis here too, a flex-item avatar keeps a 42px main-axis width
+   while height stays at the fixed height below, stretching it into an
+   oval instead of a circle. */
+.pass-reveal-rail__avatar .avatar {
+  flex: 0 0 52px;
+  width: 52px;
+  height: 52px;
+  border: 2px solid var(--item-color, #000);
+}
+.pass-reveal-rail__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text-primary);
+  font: 700 22px "Noto Sans KR";
+}
+.pass-reveal-rail__division {
+  flex-shrink: 0;
+  color: var(--item-color);
+  font: 800 19px "Barlow Condensed";
+  letter-spacing: .04em;
+  opacity: .95;
+}
+
+/* Absolute + inset:0 over the *whole* screen (not a flex sibling sharing
+   space with the rail) so this centers on the full screen width, and a
+   bottom-heavy padding nudges the centered card up a bit from dead-center. */
+.pass-announcement-stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-bottom: 10vh;
+}
+
+/* --- Final lineup (shown once every passer has been revealed) --- */
+
+.pass-announcement-summary {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  padding: 90px 40px 40px;
+}
+
+.pass-announcement-summary__grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  gap: 10px;
+  max-width: min(1100px, 90vw);
+  max-height: 70vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #00e9ae80 transparent;
+}
+.pass-announcement-summary__grid .pass-reveal-rail__item {
+  width: 240px;
+}
+
+.pass-announcement-summary__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.pass-announcement-summary__copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #00e9ae55;
+  border-radius: 3px;
+  color: #c8fff0;
+  background: #00e9ae1a;
+  padding: 14px 30px;
+  font: 800 17px/1 "Barlow Condensed", "Noto Sans KR";
+  letter-spacing: .04em;
+  cursor: pointer;
+  transition: background .18s, border-color .18s, opacity .18s;
+}
+.pass-announcement-summary__copy:hover:not(:disabled) {
+  background: #00e9ae2e;
+  border-color: #00e9ae80;
+}
+.pass-announcement-summary__copy:disabled { opacity: .5; cursor: not-allowed; }
+.pass-announcement-summary__copy svg { width: 17px; height: 17px; stroke-width: 2.4; }
+
+.pass-announcement-summary__status {
+  font: 700 13px "Noto Sans KR";
+}
+.pass-announcement-summary__status--ok { color: var(--accent-text); }
+.pass-announcement-summary__status--error { color: #ff8a8a; }
+
+/* Position/size only — the button look and hover/disabled states are
+   defined once, shared with .pass-selection__confirm above. */
+.pass-announcement-screen__reveal-button {
+  position: absolute;
+  z-index: 3;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 16px 40px;
+  font-size: 19px;
+}
+.pass-announcement-screen__reveal-button:hover:not(:disabled) { transform: translateX(-50%) translateY(-2px); }
+
+/* --- Spin duration settings (bottom-right) --- */
+
+.pass-spin-settings {
+  position: absolute;
+  z-index: 4;
+  right: 16px;
+  bottom: 16px;
+}
+
+.pass-spin-settings__toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--surface-3) 80%, transparent);
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.pass-spin-settings__toggle:hover,
+.pass-spin-settings__toggle[aria-expanded="true"] {
+  border-color: var(--accent-border);
+  color: var(--accent-text);
+}
+.pass-spin-settings__toggle svg { width: 18px; height: 18px; stroke-width: 2.2; }
+
+.pass-spin-settings__popover {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid #00e9ae40;
+  border-radius: 3px;
+  background: var(--surface-panel);
+  box-shadow: 0 8px 24px rgba(var(--shadow-color), .31);
+}
+.pass-spin-settings__label {
+  font: 800 12px "Barlow Condensed", "Noto Sans KR";
+  letter-spacing: .02em;
+  color: var(--text-primary);
+}
+.pass-spin-settings__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pass-spin-settings__row input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  accent-color: #00e9ae;
+  cursor: pointer;
+}
+.pass-spin-settings__value {
+  flex-shrink: 0;
+  width: 2.6em;
+  text-align: right;
+  font: 700 13px "Barlow Condensed", "Noto Sans KR";
+  color: color-mix(in srgb, var(--text-primary) 65%, transparent);
+}
+
+/* --- Reveal card --- */
+
+/* Deliberately NOT a two-sided 3D flip (preserve-3d + backface-visibility):
+   combining that with `filter` (needed for the drop-shadow/glow) on the
+   rotating element is a known cross-browser gotcha — `filter` forces its
+   own compositing layer, which flattens/breaks backface-visibility in some
+   engines, leaving the back face visible even once "rotated away". Instead,
+   only the back ever spins (a plain rotateY on a single face — still reads
+   as a 3D spin thanks to the parent's `perspective`), and the front is
+   swapped in via a plain React conditional the instant the spin ends. */
+.reveal-card {
+  position: relative;
+  width: min(340px, 34vw, 60vh);
+  aspect-ratio: 300 / 450;
+  perspective: 1800px;
+  filter: drop-shadow(0 24px 50px #000000a0);
+  opacity: 0;
+  transform: scale(.4);
+  animation: pass-card-enter .35s cubic-bezier(.2, .8, .2, 1) forwards;
+}
+/* Neither state below touches the root's `animation` anymore (the glow
+   moved to a dedicated outline overlay, see .reveal-card__glow-outline),
+   so the base rule's pass-card-enter keeps its forwards-filled end state
+   (opacity:1, scale(1)) applied the whole time without needing to be
+   restated here. */
+.reveal-card--settling {
+  animation: pass-card-settle .45s ease forwards;
+}
+
+.reveal-card__spin {
+  container-type: inline-size;
+  position: absolute;
+  inset: 0;
+}
+.reveal-card--spinning .reveal-card__spin {
+  animation-name: pass-card-spin;
+  animation-duration: var(--spin-duration, 4s);
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+/* The spinning back also shows the division early, before the front face
+   swaps in — plain text overlay (not baked into FifaShield itself) so the
+   shared, translucent card-board shield stays untouched. */
+.reveal-card__spin-division {
+  position: absolute;
+  z-index: 1;
+  top: 7%;
+  left: 8%;
+  opacity: .72;
+  color: #f5fbf8;
+  font-family: "Barlow Condensed";
+  font-weight: 800;
+  font-size: 15cqw;
+  line-height: 1;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+
+.reveal-card__shadow {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 1;
+  pointer-events: none;
+}
+.reveal-card__shadow--fade {
+  animation: pass-card-shadow-fade .5s ease forwards;
+}
+
+/* --- Sparkle + glow flourish while the reveal sits frozen on stage --- */
+
+/* A stroked (unfilled) trace of the shield's own outline — pulsing its
+   drop-shadow glows only the rim, since there's no fill behind the stroke
+   for the blur to bleed color through (unlike glowing the whole card). */
+.reveal-card__glow-outline {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  fill: none;
+  stroke: var(--reveal-glow-color, #00e9ae);
+  stroke-width: 5;
+  pointer-events: none;
+  animation: pass-card-glow-outline 1.7s ease-in-out infinite;
+}
+
+.reveal-card__sparkles {
+  position: absolute;
+  inset: -8%;
+  z-index: 3;
+  pointer-events: none;
+}
+/* Same layer, just sized to the card itself (not expanded beyond it) so its
+   slot percentages land inside the visible card rather than around it. */
+.reveal-card__sparkles--inner {
+  inset: 0;
+}
+.reveal-card__spark {
+  position: absolute;
+  color: var(--reveal-glow-color, #00e9ae);
+  line-height: 1;
+  font-style: normal;
+  text-shadow: 0 0 10px var(--reveal-glow-color, #00e9ae), 0 0 20px var(--reveal-glow-color, #00e9ae);
+  opacity: 0;
+  animation: fancy-spark-twinkle 2.3s ease-in-out infinite;
+}
+
+/* --- Reveal card front face content (avatar/name/division/record) --- */
+
+.reveal-card-front {
+  container-type: inline-size;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  color: #181206;
+  text-align: center;
+  user-select: none;
+}
+/* The shield backdrop (reused from the spinning back) appears instantly on
+   swap, but the actual player info — division badge, avatar/name/record —
+   fades in slightly translucent-to-opaque while rising up a touch, so the
+   reveal reads as the info settling into place rather than a hard cut. */
+.reveal-card-front__division,
+.reveal-card-front__body {
+  opacity: 0;
+  transform: translateY(14px);
+  animation: pass-front-reveal .45s cubic-bezier(.2, .8, .2, 1) forwards;
+}
+.reveal-card-front__division {
+  position: absolute;
+  z-index: 1;
+  top: 7%;
+  left: 8%;
+  color: #f5fbf8;
+  font-family: "Barlow Condensed";
+  font-weight: 800;
+  font-size: 15cqw;
+  line-height: 1;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+  /* opacity/transform/animation come from the combined rule above (shared
+     with __body) which fades+rises this in; not restated here. */
+}
+/* Avatar+name pinned toward the top (not vertically centered) so the stats
+   block below has real room to be shown large. */
+.reveal-card-front__body {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4cqw;
+  padding: 20cqw 9cqw 9cqw;
+}
+.reveal-card-front__avatar { position: relative; flex-shrink: 0; }
+.reveal-card-front__avatar .avatar {
+  width: 34cqw;
+  height: 34cqw;
+  border: 2px solid var(--avatar-border, #000);
+}
+/* Same translucent name-plate treatment as the existing squad-card
+   (division-color tint via inline style + var(--border-strong) hairlines). */
+.reveal-card-front__name {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 2cqw 4cqw;
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
+  font-size: 12cqw;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.reveal-card-front__name > * { min-width: 0; max-width: 100%; }
+.reveal-card-front__name strong,
+.reveal-card-front__name .fancy-name__text {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.reveal-card-front__name strong {
+  color: #fff;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+/* Pushed down to the bottom of the available space (body uses
+   justify-content:flex-start above) and given plenty of room now that the
+   avatar/name group above no longer eats into vertical centering. */
+.reveal-card-front__stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4cqw;
+  margin-top: 6cqw;
+}
+/* `.record-badge` (from cardVisuals) hardcodes its own 12px font — our
+   cqw sizing has to target it directly, a plain wrapper font-size does
+   nothing since the badge doesn't inherit it. */
+.reveal-card-front__record .record-badge {
+  font: 700 10cqw "Barlow Condensed";
+  color: #fff;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+.reveal-card-front__winrate {
+  display: flex;
+  align-items: baseline;
+  gap: 5cqw;
+}
+.reveal-card-front__winrate-label {
+  color: #f5fbf8;
+  opacity: .75;
+  font-size: 7cqw;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+.reveal-card-front__winrate-value {
+  color: #fff;
+  font-size: 10cqw;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+
+@keyframes pass-card-enter {
+  from { opacity: 0; transform: scale(.4); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes pass-front-reveal {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pass-card-settle {
+  from { opacity: 1; transform: translateX(0) scale(1); }
+  to { opacity: 0; transform: translateX(-42vw) scale(.22); }
+}
+/* Constant, extremely fast spin for most of the duration (8 full turns in
+   3s = 900deg/s), then a sharp deceleration into the last turn so it reads
+   as "whirling fast from the very start, then snapping to a stop" — lands
+   on an exact multiple of 360deg (a plain, non-mirrored back) since the
+   front is swapped in via a plain React conditional the instant this ends,
+   not by rotating a hidden face into view. */
+@keyframes pass-card-spin {
+  0% { transform: rotateY(0deg); animation-timing-function: linear; }
+  75% { transform: rotateY(2700deg); animation-timing-function: cubic-bezier(.15, .75, .2, 1); }
+  100% { transform: rotateY(2880deg); }
+}
+/* Pulses ONLY the outline stroke's drop-shadow (see .reveal-card__glow-outline)
+   — no fill behind it, so this can't bleed color through the translucent
+   shield the way glowing the whole (filled) card did. */
+@keyframes pass-card-glow-outline {
+  0%, 100% {
+    filter: drop-shadow(0 0 5px var(--reveal-glow-color)) drop-shadow(0 0 12px var(--reveal-glow-color));
+    opacity: .8;
+  }
+  50% {
+    filter: drop-shadow(0 0 10px var(--reveal-glow-color)) drop-shadow(0 0 22px var(--reveal-glow-color));
+    opacity: 1;
+  }
+}
+@keyframes pass-card-shadow-fade {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes pass-reveal-card-in {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-card,
+  .reveal-card__spin,
+  .reveal-card__shadow,
+  .reveal-card__spark,
+  .reveal-card__glow-outline,
+  .reveal-card-front__division,
+  .reveal-card-front__body,
+  .pass-reveal-rail__item {
+    animation-duration: .01ms !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .pass-announcement-overlay { display: none; }
+}
