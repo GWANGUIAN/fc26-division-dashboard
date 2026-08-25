@@ -4,18 +4,23 @@ import { normalizeCafeAlias } from "../shared/promotion.js";
 import { DEFAULT_CELEBRATION_MESSAGE } from "./FavoriteCelebration";
 import { DAY_MS } from "./storage";
 
+const CELEBRATION_WINDOW_MS = DAY_MS / 2;
+
 export function useLatestActivity(
   snapshot: DashboardSnapshot | undefined,
   streamers: StreamerRecord[],
 ) {
-  const latest = (
+  const recentPosts =
     snapshot?.latestPosts.length
       ? snapshot.latestPosts
       : streamers
           .flatMap((streamer) => (streamer.lastPost ? [streamer.lastPost] : []))
-          .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
-  ).filter(
+          .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+  const latest = recentPosts.filter(
     (post) => Date.now() - new Date(post.publishedAt).getTime() < DAY_MS,
+  );
+  const celebrationEligible = recentPosts.filter(
+    (post) => Date.now() - new Date(post.publishedAt).getTime() < CELEBRATION_WINDOW_MS,
   );
   const celebrationSlides = useMemo(() => {
     const postSlides = (snapshot?.streamers ?? [])
@@ -23,7 +28,7 @@ export function useLatestActivity(
         const normalizedAliases = new Set(
           streamer.cafeAliases.map(normalizeCafeAlias),
         );
-        const todaysPosts = latest.filter((post) =>
+        const todaysPosts = celebrationEligible.filter((post) =>
           normalizedAliases.has(normalizeCafeAlias(post.cafeAuthor)),
         );
         if (!todaysPosts.length) return [];
@@ -48,7 +53,7 @@ export function useLatestActivity(
       { key: "default", message: DEFAULT_CELEBRATION_MESSAGE },
       ...postSlides.map(({ key, message }) => ({ key, message })),
     ];
-  }, [snapshot, latest]);
+  }, [snapshot, celebrationEligible]);
 
   return { latest, celebrationSlides };
 }
