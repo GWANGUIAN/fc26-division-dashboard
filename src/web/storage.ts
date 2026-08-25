@@ -134,6 +134,26 @@ export function saveCardZoomLevel(level: number) {
   }
 }
 
+const KICKUPS_HIGH_SCORE_KEY = "fc26-kickups-highscore";
+
+export function loadKickupsHighScore(): number {
+  try {
+    const raw = localStorage.getItem(KICKUPS_HIGH_SCORE_KEY);
+    const value = raw === null ? 0 : Number(raw);
+    return Number.isFinite(value) && value > 0 ? Math.floor(value) : 0;
+  } catch {
+    return 0;
+  }
+}
+
+export function saveKickupsHighScore(score: number) {
+  try {
+    localStorage.setItem(KICKUPS_HIGH_SCORE_KEY, String(Math.floor(score)));
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
+
 export function hasHeardSfx(): boolean {
   try {
     return localStorage.getItem(SFX_HEARD_STORAGE_KEY) === "1";

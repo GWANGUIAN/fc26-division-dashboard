@@ -46,6 +46,8 @@ import { ThemeToggle } from "./ThemeToggle";
 import { PromoPostPicker } from "./PromoPostPicker";
 import { BrightnessGag } from "./BrightnessGag";
 import { SquadBuilderOverlay } from "./squad-builder/SquadBuilderOverlay";
+import { KickupsToggle } from "./minigame/KickupsToggle";
+import { KickupsModal } from "./minigame/KickupsModal";
 
 export function App() {
   const { snapshot, loading: snapshotLoading, refresh: refreshSnapshot } =
@@ -58,6 +60,7 @@ export function App() {
   const [trophyOpen, setTrophyOpen] = useState(false);
   const [squadBuilderOpen, setSquadBuilderOpen] = useState(false);
   const [growthGraphOpen, setGrowthGraphOpen] = useState(false);
+  const [kickupsOpen, setKickupsOpen] = useState(false);
 
   const { toast, showToast } = useToast();
   const { theme, toggleTheme } = useTheme();
@@ -284,6 +287,13 @@ export function App() {
           onClose={() => setSquadBuilderOpen(false)}
         />
       )}
+      {kickupsOpen && (
+        <KickupsModal
+          onClose={() => setKickupsOpen(false)}
+          sfxEnabled={sfxEnabled}
+          sfxVolume={sfxVolume}
+        />
+      )}
       <LatestFeedDrawer
         open={feedOpen}
         onClose={() => setFeedOpen(false)}
@@ -291,6 +301,7 @@ export function App() {
       />
       <div className="bottom-left-toolbar">
         <ThemeToggle theme={theme} onToggle={toggleTheme} />
+        <KickupsToggle onClick={() => setKickupsOpen(true)} />
         <PromoPostPicker
           posts={snapshot?.promoPosts ?? []}
           sfxEnabled={sfxEnabled}
