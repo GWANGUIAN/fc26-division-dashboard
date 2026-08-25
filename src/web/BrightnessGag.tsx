@@ -68,6 +68,8 @@ function badgeForNickname(name: string) {
   return CHAT_BADGES[hash % CHAT_BADGES.length];
 }
 
+const IMAGE_URLS = ["/profiles/iro.webp", ...CHAT_BADGES];
+
 export function BrightnessGag() {
   useEffect(() => {
     const warmups = SFX_URLS.map((src) => {
@@ -81,6 +83,13 @@ export function BrightnessGag() {
         audio.src = "";
       });
     };
+  }, []);
+
+  useEffect(() => {
+    IMAGE_URLS.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
   }, []);
 
   const [active, setActive] = useState(false);
