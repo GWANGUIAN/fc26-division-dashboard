@@ -1,5 +1,6 @@
 import type { OneVsOneApplicationView } from "../shared/model.js";
 import { soopChannelUrl } from "../shared/model.js";
+import { ADDITIONAL_VERDICT_CRITERIA } from "../shared/one-vs-one.js";
 import { DEFAULT_ONE_VS_ONE_CONFIG } from "../shared/one-vs-one-results.js";
 import { formatCafePostDate } from "../shared/dates.js";
 import { Avatar } from "./cardVisuals";
@@ -51,15 +52,23 @@ export function EvaluationCard({
 }) {
   const result = application.result;
   return (
-    <article className="evaluation-card">
+    <article
+      className="evaluation-card"
+      role="button"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onOpen();
+        }
+      }}
+      aria-label={`${application.displayName} 1대1 평가 상세 보기`}
+    >
       <div
         className={`evaluation-card__body ${result ? "evaluation-card--completed" : ""}`}
       >
-        <button
-          className="evaluation-card__main"
-          onClick={onOpen}
-          aria-label={`${application.displayName} 1대1 평가 상세 보기`}
-        >
+        <div className="evaluation-card__main">
           <Avatar {...application} />
           <span>
             <strong>{application.displayName}</strong>
@@ -71,17 +80,20 @@ export function EvaluationCard({
           <b className={`evaluation-status ${result ? "done" : "waiting"}`}>
             {result ? "대결 완료" : "대결 전"}
           </b>
-        </button>
+        </div>
         {result && (
-          <button className="evaluation-result" onClick={onOpen}>
+          <div className="evaluation-result">
             <span>
               {result.candidateScore} : {result.woowakgoodScore}
             </span>
             <strong>{result.verdict}</strong>
             <small>{formatDateTime(result.playedAt)}</small>
-          </button>
+          </div>
         )}
-        <div className="evaluation-card__actions">
+        <div
+          className="evaluation-card__actions"
+          onClick={(event) => event.stopPropagation()}
+        >
           <CafeLink href={application.articleUrl} label="신청글" />
         </div>
       </div>
@@ -143,6 +155,13 @@ export function EvaluationModal({
           <div className="verdict">
             <b>{result.verdict}</b>
             <p>{result.detail}</p>
+            {result.detail.includes("나머지 4개 기준") && (
+              <ul className="verdict__criteria">
+                {ADDITIONAL_VERDICT_CRITERIA.map((criterion) => (
+                  <li key={criterion}>{criterion}</li>
+                ))}
+              </ul>
+            )}
             {result.note && <small>{result.note}</small>}
           </div>
         </section>
