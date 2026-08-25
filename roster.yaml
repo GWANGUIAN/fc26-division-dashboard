@@ -646,6 +646,7 @@ streamers:
     celebrationMessage: "햇슨황의 {n}부 리그 승격을 축하합니다~!!🤤"
     reviewNote: "AI를 활용해서 프로그램들을 잘 만들어서 햇슨황이라는 별명 있음"
     sfx: "/sfxes/hatbbi.mp3"
+    deleted: true
   - slug: tleod1818
     displayName: "빙밍_"
     cafeAliases: ["빙밍"]
