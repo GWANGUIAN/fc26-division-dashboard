@@ -118,22 +118,6 @@ export function App() {
     [soopLive.entries],
   );
 
-  const celebrationSlidesWithIro = useMemo(() => {
-    const iroMessage =
-      "천년돌 아이로의 하루고멤 합격을 축하합니다🎤 - 플러그 일동 -";
-    if (celebrationSlides.length === 0) {
-      return [{ key: "iro-celebration", message: iroMessage }];
-    }
-    const result: typeof celebrationSlides = [];
-    let iroCount = 0;
-    celebrationSlides.forEach((slide, index) => {
-      if (index % 2 === 0) {
-        result.push({ key: `iro-celebration-${iroCount++}`, message: iroMessage });
-      }
-      result.push(slide);
-    });
-    return result;
-  }, [celebrationSlides]);
 
   async function handleCopyDivisionList() {
     try {
@@ -173,7 +157,7 @@ export function App() {
         onFeedOpen={() => setFeedOpen(true)}
         onTrophyOpen={() => setTrophyOpen(true)}
       />
-      <FavoriteCelebration slides={celebrationSlidesWithIro} />
+      <FavoriteCelebration slides={celebrationSlides} />
       <HeroSection isDivision={isDivision} snapshot={snapshot} />
       <SoopLiveSection soopLive={soopLive} />
       <JandyVideoSection />
