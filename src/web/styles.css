@@ -753,14 +753,14 @@ body { isolation: isolate; }
 .brightness-gag-intro__shutter--bottom { bottom: 0; height: 72%; transform-origin: bottom; }
 @keyframes brightness-gag-intro-shutter { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 
-.brightness-gag-chat { position: fixed; z-index: 10001; top: 0; left: 0; width: 42vw; height: 50vh; overflow: hidden; pointer-events: none; display: flex; flex-direction: column; justify-content: flex-end; gap: 10px; padding: 14px; box-sizing: border-box; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 100%); }
+.brightness-gag-chat { position: fixed; z-index: 10001; top: 0; left: 0; width: 100vw; height: 50vh; overflow: hidden; pointer-events: none; display: flex; flex-direction: column; justify-content: flex-end; gap: 10px; padding: 14px; box-sizing: border-box; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 100%); }
 .brightness-gag-chat__line { display: flex; flex-wrap: nowrap; align-items: baseline; gap: 8px; font: 800 40px "Noto Sans KR", sans-serif; line-height: 1.25; white-space: nowrap; animation: brightness-gag-chat-pop .28s cubic-bezier(.2, .8, .2, 1); }
 @keyframes brightness-gag-chat-pop { 0% { opacity: 0; transform: translateY(22px) scale(.92); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 .brightness-gag-chat__badge { flex: 0 0 auto; align-self: center; width: 1em; height: 1em; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .6)); }
 .brightness-gag-chat__fbadge { flex: 0 0 auto; align-self: center; display: grid; place-items: center; width: 1em; height: 1em; border-radius: .2em; background: #8aff5c; color: #fff; font: 900 .7em/1 "Barlow Condensed", "Noto Sans KR", sans-serif; }
 .brightness-gag-chat__nick { flex: 0 0 auto; font-weight: 900; text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 -2px 0 #000, 0 2px 0 #000, -2px 0 0 #000, 2px 0 0 #000; }
 .brightness-gag-chat__text { color: #fff; text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 -2px 0 #000, 0 2px 0 #000, -2px 0 0 #000, 2px 0 0 #000; }
-@media (max-width: 680px) { .brightness-gag-chat { width: 78vw; height: 42vh; } .brightness-gag-chat__line { font-size: 26px; } }
+@media (max-width: 680px) { .brightness-gag-chat { width: 100vw; height: 42vh; } .brightness-gag-chat__line { font-size: 26px; } }
 
 .brightness-gag-overlay { position: fixed; z-index: 9000; inset: 0; pointer-events: none; background: repeating-linear-gradient(90deg, rgba(255, 255, 252, .74) 0, rgba(255, 255, 252, .74) 221px, rgba(255, 232, 165, .44) 247px, rgba(255, 232, 165, .44) 442px, rgba(255, 255, 252, .74) 468px); backdrop-filter: brightness(6.5) contrast(.32) saturate(.12) blur(1.2px); -webkit-backdrop-filter: brightness(6.5) contrast(.32) saturate(.12) blur(1.2px); animation: brightness-gag-flash .35s ease-out; }
 @keyframes brightness-gag-flash { 0% { opacity: 0; } 100% { opacity: 1; } }
