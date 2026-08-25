@@ -260,6 +260,9 @@ export function BrightnessGag() {
                 alt=""
                 className="brightness-gag-chat__badge"
               />
+              <span className="brightness-gag-chat__fbadge" aria-hidden="true">
+                F
+              </span>
               <span
                 className="brightness-gag-chat__nick"
                 style={{ color: colorForNickname(message.nickname) }}
