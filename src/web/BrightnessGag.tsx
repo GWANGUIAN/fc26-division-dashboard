@@ -11,11 +11,12 @@ const SFX_URLS = [
   "/sfxes/shine.mp3",
 ];
 
-const CHAT_MESSAGES: { nickname: string; text: string }[] = [
+const CHAT_MESSAGES: { nickname: string; text: string; noBadge?: boolean }[] = [
   { nickname: "유샥크", text: "아이로 진짜 왜케 잘생겼냐 미쳤다💛💚" },
   { nickname: "독고혜지", text: "아이로 최고야 너무 멋있어💚💛" },
   { nickname: "땃쥐", text: "아이로형, 너무 멋있어요." },
   { nickname: "사라정", text: "아이로 오빠, so handsome💛" },
+  { nickname: "성기사 샬롯", text: "지랄", noBadge: true },
   { nickname: "유키라", text: "아이로 없인 못 살아ㅠㅠ💚💛" },
   { nickname: "제갈금자", text: "선우야, 너가 너무 자랑스러워" },
   { nickname: "하로하", text: "아이로 사랑해 진짜 최고야💛" },
@@ -23,6 +24,7 @@ const CHAT_MESSAGES: { nickname: string; text: string }[] = [
   { nickname: "유샥크", text: "라이트 온 미쳤다 진짜ㅠㅠ💚" },
   { nickname: "독고혜지", text: "심쿵사 할 듯💚💛" },
   { nickname: "유키라", text: "아이로 진짜 사랑해💛💚" },
+  { nickname: "성기사 샬롯", text: "시발", noBadge: true },
   { nickname: "땃쥐", text: "아이로형 오늘도 짱이에요💛" },
   { nickname: "사라정", text: "아이로 오빠 완전 legend야" },
   { nickname: "제갈금자", text: "선우야 오늘 진짜 빛났어💛" },
@@ -99,7 +101,7 @@ export function BrightnessGag() {
   const [slideDurationMs, setSlideDurationMs] = useState(SLIDE_FALLBACK_MS);
   const [shutterDurationMs, setShutterDurationMs] = useState(SHUTTER_FALLBACK_MS);
   const [chatFeed, setChatFeed] = useState<
-    { id: number; nickname: string; text: string }[]
+    { id: number; nickname: string; text: string; noBadge?: boolean }[]
   >([]);
   const chatIndexRef = useRef(0);
   const label = active ? "라이트 오프" : "라이트 온";
@@ -255,14 +257,18 @@ export function BrightnessGag() {
         <div className="brightness-gag-chat" aria-hidden="true">
           {chatFeed.map((message) => (
             <div className="brightness-gag-chat__line" key={message.id}>
-              <img
-                src={badgeForNickname(message.nickname)}
-                alt=""
-                className="brightness-gag-chat__badge"
-              />
-              <span className="brightness-gag-chat__fbadge" aria-hidden="true">
-                F
-              </span>
+              {!message.noBadge && (
+                <>
+                  <img
+                    src={badgeForNickname(message.nickname)}
+                    alt=""
+                    className="brightness-gag-chat__badge"
+                  />
+                  <span className="brightness-gag-chat__fbadge" aria-hidden="true">
+                    F
+                  </span>
+                </>
+              )}
               <span
                 className="brightness-gag-chat__nick"
                 style={{ color: colorForNickname(message.nickname) }}
