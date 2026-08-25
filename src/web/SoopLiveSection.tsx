@@ -75,7 +75,7 @@ function SoopLiveCard({ entry }: { entry: LiveRosterEntry }) {
 }
 
 export function SoopLiveSection({ soopLive }: { soopLive: SoopLiveState }) {
-  const { enabled, loaded, entries, updatedAt } = soopLive;
+  const { enabled, loaded, entries, updatedAt, containerRef } = soopLive;
   const swiper = useRef<SwiperInstance | null>(null);
   const [canGoPrev, setCanGoPrev] = useState(false);
   const [canGoNext, setCanGoNext] = useState(true);
@@ -92,7 +92,7 @@ export function SoopLiveSection({ soopLive }: { soopLive: SoopLiveState }) {
   const hasLiveStreamers = loaded && entries.length > 0;
 
   return (
-    <section className="soop-live" aria-labelledby="soop-live-title">
+    <section ref={containerRef} className="soop-live" aria-labelledby="soop-live-title">
       <div className="soop-live__heading">
         <div>
           <p className="eyebrow">NOW STREAMING</p>

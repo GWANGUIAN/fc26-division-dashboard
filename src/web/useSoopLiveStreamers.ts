@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import type { StreamerRecord } from "../shared/model.js";
 import {
   matchLiveStreamers,
@@ -20,6 +20,7 @@ export interface SoopLiveState {
   loaded: boolean;
   entries: LiveRosterEntry[];
   updatedAt?: string;
+  containerRef: RefObject<HTMLElement | null>;
 }
 
 function shuffled<T>(items: T[]): T[] {
@@ -55,6 +56,11 @@ export function useSoopLiveStreamers(streamers: StreamerRecord[]): SoopLiveState
   const [updatedAt, setUpdatedAt] = useState<string>();
   const orderRef = useRef<string[]>([]);
   const lastActivityRef = useRef(Date.now());
+  const containerRef = useRef<HTMLElement | null>(null);
+  // Section is above the fold on load, so default to visible instead of
+  // waiting for the observer's first callback (which would otherwise skip
+  // the very first tick while the section is still on screen).
+  const inViewportRef = useRef(true);
 
   useEffect(() => {
     if (!SOOP_LIVE_ENABLED) return;
@@ -77,6 +83,7 @@ export function useSoopLiveStreamers(streamers: StreamerRecord[]): SoopLiveState
 
     async function tick() {
       if (document.visibilityState !== "visible") return;
+      if (!inViewportRef.current) return;
       if (Date.now() - lastActivityRef.current > IDLE_THRESHOLD_MS) return;
       try {
         // The Worker's response carries a cache-control for Cloudflare's edge
@@ -98,6 +105,19 @@ export function useSoopLiveStreamers(streamers: StreamerRecord[]): SoopLiveState
       }
     }
 
+    // Re-check on both document visibility and section-in-viewport changes —
+    // either one flipping to true should trigger an immediate catch-up tick
+    // instead of waiting for the next scheduled interval.
+    const node = containerRef.current;
+    let observer: IntersectionObserver | undefined;
+    if (node && typeof IntersectionObserver !== "undefined") {
+      observer = new IntersectionObserver(([entry]) => {
+        inViewportRef.current = entry?.isIntersecting ?? true;
+        tick();
+      });
+      observer.observe(node);
+    }
+
     tick();
     const interval = setInterval(tick, POLL_INTERVAL_MS);
     document.addEventListener("visibilitychange", tick);
@@ -105,6 +125,7 @@ export function useSoopLiveStreamers(streamers: StreamerRecord[]): SoopLiveState
       cancelled = true;
       clearInterval(interval);
       document.removeEventListener("visibilitychange", tick);
+      observer?.disconnect();
     };
   }, []);
 
@@ -117,5 +138,5 @@ export function useSoopLiveStreamers(streamers: StreamerRecord[]): SoopLiveState
     [streamers, rawStreamers],
   );
 
-  return { enabled: SOOP_LIVE_ENABLED, loaded: rawStreamers !== undefined, entries, updatedAt };
+  return { enabled: SOOP_LIVE_ENABLED, loaded: rawStreamers !== undefined, entries, updatedAt, containerRef };
 }
