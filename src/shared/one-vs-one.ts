@@ -5,9 +5,9 @@ const applicationCategory = /^\s*\[\s*1대1\s*평가\s*신청\s*\]/u;
 
 export const ADDITIONAL_VERDICT_CRITERIA = [
   "1:1 디비전 랭크 (몇부 리거 인지)",
-  "1:1 직접 평가 (저격러들 많이 만나면 억울할 수 있기 때문에 직접 평가)",
   "11:11 플레이 평가 (본인이 희망하는 포지션의 11:11 플레이를 올려 주시면 종합 평가로 참고)",
   "열정 평가 (방송에서 잔디를 얼마나 공부하고 연습했는지)",
+  "왁덜식 (게임 외적인 부분을 포함한 종합 평가)"
 ] as const;
 
 export function isOneVsOneApplication(value: Pick<OneVsOneApplication, "category" | "title">): boolean {
