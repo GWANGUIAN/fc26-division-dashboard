@@ -609,6 +609,7 @@ streamers:
       policy: auto
     sfx: "/sfxes/charlotte.mp3"
     reviewNote: "실제 중세 기사 RP를 가지고 있음"
+    deleted: true
   - slug: cjstkdbsl3
     displayName: "깡담비"
     cafeAliases: ["깡담비"]
