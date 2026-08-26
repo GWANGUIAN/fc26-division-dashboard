@@ -18,7 +18,7 @@ import {
   seenKeyFor,
 } from "./storage";
 
-const visibleDivisions = divisions.filter((division) => division <= 7);
+const visibleDivisions = divisions.filter((division) => division <= 6);
 
 export function DivisionResults({
   viewMode,
