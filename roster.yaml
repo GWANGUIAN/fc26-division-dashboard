@@ -993,7 +993,6 @@ streamers:
     override:
       division: null
       policy: auto
-    profileImageUrl: "/profiles/profile_ohgu.webp"
     sfx: "/sfxes/ogu.mp3"
     passedFirstRound: true
   - slug: dw0672
@@ -1046,6 +1045,7 @@ streamers:
     profileImageUrl: "/profiles/profile_linya.gif"
     sfx: "/sfxes/linya.mp3"
     reviewNote: "별명이 사시노 리냐야.(버추얼 아바타로 사시 얼굴을 종종 많을어서)"
+    nickname: "사시노 리냐"
   - slug: hikicomoring
     displayName: "히키☆"
     cafeAliases: ["히 키"]
