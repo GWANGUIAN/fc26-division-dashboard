@@ -24,3 +24,7 @@ results:
   #   playedAt: "2026-08-23"
   #   candidateScore: 0
   #   woowakgoodScore: 5
+  - applicationArticleId: "21975952"
+    playedAt: "2026-08-27T00:56:00+09:00"
+    candidateScore: 2
+    woowakgoodScore: 6
