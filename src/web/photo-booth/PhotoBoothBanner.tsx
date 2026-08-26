@@ -5,9 +5,11 @@ import { celebrationMessageFor } from "../useLatestActivity";
 
 export function PhotoBoothBanner({ streamer }: { streamer: StreamerRecord }) {
   const fancyTier = fancyTierOf(streamer);
-  // isFancyLite deliberately stays plain here — the extra glow/sparkle
-  // flourish below is reserved for the full fancy tier only.
   const isFullFancy = fancyTier === "full";
+  // On this stage a "lite" streamer renders as a fully plain banner (no
+  // crown icon, no gradient shimmer) — unlike the dashboard's top banner,
+  // where FavoriteCelebrationRow's own toned-down lite look still applies.
+  const rowFancyTier = isFullFancy ? "full" : "none";
   return (
     <div className={`photo-booth-banner ${isFullFancy ? "photo-booth-banner--fancy" : ""}`}>
       <span className="photo-booth-banner__shine" aria-hidden="true" />
@@ -29,7 +31,7 @@ export function PhotoBoothBanner({ streamer }: { streamer: StreamerRecord }) {
       </span>
       <FavoriteCelebrationRow
         message={celebrationMessageFor(streamer.nickname?.trim() || streamer.displayName)}
-        fancyTier={fancyTier}
+        fancyTier={rowFancyTier}
         size="large"
       />
     </div>
