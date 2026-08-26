@@ -12,6 +12,7 @@ import {
 import { KICKUPS_TOP_TIER_MIN_SCORE, pickQuip } from "./quips";
 
 const DOORMOMO_SFX_URL = "/sfxes/doormomo.mp3";
+const GAME_OVER_SFX_URL = "/sfxes/game-over.mp3";
 const BALL_BOUNCE_SFX_URL = "/sfxes/ball-bounce.mp3";
 const QUIP_VISIBLE_MS = 3200;
 // Some devices/browsers fire two pointerdown events (e.g. touch + compatibility mouse event) for
@@ -38,8 +39,12 @@ export function useKickupsGame({
       const finalScore = state.score;
       const isNewRecord = finalScore > 0 && finalScore === state.highScore;
       setQuip({ id: Date.now(), text: pickQuip(finalScore, isNewRecord) });
-      if (sfxEnabled && finalScore >= KICKUPS_TOP_TIER_MIN_SCORE) {
-        playSfx(DOORMOMO_SFX_URL, sfxVolume / 100);
+      if (sfxEnabled) {
+        if (finalScore >= KICKUPS_TOP_TIER_MIN_SCORE) {
+          playSfx(DOORMOMO_SFX_URL, sfxVolume / 100);
+        } else {
+          playSfx(GAME_OVER_SFX_URL, sfxVolume / 100);
+        }
       }
     }
     prevPhaseRef.current = state.phase;
