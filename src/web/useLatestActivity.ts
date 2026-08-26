@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import type { DashboardSnapshot, StreamerRecord } from "../shared/model.js";
+import { fancyTierOf } from "./cardVisuals";
 import { DAY_MS } from "./storage";
 
 export function useLatestActivity(
@@ -22,6 +23,7 @@ export function useLatestActivity(
         .map((streamer) => ({
           key: streamer.id,
           message: `${streamer.displayName}의 잔디동 1차 합격을 축하합니다!!`,
+          fancyTier: fancyTierOf(streamer),
         })),
     [snapshot],
   );
