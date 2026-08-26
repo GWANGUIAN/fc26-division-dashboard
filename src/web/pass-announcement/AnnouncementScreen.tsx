@@ -2,11 +2,13 @@ import { useMemo, useRef, useState } from "react";
 import { ArrowLeft, Copy } from "lucide-react";
 import type { StreamerRecord } from "../../shared/model.js";
 import { divisionColor } from "../../shared/division-theme.js";
+import { CtaButton } from "./CtaButton";
 import { RevealCard, type RevealStep } from "./RevealCard";
 import { RevealedListCard } from "./RevealedListCard";
 import { SpinDurationSettings } from "./SpinDurationSettings";
 import { copyRosterImageToClipboard } from "./exportSummaryImage";
 import {
+  playButtonHoverSfx,
   playClickSfx,
   playRevealStopSfx,
   startSpinSfx,
@@ -190,14 +192,14 @@ export function AnnouncementScreen({
                 }}
               />
             )}
-            <button
-              type="button"
+            <CtaButton
               className="pass-announcement-screen__reveal-button"
               onClick={handleReveal}
               disabled={isBusy || (!canSettleCurrent && !nextEntry)}
+              onHoverStart={() => playButtonHoverSfx(sfxEnabled, sfxVolume)}
             >
               {buttonLabel}
-            </button>
+            </CtaButton>
             <SpinDurationSettings
               seconds={spinSeconds}
               onChange={handleSpinSecondsChange}

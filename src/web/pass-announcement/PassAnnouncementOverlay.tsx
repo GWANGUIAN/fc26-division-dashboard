@@ -7,7 +7,9 @@ import { AnnouncementScreen } from "./AnnouncementScreen";
 import { AnnouncementTitle } from "./AnnouncementTitle";
 import {
   loadAnnouncementTitle,
+  loadAnnouncementTitleFontSize,
   saveAnnouncementTitle,
+  saveAnnouncementTitleFontSize,
 } from "./announcementTitleStorage";
 import { loadPassAnnouncementState, savePassAnnouncementState } from "./storage";
 import { toPassAnnouncementStreamer } from "./streamerAdapter";
@@ -72,10 +74,18 @@ export function PassAnnouncementOverlay({
   const [announcementTitle, setAnnouncementTitle] = useState(() =>
     loadAnnouncementTitle(),
   );
+  const [announcementTitleFontSize, setAnnouncementTitleFontSize] = useState(() =>
+    loadAnnouncementTitleFontSize(),
+  );
 
   function handleAnnouncementTitleChange(title: string) {
     setAnnouncementTitle(title);
     saveAnnouncementTitle(title);
+  }
+
+  function handleAnnouncementTitleFontSizeChange(fontSize: number) {
+    setAnnouncementTitleFontSize(fontSize);
+    saveAnnouncementTitleFontSize(fontSize);
   }
 
   const adaptedStreamers = useMemo(
@@ -152,6 +162,8 @@ export function PassAnnouncementOverlay({
           <AnnouncementTitle
             title={announcementTitle}
             onChange={handleAnnouncementTitleChange}
+            fontSize={announcementTitleFontSize}
+            onFontSizeChange={handleAnnouncementTitleFontSizeChange}
           />
         )}
         <button

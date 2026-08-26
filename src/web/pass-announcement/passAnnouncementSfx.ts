@@ -66,3 +66,9 @@ export function playRevealStopSfx(sfxEnabled: boolean, sfxVolume: number) {
   if (!sfxEnabled) return;
   playFile("/sfxes/card-reveal.mp3", sfxVolume);
 }
+
+/** One-shot on hover-in (not a loop) — see CtaButton's onMouseEnter. */
+export function playButtonHoverSfx(sfxEnabled: boolean, sfxVolume: number) {
+  if (!sfxEnabled) return;
+  playFile("/sfxes/button-hover.mp3", sfxVolume);
+}

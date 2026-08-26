@@ -119,18 +119,50 @@
 }
 .pass-announcement-overlay__title-edit svg { width: 13px; height: 13px; stroke-width: 2.4; }
 
-.pass-announcement-overlay__title-input {
+/* Wraps the title text input + its size slider row while editing —
+   occupies the same header-center grid cell as the plain title/title-group
+   above, stacked as a column instead of the single-row input it used to be. */
+.pass-announcement-overlay__title-editor {
   grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
   width: min(420px, 60vw);
+}
+
+.pass-announcement-overlay__title-input {
+  width: 100%;
   padding: 4px 10px;
   border: 1px solid var(--accent-border);
   border-radius: 3px;
   outline: none;
   color: #ffffff;
   background: var(--surface-input);
-  font: 400 22px "Black Han Sans", "Barlow Condensed", "Noto Sans KR";
+  font-family: "Black Han Sans", "Barlow Condensed", "Noto Sans KR";
+  font-weight: 400;
   letter-spacing: .02em;
   text-align: center;
+}
+
+.pass-announcement-overlay__title-size-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.pass-announcement-overlay__title-size-row input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  accent-color: #00e9ae;
+  cursor: pointer;
+}
+.pass-announcement-overlay__title-size-value {
+  flex-shrink: 0;
+  width: 3.4em;
+  text-align: right;
+  font: 700 12px "Barlow Condensed", "Noto Sans KR";
+  color: color-mix(in srgb, var(--text-primary) 65%, transparent);
 }
 
 .pass-announcement-overlay__close {
@@ -381,35 +413,79 @@
   flex-shrink: 0;
 }
 /* --- CTA buttons (선정 완료 / 합격자 공개) ---
-   Solid filled green pill, same language as the site's other primary CTAs
-   (e.g. .kickups-start in styles.css): dark text on the bright accent fill
-   with a soft glow — no translucent tint, no gradient/shine gimmicks. */
-.pass-selection__confirm,
-.pass-announcement-screen__reveal-button {
-  border: 1px solid var(--accent-border);
-  border-radius: 3px;
-  color: #002219;
-  background: var(--accent-text);
-  font: 400 18px/1 "Black Han Sans", "Barlow Condensed", "Noto Sans KR";
+   Frosted-glass pill (translucent gray + backdrop blur) with a bright
+   green outline, a diagonal shine sweep on hover, and a cursor-tracked
+   holo sheen — the same radial multi-color highlight (blended with
+   color-dodge) as the FIFA card's holo shield in cardVisuals.tsx, so the
+   button reacts to the pointer like the inside of a shell. Rendered via
+   the shared <CtaButton> component (CtaButton.tsx); .pass-selection__confirm
+   and .pass-announcement-screen__reveal-button carry only position now. */
+.pass-cta-button {
+  position: relative;
+  overflow: hidden;
+  padding: 16px 40px;
+  border: 1.5px solid var(--accent-border);
+  border-radius: 999px;
+  color: #fff;
+  background: linear-gradient(135deg, rgba(160, 168, 166, .16) 0%, rgba(100, 108, 106, .1) 100%);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  font: 400 24px/1 "Black Han Sans", "Barlow Condensed", "Noto Sans KR";
   letter-spacing: .04em;
-  box-shadow: 0 10px 26px #00e9ae4a;
+  -webkit-text-stroke: 1.5px #000;
+  paint-order: stroke fill;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, .35);
+  box-shadow: 0 10px 26px #00e9ae33, inset 0 1px 0 rgba(255, 255, 255, .16);
   cursor: pointer;
-  transition: transform .15s, box-shadow .18s, opacity .18s;
+  transition: transform .15s, box-shadow .18s, border-color .18s, opacity .18s;
 }
-.pass-selection__confirm:hover:not(:disabled),
-.pass-announcement-screen__reveal-button:hover:not(:disabled) {
+.pass-cta-button::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent 0%, color-mix(in srgb, var(--accent-text) 40%, transparent) 50%, transparent 100%);
+  transition: left .6s cubic-bezier(.4, 0, .2, 1);
+}
+.pass-cta-button:hover:not(:disabled)::before {
+  left: 100%;
+}
+/* Cursor-tracked holo highlight — position set from JS via --holo-x/--holo-y,
+   visibility via --holo-opacity so it fades in/out on mouse enter/leave. */
+.pass-cta-button::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  opacity: var(--holo-opacity, 0);
+  background: radial-gradient(
+    circle at var(--holo-x, 50%) var(--holo-y, 50%),
+    rgba(255, 255, 255, .95) 0%,
+    rgba(143, 245, 255, .55) 16%,
+    rgba(255, 155, 236, .4) 34%,
+    rgba(255, 242, 155, .28) 52%,
+    rgba(155, 255, 214, .16) 72%,
+    transparent 100%
+  );
+  mix-blend-mode: color-dodge;
+  transition: opacity .25s ease-out;
+  pointer-events: none;
+}
+.pass-cta-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 14px 32px #00e9ae66;
+  border-color: color-mix(in srgb, var(--accent-border) 90%, white);
+  box-shadow: 0 14px 32px #00e9ae55, inset 0 1px 0 rgba(255, 255, 255, .24);
 }
-.pass-selection__confirm:disabled,
-.pass-announcement-screen__reveal-button:disabled {
+.pass-cta-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+.pass-cta-button:disabled {
   opacity: .4;
   cursor: not-allowed;
   box-shadow: none;
-}
-
-.pass-selection__confirm {
-  padding: 14px 34px;
 }
 
 .pass-drag-overlay {
@@ -595,16 +671,14 @@
 .pass-announcement-summary__status--ok { color: var(--accent-text); }
 .pass-announcement-summary__status--error { color: #ff8a8a; }
 
-/* Position/size only — the button look and hover/disabled states are
-   defined once, shared with .pass-selection__confirm above. */
+/* Position only — size, look, and hover/disabled states are defined once,
+   shared with .pass-selection__confirm above. */
 .pass-announcement-screen__reveal-button {
   position: absolute;
   z-index: 3;
   bottom: 36px;
   left: 50%;
   transform: translateX(-50%);
-  padding: 16px 40px;
-  font-size: 19px;
 }
 .pass-announcement-screen__reveal-button:hover:not(:disabled) { transform: translateX(-50%) translateY(-2px); }
 

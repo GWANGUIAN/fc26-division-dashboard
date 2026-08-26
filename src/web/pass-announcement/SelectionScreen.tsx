@@ -12,6 +12,7 @@ import {
 import type { StreamerRecord } from "../../shared/model.js";
 import { SquadBuilderCard } from "../squad-builder/SquadBuilderCard";
 import { CandidatePool } from "./CandidatePool";
+import { CtaButton } from "./CtaButton";
 import { PassList, type InsertSide } from "./PassList";
 import type { PassDragData, PassDropData, PassEntry } from "./types.js";
 
@@ -190,14 +191,13 @@ export function SelectionScreen({
         />
       </div>
       <div className="pass-selection__footer">
-        <button
-          type="button"
+        <CtaButton
           className="pass-selection__confirm"
           onClick={onConfirm}
           disabled={passList.length === 0}
         >
           선정 완료
-        </button>
+        </CtaButton>
       </div>
       <DragOverlay>
         {draggedStreamer && (
