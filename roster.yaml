@@ -372,6 +372,7 @@ streamers:
     override:
       division: null
       policy: auto
+    deleted: true
   - slug: kur0ch4t
     displayName: "쿠로샤"
     cafeAliases: ["쿠로샤"]
@@ -812,6 +813,7 @@ streamers:
     override:
       division: null
       policy: auto
+    deleted: true
   - slug: fumagochi
     displayName: "푸마고치"
     cafeAliases: ["푸마고치"]
