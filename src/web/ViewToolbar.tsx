@@ -24,6 +24,7 @@ export function ViewToolbar({
   refreshing,
 }: {
   divisionStats: {
+    total: number;
     fourOrHigher: number;
     fiveOrHigher: number;
     sixOrHigher: number;
@@ -54,6 +55,15 @@ export function ViewToolbar({
             * 모든 통계에서 {excludedNames.map(name => name + '님').join(", ")}은 제외됩니다.
           </small>
         )}
+        <div className="division-summary__stats">
+          <div className="division-summary__item division-summary__item--total-passed">
+            <BadgeCheck aria-hidden="true" />
+            <div>
+              <strong>{divisionStats.total}</strong>
+              <span>총 1차 합격자</span>
+            </div>
+          </div>
+        </div>
         <div
           className="division-summary__stats division-summary__stats--pass"
           aria-label="1차 합격 기준 요약"

@@ -76,6 +76,7 @@ export function useStreamerFilters(
       (streamer) => streamer.currentDivision <= 7,
     ).length;
     return {
+      total: all.length,
       fourOrHigher,
       fiveOrHigher,
       sixOrHigher,
