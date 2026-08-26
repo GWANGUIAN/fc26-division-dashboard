@@ -127,7 +127,13 @@ export async function collectPage(board: BoardId, pageNumber: number): Promise<L
       const category = link?.querySelector(".article-board-tag, strong, em")?.textContent?.trim() ?? title.match(/^\[[^\]]+\]/u)?.[0] ?? "";
       const author = cells[2]?.textContent?.replace(/멤버등급.*/u, "").trim() ?? "";
       const date = cells[3]?.textContent?.trim() ?? "";
-      return { articleId, title, category, cafeAuthor: author, publishedAt: date, articleUrl: href ?? "", isNotice: /공지/u.test(first) };
+      // Pinned notices mark themselves in two different places depending on
+      // the board: the number column (`first`) for legacy notice rows, or the
+      // in-title badge (captured above as `category`) for café-wide notices
+      // like the usage-rules post. Checking only `first` let those slip
+      // through as ordinary posts.
+      const isNotice = /공지/u.test(first) || /^공지$/u.test(category);
+      return { articleId, title, category, cafeAuthor: author, publishedAt: date, articleUrl: href ?? "", isNotice };
     }).filter((row) => /^\d+$/u.test(row.articleId) && row.title));
     return listedPosts;
   } finally { await browser.close(); }
