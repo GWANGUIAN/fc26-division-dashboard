@@ -150,7 +150,7 @@ streamers:
     sfx: "/sfxes/jjimi.mp3"
   - slug:
     displayName: 하치_HACHI
-    nickname: 핫짱
+    nickname: "축구천재 핫짱"
     cafeAliases: ["하치HACHI"]
     soopId: "hachi97"
     autoUpdate: true
