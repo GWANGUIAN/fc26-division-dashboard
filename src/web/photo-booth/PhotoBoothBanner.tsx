@@ -26,7 +26,7 @@ export function PhotoBoothBanner({ streamer }: { streamer: StreamerRecord }) {
         )}
       </span>
       <FavoriteCelebrationRow
-        message={celebrationMessageFor(streamer.displayName)}
+        message={celebrationMessageFor(streamer.nickname?.trim() || streamer.displayName)}
         fancyTier={fancyTier}
         size="large"
       />

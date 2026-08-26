@@ -22,6 +22,12 @@ describe("promotion parsing", () => {
     expect(divisionForPost(post, { "999": 4 })).toBe(3);
   });
   it("matches aliases while ignoring whitespace", () => expect(matchRosterEntry("문모모", roster)?.slug).toBe("momo"));
+  it("carries nickname through as a separate field, leaving displayName untouched", () => {
+    const withNickname = [{ ...roster[0], nickname: "모모짱" }];
+    const result = buildStreamerRecords(posts, withNickname)[0];
+    expect(result.nickname).toBe("모모짱");
+    expect(result.displayName).toBe("문모모");
+  });
   it("uses the best achieved division and creates division 10 defaults", () => {
     const result = buildStreamerRecords(posts, [...roster, { slug: "new", displayName: "신규", cafeAliases: ["신규"], autoUpdate: true }]);
     expect(result.find((entry) => entry.id === "momo")?.currentDivision).toBe(7);

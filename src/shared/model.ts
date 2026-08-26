@@ -3,6 +3,8 @@ export type OverridePolicy = "auto" | "until-next-post" | "until-manual-release"
 export interface RosterEntry {
   slug: string;
   displayName: string;
+  /** Shown instead of displayName only on the 합격 인증샷 (photo booth) stage; every other view keeps using displayName. */
+  nickname?: string;
   cafeAliases: string[];
   soopId?: string;
   profileImageUrl?: string;
@@ -95,6 +97,8 @@ export interface StreamerActivityPost {
 export interface StreamerRecord {
   id: string;
   displayName: string;
+  /** Shown instead of displayName only on the 합격 인증샷 (photo booth) stage; every other view keeps using displayName. */
+  nickname?: string;
   cafeAliases: string[];
   soopId?: string;
   profileImageUrl?: string;

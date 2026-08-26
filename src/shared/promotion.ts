@@ -119,6 +119,7 @@ export function buildStreamerRecords(
     return {
       id: entry.slug,
       displayName: entry.displayName,
+      nickname: entry.nickname,
       cafeAliases: entry.cafeAliases,
       soopId: entry.soopId || undefined,
       profileImageUrl: entry.profileImageUrl,
