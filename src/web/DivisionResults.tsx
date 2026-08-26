@@ -121,7 +121,15 @@ export function DivisionResults({
                     </small>
                   )}
                 </div>
-                <div className="division__players">
+                <div
+                  className={
+                    showEntries &&
+                    entries.length === 0 &&
+                    !(isDivision10 && !isSearching)
+                      ? "division__players division__players--empty"
+                      : "division__players"
+                  }
+                >
                   {isDivision10 && !isSearching && (
                     <button
                       type="button"
