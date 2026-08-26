@@ -47,6 +47,7 @@ streamers:
     passedFirstRound: true
     celebrationMessage: "재--신의 {n}부 리그 승격을 축하합니다~!!🥅"
     reviewNote: "골키퍼를 너무 잘해서 재신(야신에서 따옴)이라는 별명이 있음"
+    nickname: "재--신"
     sfx: "/sfxes/jaenin.mp3"
   - slug: sookbong777
     displayName: 숙봉이
@@ -58,6 +59,7 @@ streamers:
       policy: auto
     passedFirstRound: true
     sfx: "/sfxes/sookbong.mp3"
+    nickname: "느그자 숙봉이"
   - slug: dokkhye0000
     displayName: 독고혜지
     cafeAliases: ["독고혜지"]
@@ -113,6 +115,7 @@ streamers:
     reviewNote: "농구게임을 굉장히 잘함"
   - slug: 
     displayName: 문모모
+    nickname: "FC 1황 문모모"
     cafeAliases: ["문 모모"]
     soopId: "doormomo"
     autoUpdate: true
@@ -289,6 +292,7 @@ streamers:
     profileImageUrl: "/profiles/profile_hangyeul.webp"
     sfx: "/sfxes/hangyeul.mp3"
     reviewNote: "잔디(FC게임을 일컫는 말)를 굉장히 좋아해서 잔악귀라는 별명이 있음"
+    nickname: "결란드"
   - slug: amanemay
     displayName: 김메이
     cafeAliases: ["김메이kimmay"]
