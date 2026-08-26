@@ -139,6 +139,7 @@ export function buildStreamerRecords(
       reviewNote: entry.reviewNote,
       isExcluded: entry.isExcluded,
       latestReview,
+      passedFirstRound: entry.passedFirstRound,
     };
   });
 
