@@ -54,11 +54,8 @@ export function buildDashboardSnapshot(input: SnapshotInput): DashboardSnapshot 
     oneVsOneApplications: buildOneVsOneApplications(applications, roster, results),
     // Unlike attachStreamerActivityPosts, this is not restricted to roster-matched
     // authors — the promo post picker draws from every qualifying post.
-    // The category !== "공지" check is a second line of defense against pinned
-    // café notices already persisted before the collector learned to tag them
-    // as isNotice (see naver.ts) — they would otherwise never disappear.
     promoPosts: activityPosts
-      .filter((post) => post.category !== "공지" && (post.board === "elevenVsEleven" || isDirectPromotionPost(post)))
+      .filter((post) => post.board === "elevenVsEleven" || isDirectPromotionPost(post))
       .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)),
   };
 }

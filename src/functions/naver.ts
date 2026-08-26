@@ -17,6 +17,31 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 // Naver's Korean ARIA labels are not stable across its rendering surfaces.
 // The article URL shape is the durable public contract of the list table.
 const articleListTable = 'table:has(a[href*="/articles/"])';
+// Café-wide "required" notices (e.g. the usage-rules post) are injected into
+// every board's list without the "공지" text the table-based detection below
+// looks for, so the number column and title badge never mark them. This is
+// the same endpoint the Café frontend itself calls to know which article IDs
+// to render as notices, so it is the only reliable source for them.
+const menuNoticesUrl = (menuId: string) =>
+  `https://apis.naver.com/cafe-web/cafe-boardlist-api/v1/cafes/${CAFE.cafeId}/notices/menus/${menuId}`;
+
+async function fetchMenuNoticeIds(menuId: string): Promise<Set<string>> {
+  try {
+    const response = await fetch(menuNoticesUrl(menuId));
+    if (!response.ok) return new Set();
+    const data = await response.json() as { result?: { articleList?: { item?: { articleId?: number } }[] } };
+    return new Set(
+      (data.result?.articleList ?? [])
+        .map((entry) => entry.item?.articleId)
+        .filter((articleId): articleId is number => typeof articleId === "number")
+        .map(String),
+    );
+  } catch {
+    // A failed notice lookup should never block regular post collection; the
+    // text-based isNotice check below still catches the common case.
+    return new Set();
+  }
+}
 
 export class SourceBlockedError extends Error {}
 export interface ListedPost {
@@ -103,6 +128,7 @@ export function cafeDatePrecision(value: string): "time" | "date" {
 }
 
 export async function collectPage(board: BoardId, pageNumber: number): Promise<ListedPost[]> {
+  const noticeIdsPromise = fetchMenuNoticeIds(BOARDS[board].menuId);
   const browser = await browserLaunch();
   try {
     const page = await browser.newPage({ locale: "ko-KR", timezoneId: "Asia/Seoul" });
@@ -127,15 +153,16 @@ export async function collectPage(board: BoardId, pageNumber: number): Promise<L
       const category = link?.querySelector(".article-board-tag, strong, em")?.textContent?.trim() ?? title.match(/^\[[^\]]+\]/u)?.[0] ?? "";
       const author = cells[2]?.textContent?.replace(/멤버등급.*/u, "").trim() ?? "";
       const date = cells[3]?.textContent?.trim() ?? "";
-      // Pinned notices mark themselves in two different places depending on
-      // the board: the number column (`first`) for legacy notice rows, or the
-      // in-title badge (captured above as `category`) for café-wide notices
-      // like the usage-rules post. Checking only `first` let those slip
-      // through as ordinary posts.
-      const isNotice = /공지/u.test(first) || /^공지$/u.test(category);
-      return { articleId, title, category, cafeAuthor: author, publishedAt: date, articleUrl: href ?? "", isNotice };
+      return { articleId, title, category, cafeAuthor: author, publishedAt: date, articleUrl: href ?? "", isNoticeText: /공지/u.test(first) };
     }).filter((row) => /^\d+$/u.test(row.articleId) && row.title));
-    return listedPosts;
+    const noticeIds = await noticeIdsPromise;
+    return listedPosts.map(({ isNoticeText, ...row }) => ({
+      ...row,
+      // The number-column "공지" text catches a board's own pinned notices;
+      // café-wide notices (see fetchMenuNoticeIds above) never render that
+      // text at all, so both checks are needed to exclude every notice type.
+      isNotice: isNoticeText || noticeIds.has(row.articleId),
+    }));
   } finally { await browser.close(); }
 }
 
