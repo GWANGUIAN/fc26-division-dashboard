@@ -81,6 +81,7 @@ streamers:
       policy: auto
     passedFirstRound: true
     celebrationMessage: "뽀햄 묵직허이 {n}부 리그 승격!!🔫"
+    nickname: "린걸햄"
     sfx: "/sfxes/bboringirl.mp3"
     profileImageUrl: "/profiles/profile_bboringirl.webp"
   - slug: sjh4018
