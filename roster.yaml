@@ -965,6 +965,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/ohshui.mp3"
   - slug: kim852134
     displayName: "김잇딥"
