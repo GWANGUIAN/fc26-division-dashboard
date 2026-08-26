@@ -76,12 +76,6 @@ export function ViewToolbar({
               <span>6부 이상</span>
             </div>
           </div>
-          <div className="division-summary__item division-summary__item--pass7">
-            <div>
-              <strong>{divisionStats.sevenOrHigher}</strong>
-              <span>7부 이상</span>
-            </div>
-          </div>
         </div>
         <div className="division-summary__chart-group">
           <DivisionHistogram
