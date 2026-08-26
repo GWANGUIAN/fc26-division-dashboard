@@ -5,9 +5,11 @@ import { celebrationMessageFor } from "../useLatestActivity";
 
 export function PhotoBoothBanner({ streamer }: { streamer: StreamerRecord }) {
   const fancyTier = fancyTierOf(streamer);
-  const isFancy = fancyTier !== "none";
+  // isFancyLite deliberately stays plain here — the extra glow/sparkle
+  // flourish below is reserved for the full fancy tier only.
+  const isFullFancy = fancyTier === "full";
   return (
-    <div className={`photo-booth-banner ${isFancy ? "photo-booth-banner--fancy" : ""}`}>
+    <div className={`photo-booth-banner ${isFullFancy ? "photo-booth-banner--fancy" : ""}`}>
       <span className="photo-booth-banner__shine" aria-hidden="true" />
       <span className="photo-booth-banner__sparkles" aria-hidden="true">
         <i className="photo-booth-banner__spark photo-booth-banner__spark--1">✦</i>
@@ -16,7 +18,7 @@ export function PhotoBoothBanner({ streamer }: { streamer: StreamerRecord }) {
         <i className="photo-booth-banner__spark photo-booth-banner__spark--4 photo-booth-banner__spark--teal">✦</i>
         <i className="photo-booth-banner__spark photo-booth-banner__spark--5">✦</i>
         <i className="photo-booth-banner__spark photo-booth-banner__spark--6 photo-booth-banner__spark--teal">✦</i>
-        {isFancy && (
+        {isFullFancy && (
           <>
             <i className="photo-booth-banner__spark photo-booth-banner__spark--7">✦</i>
             <i className="photo-booth-banner__spark photo-booth-banner__spark--8 photo-booth-banner__spark--teal">✦</i>

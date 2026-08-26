@@ -2,9 +2,9 @@
 # cafeAliases는 카페에 보이는 작성자 이름을 정확히 적습니다.
 # reviewNote(선택): 이 스트리머에 대한 자유 텍스트 추가 정보. 값이 있으면
 # Gemini 한줄평 프롬프트에 그대로 포함됩니다. (예: 캐릭터 설정, 특징, 별명 유래 등)
-# nickname(선택): 값이 있으면 "합격 인증샷" 화면에서만 displayName 대신 이
-# 별명이 표시됩니다. 다른 화면(카드, 표 등)과 cafeAliases 매칭에는 영향을
-# 주지 않습니다. (예: 하치_HACHI → 핫짱)
+# nickname(선택): 값이 있으면 축하 배너(상단 배너 + "합격 인증샷" 화면)에서만
+# displayName 대신 이 별명이 표시됩니다. 다른 화면(카드, 표 등)과
+# cafeAliases 매칭에는 영향을 주지 않습니다. (예: 하치_HACHI → 핫짱)
 streamers:
   - slug: villlo
     displayName: 왜냐니

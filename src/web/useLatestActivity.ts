@@ -26,7 +26,7 @@ export function useLatestActivity(
         .filter((streamer) => streamer.passedFirstRound)
         .map((streamer) => ({
           key: streamer.id,
-          message: celebrationMessageFor(streamer.displayName),
+          message: celebrationMessageFor(streamer.nickname?.trim() || streamer.displayName),
           fancyTier: fancyTierOf(streamer),
         })),
     [snapshot],
