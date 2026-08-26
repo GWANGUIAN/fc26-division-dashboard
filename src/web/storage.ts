@@ -34,6 +34,7 @@ const SFX_HEARD_STORAGE_KEY = "fc26-sfx-heard";
 const CARD_VIEW_DISCOVERED_STORAGE_KEY = "fc26-card-view-discovered";
 const GROWTH_GRAPH_DISCOVERED_STORAGE_KEY = "fc26-growth-graph-discovered";
 const GROWTH_PICKER_DISCOVERED_STORAGE_KEY = "fc26-growth-picker-discovered";
+const PHOTO_BOOTH_DISCOVERED_STORAGE_KEY = "fc26-photo-booth-discovered";
 const VIEW_MODE_STORAGE_KEY = "fc26-view-mode";
 const FIRST_ROUND_HIDDEN_COLLAPSED_STORAGE_KEY = "fc26-first-round-hidden-collapsed";
 const PROMO_PICKER_OPEN_STORAGE_KEY = "fc26-promo-picker-open";
@@ -232,6 +233,22 @@ export function hasDiscoveredGrowthPicker(): boolean {
 export function markGrowthPickerDiscovered() {
   try {
     localStorage.setItem(GROWTH_PICKER_DISCOVERED_STORAGE_KEY, "1");
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
+
+export function hasDiscoveredPhotoBooth(): boolean {
+  try {
+    return localStorage.getItem(PHOTO_BOOTH_DISCOVERED_STORAGE_KEY) === "1";
+  } catch {
+    return true;
+  }
+}
+
+export function markPhotoBoothDiscovered() {
+  try {
+    localStorage.setItem(PHOTO_BOOTH_DISCOVERED_STORAGE_KEY, "1");
   } catch {
     // ignore storage failures (e.g. private browsing)
   }

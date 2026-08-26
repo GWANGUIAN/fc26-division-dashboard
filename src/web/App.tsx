@@ -47,6 +47,8 @@ import { PromoPostPicker } from "./PromoPostPicker";
 import { BrightnessGag } from "./BrightnessGag";
 import { SquadBuilderOverlay } from "./squad-builder/SquadBuilderOverlay";
 import { PassAnnouncementOverlay } from "./pass-announcement/PassAnnouncementOverlay";
+import { PhotoBoothTrigger } from "./photo-booth/PhotoBoothTrigger";
+import { PhotoBoothOverlay } from "./photo-booth/PhotoBoothOverlay";
 import { KickupsToggle } from "./minigame/KickupsToggle";
 import { KickupsModal } from "./minigame/KickupsModal";
 
@@ -61,6 +63,7 @@ export function App() {
   const [trophyOpen, setTrophyOpen] = useState(false);
   const [squadBuilderOpen, setSquadBuilderOpen] = useState(false);
   const [passAnnouncementOpen, setPassAnnouncementOpen] = useState(false);
+  const [photoBoothOpen, setPhotoBoothOpen] = useState(false);
   const [growthGraphOpen, setGrowthGraphOpen] = useState(false);
   const [kickupsOpen, setKickupsOpen] = useState(false);
 
@@ -161,7 +164,13 @@ export function App() {
         onFeedOpen={() => setFeedOpen(true)}
         onTrophyOpen={() => setTrophyOpen(true)}
       />
-      <FavoriteCelebration slides={celebrationSlides} />
+      <div className="photo-booth-anchor">
+        <PhotoBoothTrigger
+          passedStreamers={passedStreamers}
+          onOpen={() => setPhotoBoothOpen(true)}
+        />
+        <FavoriteCelebration slides={celebrationSlides} />
+      </div>
       <HeroSection isDivision={isDivision} snapshot={snapshot} />
       <SoopLiveSection soopLive={soopLive} />
       <JandyVideoSection />
@@ -284,6 +293,12 @@ export function App() {
           sfxVolume={sfxVolume}
           onSfxVolumeChange={changeSfxVolume}
           onClose={() => setPassAnnouncementOpen(false)}
+        />
+      )}
+      {photoBoothOpen && (
+        <PhotoBoothOverlay
+          passedStreamers={passedStreamers}
+          onClose={() => setPhotoBoothOpen(false)}
         />
       )}
       {kickupsOpen && (

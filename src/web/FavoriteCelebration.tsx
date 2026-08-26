@@ -9,18 +9,20 @@ const CONFETTI = ["🎉", "🎊", "✨", "⭐", "🎊", "✨"];
 const FANCY_ROW_SPARK_SLOTS = [1, 2, 3, 4] as const;
 const FANCY_ROW_LITE_SPARK_SLOTS = [1, 2] as const;
 
-function FavoriteCelebrationRow({
+export function FavoriteCelebrationRow({
   message,
   fancyTier = "none",
+  size = "default",
 }: {
   message: string;
   fancyTier?: FancyTier;
+  size?: "default" | "large";
 }) {
   const lite = fancyTier === "lite";
   const fancy = fancyTier !== "none";
   return (
     <span
-      className={`favorite-celebration__row ${fancy ? `favorite-celebration__row--fancy${lite ? " favorite-celebration__row--fancy-lite" : ""}` : ""}`}
+      className={`favorite-celebration__row ${size === "large" ? "favorite-celebration__row--xl" : ""} ${fancy ? `favorite-celebration__row--fancy${lite ? " favorite-celebration__row--fancy-lite" : ""}` : ""}`}
     >
       <span className="favorite-celebration__icon favorite-celebration__icon--left" aria-hidden="true">
         {fancy ? "👑" : "🎉"}
