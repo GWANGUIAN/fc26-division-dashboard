@@ -110,11 +110,13 @@ export function App() {
     excludedNames,
     divisionStats,
     cardStreamers,
+    passedStreamers,
+    nonPassedStreamers,
   } = useStreamerFilters(snapshot, sortMode);
   const { evaluationFilter, setEvaluationFilter, applications } =
     useEvaluationApplications(snapshot, query);
   const { latest, celebrationSlides } = useLatestActivity(snapshot, streamers);
-  const soopLive = useSoopLiveStreamers(snapshot?.streamers ?? []);
+  const soopLive = useSoopLiveStreamers(passedStreamers);
   const liveStreamerIds = useMemo(
     () => new Set(soopLive.entries.map((entry) => entry.streamerId)),
     [soopLive.entries],
@@ -212,6 +214,7 @@ export function App() {
           loading={snapshotLoading}
           streamers={streamers}
           cardStreamers={cardStreamers}
+          nonPassedStreamers={nonPassedStreamers}
           trophyAwards={trophyAwards}
           seenKeys={seenKeys}
           onOpenStreamer={openStreamer}

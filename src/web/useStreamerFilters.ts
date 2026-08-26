@@ -13,18 +13,24 @@ export function useStreamerFilters(
   const [sfxOnly, setSfxOnly] = useState(false);
   const [achievementOnly, setAchievementOnly] = useState(false);
 
+  // Only 1차 합격자로 확정된 스트리머만 메인 보드/집계 대상이다. 나머지는
+  // nonPassedStreamers로 따로 모아, 접이식 섹션에서만 노출한다.
+  const passedStreamers = useMemo(
+    () => (snapshot?.streamers ?? []).filter((streamer) => streamer.passedFirstRound),
+    [snapshot],
+  );
   // Some streamers (e.g. non-applicants who post division reports anyway) are
   // flagged isExcluded so they're kept off every aggregate calculation while
   // still showing up normally in the list/cards.
   const includedStreamers = useMemo(
-    () => (snapshot?.streamers ?? []).filter((streamer) => !streamer.isExcluded),
-    [snapshot],
+    () => passedStreamers.filter((streamer) => !streamer.isExcluded),
+    [passedStreamers],
   );
   const excludedNames = useMemo(
-    () => (snapshot?.streamers ?? [])
+    () => passedStreamers
       .filter((streamer) => streamer.isExcluded)
       .map((streamer) => streamer.displayName),
-    [snapshot],
+    [passedStreamers],
   );
   const trophyAwards = useMemo(
     () => buildTrophyAwards(includedStreamers),
@@ -32,7 +38,7 @@ export function useStreamerFilters(
   );
   const streamers = useMemo(
     () =>
-      (snapshot?.streamers ?? []).filter(
+      passedStreamers.filter(
         (streamer) =>
           searchable(streamer.displayName, streamer.cafeAliases, query) &&
           (!activityOnly ||
@@ -44,13 +50,19 @@ export function useStreamerFilters(
           (!achievementOnly ||
             trophyBadgesFor(streamer, trophyAwards).length > 0),
       ),
-    [snapshot, query, activityOnly, sfxOnly, achievementOnly, trophyAwards],
+    [passedStreamers, query, activityOnly, sfxOnly, achievementOnly, trophyAwards],
+  );
+  const nonPassedStreamers = useMemo(
+    () =>
+      (snapshot?.streamers ?? []).filter(
+        (streamer) =>
+          !streamer.passedFirstRound &&
+          searchable(streamer.displayName, streamer.cafeAliases, query),
+      ),
+    [snapshot, query],
   );
   const divisionStats = useMemo(() => {
     const all = includedStreamers;
-    const unreported = all.filter(
-      (streamer) => streamer.currentDivision === 10,
-    ).length;
     const fourOrHigher = all.filter(
       (streamer) => streamer.currentDivision <= 4,
     ).length;
@@ -64,9 +76,6 @@ export function useStreamerFilters(
       (streamer) => streamer.currentDivision <= 7,
     ).length;
     return {
-      total: all.length,
-      reported: all.length - unreported,
-      unreported,
       fourOrHigher,
       fiveOrHigher,
       sixOrHigher,
@@ -103,5 +112,7 @@ export function useStreamerFilters(
     excludedNames,
     divisionStats,
     cardStreamers,
+    passedStreamers,
+    nonPassedStreamers,
   };
 }
