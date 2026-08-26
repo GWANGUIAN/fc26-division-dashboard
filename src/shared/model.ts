@@ -28,6 +28,8 @@ export interface RosterEntry {
    * snapshot (streamers, latestPosts, one-vs-one applications) entirely.
    */
   deleted?: boolean;
+  /** True once this streamer is confirmed as a 1차 합격자. Everyone else is hidden from the main board. */
+  passedFirstRound?: boolean;
 }
 
 export interface CareerRecord {
@@ -123,6 +125,8 @@ export interface StreamerRecord {
   isExcluded?: boolean;
   /** Newest generated review among this streamer's posts. isCurrent is false when a newer report exists that hasn't produced a review yet (not eligible, or still pending). */
   latestReview?: { mild: string; spicy: string; generatedAt: string; isCurrent: boolean };
+  /** True once this streamer is confirmed as a 1차 합격자. Everyone else is hidden from the main board. */
+  passedFirstRound?: boolean;
 }
 
 /** A Gemini one-line commentary in two tones, generated together from a single call. */
