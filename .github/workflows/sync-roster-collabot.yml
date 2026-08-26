@@ -7,9 +7,9 @@ on:
         description: Compute the diff and log it, but do not write roster.yaml or push.
         type: boolean
         default: true
-  schedule:
-    # 09:00 KST daily
-    - cron: "0 0 * * *"
+  # Daily 09:00 KST schedule disabled for the 1차 합격자 발표 rollout so the
+  # CollaBot sync can't overwrite passedFirstRound while results are being
+  # posted manually. Re-add a `schedule:` block here to resume auto-sync.
 
 permissions:
   contents: write

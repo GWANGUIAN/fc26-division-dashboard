@@ -11,6 +11,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/why.mp3"
   - slug: ddalgishoux
     displayName: 딸기슈몽이♡
@@ -20,6 +21,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/ddalshu.mp3"
   - slug: nlsb9718
     displayName: 판다비♥
@@ -29,6 +31,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/pandabi.mp3"
   - slug: janine95kim
     displayName: 재닌
@@ -38,6 +41,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     celebrationMessage: "재--신의 {n}부 리그 승격을 축하합니다~!!🥅"
     reviewNote: "골키퍼를 너무 잘해서 재신(야신에서 따옴)이라는 별명이 있음"
     sfx: "/sfxes/jaenin.mp3"
@@ -49,6 +53,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/sookbong.mp3"
   - slug: dokkhye0000
     displayName: 독고혜지
@@ -58,6 +63,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/dokkohaeji.mp3"
     reviewNote: "우왁굳은 이번에 5번째 동아리를 모집하는건데 독고혜지는 이전에 계속 탈락했음"
   - slug: bboringirl
@@ -68,6 +74,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     celebrationMessage: "뽀햄 묵직허이 {n}부 리그 승격!!🔫"
     sfx: "/sfxes/bboringirl.mp3"
     profileImageUrl: "/profiles/profile_bboringirl.webp"
@@ -79,6 +86,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/pinggu.mp3"
   - slug: qna0906
     displayName: 큐나
@@ -97,6 +105,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/toonyangtz.mp3"
     reviewNote: "농구게임을 굉장히 잘함"
   - slug: 
@@ -107,6 +116,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     celebrationMessage: "ㅁㅁㅁ의 {n}부 리그 승격을 축하합니다~!!😏"
     reviewNote: "SOOP에서 원래 FC 1황이였음. 나나문, 플리, 빙밍, 임하밍, 김웰로, 체비와 함께 천타버스(수장: 천양) 크루 소속임"
     sfx: "/sfxes/doormomo.mp3"
@@ -133,6 +143,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/jjimi.mp3"
   - slug: 
     displayName: 하치_HACHI
@@ -142,6 +153,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     celebrationMessage: "핫짱의 {n}부 리그 승격을 축하합니다~!!🐉"
     sfx: "/sfxes/hachi.mp3"
     reviewNote: "하치쿤, 핫짱이라는 별명을 가지고 있음. 팬닉은 용볼. RP는 용임."
@@ -154,6 +166,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/mir.mp3"
   - slug: 
     displayName: 나나문
@@ -163,6 +176,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     profileImageUrl: "/profiles/profile_nanamoon.webp"
     sfx: "/sfxes/nanamoon.mp3"
   - slug: 
@@ -193,6 +207,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/chebi.mp3"
   - slug: 
     displayName: 마리엘
@@ -228,6 +243,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/charlee.mp3"
     reviewNote: "여성 버추얼 스트리머인데 콧수염이 있음"
   - slug: 
@@ -264,6 +280,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     celebrationMessage: "얼음공주의 {n}부 리그 승격을 축하합니다~!!🧊"
     profileImageUrl: "/profiles/profile_hangyeul.webp"
     sfx: "/sfxes/hangyeul.mp3"
@@ -284,6 +301,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/esa.mp3"
   - slug: banta251201
     displayName: 반타__
@@ -310,6 +328,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/jyumenge.mp3"
   - slug: secretto486
     displayName: 비밀소녀♥
@@ -319,6 +338,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     profileImageUrl: "/profiles/profile_secretgirl.webp"
     sfx: "/sfxes/secretgirl.mp3"
     reviewNote: "우왁굳은 이번에 5번째 동아리를 모집하는건데 비밀소녀는 이전에 계속 탈락했음"
@@ -363,6 +383,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/sulbindal.mp3"
   - slug: oreo52
     displayName: "푸히:p"
@@ -381,6 +402,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/kurosha.mp3"
   - slug: xxxkimmickey
     displayName: "#김미키"
@@ -468,6 +490,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/haeri.mp3"
   - slug: rariruro
     displayName: "제리츄"
@@ -485,6 +508,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/danchu.mp3"
   - slug: muse0116
     displayName: "뮤즈_MUSE"
@@ -573,6 +597,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/haeparin.mp3"
   - slug: krtl6798
     displayName: "(타)마고"
@@ -591,6 +616,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/daki.mp3"
   - slug: 1004tangs2
     displayName: "천사탕"
@@ -619,6 +645,7 @@ streamers:
     override:
       division: 8
       policy: until-next-post
+    passedFirstRound: true
     sfx: "/sfxes/ggangdambi.mp3"
   - slug: irrilll
     displayName: "이릴_"
@@ -657,6 +684,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     celebrationMessage: "빵망이의 {n}부 리그 승격을 축하합니다~!!🤤"
     reviewNote: "배그 실력이 출중함. 성격이 좋고 귀여워서 수은(리그오브레전드의 수은 장식띠에서 나온 말로 분위기를 애교, 웃음 등으로 좋게 환기시키는 역할)력이 높음. 문모모, 나나문, 플리, 임하밍, 김웰로, 체비와 함께 천타버스(수장: 천양) 크루 소속임"
     sfx: "/sfxes/bingming.mp3"
@@ -668,6 +696,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     celebrationMessage: "망야 {n}부 리그 승격해쓰야~~"
     sfx: "/sfxes/mangya.mp3"
     reviewNote: "~해쓰야 라는 말투를 사용함 코멘트에 활용하면 좋을듯"
@@ -679,6 +708,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/rni.mp3"
   - slug: daenggang
     displayName: "댕강"
@@ -712,6 +742,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/doeasy.mp3"
   - slug: wellro314
     displayName: "김웰로"
@@ -739,6 +770,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/dashiba.mp3"
   - slug: usharko0o0
     displayName: "유샥크"
@@ -758,6 +790,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/younggam.mp3"
   - slug: peeya116
     displayName: "피야."
@@ -794,6 +827,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     celebrationMessage: "ㄴㄴㄴ의 {n}부 리그 승격을 축하합니다~!!"
     reviewNote: "키가 177cm로 굉장히 큼"
     sfx: "/sfxes/nanwoni.mp3"
@@ -855,6 +889,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/myongssi.mp3"
   - slug: n4w4nr
     displayName: "연푸_"
@@ -889,6 +924,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/jayjaing.mp3"
   - slug: nyaming0505
     displayName: "냐밍_"
@@ -906,6 +942,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     celebrationMessage: "유키라의 잔디 놀이 {n}부 리그 승격!!"
     reviewNote: "~놀이 라는 상활극 컨텐츠를 진행해서 뭘하면 ~놀이라고 채팅이 올라옴 ex)잔디놀이"
     sfx: "/sfxes/yukira.mp3"
@@ -991,6 +1028,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     isFancyLite: true
     celebrationMessage: "사시노 리냐의 {n}부 리그 승격을 축하합니다~!!🤪"
     profileImageUrl: "/profiles/profile_linya.gif"
@@ -1004,6 +1042,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/hiki.mp3"
   - slug: tadka56
     displayName: "양지랖"
@@ -1042,6 +1081,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     celebrationMessage: "왁육터의 {n}부 리그 승격을 축하합니다~!!💦"
     sfx: "/sfxes/hobal.mp3"
   - slug: natty09
@@ -1097,6 +1137,7 @@ streamers:
     override:
       division: null
       policy: auto
+    passedFirstRound: true
     sfx: "/sfxes/etoo.mp3"
   - slug: "243000"
     displayName: "천양"
