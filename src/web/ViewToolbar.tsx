@@ -1,4 +1,4 @@
-import { BadgeCheck, CheckCircle2, CirclePile, Clock, List, Minus, Plus, RefreshCw, Rows3, Shield, TrendingUp, Users } from "lucide-react";
+import { BadgeCheck, CirclePile, List, Minus, Plus, RefreshCw, Rows3, Shield, TrendingUp } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
 import { hexToRgba } from "./cardVisuals";
 import { DivisionHistogram } from "./DivisionHistogram";
@@ -24,9 +24,6 @@ export function ViewToolbar({
   refreshing,
 }: {
   divisionStats: {
-    total: number;
-    reported: number;
-    unreported: number;
     fourOrHigher: number;
     fiveOrHigher: number;
     sixOrHigher: number;
@@ -57,36 +54,6 @@ export function ViewToolbar({
             * 모든 통계에서 {excludedNames.map(name => name + '님').join(", ")}은 제외됩니다.
           </small>
         )}
-        <div className="division-summary__stats">
-          <div
-            className="division-summary__item division-summary__item--total"
-            tabIndex={0}
-          >
-            <Users aria-hidden="true" />
-            <div>
-              <strong>{divisionStats.total}</strong>
-              <span>총 신청자</span>
-            </div>
-            <span role="tooltip">
-              매일 오전 9시에 잔디동 모집글 댓글 기준으로 자동 업데이트
-              됩니다.
-            </span>
-          </div>
-          <div className="division-summary__item division-summary__item--reported">
-            <CheckCircle2 aria-hidden="true" />
-            <div>
-              <strong>{divisionStats.reported}</strong>
-              <span>승격 보고</span>
-            </div>
-          </div>
-          <div className="division-summary__item division-summary__item--unreported">
-            <Clock aria-hidden="true" />
-            <div>
-              <strong>{divisionStats.unreported}</strong>
-              <span>미보고</span>
-            </div>
-          </div>
-        </div>
         <div
           className="division-summary__stats division-summary__stats--pass"
           aria-label="1차 합격 기준 요약"

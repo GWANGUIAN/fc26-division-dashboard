@@ -14,7 +14,9 @@ import {
 import {
   isUpdatedToday,
   loadDivision10Collapsed,
+  loadFirstRoundHiddenCollapsed,
   saveDivision10Collapsed,
+  saveFirstRoundHiddenCollapsed,
   seenKeyFor,
 } from "./storage";
 
@@ -23,6 +25,7 @@ export function DivisionResults({
   loading,
   streamers,
   cardStreamers,
+  nonPassedStreamers,
   trophyAwards,
   seenKeys,
   onOpenStreamer,
@@ -40,6 +43,7 @@ export function DivisionResults({
   loading?: boolean;
   streamers: StreamerRecord[];
   cardStreamers: StreamerRecord[];
+  nonPassedStreamers: StreamerRecord[];
   trophyAwards: TrophyAwards;
   seenKeys: Set<string>;
   onOpenStreamer: (streamer: StreamerRecord) => void;
@@ -60,6 +64,16 @@ export function DivisionResults({
     setDivision10Collapsed((current) => {
       const next = !current;
       saveDivision10Collapsed(next);
+      return next;
+    });
+  };
+  const [firstRoundHiddenCollapsed, setFirstRoundHiddenCollapsed] = useState(
+    loadFirstRoundHiddenCollapsed,
+  );
+  const toggleFirstRoundHidden = () => {
+    setFirstRoundHiddenCollapsed((current) => {
+      const next = !current;
+      saveFirstRoundHiddenCollapsed(next);
       return next;
     });
   };
@@ -217,6 +231,44 @@ export function DivisionResults({
             <span>나만의 스쿼드 빌더</span>
           </button>
         </div>
+      )}
+      {nonPassedStreamers.length > 0 && (
+        <section
+          className="division first-round-hidden"
+          style={{ gridTemplateColumns: "1fr" }}
+          aria-label="1차 탈락자"
+        >
+          <div className="division__players">
+            <button
+              type="button"
+              className="division__players-toggle"
+              onClick={toggleFirstRoundHidden}
+              aria-expanded={!firstRoundHiddenCollapsed}
+            >
+              <ChevronDown aria-hidden="true" />
+              <span>
+                {firstRoundHiddenCollapsed
+                  ? `1차 탈락자 보기 (${nonPassedStreamers.length}명)`
+                  : "접기"}
+              </span>
+            </button>
+            {!firstRoundHiddenCollapsed &&
+              nonPassedStreamers.map((streamer) => (
+                <StreamerCard
+                  key={streamer.id}
+                  streamer={streamer}
+                  awards={trophyAwards}
+                  isNew={
+                    isUpdatedToday(streamer) &&
+                    !seenKeys.has(seenKeyFor(streamer))
+                  }
+                  isLive={liveStreamerIds.has(streamer.id)}
+                  onOpen={() => onOpenStreamer(streamer)}
+                  onOpenTrophy={onOpenTrophy}
+                />
+              ))}
+          </div>
+        </section>
       )}
     </div>
   );

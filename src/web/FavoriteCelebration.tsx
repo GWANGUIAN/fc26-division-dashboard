@@ -2,28 +2,40 @@ import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 
-export const DEFAULT_CELEBRATION_MESSAGE = "축 왁굳형&핫짱 즐겨찾기 목록 입성";
-
 export type CelebrationSlide = { key: string; message: string };
+
+const CONFETTI = ["🎉", "🎊", "✨", "⭐", "🎊", "✨"];
 
 function FavoriteCelebrationRow({ message }: { message: string }) {
   return (
     <span className="favorite-celebration__row">
-      <span className="favorite-celebration__icon" aria-hidden="true">
+      <span className="favorite-celebration__icon favorite-celebration__icon--left" aria-hidden="true">
         🎉
       </span>
-      <strong>{message}</strong>
-      <span className="favorite-celebration__icon" aria-hidden="true">
-        🎺
+      <strong className="favorite-celebration__message">{message}</strong>
+      <span className="favorite-celebration__icon favorite-celebration__icon--right" aria-hidden="true">
+        🏆
       </span>
     </span>
   );
 }
 
 export function FavoriteCelebration({ slides }: { slides: CelebrationSlide[] }) {
+  if (slides.length === 0) return null;
   const label = slides.map((slide) => slide.message).join(" · ");
   return (
     <aside className="favorite-celebration" role="note" aria-label={label}>
+      <span className="favorite-celebration__shine" aria-hidden="true" />
+      <span className="favorite-celebration__confetti" aria-hidden="true">
+        {CONFETTI.map((emoji, index) => (
+          <span
+            key={index}
+            className={`favorite-celebration__confetti-piece favorite-celebration__confetti-piece--${index + 1}`}
+          >
+            {emoji}
+          </span>
+        ))}
+      </span>
       <span
         className="favorite-celebration__spark favorite-celebration__spark--left"
         aria-hidden="true"
@@ -48,9 +60,7 @@ export function FavoriteCelebration({ slides }: { slides: CelebrationSlide[] }) 
             ))}
           </Swiper>
         ) : (
-          <FavoriteCelebrationRow
-            message={slides[0]?.message ?? DEFAULT_CELEBRATION_MESSAGE}
-          />
+          <FavoriteCelebrationRow message={slides[0].message} />
         )}
       </div>
       <span
