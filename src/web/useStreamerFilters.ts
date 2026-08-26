@@ -51,6 +51,9 @@ export function useStreamerFilters(
     const unreported = all.filter(
       (streamer) => streamer.currentDivision === 10,
     ).length;
+    const fourOrHigher = all.filter(
+      (streamer) => streamer.currentDivision <= 4,
+    ).length;
     const fiveOrHigher = all.filter(
       (streamer) => streamer.currentDivision <= 5,
     ).length;
@@ -64,6 +67,7 @@ export function useStreamerFilters(
       total: all.length,
       reported: all.length - unreported,
       unreported,
+      fourOrHigher,
       fiveOrHigher,
       sixOrHigher,
       sevenOrHigher,

@@ -27,6 +27,7 @@ export function ViewToolbar({
     total: number;
     reported: number;
     unreported: number;
+    fourOrHigher: number;
     fiveOrHigher: number;
     sixOrHigher: number;
     sevenOrHigher: number;
@@ -90,6 +91,12 @@ export function ViewToolbar({
           className="division-summary__stats division-summary__stats--pass"
           aria-label="1차 합격 기준 요약"
         >
+          <div className="division-summary__item division-summary__item--pass4">
+            <div>
+              <strong>{divisionStats.fourOrHigher}</strong>
+              <span>4부 이상</span>
+            </div>
+          </div>
           <div className="division-summary__item division-summary__item--pass5">
             <div>
               <strong>{divisionStats.fiveOrHigher}</strong>

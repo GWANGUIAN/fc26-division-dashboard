@@ -463,6 +463,7 @@ body { isolation: isolate; }
 .division-summary__item--unreported { border-bottom-color: #ffbb4470; } .division-summary__item--unreported svg { color: #ffbb44; } .division-summary__item--unreported strong { color: #ffcf7a; }
 .division-summary__stats--pass { padding-left: 18px; border-left: 1px solid var(--border-default); }
 .division-summary__stats--pass .division-summary__item:first-child { padding-left: 20px; }
+.division-summary__item--pass4 { border-bottom-color: #4dd9ff70; } .division-summary__item--pass4 svg { color: #4dd9ff; } .division-summary__item--pass4 strong { color: #b8f0ff; }
 .division-summary__item--pass5 { border-bottom-color: #41f7c670; } .division-summary__item--pass5 svg { color: #41f7c6; } .division-summary__item--pass5 strong { color: #bdfeed; }
 .division-summary__item--pass6 { border-bottom-color: #00e9ae70; } .division-summary__item--pass6 svg { color: var(--accent-text); } .division-summary__item--pass6 strong { color: #baffef; }
 .division-summary__item--pass7 { border-bottom-color: #ffcf7a70; } .division-summary__item--pass7 svg { color: #ffcf7a; } .division-summary__item--pass7 strong { color: #ffe3b0; }
