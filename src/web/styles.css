@@ -171,11 +171,6 @@ footer { margin-top: 26px; color: var(--text-muted); text-align: center; font-si
 
 .refresh-icon { display: inline-block; color: var(--accent-text); font: 700 16px/10px "Barlow Condensed"; vertical-align: -1px; }
 .refresh-icon--bad { color: #ff4d4d; }
-.division__label small { margin-top: 5px; color: var(--text-secondary); font-size: 10px; white-space: nowrap; }
-.division__label small.division__label-tag { align-self: flex-start; max-width: 100%; width: fit-content; margin-top: 5px; padding: 2px 6px; border-radius: 2px; font: 800 9px/1.5 "Barlow Condensed"; letter-spacing: .04em; white-space: normal; text-align: center; }
-.division__label small.division__label-tag--pass { color: #04140f; background: #00e9ae; }
-.division__label small.division__label-tag--conditional { color: #241a02; background: #ffcf7a; }
-.division-10 .division__label { background: linear-gradient(90deg, var(--surface-1), var(--surface-1-alt)); }
 .division__players-toggle { display: inline-flex; align-items: center; gap: 6px; grid-column: 1 / -1; width: 100%; padding: 8px 10px; border: 1px dashed var(--border-default); border-radius: 3px; color: var(--text-muted); background: transparent; font-size: 12px; transition: .18s; }
 .division__players-toggle:hover, .division__players-toggle:focus-visible { color: var(--accent-text); border-color: var(--accent-border); outline: 0; }
 .division__players-toggle svg { width: 13px; height: 13px; flex: 0 0 13px; stroke-width: 2.6; transition: transform .18s; }
@@ -810,9 +805,6 @@ body { isolation: isolate; }
 [data-theme="light"] body::before,
 [data-theme="light"] body::after {
   display: none;
-}
-[data-theme="light"] .division-10 .division__label {
-  background: var(--surface-1);
 }
 [data-theme="light"] .streamer-card--new {
   box-shadow: none;

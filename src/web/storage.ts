@@ -35,7 +35,6 @@ const CARD_VIEW_DISCOVERED_STORAGE_KEY = "fc26-card-view-discovered";
 const GROWTH_GRAPH_DISCOVERED_STORAGE_KEY = "fc26-growth-graph-discovered";
 const GROWTH_PICKER_DISCOVERED_STORAGE_KEY = "fc26-growth-picker-discovered";
 const VIEW_MODE_STORAGE_KEY = "fc26-view-mode";
-const DIVISION_10_COLLAPSED_STORAGE_KEY = "fc26-division-10-collapsed";
 const FIRST_ROUND_HIDDEN_COLLAPSED_STORAGE_KEY = "fc26-first-round-hidden-collapsed";
 const PROMO_PICKER_OPEN_STORAGE_KEY = "fc26-promo-picker-open";
 const CARD_ZOOM_STORAGE_KEY = "fc26-card-zoom-level";
@@ -56,26 +55,6 @@ export function loadTheme(): "dark" | "light" {
 export function saveTheme(theme: "dark" | "light") {
   try {
     localStorage.setItem(THEME_STORAGE_KEY, theme);
-  } catch {
-    // ignore storage failures (e.g. private browsing)
-  }
-}
-
-export function loadDivision10Collapsed(): boolean {
-  try {
-    const raw = localStorage.getItem(DIVISION_10_COLLAPSED_STORAGE_KEY);
-    return raw === null ? true : raw === "1";
-  } catch {
-    return true;
-  }
-}
-
-export function saveDivision10Collapsed(collapsed: boolean) {
-  try {
-    localStorage.setItem(
-      DIVISION_10_COLLAPSED_STORAGE_KEY,
-      collapsed ? "1" : "0",
-    );
   } catch {
     // ignore storage failures (e.g. private browsing)
   }
