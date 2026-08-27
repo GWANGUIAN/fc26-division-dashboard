@@ -281,7 +281,7 @@ export function App() {
       )}
       {squadBuilderOpen && (
         <SquadBuilderOverlay
-          streamers={snapshot?.streamers ?? []}
+          streamers={passedStreamers}
           onClose={() => setSquadBuilderOpen(false)}
         />
       )}
