@@ -30,6 +30,11 @@ export function useKickupsGame({
   const [quip, setQuip] = useState<{ id: number; text: string } | null>(null);
   const prevPhaseRef = useRef(state.phase);
 
+  // The authoritative, continuously-updated game state during a run. Physics steps mutate this
+  // every animation frame without going through React state (and its re-render of the whole modal
+  // tree) — React state is only synced at UI-relevant checkpoints (see the tick loop below).
+  const liveStateRef = useRef(state);
+
   useEffect(() => {
     saveKickupsHighScore(state.highScore);
   }, [state.highScore]);
@@ -64,7 +69,22 @@ export function useKickupsGame({
     const tick = (now: number) => {
       const dt = (now - last) / 1000;
       last = now;
-      setState((current) => stepPhysics(current, dt));
+
+      const prev = liveStateRef.current;
+      const next = stepPhysics(prev, dt);
+      liveStateRef.current = next;
+
+      // Only push into React state (and trigger a re-render) at checkpoints the UI actually
+      // cares about — landing and coming to rest — not on every one of the ~60 physics steps/sec.
+      const justSettled =
+        next.phase === "grounded" &&
+        next.ball.vx === 0 &&
+        next.ball.vy === 0 &&
+        (prev.ball.vx !== 0 || prev.ball.vy !== 0);
+      if (next.phase !== prev.phase || justSettled) {
+        setState(next);
+      }
+
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -72,7 +92,10 @@ export function useKickupsGame({
   }, [state.phase, settled]);
 
   function handleStart() {
-    setState((current) => startDrop(current));
+    const next = startDrop(liveStateRef.current);
+    if (next === liveStateRef.current) return;
+    liveStateRef.current = next;
+    setState(next);
   }
 
   const lastClickAtRef = useRef(0);
@@ -82,17 +105,19 @@ export function useKickupsGame({
     if (now - lastClickAtRef.current < CLICK_DEDUPE_MS) return;
     lastClickAtRef.current = now;
 
+    const current = liveStateRef.current;
     const next =
-      state.phase === "airborne"
-        ? applyHit(state, x, y)
-        : state.phase === "grounded"
-          ? applyRelaunch(state, x, y)
-          : state;
-    if (next === state) return;
+      current.phase === "airborne"
+        ? applyHit(current, x, y)
+        : current.phase === "grounded"
+          ? applyRelaunch(current, x, y)
+          : current;
+    if (next === current) return;
 
+    liveStateRef.current = next;
     if (sfxEnabled) playSfx(BALL_BOUNCE_SFX_URL, sfxVolume / 100);
     setState(next);
   }
 
-  return { state, quip, handleStart, handleCanvasClick };
+  return { state, liveStateRef, quip, handleStart, handleCanvasClick };
 }

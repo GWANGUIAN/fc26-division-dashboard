@@ -14,7 +14,7 @@ export function KickupsModal({
   sfxVolume: number;
 }) {
   useEscape(onClose);
-  const { state, quip, handleStart, handleCanvasClick } = useKickupsGame({ sfxEnabled, sfxVolume });
+  const { state, liveStateRef, quip, handleStart, handleCanvasClick } = useKickupsGame({ sfxEnabled, sfxVolume });
   const { musicOn, toggleMusic } = useKickupsMusic();
 
   return (
@@ -48,7 +48,7 @@ export function KickupsModal({
         ) : (
           <>
             <div className="kickups-score-display">{state.score}</div>
-            <KickupsCanvas state={state} onPointerDown={handleCanvasClick} />
+            <KickupsCanvas stateRef={liveStateRef} onPointerDown={handleCanvasClick} />
           </>
         )}
         {quip && (

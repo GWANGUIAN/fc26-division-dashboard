@@ -1,19 +1,17 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 import { BALL_RADIUS, COURT_HEIGHT, COURT_WIDTH, type GameState } from "./kickupsEngine";
 
 const BALL_IMAGE_SRC = "/soccer_ball.webp";
 
 export function KickupsCanvas({
-  state,
+  stateRef,
   onPointerDown,
 }: {
-  state: GameState;
+  stateRef: RefObject<GameState>;
   onPointerDown: (logicalX: number, logicalY: number) => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ballImageRef = useRef<HTMLImageElement | null>(null);
-  const stateRef = useRef(state);
-  stateRef.current = state;
   const rotationRef = useRef(0);
   const lastFrameAtRef = useRef(performance.now());
 
@@ -71,7 +69,17 @@ export function KickupsCanvas({
     return () => observer.disconnect();
   }, []);
 
-  useEffect(draw, [state]);
+  // Redraw every animation frame directly off the ref, independent of React's render/commit
+  // cycle — React state (and re-renders) only change at UI checkpoints, not per physics step.
+  useEffect(() => {
+    let raf = 0;
+    const loop = () => {
+      draw();
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, []);
 
   function handlePointerDown(event: React.PointerEvent<HTMLCanvasElement>) {
     const canvas = canvasRef.current;
