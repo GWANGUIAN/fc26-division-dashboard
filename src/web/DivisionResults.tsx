@@ -209,7 +209,7 @@ export function DivisionResults({
             {!firstRoundHiddenCollapsed && (
               <p className="first-round-hidden__note">
                 짧다면 짧고 길다면 길었던 시간 동안 FC 플레이 하시느라 고생
-                많으셨습니다. 열심히 노력하시는 모습 보면서 시청자분들과 열심히 응원했습니다.
+                많으셨습니다. 열심히 노력하시는 모습 보면서 시청자분들과 진심으로 응원했습니다.
                 함께해주신 모든 분들, 정말 수고하셨습니다.💪
               </p>
             )}
