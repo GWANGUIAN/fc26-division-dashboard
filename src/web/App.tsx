@@ -283,7 +283,7 @@ export function App() {
       )}
       {passAnnouncementOpen && (
         <PassAnnouncementOverlay
-          streamers={snapshot?.streamers ?? []}
+          streamers={passedStreamers}
           sfxEnabled={sfxEnabled}
           sfxVolume={sfxVolume}
           onSfxVolumeChange={changeSfxVolume}
