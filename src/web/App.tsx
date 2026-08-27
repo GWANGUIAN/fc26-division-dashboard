@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import type { OneVsOneApplicationView, StreamerRecord } from "../shared/model.js";
 import { buildDivisionListText } from "./appHelpers";
 import { downloadStreamersXlsx } from "./xlsx-export.js";
@@ -50,6 +50,11 @@ import { PhotoBoothTrigger } from "./photo-booth/PhotoBoothTrigger";
 import { PhotoBoothOverlay } from "./photo-booth/PhotoBoothOverlay";
 import { KickupsToggle } from "./minigame/KickupsToggle";
 import { KickupsModal } from "./minigame/KickupsModal";
+import { FreekickToggle } from "./minigame/FreekickToggle";
+
+// Pulls in the `three` dependency (~600KB+), so it's lazy-loaded and only reaches the browser
+// once a user actually opens this modal.
+const FreekickModal = lazy(() => import("./minigame/FreekickModal"));
 
 export function App() {
   const { snapshot, loading: snapshotLoading, refresh: refreshSnapshot } =
@@ -65,6 +70,7 @@ export function App() {
   const [photoBoothOpen, setPhotoBoothOpen] = useState(false);
   const [growthGraphOpen, setGrowthGraphOpen] = useState(false);
   const [kickupsOpen, setKickupsOpen] = useState(false);
+  const [freekickOpen, setFreekickOpen] = useState(false);
 
   const { toast, showToast } = useToast();
   const { theme, toggleTheme } = useTheme();
@@ -304,6 +310,14 @@ export function App() {
           sfxVolume={sfxVolume}
         />
       )}
+      {freekickOpen && (
+        <Suspense fallback={null}>
+          <FreekickModal
+            onClose={() => setFreekickOpen(false)}
+            sfxVolume={sfxVolume}
+          />
+        </Suspense>
+      )}
       <LatestFeedDrawer
         open={feedOpen}
         onClose={() => setFeedOpen(false)}
@@ -312,6 +326,7 @@ export function App() {
       <div className="bottom-left-toolbar">
         <ThemeToggle theme={theme} onToggle={toggleTheme} />
         <KickupsToggle onClick={() => setKickupsOpen(true)} />
+        <FreekickToggle onClick={() => setFreekickOpen(true)} />
       </div>
       <BrightnessGag />
       <div className="floating-toolbar">

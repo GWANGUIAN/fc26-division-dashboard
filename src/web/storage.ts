@@ -193,6 +193,45 @@ export function saveKickupsSfxEnabled(enabled: boolean) {
   }
 }
 
+const FREEKICK_HIGH_SCORE_KEY = "fc26-freekick-highscore";
+
+export function loadFreekickHighScore(): number {
+  try {
+    const raw = localStorage.getItem(FREEKICK_HIGH_SCORE_KEY);
+    const value = raw === null ? 0 : Number(raw);
+    return Number.isFinite(value) && value > 0 ? Math.floor(value) : 0;
+  } catch {
+    return 0;
+  }
+}
+
+export function saveFreekickHighScore(score: number) {
+  try {
+    localStorage.setItem(FREEKICK_HIGH_SCORE_KEY, String(Math.floor(score)));
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
+
+const FREEKICK_SFX_ENABLED_KEY = "fc26-freekick-sfx-enabled";
+
+export function loadFreekickSfxEnabled(): boolean {
+  try {
+    const raw = localStorage.getItem(FREEKICK_SFX_ENABLED_KEY);
+    return raw === null ? true : raw === "1";
+  } catch {
+    return true;
+  }
+}
+
+export function saveFreekickSfxEnabled(enabled: boolean) {
+  try {
+    localStorage.setItem(FREEKICK_SFX_ENABLED_KEY, enabled ? "1" : "0");
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
+
 export function hasHeardSfx(): boolean {
   try {
     return localStorage.getItem(SFX_HEARD_STORAGE_KEY) === "1";

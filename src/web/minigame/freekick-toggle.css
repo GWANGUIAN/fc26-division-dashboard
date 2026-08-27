@@ -1,0 +1,6 @@
+.freekick-toggle { display: grid; width: 44px; height: 44px; place-items: center; border: 1px solid var(--border-default); border-radius: 50%; background: var(--surface-3); box-shadow: 0 8px 20px rgba(var(--shadow-color), .35); transition: border-color .2s, background-color .2s, box-shadow .2s, transform .15s; }
+.freekick-toggle:hover, .freekick-toggle:focus-visible { border-color: var(--accent-border); background: #00e9ae14; box-shadow: 0 0 0 3px #00e9ae12, 0 8px 20px rgba(var(--shadow-color), .35); outline: 0; }
+.freekick-toggle:active { transform: scale(.92); }
+.freekick-toggle:hover .freekick-toggle__icon { transform: scale(1.12); }
+.freekick-toggle__icon { width: 24px; height: 24px; object-fit: contain; transition: transform .3s ease; }
+@media (max-width: 680px) { .freekick-toggle { display: none; } }
