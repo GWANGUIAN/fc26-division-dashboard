@@ -69,7 +69,7 @@
   overflow: hidden;
   background:
     linear-gradient(180deg, rgba(5, 11, 9, .4) 0%, rgba(1, 16, 12, .12) 30%, transparent 55%),
-    url("/background-selfi.webp") center / cover no-repeat;
+    url("/background-selfi.webp") 38% center / 112% auto no-repeat;
 }
 
 .photo-booth-topbar-right {
@@ -129,24 +129,19 @@
   background: rgba(5, 5, 5, .55);
 }
 
-/* Sized/positioned in vh/vw (not px) so it scales in lockstep with the
-   cover-fit background at any browser zoom level — px values drift out of
-   proportion because zoom changes how many CSS px fit in the viewport,
-   while vh/vw always resolve against the current viewport regardless of zoom. */
+/* width-driven (not height-driven) so it actually shrinks as the window
+   narrows — height stays auto and follows the image's own aspect ratio,
+   and `left: 32%` (a percentage of the container) naturally repositions
+   itself in step as the container width changes. */
 .photo-booth-director {
   position: absolute;
   z-index: 2;
-  left: 32%;
-  bottom: 17.8vh;
-  height: 62vh;
-  max-width: 40%;
-  object-fit: contain;
-  object-position: bottom left;
+  left: 28%;
+  bottom: 0;
+  width: clamp(160px, 34vw, 620px);
+  height: auto;
   filter: drop-shadow(0 18px 30px rgba(0, 0, 0, .45));
   pointer-events: none;
-}
-@media (max-width: 680px) {
-  .photo-booth-director { left: 12%; bottom: 4vh; height: 44vh; max-width: 55%; }
 }
 
 /* --- Streamer picker (single-select dropdown, top-left corner) --- */
