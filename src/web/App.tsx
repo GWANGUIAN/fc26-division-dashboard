@@ -43,7 +43,6 @@ import { EvaluationModal } from "./EvaluationViews";
 import { SfxIntroNotice, SfxToggle } from "./SfxControls";
 import { MusicPlayer } from "./MusicPlayer";
 import { ThemeToggle } from "./ThemeToggle";
-import { PromoPostPicker } from "./PromoPostPicker";
 import { BrightnessGag } from "./BrightnessGag";
 import { SquadBuilderOverlay } from "./squad-builder/SquadBuilderOverlay";
 import { PassAnnouncementOverlay } from "./pass-announcement/PassAnnouncementOverlay";
@@ -316,11 +315,6 @@ export function App() {
       <div className="bottom-left-toolbar">
         <ThemeToggle theme={theme} onToggle={toggleTheme} />
         <KickupsToggle onClick={() => setKickupsOpen(true)} />
-        <PromoPostPicker
-          posts={snapshot?.promoPosts ?? []}
-          sfxEnabled={sfxEnabled}
-          sfxVolume={sfxVolume}
-        />
       </div>
       <BrightnessGag />
       <div className="floating-toolbar">
