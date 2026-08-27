@@ -44,13 +44,14 @@ export function useKickupsGame({
       const finalScore = state.score;
       const isNewRecord = finalScore > 0 && finalScore === state.highScore;
       setQuip({ id: Date.now(), text: pickQuip(finalScore, isNewRecord) });
-      if (sfxEnabled) {
-        if (finalScore >= KICKUPS_TOP_TIER_MIN_SCORE) {
-          playSfx(DOORMOMO_SFX_URL, sfxVolume / 100);
-        } else {
-          playSfx(GAME_OVER_SFX_URL, sfxVolume / 100);
-        }
-      }
+      // Temporarily disabled to test whether the game-over sfx is causing the reported jank.
+      // if (sfxEnabled) {
+      //   if (finalScore >= KICKUPS_TOP_TIER_MIN_SCORE) {
+      //     playSfx(DOORMOMO_SFX_URL, sfxVolume / 100);
+      //   } else {
+      //     playSfx(GAME_OVER_SFX_URL, sfxVolume / 100);
+      //   }
+      // }
     }
     prevPhaseRef.current = state.phase;
   }, [state.phase, state.score, state.highScore, sfxEnabled, sfxVolume]);
