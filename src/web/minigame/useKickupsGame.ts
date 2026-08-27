@@ -99,6 +99,7 @@ export function useKickupsGame({
   }
 
   const lastClickAtRef = useRef(0);
+  const lastRelaunchAtRef = useRef(0);
 
   function handleCanvasClick(x: number, y: number) {
     const now = performance.now();
@@ -106,15 +107,29 @@ export function useKickupsGame({
     lastClickAtRef.current = now;
 
     const current = liveStateRef.current;
+
+    // A relaunch flips phase to "airborne" the instant it's processed, before the ball has
+    // visibly moved. If a duplicate/compatibility pointer event for that same physical tap slips
+    // past the dedupe window above, it lands here reading "airborne" and gets treated as a real
+    // in-air hit — overwriting the clean straight-up launch with direction-dependent hit physics
+    // computed from the same click position, which can send the ball right back down instantly
+    // (looking like the relaunch silently failed). Ignore any "hit" that arrives this soon after
+    // a relaunch; no legitimate follow-up hit needs to land within a fifth of a second of the ball
+    // leaving the ground.
+    const RELAUNCH_HIT_GUARD_MS = 200;
+    if (current.phase === "airborne" && now - lastRelaunchAtRef.current < RELAUNCH_HIT_GUARD_MS) return;
+
+    const wasGrounded = current.phase === "grounded";
     const next =
       current.phase === "airborne"
         ? applyHit(current, x, y)
-        : current.phase === "grounded"
+        : wasGrounded
           ? applyRelaunch(current, x, y)
           : current;
     if (next === current) return;
 
     liveStateRef.current = next;
+    if (wasGrounded) lastRelaunchAtRef.current = now;
     if (sfxOn) playSfx(BALL_BOUNCE_SFX_URL, sfxVolume / 100);
     setState(next);
   }
