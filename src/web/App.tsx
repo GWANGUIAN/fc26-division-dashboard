@@ -293,6 +293,8 @@ export function App() {
       {photoBoothOpen && (
         <PhotoBoothOverlay
           passedStreamers={passedStreamers}
+          sfxEnabled={sfxEnabled}
+          sfxVolume={sfxVolume}
           onClose={() => setPhotoBoothOpen(false)}
         />
       )}

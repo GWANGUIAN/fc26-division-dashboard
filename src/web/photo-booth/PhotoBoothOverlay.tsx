@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import type { StreamerRecord } from "../../shared/model.js";
+import { playSfx } from "../sfxAudio";
 import "./photo-booth.css";
 import { PhotoBoothBanner } from "./PhotoBoothBanner";
 import { PhotoBoothStreamerPicker } from "./PhotoBoothStreamerPicker";
 import { loadPhotoBoothState, savePhotoBoothState } from "./storage";
+
+const CHEER_SFX_URL = "/sfxes/cheer.mp3";
 
 function useEscape(onClose: () => void) {
   useEffect(() => {
@@ -42,9 +45,13 @@ function useBodyScrollLock() {
 
 export function PhotoBoothOverlay({
   passedStreamers,
+  sfxEnabled,
+  sfxVolume,
   onClose,
 }: {
   passedStreamers: StreamerRecord[];
+  sfxEnabled: boolean;
+  sfxVolume: number;
   onClose: () => void;
 }) {
   useEscape(onClose);
@@ -56,6 +63,11 @@ export function PhotoBoothOverlay({
   const [directorVisible, setDirectorVisible] = useState(
     () => loadPhotoBoothState().directorVisible ?? true,
   );
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- fires once when the overlay opens, not on every sfx setting change
+  useEffect(() => {
+    if (sfxEnabled) playSfx(CHEER_SFX_URL, sfxVolume / 100);
+  }, []);
 
   // A remembered streamer who no longer has a passed-first-round entry
   // (roster changed since last visit) falls back to the first available one
@@ -74,6 +86,7 @@ export function PhotoBoothOverlay({
   function handleSelect(id: string) {
     setSelectedStreamerId(id);
     savePhotoBoothState({ schemaVersion: 1, selectedStreamerId: id, directorVisible });
+    if (sfxEnabled) playSfx(CHEER_SFX_URL, sfxVolume / 100);
   }
 
   function handleToggleDirector() {
