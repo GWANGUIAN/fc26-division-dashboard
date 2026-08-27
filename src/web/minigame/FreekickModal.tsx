@@ -1,8 +1,10 @@
-import { Volume2, VolumeX } from "lucide-react";
+import { Music4, Volume2, VolumeX } from "lucide-react";
 import { Modal, useEscape } from "../Modal";
 import { FreekickScene } from "./FreekickScene";
+import { SoundControl } from "./SoundControl";
 import { STARTING_LIVES } from "./freekickEngine";
 import { useFreekickGame } from "./useFreekickGame";
+import { useFreekickMusic } from "./useFreekickMusic";
 import { useFreekickSfx } from "./useFreekickSfx";
 import "./freekick.css";
 
@@ -28,9 +30,18 @@ function LivesDisplay({ lives }: { lives: number }) {
   );
 }
 
-function FreekickModal({ onClose, sfxVolume }: { onClose: () => void; sfxVolume: number }) {
+function FreekickModal({
+  onClose,
+  sfxVolume,
+  onSfxVolumeChange,
+}: {
+  onClose: () => void;
+  sfxVolume: number;
+  onSfxVolumeChange: (value: number) => void;
+}) {
   useEscape(onClose);
   const { sfxOn, toggleSfx } = useFreekickSfx();
+  const { musicOn, toggleMusic, musicVolume, changeMusicVolume } = useFreekickMusic();
   const { state, liveStateRef, handleShoot, handleNextAttempt, handleNewRound } = useFreekickGame({
     sfxOn,
     sfxVolume,
@@ -58,15 +69,24 @@ function FreekickModal({ onClose, sfxVolume }: { onClose: () => void; sfxVolume:
         <LivesDisplay lives={state.lives} />
         <div className="freekick-badge freekick-badge--score">점수 {state.score}</div>
         <div className="freekick-badge freekick-badge--best">최고 기록 {state.bestScore}</div>
-        <button
-          type="button"
-          className={`freekick-icon-toggle ${sfxOn ? "" : "freekick-icon-toggle--muted"}`}
-          onClick={toggleSfx}
-          aria-pressed={sfxOn}
-          aria-label={sfxOn ? "효과음 끄기" : "효과음 켜기"}
-        >
-          {sfxOn ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
-        </button>
+        <SoundControl
+          enabled={musicOn}
+          volume={musicVolume}
+          onToggle={toggleMusic}
+          onVolumeChange={changeMusicVolume}
+          icon={<Music4 aria-hidden="true" />}
+          label="배경음악"
+          wrapperClassName={`freekick-icon-toggle freekick-icon-toggle--music ${musicOn ? "" : "freekick-icon-toggle--muted"}`}
+        />
+        <SoundControl
+          enabled={sfxOn}
+          volume={sfxVolume}
+          onToggle={toggleSfx}
+          onVolumeChange={onSfxVolumeChange}
+          icon={sfxOn ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
+          label="효과음"
+          wrapperClassName={`freekick-icon-toggle freekick-icon-toggle--sfx ${sfxOn ? "" : "freekick-icon-toggle--muted"}`}
+        />
         <FreekickScene stateRef={liveStateRef} onShoot={handleShoot} />
         {state.phase === "idle" && (
           <div className="freekick-hint">공을 드래그해서 슛하세요</div>

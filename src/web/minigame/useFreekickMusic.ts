@@ -1,18 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  loadKickupsMusicEnabled,
-  loadKickupsMusicVolume,
-  saveKickupsMusicEnabled,
-  saveKickupsMusicVolume,
+  loadFreekickMusicEnabled,
+  loadFreekickMusicVolume,
+  saveFreekickMusicEnabled,
+  saveFreekickMusicVolume,
 } from "../storage";
 
-const MUSIC_SRC = "/background-mini-game.mp3";
+const MUSIC_SRC = "/sfxes/background-freekick.mp3";
 
 /** Loops the minigame's background track independently of the one-shot sfx player, so it isn't
- * cut off every time a kick/goal sfx plays via the shared `playSfx` slot. */
-export function useKickupsMusic() {
-  const [musicOn, setMusicOn] = useState(loadKickupsMusicEnabled);
-  const [musicVolume, setMusicVolume] = useState(loadKickupsMusicVolume);
+ * cut off every time a strike/goal sfx plays via the shared `playSfx` slot. */
+export function useFreekickMusic() {
+  const [musicOn, setMusicOn] = useState(loadFreekickMusicEnabled);
+  const [musicVolume, setMusicVolume] = useState(loadFreekickMusicVolume);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -41,14 +41,14 @@ export function useKickupsMusic() {
   function toggleMusic() {
     setMusicOn((current) => {
       const next = !current;
-      saveKickupsMusicEnabled(next);
+      saveFreekickMusicEnabled(next);
       return next;
     });
   }
 
   function changeMusicVolume(value: number) {
     setMusicVolume(value);
-    saveKickupsMusicVolume(value);
+    saveFreekickMusicVolume(value);
   }
 
   return { musicOn, toggleMusic, musicVolume, changeMusicVolume };

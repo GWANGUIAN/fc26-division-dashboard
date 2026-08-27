@@ -1,6 +1,7 @@
 import { Music4, Volume2, VolumeX } from "lucide-react";
 import { Modal, useEscape } from "../Modal";
 import { KickupsCanvas } from "./KickupsCanvas";
+import { SoundControl } from "./SoundControl";
 import { useKickupsGame } from "./useKickupsGame";
 import { useKickupsMusic } from "./useKickupsMusic";
 import { useKickupsSfx } from "./useKickupsSfx";
@@ -8,14 +9,16 @@ import { useKickupsSfx } from "./useKickupsSfx";
 export function KickupsModal({
   onClose,
   sfxVolume,
+  onSfxVolumeChange,
 }: {
   onClose: () => void;
   sfxVolume: number;
+  onSfxVolumeChange: (value: number) => void;
 }) {
   useEscape(onClose);
   const { sfxOn, toggleSfx } = useKickupsSfx();
   const { state, liveStateRef, quip, handleStart, handleCanvasClick } = useKickupsGame({ sfxOn, sfxVolume });
-  const { musicOn, toggleMusic } = useKickupsMusic();
+  const { musicOn, toggleMusic, musicVolume, changeMusicVolume } = useKickupsMusic();
 
   return (
     <Modal
@@ -32,24 +35,24 @@ export function KickupsModal({
     >
       <div className="kickups-play-area">
         <div className="kickups-badge kickups-badge--high">최고기록 {state.highScore}</div>
-        <button
-          type="button"
-          className={`kickups-icon-toggle kickups-icon-toggle--music ${musicOn ? "" : "kickups-icon-toggle--muted"}`}
-          onClick={toggleMusic}
-          aria-pressed={musicOn}
-          aria-label={musicOn ? "배경음악 끄기" : "배경음악 켜기"}
-        >
-          <Music4 aria-hidden="true" />
-        </button>
-        <button
-          type="button"
-          className={`kickups-icon-toggle kickups-icon-toggle--sfx ${sfxOn ? "" : "kickups-icon-toggle--muted"}`}
-          onClick={toggleSfx}
-          aria-pressed={sfxOn}
-          aria-label={sfxOn ? "효과음 끄기" : "효과음 켜기"}
-        >
-          {sfxOn ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
-        </button>
+        <SoundControl
+          enabled={musicOn}
+          volume={musicVolume}
+          onToggle={toggleMusic}
+          onVolumeChange={changeMusicVolume}
+          icon={<Music4 aria-hidden="true" />}
+          label="배경음악"
+          wrapperClassName={`kickups-icon-toggle kickups-icon-toggle--music ${musicOn ? "" : "kickups-icon-toggle--muted"}`}
+        />
+        <SoundControl
+          enabled={sfxOn}
+          volume={sfxVolume}
+          onToggle={toggleSfx}
+          onVolumeChange={onSfxVolumeChange}
+          icon={sfxOn ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
+          label="효과음"
+          wrapperClassName={`kickups-icon-toggle kickups-icon-toggle--sfx ${sfxOn ? "" : "kickups-icon-toggle--muted"}`}
+        />
         {state.phase === "idle" ? (
           <button type="button" className="kickups-start" onClick={handleStart}>
             시작

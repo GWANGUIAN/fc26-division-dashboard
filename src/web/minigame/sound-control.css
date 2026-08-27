@@ -1,0 +1,11 @@
+.sound-control__button { all: unset; display: grid; place-items: center; box-sizing: border-box; width: 100%; height: 100%; cursor: pointer; }
+.sound-control__popup { position: absolute; top: calc(100% + 8px); left: 50%; z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 8px; border: 1px solid var(--border-default); border-radius: 16px; background: rgba(var(--shadow-color), .55); backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transform: translateX(-50%) scale(.9); transform-origin: top center; transition: opacity .16s, transform .16s; }
+.sound-control--open .sound-control__popup { opacity: 1; pointer-events: auto; transform: translateX(-50%) scale(1); }
+/* A native vertical range input (rather than a horizontal one rotated with a transform, which
+   lays out at its unrotated size and needs its own centering box) — writing-mode + rtl makes the
+   track genuinely 4px-wide/74px-tall in document flow, so it can't drift out of line with the
+   popup's background around it. */
+.sound-control__slider { writing-mode: vertical-lr; direction: rtl; width: 4px; height: 74px; margin: 0; -webkit-appearance: none; appearance: none; border-radius: 999px; background: linear-gradient(0deg, var(--accent-text) var(--volume-fill, 0%), rgba(255, 255, 255, .2) var(--volume-fill, 0%)); cursor: pointer; }
+.sound-control__slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-text); box-shadow: 0 0 0 2px rgba(0, 0, 0, .35); }
+.sound-control__slider::-moz-range-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%; background: var(--accent-text); }
+.sound-control__value { min-width: 20px; text-align: center; font: 700 11px/1 "Barlow Condensed", "Noto Sans KR"; color: var(--text-primary); }

@@ -11,13 +11,15 @@
 
 .freekick-badge { position: absolute; z-index: 1; padding: 5px 11px; border: 1px solid var(--border-default); border-radius: 20px; color: var(--text-primary); background: rgba(var(--shadow-color), .45); backdrop-filter: blur(3px); font: 700 13px/1 "Barlow Condensed", "Noto Sans KR"; letter-spacing: .02em; pointer-events: none; }
 .freekick-badge--score { top: 12px; left: 130px; color: var(--accent-text); }
-.freekick-badge--best { top: 12px; right: 52px; }
+.freekick-badge--best { top: 50px; left: 12px; }
 
-.freekick-icon-toggle { position: absolute; z-index: 3; top: 12px; right: 12px; display: grid; width: 32px; height: 32px; place-items: center; border: 1px solid var(--border-default); border-radius: 50%; color: var(--text-primary); background: rgba(var(--shadow-color), .45); backdrop-filter: blur(3px); transition: border-color .2s, color .2s, background-color .2s; }
+.freekick-icon-toggle { position: absolute; z-index: 3; top: 12px; display: grid; width: 32px; height: 32px; place-items: center; border: 1px solid var(--border-default); border-radius: 50%; color: var(--text-primary); background: rgba(var(--shadow-color), .45); backdrop-filter: blur(3px); transition: border-color .2s, color .2s, background-color .2s; }
 .freekick-icon-toggle svg { width: 16px; height: 16px; }
 .freekick-icon-toggle:hover, .freekick-icon-toggle:focus-visible { border-color: var(--accent-border); color: var(--accent-text); outline: 0; }
 .freekick-icon-toggle--muted { color: var(--text-muted); }
 .freekick-icon-toggle--muted::after { position: absolute; content: ""; top: 50%; left: 50%; width: 22px; height: 2px; background: currentColor; transform: translate(-50%, -50%) rotate(45deg); }
+.freekick-icon-toggle--music { right: 12px; }
+.freekick-icon-toggle--sfx { right: 52px; }
 
 .freekick-hint { position: absolute; z-index: 1; bottom: 14px; left: 50%; transform: translateX(-50%); padding: 6px 14px; border-radius: 20px; color: var(--text-primary); background: rgba(var(--shadow-color), .45); backdrop-filter: blur(3px); font: 600 12px/1 "Noto Sans KR"; pointer-events: none; }
 

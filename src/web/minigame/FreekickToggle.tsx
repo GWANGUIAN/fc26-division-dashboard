@@ -7,7 +7,12 @@ import "./freekick-toggle.css";
 
 // Warming these up while the toggle sits idle on the dashboard means the browser has already
 // fetched and decoded them by the time the modal opens, same rationale as KickupsToggle's warmup.
-const WARMUP_SFX_URLS = ["/sfxes/ball-bounce.mp3", "/sfxes/goal.mp3", "/sfxes/game-over.mp3"];
+const WARMUP_SFX_URLS = [
+  "/sfxes/ball-bounce.mp3",
+  "/sfxes/goal.mp3",
+  "/sfxes/game-over.mp3",
+  "/sfxes/background-freekick.mp3",
+];
 
 export function FreekickToggle({ onClick }: { onClick: () => void }) {
   useEffect(() => {

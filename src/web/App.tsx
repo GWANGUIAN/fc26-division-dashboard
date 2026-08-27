@@ -69,8 +69,9 @@ export function App() {
   const [passAnnouncementOpen, setPassAnnouncementOpen] = useState(false);
   const [photoBoothOpen, setPhotoBoothOpen] = useState(false);
   const [growthGraphOpen, setGrowthGraphOpen] = useState(false);
-  const [kickupsOpen, setKickupsOpen] = useState(false);
-  const [freekickOpen, setFreekickOpen] = useState(false);
+  // A single slot (rather than one boolean per minigame) makes it structurally impossible for two
+  // minigame modals to be open at once.
+  const [activeMinigame, setActiveMinigame] = useState<"kickups" | "freekick" | null>(null);
 
   const { toast, showToast } = useToast();
   const { theme, toggleTheme } = useTheme();
@@ -304,17 +305,19 @@ export function App() {
           onClose={() => setPhotoBoothOpen(false)}
         />
       )}
-      {kickupsOpen && (
+      {activeMinigame === "kickups" && (
         <KickupsModal
-          onClose={() => setKickupsOpen(false)}
+          onClose={() => setActiveMinigame(null)}
           sfxVolume={sfxVolume}
+          onSfxVolumeChange={changeSfxVolume}
         />
       )}
-      {freekickOpen && (
+      {activeMinigame === "freekick" && (
         <Suspense fallback={null}>
           <FreekickModal
-            onClose={() => setFreekickOpen(false)}
+            onClose={() => setActiveMinigame(null)}
             sfxVolume={sfxVolume}
+            onSfxVolumeChange={changeSfxVolume}
           />
         </Suspense>
       )}
@@ -325,8 +328,8 @@ export function App() {
       />
       <div className="bottom-left-toolbar">
         <ThemeToggle theme={theme} onToggle={toggleTheme} />
-        <KickupsToggle onClick={() => setKickupsOpen(true)} />
-        <FreekickToggle onClick={() => setFreekickOpen(true)} />
+        <KickupsToggle onClick={() => setActiveMinigame("kickups")} />
+        <FreekickToggle onClick={() => setActiveMinigame("freekick")} />
       </div>
       <BrightnessGag />
       <div className="floating-toolbar">
