@@ -206,6 +206,14 @@ export function DivisionResults({
                   : "접기"}
               </span>
             </button>
+            {!firstRoundHiddenCollapsed && (
+              <p className="first-round-hidden__note">
+                짧다면 짧고 길다면 길었던 시간 동안 FC 플레이 하시느라 고생
+                많으셨습니다. 그 시간 동안 시청자분들도 얼마나 열심히
+                응원했는지, 누구보다 잘 아시리라 생각합니다. 함께해주신
+                모든 분들, 정말 수고하셨습니다.
+              </p>
+            )}
             {!firstRoundHiddenCollapsed &&
               nonPassedStreamers.map((streamer) => (
                 <StreamerCard
