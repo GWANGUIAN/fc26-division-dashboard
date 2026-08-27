@@ -303,7 +303,6 @@ export function App() {
       {kickupsOpen && (
         <KickupsModal
           onClose={() => setKickupsOpen(false)}
-          sfxEnabled={sfxEnabled}
           sfxVolume={sfxVolume}
         />
       )}

@@ -20,10 +20,10 @@ const QUIP_VISIBLE_MS = 3200;
 const CLICK_DEDUPE_MS = 120;
 
 export function useKickupsGame({
-  sfxEnabled,
+  sfxOn,
   sfxVolume,
 }: {
-  sfxEnabled: boolean;
+  sfxOn: boolean;
   sfxVolume: number;
 }) {
   const [state, setState] = useState<GameState>(() => createInitialState(loadKickupsHighScore()));
@@ -44,17 +44,16 @@ export function useKickupsGame({
       const finalScore = state.score;
       const isNewRecord = finalScore > 0 && finalScore === state.highScore;
       setQuip({ id: Date.now(), text: pickQuip(finalScore, isNewRecord) });
-      // Temporarily disabled to test whether the game-over sfx is causing the reported jank.
-      // if (sfxEnabled) {
-      //   if (finalScore >= KICKUPS_TOP_TIER_MIN_SCORE) {
-      //     playSfx(DOORMOMO_SFX_URL, sfxVolume / 100);
-      //   } else {
-      //     playSfx(GAME_OVER_SFX_URL, sfxVolume / 100);
-      //   }
-      // }
+      if (sfxOn) {
+        if (finalScore >= KICKUPS_TOP_TIER_MIN_SCORE) {
+          playSfx(DOORMOMO_SFX_URL, sfxVolume / 100);
+        } else {
+          playSfx(GAME_OVER_SFX_URL, sfxVolume / 100);
+        }
+      }
     }
     prevPhaseRef.current = state.phase;
-  }, [state.phase, state.score, state.highScore, sfxEnabled, sfxVolume]);
+  }, [state.phase, state.score, state.highScore, sfxOn, sfxVolume]);
 
   useEffect(() => {
     if (!quip) return;
@@ -116,7 +115,7 @@ export function useKickupsGame({
     if (next === current) return;
 
     liveStateRef.current = next;
-    if (sfxEnabled) playSfx(BALL_BOUNCE_SFX_URL, sfxVolume / 100);
+    if (sfxOn) playSfx(BALL_BOUNCE_SFX_URL, sfxVolume / 100);
     setState(next);
   }
 

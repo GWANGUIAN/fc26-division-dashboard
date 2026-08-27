@@ -174,6 +174,25 @@ export function saveKickupsMusicEnabled(enabled: boolean) {
   }
 }
 
+const KICKUPS_SFX_ENABLED_KEY = "fc26-kickups-sfx-enabled";
+
+export function loadKickupsSfxEnabled(): boolean {
+  try {
+    const raw = localStorage.getItem(KICKUPS_SFX_ENABLED_KEY);
+    return raw === null ? true : raw === "1";
+  } catch {
+    return true;
+  }
+}
+
+export function saveKickupsSfxEnabled(enabled: boolean) {
+  try {
+    localStorage.setItem(KICKUPS_SFX_ENABLED_KEY, enabled ? "1" : "0");
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
+
 export function hasHeardSfx(): boolean {
   try {
     return localStorage.getItem(SFX_HEARD_STORAGE_KEY) === "1";

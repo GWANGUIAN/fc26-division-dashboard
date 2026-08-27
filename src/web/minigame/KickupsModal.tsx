@@ -1,20 +1,20 @@
-import { Music4 } from "lucide-react";
+import { Music4, Volume2, VolumeX } from "lucide-react";
 import { Modal, useEscape } from "../Modal";
 import { KickupsCanvas } from "./KickupsCanvas";
 import { useKickupsGame } from "./useKickupsGame";
 import { useKickupsMusic } from "./useKickupsMusic";
+import { useKickupsSfx } from "./useKickupsSfx";
 
 export function KickupsModal({
   onClose,
-  sfxEnabled,
   sfxVolume,
 }: {
   onClose: () => void;
-  sfxEnabled: boolean;
   sfxVolume: number;
 }) {
   useEscape(onClose);
-  const { state, liveStateRef, quip, handleStart, handleCanvasClick } = useKickupsGame({ sfxEnabled, sfxVolume });
+  const { sfxOn, toggleSfx } = useKickupsSfx();
+  const { state, liveStateRef, quip, handleStart, handleCanvasClick } = useKickupsGame({ sfxOn, sfxVolume });
   const { musicOn, toggleMusic } = useKickupsMusic();
 
   return (
@@ -34,12 +34,21 @@ export function KickupsModal({
         <div className="kickups-badge kickups-badge--high">최고기록 {state.highScore}</div>
         <button
           type="button"
-          className={`kickups-music-toggle ${musicOn ? "" : "kickups-music-toggle--muted"}`}
+          className={`kickups-icon-toggle kickups-icon-toggle--music ${musicOn ? "" : "kickups-icon-toggle--muted"}`}
           onClick={toggleMusic}
           aria-pressed={musicOn}
           aria-label={musicOn ? "배경음악 끄기" : "배경음악 켜기"}
         >
           <Music4 aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          className={`kickups-icon-toggle kickups-icon-toggle--sfx ${sfxOn ? "" : "kickups-icon-toggle--muted"}`}
+          onClick={toggleSfx}
+          aria-pressed={sfxOn}
+          aria-label={sfxOn ? "효과음 끄기" : "효과음 켜기"}
+        >
+          {sfxOn ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
         </button>
         {state.phase === "idle" ? (
           <button type="button" className="kickups-start" onClick={handleStart}>
