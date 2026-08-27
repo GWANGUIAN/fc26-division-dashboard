@@ -116,14 +116,16 @@ export function applyRelaunch(state: GameState, clickX: number, clickY: number):
   const dist = Math.hypot(clickX - state.ball.x, clickY - state.ball.y);
   if (dist > BALL_RADIUS + HIT_TOLERANCE_BASE) return state;
 
-  const { vx, vy } = computeBounceVelocity(clickX - state.ball.x, clickY - state.ball.y);
+  // Unlike an in-run hit, a relaunch shouldn't punish where on the ball you clicked — clicking
+  // near the edge here isn't a skill test, it's just "tap the ball to play again", so always pop
+  // it straight up to a consistent height regardless of click offset.
   return {
     ...state,
     phase: "airborne",
     score: 0,
     gravity: GRAVITY_BASE,
     hitTolerance: HIT_TOLERANCE_BASE,
-    ball: { x: state.ball.x, y: state.ball.y, vx, vy },
+    ball: { x: state.ball.x, y: state.ball.y, vx: 0, vy: BASE_VY },
   };
 }
 
