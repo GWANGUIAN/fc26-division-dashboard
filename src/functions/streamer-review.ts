@@ -38,17 +38,27 @@ function formatPromotionHistory(streamer: StreamerRecord): string {
 function formatRoster(allStreamers: StreamerRecord[]): string {
   return [...allStreamers]
     .sort((a, b) => a.currentDivision - b.currentDivision || a.displayName.localeCompare(b.displayName, "ko"))
-    .map((streamer) => `${streamer.displayName}: ${streamer.currentDivision}부`)
+    .map((streamer) => `${streamer.displayName}: ${streamer.currentDivision}부${streamer.passedFirstRound ? " [1차 합격]" : ""}`)
     .join(", ");
 }
 
+function formatPassStatus(streamer: StreamerRecord): string {
+  return streamer.passedFirstRound
+    ? "합격 확정"
+    : "미확정 (아직 결과 발표 전이거나 이번 1차에서 합격자 명단에 포함되지 않음)";
+}
+
 function buildPrompt(streamer: StreamerRecord, allStreamers: StreamerRecord[], reviewContext: string): string {
+  const passedCount = allStreamers.filter((candidate) => candidate.passedFirstRound).length;
   const sections = [
     "이 사이트는 왁물원 잔디동(FC 게임 동아리) 지원자들의 FC26 디비전 현황을 추적하는 대시보드입니다.",
+    "현재 잔디동 모집은 1차 합격자 선발이 완료된 상태이며, 지원자 전원이 아니라 일부만 1차 합격이 확정되었습니다.",
+    "아래 [전체 동아리 지원자 디비전 현황]에서 '[1차 합격]' 표시가 있는 사람만 합격이 확정된 것이고, 표시가 없는 사람은 아직 결과가 나오지 않았거나 이번 1차 합격자 명단에는 포함되지 않은 상태일 수 있습니다.",
     "아래 정보를 참고해서 이 스트리머에게 보여줄 짧은 한줄평을 작성하세요.",
     "",
     `[이 스트리머: ${streamer.displayName}]`,
     `현재 디비전: ${streamer.currentDivision}부`,
+    `1차 합격 여부: ${formatPassStatus(streamer)}`,
     `통산 전적: ${formatRecord(streamer.record)}`,
     `승급 이력: ${formatPromotionHistory(streamer)}`,
   ];
@@ -59,7 +69,7 @@ function buildPrompt(streamer: StreamerRecord, allStreamers: StreamerRecord[], r
 
   sections.push(
     "",
-    `[전체 동아리 지원자 디비전 현황] (총 ${allStreamers.length}명)`,
+    `[전체 동아리 지원자 디비전 현황] (총 ${allStreamers.length}명, 이 중 1차 합격 ${passedCount}명)`,
     formatRoster(allStreamers),
   );
 
@@ -72,6 +82,7 @@ function buildPrompt(streamer: StreamerRecord, allStreamers: StreamerRecord[], r
     "[작성 지침]",
     "- 같은 데이터를 근거로 톤이 다른 한줄평 두 개(순한맛 mild, 매운맛 spicy)를 함께 작성하세요. 각각 한국어 존댓말, 200자 내외입니다.",
     "- 이 스트리머의 승급/전적/동료 대비 위치 중 데이터로 뒷받침되는 내용만 근거로 분석하세요. 추측하지 마세요.",
+    "- 1차 합격 여부가 이 스트리머와 자연스럽게 관련될 때만 짧게 언급하세요(예: 합격 확정이면 축하, 미확정이면 결과를 기다리는 상황을 담담하게 언급 등). 미확정을 '탈락'으로 단정하지 마세요. 굳이 끼워 맞출 필요는 없습니다.",
     "- [순한맛 mild] 따뜻하고 다정한 톤으로 쓰세요. 응원이나 격려하는 말로 마무리해도 좋습니다.",
     "- [매운맛 spicy] '응원합니다', '화이팅', '기대할게요' 같은 형식적인 응원·격려 멘트로 끝맺지 마세요. 시청자가 보고 웃을 수 있는 '방송각'을 뽑아내세요: 성적이 안 좋으면 예능감 있게 신랄하게 디스하고, 성적이 좋으면 오버스럽게 과장해서 극찬하는 등 캐릭터 있는 톤으로 쓰세요. 밋밋하고 무난한 코멘트는 피하세요. 단, 성적이 이미 매우 뛰어나서 신랄하게 깎아내릴 근거가 없다면 억지로 비판하지 말고, 그 격차를 객관적이지만 냉소적인 어조로 담담하게 서술하세요.",
     "- 매운맛도 조롱이나 인신공격은 아니고, 팬들이 웃으며 볼 수 있는 애정 어린 드립 수준을 유지하세요.",
