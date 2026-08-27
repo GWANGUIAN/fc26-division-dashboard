@@ -102,8 +102,6 @@ export function App() {
     setQuery,
     activityOnly,
     setActivityOnly,
-    sfxOnly,
-    setSfxOnly,
     achievementOnly,
     setAchievementOnly,
     trophyAwards,
@@ -179,8 +177,6 @@ export function App() {
         isDivision={isDivision}
         query={query}
         onQueryChange={setQuery}
-        sfxOnly={sfxOnly}
-        onToggleSfxOnly={() => setSfxOnly((current) => !current)}
         achievementOnly={achievementOnly}
         onToggleAchievementOnly={() =>
           setAchievementOnly((current) => !current)

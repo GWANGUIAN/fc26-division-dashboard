@@ -10,7 +10,6 @@ export function useStreamerFilters(
 ) {
   const [query, setQuery] = useState("");
   const [activityOnly, setActivityOnly] = useState(false);
-  const [sfxOnly, setSfxOnly] = useState(false);
   const [achievementOnly, setAchievementOnly] = useState(false);
 
   // Only 1차 합격자로 확정된 스트리머만 메인 보드/집계 대상이다. 나머지는
@@ -46,11 +45,10 @@ export function useStreamerFilters(
               streamer.scopePosts?.length ||
               streamer.elevenVsElevenPosts?.length,
             )) &&
-          (!sfxOnly || Boolean(streamer.sfx)) &&
           (!achievementOnly ||
             trophyBadgesFor(streamer, trophyAwards).length > 0),
       ),
-    [passedStreamers, query, activityOnly, sfxOnly, achievementOnly, trophyAwards],
+    [passedStreamers, query, activityOnly, achievementOnly, trophyAwards],
   );
   const nonPassedStreamers = useMemo(
     () =>
@@ -103,8 +101,6 @@ export function useStreamerFilters(
     setQuery,
     activityOnly,
     setActivityOnly,
-    sfxOnly,
-    setSfxOnly,
     achievementOnly,
     setAchievementOnly,
     trophyAwards,
