@@ -53,6 +53,9 @@ export function PhotoBoothOverlay({
   const [selectedStreamerId, setSelectedStreamerId] = useState<string | undefined>(
     () => loadPhotoBoothState().selectedStreamerId,
   );
+  const [directorVisible, setDirectorVisible] = useState(
+    () => loadPhotoBoothState().directorVisible ?? true,
+  );
 
   // A remembered streamer who no longer has a passed-first-round entry
   // (roster changed since last visit) falls back to the first available one
@@ -70,7 +73,15 @@ export function PhotoBoothOverlay({
 
   function handleSelect(id: string) {
     setSelectedStreamerId(id);
-    savePhotoBoothState({ schemaVersion: 1, selectedStreamerId: id });
+    savePhotoBoothState({ schemaVersion: 1, selectedStreamerId: id, directorVisible });
+  }
+
+  function handleToggleDirector() {
+    setDirectorVisible((current) => {
+      const next = !current;
+      savePhotoBoothState({ schemaVersion: 1, selectedStreamerId, directorVisible: next });
+      return next;
+    });
   }
 
   const selectedStreamer = passedStreamers.find(
@@ -84,19 +95,35 @@ export function PhotoBoothOverlay({
       aria-modal="true"
       aria-label="합격 인증샷 찍기"
     >
-      <button
-        type="button"
-        className="photo-booth-overlay__close"
-        onClick={onClose}
-        aria-label="합격 인증샷 닫기"
-      >
-        <X aria-hidden="true" />
-      </button>
-      <PhotoBoothStreamerPicker
-        streamers={passedStreamers}
-        selectedId={selectedStreamerId}
-        onSelect={handleSelect}
-      />
+      <div className="photo-booth-topbar-right">
+        <button
+          type="button"
+          className="photo-booth-overlay__close"
+          onClick={onClose}
+          aria-label="합격 인증샷 닫기"
+        >
+          <X aria-hidden="true" />
+        </button>
+      </div>
+      <div className="photo-booth-topbar-left">
+        <PhotoBoothStreamerPicker
+          streamers={passedStreamers}
+          selectedId={selectedStreamerId}
+          onSelect={handleSelect}
+        />
+        <button
+          type="button"
+          className={`photo-booth-director-toggle ${directorVisible ? "" : "photo-booth-director-toggle--off"}`}
+          onClick={handleToggleDirector}
+          aria-pressed={directorVisible}
+          aria-label={directorVisible ? "우왁굳 이미지 숨기기" : "우왁굳 이미지 보이기"}
+        >
+          우왁굳 {directorVisible ? "ON" : "OFF"}
+        </button>
+      </div>
+      {directorVisible && (
+        <img className="photo-booth-director" src="/director.webp" alt="" aria-hidden="true" />
+      )}
       {selectedStreamer && <PhotoBoothBanner streamer={selectedStreamer} />}
     </div>
   );

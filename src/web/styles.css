@@ -250,10 +250,13 @@ body { isolation: isolate; }
 .favorite-celebration__row--fancy .favorite-celebration__icon { animation: celebration-bounce 1.6s ease-in-out infinite, celebration-fancy-spin 3.6s linear infinite; filter: drop-shadow(0 0 14px #ffd76ad0) drop-shadow(0 0 24px #ff9beca0); }
 .favorite-celebration__row--fancy-lite .favorite-celebration__message { font-size: 22px; animation-duration: 4.4s; }
 .favorite-celebration__row--fancy-lite .favorite-celebration__icon { animation: celebration-bounce 1.6s ease-in-out infinite; filter: drop-shadow(0 0 12px #ffe082a3); }
-.favorite-celebration__row--xl { gap: 26px; }
-.favorite-celebration__row--xl .favorite-celebration__icon { font-size: 60px; }
-.favorite-celebration__row--xl .favorite-celebration__message { font-size: 44px; }
-.favorite-celebration__row--xl.favorite-celebration__row--fancy .favorite-celebration__message { font-size: 46px; }
+/* vw-based (not px) since --xl is only ever used on the photo booth stage —
+   this keeps it scaling in lockstep with the cover-fit background at any
+   browser zoom level instead of drifting out of proportion with it. */
+.favorite-celebration__row--xl { gap: 1.35vw; }
+.favorite-celebration__row--xl .favorite-celebration__icon { font-size: 3.1vw; }
+.favorite-celebration__row--xl .favorite-celebration__message { font-size: 2.3vw; }
+.favorite-celebration__row--xl.favorite-celebration__row--fancy .favorite-celebration__message { font-size: 2.4vw; }
 .favorite-celebration__fancy-sparks { position: absolute; z-index: 2; inset: -14px -22px; pointer-events: none; }
 .favorite-celebration__fancy-spark { position: absolute; color: #ffd76a; font-size: 13px; line-height: 1; font-style: normal; text-shadow: 0 0 8px #ffd76a, 0 0 16px #ff9bec; opacity: 0; animation: fancy-spark-twinkle 2.1s ease-in-out infinite; }
 .favorite-celebration__fancy-spark--1 { top: -6px; left: -14px; animation-delay: 0s; animation-duration: 2.1s; }

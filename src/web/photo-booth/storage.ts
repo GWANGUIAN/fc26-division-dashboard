@@ -13,7 +13,9 @@ function isValidState(value: unknown): value is PhotoBoothState {
   return (
     state.schemaVersion === SCHEMA_VERSION &&
     (state.selectedStreamerId === undefined ||
-      typeof state.selectedStreamerId === "string")
+      typeof state.selectedStreamerId === "string") &&
+    (state.directorVisible === undefined ||
+      typeof state.directorVisible === "boolean")
   );
 }
 

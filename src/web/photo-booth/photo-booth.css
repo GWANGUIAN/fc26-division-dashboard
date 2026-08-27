@@ -72,11 +72,27 @@
     url("/background-selfi.webp") center / cover no-repeat;
 }
 
-.photo-booth-overlay__close {
+.photo-booth-topbar-right {
   position: absolute;
   z-index: 4;
   top: 16px;
   right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.photo-booth-topbar-left {
+  position: absolute;
+  z-index: 4;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.photo-booth-overlay__close {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -92,9 +108,50 @@
 .photo-booth-overlay__close:hover { border-color: var(--accent-border); background: rgba(5, 5, 5, .75); }
 .photo-booth-overlay__close svg { width: 18px; height: 18px; }
 
+.photo-booth-director-toggle {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 8px 16px;
+  border: 1px solid #00e9aeb0;
+  border-radius: 999px;
+  color: #00e9ae;
+  background: #00e9ae26;
+  font: 800 12px "Noto Sans KR";
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.photo-booth-director-toggle:hover { border-color: var(--accent-border); }
+.photo-booth-director-toggle--off {
+  border-color: rgba(255, 255, 255, .3);
+  color: rgba(255, 255, 255, .7);
+  background: rgba(5, 5, 5, .55);
+}
+
+/* Sized/positioned in vh/vw (not px) so it scales in lockstep with the
+   cover-fit background at any browser zoom level — px values drift out of
+   proportion because zoom changes how many CSS px fit in the viewport,
+   while vh/vw always resolve against the current viewport regardless of zoom. */
+.photo-booth-director {
+  position: absolute;
+  z-index: 2;
+  left: 32%;
+  bottom: 17.8vh;
+  height: 62vh;
+  max-width: 40%;
+  object-fit: contain;
+  object-position: bottom left;
+  filter: drop-shadow(0 18px 30px rgba(0, 0, 0, .45));
+  pointer-events: none;
+}
+@media (max-width: 680px) {
+  .photo-booth-director { left: 12%; bottom: 4vh; height: 44vh; max-width: 55%; }
+}
+
 /* --- Streamer picker (single-select dropdown, top-left corner) --- */
 
-.photo-booth-picker { position: absolute; z-index: 4; top: 16px; left: 16px; }
+.photo-booth-picker { position: relative; }
 
 .photo-booth-picker__toggle {
   display: inline-flex;
@@ -162,13 +219,13 @@
 .photo-booth-banner {
   position: absolute;
   z-index: 3;
-  top: 45px;
+  top: 4vh;
   left: 50%;
   transform: translateX(-50%);
   overflow: hidden;
   width: max-content;
-  max-width: min(1600px, calc(100% - 32px));
-  padding: 28px 64px;
+  max-width: calc(100% - 6vw);
+  padding: 2.2vh 3.4vw;
   border: 1px solid #ffd96966;
   border-radius: 12px;
   color: #fff7cf;
@@ -245,9 +302,9 @@
 }
 
 @media (max-width: 680px) {
-  .photo-booth-banner { top: 24px; padding: 16px 24px; }
-  .photo-booth-banner .favorite-celebration__icon { font-size: 30px; }
-  .photo-booth-banner strong { font-size: 20px; }
+  .photo-booth-banner { top: 2.5vh; padding: 1.8vh 4vw; }
+  .photo-booth-banner .favorite-celebration__icon { font-size: 8vw; }
+  .photo-booth-banner strong { font-size: 5.5vw; }
 }
 
 @media (prefers-reduced-motion: reduce) {
