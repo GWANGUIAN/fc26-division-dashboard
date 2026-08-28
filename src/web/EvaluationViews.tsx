@@ -7,19 +7,22 @@ import { Avatar } from "./cardVisuals";
 import { formatDateTime } from "./formatters";
 import { CafeLink, Modal, SoopLink, useEscape } from "./Modal";
 
-type ResultStampTone = "pass" | "warn" | "fail";
+type ResultStampTone = "pass" | "warn" | "fail" | "ignored";
 
 const RESULT_STAMP_LABELS: Record<ResultStampTone, string> = {
   pass: "합격 충족",
   warn: "조건 필요",
   fail: "불투명",
+  ignored: "무시",
 };
 
 function resultStampTone(result: {
-  candidateScore: number;
-  woowakgoodScore: number;
+  ignored?: boolean;
+  candidateScore?: number;
+  woowakgoodScore?: number;
 }): ResultStampTone {
-  const gap = result.woowakgoodScore - result.candidateScore;
+  if (result.ignored) return "ignored";
+  const gap = (result.woowakgoodScore ?? 0) - (result.candidateScore ?? 0);
   if (gap <= 5) return "pass";
   if (gap <= 9) return "warn";
   return "fail";
@@ -29,7 +32,7 @@ function ResultStamp({
   result,
   className = "",
 }: {
-  result: { candidateScore: number; woowakgoodScore: number };
+  result: { ignored?: boolean; candidateScore?: number; woowakgoodScore?: number };
   className?: string;
 }) {
   const tone = resultStampTone(result);
@@ -77,11 +80,13 @@ export function EvaluationCard({
               {formatCafePostDate(application.publishedAt)}
             </small>
           </span>
-          <b className={`evaluation-status ${result ? "done" : "waiting"}`}>
-            {result ? "대결 완료" : "대결 전"}
+          <b
+            className={`evaluation-status ${result ? (result.ignored ? "ignored" : "done") : "waiting"}`}
+          >
+            {result ? (result.ignored ? "무시" : "대결 완료") : "대결 전"}
           </b>
         </div>
-        {result && (
+        {result && !result.ignored && (
           <div className="evaluation-result">
             <span>
               {result.candidateScore} : {result.woowakgoodScore}
@@ -139,7 +144,7 @@ export function EvaluationModal({
         <span>{application.category}</span>
         <h3>{application.title}</h3>
       </div>
-      {result ? (
+      {result && !result.ignored ? (
         <section className="scoreboard">
           <p className="eyebrow">MATCH RESULT</p>
           <div className="scoreboard__players">
@@ -165,6 +170,11 @@ export function EvaluationModal({
             {result.note && <small>{result.note}</small>}
           </div>
         </section>
+      ) : result?.ignored ? (
+        <p className="empty-detail">
+          이 신청은 대결하지 않고 무시 처리되었습니다.
+          {result.note && ` (${result.note})`}
+        </p>
       ) : (
         <p className="empty-detail">
           대결 결과가 아직 등록되지 않았습니다. 결과가 확정되면 이 카드에 공지

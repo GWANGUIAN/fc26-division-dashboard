@@ -15,15 +15,19 @@ opponent:
 #     playedAt: "2026-08-23"
 #     candidateScore: 0
 #     woowakgoodScore: 5
+#
+# 대결을 하지 않고 무시하기로 한 경우 (점수/날짜 없이 ignored만 true로):
+#   - applicationArticleId: "345678"
+#     ignored: true
+#     note: "불참"                     # 선택 항목, 비고
 results:
   - applicationArticleId: "21971278"
     playedAt: "2026-08-22T23:34:00+09:00"
     candidateScore: 0
     woowakgoodScore: 7
-  # - applicationArticleId: "21951534"
-  #   playedAt: "2026-08-23"
-  #   candidateScore: 0
-  #   woowakgoodScore: 5
+  - applicationArticleId: "21951534"
+    ignored: true
+    note: "너무 초기에 신청"    
   - applicationArticleId: "21975952"
     playedAt: "2026-08-27T00:56:00+09:00"
     candidateScore: 2

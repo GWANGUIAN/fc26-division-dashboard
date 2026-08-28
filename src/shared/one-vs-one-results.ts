@@ -16,7 +16,8 @@ export function parseOneVsOneResults(source: string): OneVsOneResultsConfig {
     if (!/^\d+$/u.test(result.applicationArticleId ?? "")) throw new Error("applicationArticleId must be a Naver article ID");
     if (articleIds.has(result.applicationArticleId)) throw new Error(`Duplicate evaluation result: ${result.applicationArticleId}`);
     articleIds.add(result.applicationArticleId);
-    if (!Number.isInteger(result.candidateScore) || !Number.isInteger(result.woowakgoodScore) || result.candidateScore < 0 || result.woowakgoodScore < 0) {
+    if (result.ignored) continue;
+    if (!Number.isInteger(result.candidateScore) || !Number.isInteger(result.woowakgoodScore) || result.candidateScore! < 0 || result.woowakgoodScore! < 0) {
       throw new Error(`Scores must be non-negative integers: ${result.applicationArticleId}`);
     }
     if (!result.playedAt || Number.isNaN(Date.parse(result.playedAt))) throw new Error(`Invalid playedAt: ${result.applicationArticleId}`);

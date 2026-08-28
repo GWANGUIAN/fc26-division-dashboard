@@ -51,7 +51,14 @@ export function buildOneVsOneApplications(
         soopId: entry?.soopId || undefined,
         profileImageUrl: entry?.profileImageUrl,
         isMapped: Boolean(entry),
-        result: result ? { ...result, ...calculateOneVsOneVerdict(result.candidateScore, result.woowakgoodScore) } : undefined,
+        result: result
+          ? {
+              ...result,
+              ...(result.ignored
+                ? { verdict: "무시", detail: "대결 없이 무시 처리됨" }
+                : calculateOneVsOneVerdict(result.candidateScore!, result.woowakgoodScore!)),
+            }
+          : undefined,
       };
     })
     .sort((a, b) => Number(Boolean(a.result)) - Number(Boolean(b.result)) || b.publishedAt.localeCompare(a.publishedAt));

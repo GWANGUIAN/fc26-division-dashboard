@@ -197,9 +197,10 @@ export interface OneVsOneApplication {
 
 export interface OneVsOneResultInput {
   applicationArticleId: string;
-  playedAt: string;
-  candidateScore: number;
-  woowakgoodScore: number;
+  playedAt?: string;
+  candidateScore?: number;
+  woowakgoodScore?: number;
+  ignored?: boolean;
   note?: string;
 }
 
