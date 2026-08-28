@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Volume2 } from "lucide-react";
 import type { PromotionPost, StreamerRecord } from "../shared/model.js";
 import { soopChannelUrl } from "../shared/model.js";
 import { normalizeCafeAlias } from "../shared/promotion.js";
+import { STREAMER_ASCII_ART } from "./asciiArt.generated.js";
 import { formatCafePostDate } from "../shared/dates.js";
 import { winRatePercent } from "../shared/record-extraction.js";
 import { divisionColor } from "../shared/division-theme.js";
@@ -82,6 +83,10 @@ export function DetailModal({
   const channel = soopChannelUrl(streamer.soopId);
   const [expandedImage, setExpandedImage] = useState<string>();
   useEscape(() => (expandedImage ? setExpandedImage(undefined) : onClose()));
+  useEffect(() => {
+    const art = streamer.soopId ? STREAMER_ASCII_ART[streamer.soopId] : undefined;
+    if (art) console.log(`${streamer.displayName} (@${streamer.soopId})\n${art}`);
+  }, [streamer.soopId, streamer.displayName]);
   const fancyTier = fancyTierOf(streamer);
   const fancyLite = fancyTier === "lite";
   const fancyModalColor = fancyLite
