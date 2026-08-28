@@ -28,3 +28,7 @@ jobs:
               '{rosterYaml: $roster, oneVsOneResultsYaml: $results, divisionOverridesYaml: $overrides, recordOverridesYaml: $recordOverrides}')" \
             response.json
           cat response.json
+          if jq -e '.FunctionError' response.json > /dev/null; then
+            echo "::error::Lambda invocation failed"
+            exit 1
+          fi
