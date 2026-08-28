@@ -24,6 +24,7 @@ import { useStreamerFilters } from "./useStreamerFilters";
 import { useEvaluationApplications } from "./useEvaluationApplications";
 import { useLatestActivity } from "./useLatestActivity";
 import { useSoopLiveStreamers } from "./useSoopLiveStreamers";
+import { useView } from "./useView";
 
 import { TopBar } from "./TopBar";
 import { HeroSection } from "./HeroSection";
@@ -59,7 +60,7 @@ const FreekickModal = lazy(() => import("./minigame/FreekickModal"));
 export function App() {
   const { snapshot, loading: snapshotLoading, refresh: refreshSnapshot } =
     useDashboardSnapshot();
-  const [view, setView] = useState<"division" | "evaluation">("division");
+  const { view, setView } = useView();
   const [selected, setSelected] = useState<StreamerRecord>();
   const [selectedApplication, setSelectedApplication] =
     useState<OneVsOneApplicationView>();
