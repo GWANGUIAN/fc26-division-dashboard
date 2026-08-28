@@ -171,10 +171,10 @@ export function EvaluationModal({
           </div>
         </section>
       ) : result?.ignored ? (
-        <p className="empty-detail">
-          이 신청은 대결하지 않고 무시 처리되었습니다.
-          {result.note && ` (${result.note})`}
-        </p>
+        <div className="ignored-detail">
+          <p>이 신청은 대결하지 않고 무시 처리되었습니다.</p>
+          {result.note && <p className="ignored-detail__note">{result.note}</p>}
+        </div>
       ) : (
         <p className="empty-detail">
           대결 결과가 아직 등록되지 않았습니다. 결과가 확정되면 이 카드에 공지
