@@ -14,7 +14,7 @@ export function DivisionHistogram({
   const panelRef = useRef<HTMLDivElement>(null);
   const buckets = useMemo(() => buildDivisionHistogram(streamers), [streamers]);
   const chartBuckets = useMemo(
-    () => buckets.filter((bucket) => bucket.division !== 10),
+    () => buckets.filter((bucket) => bucket.division <= 7),
     [buckets],
   );
   const unjoinedBucket = buckets.find((bucket) => bucket.division === 10);

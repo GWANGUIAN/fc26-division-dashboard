@@ -278,7 +278,7 @@ export function App() {
       )}
       {growthGraphOpen && (
         <GrowthGraphModal
-          streamers={snapshot?.streamers ?? []}
+          streamers={passedStreamers ?? []}
           onClose={() => setGrowthGraphOpen(false)}
         />
       )}
