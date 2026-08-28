@@ -62,6 +62,11 @@
 
 /* --- Fullscreen stage --- */
 
+/* Width always fills edge-to-edge (no side margins, ever), centered
+   vertically; height follows proportionally and either overflows (clipped
+   by this element's own overflow:hidden) or falls short top and/or bottom,
+   in which case the solid dim color behind it fills that leftover margin
+   instead of it being cropped or left blank. */
 .photo-booth-overlay {
   position: fixed;
   inset: 0;
@@ -69,7 +74,8 @@
   overflow: hidden;
   background:
     linear-gradient(180deg, rgba(5, 11, 9, .4) 0%, rgba(1, 16, 12, .12) 30%, transparent 55%),
-    url("/background-selfi.webp") 38% center / 112% auto no-repeat;
+    url("/background-selfi.webp") center / 100% auto no-repeat,
+    #050b09;
 }
 
 .photo-booth-topbar-right {
@@ -129,16 +135,29 @@
   background: rgba(5, 5, 5, .55);
 }
 
-/* width-driven (not height-driven) so it actually shrinks as the window
-   narrows — height stays auto and follows the image's own aspect ratio,
-   and `left: 32%` (a percentage of the container) naturally repositions
-   itself in step as the container width changes. */
+/* Pure vw width (no px min/max clamp) so it keeps the exact same
+   proportion to the viewport in every environment — a floor/ceiling in px
+   would break that ratio at very narrow or very wide windows, which is
+   what made it read as oversized in some environments. Height stays auto
+   and follows the image's own aspect ratio, and `left: 28%` (a percentage
+   of the container) naturally repositions itself in step as the
+   container width changes. */
+/* `top` is measured from the background photo's own top edge, not the
+   container's. The background is `100% auto` + `center` (see
+   .photo-booth-overlay above), so the photo's true top edge — whether or
+   not it's actually the part visible on screen — always sits at
+   (100vh - 56.64vw) / 2 from the container's top (56.64% being the
+   photo's own height:width ratio, 4096:2320). On a window taller than
+   that ratio this is a positive dim letterbox gap; on a window wider than
+   that ratio it goes negative (the photo's top edge is cropped off above
+   the container) — the formula must NOT be clamped to 0 in that case, or
+   the director drifts out of alignment with the (still off-screen) photo. */
 .photo-booth-director {
   position: absolute;
   z-index: 2;
   left: 28%;
-  bottom: 0;
-  width: clamp(160px, 34vw, 620px);
+  top: calc(50vh - 28.32vw + 18vw);
+  width: 22vw;
   height: auto;
   filter: drop-shadow(0 18px 30px rgba(0, 0, 0, .45));
   pointer-events: none;

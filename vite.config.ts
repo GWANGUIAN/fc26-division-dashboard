@@ -4,6 +4,8 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   server: {
+    port: 5184,
+    strictPort: true,
     // Proxied server-to-server so the browser never sees a cross-origin
     // request — the production Worker only allows same-origin CORS.
     proxy: {
