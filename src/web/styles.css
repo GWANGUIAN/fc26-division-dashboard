@@ -249,8 +249,6 @@ body { isolation: isolate; }
 .favorite-celebration__spark--right { right: 19%; bottom: 11px; animation-delay: -1.2s; }
 .favorite-celebration__row--fancy .favorite-celebration__message { background: linear-gradient(90deg, #ffd76a, #ff9bec, #8ff5ff, #ffd76a); background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; font-size: 24px; text-shadow: none; animation: celebration-fancy-shimmer 2.6s linear infinite; }
 .favorite-celebration__row--fancy .favorite-celebration__icon { animation: celebration-bounce 1.6s ease-in-out infinite, celebration-fancy-spin 3.6s linear infinite; filter: drop-shadow(0 0 14px #ffd76ad0) drop-shadow(0 0 24px #ff9beca0); }
-.favorite-celebration__row--fancy-lite .favorite-celebration__message { font-size: 22px; animation-duration: 4.4s; }
-.favorite-celebration__row--fancy-lite .favorite-celebration__icon { animation: celebration-bounce 1.6s ease-in-out infinite; filter: drop-shadow(0 0 12px #ffe082a3); }
 /* vw-based (not px) since --xl is only ever used on the photo booth stage —
    this keeps it scaling in lockstep with the cover-fit background at any
    browser zoom level instead of drifting out of proportion with it. */
@@ -264,7 +262,6 @@ body { isolation: isolate; }
 .favorite-celebration__fancy-spark--2 { bottom: -6px; right: -16px; font-size: 11px; animation-delay: .5s; animation-duration: 2.4s; }
 .favorite-celebration__fancy-spark--3 { top: 30%; right: -22px; font-size: 10px; animation-delay: 1s; animation-duration: 1.9s; }
 .favorite-celebration__fancy-spark--4 { bottom: 20%; left: -20px; font-size: 10px; animation-delay: 1.5s; animation-duration: 2.3s; }
-.favorite-celebration__fancy-sparks--lite .favorite-celebration__fancy-spark { animation-duration: 4.6s !important; font-size: 8px !important; }
 @keyframes celebration-fancy-shimmer { 0% { background-position: 0% 0; } 100% { background-position: 300% 0; } }
 @keyframes celebration-fancy-spin { 0%, 100% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(14deg) scale(1.12); } }
 @keyframes celebration-twinkle { 50% { opacity: .35; transform: scale(.65) rotate(22deg); } }
