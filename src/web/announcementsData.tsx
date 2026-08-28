@@ -11,6 +11,21 @@ export type Announcement = {
 
 export const ANNOUNCEMENTS: Announcement[] = [
   {
+    id: "2026-08-still-open",
+    date: "2026.08.29",
+    body: (
+      <>
+        <img
+          className="announcement-image"
+          src="/still-open.webp"
+          alt="허물어져가는 건물에 우리 사이트 정상 영업합니다 현수막이 걸린 합성 사진"
+        />
+        <strong>2차 선발 과정</strong>이 확정되면 적절히{" "}
+        <strong>업데이트</strong> 될 예정입니다.
+      </>
+    ),
+  },
+  {
     id: "2026-08-squad-builder",
     date: "2026.08.21",
     body: (

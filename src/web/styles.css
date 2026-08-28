@@ -595,6 +595,7 @@ body { isolation: isolate; }
 .announcement-item p { margin: 0; color: var(--text-secondary); font-size: 14px; line-height: 1.6; }
 .announcement-item p strong { color: var(--accent-text); font-weight: 600; }
 .announcement-item__note { display: block; margin-top: 8px; color: var(--text-muted); font-size: 12px; }
+.announcement-image { display: block; width: 100%; margin-bottom: 10px; border-radius: 8px; border: 1px solid var(--border-strong); }
 .announcement-modal__divider { margin: 18px 0; border: 0; border-top: 1px solid var(--border-default); }
 .announcement-icon-badge { display: inline-grid; width: 30px; height: 30px; margin: 0 2px; place-items: center; border: 1px solid var(--border-strong); border-radius: 5px; color: var(--text-primary); background: var(--fill-faint); vertical-align: middle; transform: translateY(-3px); }
 .announcement-icon-badge svg { width: 18px; height: 18px; stroke-width: 2.6; }
