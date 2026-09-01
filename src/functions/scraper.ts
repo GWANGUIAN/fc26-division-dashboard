@@ -77,8 +77,8 @@ export async function handler(event: ScrapeEvent = {}): Promise<void> {
   }
 
   try {
-    nextPages.division = await scrapeDivision(mode, nextPages.division, knownPosts, knownIds, newest, divisionOverrides);
-    nextPages.oneVsOne = await scrapeOneVsOne(mode, nextPages.oneVsOne, knownApplications, knownApplicationIds, newest);
+    // Division promotion reports and 1:1 evaluation applications are no
+    // longer posted, so those boards are no longer scraped.
     for (const board of activityBoards) {
       const boardProgress = progress[board]?.page ?? 1;
       const knownForBoard = knownActivityIds.get(board)!;

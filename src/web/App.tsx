@@ -180,7 +180,7 @@ export function App() {
         />
         <FavoriteCelebration slides={celebrationSlides} />
       </div>
-      <HeroSection isDivision={isDivision} snapshot={snapshot} />
+      <HeroSection isDivision={isDivision} />
       <SoopLiveSection soopLive={soopLive} />
       <JandyVideoSection />
       <ControlsBar
