@@ -470,8 +470,8 @@ body { isolation: isolate; }
 .record-badge__rate { margin-left: 4px; color: var(--text-secondary); font: 300 11px "Barlow Condensed"; letter-spacing: .01em; }
 .modal__record-row .record-badge__rate { font-size: 13px; }
 .streamer-card__record-row { display: flex; align-items: baseline; gap: 0; }
-.streamer-card__position-row { margin-top: 3px; }
-.streamer-card__position-row .position-tag { font-size: 9px; padding: 1px 6px; }
+.streamer-card__name .position-tags { flex: 0 0 auto; margin-left: auto; padding-left: 6px; }
+.streamer-card__name .position-tag { padding: 1px 5px; font-size: 11px; }
 .streamer-card__copy .record-badge { font-size: 11px; }
 .streamer-card__copy .record-badge__w, .streamer-card__copy .record-badge__d, .streamer-card__copy .record-badge__l { font-size: 13px; font-weight: 500; }
 .streamer-card__copy .record-badge__rate { font-size: 10px; }
@@ -855,9 +855,9 @@ body { isolation: isolate; }
 .fifa-card__photo-fg .savior-tag { position: absolute; z-index: 4; top: 6px; left: 50%; transform: translateX(-50%); animation: savior-tag-glow 3.2s ease-in-out infinite; }
 @keyframes savior-tag-glow { 0%, 100% { box-shadow: 0 0 5px var(--savior-glow-soft); } 50% { box-shadow: 0 0 12px var(--savior-glow-strong); } }
 .position-tags { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; }
-.position-tag { display: inline-flex; align-items: center; padding: 1px 7px; border: 1px solid color-mix(in srgb, var(--position-color) 55%, transparent); border-radius: 999px; color: var(--position-color); background: color-mix(in srgb, var(--position-color) 14%, transparent); font-family: "Barlow Condensed", "Noto Sans KR"; font-weight: 800; font-size: 1em; line-height: 1.5; letter-spacing: .04em; white-space: nowrap; }
+.position-tag { display: inline-flex; align-items: center; padding: 1px 7px; border: 1px solid rgba(0, 0, 0, .3); border-radius: 5px; color: #fff; background: var(--position-color); font-family: "Barlow Condensed", "Noto Sans KR"; font-weight: 800; font-size: 1em; line-height: 1.5; letter-spacing: .04em; white-space: nowrap; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 3px rgba(0, 0, 0, .5); }
 .fifa-card__stat-value .position-tags { font-size: .82em; }
-.position-tag--rank2 { opacity: .68; }
+.position-tag--rank2 { opacity: .78; }
 .fifa-card__stat .position-tags { justify-content: flex-end; }
 .streamer-table__position .position-tags { justify-content: flex-start; }
 

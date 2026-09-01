@@ -93,15 +93,13 @@ export function StreamerCard({
             awards={awards}
             onClick={onOpenTrophy}
           />
+          <PositionTags streamer={streamer} />
         </span>
         <span className="streamer-card__record-row">
           <RecordBadge streamer={streamer} />
           {rate !== undefined && (
             <span className="record-badge__rate">({rate.toFixed(1)}%)</span>
           )}
-        </span>
-        <span className="streamer-card__position-row">
-          <PositionTags streamer={streamer} />
         </span>
         <small>
           {streamer.lastPost
