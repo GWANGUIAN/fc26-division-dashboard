@@ -32,6 +32,10 @@ export interface RosterEntry {
   deleted?: boolean;
   /** True once this streamer is confirmed as a 1차 합격자. Everyone else is hidden from the main board. */
   passedFirstRound?: boolean;
+  /** Position code (e.g. "ST", "CDM") from the 1차 합격자 희망 포지션 survey. */
+  hopedPosition1?: string;
+  /** Second-choice position code from the same survey; absent if the streamer only listed one. */
+  hopedPosition2?: string;
 }
 
 export interface CareerRecord {
@@ -131,6 +135,10 @@ export interface StreamerRecord {
   latestReview?: { mild: string; spicy: string; generatedAt: string; isCurrent: boolean };
   /** True once this streamer is confirmed as a 1차 합격자. Everyone else is hidden from the main board. */
   passedFirstRound?: boolean;
+  /** Position code (e.g. "ST", "CDM") from the 1차 합격자 희망 포지션 survey. */
+  hopedPosition1?: string;
+  /** Second-choice position code from the same survey; absent if the streamer only listed one. */
+  hopedPosition2?: string;
 }
 
 /** A Gemini one-line commentary in two tones, generated together from a single call. */
