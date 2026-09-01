@@ -1,6 +1,12 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ChevronLeft, ChevronRight, List } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  List,
+} from "lucide-react";
 import { A11y } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperInstance } from "swiper/types";
@@ -11,6 +17,7 @@ import {
   type JandyChapterVideo,
   type JandyVideo,
 } from "./jandyVideosData";
+import { loadJandyVideosCollapsed, saveJandyVideosCollapsed } from "./storage";
 
 function JandyVideoCard({ video }: { video: JandyVideo }) {
   const [thumbnailFailed, setThumbnailFailed] = useState(false);
@@ -218,23 +225,56 @@ function JandyChapterVideoCard({ video }: { video: JandyChapterVideo }) {
   );
 }
 
+const jandyVideoCount = jandyChapterVideos.length + jandyVideos.length;
+
 export function JandyVideoSection() {
   const swiper = useRef<SwiperInstance | null>(null);
   const [canGoPrev, setCanGoPrev] = useState(false);
   const [canGoNext, setCanGoNext] = useState(true);
+  const [collapsed, setCollapsed] = useState(loadJandyVideosCollapsed);
+  const toggleCollapsed = () => {
+    setCollapsed((current) => {
+      const next = !current;
+      saveJandyVideosCollapsed(next);
+      return next;
+    });
+  };
   const syncNavigation = (instance: SwiperInstance) => {
     setCanGoPrev(!instance.isBeginning);
     setCanGoNext(!instance.isEnd);
   };
   return (
-    <section className="jandy-videos" aria-labelledby="jandy-videos-title">
-      <div className="jandy-videos__heading">
+    <section
+      className={`jandy-videos ${collapsed ? "jandy-videos--collapsed" : ""}`}
+      aria-labelledby="jandy-videos-title"
+    >
+      <button
+        type="button"
+        className="jandy-videos__heading jandy-videos__toggle"
+        onClick={toggleCollapsed}
+        aria-expanded={!collapsed}
+        aria-controls="jandy-videos-panel"
+      >
         <div>
           <p className="eyebrow">WATCH &amp; LEARN</p>
-          <h2 id="jandy-videos-title">잔디동 참고 영상</h2>
+          <h2 id="jandy-videos-title" className="jandy-videos__title">
+            잔디동 참고 영상
+            <span className="jandy-videos__chevron">
+              {collapsed ? (
+                <ChevronDown aria-hidden="true" />
+              ) : (
+                <ChevronUp aria-hidden="true" />
+              )}
+              {collapsed ? "펼치기" : "접기"}
+            </span>
+          </h2>
         </div>
         <div className="jandy-videos__actions">
-          <span>우왁굳 VOD</span>
+          <span>{collapsed ? `${jandyVideoCount}개 영상` : "우왁굳 VOD"}</span>
+        </div>
+      </button>
+      {!collapsed && (
+        <div className="jandy-videos__navigation-row">
           <div
             className="jandy-videos__navigation"
             aria-label="참고 영상 넘기기"
@@ -257,40 +297,43 @@ export function JandyVideoSection() {
             </button>
           </div>
         </div>
-      </div>
-      <Swiper
-        className="jandy-videos__swiper"
-        modules={[A11y]}
-        onSwiper={(instance) => {
-          swiper.current = instance;
-          syncNavigation(instance);
-        }}
-        onSlideChange={syncNavigation}
-        onResize={syncNavigation}
-        watchOverflow
-        spaceBetween={10}
-        slidesPerView={1.1}
-        breakpoints={{
-          481: { slidesPerView: 2.15 },
-          760: { slidesPerView: 3.15 },
-          1100: { slidesPerView: 4 },
-        }}
-        a11y={{
-          prevSlideMessage: "이전 참고 영상",
-          nextSlideMessage: "다음 참고 영상",
-        }}
-      >
-        {jandyChapterVideos.map((video) => (
-          <SwiperSlide key={video.videoUrl}>
-            <JandyChapterVideoCard video={video} />
-          </SwiperSlide>
-        ))}
-        {jandyVideos.map((video) => (
-          <SwiperSlide key={video.videoUrl}>
-            <JandyVideoCard video={video} />
-          </SwiperSlide>
-        ))}
-      </Swiper>
+      )}
+      {!collapsed && (
+        <Swiper
+          id="jandy-videos-panel"
+          className="jandy-videos__swiper"
+          modules={[A11y]}
+          onSwiper={(instance) => {
+            swiper.current = instance;
+            syncNavigation(instance);
+          }}
+          onSlideChange={syncNavigation}
+          onResize={syncNavigation}
+          watchOverflow
+          spaceBetween={10}
+          slidesPerView={1.1}
+          breakpoints={{
+            481: { slidesPerView: 2.15 },
+            760: { slidesPerView: 3.15 },
+            1100: { slidesPerView: 4 },
+          }}
+          a11y={{
+            prevSlideMessage: "이전 참고 영상",
+            nextSlideMessage: "다음 참고 영상",
+          }}
+        >
+          {jandyChapterVideos.map((video) => (
+            <SwiperSlide key={video.videoUrl}>
+              <JandyChapterVideoCard video={video} />
+            </SwiperSlide>
+          ))}
+          {jandyVideos.map((video) => (
+            <SwiperSlide key={video.videoUrl}>
+              <JandyVideoCard video={video} />
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      )}
     </section>
   );
 }

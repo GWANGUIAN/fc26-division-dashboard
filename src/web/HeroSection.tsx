@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { DashboardSnapshot } from "../shared/model.js";
 import { formatDateTime } from "./formatters";
 
@@ -12,6 +12,29 @@ export function HeroSection({
   snapshot?: DashboardSnapshot;
 }) {
   const [now] = useState(() => Date.now());
+  const heroRef = useRef<HTMLElement>(null);
+  const [animKey, setAnimKey] = useState(0);
+  const wasVisible = useRef(true);
+
+  useEffect(() => {
+    const node = heroRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          if (!wasVisible.current) {
+            setAnimKey((key) => key + 1);
+          }
+          wasVisible.current = true;
+        } else {
+          wasVisible.current = false;
+        }
+      },
+      { threshold: 0.3 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
 
   const isStale = Boolean(
     snapshot &&
@@ -19,13 +42,13 @@ export function HeroSection({
   );
 
   return (
-    <section className="hero" id="top">
+    <section className="hero" id="top" ref={heroRef}>
       <div>
         <p className="eyebrow">
           FC26 ·{" "}
           {isDivision ? "SEASON DIVISION BOARD" : "ONE VS ONE EVALUATION"}
         </p>
-        <h1>
+        <h1 key={animKey}>
           {isDivision ? (
             <>
               <span className="hero-title__line hero-title__line--1">
@@ -51,6 +74,13 @@ export function HeroSection({
               <br />
               <span className="hero-title__line hero-title__line--2">
                 현황
+                <img
+                  className="hero-ball"
+                  src="/soccer_ball.webp"
+                  alt=""
+                  aria-hidden="true"
+                />
+                <span className="hero-ball-impact" aria-hidden="true" />
               </span>
             </>
           )}
