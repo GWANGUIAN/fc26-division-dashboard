@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
-import { CirclePile, Shield, Trophy } from "lucide-react";
+import { CalendarDays, CirclePile, Shield, Trophy } from "lucide-react";
 import geminiLogo from "./assets/gemini-logo.svg";
+import { positionColor } from "../shared/position-theme.js";
 
 export type Announcement = {
   id: string;
@@ -10,6 +11,57 @@ export type Announcement = {
 };
 
 export const ANNOUNCEMENTS: Announcement[] = [
+  {
+    id: "2026-09-test-schedule",
+    date: "2026.09.02",
+    body: (
+      <>
+        <strong>2차 테스트일정</strong> 기능이 추가되었습니다. 상단{" "}
+        <span className="announcement-test-schedule-btn">
+          <CalendarDays aria-hidden="true" />
+          <span>2차 테스트일정</span>
+        </span>{" "}
+        버튼을 누르면 9/4, 9/5, 9/7 날짜별로 배정된 팀과 포지션을 확인할 수
+        있습니다.
+      </>
+    ),
+  },
+  {
+    id: "2026-09-hoped-position",
+    date: "2026.09.02",
+    body: (
+      <>
+        1차 합격자 <strong>희망 포지션</strong>(1지망/2지망)이 추가되었습니다.
+        목록/표/카드 보기 전체에서{" "}
+        <span
+          className="position-tag"
+          style={{ "--position-color": positionColor("ST") } as React.CSSProperties}
+        >
+          ST
+        </span>{" "}
+        <span
+          className="position-tag"
+          style={{ "--position-color": positionColor("CM") } as React.CSSProperties}
+        >
+          CM
+        </span>{" "}
+        <span
+          className="position-tag"
+          style={{ "--position-color": positionColor("CB") } as React.CSSProperties}
+        >
+          CB
+        </span>{" "}
+        <span
+          className="position-tag"
+          style={{ "--position-color": positionColor("GK") } as React.CSSProperties}
+        >
+          GK
+        </span>{" "}
+        처럼 공격수/미드필더/수비수/골키퍼 색으로 구분된 태그를 확인할 수
+        있고, 검색창 옆 포지션 필터로 원하는 포지션만 골라볼 수 있습니다.
+      </>
+    ),
+  },
   {
     id: "2026-08-still-open",
     date: "2026.08.29",

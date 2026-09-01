@@ -786,6 +786,8 @@ body { isolation: isolate; }
 .announcement-card-view-btn svg { width: 14px; height: 14px; stroke-width: 2.6; }
 .announcement-squad-builder-btn { display: inline-flex; align-items: center; gap: 6px; margin: 0 2px; padding: 9px 12px; border: 1px solid #00e9ae55; border-radius: 3px; color: var(--text-secondary); background: #00e9ae1f; font-weight: 700; font-size: 12px; white-space: nowrap; vertical-align: middle; transform: translateY(-3px); }
 .announcement-squad-builder-btn svg { width: 14px; height: 14px; stroke-width: 2.6; }
+.announcement-test-schedule-btn { display: inline-flex; align-items: center; gap: 6px; margin: 0 2px; padding: 9px 12px; border: 1px solid #00e9ae55; border-radius: 3px; color: var(--text-secondary); background: #00e9ae1f; font-weight: 700; font-size: 12px; white-space: nowrap; vertical-align: middle; transform: translateY(-3px); }
+.announcement-test-schedule-btn svg { width: 14px; height: 14px; stroke-width: 2.6; }
 .announcement-modal__actions { display: flex; flex: 0 0 auto; justify-content: flex-end; padding: 16px 30px 26px; border-top: 1px solid var(--border-faint); }
 .announcement-modal__ack { padding: 10px 16px; border: 1px solid #00e9ae55; border-radius: 3px; color: var(--text-secondary); font-weight: 700; font-size: 12px; background: #00e9ae22; transition: .2s; }
 .announcement-modal__ack:hover, .announcement-modal__ack:focus-visible { border-color: #00e9ae80; background: #00e9ae33; outline: 0; }
