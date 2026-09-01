@@ -30,7 +30,10 @@ const SOOP_LIVE_CACHE_VERSION = "v1";
 // anywhere public, so it can only be rediscovered by re-inspecting that page
 // if sooplive ever reassigns it.
 const SOOP_LIVE_CATEGORY_NO = "00040354";
-const HEALTH_MAX_SNAPSHOT_AGE_MS = 12 * 60 * 1_000;
+// Scraper now runs hourly (was every 3 minutes), so generatedAt only
+// advances once per cycle; allow one full cycle plus buffer before flagging
+// stale, or UptimeRobot would false-alarm for most of every hour.
+const HEALTH_MAX_SNAPSHOT_AGE_MS = 75 * 60 * 1_000;
 // Bump whenever the static entry bundle changes. It is used only for the
 // internal asset-binding request, bypassing the zone's broad cache rule while
 // retaining a stable public URL for cached HTML shells.
