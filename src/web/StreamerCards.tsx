@@ -16,6 +16,7 @@ import {
   hexToRgba,
   isStreamerSavior,
   mixHex,
+  PositionTags,
   RecordBadge,
   saviorCssVars,
   SaviorAvatar,
@@ -98,6 +99,9 @@ export function StreamerCard({
           {rate !== undefined && (
             <span className="record-badge__rate">({rate.toFixed(1)}%)</span>
           )}
+        </span>
+        <span className="streamer-card__position-row">
+          <PositionTags streamer={streamer} />
         </span>
         <small>
           {streamer.lastPost
@@ -313,6 +317,17 @@ export function StreamerFifaCard({
               )}
             </b>
           </span>
+          {streamer.hopedPosition1 && (
+            <span className="fifa-card__stat">
+              <span className="fifa-card__stat-key">
+                <span className="fifa-card__stat-icon" aria-hidden="true" />
+                <span className="fifa-card__stat-label">희망 포지션</span>
+              </span>
+              <b className="fifa-card__stat-value">
+                <PositionTags streamer={streamer} />
+              </b>
+            </span>
+          )}
         </span>
       </span>
     </button>

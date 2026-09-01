@@ -112,6 +112,8 @@ export function App() {
     setActivityOnly,
     achievementOnly,
     setAchievementOnly,
+    positionGroupFilter,
+    setPositionGroupFilter,
     trophyAwards,
     streamers,
     includedStreamers,
@@ -191,6 +193,8 @@ export function App() {
         }
         activityOnly={activityOnly}
         onToggleActivityOnly={() => setActivityOnly((current) => !current)}
+        positionGroupFilter={positionGroupFilter}
+        onPositionGroupFilterChange={setPositionGroupFilter}
         onCopyList={handleCopyDivisionList}
         onDownloadList={handleDownloadDivisionList}
         evaluationFilter={evaluationFilter}

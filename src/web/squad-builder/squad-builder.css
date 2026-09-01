@@ -378,6 +378,17 @@
   text-shadow: var(--text-outline);
 }
 
+.squad-card__position {
+  position: absolute;
+  z-index: 1;
+  top: 7%;
+  right: 8%;
+  display: flex;
+  justify-content: flex-end;
+}
+.squad-card__position .position-tag { padding: .5cqw 3cqw; font-size: 9.5cqw; text-shadow: var(--text-outline); }
+.squad-card__position .position-tags { gap: 2cqw; }
+
 .squad-card__body {
   position: absolute;
   inset: 0;
@@ -429,6 +440,7 @@
 
 /* candidate: division/avatar/name only, sized generously since nothing else competes for space */
 .squad-card--candidate .squad-card__division { font-size: 15cqw; }
+.squad-card--candidate .squad-card__position .position-tag { font-size: 10.5cqw; }
 .squad-card--candidate .squad-card__avatar .avatar { width: 48cqw; height: 48cqw; }
 .squad-card--candidate .squad-card__name { font-size: 14cqw; }
 
@@ -437,6 +449,7 @@
    .squad-card__body) so the freed-up space can go toward bigger text. */
 .squad-card--placed .squad-card__body { justify-content: flex-start; gap: 3cqw; padding-top: 17cqw; }
 .squad-card--placed .squad-card__division { font-size: 11cqw; }
+.squad-card--placed .squad-card__position .position-tag { font-size: 8cqw; }
 .squad-card--placed .squad-card__avatar .avatar { width: 44cqw; height: 44cqw; }
 .squad-card--placed .squad-card__name { padding: 1.5cqw 3cqw; font-size: 15cqw; }
 

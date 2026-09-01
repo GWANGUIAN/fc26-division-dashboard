@@ -9,6 +9,11 @@ import type { StreamerRecord } from "../shared/model.js";
 import { defaultSoopProfileUrl } from "../shared/model.js";
 import { recordExtractionStatus } from "../shared/record-extraction.js";
 import { trophyBadgesFor, type TrophyAwards } from "../shared/trophy.js";
+import {
+  positionColor,
+  positionGroupOf,
+  POSITION_GROUP_LABELS,
+} from "../shared/position-theme.js";
 
 export function Avatar({
   profileImageUrl,
@@ -182,6 +187,38 @@ export function SaviorTag({
   return (
     <span className="savior-tag" style={saviorCssVars()}>
       은인
+    </span>
+  );
+}
+
+/** Small colored pill for one 희망 포지션 choice, colored by FW/MF/DF/GK group. */
+export function PositionTag({ code, rank }: { code: string; rank: 1 | 2 }) {
+  const group = positionGroupOf(code);
+  const color = positionColor(code);
+  return (
+    <span
+      className={`position-tag position-tag--rank${rank}`}
+      style={{ "--position-color": color } as React.CSSProperties}
+      title={`${rank}지망${group ? ` · ${POSITION_GROUP_LABELS[group]}` : ""}`}
+    >
+      {code}
+    </span>
+  );
+}
+
+/** Renders both 희망 포지션 choices (1지망 required, 2지망 optional) as a pair of PositionTag pills. */
+export function PositionTags({
+  streamer,
+}: {
+  streamer: Pick<StreamerRecord, "hopedPosition1" | "hopedPosition2">;
+}) {
+  if (!streamer.hopedPosition1) return null;
+  return (
+    <span className="position-tags">
+      <PositionTag code={streamer.hopedPosition1} rank={1} />
+      {streamer.hopedPosition2 && (
+        <PositionTag code={streamer.hopedPosition2} rank={2} />
+      )}
     </span>
   );
 }

@@ -9,6 +9,7 @@ import {
   AchievementBadges,
   FancyAvatar,
   FancyName,
+  PositionTags,
   RecordBadge,
   SaviorAvatar,
   SaviorName,
@@ -124,6 +125,9 @@ export function StreamerTable({
             <th className="streamer-table__th streamer-table__th--record">
               전적
             </th>
+            <th className="streamer-table__th streamer-table__th--position">
+              희망 포지션
+            </th>
             <SortableHeader sortKey="games" />
             <SortableHeader sortKey="winRate" />
             <SortableHeader sortKey="lastPromotion" />
@@ -210,6 +214,9 @@ export function StreamerTable({
                 <td>
                   <RecordBadge streamer={streamer} />
                 </td>
+                <td className="streamer-table__position">
+                  <PositionTags streamer={streamer} />
+                </td>
                 <td className="streamer-table__num">{games || "-"}</td>
                 <td className="streamer-table__num">
                   {winRate !== undefined ? `${winRate.toFixed(1)}%` : "-"}
@@ -222,7 +229,7 @@ export function StreamerTable({
           })}
           {sorted.length === 0 && (
             <tr>
-              <td colSpan={7} className="streamer-table__empty">
+              <td colSpan={8} className="streamer-table__empty">
                 표시할 스트리머가 없습니다.
               </td>
             </tr>

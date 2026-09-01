@@ -159,6 +159,8 @@ h1, h2, h3 { margin: 0; } h1 { font: 900 italic clamp(46px, 8vw, 96px)/1.04 "Bar
 .controls-bar { position: sticky; top: 0; z-index: 15; margin-bottom: 18px; }.controls-bar::before { content: ""; position: absolute; z-index: -1; top: 0; bottom: 0; left: 50%; width: 100vw; transform: translateX(-50%); background: transparent; border-bottom: 1px solid transparent; box-shadow: none; transition: background .2s, border-color .2s, box-shadow .2s; }.controls-bar--stuck::before { background: color-mix(in srgb, var(--bg-base) 90%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom-color: var(--border-faint); box-shadow: 0 12px 26px rgba(var(--shadow-color), .27); }
 .controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 0; }.controls__search { display: flex; flex: 0 0 auto; align-items: center; gap: 10px; min-width: 0; }.controls input { width: min(360px, 42vw); min-width: 0; padding: 12px 14px; border: 1px solid var(--border-strong); border-radius: 3px; outline: none; color: var(--text-primary); background: var(--surface-input); transition: background .2s, border-color .2s; }.controls input:focus { border-color: var(--accent-border); box-shadow: 0 0 0 3px #00e9ae12; }
 .controls-bar--stuck .controls input { background: color-mix(in srgb, var(--surface-input) 100%, white 14%); border-color: color-mix(in srgb, var(--border-strong) 100%, white 20%); }.segmented { display: flex; flex: 0 0 auto; overflow: hidden; border: 1px solid var(--border-strong); border-radius: 3px; white-space: nowrap; }.segmented button { border: 0; padding: 9px 12px; color: var(--text-secondary); background: transparent; font-size: 12px; white-space: nowrap; }.segmented button.active { color: #00110b; background: #00e9ae; font-weight: 800; }.segmented__trophy-toggle { display: inline-flex; align-items: center; gap: 5px; }.segmented__trophy-toggle svg { width: 13px; height: 13px; stroke-width: 2.6; }.segmented__activity-toggle { display: inline-flex; align-items: center; gap: 5px; }.segmented__activity-toggle svg { width: 13px; height: 13px; stroke-width: 2.6; }.segmented--filters button + button { border-left: 1px solid var(--border-strong); }.controls__actions { flex-wrap: wrap; row-gap: 8px; }
+.segmented--position button + button { border-left: 1px solid var(--border-strong); }
+.segmented--position button.active { color: #04140f; background: var(--position-color, #00e9ae); }
 .controls__actions { display: flex; flex: 0 0 auto; align-items: center; gap: 10px; white-space: nowrap; }
 .copy-list-button { display: inline-flex; align-items: center; gap: 6px; padding: 9px 12px; border: 1px solid #00e9ae55; border-radius: 3px; color: var(--text-secondary); background: #00e9ae22; font-weight: 700; font-size: 12px; transition: .2s; }
 .copy-list-button:hover, .copy-list-button:focus-visible { background: #00e9ae33; border-color: #00e9ae80; outline: 0; }
@@ -468,6 +470,8 @@ body { isolation: isolate; }
 .record-badge__rate { margin-left: 4px; color: var(--text-secondary); font: 300 11px "Barlow Condensed"; letter-spacing: .01em; }
 .modal__record-row .record-badge__rate { font-size: 13px; }
 .streamer-card__record-row { display: flex; align-items: baseline; gap: 0; }
+.streamer-card__position-row { margin-top: 3px; }
+.streamer-card__position-row .position-tag { font-size: 9px; padding: 1px 6px; }
 .streamer-card__copy .record-badge { font-size: 11px; }
 .streamer-card__copy .record-badge__w, .streamer-card__copy .record-badge__d, .streamer-card__copy .record-badge__l { font-size: 13px; font-weight: 500; }
 .streamer-card__copy .record-badge__rate { font-size: 10px; }
@@ -850,6 +854,13 @@ body { isolation: isolate; }
 .savior-tag { display: inline-flex; align-items: center; padding: 2px 9px; border: 1px solid color-mix(in srgb, var(--savior-color) 55%, transparent); border-radius: 999px; color: #ffe4a6; background: linear-gradient(160deg, #241606f0, #130b03f5); font: 800 10px/1.5 "Barlow Condensed", "Noto Sans KR"; letter-spacing: .06em; box-shadow: 0 0 8px var(--savior-glow-soft); white-space: nowrap; }
 .fifa-card__photo-fg .savior-tag { position: absolute; z-index: 4; top: 6px; left: 50%; transform: translateX(-50%); animation: savior-tag-glow 3.2s ease-in-out infinite; }
 @keyframes savior-tag-glow { 0%, 100% { box-shadow: 0 0 5px var(--savior-glow-soft); } 50% { box-shadow: 0 0 12px var(--savior-glow-strong); } }
+.position-tags { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.position-tag { display: inline-flex; align-items: center; padding: 1px 7px; border: 1px solid color-mix(in srgb, var(--position-color) 55%, transparent); border-radius: 999px; color: var(--position-color); background: color-mix(in srgb, var(--position-color) 14%, transparent); font-family: "Barlow Condensed", "Noto Sans KR"; font-weight: 800; font-size: 1em; line-height: 1.5; letter-spacing: .04em; white-space: nowrap; }
+.fifa-card__stat-value .position-tags { font-size: .82em; }
+.position-tag--rank2 { opacity: .68; }
+.fifa-card__stat .position-tags { justify-content: flex-end; }
+.streamer-table__position .position-tags { justify-content: flex-start; }
+
 .savior-border { position: relative; }
 .streamer-card.savior-border, .modal.savior-border { border-width: 2px; }
 .savior-border::before { content: ""; position: absolute; z-index: 2; inset: 0; border-radius: inherit; padding: 2px; background: linear-gradient(155deg, var(--savior-color), var(--savior-glow-soft) 45%, var(--savior-color)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; pointer-events: none; animation: savior-border-breathe 3.4s ease-in-out infinite; }
@@ -1169,6 +1180,8 @@ body { isolation: isolate; }
 .streamer-table__th--rank { width: 48px; text-align: center; }
 .streamer-table__th--division { width: 90px; }
 .streamer-table__th--record { width: 120px; }
+.streamer-table__th--position { width: 130px; }
+.streamer-table__position { white-space: nowrap; }
 .streamer-table__th--games { width: 100px; }
 .streamer-table__th--winRate { width: 100px; }
 .streamer-table__th--lastPromotion { width: 150px; }

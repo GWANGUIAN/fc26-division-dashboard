@@ -1,5 +1,13 @@
 import type { RefObject } from "react";
 import { Activity, Copy, Download, Trophy } from "lucide-react";
+import {
+  POSITION_GROUP_COLORS,
+  POSITION_GROUP_LABELS,
+  type PositionGroup,
+} from "../shared/position-theme.js";
+import type { PositionGroupFilter } from "./useStreamerFilters.js";
+
+const POSITION_GROUP_ORDER: PositionGroup[] = ["FW", "MF", "DF", "GK"];
 
 export function ControlsBar({
   sentinelRef,
@@ -11,6 +19,8 @@ export function ControlsBar({
   onToggleAchievementOnly,
   activityOnly,
   onToggleActivityOnly,
+  positionGroupFilter,
+  onPositionGroupFilterChange,
   onCopyList,
   onDownloadList,
   evaluationFilter,
@@ -25,6 +35,8 @@ export function ControlsBar({
   onToggleAchievementOnly: () => void;
   activityOnly: boolean;
   onToggleActivityOnly: () => void;
+  positionGroupFilter: PositionGroupFilter;
+  onPositionGroupFilterChange: (value: PositionGroupFilter) => void;
   onCopyList: () => void;
   onDownloadList: () => void;
   evaluationFilter: "all" | "pending" | "completed";
@@ -69,6 +81,28 @@ export function ControlsBar({
                   <Activity aria-hidden="true" />
                   <span className="control-btn__label">활동글 작성자만</span>
                 </button>
+              </div>
+              <div className="segmented segmented--position">
+                <button
+                  className={positionGroupFilter === "all" ? "active" : ""}
+                  onClick={() => onPositionGroupFilterChange("all")}
+                >
+                  전체
+                </button>
+                {POSITION_GROUP_ORDER.map((group) => (
+                  <button
+                    key={group}
+                    className={positionGroupFilter === group ? "active" : ""}
+                    onClick={() => onPositionGroupFilterChange(group)}
+                    style={
+                      {
+                        "--position-color": POSITION_GROUP_COLORS[group],
+                      } as React.CSSProperties
+                    }
+                  >
+                    {POSITION_GROUP_LABELS[group]}
+                  </button>
+                ))}
               </div>
               <button
                 className="copy-list-button"

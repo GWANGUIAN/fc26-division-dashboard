@@ -5,6 +5,7 @@ import {
   FancyName,
   FifaShield,
   hexToRgba,
+  PositionTags,
   RecordBadge,
 } from "../cardVisuals.js";
 import { effectiveWinRatePercent, type SquadPlayer } from "./customPlayerTypes.js";
@@ -84,6 +85,11 @@ export function SquadBuilderCard({
       <span className="squad-card__division">
         {streamer.currentDivision > 0 ? `D${streamer.currentDivision}` : ""}
       </span>
+      {streamer.hopedPosition1 && (
+        <span className="squad-card__position">
+          <PositionTags streamer={streamer} />
+        </span>
+      )}
       <span className="squad-card__body">
         <span
           className="squad-card__avatar"
