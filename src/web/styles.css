@@ -529,62 +529,170 @@ body { isolation: isolate; }
   .card-board-zoom-rail { display: none; }
 }
 .card-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 20px; }
-.fifa-card { --text-outline: -1px -1px 0 #000, 0 -1px 0 #000, 1px -1px 0 #000, -1px 0 0 #000, 1px 0 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 1px 1px 0 #000; position: relative; display: block; width: 100%; aspect-ratio: 300 / 450; padding: 0; border: 0; color: #181206; text-align: center; background: transparent; cursor: pointer; transition: transform .18s, filter .18s; }
+
+/* Trading-card redesign (poke-holo.simey.me style + real TCG proportions):
+   gold-bordered rect card, a full-width photo window with a blurred
+   backdrop filling the letterboxed sides (the source photo is 1:1 but the
+   window is landscape), a tessellating per-division tile pattern revealed
+   near the pointer, and a dark "stat box" zone under the illustration —
+   mirroring a real card's [name/HP header] -> [art box] -> [text box]
+   structure. `--pointer-x`/`--pointer-y`/`--division-color(-soft)` are set
+   inline per-card in StreamerCards.tsx; every reactive layer below just
+   reads those vars, so this stays plain CSS with no image assets. */
+/* No overflow:hidden here on purpose — the achievement-badge tooltip (deep
+   inside .fifa-card__header) needs to be able to render outside the card's
+   own box when it's near an edge, and overflow:hidden clips descendants
+   regardless of z-index. Each full-bleed layer below (bg/vignette/sigil/
+   glare/foil) gets its own border-radius:inherit instead, so the rounded-
+   corner look doesn't depend on the parent clipping them — a background/
+   box-shadow/SVG already clips to its own border-radius with no overflow
+   property needed. .fifa-card__photo keeps its own overflow:hidden
+   separately, for the blur-backdrop bleed and the photo's own crop. */
+.fifa-card { --text-outline: -1px -1px 0 #000, 0 -1px 0 #000, 1px -1px 0 #000, -1px 0 0 #000, 1px 0 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 1px 1px 0 #000; --gold-1: #fff7b8; --gold-2: #e2b73b; --gold-3: #93721c; --gold-4: #4a3708; --pointer-x: 50%; --pointer-y: 50%; position: relative; display: block; width: 100%; aspect-ratio: 5 / 7; padding: 0; border: 0; border-radius: 16px; color: #181206; text-align: center; background: #0b0b0c; cursor: pointer; transition: transform .5s cubic-bezier(.22, 1, .36, 1), filter .3s; }
 .fifa-card:hover, .fifa-card:focus-within { z-index: 10; }
-.fifa-card:hover { transform: translateY(-3px); filter: drop-shadow(0 10px 20px rgba(var(--shadow-color), .38)); }
+.fifa-card:hover { filter: drop-shadow(0 14px 26px rgba(var(--shadow-color), .45)); }
 .fifa-card--holo { transform-style: preserve-3d; }
+.fifa-card--active { transition: transform .05s linear, filter .3s; }
+.fifa-card::before { content: ""; position: absolute; z-index: 5; inset: 0; padding: 4px; border-radius: inherit; background: linear-gradient(155deg, var(--gold-1), var(--gold-2) 35%, var(--gold-3) 70%, var(--gold-4)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; box-shadow: 0 0 0 1px rgba(0, 0, 0, .5) inset; pointer-events: none; }
+/* .fifa-card__shield is FifaShield's own base rule — shared with SquadBuilderCard
+   and RevealCardFront, which still render the shield SVG outside .fifa-card. */
 .fifa-card__shield { position: absolute; inset: 0; width: 100%; height: 100%; }
-.fifa-card__division { position: absolute; z-index: 1; top: 8px; left: 10px; width: 42px; height: auto; aspect-ratio: 300 / 380; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .55)); pointer-events: none; }
-.fifa-card > .achievement-badges { position: absolute; z-index: 5; top: 13px; right: 18px; gap: 4px; }
-.fifa-card > .achievement-badges .achievement-badge { width: 20px; height: 20px; font-size: 15px; text-shadow: var(--text-outline); }
-.fifa-card__body { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; margin-top: -14px; padding: 0 20px 0; }
-.fifa-card__avatar { position: relative; margin-top: 2px; }
-.fifa-card__avatar .avatar { width: 88px; height: 88px; border: 3px solid var(--avatar-border, #000); }
-.fifa-card__sfx-badge { position: absolute; right: -2px; bottom: -2px; width: 20px; height: 20px; padding: 3px; border-radius: 50%; color: #00e9ae; background: #04140f; box-shadow: 0 0 0 2px var(--surface-1); }
-.fifa-card__name { display: flex; align-items: center; justify-content: center; width: 100%; margin: 6px 0 2px; padding: 6px 10px; border-top: 1px solid rgba(255, 255, 255, .35); border-bottom: 1px solid rgba(255, 255, 255, .35); font-size: 20px; font-weight: 800; letter-spacing: -.01em; }
-.fifa-card__name strong { color: #fff; text-shadow: var(--text-outline); }
-.fifa-card__stats { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 2px; }
-.fifa-card__stat { display: inline-flex; align-items: baseline; gap: 6px; font-size: 13px; }
-.fifa-card__stat-label { color: #f5fbf8; opacity: .66; font-size: 11px; font-weight: 500; letter-spacing: .01em; text-shadow: var(--text-outline); }
-.fifa-card__stat-value { color: #fff; font: 800 15px "Barlow Condensed", "Noto Sans KR"; letter-spacing: .01em; text-shadow: var(--text-outline); }
+.fifa-card__bg { position: absolute; z-index: 0; inset: 0; border-radius: inherit; }
+.fifa-card__vignette { position: absolute; z-index: 0; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 2px var(--division-color-soft), inset 0 -45% 40px -20px rgba(0, 0, 0, .55), inset 0 45% 55px -20px rgba(0, 0, 0, .35); pointer-events: none; }
+.fifa-card__sigil { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; border-radius: inherit; color: #fff; opacity: 0; mix-blend-mode: overlay; -webkit-mask-image: radial-gradient(ellipse 46% 46% at var(--pointer-x) var(--pointer-y), #000 0%, transparent 78%); mask-image: radial-gradient(ellipse 46% 46% at var(--pointer-x) var(--pointer-y), #000 0%, transparent 78%); transition: opacity .35s; pointer-events: none; }
+.fifa-card--active .fifa-card__sigil { opacity: .8; }
+.fifa-card__glare { position: absolute; z-index: 2; inset: 0; border-radius: inherit; background: radial-gradient(circle at var(--pointer-x) var(--pointer-y), rgba(255, 255, 255, .9), transparent 55%); mix-blend-mode: overlay; opacity: 0; transition: opacity .3s; pointer-events: none; }
+.fifa-card--active .fifa-card__glare { opacity: .8; }
+.fifa-card__foil { position: absolute; z-index: 2; inset: 0; border-radius: inherit; background: repeating-linear-gradient(115deg, #ff5ec4 0%, #ffde59 12%, #6affc2 24%, #5ec8ff 36%, #b980ff 48%, #ff5ec4 60%); background-size: 250% 250%; background-position: var(--pointer-x) var(--pointer-y); mix-blend-mode: color-dodge; opacity: 0; transition: opacity .3s; pointer-events: none; }
+.fifa-card--active .fifa-card__foil { opacity: .5; }
+/* box-shadow/outline painted on .fifa-card itself isn't clipped by its own
+   overflow:hidden (only descendant content is), so the halo can safely glow
+   past the card edge without a separate absolutely-positioned child. */
+.fifa-card--savior { box-shadow: 0 0 0 2px var(--savior-color), 0 0 18px var(--savior-glow-strong); animation: savior-shield-halo 3.4s ease-in-out infinite; }
+
+.fifa-card__body { position: relative; z-index: 3; display: flex; flex-direction: column; height: 100%; padding: 8px 10px 10px; gap: 5px; }
+
+/* Header: a name "plate" (left, like a real card's species-name banner)
+   with the achievement emoji riding right alongside the name, and a small
+   pill-shaped HP-style division badge (right) — both get an actual designed
+   background/border instead of bare text floating on the illustration, to
+   read as card furniture rather than a UI label. */
+/* position+z-index here is deliberate: .fifa-card__photo-fg (inside the
+   photo below) is also z-index:2, and since the outer .fifa-card__photo
+   frame is position:relative with no z-index of its own, that 2 "leaks
+   through" and ties directly against the header at the shared
+   .fifa-card__body context — a tie resolves by DOM order, and the photo
+   comes AFTER the header, so it was winning and covering the tooltip.
+   z-index:3 here (strictly above the photo's 2, not just equal) removes
+   the tie instead of depending on DOM-order luck. */
+.fifa-card__header { position: relative; z-index: 3; display: flex; align-items: center; gap: 6px; }
+.fifa-card__name { display: flex; flex: 1 1 auto; align-items: center; min-width: 0; gap: 5px; padding: 4px 8px; border-radius: 6px; background: linear-gradient(180deg, rgba(0, 0, 0, .42), rgba(0, 0, 0, .18)); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14), inset 0 1px 0 rgba(255, 255, 255, .08); }
+.fifa-card__name-text { min-width: 0; overflow: hidden; white-space: nowrap; font-size: 16px; font-weight: 800; letter-spacing: -.01em; }
+.fifa-card__name-text strong { color: #fff; text-shadow: var(--text-outline); }
+.fifa-card__name > .achievement-badges { flex: 0 0 auto; gap: 1px; }
+.fifa-card__name > .achievement-badges .achievement-badge { width: 15px; height: 15px; font-size: 11px; text-shadow: var(--text-outline); }
+/* The tooltip also needs to escape .fifa-card__body's z-index:3 ceiling
+   (the gold border sits at z-index:5, see .fifa-card::before) to clear the
+   frame itself — same :has()-driven lift used for the trophy help tooltip
+   elsewhere in this file (.trophy-award:has(.trophy-help:hover)). */
+.fifa-card__body:has(.achievement-badge:hover, .achievement-badge:focus-within) { z-index: 6; }
+.fifa-card__hp { display: flex; flex: 0 0 auto; align-items: center; gap: 3px; padding: 3px 9px; border-radius: 999px; background: linear-gradient(160deg, var(--division-color), var(--division-color-dark)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), inset 0 0 0 1px rgba(0, 0, 0, .35), 0 1px 3px rgba(0, 0, 0, .4); }
+.fifa-card__hp-label { color: rgba(255, 255, 255, .85); font: 800 9px/1 "Barlow Condensed", "Noto Sans KR"; letter-spacing: .06em; text-shadow: 0 1px 1px rgba(0, 0, 0, .5); }
+.fifa-card__hp-value { color: #fff; font: 800 17px/1 "Barlow Condensed", "Noto Sans KR"; text-shadow: 0 1px 2px rgba(0, 0, 0, .6); }
+
+/* Photo window: full card width, landscape (taller card / shorter header+
+   stats leaves a wider-than-tall gap), photo shown with object-fit:contain
+   so the 1:1 source never crops — the blurred/darkened copy of the same
+   photo fills the letterboxed sides so there's no dead space, topped with a
+   faint sunburst (a classic TCG "rays behind the character" illustration
+   background) and an edge fade blending it all back into the card. */
+.fifa-card__photo { position: relative; flex: 1 1 auto; max-height: 45%; width: 100%; margin: 4px 0; overflow: hidden; border: 1.5px solid var(--division-color-soft); border-radius: 5px; background: #050505; box-shadow: 0 2px 8px rgba(0, 0, 0, .45); }
+.fifa-card__photo-sunburst { position: absolute; z-index: 0; inset: -20%; background: repeating-conic-gradient(from 0deg, rgba(255, 255, 255, .16) 0deg 4deg, transparent 4deg 15deg); mix-blend-mode: overlay; opacity: .55; pointer-events: none; }
+.fifa-card__photo-blur { position: absolute; z-index: 0; inset: -14%; background-repeat: no-repeat; background-position: center; background-size: cover; filter: blur(16px) saturate(1.25) brightness(.72); transform: scale(1.08); pointer-events: none; }
+.fifa-card__photo-fade { position: absolute; z-index: 1; inset: 0; background: linear-gradient(90deg, rgba(0, 0, 0, .6), transparent 26%, transparent 74%, rgba(0, 0, 0, .6)); pointer-events: none; }
+/* The crisp foreground photo is a plain background-image (background-size:
+   contain, same mechanism as .fifa-card__photo-blur right above, which was
+   already rendering correctly) instead of an <img> run through
+   Avatar/FancyAvatar/SaviorAvatar's display:inline-flex wrapper chain —
+   that chain sizes to CONTENT, and no combination of flex-stretch or CSS
+   grid tried here reliably forced a percentage-sized img through it
+   (attempts left the photo either invisible or rendered at its own
+   intrinsic resolution and clipped by .fifa-card__photo's overflow:hidden,
+   i.e. looking cropped). background-size:contain has no such ambiguity: it
+   always fits the whole image inside .fifa-card__photo-fg's own box, which
+   is already reliably sized. The trade-off is the fancy-tier sparkle/
+   savior-ray flourishes those components add don't run here anymore —
+   SaviorTag (the "은인" pill) is unaffected since it doesn't wrap the img. */
+/* display:block is not optional here: this is a <span>, which is
+   display:inline by default — and width/height are simply ignored on
+   non-replaced inline elements per spec, so without an explicit block-level
+   display the element collapsed to near-zero size and its background-image
+   (fit "contain" into that zero-area box) had nothing to paint. This is
+   almost certainly why the photo kept disappearing across every previous
+   fix: the sizing technique changed each time, but this rule never actually
+   declared a display that makes width/height apply at all. */
+.fifa-card__photo-fg { position: relative; z-index: 2; display: block; width: 100%; height: 100%; background-repeat: no-repeat; background-position: center; background-size: contain; }
+.fifa-card__sfx-badge { position: absolute; z-index: 3; right: 8px; bottom: 8px; width: 20px; height: 20px; padding: 3px; border-radius: 50%; color: #00e9ae; background: #04140f; box-shadow: 0 0 0 2px var(--surface-1); }
+.fifa-card__photo-fg .unmapped { position: absolute; z-index: 3; top: auto; right: auto; left: 8px; bottom: 8px; padding: 1px 5px; border-radius: 999px; color: #ffe4a6; background: #1a140acc; font-size: 9px; }
+
+/* Stat/text box: a warm dark kraft-paper panel distinct from the colored
+   illustration zone above it — the app stays dark-themed (a bright cream
+   panel would fight the rest of the UI), so this is the "material change"
+   real cards get from illustration box -> text box, just in a dark key. */
+.fifa-card__stats { display: flex; flex-direction: column; gap: 4px; margin-top: auto; padding: 8px 10px; border-radius: 6px; background: linear-gradient(165deg, #2a2015, #1a130c); box-shadow: 0 0 0 1px rgba(255, 255, 255, .08) inset, 0 -1px 0 rgba(255, 255, 255, .05) inset, 0 2px 6px rgba(0, 0, 0, .35); }
+.fifa-card__stat { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; font-size: 12px; }
+.fifa-card__stat-key { display: inline-flex; min-width: 0; align-items: center; gap: 5px; }
+.fifa-card__stat-icon { flex: 0 0 auto; width: 7px; height: 7px; border-radius: 50%; background: var(--division-color); box-shadow: 0 0 0 1px rgba(0, 0, 0, .5); }
+.fifa-card__stat-label { overflow: hidden; color: #e8dcc8; opacity: .7; font-size: 10px; font-weight: 500; letter-spacing: .01em; text-overflow: ellipsis; white-space: nowrap; }
+.fifa-card__stat-value { color: #fff8ea; font: 800 14px "Barlow Condensed", "Noto Sans KR"; letter-spacing: .01em; }
 .fifa-card__stat-value-kr { font-size: .78em; }
-.fifa-card__stat .record-badge { color: #fff; text-shadow: var(--text-outline); }
-.fifa-card__stat .record-badge__w, .fifa-card__stat .record-badge__d, .fifa-card__stat .record-badge__l { font-size: 16px; font-weight: 500; }
-.fifa-card .unmapped { position: absolute; z-index: 1; top: 44px; right: 18px; color: #4a4030; font-size: 10px; }
-@media (max-width: 680px) { .card-board { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }.fifa-card__body { margin-top: -8px; padding: 0 12px 0; gap: 4px; }.fifa-card__avatar .avatar { width: 62px; height: 62px; }.fifa-card__division { top: 8px; left: 8px; width: 32px; }.fifa-card__name { padding: 4px 8px; font-size: 16px; }.fifa-card__stat-label { font-size: 10px; }.fifa-card__stat-value { font-size: 13px; }.fifa-card__stat .record-badge__w, .fifa-card__stat .record-badge__d, .fifa-card__stat .record-badge__l { font-size: 14px; } }
+.fifa-card__stat .record-badge { color: #fff8ea; }
+.fifa-card__stat .record-badge__w, .fifa-card__stat .record-badge__d, .fifa-card__stat .record-badge__l { font-size: 15px; font-weight: 500; }
+
+@media (max-width: 680px) { .card-board { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }.fifa-card__body { padding: 6px 8px 8px; gap: 4px; }.fifa-card__name-text { font-size: 14px; }.fifa-card__hp-value { font-size: 16px; }.fifa-card__stat-label { font-size: 9px; }.fifa-card__stat-value { font-size: 12px; }.fifa-card__stat .record-badge__w, .fifa-card__stat .record-badge__d, .fifa-card__stat .record-badge__l { font-size: 13px; } }
 
 .card-board.card-board--zoom-0 { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 12px; }
-.card-board.card-board--zoom-0 .fifa-card__body { margin-top: -6px; padding: 0 8px 0; gap: 4px; }
-.card-board.card-board--zoom-0 .fifa-card__avatar .avatar { width: 58px; height: 58px; }
-.card-board.card-board--zoom-0 .fifa-card__division { top: 6px; left: 6px; width: 26px; }
-.card-board.card-board--zoom-0 .fifa-card__name { padding: 4px 7px; font-size: 14px; }
-.card-board.card-board--zoom-0 .fifa-card > .achievement-badges,
-.card-board.card-board--zoom-0 .fifa-card__stats,
-.card-board.card-board--zoom-0 .fifa-card .unmapped,
+.card-board.card-board--zoom-0 .fifa-card__body { padding: 5px 6px 6px; gap: 3px; }
+.card-board.card-board--zoom-0 .fifa-card__hp { padding: 2px 7px; }
+.card-board.card-board--zoom-0 .fifa-card__hp-value { font-size: 14px; }
+.card-board.card-board--zoom-0 .fifa-card__name { padding: 2px 6px; }
+.card-board.card-board--zoom-0 .fifa-card__name-text { font-size: 11px; }
+.card-board.card-board--zoom-0 .fifa-card__stats { gap: 1px; padding: 4px 6px; }
+.card-board.card-board--zoom-0 .fifa-card__stat-icon { width: 5px; height: 5px; }
+.card-board.card-board--zoom-0 .fifa-card__stat-label { font-size: 8px; }
+.card-board.card-board--zoom-0 .fifa-card__stat-value { font-size: 10px; }
+.card-board.card-board--zoom-0 .fifa-card__stat .record-badge__w, .card-board.card-board--zoom-0 .fifa-card__stat .record-badge__d, .card-board.card-board--zoom-0 .fifa-card__stat .record-badge__l { font-size: 11px; }
+.card-board.card-board--zoom-0 .fifa-card__name > .achievement-badges,
+.card-board.card-board--zoom-0 .fifa-card__hp-label,
+.card-board.card-board--zoom-0 .fifa-card__photo-fg .unmapped,
 .card-board.card-board--zoom-0 .fifa-card__sfx-badge { display: none; }
 
 .card-board.card-board--zoom-1 { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
-.card-board.card-board--zoom-1 .fifa-card__body { margin-top: -8px; padding: 0 12px 0; gap: 4px; }
-.card-board.card-board--zoom-1 .fifa-card__avatar .avatar { width: 62px; height: 62px; }
-.card-board.card-board--zoom-1 .fifa-card__division { top: 8px; left: 8px; width: 32px; }
-.card-board.card-board--zoom-1 .fifa-card__name { padding: 4px 8px; font-size: 16px; }
-.card-board.card-board--zoom-1 .fifa-card__stat-label { font-size: 10px; }
-.card-board.card-board--zoom-1 .fifa-card__stat-value { font-size: 13px; }
-.card-board.card-board--zoom-1 .fifa-card__stat .record-badge__w, .card-board.card-board--zoom-1 .fifa-card__stat .record-badge__d, .card-board.card-board--zoom-1 .fifa-card__stat .record-badge__l { font-size: 14px; }
+.card-board.card-board--zoom-1 .fifa-card__body { padding: 6px 8px 8px; gap: 4px; }
+.card-board.card-board--zoom-1 .fifa-card__hp-value { font-size: 16px; }
+.card-board.card-board--zoom-1 .fifa-card__name-text { font-size: 12px; }
+.card-board.card-board--zoom-1 .fifa-card__stats { padding: 6px 8px; }
+.card-board.card-board--zoom-1 .fifa-card__stat-label { font-size: 9px; }
+.card-board.card-board--zoom-1 .fifa-card__stat-value { font-size: 12px; }
+.card-board.card-board--zoom-1 .fifa-card__stat .record-badge__w, .card-board.card-board--zoom-1 .fifa-card__stat .record-badge__d, .card-board.card-board--zoom-1 .fifa-card__stat .record-badge__l { font-size: 13px; }
 
 .card-board.card-board--zoom-3 { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
-.card-board.card-board--zoom-3 .fifa-card__avatar .avatar { width: 104px; height: 104px; }
-.card-board.card-board--zoom-3 .fifa-card__division { top: 10px; left: 12px; width: 50px; }
-.card-board.card-board--zoom-3 .fifa-card__name { font-size: 24px; }
+.card-board.card-board--zoom-3 .fifa-card__hp-value { font-size: 24px; }
+.card-board.card-board--zoom-3 .fifa-card__name-text { font-size: 20px; }
+.card-board.card-board--zoom-3 .fifa-card__stats { gap: 7px; padding: 12px 16px; }
+.card-board.card-board--zoom-3 .fifa-card__stat-icon { width: 9px; height: 9px; }
 .card-board.card-board--zoom-3 .fifa-card__stat-label { font-size: 13px; }
-.card-board.card-board--zoom-3 .fifa-card__stat-value { font-size: 17px; }
+.card-board.card-board--zoom-3 .fifa-card__stat-value { font-size: 18px; }
+.card-board.card-board--zoom-3 .fifa-card__stat .record-badge__w, .card-board.card-board--zoom-3 .fifa-card__stat .record-badge__d, .card-board.card-board--zoom-3 .fifa-card__stat .record-badge__l { font-size: 19px; }
 
 .card-board.card-board--zoom-4 { grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 28px; }
-.card-board.card-board--zoom-4 .fifa-card__avatar .avatar { width: 120px; height: 120px; }
-.card-board.card-board--zoom-4 .fifa-card__division { top: 12px; left: 14px; width: 56px; }
-.card-board.card-board--zoom-4 .fifa-card__name { font-size: 28px; }
-.card-board.card-board--zoom-4 .fifa-card__stat-label { font-size: 14px; }
-.card-board.card-board--zoom-4 .fifa-card__stat-value { font-size: 19px; }
+.card-board.card-board--zoom-4 .fifa-card__hp-value { font-size: 28px; }
+.card-board.card-board--zoom-4 .fifa-card__name-text { font-size: 23px; }
+.card-board.card-board--zoom-4 .fifa-card__stats { gap: 9px; padding: 16px 20px; }
+.card-board.card-board--zoom-4 .fifa-card__stat-icon { width: 11px; height: 11px; }
+.card-board.card-board--zoom-4 .fifa-card__stat-label { font-size: 15px; }
+.card-board.card-board--zoom-4 .fifa-card__stat-value { font-size: 21px; }
+.card-board.card-board--zoom-4 .fifa-card__stat .record-badge__w, .card-board.card-board--zoom-4 .fifa-card__stat .record-badge__d, .card-board.card-board--zoom-4 .fifa-card__stat .record-badge__l { font-size: 22px; }
 .segmented--zoom button svg { width: 15px; height: 15px; }
 .segmented--zoom button:disabled { opacity: .35; cursor: default; }
 
@@ -632,12 +740,6 @@ body { isolation: isolate; }
 .fancy-avatar__spark--4 { bottom: 8%; right: -3px; font-size: 11px; animation-delay: .5s; animation-duration: 2.3s; }
 .fancy-avatar__spark--5 { top: 42%; left: -10px; font-size: 7px; animation-delay: 1.1s; animation-duration: 2.6s; }
 .fancy-avatar__spark--6 { top: 2px; right: 16%; font-size: 8px; animation-delay: 1.8s; animation-duration: 2s; }
-.fifa-card__avatar .fancy-avatar__spark--1 { top: -8px; left: 10px; }
-.fifa-card__avatar .fancy-avatar__spark--2 { top: 14%; right: -12px; }
-.fifa-card__avatar .fancy-avatar__spark--3 { bottom: -6px; left: 42%; }
-.fifa-card__avatar .fancy-avatar__spark--4 { bottom: 10%; right: -4px; }
-.fifa-card__avatar .fancy-avatar__spark--5 { top: 46%; left: -12px; }
-.fifa-card__avatar .fancy-avatar__spark--6 { top: 0; right: 22%; }
 @keyframes fancy-ring-pulse { 0%, 100% { box-shadow: 0 0 0 2px var(--fancy-glow-soft), 0 0 8px var(--fancy-glow-soft); } 50% { box-shadow: 0 0 0 2px var(--fancy-glow-strong), 0 0 20px var(--fancy-glow-strong), 0 0 34px var(--fancy-glow-soft); } }
 @keyframes fancy-spark-twinkle { 0%, 100% { opacity: 0; transform: scale(.3) rotate(0deg); } 20% { opacity: 1; transform: scale(1.35) rotate(25deg); } 40% { opacity: .12; transform: scale(.55) rotate(0deg); } 60% { opacity: 1; transform: scale(1.2) rotate(-18deg); } 80% { opacity: 0; transform: scale(.4) rotate(0deg); } }
 /* isFancyLite: same decoration family, deliberately dialed down so it barely reads as an effect. */
@@ -700,16 +802,15 @@ body { isolation: isolate; }
 .savior-name { position: relative; display: inline-flex; min-width: 0; animation: savior-name-glow 3.2s ease-in-out infinite; }
 @keyframes savior-name-glow { 0%, 100% { filter: drop-shadow(0 0 3px var(--savior-glow-soft)); } 50% { filter: drop-shadow(0 1px 10px var(--savior-glow-strong)) drop-shadow(0 0 4px var(--savior-glow-strong)); } }
 .savior-tag { display: inline-flex; align-items: center; padding: 2px 9px; border: 1px solid color-mix(in srgb, var(--savior-color) 55%, transparent); border-radius: 999px; color: #ffe4a6; background: linear-gradient(160deg, #241606f0, #130b03f5); font: 800 10px/1.5 "Barlow Condensed", "Noto Sans KR"; letter-spacing: .06em; box-shadow: 0 0 8px var(--savior-glow-soft); white-space: nowrap; }
-.fifa-card__avatar .savior-tag { position: absolute; z-index: 4; top: -3px; left: 50%; transform: translateX(-50%); animation: savior-tag-glow 3.2s ease-in-out infinite; }
+.fifa-card__photo-fg .savior-tag { position: absolute; z-index: 4; top: 6px; left: 50%; transform: translateX(-50%); animation: savior-tag-glow 3.2s ease-in-out infinite; }
 @keyframes savior-tag-glow { 0%, 100% { box-shadow: 0 0 5px var(--savior-glow-soft); } 50% { box-shadow: 0 0 12px var(--savior-glow-strong); } }
 .savior-border { position: relative; }
 .streamer-card.savior-border, .modal.savior-border { border-width: 2px; }
 .savior-border::before { content: ""; position: absolute; z-index: 2; inset: 0; border-radius: inherit; padding: 2px; background: linear-gradient(155deg, var(--savior-color), var(--savior-glow-soft) 45%, var(--savior-color)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; pointer-events: none; animation: savior-border-breathe 3.4s ease-in-out infinite; }
 @keyframes savior-border-breathe { 0%, 100% { opacity: .4; filter: drop-shadow(0 0 2px var(--savior-color)); } 50% { opacity: .75; filter: drop-shadow(0 0 7px var(--savior-color)) drop-shadow(0 0 12px var(--savior-glow-soft)); } }
-/* fifa-card is shield-shaped (see FifaShield's SVG path), so its glow traces the shield outline (crisp stroke) and casts a shadow that follows that same silhouette via filter:drop-shadow — a plain box-shadow would come out as a rectangle behind the shield's curved edges. */
-.fifa-card__shield-glow { fill: none; stroke: var(--savior-color); stroke-width: 3.5; pointer-events: none; animation: savior-shield-glow 3.4s ease-in-out infinite; }
-@keyframes savior-shield-glow { 0%, 100% { opacity: .4; filter: drop-shadow(0 0 2px var(--savior-color)); } 50% { opacity: .75; filter: drop-shadow(0 0 6px var(--savior-color)) drop-shadow(0 0 12px var(--savior-glow-soft)); } }
-.fifa-card--savior { animation: savior-shield-halo 3.4s ease-in-out infinite; }
+/* StreamerFifaCard is a rect gold-bordered card now, so the savior halo is a
+   box-shadow ring on `.fifa-card__glow` (see the rule near .fifa-card__body)
+   instead of a shield-silhouette stroke; this keyframe just pulses that ring. */
 @keyframes savior-shield-halo { 0%, 100% { filter: drop-shadow(0 0 6px var(--savior-glow-soft)); } 50% { filter: drop-shadow(0 0 13px var(--savior-glow-strong)); } }
 [data-theme="light"] .savior-avatar__rays { opacity: .7; }
 
@@ -1111,7 +1212,7 @@ body { isolation: isolate; }
 .streamer-table--skeleton .streamer-table__row:hover { background: transparent; }
 .streamer-table--skeleton .skeleton-bar { max-width: 90%; }
 
-.card-board--skeleton .fifa-card--skeleton { display: block; width: 100%; aspect-ratio: 300 / 450; border-radius: 4px; cursor: default; }
+.card-board--skeleton .fifa-card--skeleton { display: block; width: 100%; aspect-ratio: 5 / 7; border-radius: 16px; cursor: default; }
 
 .kickups-toggle { display: grid; width: 44px; height: 44px; place-items: center; border: 1px solid var(--border-default); border-radius: 50%; background: var(--surface-3); box-shadow: 0 8px 20px rgba(var(--shadow-color), .35); transition: border-color .2s, background-color .2s, box-shadow .2s, transform .15s; }
 .kickups-toggle:hover, .kickups-toggle:focus-visible { border-color: var(--accent-border); background: #00e9ae14; box-shadow: 0 0 0 3px #00e9ae12, 0 8px 20px rgba(var(--shadow-color), .35); outline: 0; }

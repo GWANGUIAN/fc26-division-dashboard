@@ -1,17 +1,15 @@
 import { useRef, useState, type ReactNode } from "react";
 import { Minus, Plus, Volume2 } from "lucide-react";
-import type { StreamerRecord } from "../shared/model.js";
+import { defaultSoopProfileUrl, type StreamerRecord } from "../shared/model.js";
 import { formatBoardPostDate, HANGUL_PATTERN } from "../shared/dates.js";
 import { winRatePercent } from "../shared/record-extraction.js";
 import { divisionColor } from "../shared/division-theme.js";
 import type { TrophyAwards } from "../shared/trophy.js";
 import {
   AchievementBadges,
-  DivisionBadge,
   fancyTierOf,
   FancyAvatar,
   FancyName,
-  FifaShield,
   hexToRgba,
   isStreamerSavior,
   mixHex,
@@ -21,6 +19,7 @@ import {
   SaviorName,
   SaviorTag,
 } from "./cardVisuals";
+import { DivisionSigil } from "./divisionSigils";
 
 export function StreamerCard({
   streamer,
@@ -140,12 +139,13 @@ export function StreamerFifaCard({
   const lastPostLabel = streamer.lastPost
     ? formatBoardPostDate(streamer.lastPost.publishedAt)
     : "첫 보고 대기";
+  const photoSrc = streamer.profileImageUrl ?? defaultSoopProfileUrl(streamer.soopId);
   const cardRef = useRef<HTMLButtonElement>(null);
   const [tilt, setTilt] = useState({
     rx: 0,
     ry: 0,
-    x: 0.5,
-    y: 0.5,
+    px: 50,
+    py: 50,
     active: false,
   });
 
@@ -155,10 +155,10 @@ export function StreamerFifaCard({
     const x = (event.clientX - rect.left) / rect.width;
     const y = (event.clientY - rect.top) / rect.height;
     setTilt({
-      rx: (0.5 - y) * 26,
-      ry: (x - 0.5) * 30,
-      x,
-      y,
+      rx: (0.5 - y) * 34,
+      ry: (x - 0.5) * 38,
+      px: x * 100,
+      py: y * 100,
       active: true,
     });
   };
@@ -168,79 +168,107 @@ export function StreamerFifaCard({
   return (
     <button
       ref={cardRef}
-      className={`fifa-card fifa-card--holo ${savior ? "fifa-card--savior" : ""}`}
+      className={`fifa-card fifa-card--holo ${tilt.active ? "fifa-card--active" : ""} ${savior ? "fifa-card--savior" : ""}`}
       onClick={onOpen}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={
-        tilt.active || savior
-          ? ({
-              ...(savior ? saviorCssVars() : {}),
-              ...(tilt.active
-                ? {
-                    transform: `perspective(700px) translateY(-3px) scale(1.035) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
-                  }
-                : {}),
-            } as React.CSSProperties)
-          : undefined
+        {
+          "--division-color": color,
+          "--division-color-soft": hexToRgba(color, 0.65),
+          "--division-color-dark": mixHex(color, "black", 0.5),
+          ...(savior ? saviorCssVars() : {}),
+          "--pointer-x": `${tilt.px}%`,
+          "--pointer-y": `${tilt.py}%`,
+          ...(tilt.active
+            ? {
+                transform: `perspective(750px) translateY(-6px) scale(1.045) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
+              }
+            : {}),
+        } as React.CSSProperties
       }
       aria-label={`${streamer.displayName} 상세 보기`}
     >
-      <FifaShield
-        color={color}
-        holo={{ x: tilt.x, y: tilt.y, opacity: tilt.active ? 0.85 : 0 }}
-        savior={savior}
+      <span
+        className="fifa-card__bg"
+        style={{
+          background: `linear-gradient(155deg, ${hexToRgba(color, 0.5)}, ${hexToRgba(mixHex(color, "black", 0.55), 0.92)} 55%, #07080a 100%)`,
+        }}
+        aria-hidden="true"
       />
-      <DivisionBadge
+      <span className="fifa-card__vignette" aria-hidden="true" />
+      <DivisionSigil
         division={streamer.currentDivision}
-        className="fifa-card__division"
+        className="fifa-card__sigil"
       />
-      <AchievementBadges
-        streamer={streamer}
-        awards={awards}
-        onClick={onOpenTrophy}
-      />
+      <span className="fifa-card__glare" aria-hidden="true" />
+      <span className="fifa-card__foil" aria-hidden="true" />
       <span className="fifa-card__body">
-        <span
-          className="fifa-card__avatar"
-          style={
-            {
-              "--avatar-border": mixHex(color, "black", 0.45),
-            } as React.CSSProperties
-          }
-        >
-          <SaviorAvatar streamer={streamer}>
-            <FancyAvatar streamer={streamer} color={color} ring={false} />
-          </SaviorAvatar>
-          <SaviorTag streamer={streamer} />
-          {streamer.sfx && (
-            <Volume2 className="fifa-card__sfx-badge" aria-hidden="true" />
-          )}
+        <span className="fifa-card__header">
+          <span className="fifa-card__name">
+            <span className="fifa-card__name-text">
+              <SaviorName streamer={streamer}>
+                <FancyName streamer={streamer} color={color} tag="strong">
+                  {streamer.displayName}
+                </FancyName>
+              </SaviorName>
+            </span>
+            <AchievementBadges
+              streamer={streamer}
+              awards={awards}
+              onClick={onOpenTrophy}
+            />
+          </span>
+          <span className="fifa-card__hp">
+            <span className="fifa-card__hp-label">DIV</span>
+            <b className="fifa-card__hp-value">{streamer.currentDivision}</b>
+          </span>
         </span>
-        <span
-          className="fifa-card__name"
-          style={{
-            background: `linear-gradient(180deg, ${hexToRgba(color, 0.12)}, ${hexToRgba(color, 0.05)})`,
-          }}
-        >
-          <SaviorName streamer={streamer}>
-            <FancyName streamer={streamer} color={color} tag="strong">
-              {streamer.displayName}
-            </FancyName>
-          </SaviorName>
+        <span className="fifa-card__photo">
+          <span
+            className="fifa-card__photo-blur"
+            style={{ backgroundImage: `url(${photoSrc})` }}
+            aria-hidden="true"
+          />
+          <span className="fifa-card__photo-sunburst" aria-hidden="true" />
+          <span className="fifa-card__photo-fade" aria-hidden="true" />
+          <span
+            className="fifa-card__photo-fg"
+            style={{ backgroundImage: `url(${photoSrc})` }}
+          >
+            <SaviorTag streamer={streamer} />
+            {streamer.sfx && (
+              <Volume2 className="fifa-card__sfx-badge" aria-hidden="true" />
+            )}
+            {!streamer.isMapped && (
+              <span className="unmapped" title="SOOP 정보 미연결">
+                카페
+              </span>
+            )}
+          </span>
         </span>
         <span className="fifa-card__stats">
           <span className="fifa-card__stat">
-            <RecordBadge streamer={streamer} />
+            <span className="fifa-card__stat-key">
+              <span className="fifa-card__stat-icon" aria-hidden="true" />
+              <span className="fifa-card__stat-label">전적</span>
+            </span>
+            <RecordBadge streamer={streamer} className="fifa-card__stat-value" />
           </span>
           <span className="fifa-card__stat">
-            <span className="fifa-card__stat-label">승률</span>
+            <span className="fifa-card__stat-key">
+              <span className="fifa-card__stat-icon" aria-hidden="true" />
+              <span className="fifa-card__stat-label">승률</span>
+            </span>
             <b className="fifa-card__stat-value">
               {rate !== undefined ? `${rate.toFixed(1)}%` : "-"}
             </b>
           </span>
           <span className="fifa-card__stat">
-            <span className="fifa-card__stat-label">최근 승급일</span>
+            <span className="fifa-card__stat-key">
+              <span className="fifa-card__stat-icon" aria-hidden="true" />
+              <span className="fifa-card__stat-label">최근 승급일</span>
+            </span>
             <b className="fifa-card__stat-value">
               {HANGUL_PATTERN.test(lastPostLabel) ? (
                 <span className="fifa-card__stat-value-kr">
@@ -253,11 +281,6 @@ export function StreamerFifaCard({
           </span>
         </span>
       </span>
-      {!streamer.isMapped && (
-        <span className="unmapped" title="SOOP 정보 미연결">
-          카페
-        </span>
-      )}
     </button>
   );
 }
