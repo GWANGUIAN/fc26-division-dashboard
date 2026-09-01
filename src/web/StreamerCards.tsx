@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Minus, Plus, Volume2 } from "lucide-react";
 import { defaultSoopProfileUrl, type StreamerRecord } from "../shared/model.js";
 import { formatBoardPostDate, HANGUL_PATTERN } from "../shared/dates.js";
@@ -148,22 +148,35 @@ export function StreamerFifaCard({
     py: 50,
     active: false,
   });
+  // Pointer coordinates arrive far faster than the display can usefully show
+  // tilt changes; committing every raw mousemove straight to state forces a
+  // React re-render (and a glare/foil repaint) per pixel of travel. Coalescing
+  // to one rAF-scheduled update per frame keeps the same visual smoothness
+  // (still one commit per rendered frame) while cutting re-render/repaint
+  // frequency during fast mouse movement.
+  const rafRef = useRef(0);
+  useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
 
   const handleMouseMove = (event: React.MouseEvent<HTMLButtonElement>) => {
     const rect = cardRef.current?.getBoundingClientRect();
     if (!rect) return;
     const x = (event.clientX - rect.left) / rect.width;
     const y = (event.clientY - rect.top) / rect.height;
-    setTilt({
-      rx: (0.5 - y) * 34,
-      ry: (x - 0.5) * 38,
-      px: x * 100,
-      py: y * 100,
-      active: true,
+    cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      setTilt({
+        rx: (0.5 - y) * 34,
+        ry: (x - 0.5) * 38,
+        px: x * 100,
+        py: y * 100,
+        active: true,
+      });
     });
   };
-  const handleMouseLeave = () =>
+  const handleMouseLeave = () => {
+    cancelAnimationFrame(rafRef.current);
     setTilt((current) => ({ ...current, active: false }));
+  };
 
   return (
     <button

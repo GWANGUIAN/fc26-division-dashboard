@@ -554,7 +554,18 @@ body { isolation: isolate; }
    box-shadow/SVG already clips to its own border-radius with no overflow
    property needed. .fifa-card__photo keeps its own overflow:hidden
    separately, for the blur-backdrop bleed and the photo's own crop. */
-.fifa-card { --text-outline: -1px -1px 0 #000, 0 -1px 0 #000, 1px -1px 0 #000, -1px 0 0 #000, 1px 0 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 1px 1px 0 #000; --gold-1: #fff7b8; --gold-2: #e2b73b; --gold-3: #93721c; --gold-4: #4a3708; --pointer-x: 50%; --pointer-y: 50%; position: relative; display: block; width: 100%; aspect-ratio: 5 / 7; padding: 0; border: 0; border-radius: 16px; color: #181206; text-align: center; background: #0b0b0c; cursor: pointer; transition: transform .5s cubic-bezier(.22, 1, .36, 1), filter .3s; }
+/* content-visibility:auto lets the browser skip layout/paint entirely for
+   off-screen cards — each card stacks several mix-blend-mode layers plus a
+   blur() filter (see __sigil/__glare/__foil/__photo-blur below), which are
+   expensive to keep composited, and with dozens+ cards on a roster page this
+   is what keeps memory/GPU usage from scaling with total roster size instead
+   of just what's actually on screen. Safe here because size is already fixed
+   by aspect-ratio+width (layout containment changes nothing) and paint
+   containment only kicks in while off-screen, so the achievement-badge
+   tooltip's intentional overflow (see comment above) still escapes normally
+   whenever a card is actually visible. contain-intrinsic-size just seeds a
+   placeholder box before a card's real size has ever been measured. */
+.fifa-card { --text-outline: -1px -1px 0 #000, 0 -1px 0 #000, 1px -1px 0 #000, -1px 0 0 #000, 1px 0 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 1px 1px 0 #000; --gold-1: #fff7b8; --gold-2: #e2b73b; --gold-3: #93721c; --gold-4: #4a3708; --pointer-x: 50%; --pointer-y: 50%; position: relative; display: block; width: 100%; aspect-ratio: 5 / 7; padding: 0; border: 0; border-radius: 16px; color: #181206; text-align: center; background: #0b0b0c; cursor: pointer; content-visibility: auto; contain-intrinsic-size: auto 320px; transition: transform .5s cubic-bezier(.22, 1, .36, 1), filter .3s; }
 .fifa-card:hover, .fifa-card:focus-within { z-index: 10; }
 .fifa-card:hover { filter: drop-shadow(0 14px 26px rgba(var(--shadow-color), .45)); }
 .fifa-card--holo { transform-style: preserve-3d; }
