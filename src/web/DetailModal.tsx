@@ -15,6 +15,7 @@ import {
   FancyName,
   isStreamerSavior,
   mixHex,
+  PositionTags,
   RecordBadge,
   SAVIOR_COLOR,
   SaviorAvatar,
@@ -163,6 +164,12 @@ export function DetailModal({
                 </button>
               )}
             </span>
+            {streamer.hopedPosition1 && (
+              <span className="modal__position-row">
+                <span className="modal__position-label">희망 포지션</span>
+                <PositionTags streamer={streamer} />
+              </span>
+            )}
             {!streamer.isMapped && <p>카페 작성자 · SOOP 정보 미연결</p>}
           </div>
         </div>

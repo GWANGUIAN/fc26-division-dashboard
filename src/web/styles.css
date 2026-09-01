@@ -209,7 +209,7 @@ body { isolation: isolate; }
 .test-schedule-toggle svg { width: 14px; height: 14px; stroke-width: 2.6; }
 .test-schedule__title { display: flex; align-items: center; gap: 9px; font: 800 34px/1 "Barlow Condensed", "Noto Sans KR"; }
 .test-schedule__title svg { color: #00e9ae; }
-.test-schedule__date-tabs { margin-top: 16px; }
+.test-schedule__date-tabs { display: inline-flex; margin-top: 16px; }
 .test-schedule__teams { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 4px; }
 .test-schedule__team { border: 1px solid var(--border-default); background: var(--surface-1); }
 .test-schedule__team-label { margin: 0; padding: 10px 14px; border-bottom: 1px solid var(--border-default); color: var(--accent-text); font: 800 15px "Barlow Condensed", "Noto Sans KR"; letter-spacing: .02em; }
@@ -487,6 +487,9 @@ body { isolation: isolate; }
 .record-badge--lg { display: inline-block; font-size: 17px; }
 .record-badge__rate { margin-left: 4px; color: var(--text-secondary); font: 300 11px "Barlow Condensed"; letter-spacing: .01em; }
 .modal__record-row .record-badge__rate { font-size: 13px; }
+.modal__position-row { display: flex; align-items: center; gap: 8px; margin-top: 7px; }
+.modal__position-label { color: var(--text-muted); font-size: 11px; }
+.modal__position-row .position-tag { font-size: 12px; padding: 2px 8px; }
 .streamer-card__record-row { display: flex; align-items: baseline; gap: 0; }
 .streamer-card__name .position-tags { flex: 0 0 auto; margin-left: auto; padding-left: 6px; }
 .streamer-card__name .position-tag { padding: 1px 5px; font-size: 11px; }
