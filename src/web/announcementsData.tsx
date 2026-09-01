@@ -16,12 +16,12 @@ export const ANNOUNCEMENTS: Announcement[] = [
     date: "2026.09.02",
     body: (
       <>
-        <strong>2차 테스트일정</strong> 기능이 추가되었습니다. 상단{" "}
+        <strong>2차 테스트일정</strong>이 추가되었습니다. 상단{" "}
         <span className="announcement-test-schedule-btn">
           <CalendarDays aria-hidden="true" />
           <span>2차 테스트일정</span>
         </span>{" "}
-        버튼을 누르면 9/4, 9/5, 9/7 날짜별로 배정된 팀과 포지션을 확인할 수
+        버튼을 누르면 날짜별로 배정된 팀과 포지션을 확인할 수
         있습니다.
       </>
     ),
