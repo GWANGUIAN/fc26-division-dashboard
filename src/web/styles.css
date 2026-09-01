@@ -514,7 +514,13 @@ body { isolation: isolate; }
 .division-summary__item--pass7 { border-bottom-color: #ffcf7a70; } .division-summary__item--pass7 svg { color: #ffcf7a; } .division-summary__item--pass7 strong { color: #ffe3b0; }
 @media (max-width: 680px) { .division-summary__item { padding: 0 12px; } .division-summary__item:first-child { padding-left: 0; } .division-summary__item strong { font-size: 17px; } .division-summary__stats--pass { padding-left: 12px; } .division-summary__stats--pass .division-summary__item:first-child { padding-left: 12px; } }
 
-.card-board-wrap { display: grid; grid-template-columns: minmax(0, 1fr); }
+/* margin-bottom (not padding on .results-wrap or margin-top on whatever
+   follows) so this only affects card view — .board/.card-board-wrap/
+   .streamer-table-wrap share grid-area:1/1 in .results-wrap and overlap
+   there, but each one's own margin still counts toward that shared row's
+   auto height, so this pushes .first-round-hidden (the next row) down
+   without adding space under list/table view. */
+.card-board-wrap { display: grid; grid-template-columns: minmax(0, 1fr); margin-bottom: 28px; }
 .card-board-wrap > .card-board, .card-board-wrap > .card-board-zoom-rail { grid-area: 1 / 1; }
 .card-board-zoom-rail { position: sticky; top: 108px; z-index: 5; justify-self: end; align-self: start; display: flex; flex-direction: column; align-items: stretch; gap: 12px; transform: translateX(calc(100% + 14px)); }
 .segmented--zoom-vertical { flex-direction: column; width: 48px; border: 1px solid #00e9ae40; border-radius: 5px; background: var(--surface-panel); box-shadow: 0 8px 24px rgba(var(--shadow-color), .31); }
