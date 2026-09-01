@@ -567,6 +567,15 @@ body { isolation: isolate; }
    placeholder box before a card's real size has ever been measured. */
 .fifa-card { --text-outline: -1px -1px 0 #000, 0 -1px 0 #000, 1px -1px 0 #000, -1px 0 0 #000, 1px 0 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 1px 1px 0 #000; --gold-1: #fff7b8; --gold-2: #e2b73b; --gold-3: #93721c; --gold-4: #4a3708; --pointer-x: 50%; --pointer-y: 50%; position: relative; display: block; width: 100%; aspect-ratio: 5 / 7; padding: 0; border: 0; border-radius: 16px; color: #181206; text-align: center; background: #0b0b0c; cursor: pointer; content-visibility: auto; contain-intrinsic-size: auto 320px; transition: transform .5s cubic-bezier(.22, 1, .36, 1), filter .3s; }
 .fifa-card:hover, .fifa-card:focus-within { z-index: 10; }
+/* The tilt effect below updates this card's transform every animation frame
+   while hovered. Chromium re-checks content-visibility:auto's "is this
+   on-screen" relevance whenever a transformed element's bounding box moves,
+   and doing that every frame on a rotating/scaling box causes visible
+   flicker (it occasionally judges the card as skippable mid-gesture). Only
+   the one card under the pointer is ever affected, so opting just that one
+   back into normal rendering costs nothing on the memory savings the other,
+   idle/off-screen cards still get from content-visibility:auto. */
+.fifa-card:hover, .fifa-card--active { content-visibility: visible; }
 .fifa-card:hover { filter: drop-shadow(0 14px 26px rgba(var(--shadow-color), .45)); }
 .fifa-card--holo { transform-style: preserve-3d; }
 .fifa-card--active { transition: transform .05s linear, filter .3s; }
