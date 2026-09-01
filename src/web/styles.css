@@ -204,6 +204,24 @@ body { isolation: isolate; }
 .trophy-toggle:hover, .trophy-toggle:focus-visible { border-color: #f6c95e; color: #fff0b7; background: #f6c95e18; box-shadow: 0 0 0 3px #f6c95e12; outline: 0; }
 .trophy-modal__title { display: flex; align-items: center; gap: 9px; font: 800 34px/1 "Barlow Condensed", "Noto Sans KR"; }
 .trophy-modal__title svg { color: #f6c95e; }
+.test-schedule-toggle { display: inline-flex; align-items: center; gap: 6px; padding: 9px 12px; border: 1px solid #00e9ae55; border-radius: 3px; color: var(--text-secondary); background: #00e9ae14; font-weight: 700; font-size: 12px; white-space: nowrap; transition: .2s; }
+.test-schedule-toggle:hover, .test-schedule-toggle:focus-visible { background: #00e9ae28; border-color: #00e9ae80; outline: 0; }
+.test-schedule-toggle svg { width: 14px; height: 14px; stroke-width: 2.6; }
+.test-schedule__title { display: flex; align-items: center; gap: 9px; font: 800 34px/1 "Barlow Condensed", "Noto Sans KR"; }
+.test-schedule__title svg { color: #00e9ae; }
+.test-schedule__date-tabs { margin-top: 16px; }
+.test-schedule__teams { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 4px; }
+.test-schedule__team { border: 1px solid var(--border-default); background: var(--surface-1); }
+.test-schedule__team-label { margin: 0; padding: 10px 14px; border-bottom: 1px solid var(--border-default); color: var(--accent-text); font: 800 15px "Barlow Condensed", "Noto Sans KR"; letter-spacing: .02em; }
+.test-schedule__slots { display: grid; margin: 0; padding: 0; list-style: none; }
+.test-schedule__slot { display: flex; min-width: 0; align-items: center; gap: 10px; padding: 8px 14px; border-top: 1px solid var(--border-faint); }
+.test-schedule__slot:first-child { border-top: 0; }
+.test-schedule__slot .avatar { width: 32px; height: 32px; flex-basis: 32px; }
+.test-schedule__slot--vacant { opacity: .55; }
+.test-schedule__vacant-avatar { border: 1px dashed var(--border-strong); background: transparent; color: var(--text-muted); font-size: 13px; }
+.test-schedule__slot-name { overflow: hidden; flex: 1 1 auto; min-width: 0; color: var(--text-primary); font-size: 13px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.test-schedule__slot--vacant .test-schedule__slot-name { color: var(--text-muted); font-weight: 500; }
+@media (max-width: 680px) { .test-schedule__teams { grid-template-columns: 1fr; } }
 .trophy-modal__intro { margin: 10px 0 0; color: var(--text-muted); font-size: 12px; }
 .trophy-modal__note { margin: 4px 0 0; color: var(--text-muted); font-size: 11px; }
 .trophy-awards { display: grid; gap: 12px; padding-top: 20px; }

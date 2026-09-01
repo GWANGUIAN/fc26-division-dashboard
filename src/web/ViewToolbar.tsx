@@ -1,4 +1,4 @@
-import { BadgeCheck, CirclePile, List, Minus, Plus, RefreshCw, Rows3, Shield, TrendingUp } from "lucide-react";
+import { BadgeCheck, CalendarDays, CirclePile, List, Minus, Plus, RefreshCw, Rows3, Shield, TrendingUp } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
 import { hexToRgba } from "./cardVisuals";
 import { DivisionHistogram } from "./DivisionHistogram";
@@ -19,6 +19,7 @@ export function ViewToolbar({
   onSortModeChange,
   onSquadBuilderOpen,
   onPassAnnouncementOpen,
+  onTestScheduleOpen,
   onGrowthGraphOpen,
   onRefresh,
   refreshing,
@@ -43,6 +44,7 @@ export function ViewToolbar({
   onSortModeChange: (mode: "division" | "winRate") => void;
   onSquadBuilderOpen: () => void;
   onPassAnnouncementOpen: () => void;
+  onTestScheduleOpen: () => void;
   onGrowthGraphOpen: () => void;
   onRefresh: () => void;
   refreshing: boolean;
@@ -186,6 +188,14 @@ export function ViewToolbar({
         >
           <BadgeCheck aria-hidden="true" />
           <span>합격자 발표</span>
+        </button>
+        <button
+          type="button"
+          className="test-schedule-toggle"
+          onClick={onTestScheduleOpen}
+        >
+          <CalendarDays aria-hidden="true" />
+          <span>2차 테스트일정</span>
         </button>
         <div className="segmented segmented--view-mode">
           <button

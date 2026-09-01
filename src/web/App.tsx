@@ -40,6 +40,7 @@ import { AnnouncementModal } from "./AnnouncementModal";
 import { DetailModal } from "./DetailModal";
 import { TrophyModal } from "./TrophyModal";
 import { GrowthGraphModal } from "./GrowthGraphModal";
+import { TestScheduleModal } from "./TestScheduleModal";
 import { EvaluationModal } from "./EvaluationViews";
 import { SfxIntroNotice, SfxToggle } from "./SfxControls";
 import { MusicPlayer } from "./MusicPlayer";
@@ -68,6 +69,7 @@ export function App() {
   const [trophyOpen, setTrophyOpen] = useState(false);
   const [squadBuilderOpen, setSquadBuilderOpen] = useState(false);
   const [passAnnouncementOpen, setPassAnnouncementOpen] = useState(false);
+  const [testScheduleOpen, setTestScheduleOpen] = useState(false);
   const [photoBoothOpen, setPhotoBoothOpen] = useState(false);
   const [growthGraphOpen, setGrowthGraphOpen] = useState(false);
   // A single slot (rather than one boolean per minigame) makes it structurally impossible for two
@@ -216,6 +218,7 @@ export function App() {
           onSortModeChange={setSortMode}
           onSquadBuilderOpen={() => setSquadBuilderOpen(true)}
           onPassAnnouncementOpen={() => setPassAnnouncementOpen(true)}
+          onTestScheduleOpen={() => setTestScheduleOpen(true)}
           onGrowthGraphOpen={() => {
             handleGrowthGraphOpen();
             setGrowthGraphOpen(true);
@@ -300,6 +303,12 @@ export function App() {
           sfxVolume={sfxVolume}
           onSfxVolumeChange={changeSfxVolume}
           onClose={() => setPassAnnouncementOpen(false)}
+        />
+      )}
+      {testScheduleOpen && (
+        <TestScheduleModal
+          streamers={passedStreamers ?? []}
+          onClose={() => setTestScheduleOpen(false)}
         />
       )}
       {photoBoothOpen && (
