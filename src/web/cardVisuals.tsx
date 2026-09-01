@@ -53,7 +53,7 @@ export function isStreamerFancyLite(
 }
 
 /** The lite tier washes the given color toward white so it barely reads as decoration. */
-function fancyCssVars(color: string, tier: "full" | "lite"): React.CSSProperties {
+export function fancyCssVars(color: string, tier: "full" | "lite"): React.CSSProperties {
   const tint = tier === "lite" ? mixHex(color, "white", 0.65) : color;
   return {
     "--fancy-color": tint,

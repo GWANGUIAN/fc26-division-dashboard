@@ -601,6 +601,8 @@ body { isolation: isolate; }
 /* box-shadow/outline painted on .fifa-card itself isn't clipped by its own
    overflow:hidden (only descendant content is), so the halo can safely glow
    past the card edge without a separate absolutely-positioned child. */
+.fifa-card--fancy { animation: fancy-ring-pulse 2.6s ease-in-out infinite; }
+.fifa-card--fancy-lite { animation-duration: 6s; }
 .fifa-card--savior { box-shadow: 0 0 0 2px var(--savior-color), 0 0 18px var(--savior-glow-strong); animation: savior-shield-halo 3.4s ease-in-out infinite; }
 
 .fifa-card__body { position: relative; z-index: 3; display: flex; flex-direction: column; height: 100%; padding: 8px 10px 10px; gap: 5px; }
@@ -666,6 +668,15 @@ body { isolation: isolate; }
    almost certainly why the photo kept disappearing across every previous
    fix: the sizing technique changed each time, but this rule never actually
    declared a display that makes width/height apply at all. */
+.fifa-card__photo-sparks { position: absolute; z-index: 3; inset: 0; pointer-events: none; }
+.fifa-card__photo-spark { position: absolute; color: var(--fancy-color); font-size: 12px; line-height: 1; font-style: normal; text-shadow: 0 0 6px var(--fancy-color), 0 0 12px var(--fancy-color); opacity: 0; animation: fancy-spark-twinkle 2.2s ease-in-out infinite; }
+.fifa-card__photo-spark--1 { top: 8%; left: 10%; animation-delay: 0s; animation-duration: 2.2s; }
+.fifa-card__photo-spark--2 { top: 14%; right: 12%; font-size: 10px; animation-delay: .8s; animation-duration: 2.6s; }
+.fifa-card__photo-spark--3 { bottom: 12%; left: 18%; font-size: 11px; animation-delay: 1.4s; animation-duration: 2s; }
+.fifa-card__photo-spark--4 { bottom: 20%; right: 8%; font-size: 13px; animation-delay: .5s; animation-duration: 2.4s; }
+.fifa-card__photo-spark--5 { top: 42%; left: 5%; font-size: 9px; animation-delay: 1.1s; animation-duration: 2.7s; }
+.fifa-card__photo-spark--6 { top: 6%; right: 32%; font-size: 10px; animation-delay: 1.8s; animation-duration: 2.1s; }
+.fifa-card__photo-sparks--lite .fifa-card__photo-spark { animation-duration: 4.8s !important; font-size: 8px !important; }
 .fifa-card__photo-fg { position: relative; z-index: 2; display: block; width: 100%; height: 100%; background-repeat: no-repeat; background-position: center; background-size: contain; }
 .fifa-card__sfx-badge { position: absolute; z-index: 3; right: 8px; bottom: 8px; width: 20px; height: 20px; padding: 3px; border-radius: 50%; color: #00e9ae; background: #04140f; box-shadow: 0 0 0 2px var(--surface-1); }
 .fifa-card__photo-fg .unmapped { position: absolute; z-index: 3; top: auto; right: auto; left: 8px; bottom: 8px; padding: 1px 5px; border-radius: 999px; color: #ffe4a6; background: #1a140acc; font-size: 9px; }
@@ -957,7 +968,8 @@ body { isolation: isolate; }
 [data-theme="light"] .view-toggle-card__spark,
 [data-theme="light"] .fancy-avatar__spark,
 [data-theme="light"] .fancy-burst__star,
-[data-theme="light"] .fancy-name__spark {
+[data-theme="light"] .fancy-name__spark,
+[data-theme="light"] .fifa-card__photo-spark {
   color: color-mix(in srgb, var(--fancy-color) 65%, #04140f);
 }
 [data-theme="light"] .squad-builder-rail__button,

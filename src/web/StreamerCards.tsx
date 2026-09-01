@@ -7,7 +7,10 @@ import { divisionColor } from "../shared/division-theme.js";
 import type { TrophyAwards } from "../shared/trophy.js";
 import {
   AchievementBadges,
+  fancyCssVars,
   fancyTierOf,
+  FANCY_LITE_SPARK_SLOTS,
+  FANCY_SPARK_SLOTS,
   FancyAvatar,
   FancyName,
   hexToRgba,
@@ -136,6 +139,8 @@ export function StreamerFifaCard({
   const rate = streamer.record ? winRatePercent(streamer.record) : undefined;
   const color = divisionColor(streamer.currentDivision);
   const savior = isStreamerSavior(streamer);
+  const tier = fancyTierOf(streamer);
+  const lite = tier === "lite";
   const lastPostLabel = streamer.lastPost
     ? formatBoardPostDate(streamer.lastPost.publishedAt)
     : "첫 보고 대기";
@@ -181,7 +186,7 @@ export function StreamerFifaCard({
   return (
     <button
       ref={cardRef}
-      className={`fifa-card fifa-card--holo ${tilt.active ? "fifa-card--active" : ""} ${savior ? "fifa-card--savior" : ""}`}
+      className={`fifa-card fifa-card--holo ${tilt.active ? "fifa-card--active" : ""} ${tier !== "none" ? "fifa-card--fancy" : ""} ${lite ? "fifa-card--fancy-lite" : ""} ${savior ? "fifa-card--savior" : ""}`}
       onClick={onOpen}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
@@ -190,6 +195,7 @@ export function StreamerFifaCard({
           "--division-color": color,
           "--division-color-soft": hexToRgba(color, 0.65),
           "--division-color-dark": mixHex(color, "black", 0.5),
+          ...(tier !== "none" ? fancyCssVars("#00e9ae", tier) : {}),
           ...(savior ? saviorCssVars() : {}),
           "--pointer-x": `${tilt.px}%`,
           "--pointer-y": `${tilt.py}%`,
@@ -245,6 +251,21 @@ export function StreamerFifaCard({
           />
           <span className="fifa-card__photo-sunburst" aria-hidden="true" />
           <span className="fifa-card__photo-fade" aria-hidden="true" />
+          {tier !== "none" && (
+            <span
+              className={`fifa-card__photo-sparks ${lite ? "fifa-card__photo-sparks--lite" : ""}`}
+              aria-hidden="true"
+            >
+              {(lite ? FANCY_LITE_SPARK_SLOTS : FANCY_SPARK_SLOTS).map((slot) => (
+                <i
+                  className={`fifa-card__photo-spark fifa-card__photo-spark--${slot}`}
+                  key={slot}
+                >
+                  ✦
+                </i>
+              ))}
+            </span>
+          )}
           <span
             className="fifa-card__photo-fg"
             style={{ backgroundImage: `url(${photoSrc})` }}
