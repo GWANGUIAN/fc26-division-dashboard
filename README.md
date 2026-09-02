@@ -1,40 +1,63 @@
 # 잰디 동아리 후보 대시보드
 
-왁물원 FC26 게시글을 수집해 잰디 동아리 후보의 디비전(1~10부), 활동글, 1:1 평가 신청·결과와 업적을 보여주는 대시보드입니다. 10부는 **시즌 미참여** 후보를 뜻합니다.
+왁물원(다음 카페) FC26 게시글을 자동 수집해, 스트리머 동아리 지원자들의 디비전(1~10부) 현황·활동 이력·1:1 평가·업적을 실시간으로 보여주는 대시보드입니다. AWS 서버리스 백엔드가 3분마다 새 글을 수집하고, Gemini Vision으로 전적 스크린샷을 자동 판독하며, 수집된 데이터를 근거로 AI가 스트리머별 한줄평을 생성합니다.
 
-새 세션에서 프로젝트를 빠르게 이어서 작업하려면 [프로젝트 인수인계 문서](docs/PROJECT_HANDOFF.md)를 먼저 읽어주세요. 데이터 흐름, 도메인 규칙, DynamoDB 스키마, 장애 대응, 변경 주의사항을 정리해 두었습니다.
+**배포 주소: [https://wakjandy.stream](https://wakjandy.stream/)**
 
-## 구성
+> 현재 카페 수집 Lambda(EventBridge Scheduler)는 운영상의 이유로 일시 중지된 상태이며, 아래 기능 설명은 정상 동작 시 기준입니다.
 
-- `src/web`: Cloudflare Workers Static Assets에 올릴 React/Vite 정적 대시보드
-- `src/worker.ts`: Reader Lambda 인증 프록시, 2분 Edge 캐시, `/healthz`, 정적 자산 캐시 호환 처리
-- `src/functions`: Lambda 수집기, 읽기 API, Git 기반 설정 동기화, 비용 안전장치
-- `src/shared`: 디비전 산정·별칭 매칭·1:1 판정·트로피·스냅샷 등 도메인 로직과 단위 테스트
-- `roster.yaml`: 카페 닉네임 ↔ SOOP ID/표시명 및 수동 보정의 유일한 관리 파일
-- `one-vs-one-results.yaml`: 신청 게시글 ID에 연결하는 1:1 평가 결과 관리 파일
-- `infrastructure`: EventBridge Scheduler, DynamoDB, ECR, Lambda, 로그, Budget 안전장치 Terraform
+## 주요 기능
 
-수집기는 3분마다 각 게시판의 첫 페이지부터 새 글을 확인합니다. 최초/야간 재조정(매일 03:00 KST)은 마지막 일반 글 페이지까지 이어서 읽습니다. 카페가 접근을 제한하거나 CAPTCHA를 표시하면 우회하지 않고 마지막 정상 데이터를 유지합니다.
+- **디비전 현황 대시보드**: 게시판 글을 파싱해 지원자별 현재 디비전을 자동 산정하고, 승급 이력을 타임라인으로 표시
+- **디비전 분포 히스토그램 / 성장 그래프**: 전체 지원자의 디비전 분포와 개인별 승급 추이를 시각화
+- **1:1 평가 신청·결과 관리**: 평가 신청 게시글과 결과를 자동 매칭해 목록으로 제공
+- **업적(트로피) 시스템**: 통산 전적·승급 이력 기반으로 지원자별 업적을 계산해 표시
+- **SOOP 실시간 방송 현황**: 지원자들의 SOOP(숲) 라이브 상태를 함께 노출
+- **미니게임 · 포토부스 · 스쿼드 빌더 · 합격 발표 연출** 등 대시보드를 즐길 수 있는 부가 인터랙션 다수
+- **닉네임 변경/오탈자에 강한 매칭**: 카페 닉네임 별칭(alias) 등록으로 작성자 표기가 달라져도 동일 인물로 추적
 
-## 로컬 실행
+### AI 기능 (Google Gemini)
 
-```powershell
-pnpm install
-pnpm typecheck
-pnpm test
-pnpm build
-pnpm dev
+- **전적 스크린샷 자동 판독 (Vision OCR)**: 지원자가 올린 게임 내 전적 화면 스크린샷을 Gemini Vision에 전달해, 통산 승/무/패를 자동으로 추출합니다. 시즌 중 기록·최근 폼(Form) 스트릭·방송 오버레이(얼굴캠, 채팅창 등)를 통산 기록과 구분하도록 프롬프트로 엄격히 제약했고, 전적 화면이 아니거나 값이 불확실하면 추출을 포기하도록 설계했습니다. ([record-extraction.ts](src/functions/record-extraction.ts))
+- **AI 한줄평 생성**: 지원자의 디비전, 통산 전적, 승급 이력, 1차 합격 여부, 전체 지원자 대비 위치를 컨텍스트로 구성해 Gemini에 전달하고, 순한맛(따뜻한 응원)·매운맛(예능감 있는 디스/극찬) 두 가지 톤의 한줄평을 JSON 스키마로 생성합니다. 프런트에서는 타이핑 애니메이션으로 노출됩니다. ([streamer-review.ts](src/functions/streamer-review.ts), [GeminiReviewSection.tsx](src/web/GeminiReviewSection.tsx))
+- 두 기능 모두 일시적 오류(429/503/504, 타임아웃)에 대비해 자동 재시도 로직을 갖추고 있습니다.
+
+## 아키텍처
+
+```
+EventBridge Scheduler (3분 주기 수집 / 매일 03:00 KST 야간 재조정)
+        │
+        ▼
+Scraper Lambda (Playwright로 Naver Café 수집 + Gemini Vision 전적 판독)
+        │
+        ▼
+DynamoDB (원본 게시글, 로스터, 오버라이드 설정, 수집 상태, 공개 스냅샷)
+        │
+        ▼
+Reader Lambda (인증된 읽기 전용 Function URL)
+        │
+        ▼
+Cloudflare Worker (/api/snapshot, 2분 Edge 캐시, 정적 자산 서빙)
+        │
+        ▼
+React 19 + Vite 정적 대시보드 (브라우저)
+
+GitHub push (roster.yaml 등 YAML) → Config Sync Lambda → DynamoDB 설정 갱신
 ```
 
-`VITE_DATA_API_URL`을 지정하지 않으면 실제 UI 검증을 위한 데모 데이터가 표시됩니다. 운영 빌드에서는 이 값을 설정하지 마세요. 프런트는 같은 출처의 Cloudflare Worker `/api/snapshot`을 통해 인증된 Reader Lambda 데이터를 받습니다.
+- **프런트엔드**: `src/web` — React 19 + Vite, Cloudflare Workers Static Assets로 배포
+- **엣지**: `src/worker.ts` — Reader Lambda 인증 프록시, 2분 Edge 캐시, `/healthz`
+- **백엔드**: `src/functions` — Lambda 수집기(Playwright), 읽기 API, Git 기반 설정 동기화, 비용 안전장치
+- **도메인 로직**: `src/shared` — 디비전 산정·별칭 매칭·1:1 판정·업적·스냅샷 등 (단위 테스트 포함)
+- **인프라**: `infrastructure` — EventBridge Scheduler, DynamoDB, ECR, Lambda, Budget 안전장치 (Terraform)
 
-Lambda 번들만 별도로 확인할 때는 다음을 실행합니다.
+## 기술 스택
 
-```powershell
-pnpm build:lambda
-```
+`TypeScript` `React 19` `Vite` `Cloudflare Workers` `AWS Lambda (컨테이너)` `DynamoDB` `EventBridge Scheduler` `Terraform` `Playwright` `Google Gemini (@google/genai)` `Vitest`
 
 ## 로스터 관리
+
+수집기는 3분마다 각 게시판의 첫 페이지부터 새 글을 확인합니다. 최초/야간 재조정(매일 03:00 KST)은 마지막 일반 글 페이지까지 이어서 읽습니다. 카페가 접근을 제한하거나 CAPTCHA를 표시하면 우회하지 않고 마지막 정상 데이터를 유지합니다.
 
 `roster.yaml`의 `cafeAliases`에는 카페에 실제로 보이는 작성자명을 넣습니다. 공백 차이는 자동으로 무시합니다.
 
@@ -82,12 +105,30 @@ pnpm sync:collabot-live -- --xlsx collabot-export.xlsx --dry-run
 
 **필요한 GitHub Secrets** (Settings → Secrets and variables → Actions):
 
-- `MAIL_USERNAME` / `MAIL_PASSWORD`: 발신용 Gmail 주소와 앱 비밀번호(로그인 비밀번호 아님). 변경사항이 있거나 안전장치가 발동했을 때 `bbaa3218@gmail.com`으로 결과를 메일로 보냅니다.
+- `MAIL_USERNAME` / `MAIL_PASSWORD`: 발신용 Gmail 주소와 앱 비밀번호(로그인 비밀번호 아님). 변경사항이 있거나 안전장치가 발동했을 때 결과를 메일로 보냅니다.
 - `ROSTER_AUTOSYNC_TOKEN`: 이 저장소 전용 fine-grained PAT(Contents: Read and write 권한만). 기본 `GITHUB_TOKEN`으로 push하면 다른 워크플로(`sync-roster.yml`)가 자동으로 트리거되지 않는 GitHub 정책 때문에 필요합니다.
 
 **안전장치**: 새로 가져온 신청자 수가 0명이거나 현재 roster의 절반 미만이면 동기화 전체를 중단하고 `roster.yaml`을 건드리지 않습니다 — CollaBot 페이지 로딩 실패를 "다들 신청을 취소함"으로 오인해 로스터를 지우는 사고를 막기 위함입니다. 이 경우에도 이상 상황을 알리는 메일이 발송됩니다. 임계값은 워크플로의 `MIN_LIVE_APPLICANT_RATIO` 환경변수(기본 `0.5`)로 조정합니다.
 
 현재는 `workflow_dispatch`(수동 실행, `dry_run` 입력 기본 `true`)만 등록되어 있습니다. Actions 탭에서 실행해 로그와 커밋·메일을 확인한 뒤에만 `schedule: - cron: "0 0 * * *"`(09:00 KST)을 추가해 매일 자동 실행하도록 합니다.
+
+## 로컬 실행
+
+```powershell
+pnpm install
+pnpm typecheck
+pnpm test
+pnpm build
+pnpm dev
+```
+
+`VITE_DATA_API_URL`을 지정하지 않으면 실제 UI 검증을 위한 데모 데이터가 표시됩니다. 운영 빌드에서는 이 값을 설정하지 마세요. 프런트는 같은 출처의 Cloudflare Worker `/api/snapshot`을 통해 인증된 Reader Lambda 데이터를 받습니다.
+
+Lambda 번들만 별도로 확인할 때는 다음을 실행합니다.
+
+```powershell
+pnpm build:lambda
+```
 
 ## AWS 배포
 
@@ -147,3 +188,7 @@ aws budgets describe-budgets --account-id (aws sts get-caller-identity --query A
 ```
 
 이 안전장치는 추가 Budget을 만들며, 기존 Budget을 수정하거나 삭제하지 않습니다. 한도 초과 뒤 재개하려면 Budget 상태를 해제한 뒤 EventBridge Scheduler 두 개를 다시 활성화합니다.
+
+## 더 읽어보기
+
+새 세션에서 프로젝트를 빠르게 이어서 작업하려면 [프로젝트 인수인계 문서](docs/PROJECT_HANDOFF.md)를 참고하세요. 데이터 흐름, 도메인 규칙, DynamoDB 스키마, 장애 대응, 변경 주의사항을 정리해 두었습니다.
