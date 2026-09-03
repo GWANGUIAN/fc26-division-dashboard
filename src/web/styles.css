@@ -205,7 +205,11 @@ body { isolation: isolate; }
 .test-schedule-toggle svg { width: 14px; height: 14px; stroke-width: 2.6; }
 .test-schedule__title { display: flex; align-items: center; gap: 9px; font: 800 34px/1 "Barlow Condensed", "Noto Sans KR"; }
 .test-schedule__title svg { color: #00e9ae; }
-.test-schedule__date-tabs { display: inline-flex; margin-top: 16px; }
+.test-schedule__tabs-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 16px; }
+.test-schedule__date-tabs { display: inline-flex; margin-top: 0; }
+.test-schedule__view-tabs { display: inline-flex; margin-top: 0; }
+.test-schedule__view-tabs button { display: inline-flex; align-items: center; gap: 6px; }
+.test-schedule__view-tabs svg { width: 13px; height: 13px; stroke-width: 2.6; }
 .test-schedule__teams { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 4px; }
 .test-schedule__team { border: 1px solid var(--border-default); background: var(--surface-1); }
 .test-schedule__team-label { margin: 0; padding: 10px 14px; border-bottom: 1px solid var(--border-default); color: var(--accent-text); font: 800 15px "Barlow Condensed", "Noto Sans KR"; letter-spacing: .02em; }
@@ -218,6 +222,45 @@ body { isolation: isolate; }
 .test-schedule__slot-name { overflow: hidden; flex: 1 1 auto; min-width: 0; color: var(--text-primary); font-size: 13px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
 .test-schedule__slot--vacant .test-schedule__slot-name { color: var(--text-muted); font-weight: 500; }
 @media (max-width: 680px) { .test-schedule__teams { grid-template-columns: 1fr; } }
+
+/* --- 2차 테스트 포메이션(피치) 뷰 --- */
+.test-pitch { position: relative; width: 100%; max-width: 820px; margin: 40px auto 0; aspect-ratio: 105 / 82; border-radius: 4px; background: repeating-linear-gradient(90deg, #1c8a4c 0, #1c8a4c 8%, #17793f 8%, #17793f 16%); box-shadow: 0 20px 60px rgba(var(--shadow-color), .5), inset 0 0 0 1px var(--border-default); container-type: inline-size; overflow: visible; }
+.test-pitch__markings { position: absolute; inset: 0; width: 100%; height: 100%; color: #ffffff75; border-radius: 4px; overflow: hidden; }
+.test-pitch__team-tag { position: absolute; left: 10px; z-index: 1; padding: 3px 9px; border-radius: 3px; background: #00000075; color: #fff; font: 800 12px "Barlow Condensed", "Noto Sans KR"; letter-spacing: .04em; }
+.test-pitch__team-tag--bottom { bottom: 8px; }
+.test-pitch__team-tag--top { top: 8px; }
+
+.test-pitch-card { position: absolute; z-index: 2; display: flex; width: 15%; max-width: 96px; flex-direction: column; align-items: center; transform: translate(-50%, -50%); }
+.test-pitch-card__button { display: flex; width: 100%; flex-direction: column; align-items: center; gap: 3px; padding: 4px 2px 6px; border: 0; border-radius: 6px; color: inherit; background: transparent; cursor: pointer; transition: background .15s; }
+.test-pitch-card__button:hover, .test-pitch-card__button[aria-expanded="true"] { background: #ffffff1f; }
+.test-pitch-card .avatar { width: clamp(26px, 7.5cqw, 40px); height: clamp(26px, 7.5cqw, 40px); flex-basis: auto; border: 2px solid #ffffffc0; }
+.test-pitch-card__vacant-avatar { border: 2px dashed #ffffffa0; background: #00000030; color: #ffffffc0; }
+.test-pitch-card--vacant .test-pitch-card__name { color: #ffffffb5; font-weight: 500; }
+.test-pitch-card__name { max-width: 100%; overflow: hidden; padding: 1px 6px; border-radius: 3px; background: #00000075; color: #fff; font-size: 10.5px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.test-pitch-card .position-tag { font-size: 9.5px; padding: 0 5px; }
+@media (max-width: 680px) { .test-pitch-card { width: 19%; } }
+
+.test-pitch-menu__panel { z-index: 95; display: flex; overflow: hidden; flex-direction: column; width: min(300px, 90vw); max-height: min(70vh, 520px); border: 1px solid #00e9ae62; border-radius: 8px; background: linear-gradient(150deg, var(--surface-3), var(--surface-3-alt) 60%); box-shadow: 0 20px 60px rgba(var(--shadow-color), .62); }
+.test-pitch-menu__actions { display: flex; flex-direction: column; padding: 6px; border-bottom: 1px solid var(--border-default); }
+.test-pitch-menu__action { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 0; border-radius: 5px; color: var(--text-primary); background: transparent; font-size: 12px; font-weight: 700; text-align: left; cursor: pointer; }
+.test-pitch-menu__action:hover { background: #00e9ae14; }
+.test-pitch-menu__action svg { width: 14px; height: 14px; flex: 0 0 14px; }
+.test-pitch-menu__action--danger { color: #ff8a94; }
+.test-pitch-menu__search { display: flex; flex: 0 0 auto; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--border-default); }
+.test-pitch-menu__search svg { width: 14px; height: 14px; color: var(--text-muted); }
+.test-pitch-menu__search input { flex: 1 1 auto; border: 0; color: var(--text-primary); background: transparent; font-size: 12px; }
+.test-pitch-menu__search input:focus { outline: 0; }
+.test-pitch-menu__list { overflow-y: auto; scrollbar-width: thin; scrollbar-color: #00e9ae8a var(--scrollbar-track); }
+.test-pitch-menu__list::-webkit-scrollbar { width: 8px; }
+.test-pitch-menu__list::-webkit-scrollbar-track { border-left: 1px solid #ffffff0e; background: var(--scrollbar-track); }
+.test-pitch-menu__list::-webkit-scrollbar-thumb { border: 2px solid var(--scrollbar-track); border-radius: 999px; background: linear-gradient(#00e9ae, #00a8bd); box-shadow: 0 0 10px #00e9ae70; }
+.test-pitch-menu__row { display: flex; width: 100%; align-items: center; gap: 9px; padding: 8px 14px; border: 0; border-top: 1px solid var(--border-faint); color: var(--text-primary); background: transparent; font-size: 12px; text-align: left; cursor: pointer; }
+.test-pitch-menu__row:first-child { border-top: 0; }
+.test-pitch-menu__row:hover { background: #00e9ae0d; }
+.test-pitch-menu__row--selected { color: var(--accent-text); background: #00e9ae1f; font-weight: 700; }
+.test-pitch-menu__row .avatar { width: 24px; height: 24px; flex-basis: 24px; }
+.test-pitch-menu__name { overflow: hidden; flex: 1 1 auto; min-width: 0; text-overflow: ellipsis; white-space: nowrap; }
+.test-pitch-menu__empty { margin: 0; padding: 16px 14px; color: var(--text-muted); font-size: 12px; text-align: center; }
 .trophy-modal__intro { margin: 10px 0 0; color: var(--text-muted); font-size: 12px; }
 .trophy-modal__note { margin: 4px 0 0; color: var(--text-muted); font-size: 11px; }
 .trophy-awards { display: grid; gap: 12px; padding-top: 20px; }

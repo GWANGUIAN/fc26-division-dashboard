@@ -1,31 +1,15 @@
 import { useState } from "react";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, LayoutList, Shirt } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
-import {
-  POSITION_GROUP_LABELS,
-  positionColor,
-  positionGroupOf,
-} from "../shared/position-theme.js";
 import { Avatar } from "./cardVisuals";
 import { Modal, useEscape } from "./Modal";
+import { AssignedPositionTag } from "./PositionTag";
+import { TestSchedulePitch } from "./TestSchedulePitch";
 import {
   nearestScheduleDateIndex,
   TEST_SCHEDULE,
   type TestScheduleSlot,
 } from "./testScheduleData";
-
-function AssignedPositionTag({ code }: { code: string }) {
-  const group = positionGroupOf(code);
-  return (
-    <span
-      className="position-tag"
-      style={{ "--position-color": positionColor(code) } as React.CSSProperties}
-      title={group ? POSITION_GROUP_LABELS[group] : undefined}
-    >
-      {code}
-    </span>
-  );
-}
 
 function TestScheduleSlotRow({
   slot,
@@ -67,6 +51,7 @@ export function TestScheduleModal({
   const [dateIndex, setDateIndex] = useState(() =>
     nearestScheduleDateIndex(TEST_SCHEDULE),
   );
+  const [view, setView] = useState<"list" | "pitch">("list");
   const streamerById = new Map(
     streamers.map((streamer) => [streamer.id, streamer]),
   );
@@ -83,40 +68,65 @@ export function TestScheduleModal({
           <h2 className="test-schedule__title">
             <CalendarDays aria-hidden="true" /> 2차 테스트 일정
           </h2>
-          <div className="segmented test-schedule__date-tabs">
-            {TEST_SCHEDULE.map((entry, index) => (
+          <div className="test-schedule__tabs-row">
+            <div className="segmented test-schedule__date-tabs">
+              {TEST_SCHEDULE.map((entry, index) => (
+                <button
+                  key={entry.date}
+                  className={index === dateIndex ? "active" : ""}
+                  onClick={() => setDateIndex(index)}
+                >
+                  {entry.date}
+                </button>
+              ))}
+            </div>
+            <div className="segmented test-schedule__view-tabs">
               <button
-                key={entry.date}
-                className={index === dateIndex ? "active" : ""}
-                onClick={() => setDateIndex(index)}
+                className={view === "list" ? "active" : ""}
+                onClick={() => setView("list")}
               >
-                {entry.date}
+                <LayoutList aria-hidden="true" /> 리스트
               </button>
-            ))}
+              <button
+                className={view === "pitch" ? "active" : ""}
+                onClick={() => setView("pitch")}
+              >
+                <Shirt aria-hidden="true" /> 포메이션
+              </button>
+            </div>
           </div>
         </div>
       }
     >
-      <div className="test-schedule__teams">
-        {selected.teams.map((team) => (
-          <section className="test-schedule__team" key={team.label}>
-            <h3 className="test-schedule__team-label">{team.label}</h3>
-            <ul className="test-schedule__slots">
-              {team.slots.map((slot, index) => (
-                <TestScheduleSlotRow
-                  key={index}
-                  slot={slot}
-                  streamer={
-                    slot.streamerId
-                      ? streamerById.get(slot.streamerId)
-                      : undefined
-                  }
-                />
-              ))}
-            </ul>
-          </section>
-        ))}
-      </div>
+      {view === "pitch" ? (
+        <TestSchedulePitch
+          teams={selected.teams}
+          dateIso={selected.isoDate}
+          streamers={streamers}
+          streamerById={streamerById}
+        />
+      ) : (
+        <div className="test-schedule__teams">
+          {selected.teams.map((team) => (
+            <section className="test-schedule__team" key={team.label}>
+              <h3 className="test-schedule__team-label">{team.label}</h3>
+              <ul className="test-schedule__slots">
+                {team.slots.map((slot, index) => (
+                  <TestScheduleSlotRow
+                    key={index}
+                    slot={slot}
+                    streamer={
+                      slot.streamerId
+                        ? streamerById.get(slot.streamerId)
+                        : undefined
+                    }
+                  />
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
+      )}
     </Modal>
   );
 }

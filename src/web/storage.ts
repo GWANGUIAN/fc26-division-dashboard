@@ -236,6 +236,33 @@ export function saveKickupsSfxEnabled(enabled: boolean) {
 
 const FREEKICK_HIGH_SCORE_KEY = "fc26-freekick-highscore";
 
+const TEST_SCHEDULE_PITCH_ASSIGNMENTS_KEY = "fc26-test-schedule-pitch-assignments";
+
+/** Keyed by pitch slot key (`${dateIso}__${teamLabel}__${index}`). `null` explicitly vacates a slot that the base roster data fills; a streamer id assigns/replaces. Absent keys fall back to the base roster data. */
+export type TestSchedulePitchAssignments = Record<string, string | null>;
+
+export function loadTestSchedulePitchAssignments(): TestSchedulePitchAssignments {
+  try {
+    const raw = localStorage.getItem(TEST_SCHEDULE_PITCH_ASSIGNMENTS_KEY);
+    return raw ? (JSON.parse(raw) as TestSchedulePitchAssignments) : {};
+  } catch {
+    return {};
+  }
+}
+
+export function saveTestSchedulePitchAssignments(
+  assignments: TestSchedulePitchAssignments,
+) {
+  try {
+    localStorage.setItem(
+      TEST_SCHEDULE_PITCH_ASSIGNMENTS_KEY,
+      JSON.stringify(assignments),
+    );
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
+
 export function loadFreekickHighScore(): number {
   try {
     const raw = localStorage.getItem(FREEKICK_HIGH_SCORE_KEY);

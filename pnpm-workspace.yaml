@@ -2,3 +2,18 @@ allowBuilds:
   esbuild: true
   sharp: true
   workerd: true
+
+overrides:
+  # asciify-image (devDependency, used only by scripts/generate-ascii-art.mjs)
+  # bundles an old, unmaintained `request` client. request's own SSRF advisory
+  # has no upstream fix, but the script never lets asciify-image fetch a URL
+  # itself (images are fetched with native fetch() and handed in as buffers),
+  # so pin its patchable sub-dependencies to closed CVEs.
+  form-data: ">=2.5.6"
+  tough-cookie: ">=4.1.3"
+  qs: ">=6.14.1"
+  uuid: ">=11.1.1"
+  file-type: ">=21.3.1"
+  # @google/genai (runtime dependency) pulls in ws for its live/streaming
+  # client; pin to the patched release.
+  ws: ">=8.21.0"
