@@ -94,9 +94,6 @@ export function App() {
   const {
     viewMode,
     setViewMode,
-    cardViewDiscovered,
-    growthGraphDiscovered,
-    handleGrowthGraphOpen,
     sortMode,
     setSortMode,
     cardZoom,
@@ -209,8 +206,6 @@ export function App() {
           excludedNames={excludedNames}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
-          cardViewDiscovered={cardViewDiscovered}
-          growthGraphDiscovered={growthGraphDiscovered}
           cardZoom={cardZoom}
           onZoomIn={handleZoomIn}
           onZoomOut={handleZoomOut}
@@ -219,10 +214,7 @@ export function App() {
           onSquadBuilderOpen={() => setSquadBuilderOpen(true)}
           onPassAnnouncementOpen={() => setPassAnnouncementOpen(true)}
           onTestScheduleOpen={() => setTestScheduleOpen(true)}
-          onGrowthGraphOpen={() => {
-            handleGrowthGraphOpen();
-            setGrowthGraphOpen(true);
-          }}
+          onGrowthGraphOpen={() => setGrowthGraphOpen(true)}
           onRefresh={refreshSnapshot}
           refreshing={snapshotLoading}
         />

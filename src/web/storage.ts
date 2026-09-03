@@ -31,9 +31,6 @@ export const SEEN_UPDATES_STORAGE_KEY = "fc26-seen-updates";
 export const SFX_ENABLED_STORAGE_KEY = "fc26-sfx-enabled";
 export const SFX_VOLUME_STORAGE_KEY = "fc26-sfx-volume";
 const SFX_HEARD_STORAGE_KEY = "fc26-sfx-heard";
-const CARD_VIEW_DISCOVERED_STORAGE_KEY = "fc26-card-view-discovered";
-const GROWTH_GRAPH_DISCOVERED_STORAGE_KEY = "fc26-growth-graph-discovered";
-const GROWTH_PICKER_DISCOVERED_STORAGE_KEY = "fc26-growth-picker-discovered";
 const PHOTO_BOOTH_DISCOVERED_STORAGE_KEY = "fc26-photo-booth-discovered";
 const VIEW_MODE_STORAGE_KEY = "fc26-view-mode";
 const FIRST_ROUND_HIDDEN_COLLAPSED_STORAGE_KEY = "fc26-first-round-hidden-collapsed";
@@ -350,54 +347,6 @@ export function hasHeardSfx(): boolean {
 export function markSfxHeard() {
   try {
     localStorage.setItem(SFX_HEARD_STORAGE_KEY, "1");
-  } catch {
-    // ignore storage failures (e.g. private browsing)
-  }
-}
-
-export function hasDiscoveredCardView(): boolean {
-  try {
-    return localStorage.getItem(CARD_VIEW_DISCOVERED_STORAGE_KEY) === "1";
-  } catch {
-    return true;
-  }
-}
-
-export function markCardViewDiscovered() {
-  try {
-    localStorage.setItem(CARD_VIEW_DISCOVERED_STORAGE_KEY, "1");
-  } catch {
-    // ignore storage failures (e.g. private browsing)
-  }
-}
-
-export function hasDiscoveredGrowthGraph(): boolean {
-  try {
-    return localStorage.getItem(GROWTH_GRAPH_DISCOVERED_STORAGE_KEY) === "1";
-  } catch {
-    return true;
-  }
-}
-
-export function markGrowthGraphDiscovered() {
-  try {
-    localStorage.setItem(GROWTH_GRAPH_DISCOVERED_STORAGE_KEY, "1");
-  } catch {
-    // ignore storage failures (e.g. private browsing)
-  }
-}
-
-export function hasDiscoveredGrowthPicker(): boolean {
-  try {
-    return localStorage.getItem(GROWTH_PICKER_DISCOVERED_STORAGE_KEY) === "1";
-  } catch {
-    return true;
-  }
-}
-
-export function markGrowthPickerDiscovered() {
-  try {
-    localStorage.setItem(GROWTH_PICKER_DISCOVERED_STORAGE_KEY, "1");
   } catch {
     // ignore storage failures (e.g. private browsing)
   }

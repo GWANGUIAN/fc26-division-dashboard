@@ -3,8 +3,7 @@ import { createPortal } from "react-dom";
 import { ChevronDown, Search, Users } from "lucide-react";
 import type { GrowthSeries } from "../shared/growth-series.js";
 import { searchable } from "../shared/search.js";
-import { Avatar, hexToRgba } from "./cardVisuals";
-import { hasDiscoveredGrowthPicker, markGrowthPickerDiscovered } from "./storage";
+import { Avatar } from "./cardVisuals";
 
 export function GrowthStreamerPicker({
   series,
@@ -18,17 +17,8 @@ export function GrowthStreamerPicker({
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [anchor, setAnchor] = useState<{ top: number; right: number }>();
-  const [discovered, setDiscovered] = useState(() => hasDiscoveredGrowthPicker());
   const toggleRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-
-  function handleToggleOpen() {
-    setIsOpen((current) => !current);
-    if (!discovered) {
-      markGrowthPickerDiscovered();
-      setDiscovered(true);
-    }
-  }
 
   function updateAnchor() {
     const rect = toggleRef.current?.getBoundingClientRect();
@@ -78,32 +68,14 @@ export function GrowthStreamerPicker({
       <button
         type="button"
         ref={toggleRef}
-        className={`growth-picker__toggle ${discovered ? "" : "fancy-border view-toggle-card--attention"}`}
-        onClick={handleToggleOpen}
+        className="growth-picker__toggle"
+        onClick={() => setIsOpen((current) => !current)}
         aria-expanded={isOpen}
         aria-label="표시할 인원 선택"
-        style={
-          discovered
-            ? undefined
-            : ({
-                "--fancy-color": "#00e9ae",
-                "--fancy-glow-soft": hexToRgba("#00e9ae", 0.4),
-                "--fancy-glow-strong": hexToRgba("#00e9ae", 0.85),
-              } as React.CSSProperties)
-        }
       >
         <Users aria-hidden="true" />
         <span>{selectedIds.length}명 선택됨</span>
         <ChevronDown aria-hidden="true" className="growth-picker__chevron" />
-        {!discovered && (
-          <span className="view-toggle-card__sparks" aria-hidden="true">
-            <i className="view-toggle-card__spark view-toggle-card__spark--1">✦</i>
-            <i className="view-toggle-card__spark view-toggle-card__spark--2">✦</i>
-            <i className="view-toggle-card__spark view-toggle-card__spark--3">✦</i>
-            <i className="view-toggle-card__spark view-toggle-card__spark--4">✦</i>
-            <i className="view-toggle-card__spark view-toggle-card__spark--5">✦</i>
-          </span>
-        )}
       </button>
       {isOpen &&
         anchor &&

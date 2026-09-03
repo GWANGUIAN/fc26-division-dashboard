@@ -1,6 +1,5 @@
 import { BadgeCheck, CalendarDays, CirclePile, List, Minus, Plus, RefreshCw, Rows3, Shield, TrendingUp } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
-import { hexToRgba } from "./cardVisuals";
 import { DivisionHistogram } from "./DivisionHistogram";
 import { CARD_ZOOM_MAX, CARD_ZOOM_MIN } from "./storage";
 
@@ -10,8 +9,6 @@ export function ViewToolbar({
   excludedNames,
   viewMode,
   onViewModeChange,
-  cardViewDiscovered,
-  growthGraphDiscovered,
   cardZoom,
   onZoomIn,
   onZoomOut,
@@ -35,8 +32,6 @@ export function ViewToolbar({
   excludedNames: string[];
   viewMode: "list" | "table" | "card";
   onViewModeChange: (mode: "list" | "table" | "card") => void;
-  cardViewDiscovered: boolean;
-  growthGraphDiscovered: boolean;
   cardZoom: number;
   onZoomIn: () => void;
   onZoomOut: () => void;
@@ -96,43 +91,11 @@ export function ViewToolbar({
           />
           <button
             type="button"
-            className={`growth-graph-toggle ${
-              growthGraphDiscovered
-                ? ""
-                : "fancy-border view-toggle-card--attention"
-            }`}
+            className="growth-graph-toggle"
             onClick={onGrowthGraphOpen}
             aria-label="디비전 성장 그래프 보기"
-            style={
-              growthGraphDiscovered
-                ? undefined
-                : ({
-                    "--fancy-color": "#ffb454",
-                    "--fancy-glow-soft": hexToRgba("#ffb454", 0.4),
-                    "--fancy-glow-strong": hexToRgba("#ffb454", 0.85),
-                  } as React.CSSProperties)
-            }
           >
             <TrendingUp aria-hidden="true" /> <span>성장 그래프</span>
-            {!growthGraphDiscovered && (
-              <span className="view-toggle-card__sparks" aria-hidden="true">
-                <i className="view-toggle-card__spark view-toggle-card__spark--1">
-                  ✦
-                </i>
-                <i className="view-toggle-card__spark view-toggle-card__spark--2">
-                  ✦
-                </i>
-                <i className="view-toggle-card__spark view-toggle-card__spark--3">
-                  ✦
-                </i>
-                <i className="view-toggle-card__spark view-toggle-card__spark--4">
-                  ✦
-                </i>
-                <i className="view-toggle-card__spark view-toggle-card__spark--5">
-                  ✦
-                </i>
-              </span>
-            )}
           </button>
         </div>
       </div>
@@ -217,40 +180,12 @@ export function ViewToolbar({
           <button
             className={`segmented__card-view-toggle ${
               viewMode === "card" ? "active" : ""
-            } ${cardViewDiscovered ? "" : "fancy-border view-toggle-card--attention"}`}
+            }`}
             onClick={() => onViewModeChange("card")}
             aria-pressed={viewMode === "card"}
-            style={
-              cardViewDiscovered
-                ? undefined
-                : ({
-                    "--fancy-color": "#00e9ae",
-                    "--fancy-glow-soft": hexToRgba("#00e9ae", 0.4),
-                    "--fancy-glow-strong": hexToRgba("#00e9ae", 0.85),
-                  } as React.CSSProperties)
-            }
           >
             <Shield aria-hidden="true" />
             <span>카드뷰로 보기</span>
-            {!cardViewDiscovered && (
-              <span className="view-toggle-card__sparks" aria-hidden="true">
-                <i className="view-toggle-card__spark view-toggle-card__spark--1">
-                  ✦
-                </i>
-                <i className="view-toggle-card__spark view-toggle-card__spark--2">
-                  ✦
-                </i>
-                <i className="view-toggle-card__spark view-toggle-card__spark--3">
-                  ✦
-                </i>
-                <i className="view-toggle-card__spark view-toggle-card__spark--4">
-                  ✦
-                </i>
-                <i className="view-toggle-card__spark view-toggle-card__spark--5">
-                  ✦
-                </i>
-              </span>
-            )}
           </button>
         </div>
         <button
