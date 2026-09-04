@@ -44,8 +44,14 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
   hobal115end: {
     notes: ["오프더볼 좋음. 로빙스로도 장착.", "잘 풀리는 경기데이터 부족"],
   }, // 호발☆
+  sircharlee: {
+    notes: [
+      "위치 선정이 애매함..",
+      "뭔가 열심히 극 수비적으로 하긴하는데 막 크게 도움은 안되는 느낌스.",
+      "커버 가능. 조금 과한 커버성향.",
+    ],
+  }, // 찰리씨
   haepalin: { notes: [] }, // 해파린~
-  sircharlee: { notes: [] }, // 찰리씨
   nsnowthemoon: { notes: [] }, // 설빈달
   kur0ch4t: { notes: [] }, // 쿠로샤
   y0unggam: { notes: [] }, // 영감__
@@ -57,7 +63,9 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
   ttu0221: { notes: [] }, // 흠냥b
 };
 
-export function getWakgoodNote(streamerId: string): WakgoodNoteEntry | undefined {
+export function getWakgoodNote(
+  streamerId: string,
+): WakgoodNoteEntry | undefined {
   return WAKGOOD_NOTES[streamerId];
 }
 
