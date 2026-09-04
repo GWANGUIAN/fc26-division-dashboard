@@ -18,6 +18,14 @@ export const WAKGOOD_NOTES: Record<string, string[]> = {
   tleod1818: ["초보."], // 빙밍_
   janine95kim: ["(넘어감)"], // 재닌
   been11060: ["오프더볼 낫배드", "로빙스루 없음"], // 오구
+  lina0108: [
+    "오버래핑 오프더볼 좋음",
+    "볼배급 괜찮은데 너무 약하게 참",
+    "전방 수비 리슼느 너무큼. 양학 용.",
+    "화면에 자기 캐릭터 없을때 위치선정 못함.",
+    "역습에 뒷공간 다털림.",
+    "그럼에도 불구하고 흥미로운 선수",
+  ], // 리냐_LINYA
   haepalin: [], // 해파린~
   sircharlee: [], // 찰리씨
   nsnowthemoon: [], // 설빈달
@@ -30,7 +38,6 @@ export const WAKGOOD_NOTES: Record<string, string[]> = {
   kirababy2: [], // 유키라
   dokkhye0000: [], // 독고혜지
   ttu0221: [], // 흠냥b
-  lina0108: [], // 리냐_LINYA
 };
 
 export function getWakgoodNotes(streamerId: string): string[] | undefined {
