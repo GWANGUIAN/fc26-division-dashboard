@@ -53,6 +53,7 @@ function TestPitchCard({
   onAssign,
   onVacate,
   onSwap,
+  locked,
 }: {
   view: PitchSlotView;
   streamer?: StreamerRecord;
@@ -61,6 +62,7 @@ function TestPitchCard({
   onAssign: (id: string) => void;
   onVacate: () => void;
   onSwap: () => void;
+  locked?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -113,34 +115,47 @@ function TestPitchCard({
     setIsOpen(false);
   }
 
+  const cardContent = (
+    <>
+      {streamer ? (
+        <Avatar
+          profileImageUrl={streamer.profileImageUrl}
+          soopId={streamer.soopId}
+          displayName={streamer.displayName}
+        />
+      ) : (
+        <span className="avatar avatar-fallback test-pitch-card__vacant-avatar" aria-hidden="true">
+          ?
+        </span>
+      )}
+      <span className="test-pitch-card__name">{streamer?.displayName ?? "대기인원"}</span>
+      <AssignedPositionTag code={view.position} />
+    </>
+  );
+
   return (
     <div
       className={`test-pitch-card ${streamer ? "" : "test-pitch-card--vacant"}`}
       style={{ left: `${view.xPct}%`, top: `${view.yPct}%` }}
     >
-      <button
-        type="button"
-        ref={toggleRef}
-        className="test-pitch-card__button"
-        onClick={handleOpen}
-        aria-expanded={isOpen}
-        aria-label={`${view.position} 자리 편성`}
-      >
-        {streamer ? (
-          <Avatar
-            profileImageUrl={streamer.profileImageUrl}
-            soopId={streamer.soopId}
-            displayName={streamer.displayName}
-          />
-        ) : (
-          <span className="avatar avatar-fallback test-pitch-card__vacant-avatar" aria-hidden="true">
-            ?
-          </span>
-        )}
-        <span className="test-pitch-card__name">{streamer?.displayName ?? "대기인원"}</span>
-        <AssignedPositionTag code={view.position} />
-      </button>
-      {isOpen &&
+      {locked ? (
+        <div className="test-pitch-card__button test-pitch-card__button--locked">
+          {cardContent}
+        </div>
+      ) : (
+        <button
+          type="button"
+          ref={toggleRef}
+          className="test-pitch-card__button"
+          onClick={handleOpen}
+          aria-expanded={isOpen}
+          aria-label={`${view.position} 자리 편성`}
+        >
+          {cardContent}
+        </button>
+      )}
+      {!locked &&
+        isOpen &&
         anchor &&
         createPortal(
           <section
@@ -208,11 +223,13 @@ export function TestSchedulePitch({
   dateIso,
   streamers,
   streamerById,
+  locked,
 }: {
   teams: TestScheduleTeam[];
   dateIso: string;
   streamers: StreamerRecord[];
   streamerById: Map<string, StreamerRecord>;
+  locked?: boolean;
 }) {
   const [assignments, setAssignments] = useState<TestSchedulePitchAssignments>(
     loadTestSchedulePitchAssignments,
@@ -254,9 +271,15 @@ export function TestSchedulePitch({
       {teams[0] && <span className="test-pitch__team-tag test-pitch__team-tag--bottom">{teams[0].label}</span>}
       {teams[1] && <span className="test-pitch__team-tag test-pitch__team-tag--top">{teams[1].label}</span>}
       {allSlots.map((view) => {
-        const streamerId = effectiveStreamerId(assignments, view);
+        const streamerId = locked
+          ? view.baseStreamerId
+          : effectiveStreamerId(assignments, view);
         const mirror = view.mirrorKey ? slotByKey.get(view.mirrorKey) : undefined;
-        const mirrorStreamerId = mirror ? effectiveStreamerId(assignments, mirror) : undefined;
+        const mirrorStreamerId = mirror
+          ? locked
+            ? mirror.baseStreamerId
+            : effectiveStreamerId(assignments, mirror)
+          : undefined;
         return (
           <TestPitchCard
             key={view.key}
@@ -267,6 +290,7 @@ export function TestSchedulePitch({
             onAssign={(id) => assign(view.key, id)}
             onVacate={() => assign(view.key, null)}
             onSwap={() => swapMirror(view)}
+            locked={locked}
           />
         );
       })}

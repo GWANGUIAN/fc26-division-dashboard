@@ -6,6 +6,7 @@ import { Modal, useEscape } from "./Modal";
 import { AssignedPositionTag } from "./PositionTag";
 import { TestSchedulePitch } from "./TestSchedulePitch";
 import {
+  CUSTOM_TEST_SCHEDULE_STREAMERS,
   nearestScheduleDateIndex,
   TEST_SCHEDULE,
   type TestScheduleSlot,
@@ -53,7 +54,10 @@ export function TestScheduleModal({
   );
   const [view, setView] = useState<"list" | "pitch">("list");
   const streamerById = new Map(
-    streamers.map((streamer) => [streamer.id, streamer]),
+    [...streamers, ...CUSTOM_TEST_SCHEDULE_STREAMERS].map((streamer) => [
+      streamer.id,
+      streamer,
+    ]),
   );
   const selected = TEST_SCHEDULE[dateIndex];
 
@@ -104,6 +108,7 @@ export function TestScheduleModal({
           dateIso={selected.isoDate}
           streamers={streamers}
           streamerById={streamerById}
+          locked={selected.locked}
         />
       ) : (
         <div className="test-schedule__teams">

@@ -1,3 +1,5 @@
+import type { StreamerRecord } from "../shared/model.js";
+
 /**
  * 2차 테스트 일정 (9/4, 9/5, 9/7) — 스프레드시트에서 수기로 옮긴 고정 데이터.
  * 각 날짜는 빈 줄을 기준으로 위/아래 두 팀으로 나뉘며, 여기 적힌 포지션은
@@ -5,7 +7,7 @@
  * 포지션이다. streamerId가 없는 슬롯은 아직 채워지지 않은 "대기인원" 자리.
  */
 export interface TestScheduleSlot {
-  /** StreamerRecord.id (roster slug). 미배정 "대기인원" 자리는 생략. */
+  /** StreamerRecord.id (roster slug) 또는 CUSTOM_TEST_SCHEDULE_STREAMERS의 id. 미배정 "대기인원" 자리는 생략. */
   streamerId?: string;
   /** 이번 테스트에 배정된 포지션 코드 (예: "ST", "CDM"). */
   position: string;
@@ -22,12 +24,42 @@ export interface TestScheduleDate {
   /** 가장 가까운 날짜를 계산하기 위한 ISO 날짜 (YYYY-MM-DD). */
   isoDate: string;
   teams: TestScheduleTeam[];
+  /** 확정된 일정이라 포메이션 화면의 자리 편성(클릭 배정/교체/비우기)을 막을 때 true. */
+  locked?: boolean;
 }
+
+/**
+ * roster.yaml에 없는 게스트 참가자. 9/4 일정에서만 쓰이며, id는
+ * TestScheduleSlot.streamerId로 참조한다.
+ */
+export const CUSTOM_TEST_SCHEDULE_STREAMERS: StreamerRecord[] = [
+  {
+    id: "custom-picaon",
+    displayName: "피카온",
+    cafeAliases: [],
+    profileImageUrl: "/profiles/profile_picaon.webp",
+    autoUpdate: false,
+    overridePolicy: "auto",
+    currentDivision: 0,
+    isMapped: true,
+  },
+  {
+    id: "custom-wakgood",
+    displayName: "우왁굳",
+    cafeAliases: [],
+    profileImageUrl: "/profiles/profile_wakgood.webp",
+    autoUpdate: false,
+    overridePolicy: "auto",
+    currentDivision: 0,
+    isMapped: true,
+  },
+];
 
 export const TEST_SCHEDULE: TestScheduleDate[] = [
   {
     date: "9/4",
     isoDate: "2026-09-04",
+    locked: true,
     teams: [
       {
         label: "1팀",
@@ -57,8 +89,8 @@ export const TEST_SCHEDULE: TestScheduleDate[] = [
           { streamerId: "dokkhye0000", position: "CB" },
           { streamerId: "ttu0221", position: "CB" },
           { streamerId: "lina0108", position: "FB" },
-          { position: "FB" },
-          { streamerId: "janine95kim", position: "GK" },
+          { streamerId: "custom-wakgood", position: "FB" },
+          { streamerId: "custom-picaon", position: "GK" },
         ],
       },
     ],

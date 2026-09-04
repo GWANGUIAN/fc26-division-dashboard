@@ -233,6 +233,8 @@ body { isolation: isolate; }
 .test-pitch-card { position: absolute; z-index: 2; display: flex; width: 15%; max-width: 96px; flex-direction: column; align-items: center; transform: translate(-50%, -50%); }
 .test-pitch-card__button { display: flex; width: 100%; flex-direction: column; align-items: center; gap: 3px; padding: 4px 2px 6px; border: 0; border-radius: 6px; color: inherit; background: transparent; cursor: pointer; transition: background .15s; }
 .test-pitch-card__button:hover, .test-pitch-card__button[aria-expanded="true"] { background: #ffffff1f; }
+.test-pitch-card__button--locked { cursor: default; }
+.test-pitch-card__button--locked:hover { background: transparent; }
 .test-pitch-card .avatar { width: clamp(26px, 7.5cqw, 40px); height: clamp(26px, 7.5cqw, 40px); flex-basis: auto; border: 2px solid #ffffffc0; }
 .test-pitch-card__vacant-avatar { border: 2px dashed #ffffffa0; background: #00000030; color: #ffffffc0; }
 .test-pitch-card--vacant .test-pitch-card__name { color: #ffffffb5; font-weight: 500; }
