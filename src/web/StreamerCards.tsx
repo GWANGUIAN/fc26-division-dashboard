@@ -47,7 +47,7 @@ export function StreamerCard({
   const savior = isStreamerSavior(streamer);
   const rate = streamer.record ? winRatePercent(streamer.record) : undefined;
   const { open: noteOpen, show: showNote, scheduleHide: hideNote, anchorRef } =
-    useWakgoodNoteHover<HTMLButtonElement>(streamer.id);
+    useWakgoodNoteHover<HTMLButtonElement>();
   const showNoteTooltip = streamer.passedFirstRound;
   return (
     <button
@@ -163,7 +163,7 @@ export function StreamerFifaCard({
     : "첫 보고 대기";
   const photoSrc = streamer.profileImageUrl ?? defaultSoopProfileUrl(streamer.soopId);
   const { open: noteOpen, show: showNote, scheduleHide: hideNote } =
-    useWakgoodNoteHover<HTMLButtonElement>(streamer.id);
+    useWakgoodNoteHover<HTMLButtonElement>();
   const showNoteTooltip = streamer.passedFirstRound;
   const cardRef = useRef<HTMLButtonElement>(null);
   const [tilt, setTilt] = useState({

@@ -57,7 +57,7 @@ function StreamerTableRow({
   const games = totalGamesOf(streamer);
   const winRate = winRateOf(streamer);
   const { open: noteOpen, show: showNote, scheduleHide: hideNote, anchorRef } =
-    useWakgoodNoteHover<HTMLTableCellElement>(streamer.id);
+    useWakgoodNoteHover<HTMLTableCellElement>();
   const showNoteTooltip = streamer.passedFirstRound;
   return (
     <tr

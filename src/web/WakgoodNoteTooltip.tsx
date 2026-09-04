@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useId, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { ExternalLink, StickyNote } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
@@ -12,11 +12,15 @@ const HIDE_DELAY_MS = 200;
 // Module-level (not per-component) so only one bubble is ever open across the
 // whole board: switching hover straight from one player to another closes
 // the old one immediately and ignores its hide delay, instead of both being
-// visible for a moment.
-let activeStreamerId: string | null = null;
+// visible for a moment. Keyed by a per-mount instance id rather than the
+// streamer's id — the same streamer can have more than one trigger mounted
+// at once (e.g. their list/card/table row underneath an open detail modal
+// that also shows the icon), and keying by streamerId made hovering one
+// trigger also light up every other trigger for that same streamer.
+let activeInstanceId: string | null = null;
 const listeners = new Set<() => void>();
-function setActiveStreamerId(id: string | null) {
-  activeStreamerId = id;
+function setActiveInstanceId(id: string | null) {
+  activeInstanceId = id;
   listeners.forEach((listener) => listener());
 }
 function subscribe(listener: () => void) {
@@ -24,24 +28,25 @@ function subscribe(listener: () => void) {
   return () => listeners.delete(listener);
 }
 
-export function useWakgoodNoteHover<T extends HTMLElement>(streamerId: string) {
+export function useWakgoodNoteHover<T extends HTMLElement>() {
+  const instanceId = useId();
   const open = useSyncExternalStore(
     subscribe,
-    () => activeStreamerId === streamerId,
+    () => activeInstanceId === instanceId,
   );
   const anchorRef = useRef<T | null>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const show = () => {
     clearTimeout(hideTimer.current);
-    setActiveStreamerId(streamerId);
+    setActiveInstanceId(instanceId);
   };
   const scheduleHide = () => {
     clearTimeout(hideTimer.current);
     hideTimer.current = setTimeout(() => {
       // Only clear if we're still the active one — a different trigger may
       // have already taken over before this delayed hide fires.
-      if (activeStreamerId === streamerId) setActiveStreamerId(null);
+      if (activeInstanceId === instanceId) setActiveInstanceId(null);
     }, HIDE_DELAY_MS);
   };
 
