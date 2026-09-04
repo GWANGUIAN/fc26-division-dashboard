@@ -1,8 +1,8 @@
 import { useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
-import { StickyNote } from "lucide-react";
+import { CirclePlay, StickyNote } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
-import { getWakgoodNotes, isSkippedWakgoodNote } from "./wakgoodNotes";
+import { getWakgoodNote, isSkippedWakgoodNote } from "./wakgoodNotes";
 
 // Keeps the bubble open for a beat after the pointer leaves the trigger (and
 // while it's over the bubble itself), so a small gap or a slightly wobbly
@@ -90,7 +90,8 @@ export function WakgoodNoteBubble<T extends HTMLElement>({
   }, [anchorRef, placement]);
 
   if (!pos) return null;
-  const notes = getWakgoodNotes(streamer.id);
+  const entry = getWakgoodNote(streamer.id);
+  const notes = entry?.notes;
   const skipped = isSkippedWakgoodNote(notes);
   const written = Boolean(notes && notes.length > 0) && !skipped;
   const stateClass = written
@@ -112,9 +113,21 @@ export function WakgoodNoteBubble<T extends HTMLElement>({
       onClick={(event) => event.stopPropagation()}
       onMouseDown={(event) => event.stopPropagation()}
     >
-      <strong className="wakgood-note-bubble__title">
-        <StickyNote aria-hidden="true" /> 우왁굳의 메모장
-      </strong>
+      <span className="wakgood-note-bubble__header">
+        <strong className="wakgood-note-bubble__title">
+          <StickyNote aria-hidden="true" /> 우왁굳의 메모장
+        </strong>
+        {entry?.vodUrl && (
+          <a
+            className="wakgood-note-bubble__vod"
+            href={entry.vodUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <CirclePlay aria-hidden="true" /> 다시보기
+          </a>
+        )}
+      </span>
       {written ? (
         <ul className="wakgood-note-bubble__list">
           {notes!.map((note, index) => (

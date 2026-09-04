@@ -1,8 +1,8 @@
-import { NotebookPen } from "lucide-react";
+import { CirclePlay, NotebookPen } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
 import { Avatar } from "./cardVisuals";
 import { Modal, useEscape } from "./Modal";
-import { getWakgoodNotes, isSkippedWakgoodNote } from "./wakgoodNotes";
+import { getWakgoodNote, isSkippedWakgoodNote } from "./wakgoodNotes";
 
 export function WakgoodNotebookModal({
   streamers,
@@ -28,7 +28,8 @@ export function WakgoodNotebookModal({
     >
       <ul className="wakgood-notebook__list">
         {streamers.map((streamer) => {
-          const notes = getWakgoodNotes(streamer.id);
+          const entry = getWakgoodNote(streamer.id);
+          const notes = entry?.notes;
           const skipped = isSkippedWakgoodNote(notes);
           const written = Boolean(notes && notes.length > 0) && !skipped;
           const stateClass = written
@@ -44,6 +45,16 @@ export function WakgoodNotebookModal({
               <div className="wakgood-notebook__entry-head">
                 <Avatar {...streamer} />
                 <strong>{streamer.displayName}</strong>
+                {entry?.vodUrl && (
+                  <a
+                    className="wakgood-notebook__vod"
+                    href={entry.vodUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <CirclePlay aria-hidden="true" /> 다시보기
+                  </a>
+                )}
               </div>
               {written ? (
                 <ul className="wakgood-notebook__notes">
