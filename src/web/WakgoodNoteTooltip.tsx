@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
-import { CirclePlay, StickyNote } from "lucide-react";
+import { ExternalLink, StickyNote } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
 import { getWakgoodNote, isSkippedWakgoodNote } from "./wakgoodNotes";
 
@@ -124,7 +124,7 @@ export function WakgoodNoteBubble<T extends HTMLElement>({
             target="_blank"
             rel="noreferrer"
           >
-            <CirclePlay aria-hidden="true" /> 다시보기
+            다시보기 <ExternalLink aria-hidden="true" />
           </a>
         )}
       </span>

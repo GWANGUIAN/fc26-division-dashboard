@@ -234,9 +234,11 @@ body { isolation: isolate; }
 .wakgood-notebook__entry-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
 .wakgood-notebook__entry-head .avatar { width: 32px; height: 32px; flex-basis: 32px; }
 .wakgood-notebook__entry-head strong { overflow: hidden; color: var(--text-primary); font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
-.wakgood-notebook__vod { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; padding: 4px 8px; border: 1px solid #ffb45455; border-radius: 999px; color: #ffcf94; background: #ffb4541f; font-size: 11px; font-weight: 700; white-space: nowrap; transition: .16s; }
-.wakgood-notebook__vod:hover, .wakgood-notebook__vod:focus-visible { background: #ffb45438; border-color: #ffb45485; outline: 0; }
-.wakgood-notebook__vod svg { width: 12px; height: 12px; stroke-width: 2.6; }
+/* Plain underlined link + outbound-arrow icon, not a pill button — reads as
+   "this leaves the page" rather than another in-app action. */
+.wakgood-notebook__vod { display: inline-flex; align-items: center; gap: 3px; margin-left: auto; color: #6cb0ff; text-decoration: underline; text-decoration-color: #6cb0ff66; text-underline-offset: 3px; font-size: 11px; font-weight: 700; white-space: nowrap; transition: color .16s, text-decoration-color .16s; }
+.wakgood-notebook__vod:hover, .wakgood-notebook__vod:focus-visible { color: #a3cdff; text-decoration-color: #a3cdff; outline: 0; }
+.wakgood-notebook__vod svg { width: 11px; height: 11px; stroke-width: 2.6; }
 .wakgood-notebook__notes { display: grid; gap: 4px; margin: 0; padding-left: 18px; color: var(--text-primary); font-size: 12px; font-weight: 500; line-height: 1.5; }
 /* Written entries get a mint accent edge so a finished note visually pops
    out of the grid at a glance; empty ones fade back instead of competing
@@ -258,9 +260,9 @@ body { isolation: isolate; }
 .wakgood-note-bubble__header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .wakgood-note-bubble__title { display: flex; align-items: center; gap: 6px; color: var(--accent-text); font-size: 12px; font-weight: 800; }
 .wakgood-note-bubble__title svg { width: 13px; height: 13px; stroke-width: 2.4; }
-.wakgood-note-bubble__vod { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 4px; padding: 3px 7px; border: 1px solid #ffb45455; border-radius: 999px; color: #ffcf94; background: #ffb4541f; font-size: 10.5px; font-weight: 700; white-space: nowrap; transition: .16s; }
-.wakgood-note-bubble__vod:hover, .wakgood-note-bubble__vod:focus-visible { background: #ffb45438; border-color: #ffb45485; outline: 0; }
-.wakgood-note-bubble__vod svg { width: 11px; height: 11px; stroke-width: 2.6; }
+.wakgood-note-bubble__vod { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 3px; color: #6cb0ff; text-decoration: underline; text-decoration-color: #6cb0ff66; text-underline-offset: 3px; font-size: 10.5px; font-weight: 700; white-space: nowrap; transition: color .16s, text-decoration-color .16s; }
+.wakgood-note-bubble__vod:hover, .wakgood-note-bubble__vod:focus-visible { color: #a3cdff; text-decoration-color: #a3cdff; outline: 0; }
+.wakgood-note-bubble__vod svg { width: 10px; height: 10px; stroke-width: 2.6; }
 .wakgood-note-bubble__list { display: grid; gap: 4px; margin: 0; padding-left: 16px; color: var(--text-primary); font-size: 12px; font-weight: 500; line-height: 1.5; }
 .wakgood-note-bubble__empty { margin: 0; color: var(--text-muted); font-size: 12px; font-weight: 400; font-style: italic; }
 /* Written notes get the full mint-accented border; an unwritten bubble fades

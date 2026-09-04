@@ -1,4 +1,4 @@
-import { CirclePlay, NotebookPen } from "lucide-react";
+import { ExternalLink, NotebookPen } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
 import { Avatar } from "./cardVisuals";
 import { Modal, useEscape } from "./Modal";
@@ -52,7 +52,7 @@ export function WakgoodNotebookModal({
                     target="_blank"
                     rel="noreferrer"
                   >
-                    <CirclePlay aria-hidden="true" /> 다시보기
+                    다시보기 <ExternalLink aria-hidden="true" />
                   </a>
                 )}
               </div>
