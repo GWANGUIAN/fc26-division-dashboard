@@ -46,6 +46,10 @@ export type LatecomerTrophy = {
   currentDivision: number;
 };
 
+export type CutestTrophy = {
+  streamer: StreamerRecord;
+};
+
 export type TrophyAwards = {
   dailyPromotion: DailyPromotionTrophy[];
   divisionOne: DivisionOneTrophy[];
@@ -54,16 +58,20 @@ export type TrophyAwards = {
   bestWinRate: BestWinRateTrophy[];
   retention: RetentionTrophy[];
   latecomer: LatecomerTrophy[];
+  cutest: CutestTrophy[];
 };
 
 export type TrophyBadge = {
-  key: "daily-promotion" | "division-one" | "self-promotion" | "most-matches" | "best-win-rate" | "retention" | "latecomer";
+  key: "daily-promotion" | "division-one" | "self-promotion" | "most-matches" | "best-win-rate" | "retention" | "latecomer" | "cutest";
   name: string;
   emoji: string;
 };
 
 /** Streamers who never reached at least division 9 aren't eligible for the retention award. */
 const RETENTION_MIN_DIVISION = 9;
+
+/** Not computed from any stat — this is a fixed production-team pick, not an objective ranking. */
+const CUTEST_STREAMER_ID = "nlsb9718";
 
 export const DIVISION_ONE_EMOJI = { 1: "🥇", 2: "🥈", 3: "🥉" } as const;
 const DIVISION_ONE_LABEL = { 1: "가장 먼저 1부 리그 달성", 2: "두 번째로 1부 리그 달성", 3: "세 번째로 1부 리그 달성" } as const;
@@ -183,6 +191,9 @@ export function buildTrophyAwards(streamers: StreamerRecord[]): TrophyAwards {
     latecomer: latestPublishedAt !== undefined
       ? latecomerRecords.filter((record) => record.publishedAt === latestPublishedAt)
       : [],
+    cutest: streamers
+      .filter((streamer) => streamer.id === CUTEST_STREAMER_ID)
+      .map((streamer) => ({ streamer })),
   };
 }
 
@@ -196,5 +207,6 @@ export function trophyBadgesFor(streamer: StreamerRecord, awards: TrophyAwards):
   if (awards.selfPromotion.some((award) => award.streamer.id === streamer.id)) badges.push({ key: "self-promotion", name: "자기 PR 왕", emoji: "📣" });
   if (awards.retention.some((award) => award.streamer.id === streamer.id)) badges.push({ key: "retention", name: "잔류왕", emoji: "🛏️" });
   if (awards.latecomer.some((award) => award.streamer.id === streamer.id)) badges.push({ key: "latecomer", name: "지각왕", emoji: "⏰" });
+  if (awards.cutest.some((award) => award.streamer.id === streamer.id)) badges.push({ key: "cutest", name: "귀요미왕", emoji: "🐼" });
   return badges;
 }
