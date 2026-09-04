@@ -51,9 +51,16 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
       "커버 가능. 조금 과한 커버성향.",
     ],
   }, // 찰리씨
+  kur0ch4t: {
+    notes: [
+      "상당히 저돌적이고 무조건 뒷공간만 파는 성향",
+      "(장점도 많은데 단점도 많음)",
+      "드리븐 패스 가능",
+      "볼 배급 무난",
+    ],
+  }, // 쿠로샤
   haepalin: { notes: [] }, // 해파린~
   nsnowthemoon: { notes: [] }, // 설빈달
-  kur0ch4t: { notes: [] }, // 쿠로샤
   y0unggam: { notes: [] }, // 영감__
   alice427: { notes: [] }, // 미르_MIR
   kaksjak0730: { notes: [] }, // 한결___
