@@ -573,7 +573,7 @@ body { isolation: isolate; }
 .streamer-card__copy .record-badge__w, .streamer-card__copy .record-badge__d, .streamer-card__copy .record-badge__l { font-size: 13px; font-weight: 500; }
 .streamer-card__copy .record-badge__rate { font-size: 10px; }
 
-.view-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.view-toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
 .view-toolbar .segmented button { display: inline-flex; align-items: center; justify-content: center; }
 .view-toolbar .segmented svg { width: 14px; height: 14px; stroke-width: 2.6; }
 .view-toolbar__controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-left: auto; }
