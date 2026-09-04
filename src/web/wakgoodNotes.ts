@@ -26,11 +26,11 @@ export const WAKGOOD_NOTES: Record<string, string[]> = {
     "역습에 뒷공간 다털림.",
     "그럼에도 불구하고 흥미로운 선수",
   ], // 리냐_LINYA
+  hobal115end: ["오프더볼 좋음. 로빙스로도 장착.","잘 풀리는 경기데이터 부족"], // 호발☆
   haepalin: [], // 해파린~
   sircharlee: [], // 찰리씨
   nsnowthemoon: [], // 설빈달
   kur0ch4t: [], // 쿠로샤
-  hobal115end: [], // 호발☆
   y0unggam: [], // 영감__
   alice427: [], // 미르_MIR
   kaksjak0730: [], // 한결___
