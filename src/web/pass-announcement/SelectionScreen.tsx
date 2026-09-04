@@ -10,9 +10,9 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core";
 import type { StreamerRecord } from "../../shared/model.js";
-import { SquadBuilderCard } from "../squad-builder/SquadBuilderCard";
 import { CandidatePool } from "./CandidatePool";
 import { CtaButton } from "./CtaButton";
+import { PassFifaCard } from "./PassFifaCard";
 import { PassList, type InsertSide } from "./PassList";
 import type { PassDragData, PassDropData, PassEntry } from "./types.js";
 
@@ -202,7 +202,7 @@ export function SelectionScreen({
       <DragOverlay>
         {draggedStreamer && (
           <div className="pass-drag-overlay">
-            <SquadBuilderCard streamer={draggedStreamer} variant="placed" showGamesPlayed />
+            <PassFifaCard streamer={draggedStreamer} />
           </div>
         )}
       </DragOverlay>

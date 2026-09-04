@@ -4,7 +4,7 @@ import { Plus } from "lucide-react";
 import type { StreamerRecord } from "../../shared/model.js";
 import { searchable } from "../../shared/search.js";
 import { winRatePercent } from "../../shared/record-extraction.js";
-import { SquadBuilderCard } from "../squad-builder/SquadBuilderCard";
+import { PassFifaCard } from "./PassFifaCard";
 import type { PassDragData, PassDropData } from "./types.js";
 
 type SortMode = "division" | "winRate" | "games" | "name";
@@ -147,7 +147,7 @@ function PoolCard({
       {...listeners}
       {...attributes}
     >
-      <SquadBuilderCard streamer={streamer} variant="placed" showGamesPlayed />
+      <PassFifaCard streamer={streamer} />
       <button
         type="button"
         className="pass-pool-card__add"

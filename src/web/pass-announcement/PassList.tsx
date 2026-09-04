@@ -7,8 +7,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CheckCircle2, X } from "lucide-react";
 import type { StreamerRecord } from "../../shared/model.js";
-import { SquadBuilderCard } from "../squad-builder/SquadBuilderCard";
 import { ConfirmDialog } from "../squad-builder/SquadControls.js";
+import { PassFifaCard } from "./PassFifaCard";
 import type { PassDragData, PassDropData, PassEntry } from "./types.js";
 
 export type InsertSide = "before" | "after";
@@ -119,7 +119,7 @@ function PassListCard({
       {...listeners}
       {...attributes}
     >
-      <SquadBuilderCard streamer={streamer} variant="placed" showGamesPlayed />
+      <PassFifaCard streamer={streamer} />
       {revealed && (
         <span
           className="pass-list-card__revealed-badge"

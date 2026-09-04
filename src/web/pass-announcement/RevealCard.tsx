@@ -1,6 +1,6 @@
 import type { AnimationEvent, CSSProperties } from "react";
 import type { StreamerRecord } from "../../shared/model.js";
-import { FIFA_SHIELD_OUTER, FifaShield } from "../cardVisuals.js";
+import { PassFifaCard } from "./PassFifaCard";
 import { RevealCardFront } from "./RevealCardFront";
 
 export type RevealStep = "entering" | "shadow-fade" | "spinning" | "revealed" | "settling";
@@ -108,15 +108,10 @@ export function RevealCard({
     >
       {showBack ? (
         <div className="reveal-card__spin" onAnimationEnd={handleSpinAnimationEnd}>
-          <FifaShield color={color} />
-          {streamer.currentDivision > 0 && (
-            <span className="reveal-card__spin-division">
-              {`D${streamer.currentDivision}`}
-            </span>
-          )}
+          <PassFifaCard streamer={streamer} faceDown />
         </div>
       ) : (
-        <RevealCardFront streamer={streamer} color={color} />
+        <RevealCardFront streamer={streamer} />
       )}
       {showShadow && (
         <svg
@@ -125,16 +120,12 @@ export function RevealCard({
           aria-hidden="true"
           onAnimationEnd={handleShadowAnimationEnd}
         >
-          <path d={FIFA_SHIELD_OUTER} fill="#04100c" />
-        </svg>
-      )}
-      {showSparkle && (
-        <svg
-          className="reveal-card__glow-outline"
-          viewBox="0 0 300 450"
-          aria-hidden="true"
-        >
-          <path d={FIFA_SHIELD_OUTER} />
+          {/* Sized to exactly match the actual card box behind it (edge to
+             edge, same 5%-of-300=15 corner radius as .pass-fifa-card's own
+             border-radius) — a smaller/more-rounded guess here left slivers
+             of the card's own colored background visible past this
+             silhouette's corners while it faded in. */}
+          <rect x="0" y="0" width="300" height="450" rx="15" ry="15" fill="#04100c" />
         </svg>
       )}
       {showSparkle && (
