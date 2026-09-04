@@ -87,7 +87,7 @@ export const TEST_SCHEDULE: TestScheduleDate[] = [
         slots: [
           { streamerId: "yourdarky", position: "ST" },
           { streamerId: "tdnlamuron", position: "WF" },
-          { streamerId: "jejong5", position: "WF" },
+          { streamerId: "chebi2", position: "WF" },
           { streamerId: "nanamoon777", position: "CM" },
           { position: "CM" },
           { streamerId: "doormomo", position: "CDM" },
@@ -107,7 +107,7 @@ export const TEST_SCHEDULE: TestScheduleDate[] = [
         label: "1팀",
         slots: [
           { streamerId: "ju010228", position: "ST" },
-          { streamerId: "chebi2", position: "WF" },
+          { streamerId: "jejong5", position: "WF" },
           { streamerId: "hachi97", position: "WF" },
           { position: "CM" },
           { position: "CM" },
