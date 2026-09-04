@@ -223,6 +223,41 @@ body { isolation: isolate; }
 .test-schedule__slot--vacant .test-schedule__slot-name { color: var(--text-muted); font-weight: 500; }
 @media (max-width: 680px) { .test-schedule__teams { grid-template-columns: 1fr; } }
 
+/* --- 우왁굳의 메모장 (버튼 / 모달 / 툴팁) --- */
+.wakgood-notebook-toggle { display: inline-flex; align-items: center; gap: 6px; padding: 9px 12px; border: 1px solid #00e9ae55; border-radius: 3px; color: var(--text-secondary); background: #00e9ae14; font-weight: 700; font-size: 12px; white-space: nowrap; transition: .2s; }
+.wakgood-notebook-toggle:hover, .wakgood-notebook-toggle:focus-visible { background: #00e9ae28; border-color: #00e9ae80; outline: 0; }
+.wakgood-notebook-toggle svg { width: 14px; height: 14px; stroke-width: 2.6; }
+.wakgood-notebook__title { display: flex; align-items: center; gap: 9px; font: 800 34px/1 "Barlow Condensed", "Noto Sans KR"; }
+.wakgood-notebook__title svg { color: #00e9ae; }
+.wakgood-notebook__list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin: 4px 0 0; padding: 0; list-style: none; }
+.wakgood-notebook__entry { padding: 12px 14px; border: 1px solid var(--border-default); border-radius: 4px; background: var(--surface-1); transition: opacity .18s, border-color .18s; }
+.wakgood-notebook__entry-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.wakgood-notebook__entry-head .avatar { width: 32px; height: 32px; flex-basis: 32px; }
+.wakgood-notebook__entry-head strong { overflow: hidden; color: var(--text-primary); font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+.wakgood-notebook__notes { display: grid; gap: 4px; margin: 0; padding-left: 18px; color: var(--text-primary); font-size: 12px; font-weight: 500; line-height: 1.5; }
+/* Written entries get a mint accent edge so a finished note visually pops
+   out of the grid at a glance; empty ones fade back instead of competing
+   for attention. */
+.wakgood-notebook__entry--written { border-left: 3px solid #00e9ae; background: linear-gradient(90deg, #00e9ae14, var(--surface-1) 18%); }
+.wakgood-notebook__entry--empty { opacity: .55; border-style: dashed; }
+.wakgood-notebook__entry--empty .wakgood-notebook__entry-head strong { color: var(--text-muted); }
+.wakgood-notebook__empty { margin: 0; color: var(--text-muted); font-size: 12px; font-style: italic; }
+@media (max-width: 680px) { .wakgood-notebook__list { grid-template-columns: 1fr; } }
+
+.wakgood-note-bubble { position: fixed; z-index: 60; display: grid; gap: 6px; width: max(220px, min(280px, 80vw)); padding: 10px 12px; border: 1px solid #00e9ae67; color: var(--text-primary); background: var(--surface-elevated); box-shadow: 0 12px 30px rgba(var(--shadow-color), .56); text-align: left; white-space: normal; cursor: default; animation: wakgood-note-bubble-in .14s ease-out; }
+.wakgood-note-bubble--bottom { transform: translate(-50%, 0); }
+.wakgood-note-bubble--top { transform: translate(-50%, -100%); }
+@keyframes wakgood-note-bubble-in { from { opacity: 0; } to { opacity: 1; } }
+.wakgood-note-bubble__title { display: flex; align-items: center; gap: 6px; color: var(--accent-text); font-size: 12px; font-weight: 800; }
+.wakgood-note-bubble__title svg { width: 13px; height: 13px; stroke-width: 2.4; }
+.wakgood-note-bubble__list { display: grid; gap: 4px; margin: 0; padding-left: 16px; color: var(--text-primary); font-size: 12px; font-weight: 500; line-height: 1.5; }
+.wakgood-note-bubble__empty { margin: 0; color: var(--text-muted); font-size: 12px; font-weight: 400; font-style: italic; }
+/* Written notes get the full mint-accented border; an unwritten bubble fades
+   out (dashed, dimmer border/title, lower overall opacity) so the two states
+   read differently even before the text itself is parsed. */
+.wakgood-note-bubble--empty { border-style: dashed; border-color: var(--border-strong); opacity: .82; }
+.wakgood-note-bubble--empty .wakgood-note-bubble__title { color: var(--text-muted); }
+
 /* --- 2차 테스트 포메이션(피치) 뷰 --- */
 .test-pitch { position: relative; width: 100%; max-width: 820px; margin: 40px auto 0; aspect-ratio: 105 / 82; border-radius: 4px; background: repeating-linear-gradient(90deg, #1c8a4c 0, #1c8a4c 8%, #17793f 8%, #17793f 16%); box-shadow: 0 20px 60px rgba(var(--shadow-color), .5), inset 0 0 0 1px var(--border-default); container-type: inline-size; overflow: visible; }
 .test-pitch__markings { position: absolute; inset: 0; width: 100%; height: 100%; color: #ffffff75; border-radius: 4px; overflow: hidden; }
@@ -829,6 +864,8 @@ body { isolation: isolate; }
 .announcement-squad-builder-btn svg { width: 14px; height: 14px; stroke-width: 2.6; }
 .announcement-test-schedule-btn { display: inline-flex; align-items: center; gap: 6px; margin: 0 2px; padding: 9px 12px; border: 1px solid #00e9ae55; border-radius: 3px; color: var(--text-secondary); background: #00e9ae1f; font-weight: 700; font-size: 12px; white-space: nowrap; vertical-align: middle; transform: translateY(-3px); }
 .announcement-test-schedule-btn svg { width: 14px; height: 14px; stroke-width: 2.6; }
+.announcement-wakgood-notebook-btn { display: inline-flex; align-items: center; gap: 6px; margin: 0 2px; padding: 9px 12px; border: 1px solid #00e9ae55; border-radius: 3px; color: var(--text-secondary); background: #00e9ae1f; font-weight: 700; font-size: 12px; white-space: nowrap; vertical-align: middle; transform: translateY(-3px); }
+.announcement-wakgood-notebook-btn svg { width: 14px; height: 14px; stroke-width: 2.6; }
 .announcement-modal__actions { display: flex; flex: 0 0 auto; justify-content: flex-end; padding: 16px 30px 26px; border-top: 1px solid var(--border-faint); }
 .announcement-modal__ack { padding: 10px 16px; border: 1px solid #00e9ae55; border-radius: 3px; color: var(--text-secondary); font-weight: 700; font-size: 12px; background: #00e9ae22; transition: .2s; }
 .announcement-modal__ack:hover, .announcement-modal__ack:focus-visible { border-color: #00e9ae80; background: #00e9ae33; outline: 0; }

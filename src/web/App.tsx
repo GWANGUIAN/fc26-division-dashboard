@@ -41,6 +41,7 @@ import { DetailModal } from "./DetailModal";
 import { TrophyModal } from "./TrophyModal";
 import { GrowthGraphModal } from "./GrowthGraphModal";
 import { TestScheduleModal } from "./TestScheduleModal";
+import { WakgoodNotebookModal } from "./WakgoodNotebookModal";
 import { EvaluationModal } from "./EvaluationViews";
 import { SfxIntroNotice, SfxToggle } from "./SfxControls";
 import { MusicPlayer } from "./MusicPlayer";
@@ -70,6 +71,7 @@ export function App() {
   const [squadBuilderOpen, setSquadBuilderOpen] = useState(false);
   const [passAnnouncementOpen, setPassAnnouncementOpen] = useState(false);
   const [testScheduleOpen, setTestScheduleOpen] = useState(false);
+  const [wakgoodNotebookOpen, setWakgoodNotebookOpen] = useState(false);
   const [photoBoothOpen, setPhotoBoothOpen] = useState(false);
   const [growthGraphOpen, setGrowthGraphOpen] = useState(false);
   // A single slot (rather than one boolean per minigame) makes it structurally impossible for two
@@ -214,6 +216,7 @@ export function App() {
           onSquadBuilderOpen={() => setSquadBuilderOpen(true)}
           onPassAnnouncementOpen={() => setPassAnnouncementOpen(true)}
           onTestScheduleOpen={() => setTestScheduleOpen(true)}
+          onWakgoodNotebookOpen={() => setWakgoodNotebookOpen(true)}
           onGrowthGraphOpen={() => setGrowthGraphOpen(true)}
           onRefresh={refreshSnapshot}
           refreshing={snapshotLoading}
@@ -301,6 +304,12 @@ export function App() {
         <TestScheduleModal
           streamers={passedStreamers ?? []}
           onClose={() => setTestScheduleOpen(false)}
+        />
+      )}
+      {wakgoodNotebookOpen && (
+        <WakgoodNotebookModal
+          streamers={passedStreamers ?? []}
+          onClose={() => setWakgoodNotebookOpen(false)}
         />
       )}
       {photoBoothOpen && (

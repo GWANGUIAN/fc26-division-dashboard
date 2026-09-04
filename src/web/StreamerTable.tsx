@@ -15,6 +15,7 @@ import {
   SaviorName,
 } from "./cardVisuals";
 import { isUpdatedToday, seenKeyFor } from "./storage";
+import { useWakgoodNoteHover, WakgoodNoteBubble } from "./WakgoodNoteTooltip";
 
 type SortKey = "division" | "name" | "games" | "winRate" | "lastPromotion";
 type Sort = { key: SortKey; dir: "asc" | "desc" };
@@ -35,6 +36,128 @@ const SORT_LABELS: Record<SortKey, string> = {
   winRate: "승률",
   lastPromotion: "최근 승급일",
 };
+
+function StreamerTableRow({
+  streamer,
+  index,
+  awards,
+  isNew,
+  isLive,
+  onOpen,
+  onOpenTrophy,
+}: {
+  streamer: StreamerRecord;
+  index: number;
+  awards: TrophyAwards;
+  isNew: boolean;
+  isLive: boolean;
+  onOpen: (streamer: StreamerRecord) => void;
+  onOpenTrophy?: () => void;
+}) {
+  const games = totalGamesOf(streamer);
+  const winRate = winRateOf(streamer);
+  const { open: noteOpen, show: showNote, scheduleHide: hideNote, anchorRef } =
+    useWakgoodNoteHover<HTMLTableCellElement>(streamer.id);
+  const showNoteTooltip = streamer.passedFirstRound;
+  return (
+    <tr
+      className="streamer-table__row"
+      tabIndex={0}
+      role="button"
+      aria-label={`${streamer.displayName} 상세 보기`}
+      onClick={() => onOpen(streamer)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onOpen(streamer);
+        }
+      }}
+    >
+      <td className="streamer-table__rank">{index + 1}</td>
+      <td
+        ref={anchorRef}
+        className="streamer-table__identity"
+        onMouseEnter={showNoteTooltip ? showNote : undefined}
+        onMouseLeave={showNoteTooltip ? hideNote : undefined}
+      >
+        <span className="streamer-table__avatar">
+          <SaviorAvatar streamer={streamer}>
+            <FancyAvatar streamer={streamer} />
+          </SaviorAvatar>
+          {isLive && (
+            <span
+              className="live-ring"
+              role="img"
+              aria-label="방송중"
+              title="현재 방송중"
+            />
+          )}
+          {streamer.sfx && (
+            <Volume2
+              className="streamer-table__sfx-badge"
+              aria-hidden="true"
+            />
+          )}
+        </span>
+        <span className="streamer-table__name">
+          <SaviorName streamer={streamer}>
+            <FancyName streamer={streamer} tag="strong">
+              {streamer.displayName}
+            </FancyName>
+          </SaviorName>
+          <AchievementBadges
+            streamer={streamer}
+            awards={awards}
+            onClick={onOpenTrophy}
+          />
+          {!streamer.isMapped && (
+            <span className="unmapped" title="SOOP 정보 미연결">
+              카페
+            </span>
+          )}
+          {isNew && (
+            <span className="streamer-table__new-badge">NEW</span>
+          )}
+        </span>
+        {showNoteTooltip && noteOpen && (
+          <WakgoodNoteBubble
+            streamer={streamer}
+            anchorRef={anchorRef}
+            onMouseEnter={showNote}
+            onMouseLeave={hideNote}
+          />
+        )}
+      </td>
+      <td>
+        <span
+          className="streamer-table__division"
+          style={
+            {
+              "--division-color": divisionColor(
+                streamer.currentDivision,
+              ),
+            } as React.CSSProperties
+          }
+        >
+          D{streamer.currentDivision}
+        </span>
+      </td>
+      <td>
+        <RecordBadge streamer={streamer} />
+      </td>
+      <td className="streamer-table__position">
+        <PositionTags streamer={streamer} />
+      </td>
+      <td className="streamer-table__num">{games || "-"}</td>
+      <td className="streamer-table__num">
+        {winRate !== undefined ? `${winRate.toFixed(1)}%` : "-"}
+      </td>
+      <td className="streamer-table__date">
+        {formatBoardPostDate(streamer.lastPost?.publishedAt)}
+      </td>
+    </tr>
+  );
+}
 
 export function StreamerTable({
   streamers,
@@ -135,96 +258,20 @@ export function StreamerTable({
         </thead>
         <tbody>
           {sorted.map((streamer, index) => {
-            const games = totalGamesOf(streamer);
-            const winRate = winRateOf(streamer);
             const isNew =
               isUpdatedToday(streamer) && !seenKeys.has(seenKeyFor(streamer));
             const isLive = liveStreamerIds.has(streamer.id);
             return (
-              <tr
+              <StreamerTableRow
                 key={streamer.id}
-                className="streamer-table__row"
-                tabIndex={0}
-                role="button"
-                aria-label={`${streamer.displayName} 상세 보기`}
-                onClick={() => onOpen(streamer)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    onOpen(streamer);
-                  }
-                }}
-              >
-                <td className="streamer-table__rank">{index + 1}</td>
-                <td className="streamer-table__identity">
-                  <span className="streamer-table__avatar">
-                    <SaviorAvatar streamer={streamer}>
-                      <FancyAvatar streamer={streamer} />
-                    </SaviorAvatar>
-                    {isLive && (
-                      <span
-                        className="live-ring"
-                        role="img"
-                        aria-label="방송중"
-                        title="현재 방송중"
-                      />
-                    )}
-                    {streamer.sfx && (
-                      <Volume2
-                        className="streamer-table__sfx-badge"
-                        aria-hidden="true"
-                      />
-                    )}
-                  </span>
-                  <span className="streamer-table__name">
-                    <SaviorName streamer={streamer}>
-                      <FancyName streamer={streamer} tag="strong">
-                        {streamer.displayName}
-                      </FancyName>
-                    </SaviorName>
-                    <AchievementBadges
-                      streamer={streamer}
-                      awards={awards}
-                      onClick={onOpenTrophy}
-                    />
-                    {!streamer.isMapped && (
-                      <span className="unmapped" title="SOOP 정보 미연결">
-                        카페
-                      </span>
-                    )}
-                    {isNew && (
-                      <span className="streamer-table__new-badge">NEW</span>
-                    )}
-                  </span>
-                </td>
-                <td>
-                  <span
-                    className="streamer-table__division"
-                    style={
-                      {
-                        "--division-color": divisionColor(
-                          streamer.currentDivision,
-                        ),
-                      } as React.CSSProperties
-                    }
-                  >
-                    D{streamer.currentDivision}
-                  </span>
-                </td>
-                <td>
-                  <RecordBadge streamer={streamer} />
-                </td>
-                <td className="streamer-table__position">
-                  <PositionTags streamer={streamer} />
-                </td>
-                <td className="streamer-table__num">{games || "-"}</td>
-                <td className="streamer-table__num">
-                  {winRate !== undefined ? `${winRate.toFixed(1)}%` : "-"}
-                </td>
-                <td className="streamer-table__date">
-                  {formatBoardPostDate(streamer.lastPost?.publishedAt)}
-                </td>
-              </tr>
+                streamer={streamer}
+                index={index}
+                awards={awards}
+                isNew={isNew}
+                isLive={isLive}
+                onOpen={onOpen}
+                onOpenTrophy={onOpenTrophy}
+              />
             );
           })}
           {sorted.length === 0 && (

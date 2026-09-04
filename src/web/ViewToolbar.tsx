@@ -1,4 +1,4 @@
-import { BadgeCheck, CalendarDays, CirclePile, List, Minus, Plus, RefreshCw, Rows3, Shield, TrendingUp } from "lucide-react";
+import { BadgeCheck, CalendarDays, CirclePile, List, Minus, NotebookPen, Plus, RefreshCw, Rows3, Shield, TrendingUp } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
 import { DivisionHistogram } from "./DivisionHistogram";
 import { CARD_ZOOM_MAX, CARD_ZOOM_MIN } from "./storage";
@@ -17,6 +17,7 @@ export function ViewToolbar({
   onSquadBuilderOpen,
   onPassAnnouncementOpen,
   onTestScheduleOpen,
+  onWakgoodNotebookOpen,
   onGrowthGraphOpen,
   onRefresh,
   refreshing,
@@ -40,6 +41,7 @@ export function ViewToolbar({
   onSquadBuilderOpen: () => void;
   onPassAnnouncementOpen: () => void;
   onTestScheduleOpen: () => void;
+  onWakgoodNotebookOpen: () => void;
   onGrowthGraphOpen: () => void;
   onRefresh: () => void;
   refreshing: boolean;
@@ -159,6 +161,14 @@ export function ViewToolbar({
         >
           <CalendarDays aria-hidden="true" />
           <span>2차 테스트일정</span>
+        </button>
+        <button
+          type="button"
+          className="wakgood-notebook-toggle"
+          onClick={onWakgoodNotebookOpen}
+        >
+          <NotebookPen aria-hidden="true" />
+          <span>우왁굳의 메모장</span>
         </button>
         <div className="segmented segmented--view-mode">
           <button

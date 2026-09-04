@@ -24,6 +24,7 @@ import {
   SaviorTag,
 } from "./cardVisuals";
 import { DivisionSigil } from "./divisionSigils";
+import { useWakgoodNoteHover, WakgoodNoteBubble } from "./WakgoodNoteTooltip";
 
 export function StreamerCard({
   streamer,
@@ -45,10 +46,16 @@ export function StreamerCard({
   const fancyColor = lite ? mixHex("#00e9ae", "white", 0.65) : "#00e9ae";
   const savior = isStreamerSavior(streamer);
   const rate = streamer.record ? winRatePercent(streamer.record) : undefined;
+  const { open: noteOpen, show: showNote, scheduleHide: hideNote, anchorRef } =
+    useWakgoodNoteHover<HTMLButtonElement>(streamer.id);
+  const showNoteTooltip = streamer.passedFirstRound;
   return (
     <button
+      ref={anchorRef}
       className={`streamer-card ${isNew ? "streamer-card--new" : ""} ${tier !== "none" ? "fancy-border" : ""} ${lite ? "fancy-border--lite" : ""} ${savior ? "savior-border" : ""}`}
       onClick={onOpen}
+      onMouseEnter={showNoteTooltip ? showNote : undefined}
+      onMouseLeave={showNoteTooltip ? hideNote : undefined}
       aria-label={`${streamer.displayName} 상세 보기${isNew ? " (24시간 이내 업데이트됨)" : ""}`}
       style={
         tier !== "none" || savior
@@ -123,6 +130,14 @@ export function StreamerCard({
         </span>
       )}
       {isNew && <span className="streamer-card__new-badge">NEW</span>}
+      {showNoteTooltip && noteOpen && (
+        <WakgoodNoteBubble
+          streamer={streamer}
+          anchorRef={anchorRef}
+          onMouseEnter={showNote}
+          onMouseLeave={hideNote}
+        />
+      )}
     </button>
   );
 }
@@ -147,6 +162,9 @@ export function StreamerFifaCard({
     ? formatBoardPostDate(streamer.lastPost.publishedAt)
     : "첫 보고 대기";
   const photoSrc = streamer.profileImageUrl ?? defaultSoopProfileUrl(streamer.soopId);
+  const { open: noteOpen, show: showNote, scheduleHide: hideNote } =
+    useWakgoodNoteHover<HTMLButtonElement>(streamer.id);
+  const showNoteTooltip = streamer.passedFirstRound;
   const cardRef = useRef<HTMLButtonElement>(null);
   const [tilt, setTilt] = useState({
     rx: 0,
@@ -183,6 +201,7 @@ export function StreamerFifaCard({
   const handleMouseLeave = () => {
     cancelAnimationFrame(rafRef.current);
     setTilt((current) => ({ ...current, active: false }));
+    if (showNoteTooltip) hideNote();
   };
 
   return (
@@ -190,6 +209,7 @@ export function StreamerFifaCard({
       ref={cardRef}
       className={`fifa-card fifa-card--holo ${tilt.active ? "fifa-card--active" : ""} ${tier !== "none" ? "fifa-card--fancy" : ""} ${lite ? "fifa-card--fancy-lite" : ""} ${savior ? "fifa-card--savior" : ""}`}
       onClick={onOpen}
+      onMouseEnter={showNoteTooltip ? showNote : undefined}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={
@@ -328,6 +348,15 @@ export function StreamerFifaCard({
           )}
         </span>
       </span>
+      {showNoteTooltip && noteOpen && (
+        <WakgoodNoteBubble
+          streamer={streamer}
+          anchorRef={cardRef}
+          onMouseEnter={showNote}
+          onMouseLeave={hideNote}
+          placement="top"
+        />
+      )}
     </button>
   );
 }

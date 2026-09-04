@@ -1,5 +1,11 @@
 import type { ReactNode } from "react";
-import { CalendarDays, CirclePile, Shield, Trophy } from "lucide-react";
+import {
+  CalendarDays,
+  CirclePile,
+  NotebookPen,
+  Shield,
+  Trophy,
+} from "lucide-react";
 import geminiLogo from "./assets/gemini-logo.svg";
 import { positionColor } from "../shared/position-theme.js";
 
@@ -11,6 +17,24 @@ export type Announcement = {
 };
 
 export const ANNOUNCEMENTS: Announcement[] = [
+  {
+    id: "2026-09-wakgood-notebook",
+    date: "2026.09.05",
+    body: (
+      <>
+        <strong>우왁굳의 메모장</strong> 기능이 추가되었습니다.
+        <br />
+        <br />
+        <span className="announcement-wakgood-notebook-btn">
+          <NotebookPen aria-hidden="true" />
+          <span>우왁굳의 메모장</span>
+        </span>{" "}
+        버튼을 누르면 왁굳형이 1차 합격자 개개인에게 남긴 평가를 모아볼 수 있고,
+        목록에서 마우스를 올리면 같은 메모를 툴팁으로 바로 확인할 수 있습니다.
+      </>
+    ),
+    note: '아직 평가가 작성되지 않은 선수는 "작성전"으로 표시되며, 순차적으로 채워질 예정입니다.',
+  },
   {
     id: "2026-09-test-schedule",
     date: "2026.09.02",
