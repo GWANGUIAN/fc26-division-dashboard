@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { StickyNote } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
-import { getWakgoodNotes } from "./wakgoodNotes";
+import { getWakgoodNotes, isSkippedWakgoodNote } from "./wakgoodNotes";
 
 // Keeps the bubble open for a beat after the pointer leaves the trigger (and
 // while it's over the bubble itself), so a small gap or a slightly wobbly
@@ -91,11 +91,17 @@ export function WakgoodNoteBubble<T extends HTMLElement>({
 
   if (!pos) return null;
   const notes = getWakgoodNotes(streamer.id);
-  const written = Boolean(notes && notes.length > 0);
+  const skipped = isSkippedWakgoodNote(notes);
+  const written = Boolean(notes && notes.length > 0) && !skipped;
+  const stateClass = written
+    ? "wakgood-note-bubble--written"
+    : skipped
+      ? "wakgood-note-bubble--skipped"
+      : "wakgood-note-bubble--empty";
 
   return createPortal(
     <span
-      className={`wakgood-note-bubble wakgood-note-bubble--${placement} ${written ? "wakgood-note-bubble--written" : "wakgood-note-bubble--empty"}`}
+      className={`wakgood-note-bubble wakgood-note-bubble--${placement} ${stateClass}`}
       role="tooltip"
       style={{ top: pos.top, left: pos.left }}
       onMouseEnter={onMouseEnter}
@@ -115,6 +121,8 @@ export function WakgoodNoteBubble<T extends HTMLElement>({
             <li key={index}>{note}</li>
           ))}
         </ul>
+      ) : skipped ? (
+        <p className="wakgood-note-bubble__skipped">{notes![0]}</p>
       ) : (
         <p className="wakgood-note-bubble__empty">작성전</p>
       )}

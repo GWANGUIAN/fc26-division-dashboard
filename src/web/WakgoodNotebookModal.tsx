@@ -2,7 +2,7 @@ import { NotebookPen } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
 import { Avatar } from "./cardVisuals";
 import { Modal, useEscape } from "./Modal";
-import { getWakgoodNotes } from "./wakgoodNotes";
+import { getWakgoodNotes, isSkippedWakgoodNote } from "./wakgoodNotes";
 
 export function WakgoodNotebookModal({
   streamers,
@@ -29,10 +29,16 @@ export function WakgoodNotebookModal({
       <ul className="wakgood-notebook__list">
         {streamers.map((streamer) => {
           const notes = getWakgoodNotes(streamer.id);
-          const written = Boolean(notes && notes.length > 0);
+          const skipped = isSkippedWakgoodNote(notes);
+          const written = Boolean(notes && notes.length > 0) && !skipped;
+          const stateClass = written
+            ? "wakgood-notebook__entry--written"
+            : skipped
+              ? "wakgood-notebook__entry--skipped"
+              : "wakgood-notebook__entry--empty";
           return (
             <li
-              className={`wakgood-notebook__entry ${written ? "wakgood-notebook__entry--written" : "wakgood-notebook__entry--empty"}`}
+              className={`wakgood-notebook__entry ${stateClass}`}
               key={streamer.id}
             >
               <div className="wakgood-notebook__entry-head">
@@ -45,6 +51,8 @@ export function WakgoodNotebookModal({
                     <li key={index}>{note}</li>
                   ))}
                 </ul>
+              ) : skipped ? (
+                <p className="wakgood-notebook__skipped">{notes![0]}</p>
               ) : (
                 <p className="wakgood-notebook__empty">작성전</p>
               )}

@@ -15,14 +15,14 @@ export const WAKGOOD_NOTES: Record<string, string[]> = {
     "패스, 시야 bad",
   ], // 딸기슈몽
   esoj001: ["성장 필요", "RT 무조건 누르고 있는 습관"], // 도이지
-  tleod1818: [], // 빙밍_
+  tleod1818: ["초보."], // 빙밍_
+  janine95kim: ["(넘어감)"], // 재닌
+  been11060: ["오프더볼 낫배드", "로빙스루 없음"], // 오구
   haepalin: [], // 해파린~
   sircharlee: [], // 찰리씨
   nsnowthemoon: [], // 설빈달
   kur0ch4t: [], // 쿠로샤
-  been11060: [], // 오구
   hobal115end: [], // 호발☆
-  janine95kim: [], // 재닌
   y0unggam: [], // 영감__
   alice427: [], // 미르_MIR
   kaksjak0730: [], // 한결___
@@ -35,4 +35,11 @@ export const WAKGOOD_NOTES: Record<string, string[]> = {
 
 export function getWakgoodNotes(streamerId: string): string[] | undefined {
   return WAKGOOD_NOTES[streamerId];
+}
+
+/** Sentinel note body meaning "평가를 의도적으로 건너뜀" — rendered without a bullet, in its own style. */
+export const WAKGOOD_NOTE_SKIPPED = "(넘어감)";
+
+export function isSkippedWakgoodNote(notes: string[] | undefined): boolean {
+  return notes?.length === 1 && notes[0] === WAKGOOD_NOTE_SKIPPED;
 }
