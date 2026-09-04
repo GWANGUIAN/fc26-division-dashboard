@@ -589,6 +589,10 @@
   color: var(--text-primary);
   font: 700 22px "Noto Sans KR";
 }
+.pass-reveal-rail__position {
+  flex-shrink: 0;
+}
+.pass-reveal-rail__position .position-tag { padding: 1px 5px; font-size: 11px; }
 .pass-reveal-rail__division {
   flex-shrink: 0;
   color: var(--item-color);
@@ -871,6 +875,7 @@
    fades in slightly translucent-to-opaque while rising up a touch, so the
    reveal reads as the info settling into place rather than a hard cut. */
 .reveal-card-front__division,
+.reveal-card-front__position,
 .reveal-card-front__body {
   opacity: 0;
   transform: translateY(14px);
@@ -890,6 +895,16 @@
   /* opacity/transform/animation come from the combined rule above (shared
      with __body) which fades+rises this in; not restated here. */
 }
+/* Mirrors the division badge on the opposite corner (fade/rise-in
+   animation comes from the combined rule above, shared with __division). */
+.reveal-card-front__position {
+  position: absolute;
+  z-index: 1;
+  top: 7%;
+  right: 8%;
+}
+.reveal-card-front__position .position-tag { font-size: 9.5cqw; padding: .5cqw 3cqw; text-shadow: var(--text-outline); }
+.reveal-card-front__position .position-tags { gap: 2cqw; }
 /* Avatar+name pinned toward the top (not vertically centered) so the stats
    block below has real room to be shown large. */
 .reveal-card-front__body {
@@ -1022,6 +1037,7 @@
   .reveal-card__spark,
   .reveal-card__glow-outline,
   .reveal-card-front__division,
+  .reveal-card-front__position,
   .reveal-card-front__body,
   .pass-reveal-rail__item {
     animation-duration: .01ms !important;

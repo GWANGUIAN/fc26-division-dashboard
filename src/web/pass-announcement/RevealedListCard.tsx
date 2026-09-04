@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import type { StreamerRecord } from "../../shared/model.js";
 import { divisionColor } from "../../shared/division-theme.js";
-import { FancyAvatar, FancyName } from "../cardVisuals.js";
+import { FancyAvatar, FancyName, PositionTags } from "../cardVisuals.js";
 
 /**
  * Compact name+photo row for the reveal rail — a full card per passer
@@ -23,6 +23,11 @@ export function RevealedListCard({ streamer }: { streamer: StreamerRecord }) {
           {streamer.displayName}
         </FancyName>
       </span>
+      {streamer.hopedPosition1 && (
+        <span className="pass-reveal-rail__position">
+          <PositionTags streamer={streamer} />
+        </span>
+      )}
       {streamer.currentDivision > 0 && (
         <span className="pass-reveal-rail__division">
           D{streamer.currentDivision}

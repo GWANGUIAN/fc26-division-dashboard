@@ -1,6 +1,13 @@
 import type { StreamerRecord } from "../../shared/model.js";
 import { winRatePercent } from "../../shared/record-extraction.js";
-import { FancyAvatar, FancyName, FifaShield, hexToRgba, RecordBadge } from "../cardVisuals.js";
+import {
+  FancyAvatar,
+  FancyName,
+  FifaShield,
+  hexToRgba,
+  PositionTags,
+  RecordBadge,
+} from "../cardVisuals.js";
 
 export function RevealCardFront({
   streamer,
@@ -16,6 +23,11 @@ export function RevealCardFront({
       <span className="reveal-card-front__division">
         {streamer.currentDivision > 0 ? `D${streamer.currentDivision}` : ""}
       </span>
+      {streamer.hopedPosition1 && (
+        <span className="reveal-card-front__position">
+          <PositionTags streamer={streamer} />
+        </span>
+      )}
       <span className="reveal-card-front__body">
         <span
           className="reveal-card-front__avatar"
