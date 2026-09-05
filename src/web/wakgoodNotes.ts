@@ -102,7 +102,9 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
   gofl2237: { notes: [] }, // 해리
   yourdarky: { notes: [] }, // 다키_
   // 9/5 (WF)
-  nlsb9718: { notes: [] }, // 판다비♥
+  nlsb9718: {
+    notes: ["완벽한 크로스 상황을 너무.. 놓침", "기본실력은 있어보입니다."],
+  }, // 판다비♥
   tdnlamuron: { notes: [] }, // 다시바
   chebi2: {
     notes: [
