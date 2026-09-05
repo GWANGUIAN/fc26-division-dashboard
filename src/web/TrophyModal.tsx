@@ -344,8 +344,7 @@ export function TrophyModal({
               <h3>
                 귀요미왕
               </h3>
-                <p>SOOP 선정 풀독 올랐을때 가장 귀여운 스트리머 부문 1위는
-                  아니고 제작자 사심으로 귀여우셔서 드림</p>
+                <p>SOOP 선정 풀독 올랐을때 가장 귀여운 스트리머 부문 1위</p>
             </div>
           </div>
           {awards.cutest.length ? (
