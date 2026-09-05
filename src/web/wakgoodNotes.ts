@@ -123,7 +123,9 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
   // 9/5 (RW)
   aryenne: { notes: [] }, // 이부키에사
   // 9/5 (CM)
-  bboringirl: { notes: [] }, // 뽀린걸
+  bboringirl: {
+    notes: ["많이 불쌍했지만... 이겨내지 못했다.. 몇안되는 기회를... 버렸다."],
+  }, // 뽀린걸
   zzimio3o: { notes: [] }, // 찌미
   nanamoon777: {
     notes: [
