@@ -123,15 +123,21 @@ export function WakgoodNoteBubble<T extends HTMLElement>({
         <strong className="wakgood-note-bubble__title">
           <StickyNote aria-hidden="true" /> 우왁굳의 메모장
         </strong>
-        {entry?.vodUrl && (
-          <a
-            className="wakgood-note-bubble__vod"
-            href={entry.vodUrl}
-            target="_blank"
-            rel="noreferrer"
-          >
-            다시보기 <ExternalLink aria-hidden="true" />
-          </a>
+        {entry?.vodUrls && entry.vodUrls.length > 0 && (
+          <span className="wakgood-note-bubble__vod-group">
+            {entry.vodUrls.map((url, index) => (
+              <a
+                key={url}
+                className="wakgood-note-bubble__vod"
+                href={url}
+                target="_blank"
+                rel="noreferrer"
+              >
+                다시보기{entry.vodUrls!.length > 1 ? ` ${index + 1}` : ""}{" "}
+                <ExternalLink aria-hidden="true" />
+              </a>
+            ))}
+          </span>
         )}
       </span>
       {written ? (

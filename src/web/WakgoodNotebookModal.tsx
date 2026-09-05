@@ -157,15 +157,21 @@ export function WakgoodNotebookModal({
               <div className="wakgood-notebook__entry-head">
                 <Avatar {...streamer} />
                 <strong>{streamer.displayName}</strong>
-                {entry?.vodUrl && (
-                  <a
-                    className="wakgood-notebook__vod"
-                    href={entry.vodUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    다시보기 <ExternalLink aria-hidden="true" />
-                  </a>
+                {entry?.vodUrls && entry.vodUrls.length > 0 && (
+                  <span className="wakgood-notebook__vod-group">
+                    {entry.vodUrls.map((url, index) => (
+                      <a
+                        key={url}
+                        className="wakgood-notebook__vod"
+                        href={url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        다시보기{entry.vodUrls!.length > 1 ? ` ${index + 1}` : ""}{" "}
+                        <ExternalLink aria-hidden="true" />
+                      </a>
+                    ))}
+                  </span>
                 )}
               </div>
               <div className="wakgood-notebook__entry-tags">

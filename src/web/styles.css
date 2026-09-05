@@ -251,7 +251,8 @@ body { isolation: isolate; }
 .wakgood-notebook__match-day { padding: 2px 6px; border: 1px solid var(--border-strong); border-radius: 2px; color: var(--text-secondary); background: var(--fill-faint); font-size: 10px; font-weight: 700; white-space: nowrap; }
 /* Plain underlined link + outbound-arrow icon, not a pill button — reads as
    "this leaves the page" rather than another in-app action. */
-.wakgood-notebook__vod { display: inline-flex; align-items: center; gap: 3px; margin-left: auto; color: #6cb0ff; text-decoration: underline; text-decoration-color: #6cb0ff66; text-underline-offset: 3px; font-size: 11px; font-weight: 700; white-space: nowrap; transition: color .16s, text-decoration-color .16s; }
+.wakgood-notebook__vod-group { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; }
+.wakgood-notebook__vod { display: inline-flex; align-items: center; gap: 3px; color: #6cb0ff; text-decoration: underline; text-decoration-color: #6cb0ff66; text-underline-offset: 3px; font-size: 11px; font-weight: 700; white-space: nowrap; transition: color .16s, text-decoration-color .16s; }
 .wakgood-notebook__vod:hover, .wakgood-notebook__vod:focus-visible { color: #a3cdff; text-decoration-color: #a3cdff; outline: 0; }
 .wakgood-notebook__vod svg { width: 11px; height: 11px; stroke-width: 2.6; }
 .wakgood-notebook__notes { display: grid; gap: 4px; margin: 0; padding-left: 18px; color: var(--text-primary); font-size: 12px; font-weight: 500; line-height: 1.5; }
@@ -301,6 +302,7 @@ body { isolation: isolate; }
 .wakgood-note-bubble__header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .wakgood-note-bubble__title { display: flex; align-items: center; gap: 6px; color: var(--accent-text); font-size: 12px; font-weight: 800; }
 .wakgood-note-bubble__title svg { width: 13px; height: 13px; stroke-width: 2.4; }
+.wakgood-note-bubble__vod-group { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 6px; }
 .wakgood-note-bubble__vod { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 3px; color: #6cb0ff; text-decoration: underline; text-decoration-color: #6cb0ff66; text-underline-offset: 3px; font-size: 10.5px; font-weight: 700; white-space: nowrap; transition: color .16s, text-decoration-color .16s; }
 .wakgood-note-bubble__vod:hover, .wakgood-note-bubble__vod:focus-visible { color: #a3cdff; text-decoration-color: #a3cdff; outline: 0; }
 .wakgood-note-bubble__vod svg { width: 10px; height: 10px; stroke-width: 2.6; }
