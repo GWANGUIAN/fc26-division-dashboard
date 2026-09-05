@@ -98,6 +98,38 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
   kirababy2: { notes: [] }, // 유키라
   dokkhye0000: { notes: [] }, // 독고혜지
   ttu0221: { notes: [] }, // 흠냥b
+  // 9/5 (ST)
+  gofl2237: { notes: [] }, // 해리
+  yourdarky: { notes: [] }, // 다키_
+  // 9/5 (WF)
+  nlsb9718: { notes: [] }, // 판다비♥
+  tdnlamuron: { notes: [] }, // 다시바
+  chebi2: { notes: [] }, // 체비
+  // 9/5 (RW)
+  aryenne: { notes: [] }, // 이부키에사
+  // 9/5 (CM)
+  bboringirl: { notes: [] }, // 뽀린걸
+  zzimio3o: { notes: [] }, // 찌미
+  nanamoon777: { notes: [] }, // 나나문
+  // 9/5 (CDM)
+  villlo: { notes: [] }, // 왜냐니
+  // 9/5 (FB)
+  danchu17: { notes: [] }, // 단츄♪
+  etwo22: { notes: [] }, // 이투__
+  secretto486: { notes: [] }, // 비밀소녀♥
+  // 9/5 (CB)
+  leuni158: { notes: [] }, // 르니
+  // 9/7 (ST)
+  ju010228: { notes: [] }, // 쥬멩이
+  habee511: { notes: [] }, // 망야_
+  // 9/7 (WF)
+  jejong5: { notes: [] }, // 제이제이잉
+  hachi97: { notes: [] }, // 하치_HACHI
+  cjstkdbsl3: { notes: [] }, // 깡담비
+  hikicomoring: { notes: [] }, // 히키☆
+  // 9/7 (FB)
+  secymyong: { notes: [] }, // 묭씨
+  whiteone325: { notes: [] }, // 난워니-_-+
 };
 
 export function getWakgoodNote(
