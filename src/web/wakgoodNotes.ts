@@ -92,7 +92,14 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
     vodUrl: noteVodUrl(8193), // 02:16:33
   }, // 쿠로샤
   dokkhye0000: { notes: [] }, // 독고혜지
-  kirababy2: { notes: [] }, // 유키라
+  kirababy2: {
+    notes: [
+      "위치선정 꽤 괜찮음",
+      "패스성공률 100%임(그런데 팀을 죽이는 패스도 많음)",
+      "패스를 매우 신중하게 함. 백패스 많음.",
+      "캐릭터 컨트롤이 아직 미숙해서 180도 터닝패스 + 걷다가 패스, 급하게 패스 등 불안요소 많음 그래도 조작 익숙해지면 축구지능 있어보이긴함",
+    ],
+  }, // 유키라
   haepalin: { notes: [] }, // 해파린~
   alice427: { notes: [] }, // 미르_MIR
   kaksjak0730: { notes: [] }, // 한결___
@@ -176,7 +183,7 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
     notes: [
       "앞으로 나가서 수비하는 성향이 너무 강해서 뒷공간이 다 털려버림스...",
       "공걱시 오버래핑 움직임도 아쉬움..",
-      "공격시 뒷대각 만드는거 공부해오신 티가 나서 좋았음."
+      "공격시 뒷대각 만드는거 공부해오신 티가 나서 좋았음.",
     ],
   }, // 이투__
   // 9/5 (CB)
