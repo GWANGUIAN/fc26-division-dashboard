@@ -206,22 +206,6 @@ export const TEST_SCHEDULE: TestScheduleDate[] = [
     isoDate: "2026-09-07",
     teams: [
       {
-        label: "1팀",
-        slots: [
-          { streamerId: "ju010228", position: "ST" },
-          { streamerId: "jejong5", position: "WF" },
-          { streamerId: "hachi97", position: "WF" },
-          { position: "CM" },
-          { position: "CM" },
-          { streamerId: "toocats", position: "CDM" },
-          { position: "CB" },
-          { position: "CB" },
-          { streamerId: "secymyong", position: "FB" },
-          { position: "FB" },
-          { streamerId: "janine95kim", position: "GK" },
-        ],
-      },
-      {
         label: "2팀",
         slots: [
           { streamerId: "habee511", position: "ST" },
@@ -233,6 +217,22 @@ export const TEST_SCHEDULE: TestScheduleDate[] = [
           { position: "CB" },
           { position: "CB" },
           { streamerId: "whiteone325", position: "FB" },
+          { position: "FB" },
+          { streamerId: "janine95kim", position: "GK" },
+        ],
+      },
+      {
+        label: "1팀",
+        slots: [
+          { streamerId: "ju010228", position: "ST" },
+          { streamerId: "jejong5", position: "WF" },
+          { streamerId: "hachi97", position: "WF" },
+          { position: "CM" },
+          { position: "CM" },
+          { streamerId: "toocats", position: "CDM" },
+          { position: "CB" },
+          { position: "CB" },
+          { streamerId: "secymyong", position: "FB" },
           { position: "FB" },
           { streamerId: "janine95kim", position: "GK" },
         ],
