@@ -101,7 +101,7 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
   nsnowthemoon: { notes: [] }, // 설빈달
   sookbong777: { notes: [] }, // 숙봉이
   // 9/5 (ST)
-  gofl2237: { notes: [] }, // 해리
+  gofl2237: { notes: ["소스없음. 헤딩 위치선정 좋아보임. 무난한 느낌스 일단."] }, // 해리
   yourdarky: { notes: [] }, // 다키_
   // 9/5 (WF)
   nlsb9718: {
