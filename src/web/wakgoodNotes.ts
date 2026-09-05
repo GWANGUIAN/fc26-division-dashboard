@@ -102,7 +102,10 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
   sookbong777: { notes: [] }, // 숙봉이
   // 9/5 (ST)
   gofl2237: {
-    notes: ["소스없음. 헤딩 위치선정 좋아보임. 무난한 느낌스 일단."],
+    notes: [
+      "소스없음. 헤딩 위치선정 좋아보임. 무난한 느낌스 일단.",
+      "백패스 안내줌",
+    ],
   }, // 해리
   yourdarky: { notes: [] }, // 다키_
   // 9/5 (WF)
@@ -128,7 +131,14 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
   bboringirl: {
     notes: ["많이 불쌍했지만... 이겨내지 못했다.. 몇안되는 기회를... 버렸다."],
   }, // 뽀린걸
-  zzimio3o: { notes: [] }, // 찌미
+  zzimio3o: {
+    notes: [
+      "드리블 볼키핑 가능",
+      "앞으로 갈때의 위치선정은 좋음. 뒤로 빠지거나 절제할때의 위치선정 아쉽",
+      "사이드 스루각을 잘 못봄. 뒤로 오는 접중 잘 못봄",
+      "상대 수비수 사이 쇄도각을 잘봄. 돌파력 있음.",
+    ],
+  }, // 찌미
   nanamoon777: {
     notes: [
       "활동량 매우 좋고 수비가담 매우 좋음.",
