@@ -107,8 +107,8 @@ export const TEST_SCHEDULE: TestScheduleDate[] = [
         slots: [
           { streamerId: "sjh4018", position: "CB" },
           { streamerId: "haepalin", position: "CB" },
-          { streamerId: "tleod1818", position: "FB" },
           { streamerId: "sircharlee", position: "FB" },
+          { streamerId: "tleod1818", position: "FB" },
           { streamerId: "nsnowthemoon", position: "CDM" },
           { streamerId: "been11060", position: "CM" },
           { streamerId: "kur0ch4t", position: "CM" },
