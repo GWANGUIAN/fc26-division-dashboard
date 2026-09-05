@@ -87,35 +87,35 @@ export const TEST_SCHEDULE: TestScheduleDate[] = [
     locked: true,
     teams: [
       {
-        label: "1팀",
-        slots: [
-          { streamerId: "haepalin", position: "CB" },
-          { streamerId: "sjh4018", position: "CB" },
-          { streamerId: "sircharlee", position: "FB" },
-          { streamerId: "tleod1818", position: "FB" },
-          { streamerId: "nsnowthemoon", position: "CDM" },
-          { streamerId: "kur0ch4t", position: "CM" },
-          { streamerId: "been11060", position: "CM" },
-          { streamerId: "esoj001", position: "WF" },
-          { streamerId: "ditosak", position: "WF" },
-          { streamerId: "hobal115end", position: "ST" },
-          { streamerId: "janine95kim", position: "GK" },
-        ],
-      },
-      {
         label: "2팀",
         slots: [
           { streamerId: "y0unggam", position: "ST" },
-          { streamerId: "alice427", position: "WF" },
           { streamerId: "ddalgishoux", position: "WF" },
-          { streamerId: "kaksjak0730", position: "CM" },
+          { streamerId: "alice427", position: "WF" },
           { streamerId: "sookbong777", position: "CM" },
+          { streamerId: "kaksjak0730", position: "CM" },
           { streamerId: "kirababy2", position: "CDM" },
-          { streamerId: "dokkhye0000", position: "CB" },
           { streamerId: "ttu0221", position: "CB" },
-          { streamerId: "lina0108", position: "FB" },
+          { streamerId: "dokkhye0000", position: "CB" },
           { streamerId: "custom-wakgood", position: "FB" },
+          { streamerId: "lina0108", position: "FB" },
           { streamerId: "custom-picaon", position: "GK" },
+        ],
+      },
+      {
+        label: "1팀",
+        slots: [
+          { streamerId: "sjh4018", position: "CB" },
+          { streamerId: "haepalin", position: "CB" },
+          { streamerId: "tleod1818", position: "FB" },
+          { streamerId: "sircharlee", position: "FB" },
+          { streamerId: "nsnowthemoon", position: "CDM" },
+          { streamerId: "been11060", position: "CM" },
+          { streamerId: "kur0ch4t", position: "CM" },
+          { streamerId: "ditosak", position: "WF" },
+          { streamerId: "esoj001", position: "WF" },
+          { streamerId: "hobal115end", position: "ST" },
+          { streamerId: "janine95kim", position: "GK" },
         ],
       },
     ],
@@ -249,8 +249,9 @@ export interface StreamerMatchAppearance {
 
 /**
  * 어떤 스트리머가 실제로 배정된 경기들만 모아서 반환한다. 9/5처럼 하루에
- * 경기가 여러 개인 날짜는 실제로 뛴 경기에만 gameLabel이 붙는다(예: 1경기만
- * 뛰었으면 "9/5 1경기"만 반환되고 "9/5 2경기"는 포함되지 않는다).
+ * 경기가 여러 개인 날짜는 실제로 뛴 경기 중 하나에만 배정됐을 때만
+ * gameLabel이 붙는다(예: 1경기만 뛰었으면 "9/5 1경기"). 두 경기를 모두
+ * 뛴 경우는 굳이 나누지 않고 날짜 하나로만("9/5") 표기한다.
  */
 export function matchAppearancesForStreamer(
   streamerId: string,
@@ -259,17 +260,16 @@ export function matchAppearancesForStreamer(
   const appearances: StreamerMatchAppearance[] = [];
   for (const entry of schedule) {
     const games = gamesForDate(entry);
-    const multiGame = games.length > 1;
-    for (const game of games) {
-      const appears = game.teams.some((team) =>
+    const playedGames = games.filter((game) =>
+      game.teams.some((team) =>
         team.slots.some((slot) => slot.streamerId === streamerId),
-      );
-      if (appears) {
-        appearances.push({
-          date: entry.date,
-          gameLabel: multiGame ? game.label : undefined,
-        });
-      }
+      ),
+    );
+    if (playedGames.length === 0) continue;
+    if (playedGames.length === 1 && games.length > 1) {
+      appearances.push({ date: entry.date, gameLabel: playedGames[0].label });
+    } else {
+      appearances.push({ date: entry.date });
     }
   }
   return appearances;
