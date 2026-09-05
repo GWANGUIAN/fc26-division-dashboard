@@ -267,6 +267,32 @@ body { isolation: isolate; }
 .wakgood-notebook__entry--skipped { border-left: 3px solid var(--border-strong); opacity: .82; }
 .wakgood-notebook__skipped { margin: 0; color: var(--text-secondary); font-size: 12px; font-weight: 700; letter-spacing: .01em; }
 @media (max-width: 680px) { .wakgood-notebook__list { grid-template-columns: 1fr; } }
+/* Fun rainbow "MVP" highlight for a specific standout note (문모모) — animated
+   gradient border/glow on the card, animated gradient text + sparkle on the note itself. */
+.wakgood-notebook__entry--fancy { position: relative; border: 1px solid transparent; background:
+    linear-gradient(var(--surface-1), var(--surface-1)) padding-box,
+    conic-gradient(from var(--wakgood-fancy-angle, 0deg), #ff5c7a, #ffd76a, #4ade80, #4f8cff, #b98bff, #ff5c7a) border-box;
+  animation: wakgood-fancy-spin 3.5s linear infinite;
+  box-shadow: 0 0 18px #ffffff22, 0 8px 28px #00000040;
+}
+@property --wakgood-fancy-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+@keyframes wakgood-fancy-spin { to { --wakgood-fancy-angle: 360deg; } }
+.wakgood-notebook__notes--fancy { position: relative; }
+.wakgood-notebook__notes--fancy li {
+  background: linear-gradient(90deg, #ff5c7a, #ffd76a, #4ade80, #4f8cff, #b98bff, #ff5c7a);
+  background-size: 300% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  font-weight: 800;
+  animation: wakgood-fancy-text 2.8s linear infinite;
+}
+.wakgood-notebook__notes--fancy li::marker { color: #ffd76a; }
+@keyframes wakgood-fancy-text { to { background-position: 300% center; } }
+@media (prefers-reduced-motion: reduce) {
+  .wakgood-notebook__entry--fancy { animation: none; }
+  .wakgood-notebook__notes--fancy li { animation: none; background-position: 0 center; }
+}
 
 .wakgood-note-bubble { position: fixed; z-index: 60; display: grid; gap: 6px; width: max(220px, min(280px, 80vw)); padding: 10px 12px; border: 1px solid #00e9ae67; color: var(--text-primary); background: var(--surface-elevated); box-shadow: 0 12px 30px rgba(var(--shadow-color), .56); text-align: left; white-space: normal; cursor: default; animation: wakgood-note-bubble-in .14s ease-out; }
 .wakgood-note-bubble--bottom { transform: translate(-50%, 0); }

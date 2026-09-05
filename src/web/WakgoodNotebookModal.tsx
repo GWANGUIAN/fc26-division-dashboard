@@ -147,10 +147,11 @@ export function WakgoodNotebookModal({
             : skipped
               ? "wakgood-notebook__entry--skipped"
               : "wakgood-notebook__entry--empty";
+          const fancy = Boolean(entry?.fancy);
           const appearances = matchAppearancesForStreamer(streamer.id);
           return (
             <li
-              className={`wakgood-notebook__entry ${stateClass}`}
+              className={`wakgood-notebook__entry ${stateClass} ${fancy ? "wakgood-notebook__entry--fancy" : ""}`}
               key={streamer.id}
             >
               <div className="wakgood-notebook__entry-head">
@@ -185,7 +186,9 @@ export function WakgoodNotebookModal({
                 )}
               </div>
               {written ? (
-                <ul className="wakgood-notebook__notes">
+                <ul
+                  className={`wakgood-notebook__notes ${fancy ? "wakgood-notebook__notes--fancy" : ""}`}
+                >
                   {notes!.map((note, index) => (
                     <li key={index}>{note}</li>
                   ))}

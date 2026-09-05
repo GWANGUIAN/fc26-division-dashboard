@@ -5,6 +5,8 @@ export interface WakgoodNoteEntry {
    * 타임스탬프가 포함된 URL을 그대로 넣으면 된다.
    */
   vodUrl?: string;
+  /** 이 평가를 무지개색으로 반짝이게 강조 표시할지 여부 (재미용 하이라이트). */
+  fancy?: boolean;
 }
 
 /**
@@ -131,7 +133,7 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
       "다만 경기장 전체에서 좌우무빙만 반복하는 스타일이라 수비력이 강한 팀을 만났을때 모든 스탯이 하락할 수 있는 스타일로 보임.",
     ],
   }, // 나나문
-  doormomo: { notes: ["잘했음"] }, //문모모
+  doormomo: { notes: ["잘했음"], fancy: true }, //문모모
   // 9/5 (CDM)
   villlo: {
     notes: [
