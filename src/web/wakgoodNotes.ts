@@ -129,9 +129,9 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
     ],
   }, // 왜냐니
   // 9/5 (FB)
+  secretto486: { notes: ["위치선정이 너무 안좋음...", "패스도 급합니다."] }, // 비밀소녀♥
   danchu17: { notes: [] }, // 단츄♪
   etwo22: { notes: [] }, // 이투__
-  secretto486: { notes: [] }, // 비밀소녀♥
   // 9/5 (CB)
   leuni158: { notes: [] }, // 르니
   // 9/7 (ST)
