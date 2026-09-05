@@ -314,6 +314,27 @@ body { isolation: isolate; }
 .wakgood-note-bubble--skipped { border-color: var(--border-strong); }
 .wakgood-note-bubble--skipped .wakgood-note-bubble__title { color: var(--text-secondary); }
 .wakgood-note-bubble__skipped { margin: 0; color: var(--text-secondary); font-size: 12px; font-weight: 700; letter-spacing: .01em; }
+/* Same rainbow "MVP" highlight as the notebook modal, applied to the hover bubble. */
+.wakgood-note-bubble--fancy { border: 1px solid transparent; background:
+    linear-gradient(var(--surface-elevated), var(--surface-elevated)) padding-box,
+    conic-gradient(from var(--wakgood-fancy-angle, 0deg), #ff5c7a, #ffd76a, #4ade80, #4f8cff, #b98bff, #ff5c7a) border-box;
+  animation: wakgood-note-bubble-in .14s ease-out, wakgood-fancy-spin 3.5s linear infinite;
+  box-shadow: 0 0 18px #ffffff22, 0 12px 30px rgba(var(--shadow-color), .56);
+}
+.wakgood-note-bubble__list--fancy li {
+  background: linear-gradient(90deg, #ff5c7a, #ffd76a, #4ade80, #4f8cff, #b98bff, #ff5c7a);
+  background-size: 300% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  font-weight: 800;
+  animation: wakgood-fancy-text 2.8s linear infinite;
+}
+.wakgood-note-bubble__list--fancy li::marker { color: #ffd76a; }
+@media (prefers-reduced-motion: reduce) {
+  .wakgood-note-bubble--fancy { animation: wakgood-note-bubble-in .14s ease-out; }
+  .wakgood-note-bubble__list--fancy li { animation: none; background-position: 0 center; }
+}
 
 /* --- 2차 테스트 포메이션(피치) 뷰 --- */
 .test-pitch { position: relative; width: 100%; max-width: 820px; margin: 40px auto 0; aspect-ratio: 105 / 82; border-radius: 4px; background: repeating-linear-gradient(90deg, #1c8a4c 0, #1c8a4c 8%, #17793f 8%, #17793f 16%); box-shadow: 0 20px 60px rgba(var(--shadow-color), .5), inset 0 0 0 1px var(--border-default); container-type: inline-size; overflow: visible; }

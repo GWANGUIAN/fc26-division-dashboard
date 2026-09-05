@@ -104,10 +104,11 @@ export function WakgoodNoteBubble<T extends HTMLElement>({
     : skipped
       ? "wakgood-note-bubble--skipped"
       : "wakgood-note-bubble--empty";
+  const fancy = Boolean(entry?.fancy);
 
   return createPortal(
     <span
-      className={`wakgood-note-bubble wakgood-note-bubble--${placement} ${stateClass}`}
+      className={`wakgood-note-bubble wakgood-note-bubble--${placement} ${stateClass} ${fancy ? "wakgood-note-bubble--fancy" : ""}`}
       role="tooltip"
       style={{ top: pos.top, left: pos.left }}
       onMouseEnter={onMouseEnter}
@@ -134,7 +135,9 @@ export function WakgoodNoteBubble<T extends HTMLElement>({
         )}
       </span>
       {written ? (
-        <ul className="wakgood-note-bubble__list">
+        <ul
+          className={`wakgood-note-bubble__list ${fancy ? "wakgood-note-bubble__list--fancy" : ""}`}
+        >
           {notes!.map((note, index) => (
             <li key={index}>{note}</li>
           ))}
