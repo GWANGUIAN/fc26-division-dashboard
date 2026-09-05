@@ -104,7 +104,12 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
   // 9/5 (WF)
   nlsb9718: { notes: [] }, // 판다비♥
   tdnlamuron: { notes: [] }, // 다시바
-  chebi2: { notes: [] }, // 체비
+  chebi2: {
+    notes: [
+      "쇄도 타이밍이 너무 빠름 혹은 안맞음. 혹은 쇄도 해야할때 안함. 혹은 폭이 안맞음.",
+      "그래도 패널티 박스로 도움줘야 할 때 주는 경우 있음.",
+    ],
+  }, // 체비
   // 9/5 (RW)
   aryenne: { notes: [] }, // 이부키에사
   // 9/5 (CM)
