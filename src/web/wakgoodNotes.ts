@@ -101,7 +101,9 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
   nsnowthemoon: { notes: [] }, // 설빈달
   sookbong777: { notes: [] }, // 숙봉이
   // 9/5 (ST)
-  gofl2237: { notes: ["소스없음. 헤딩 위치선정 좋아보임. 무난한 느낌스 일단."] }, // 해리
+  gofl2237: {
+    notes: ["소스없음. 헤딩 위치선정 좋아보임. 무난한 느낌스 일단."],
+  }, // 해리
   yourdarky: { notes: [] }, // 다키_
   // 9/5 (WF)
   nlsb9718: {
@@ -150,7 +152,14 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
   danchu17: { notes: [] }, // 단츄♪
   etwo22: { notes: [] }, // 이투__
   // 9/5 (CB)
-  leuni158: { notes: [] }, // 르니
+  leuni158: {
+    notes: [
+      "위치선정 살짝 아쉬움",
+      "패스시야 살짝 아쉬움",
+      "드리블...?",
+      "사이드 롱볼, 걷어내기 할줄 아심.(질질끌다가 뺏기는건 없음)",
+    ],
+  }, // 르니
   // 9/7 (ST)
   ju010228: { notes: [] }, // 쥬멩이
   habee511: { notes: [] }, // 망야_
