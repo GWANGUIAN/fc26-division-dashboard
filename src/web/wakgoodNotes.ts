@@ -120,7 +120,14 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
   }, // 나나문
   doormomo: { notes: ["잘했음"] }, //문모모
   // 9/5 (CDM)
-  villlo: { notes: [] }, // 왜냐니
+  villlo: {
+    notes: [
+      "위치선정 좋음.",
+      "볼배급 괜찮음.",
+      "강한 압박 상황에서의 배급 미스는 있음.",
+      "빠른 속공 시 흐름따라 패스하는 경향",
+    ],
+  }, // 왜냐니
   // 9/5 (FB)
   danchu17: { notes: [] }, // 단츄♪
   etwo22: { notes: [] }, // 이투__
