@@ -110,7 +110,14 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
   // 9/5 (CM)
   bboringirl: { notes: [] }, // 뽀린걸
   zzimio3o: { notes: [] }, // 찌미
-  nanamoon777: { notes: [] }, // 나나문
+  nanamoon777: {
+    notes: [
+      "활동량 매우 좋고 수비가담 매우 좋음.",
+      "공격성 매우 좋고 볼키핑 가능. 패스 바로바로 뿌려줌.",
+      "접중각 볼줄앎.",
+      "다만 경기장 전체에서 좌우무빙만 반복하는 스타일이라 수비력이 강한 팀을 만났을때 모든 스탯이 하락할 수 있는 스타일로 보임.",
+    ],
+  }, // 나나문
   // 9/5 (CDM)
   villlo: { notes: [] }, // 왜냐니
   // 9/5 (FB)
