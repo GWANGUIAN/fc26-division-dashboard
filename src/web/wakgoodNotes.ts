@@ -118,6 +118,7 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
       "다만 경기장 전체에서 좌우무빙만 반복하는 스타일이라 수비력이 강한 팀을 만났을때 모든 스탯이 하락할 수 있는 스타일로 보임.",
     ],
   }, // 나나문
+  doormomo: { notes: ["잘했음"] }, //문모모
   // 9/5 (CDM)
   villlo: { notes: [] }, // 왜냐니
   // 9/5 (FB)
