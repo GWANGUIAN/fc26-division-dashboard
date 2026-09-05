@@ -89,15 +89,15 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
     ],
     vodUrl: noteVodUrl(8193), // 02:16:33
   }, // 쿠로샤
+  dokkhye0000: { notes: [] }, // 독고혜지
+  kirababy2: { notes: [] }, // 유키라
   haepalin: { notes: [] }, // 해파린~
-  nsnowthemoon: { notes: [] }, // 설빈달
-  y0unggam: { notes: [] }, // 영감__
   alice427: { notes: [] }, // 미르_MIR
   kaksjak0730: { notes: [] }, // 한결___
-  sookbong777: { notes: [] }, // 숙봉이
-  kirababy2: { notes: [] }, // 유키라
-  dokkhye0000: { notes: [] }, // 독고혜지
+  y0unggam: { notes: [] }, // 영감__
   ttu0221: { notes: [] }, // 흠냥b
+  nsnowthemoon: { notes: [] }, // 설빈달
+  sookbong777: { notes: [] }, // 숙봉이
   // 9/5 (ST)
   gofl2237: { notes: [] }, // 해리
   yourdarky: { notes: [] }, // 다키_

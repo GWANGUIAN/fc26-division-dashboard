@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { ExternalLink, NotebookPen } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
+import { searchable } from "../shared/search.js";
 import {
   POSITION_GROUP_COLORS,
   POSITION_GROUP_LABELS,
@@ -26,6 +27,7 @@ export function WakgoodNotebookModal({
   onClose: () => void;
 }) {
   useEscape(onClose);
+  const [query, setQuery] = useState("");
   const [positionFilter, setPositionFilter] = useState<PositionGroup | "all">(
     "all",
   );
@@ -35,13 +37,14 @@ export function WakgoodNotebookModal({
     () =>
       streamers.filter(
         (streamer) =>
+          searchable(streamer.displayName, streamer.cafeAliases, query) &&
           (positionFilter === "all" ||
             positionGroupOf(streamer.hopedPosition1) === positionFilter ||
             positionGroupOf(streamer.hopedPosition2) === positionFilter) &&
           (dateFilter === "all" ||
             matchDatesForStreamer(streamer.id).has(dateFilter)),
       ),
-    [streamers, positionFilter, dateFilter],
+    [streamers, query, positionFilter, dateFilter],
   );
 
   return (
@@ -56,6 +59,14 @@ export function WakgoodNotebookModal({
             <NotebookPen aria-hidden="true" /> 우왁굳의 메모장
           </h2>
           <div className="wakgood-notebook__filters">
+            <label className="wakgood-notebook__search">
+              <span className="sr-only">이름 검색</span>
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="이름 또는 카페 닉네임 검색"
+              />
+            </label>
             <div className="segmented segmented--position">
               <button
                 className={positionFilter === "all" ? "active" : ""}
