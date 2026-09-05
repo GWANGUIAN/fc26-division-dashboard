@@ -105,7 +105,13 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
   nlsb9718: {
     notes: ["완벽한 크로스 상황을 너무.. 놓침", "기본실력은 있어보입니다."],
   }, // 판다비♥
-  tdnlamuron: { notes: [] }, // 다시바
+  tdnlamuron: {
+    notes: [
+      "윙어로써의 폭 조절 움직임이 괜찮음",
+      "기본실력은 있어보입니다.",
+      "맛있는 공간 주어졌을때도 접어버림...(돌파를 끝까지 못함)",
+    ],
+  }, // 다시바
   chebi2: {
     notes: [
       "쇄도 타이밍이 너무 빠름 혹은 안맞음. 혹은 쇄도 해야할때 안함. 혹은 폭이 안맞음.",
