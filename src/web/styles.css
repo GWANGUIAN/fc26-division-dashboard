@@ -231,6 +231,12 @@ body { isolation: isolate; }
 .wakgood-notebook-toggle svg { width: 14px; height: 14px; stroke-width: 2.6; }
 .wakgood-notebook__title { display: flex; align-items: center; gap: 9px; font: 800 34px/1 "Barlow Condensed", "Noto Sans KR"; }
 .wakgood-notebook__title svg { color: #00e9ae; }
+.wakgood-notebook__heading-row { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px; }
+.wakgood-notebook__progress { display: flex; flex-wrap: wrap; gap: 6px; }
+.wakgood-notebook__progress-item { padding: 4px 9px; border-radius: 3px; font-size: 11px; font-weight: 800; white-space: nowrap; }
+.wakgood-notebook__progress-item--written { color: #00e9ae; background: #00e9ae1c; }
+.wakgood-notebook__progress-item--skipped { color: var(--text-secondary); background: var(--fill-faint); }
+.wakgood-notebook__progress-item--empty { color: var(--text-muted); background: var(--fill-faint); }
 .wakgood-notebook__filters { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 16px; }
 .wakgood-notebook__search input { width: min(260px, 42vw); min-width: 0; padding: 9px 12px; border: 1px solid var(--border-strong); border-radius: 3px; outline: none; color: var(--text-primary); background: var(--surface-input); font-size: 12px; transition: background .2s, border-color .2s; }
 .wakgood-notebook__search input:focus { border-color: var(--accent-border); box-shadow: 0 0 0 3px #00e9ae12; }

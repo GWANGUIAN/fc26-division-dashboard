@@ -46,6 +46,15 @@ export function WakgoodNotebookModal({
       ),
     [streamers, query, positionFilter, dateFilter],
   );
+  const writtenCount = filteredStreamers.filter((streamer) => {
+    const notes = getWakgoodNote(streamer.id)?.notes;
+    return Boolean(notes && notes.length > 0) && !isSkippedWakgoodNote(notes);
+  }).length;
+  const skippedStreamers = filteredStreamers.filter((streamer) =>
+    isSkippedWakgoodNote(getWakgoodNote(streamer.id)?.notes),
+  );
+  const incompleteCount =
+    filteredStreamers.length - writtenCount - skippedStreamers.length;
 
   return (
     <Modal
@@ -54,10 +63,27 @@ export function WakgoodNotebookModal({
       wide
       header={
         <div>
-          <p className="eyebrow">PLAYER NOTES</p>
-          <h2 className="wakgood-notebook__title">
-            <NotebookPen aria-hidden="true" /> 우왁굳의 메모장
-          </h2>
+          <div className="wakgood-notebook__heading-row">
+            <div>
+              <p className="eyebrow">PLAYER NOTES</p>
+              <h2 className="wakgood-notebook__title">
+                <NotebookPen aria-hidden="true" /> 우왁굳의 메모장
+              </h2>
+            </div>
+            <div className="wakgood-notebook__progress">
+              <span className="wakgood-notebook__progress-item wakgood-notebook__progress-item--written">
+                완료 {writtenCount}
+              </span>
+              <span className="wakgood-notebook__progress-item wakgood-notebook__progress-item--skipped">
+                넘어감 {skippedStreamers.length}
+                {skippedStreamers.length > 0 &&
+                  `(${skippedStreamers.map((streamer) => streamer.displayName).join(", ")})`}
+              </span>
+              <span className="wakgood-notebook__progress-item wakgood-notebook__progress-item--empty">
+                미완료 {incompleteCount}
+              </span>
+            </div>
+          </div>
           <div className="wakgood-notebook__filters">
             <label className="wakgood-notebook__search">
               <span className="sr-only">이름 검색</span>
