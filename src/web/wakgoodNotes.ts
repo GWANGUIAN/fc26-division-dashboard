@@ -129,7 +129,7 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
   aryenne: {
     notes: [
       "드리블 되고 개인기도 쓰시는데 오프사이드를 너무 많이 걸림.",
-      "쇄도하는 중미에게 주는 패스가 너무 많이 끊김 크로스 없음.",
+      "쇄도하는 중미에게 주는 패스가 너무 많이 끊김. 크로스 없음.",
       "접는 컨트롤 볼키핑은 괜찮아보임.",
       "뭔가 움직임에서 포텐은 보이는데 현재로써는 아쉬운느낌스",
     ],
@@ -166,7 +166,12 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
   }, // 왜냐니
   // 9/5 (FB)
   secretto486: { notes: ["위치선정이 너무 안좋음...", "패스도 급합니다."] }, // 비밀소녀♥
-  danchu17: { notes: [] }, // 단츄♪
+  danchu17: {
+    notes: [
+      "수비는 잘 하시는 것 같음.(패스 무난?)",
+      "그런데 위치선정과 움직임이 너무나 안좋고 무조건 상대 선수에게 붙어있으려는 성향 때문에 우리팀이 절대 패스를 줄 수가 없음...",
+    ],
+  }, // 단츄♪
   etwo22: { notes: [] }, // 이투__
   // 9/5 (CB)
   leuni158: {
