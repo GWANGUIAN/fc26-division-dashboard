@@ -114,7 +114,14 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
       "백패스 안내줌",
     ],
   }, // 해리
-  yourdarky: { notes: [] }, // 다키_
+  yourdarky: {
+    notes: [
+      "소스부족. 움직임 빠르고 바로바로 슈팅각 보려고함",
+      "퍼스트 터치? 잘모르겠음",
+      "수비 가담 많이 하고 위치선정 괜찮은 것 같음.",
+      "라인브레이킹 좋았음",
+    ],
+  }, // 다키_
   // 9/5 (WF)
   nlsb9718: {
     notes: ["완벽한 크로스 상황을 너무.. 놓침", "기본실력은 있어보입니다."],
