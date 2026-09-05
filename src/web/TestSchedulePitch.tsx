@@ -117,7 +117,7 @@ function TestPitchCard({
 
   const cardContent = (
     <>
-      {streamer ? (
+      {streamer && (streamer.profileImageUrl || streamer.soopId) ? (
         <Avatar
           profileImageUrl={streamer.profileImageUrl}
           soopId={streamer.soopId}

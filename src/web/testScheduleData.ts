@@ -18,14 +18,29 @@ export interface TestScheduleTeam {
   slots: TestScheduleSlot[];
 }
 
+/** 같은 날짜에 여러 경기가 있을 때(예: 9/5의 1경기/2경기) 토글로 전환할 수 있는 한 경기 분량의 팀 편성. */
+export interface TestScheduleGame {
+  /** 토글에 표시할 라벨 (예: "1경기"). */
+  label: string;
+  teams: TestScheduleTeam[];
+}
+
 export interface TestScheduleDate {
   /** 화면에 표시할 짧은 날짜 라벨 (예: "9/4"). */
   date: string;
   /** 가장 가까운 날짜를 계산하기 위한 ISO 날짜 (YYYY-MM-DD). */
   isoDate: string;
-  teams: TestScheduleTeam[];
+  /** 하루에 경기가 하나뿐일 때의 팀 편성. `games`가 있으면 대신 그쪽을 사용한다. */
+  teams?: TestScheduleTeam[];
+  /** 하루에 경기가 여러 개일 때(예: 9/5) 각 경기별 팀 편성. 있으면 토글 UI가 표시된다. */
+  games?: TestScheduleGame[];
   /** 확정된 일정이라 포메이션 화면의 자리 편성(클릭 배정/교체/비우기)을 막을 때 true. */
   locked?: boolean;
+}
+
+/** `entry.games`가 있으면 그대로, 없으면 `entry.teams`를 단일 경기로 감싸 반환한다. */
+export function gamesForDate(entry: TestScheduleDate): TestScheduleGame[] {
+  return entry.games ?? [{ label: entry.date, teams: entry.teams ?? [] }];
 }
 
 /**
@@ -48,6 +63,16 @@ export const CUSTOM_TEST_SCHEDULE_STREAMERS: StreamerRecord[] = [
     displayName: "우왁굳",
     cafeAliases: [],
     profileImageUrl: "/profiles/profile_wakgood.webp",
+    autoUpdate: false,
+    overridePolicy: "auto",
+    currentDivision: 0,
+    isMapped: true,
+  },
+  {
+    // 프로필 사진이 아직 없어 "?" 기본 아바타로 표시된다. 나중에 사진이 생기면 profileImageUrl을 채운다.
+    id: "custom-landers",
+    displayName: "랜더스",
+    cafeAliases: [],
     autoUpdate: false,
     overridePolicy: "auto",
     currentDivision: 0,
@@ -98,35 +123,50 @@ export const TEST_SCHEDULE: TestScheduleDate[] = [
   {
     date: "9/5",
     isoDate: "2026-09-05",
-    teams: [
+    locked: true,
+    games: [
       {
-        label: "1팀",
-        slots: [
-          { streamerId: "gofl2237", position: "ST" },
-          { streamerId: "aryenne", position: "RW" },
-          { streamerId: "nlsb9718", position: "WF" },
-          { streamerId: "bboringirl", position: "CM" },
-          { streamerId: "zzimio3o", position: "CM" },
-          { streamerId: "villlo", position: "CDM" },
-          { streamerId: "leuni158", position: "CB" },
-          { position: "CB" },
-          { streamerId: "danchu17", position: "FB" },
-          { streamerId: "etwo22", position: "FB" },
+        label: "1경기",
+        teams: [
+          {
+            label: "2팀",
+            slots: [
+              { streamerId: "yourdarky", position: "ST" },
+              { streamerId: "chebi2", position: "WF" },
+              { streamerId: "tdnlamuron", position: "WF" },
+              { streamerId: "nanamoon777", position: "CM" },
+              { streamerId: "kirababy2", position: "CM" },
+              { streamerId: "doormomo", position: "CDM" },
+              { streamerId: "ttu0221", position: "CB" },
+              { streamerId: "dokkhye0000", position: "CB" },
+              { streamerId: "lina0108", position: "FB" },
+              { streamerId: "secretto486", position: "FB" },
+              { streamerId: "custom-landers", position: "GK" },
+            ],
+          },
+          {
+            label: "1팀",
+            slots: [
+              { streamerId: "gofl2237", position: "ST" },
+              { streamerId: "nlsb9718", position: "RW" },
+              { streamerId: "aryenne", position: "WF" },
+              { streamerId: "zzimio3o", position: "CM" },
+              { streamerId: "bboringirl", position: "CM" },
+              { streamerId: "villlo", position: "CDM" },
+              { streamerId: "custom-wakgood", position: "CB" },
+              { streamerId: "leuni158", position: "CB" },
+              { streamerId: "etwo22", position: "FB" },
+              { streamerId: "danchu17", position: "FB" },
+              { streamerId: "custom-picaon", position: "GK" },
+            ],
+          },
         ],
       },
       {
-        label: "2팀",
-        slots: [
-          { streamerId: "yourdarky", position: "ST" },
-          { streamerId: "tdnlamuron", position: "WF" },
-          { streamerId: "chebi2", position: "WF" },
-          { streamerId: "nanamoon777", position: "CM" },
-          { position: "CM" },
-          { streamerId: "doormomo", position: "CDM" },
-          { streamerId: "secretto486", position: "FB" },
-          { position: "FB" },
-          { position: "CB" },
-          { position: "CB" },
+        label: "2경기",
+        teams: [
+          { label: "2팀", slots: [] },
+          { label: "1팀", slots: [] },
         ],
       },
     ],

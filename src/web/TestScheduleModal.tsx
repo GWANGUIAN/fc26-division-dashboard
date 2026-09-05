@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CalendarDays, LayoutList, Shirt } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
 import { Avatar } from "./cardVisuals";
@@ -7,6 +7,7 @@ import { AssignedPositionTag } from "./PositionTag";
 import { TestSchedulePitch } from "./TestSchedulePitch";
 import {
   CUSTOM_TEST_SCHEDULE_STREAMERS,
+  gamesForDate,
   nearestScheduleDateIndex,
   TEST_SCHEDULE,
   type TestScheduleSlot,
@@ -23,7 +24,7 @@ function TestScheduleSlotRow({
     <li
       className={`test-schedule__slot ${streamer ? "" : "test-schedule__slot--vacant"}`}
     >
-      {streamer ? (
+      {streamer && (streamer.profileImageUrl || streamer.soopId) ? (
         <Avatar {...streamer} />
       ) : (
         <span
@@ -52,6 +53,7 @@ export function TestScheduleModal({
   const [dateIndex, setDateIndex] = useState(() =>
     nearestScheduleDateIndex(TEST_SCHEDULE),
   );
+  const [gameIndex, setGameIndex] = useState(0);
   const [view, setView] = useState<"list" | "pitch">("list");
   const streamerById = new Map(
     [...streamers, ...CUSTOM_TEST_SCHEDULE_STREAMERS].map((streamer) => [
@@ -60,6 +62,14 @@ export function TestScheduleModal({
     ]),
   );
   const selected = TEST_SCHEDULE[dateIndex];
+  const games = gamesForDate(selected);
+  useEffect(() => setGameIndex(0), [dateIndex]);
+  const selectedGame = games[gameIndex] ?? games[0];
+  // 같은 날짜에 경기가 여러 개면 포메이션 편성 저장 키가 경기끼리 겹치지 않도록 라벨을 덧붙인다.
+  const pitchDateIso =
+    games.length > 1
+      ? `${selected.isoDate}::${selectedGame.label}`
+      : selected.isoDate;
 
   return (
     <Modal
@@ -73,16 +83,31 @@ export function TestScheduleModal({
             <CalendarDays aria-hidden="true" /> 2차 테스트 일정
           </h2>
           <div className="test-schedule__tabs-row">
-            <div className="segmented test-schedule__date-tabs">
-              {TEST_SCHEDULE.map((entry, index) => (
-                <button
-                  key={entry.date}
-                  className={index === dateIndex ? "active" : ""}
-                  onClick={() => setDateIndex(index)}
-                >
-                  {entry.date}
-                </button>
-              ))}
+            <div className="test-schedule__tabs-group">
+              <div className="segmented test-schedule__date-tabs">
+                {TEST_SCHEDULE.map((entry, index) => (
+                  <button
+                    key={entry.date}
+                    className={index === dateIndex ? "active" : ""}
+                    onClick={() => setDateIndex(index)}
+                  >
+                    {entry.date}
+                  </button>
+                ))}
+              </div>
+              {games.length > 1 && (
+                <div className="segmented test-schedule__game-tabs">
+                  {games.map((game, index) => (
+                    <button
+                      key={game.label}
+                      className={index === gameIndex ? "active" : ""}
+                      onClick={() => setGameIndex(index)}
+                    >
+                      {game.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="segmented test-schedule__view-tabs">
               <button
@@ -104,15 +129,15 @@ export function TestScheduleModal({
     >
       {view === "pitch" ? (
         <TestSchedulePitch
-          teams={selected.teams}
-          dateIso={selected.isoDate}
+          teams={selectedGame.teams}
+          dateIso={pitchDateIso}
           streamers={streamers}
           streamerById={streamerById}
           locked={selected.locked}
         />
       ) : (
         <div className="test-schedule__teams">
-          {selected.teams.map((team) => (
+          {selectedGame.teams.map((team) => (
             <section className="test-schedule__team" key={team.label}>
               <h3 className="test-schedule__team-label">{team.label}</h3>
               <ul className="test-schedule__slots">

@@ -206,7 +206,9 @@ body { isolation: isolate; }
 .test-schedule__title { display: flex; align-items: center; gap: 9px; font: 800 34px/1 "Barlow Condensed", "Noto Sans KR"; }
 .test-schedule__title svg { color: #00e9ae; }
 .test-schedule__tabs-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 16px; }
+.test-schedule__tabs-group { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .test-schedule__date-tabs { display: inline-flex; margin-top: 0; }
+.test-schedule__game-tabs { display: inline-flex; margin-top: 0; }
 .test-schedule__view-tabs { display: inline-flex; margin-top: 0; }
 .test-schedule__view-tabs button { display: inline-flex; align-items: center; gap: 6px; }
 .test-schedule__view-tabs svg { width: 13px; height: 13px; stroke-width: 2.6; }
