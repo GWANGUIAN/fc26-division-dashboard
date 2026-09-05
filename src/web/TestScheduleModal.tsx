@@ -137,7 +137,11 @@ export function TestScheduleModal({
         />
       ) : (
         <div className="test-schedule__teams">
-          {selectedGame.teams.map((team) => (
+          {/* 포메이션뷰는 위/아래 배치를 유지하려고 배열 순서를 그대로 쓰지만,
+              리스트뷰는 그 배치와 무관하게 항상 1팀을 먼저 보여준다. */}
+          {[...selectedGame.teams]
+            .sort((a, b) => a.label.localeCompare(b.label, "ko"))
+            .map((team) => (
             <section className="test-schedule__team" key={team.label}>
               <h3 className="test-schedule__team-label">{team.label}</h3>
               <ul className="test-schedule__slots">

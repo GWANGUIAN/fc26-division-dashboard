@@ -1,8 +1,22 @@
+import { useMemo, useState } from "react";
 import { ExternalLink, NotebookPen } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
-import { Avatar } from "./cardVisuals";
+import {
+  POSITION_GROUP_COLORS,
+  POSITION_GROUP_LABELS,
+  positionGroupOf,
+  type PositionGroup,
+} from "../shared/position-theme.js";
+import { Avatar, PositionTags } from "./cardVisuals";
 import { Modal, useEscape } from "./Modal";
+import {
+  matchAppearancesForStreamer,
+  matchDatesForStreamer,
+  TEST_SCHEDULE,
+} from "./testScheduleData";
 import { getWakgoodNote, isSkippedWakgoodNote } from "./wakgoodNotes";
+
+const POSITION_GROUP_ORDER: PositionGroup[] = ["FW", "MF", "DF", "GK"];
 
 export function WakgoodNotebookModal({
   streamers,
@@ -12,6 +26,24 @@ export function WakgoodNotebookModal({
   onClose: () => void;
 }) {
   useEscape(onClose);
+  const [positionFilter, setPositionFilter] = useState<PositionGroup | "all">(
+    "all",
+  );
+  const [dateFilter, setDateFilter] = useState<string>("all");
+
+  const filteredStreamers = useMemo(
+    () =>
+      streamers.filter(
+        (streamer) =>
+          (positionFilter === "all" ||
+            positionGroupOf(streamer.hopedPosition1) === positionFilter ||
+            positionGroupOf(streamer.hopedPosition2) === positionFilter) &&
+          (dateFilter === "all" ||
+            matchDatesForStreamer(streamer.id).has(dateFilter)),
+      ),
+    [streamers, positionFilter, dateFilter],
+  );
+
   return (
     <Modal
       onClose={onClose}
@@ -23,11 +55,52 @@ export function WakgoodNotebookModal({
           <h2 className="wakgood-notebook__title">
             <NotebookPen aria-hidden="true" /> 우왁굳의 메모장
           </h2>
+          <div className="wakgood-notebook__filters">
+            <div className="segmented segmented--position">
+              <button
+                className={positionFilter === "all" ? "active" : ""}
+                onClick={() => setPositionFilter("all")}
+              >
+                전체
+              </button>
+              {POSITION_GROUP_ORDER.map((group) => (
+                <button
+                  key={group}
+                  className={positionFilter === group ? "active" : ""}
+                  onClick={() => setPositionFilter(group)}
+                  style={
+                    {
+                      "--position-color": POSITION_GROUP_COLORS[group],
+                    } as React.CSSProperties
+                  }
+                >
+                  {POSITION_GROUP_LABELS[group]}
+                </button>
+              ))}
+            </div>
+            <div className="segmented wakgood-notebook__date-tabs">
+              <button
+                className={dateFilter === "all" ? "active" : ""}
+                onClick={() => setDateFilter("all")}
+              >
+                전체
+              </button>
+              {TEST_SCHEDULE.map((entry) => (
+                <button
+                  key={entry.date}
+                  className={dateFilter === entry.date ? "active" : ""}
+                  onClick={() => setDateFilter(entry.date)}
+                >
+                  {entry.date}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       }
     >
       <ul className="wakgood-notebook__list">
-        {streamers.map((streamer) => {
+        {filteredStreamers.map((streamer) => {
           const entry = getWakgoodNote(streamer.id);
           const notes = entry?.notes;
           const skipped = isSkippedWakgoodNote(notes);
@@ -37,6 +110,7 @@ export function WakgoodNotebookModal({
             : skipped
               ? "wakgood-notebook__entry--skipped"
               : "wakgood-notebook__entry--empty";
+          const appearances = matchAppearancesForStreamer(streamer.id);
           return (
             <li
               className={`wakgood-notebook__entry ${stateClass}`}
@@ -56,6 +130,23 @@ export function WakgoodNotebookModal({
                   </a>
                 )}
               </div>
+              <div className="wakgood-notebook__entry-tags">
+                <PositionTags streamer={streamer} />
+                {appearances.length > 0 && (
+                  <span className="wakgood-notebook__match-days">
+                    {appearances.map((appearance, index) => (
+                      <span
+                        className="wakgood-notebook__match-day"
+                        key={index}
+                      >
+                        {appearance.gameLabel
+                          ? `${appearance.date} ${appearance.gameLabel}`
+                          : appearance.date}
+                      </span>
+                    ))}
+                  </span>
+                )}
+              </div>
               {written ? (
                 <ul className="wakgood-notebook__notes">
                   {notes!.map((note, index) => (
@@ -70,7 +161,7 @@ export function WakgoodNotebookModal({
             </li>
           );
         })}
-        {streamers.length === 0 && (
+        {filteredStreamers.length === 0 && (
           <p className="empty-list">표시할 스트리머가 없습니다.</p>
         )}
       </ul>

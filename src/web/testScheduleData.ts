@@ -165,8 +165,38 @@ export const TEST_SCHEDULE: TestScheduleDate[] = [
       {
         label: "2경기",
         teams: [
-          { label: "2팀", slots: [] },
-          { label: "1팀", slots: [] },
+          {
+            label: "2팀",
+            slots: [
+              { streamerId: "yourdarky", position: "ST" },
+              { streamerId: "chebi2", position: "WF" },
+              { streamerId: "tdnlamuron", position: "WF" },
+              { streamerId: "nanamoon777", position: "CM" },
+              { streamerId: "jejong5", position: "CM" },
+              { streamerId: "doormomo", position: "CDM" },
+              { streamerId: "secymyong", position: "CB" },
+              { streamerId: "haepalin", position: "CB" },
+              { streamerId: "whiteone325", position: "FB" },
+              { streamerId: "secretto486", position: "FB" },
+              { streamerId: "custom-landers", position: "GK" },
+            ],
+          },
+          {
+            label: "1팀",
+            slots: [
+              { streamerId: "gofl2237", position: "ST" },
+              { streamerId: "aryenne", position: "WF" },
+              { streamerId: "nlsb9718", position: "WF" },
+              { streamerId: "zzimio3o", position: "CM" },
+              { streamerId: "bboringirl", position: "CM" },
+              { streamerId: "villlo", position: "CDM" },
+              { streamerId: "custom-wakgood", position: "CB" },
+              { streamerId: "leuni158", position: "CB" },
+              { streamerId: "etwo22", position: "FB" },
+              { streamerId: "danchu17", position: "FB" },
+              { streamerId: "custom-picaon", position: "GK" },
+            ],
+          },
         ],
       },
     ],
@@ -210,6 +240,50 @@ export const TEST_SCHEDULE: TestScheduleDate[] = [
     ],
   },
 ];
+
+/** One game a streamer actually appears in — `gameLabel` is only set for a date with multiple games. */
+export interface StreamerMatchAppearance {
+  date: string;
+  gameLabel?: string;
+}
+
+/**
+ * 어떤 스트리머가 실제로 배정된 경기들만 모아서 반환한다. 9/5처럼 하루에
+ * 경기가 여러 개인 날짜는 실제로 뛴 경기에만 gameLabel이 붙는다(예: 1경기만
+ * 뛰었으면 "9/5 1경기"만 반환되고 "9/5 2경기"는 포함되지 않는다).
+ */
+export function matchAppearancesForStreamer(
+  streamerId: string,
+  schedule: TestScheduleDate[] = TEST_SCHEDULE,
+): StreamerMatchAppearance[] {
+  const appearances: StreamerMatchAppearance[] = [];
+  for (const entry of schedule) {
+    const games = gamesForDate(entry);
+    const multiGame = games.length > 1;
+    for (const game of games) {
+      const appears = game.teams.some((team) =>
+        team.slots.some((slot) => slot.streamerId === streamerId),
+      );
+      if (appears) {
+        appearances.push({
+          date: entry.date,
+          gameLabel: multiGame ? game.label : undefined,
+        });
+      }
+    }
+  }
+  return appearances;
+}
+
+/** Distinct date labels (e.g. "9/4") a streamer is scheduled for, regardless of which game. */
+export function matchDatesForStreamer(
+  streamerId: string,
+  schedule: TestScheduleDate[] = TEST_SCHEDULE,
+): Set<string> {
+  return new Set(
+    matchAppearancesForStreamer(streamerId, schedule).map((a) => a.date),
+  );
+}
 
 /** Index of the schedule date closest to `today` (ties resolve to the earlier date). */
 export function nearestScheduleDateIndex(

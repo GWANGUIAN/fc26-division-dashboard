@@ -231,11 +231,16 @@ body { isolation: isolate; }
 .wakgood-notebook-toggle svg { width: 14px; height: 14px; stroke-width: 2.6; }
 .wakgood-notebook__title { display: flex; align-items: center; gap: 9px; font: 800 34px/1 "Barlow Condensed", "Noto Sans KR"; }
 .wakgood-notebook__title svg { color: #00e9ae; }
+.wakgood-notebook__filters { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 16px; }
+.wakgood-notebook__date-tabs button + button { border-left: 1px solid var(--border-strong); }
 .wakgood-notebook__list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin: 4px 0 0; padding: 0; list-style: none; }
 .wakgood-notebook__entry { padding: 12px 14px; border: 1px solid var(--border-default); border-radius: 4px; background: var(--surface-1); transition: opacity .18s, border-color .18s; }
 .wakgood-notebook__entry-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
 .wakgood-notebook__entry-head .avatar { width: 32px; height: 32px; flex-basis: 32px; }
 .wakgood-notebook__entry-head strong { overflow: hidden; color: var(--text-primary); font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+.wakgood-notebook__entry-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-bottom: 8px; }
+.wakgood-notebook__match-days { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.wakgood-notebook__match-day { padding: 2px 6px; border: 1px solid var(--border-strong); border-radius: 2px; color: var(--text-secondary); background: var(--fill-faint); font-size: 10px; font-weight: 700; white-space: nowrap; }
 /* Plain underlined link + outbound-arrow icon, not a pill button — reads as
    "this leaves the page" rather than another in-app action. */
 .wakgood-notebook__vod { display: inline-flex; align-items: center; gap: 3px; margin-left: auto; color: #6cb0ff; text-decoration: underline; text-decoration-color: #6cb0ff66; text-underline-offset: 3px; font-size: 11px; font-weight: 700; white-space: nowrap; transition: color .16s, text-decoration-color .16s; }
