@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { ExternalLink } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
 import { searchable } from "../shared/search.js";
 import notepadIcon from "./assets/icon-notepad.webp";
@@ -17,6 +16,7 @@ import {
   TEST_SCHEDULE,
 } from "./testScheduleData";
 import { getWakgoodNote, isSkippedWakgoodNote } from "./wakgoodNotes";
+import { WakgoodVodLinks } from "./WakgoodVodLinks";
 
 const POSITION_GROUP_ORDER: PositionGroup[] = ["FW", "MF", "DF", "GK"];
 
@@ -209,22 +209,10 @@ export function WakgoodNotebookModal({
                 >
                   {written ? "완료" : skipped ? "넘어감" : "미완료"}
                 </span>
-                {entry?.vodUrls && entry.vodUrls.length > 0 && (
-                  <span className="wakgood-notebook__vod-group">
-                    {entry.vodUrls.map((url, index) => (
-                      <a
-                        key={url}
-                        className="wakgood-notebook__vod"
-                        href={url}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        다시보기{entry.vodUrls!.length > 1 ? ` ${index + 1}` : ""}{" "}
-                        <ExternalLink aria-hidden="true" />
-                      </a>
-                    ))}
-                  </span>
-                )}
+                <WakgoodVodLinks
+                  urls={entry?.vodUrls}
+                  className="wakgood-notebook__vod"
+                />
               </div>
               <div className="wakgood-notebook__entry-tags">
                 <PositionTags streamer={streamer} />
