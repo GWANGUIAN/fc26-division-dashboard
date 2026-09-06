@@ -149,7 +149,13 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
       "1:1 수비력은 소스가 부족한데 무난한듯",
     ],
   }, // 흠냥b
-  nsnowthemoon: { notes: [] }, // 설빈달
+  nsnowthemoon: {
+    notes: [
+      "너무 우리팀을 도와주려는 성향이 강해서 5백을 만들어버려서 상대 중원이 너무 널널해짐",
+      "세트피스때 몸 앞으로 쏠리는 성향",
+      "컨트롤은 날렵하신데 막상 커버를 못친게 꽤 많이 나와서 아쉽스",
+    ],
+  }, // 설빈달
   sookbong777: { notes: [] }, // 숙봉이
   // 9/5 (ST)
   gofl2237: {
