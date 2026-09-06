@@ -229,8 +229,15 @@ body { isolation: isolate; }
 .wakgood-notebook-toggle { display: inline-flex; align-items: center; gap: 6px; padding: 9px 12px; border: 1px solid #00e9ae55; border-radius: 3px; color: var(--text-secondary); background: #00e9ae14; font-weight: 700; font-size: 12px; white-space: nowrap; transition: .2s; }
 .wakgood-notebook-toggle:hover, .wakgood-notebook-toggle:focus-visible { background: #00e9ae28; border-color: #00e9ae80; outline: 0; }
 .wakgood-notebook-toggle svg { width: 14px; height: 14px; stroke-width: 2.6; }
+.wakgood-notebook-toggle .wakgood-note-icon { width: 16px; height: 16px; vertical-align: -3px; }
 .wakgood-notebook__title { display: flex; align-items: center; gap: 9px; font: 800 34px/1 "Barlow Condensed", "Noto Sans KR"; }
 .wakgood-notebook__title svg { color: #00e9ae; }
+/* Custom notepad artwork used in place of the lucide icon for the notebook
+   title, the hover tooltip and the in-modal panel — kept distinct from the
+   toggle button's icon (left as lucide NotebookPen) for visual consistency
+   with the rest of the toolbar buttons. */
+.wakgood-note-icon { display: inline-block; object-fit: contain; vertical-align: -6px; }
+.wakgood-notebook__title .wakgood-note-icon { width: 30px; height: 30px; vertical-align: -7px; }
 .wakgood-notebook__heading-row { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px; }
 .wakgood-notebook__progress { display: flex; flex-wrap: wrap; gap: 6px; }
 .wakgood-notebook__progress-item { padding: 4px 9px; border-radius: 3px; font-size: 11px; font-weight: 800; white-space: nowrap; }
@@ -302,6 +309,7 @@ body { isolation: isolate; }
 .wakgood-note-bubble__header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .wakgood-note-bubble__title { display: flex; align-items: center; gap: 6px; color: var(--accent-text); font-size: 12px; font-weight: 800; }
 .wakgood-note-bubble__title svg { width: 13px; height: 13px; stroke-width: 2.4; }
+.wakgood-note-bubble__title .wakgood-note-icon { width: 15px; height: 15px; vertical-align: -3px; }
 .wakgood-note-bubble__vod-group { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 6px; }
 .wakgood-note-bubble__vod { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 3px; color: #6cb0ff; text-decoration: underline; text-decoration-color: #6cb0ff66; text-underline-offset: 3px; font-size: 10.5px; font-weight: 700; white-space: nowrap; transition: color .16s, text-decoration-color .16s; }
 .wakgood-note-bubble__vod:hover, .wakgood-note-bubble__vod:focus-visible { color: #a3cdff; text-decoration-color: #a3cdff; outline: 0; }
@@ -350,6 +358,7 @@ body { isolation: isolate; }
 .wakgood-note-panel__header { position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
 .wakgood-note-panel__title { display: flex; align-items: center; gap: 7px; color: var(--accent-text); font-size: 13px; font-weight: 800; }
 .wakgood-note-panel__title svg { width: 15px; height: 15px; stroke-width: 2.4; filter: drop-shadow(0 0 6px #00e9ae88); }
+.wakgood-note-panel__title .wakgood-note-icon { width: 18px; height: 18px; vertical-align: -4px; filter: drop-shadow(0 0 6px #00e9ae88); }
 .wakgood-note-panel__vod-group { position: relative; display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .wakgood-note-panel__vod { display: inline-flex; align-items: center; gap: 3px; color: #6cb0ff; text-decoration: underline; text-decoration-color: #6cb0ff66; text-underline-offset: 3px; font-size: 11px; font-weight: 700; white-space: nowrap; transition: color .16s, text-decoration-color .16s; }
 .wakgood-note-panel__vod:hover, .wakgood-note-panel__vod:focus-visible { color: #a3cdff; text-decoration-color: #a3cdff; outline: 0; }
@@ -994,6 +1003,7 @@ body { isolation: isolate; }
 .announcement-test-schedule-btn svg { width: 14px; height: 14px; stroke-width: 2.6; }
 .announcement-wakgood-notebook-btn { display: inline-flex; align-items: center; gap: 6px; margin: 0 2px; padding: 9px 12px; border: 1px solid #00e9ae55; border-radius: 3px; color: var(--text-secondary); background: #00e9ae1f; font-weight: 700; font-size: 12px; white-space: nowrap; vertical-align: middle; transform: translateY(-3px); }
 .announcement-wakgood-notebook-btn svg { width: 14px; height: 14px; stroke-width: 2.6; }
+.announcement-wakgood-notebook-btn .wakgood-note-icon { width: 16px; height: 16px; vertical-align: -3px; }
 .announcement-modal__actions { display: flex; flex: 0 0 auto; justify-content: flex-end; padding: 16px 30px 26px; border-top: 1px solid var(--border-faint); }
 .announcement-modal__ack { padding: 10px 16px; border: 1px solid #00e9ae55; border-radius: 3px; color: var(--text-secondary); font-weight: 700; font-size: 12px; background: #00e9ae22; transition: .2s; }
 .announcement-modal__ack:hover, .announcement-modal__ack:focus-visible { border-color: #00e9ae80; background: #00e9ae33; outline: 0; }

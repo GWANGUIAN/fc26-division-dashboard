@@ -1,7 +1,8 @@
 import { useId, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
-import { ExternalLink, StickyNote } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
+import notepadIcon from "./assets/icon-notepad.webp";
 import { getWakgoodNote, isSkippedWakgoodNote } from "./wakgoodNotes";
 
 // Keeps the bubble open for a beat after the pointer leaves the trigger (and
@@ -121,7 +122,7 @@ export function WakgoodNoteBubble<T extends HTMLElement>({
     >
       <span className="wakgood-note-bubble__header">
         <strong className="wakgood-note-bubble__title">
-          <StickyNote aria-hidden="true" /> 우왁굳의 메모장
+          <img className="wakgood-note-icon" src={notepadIcon} alt="" /> 우왁굳의 메모장
         </strong>
         {entry?.vodUrls && entry.vodUrls.length > 0 && (
           <span className="wakgood-note-bubble__vod-group">
@@ -181,7 +182,7 @@ export function WakgoodNotePanel({ streamer }: { streamer: StreamerRecord }) {
     >
       <div className="wakgood-note-panel__header">
         <strong className="wakgood-note-panel__title">
-          <StickyNote aria-hidden="true" /> 우왁굳의 메모장
+          <img className="wakgood-note-icon" src={notepadIcon} alt="" /> 우왁굳의 메모장
         </strong>
         {entry?.vodUrls && entry.vodUrls.length > 0 && (
           <span className="wakgood-note-panel__vod-group">

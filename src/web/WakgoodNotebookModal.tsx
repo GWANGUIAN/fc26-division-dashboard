@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
-import { ExternalLink, NotebookPen } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
 import { searchable } from "../shared/search.js";
+import notepadIcon from "./assets/icon-notepad.webp";
 import {
   POSITION_GROUP_COLORS,
   POSITION_GROUP_LABELS,
@@ -67,7 +68,7 @@ export function WakgoodNotebookModal({
             <div>
               <p className="eyebrow">PLAYER NOTES</p>
               <h2 className="wakgood-notebook__title">
-                <NotebookPen aria-hidden="true" /> 우왁굳의 메모장
+                <img className="wakgood-note-icon" src={notepadIcon} alt="" /> 우왁굳의 메모장
               </h2>
             </div>
             <div className="wakgood-notebook__progress">

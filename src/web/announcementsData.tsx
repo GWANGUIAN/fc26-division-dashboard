@@ -2,11 +2,11 @@ import type { ReactNode } from "react";
 import {
   CalendarDays,
   CirclePile,
-  NotebookPen,
   Shield,
   Trophy,
 } from "lucide-react";
 import geminiLogo from "./assets/gemini-logo.svg";
+import notepadIcon from "./assets/icon-notepad.webp";
 import { positionColor } from "../shared/position-theme.js";
 
 export type Announcement = {
@@ -26,7 +26,7 @@ export const ANNOUNCEMENTS: Announcement[] = [
         <br />
         <br />
         <span className="announcement-wakgood-notebook-btn">
-          <NotebookPen aria-hidden="true" />
+          <img className="wakgood-note-icon" src={notepadIcon} alt="" />
           <span>우왁굳의 메모장</span>
         </span>{" "}
         버튼을 누르면 왁굳형이 1차 합격자 개개인에게 남긴 평가를 모아볼 수 있고,

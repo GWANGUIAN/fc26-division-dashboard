@@ -1,5 +1,6 @@
-import { BadgeCheck, CalendarDays, CirclePile, List, Minus, NotebookPen, Plus, RefreshCw, Rows3, Shield, TrendingUp } from "lucide-react";
+import { BadgeCheck, CalendarDays, CirclePile, List, Minus, Plus, RefreshCw, Rows3, Shield, TrendingUp } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
+import notepadIcon from "./assets/icon-notepad.webp";
 import { DivisionHistogram } from "./DivisionHistogram";
 import { CARD_ZOOM_MAX, CARD_ZOOM_MIN } from "./storage";
 
@@ -167,7 +168,7 @@ export function ViewToolbar({
           className="wakgood-notebook-toggle"
           onClick={onWakgoodNotebookOpen}
         >
-          <NotebookPen aria-hidden="true" />
+          <img className="wakgood-note-icon" src={notepadIcon} alt="" />
           <span>우왁굳의 메모장</span>
         </button>
         <div className="segmented segmented--view-mode">
