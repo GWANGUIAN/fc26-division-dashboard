@@ -156,7 +156,12 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
       "컨트롤은 날렵하신데 막상 커버를 못친게 꽤 많이 나와서 아쉽스",
     ],
   }, // 설빈달
-  sookbong777: { notes: [] }, // 숙봉이
+  sookbong777: {
+    notes: [
+      "쇄도력은 좋은데 살짝 쇄도 원툴 느낌스. 나나문에서 수비가담 살짝 덜하고 쇄도 살짝 덜하는 느낌",
+      "패스는 그냥 무난한 느낌스. 뒷대각은 잘 못보고 평범한 일반패스 예측범위안에서 패스",
+    ],
+  }, // 숙봉이
   // 9/5 (ST)
   gofl2237: {
     notes: [
