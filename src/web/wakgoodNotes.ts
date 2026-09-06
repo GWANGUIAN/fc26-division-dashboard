@@ -243,8 +243,7 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
       "접중각 볼줄앎.",
       "다만 경기장 전체에서 좌우무빙만 반복하는 스타일이라 수비력이 강한 팀을 만났을때 모든 스탯이 하락할 수 있는 스타일로 보임.",
     ],
-    // 문모모 평가 도중(+ 나나문)으로 한 번 더 다뤄져서 두 구간으로 나뉨
-    vodUrls: [noteVodUrl2(1131), noteVodUrl2(3183)], // 18:51, 00:53:03
+    vodUrls: [noteVodUrl2(1131)], // 18:51, 00:53:03
   }, // 나나문
   doormomo: {
     notes: ["잘했음"],
