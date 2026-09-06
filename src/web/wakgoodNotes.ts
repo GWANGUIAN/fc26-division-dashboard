@@ -131,7 +131,14 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
       "전체적으로 컨트롤 초보이슈가 있음. 뚝딱이슈.",
     ],
   }, // 미르_MIR
-  kaksjak0730: { notes: [] }, // 한결___
+  kaksjak0730: {
+    notes: [
+      "너무 모범생처럼 나는 LCM이니까 LCM의 위치에만 있는 플레이.",
+      "스루패스각에서 너무 일반 패스같은게 많이 나감.",
+      "접중 잘하시는걸로 아는데 접중할 상황 안나오는 경기맞이하니까 사이드를 못감...",
+      "잘하시는 걸로 아는데 이번 소스에는 '연결'만 한 느낌스...",
+    ],
+  }, // 한결___
   y0unggam: { notes: [] }, // 영감__
   ttu0221: { notes: [] }, // 흠냥b
   nsnowthemoon: { notes: [] }, // 설빈달
