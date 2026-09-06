@@ -248,36 +248,50 @@ body { isolation: isolate; }
 .wakgood-notebook__search input { width: min(260px, 42vw); min-width: 0; padding: 9px 12px; border: 1px solid var(--border-strong); border-radius: 3px; outline: none; color: var(--text-primary); background: var(--surface-input); font-size: 12px; transition: background .2s, border-color .2s; }
 .wakgood-notebook__search input:focus { border-color: var(--accent-border); box-shadow: 0 0 0 3px #00e9ae12; }
 .wakgood-notebook__date-tabs button + button { border-left: 1px solid var(--border-strong); }
-.wakgood-notebook__list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin: 4px 0 0; padding: 0; list-style: none; }
-.wakgood-notebook__entry { padding: 12px 14px; border: 1px solid var(--border-default); border-radius: 4px; background: var(--surface-1); transition: opacity .18s, border-color .18s; }
-.wakgood-notebook__entry-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-.wakgood-notebook__entry-head .avatar { width: 32px; height: 32px; flex-basis: 32px; }
-.wakgood-notebook__entry-head strong { overflow: hidden; color: var(--text-primary); font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
-.wakgood-notebook__entry-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-bottom: 8px; }
+.wakgood-notebook__list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin: 4px 0 0; padding: 0; list-style: none; }
+/* Rounded card with a soft lift on hover instead of the old flat, square,
+   left-bar-accented box — the state (written/skipped/empty) now reads from
+   the header badge + avatar ring rather than a colored edge stripe. */
+.wakgood-notebook__entry { position: relative; padding: 13px 15px; border: 1px solid var(--border-default); border-radius: 10px; background: var(--surface-1); box-shadow: 0 4px 14px rgba(var(--shadow-color), .16); transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, opacity .18s ease; }
+.wakgood-notebook__entry:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(var(--shadow-color), .3); }
+.wakgood-notebook__entry-head { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+.wakgood-notebook__entry-head .avatar { width: 34px; height: 34px; flex-basis: 34px; border-width: 2px; border-color: var(--border-strong); transition: border-color .18s ease; }
+.wakgood-notebook__entry-head strong { overflow: hidden; color: var(--text-primary); font-size: 14px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.wakgood-notebook__entry-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-bottom: 9px; }
 .wakgood-notebook__match-days { display: inline-flex; flex-wrap: wrap; gap: 4px; }
 .wakgood-notebook__match-day { padding: 2px 6px; border: 1px solid var(--border-strong); border-radius: 2px; color: var(--text-secondary); background: var(--fill-faint); font-size: 10px; font-weight: 700; white-space: nowrap; }
+/* Small state pill next to the name — replaces the old left-edge color bar. */
+.wakgood-notebook__status-badge { flex: 0 0 auto; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: .02em; white-space: nowrap; }
+.wakgood-notebook__status-badge--written { color: #04140f; background: #00e9ae; box-shadow: 0 0 10px #00e9ae4d; }
+.wakgood-notebook__status-badge--skipped { color: var(--text-secondary); background: var(--fill-faint); border: 1px solid var(--border-strong); }
+.wakgood-notebook__status-badge--empty { color: var(--text-muted); background: transparent; border: 1px dashed var(--border-strong); }
 /* Plain underlined link + outbound-arrow icon, not a pill button — reads as
    "this leaves the page" rather than another in-app action. */
 .wakgood-notebook__vod-group { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; }
 .wakgood-notebook__vod { display: inline-flex; align-items: center; gap: 3px; color: #6cb0ff; text-decoration: underline; text-decoration-color: #6cb0ff66; text-underline-offset: 3px; font-size: 11px; font-weight: 700; white-space: nowrap; transition: color .16s, text-decoration-color .16s; }
 .wakgood-notebook__vod:hover, .wakgood-notebook__vod:focus-visible { color: #a3cdff; text-decoration-color: #a3cdff; outline: 0; }
 .wakgood-notebook__vod svg { width: 11px; height: 11px; stroke-width: 2.6; }
-.wakgood-notebook__notes { display: grid; gap: 4px; margin: 0; padding-left: 18px; color: var(--text-primary); font-size: 12px; font-weight: 500; line-height: 1.5; }
-/* Written entries get a mint accent edge so a finished note visually pops
-   out of the grid at a glance; empty ones fade back instead of competing
-   for attention. */
-.wakgood-notebook__entry--written { border-left: 3px solid #00e9ae; background: linear-gradient(90deg, #00e9ae14, var(--surface-1) 18%); }
-.wakgood-notebook__entry--empty { opacity: .55; border-style: dashed; }
+/* Custom mint dot markers instead of the browser's default disc bullets. */
+.wakgood-notebook__notes { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; color: var(--text-primary); font-size: 12.5px; font-weight: 500; line-height: 1.6; }
+.wakgood-notebook__notes li { position: relative; padding-left: 15px; }
+.wakgood-notebook__notes li::before { content: ""; position: absolute; top: 8px; left: 1px; width: 5px; height: 5px; border-radius: 50%; background: #00e9ae; }
+/* Written entries get a soft diagonal mint wash + a bright avatar ring so a
+   finished note pops out of the grid at a glance; empty ones fade back
+   instead of competing for attention. */
+.wakgood-notebook__entry--written { border-color: #00e9ae40; background: linear-gradient(165deg, #00e9ae14, var(--surface-1) 55%); }
+.wakgood-notebook__entry--written .wakgood-notebook__entry-head .avatar { border-color: #00e9ae; }
+.wakgood-notebook__entry--empty { opacity: .58; border-style: dashed; }
+.wakgood-notebook__entry--empty:hover { transform: none; box-shadow: 0 4px 14px rgba(var(--shadow-color), .16); }
 .wakgood-notebook__entry--empty .wakgood-notebook__entry-head strong { color: var(--text-muted); }
 .wakgood-notebook__empty { margin: 0; color: var(--text-muted); font-size: 12px; font-style: italic; }
 /* "평가를 건너뜀" is a deliberate call, not a placeholder — sits visually
-   between the mint "written" edge and the faded/dashed "empty" state. */
-.wakgood-notebook__entry--skipped { border-left: 3px solid var(--border-strong); opacity: .82; }
+   between the mint "written" state and the faded/dashed "empty" state. */
+.wakgood-notebook__entry--skipped { opacity: .85; }
 .wakgood-notebook__skipped { margin: 0; color: var(--text-secondary); font-size: 12px; font-weight: 700; letter-spacing: .01em; }
 @media (max-width: 680px) { .wakgood-notebook__list { grid-template-columns: 1fr; } }
 /* Fun rainbow "MVP" highlight for a specific standout note (문모모) — animated
    gradient border/glow on the card, animated gradient text + sparkle on the note itself. */
-.wakgood-notebook__entry--fancy { position: relative; border: 1px solid transparent; background:
+.wakgood-notebook__entry--fancy { position: relative; border: 1px solid transparent; border-radius: 10px; background:
     linear-gradient(var(--surface-1), var(--surface-1)) padding-box,
     conic-gradient(from var(--wakgood-fancy-angle, 0deg), #ff5c7a, #ffd76a, #4ade80, #4f8cff, #b98bff, #ff5c7a) border-box;
   animation: wakgood-fancy-spin 3.5s linear infinite;
@@ -295,7 +309,7 @@ body { isolation: isolate; }
   font-weight: 800;
   animation: wakgood-fancy-text 2.8s linear infinite;
 }
-.wakgood-notebook__notes--fancy li::marker { color: #ffd76a; }
+.wakgood-notebook__notes--fancy li::before { background: #ffd76a; box-shadow: 0 0 6px #ffd76a; }
 @keyframes wakgood-fancy-text { to { background-position: 300% center; } }
 @media (prefers-reduced-motion: reduce) {
   .wakgood-notebook__entry--fancy { animation: none; }

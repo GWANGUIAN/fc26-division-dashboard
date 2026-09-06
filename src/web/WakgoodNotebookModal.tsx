@@ -158,6 +158,11 @@ export function WakgoodNotebookModal({
               <div className="wakgood-notebook__entry-head">
                 <Avatar {...streamer} />
                 <strong>{streamer.displayName}</strong>
+                <span
+                  className={`wakgood-notebook__status-badge wakgood-notebook__status-badge--${written ? "written" : skipped ? "skipped" : "empty"}`}
+                >
+                  {written ? "완료" : skipped ? "넘어감" : "미완료"}
+                </span>
                 {entry?.vodUrls && entry.vodUrls.length > 0 && (
                   <span className="wakgood-notebook__vod-group">
                     {entry.vodUrls.map((url, index) => (
