@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { StickyNote, Volume2 } from "lucide-react";
+import { Volume2 } from "lucide-react";
 import type { PromotionPost, StreamerRecord } from "../shared/model.js";
 import { soopChannelUrl } from "../shared/model.js";
 import { normalizeCafeAlias } from "../shared/promotion.js";
@@ -29,7 +29,7 @@ import {
   PromotionTimeline,
   StreamerActivitySection,
 } from "./StreamerActivitySection";
-import { useWakgoodNoteHover, WakgoodNoteBubble } from "./WakgoodNoteTooltip";
+import { WakgoodNotePanel } from "./WakgoodNoteTooltip";
 
 export function DetailModal({
   streamer,
@@ -95,13 +95,7 @@ export function DetailModal({
     ? mixHex("#00e9ae", "white", 0.65)
     : "#00e9ae";
   const savior = isStreamerSavior(streamer);
-  const {
-    open: noteOpen,
-    show: showNote,
-    scheduleHide: hideNote,
-    anchorRef: noteAnchorRef,
-  } = useWakgoodNoteHover<HTMLButtonElement>();
-  const showNoteTooltip = streamer.passedFirstRound;
+  const showNotePanel = streamer.passedFirstRound;
   return (
     <Modal
       onClose={onClose}
@@ -153,26 +147,6 @@ export function DetailModal({
                 awards={awards}
                 onClick={onOpenTrophy}
               />
-              {showNoteTooltip && (
-                <button
-                  type="button"
-                  ref={noteAnchorRef}
-                  className="modal__note-toggle"
-                  aria-label="우왁굳의 메모장"
-                  onMouseEnter={showNote}
-                  onMouseLeave={hideNote}
-                >
-                  <StickyNote aria-hidden="true" />
-                </button>
-              )}
-              {showNoteTooltip && noteOpen && (
-                <WakgoodNoteBubble
-                  streamer={streamer}
-                  anchorRef={noteAnchorRef}
-                  onMouseEnter={showNote}
-                  onMouseLeave={hideNote}
-                />
-              )}
             </h2>
             <span className="modal__record-row">
               <RecordBadge streamer={streamer} className="record-badge--lg" />
@@ -203,6 +177,7 @@ export function DetailModal({
         </div>
       }
     >
+      {showNotePanel && <WakgoodNotePanel streamer={streamer} />}
       <GeminiReviewSection review={streamer.latestReview} hasPost={!!post} />
       {post ? (
         <>

@@ -157,3 +157,62 @@ export function WakgoodNoteBubble<T extends HTMLElement>({
     document.body,
   );
 }
+
+/**
+ * Static (non-hover) rendering of the same note data, shown inline at the top
+ * of the detail modal's content area instead of behind a tooltip trigger —
+ * the modal has room to just show it outright.
+ */
+export function WakgoodNotePanel({ streamer }: { streamer: StreamerRecord }) {
+  const entry = getWakgoodNote(streamer.id);
+  const notes = entry?.notes;
+  const skipped = isSkippedWakgoodNote(notes);
+  const written = Boolean(notes && notes.length > 0) && !skipped;
+  const stateClass = written
+    ? "wakgood-note-panel--written"
+    : skipped
+      ? "wakgood-note-panel--skipped"
+      : "wakgood-note-panel--empty";
+  const fancy = Boolean(entry?.fancy);
+
+  return (
+    <div
+      className={`wakgood-note-panel ${stateClass} ${fancy ? "wakgood-note-panel--fancy" : ""}`}
+    >
+      <div className="wakgood-note-panel__header">
+        <strong className="wakgood-note-panel__title">
+          <StickyNote aria-hidden="true" /> 우왁굳의 메모장
+        </strong>
+        {entry?.vodUrls && entry.vodUrls.length > 0 && (
+          <span className="wakgood-note-panel__vod-group">
+            {entry.vodUrls.map((url, index) => (
+              <a
+                key={url}
+                className="wakgood-note-panel__vod"
+                href={url}
+                target="_blank"
+                rel="noreferrer"
+              >
+                다시보기{entry.vodUrls!.length > 1 ? ` ${index + 1}` : ""}{" "}
+                <ExternalLink aria-hidden="true" />
+              </a>
+            ))}
+          </span>
+        )}
+      </div>
+      {written ? (
+        <ul
+          className={`wakgood-note-panel__list ${fancy ? "wakgood-note-panel__list--fancy" : ""}`}
+        >
+          {notes!.map((note, index) => (
+            <li key={index}>{note}</li>
+          ))}
+        </ul>
+      ) : skipped ? (
+        <p className="wakgood-note-panel__skipped">{notes![0]}</p>
+      ) : (
+        <p className="wakgood-note-panel__empty">작성전</p>
+      )}
+    </div>
+  );
+}
