@@ -98,7 +98,14 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
     ],
     vodUrls: [noteVodUrl(8193)], // 02:16:33
   }, // 쿠로샤
-  dokkhye0000: { notes: [] }, // 독고혜지
+  dokkhye0000: {
+    notes: [
+      "코너킥 상황에서 수비로 돌아가지 않는 경향",
+      "드리븐 전방 패스 무난",
+      "수비 위치선정 불안",
+      "몸 앞으로 쏠리는 현상 + 서포팅할때 너무 접근",
+    ],
+  }, // 독고혜지
   kirababy2: {
     notes: [
       "위치선정 꽤 괜찮음",
@@ -108,7 +115,13 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
     ],
     vodUrls: [noteVodUrl2(16945)], // 04:42:25
   }, // 유키라
-  haepalin: { notes: [] }, // 해파린~
+  haepalin: {
+    notes: [
+      "1:1 수비력, 커버력 좋음. 다만 1:1상황에서 무조건 슛수비 하는 경향있음",
+      "상대 사이드로 몰 시 중앙 고목나무 못하고 무조건 인터셋트 하려 공쪽으로 쏠려서 크로스에서 취약점 있음.(가장 큰 단점)",
+      "위치선정 좋긴한데 좀더 확실히 확확 빼주면 좋은데 살짝 걷는 성향",
+    ],
+  }, // 해파린~
   alice427: { notes: [] }, // 미르_MIR
   kaksjak0730: { notes: [] }, // 한결___
   y0unggam: { notes: [] }, // 영감__
