@@ -139,7 +139,9 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
       "잘하시는 걸로 아는데 이번 소스에는 '연결'만 한 느낌스...",
     ],
   }, // 한결___
-  y0unggam: { notes: [] }, // 영감__
+  y0unggam: {
+    notes: ["소스 부족. 한데 일단 크게 못한건 없어서. 재시험 하면 좋을듯."],
+  }, // 영감__
   ttu0221: { notes: [] }, // 흠냥b
   nsnowthemoon: { notes: [] }, // 설빈달
   sookbong777: { notes: [] }, // 숙봉이
