@@ -314,7 +314,7 @@ streamers:
     profileImageUrl: "/profiles/profile_hangyeul.webp"
     sfx: "/sfxes/hangyeul.mp3"
     reviewNote: "잔디(FC게임을 일컫는 말)를 굉장히 좋아해서 잔악귀라는 별명이 있음"
-    nickname: "결란드"
+    nickname: "연결___"
   - slug: amanemay
     displayName: 김메이
     cafeAliases: ["김메이kimmay"]
@@ -1003,7 +1003,7 @@ streamers:
     celebrationMessage: "유키라의 잔디 놀이 {n}부 리그 승격!!"
     reviewNote: "~놀이 라는 상활극 컨텐츠를 진행해서 뭘하면 ~놀이라고 채팅이 올라옴 ex)잔디놀이"
     sfx: "/sfxes/yukira.mp3"
-    nickname: "잔디놀이 유키라"
+    nickname: "패스놀이 유키라"
   - slug: toryvac
     displayName: "빅토리~!"
     cafeAliases: ["vic tory"]
