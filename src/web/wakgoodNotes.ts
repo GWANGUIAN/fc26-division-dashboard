@@ -24,6 +24,11 @@ const NOTE_VOD_BASE_URL_2 = "https://vod.sooplive.com/player/206348423";
 const noteVodUrl2 = (seconds: number) =>
   `${NOTE_VOD_BASE_URL_2}?change_second=${seconds}`;
 
+/** 잔디동 2차 테스트 분석 • 평가 3 다시보기 VOD. */
+const NOTE_VOD_BASE_URL_3 = "https://vod.sooplive.com/player/206393463";
+const noteVodUrl3 = (seconds: number) =>
+  `${NOTE_VOD_BASE_URL_3}?change_second=${seconds}`;
+
 /**
  * 우왁굳이 1차 합격자 개개인에 대해 남긴 평가 메모 (+ 다시보기 링크).
  * roster.yaml의 slug(= StreamerRecord.id)를 키로 사용한다.
@@ -105,6 +110,7 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
       "수비 위치선정 불안",
       "몸 앞으로 쏠리는 현상 + 서포팅할때 너무 접근",
     ],
+    vodUrls: [noteVodUrl3(1882)], // 31:22
   }, // 독고혜지
   kirababy2: {
     notes: [
@@ -121,6 +127,7 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
       "상대 사이드로 몰 시 중앙 고목나무 못하고 무조건 인터셋트 하려 공쪽으로 쏠려서 크로스에서 취약점 있음.(가장 큰 단점)",
       "위치선정 좋긴한데 좀더 확실히 확확 빼주면 좋은데 살짝 걷는 성향",
     ],
+    vodUrls: [noteVodUrl3(2842)], // 00:47:22
   }, // 해파린~
   alice427: {
     notes: [
@@ -130,6 +137,7 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
       "그런데 좋은 기회가 왔을때도 기회인지 모르고 그냥 패스 돌리거나 크로스해버림.(본인이 돌파해서 슛각 나오는걸 못봄)",
       "전체적으로 컨트롤 초보이슈가 있음. 뚝딱이슈.",
     ],
+    vodUrls: [noteVodUrl3(3859)], // 01:04:19
   }, // 미르_MIR
   kaksjak0730: {
     notes: [
@@ -138,9 +146,11 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
       "접중 잘하시는걸로 아는데 접중할 상황 안나오는 경기맞이하니까 사이드를 못감...",
       "잘하시는 걸로 아는데 이번 소스에는 '연결'만 한 느낌스...",
     ],
+    vodUrls: [noteVodUrl3(4636)], // 01:17:16
   }, // 한결___
   y0unggam: {
     notes: ["소스 부족. 한데 일단 크게 못한건 없어서. 재시험 하면 좋을듯."],
+    vodUrls: [noteVodUrl3(6306)], // 01:45:06
   }, // 영감__
   ttu0221: {
     notes: [
@@ -148,6 +158,7 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
       "빌드업 가담력 없음. 뒤로빼서 안전수비.",
       "1:1 수비력은 소스가 부족한데 무난한듯",
     ],
+    vodUrls: [noteVodUrl3(6914)], // 01:55:14
   }, // 흠냥b
   nsnowthemoon: {
     notes: [
@@ -155,12 +166,14 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
       "세트피스때 몸 앞으로 쏠리는 성향",
       "컨트롤은 날렵하신데 막상 커버를 못친게 꽤 많이 나와서 아쉽스",
     ],
+    vodUrls: [noteVodUrl3(7543)], // 02:05:43
   }, // 설빈달
   sookbong777: {
     notes: [
       "쇄도력은 좋은데 살짝 쇄도 원툴 느낌스. 나나문에서 수비가담 살짝 덜하고 쇄도 살짝 덜하는 느낌",
       "패스는 그냥 무난한 느낌스. 뒷대각은 잘 못보고 평범한 일반패스 예측범위안에서 패스",
     ],
+    vodUrls: [noteVodUrl3(8689)], // 02:24:49
   }, // 숙봉이
   // 9/5 (ST)
   gofl2237: {
