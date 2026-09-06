@@ -1,6 +1,7 @@
 import type { StreamerRecord } from "../../shared/model.js";
 import { defaultSoopProfileUrl } from "../../shared/model.js";
 import { divisionColor } from "../../shared/division-theme.js";
+import { positionColor } from "../../shared/position-theme.js";
 
 const COLUMNS = 5;
 const CELL_WIDTH = 200;
@@ -85,6 +86,82 @@ function drawRing(
   ctx.restore();
 }
 
+const POSITION_PILL_FONT = "800 13px 'Barlow Condensed', 'Noto Sans KR', sans-serif";
+const POSITION_PILL_HEIGHT = 20;
+const POSITION_PILL_PADDING_X = 8;
+const POSITION_PILL_GAP = 5;
+
+function drawPositionPill(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  code: string,
+  opacity: number,
+): number {
+  ctx.font = POSITION_PILL_FONT;
+  const width = ctx.measureText(code).width + POSITION_PILL_PADDING_X * 2;
+  const height = POSITION_PILL_HEIGHT;
+  const radius = height / 2;
+  const x = cx - width / 2;
+  const y = cy - height / 2;
+
+  ctx.save();
+  ctx.globalAlpha = opacity;
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + width, y, x + width, y + height, radius);
+  ctx.arcTo(x + width, y + height, x, y + height, radius);
+  ctx.arcTo(x, y + height, x, y, radius);
+  ctx.arcTo(x, y, x + width, y, radius);
+  ctx.closePath();
+  ctx.fillStyle = positionColor(code);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(0, 0, 0, 0.3)";
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.lineWidth = 2.5;
+  ctx.strokeStyle = "#000000";
+  ctx.strokeText(code, cx, cy + 1);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(code, cx, cy + 1);
+  ctx.restore();
+
+  return width;
+}
+
+/** Draws hopedPosition1 (and hopedPosition2, if set) as centered colored pills, mirroring the on-screen PositionTags UI. */
+function drawPositionTags(
+  ctx: CanvasRenderingContext2D,
+  centerX: number,
+  cy: number,
+  streamer: StreamerRecord,
+) {
+  if (!streamer.hopedPosition1) return;
+  const codes: { code: string; opacity: number }[] = [
+    { code: streamer.hopedPosition1, opacity: 1 },
+  ];
+  if (streamer.hopedPosition2) {
+    codes.push({ code: streamer.hopedPosition2, opacity: 0.78 });
+  }
+
+  ctx.font = POSITION_PILL_FONT;
+  const widths = codes.map(
+    ({ code }) => ctx.measureText(code).width + POSITION_PILL_PADDING_X * 2,
+  );
+  const totalWidth =
+    widths.reduce((sum, w) => sum + w, 0) + POSITION_PILL_GAP * (codes.length - 1);
+
+  let x = centerX - totalWidth / 2;
+  codes.forEach(({ code, opacity }, index) => {
+    const width = widths[index];
+    drawPositionPill(ctx, x + width / 2, cy, code, opacity);
+    x += width + POSITION_PILL_GAP;
+  });
+}
+
 function truncateToWidth(
   ctx: CanvasRenderingContext2D,
   text: string,
@@ -162,15 +239,21 @@ async function buildCanvas(
       );
     }
 
+    ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
     ctx.fillStyle = "#ffffff";
     ctx.font = "700 19px 'Noto Sans KR', sans-serif";
     const name = truncateToWidth(ctx, streamer.displayName, CELL_WIDTH - 24);
     ctx.fillText(name, cx, cy + AVATAR_RADIUS + 32);
 
+    drawPositionTags(ctx, cx, cy + AVATAR_RADIUS + 54, streamer);
+
+    ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
     if (streamer.currentDivision > 0) {
       ctx.fillStyle = color;
       ctx.font = "800 15px 'Barlow Condensed', sans-serif";
-      ctx.fillText(`D${streamer.currentDivision}`, cx, cy + AVATAR_RADIUS + 54);
+      ctx.fillText(`D${streamer.currentDivision}`, cx, cy + AVATAR_RADIUS + 78);
     }
   });
 
