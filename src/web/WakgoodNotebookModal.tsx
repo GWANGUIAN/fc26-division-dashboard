@@ -33,8 +33,18 @@ export function WakgoodNotebookModal({
     "all",
   );
   const [dateFilter, setDateFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "written" | "skipped" | "empty"
+  >("all");
 
-  const filteredStreamers = useMemo(
+  function statusOf(streamer: StreamerRecord): "written" | "skipped" | "empty" {
+    const notes = getWakgoodNote(streamer.id)?.notes;
+    if (isSkippedWakgoodNote(notes)) return "skipped";
+    if (notes && notes.length > 0) return "written";
+    return "empty";
+  }
+
+  const streamersBeforeStatus = useMemo(
     () =>
       streamers.filter(
         (streamer) =>
@@ -47,15 +57,28 @@ export function WakgoodNotebookModal({
       ),
     [streamers, query, positionFilter, dateFilter],
   );
-  const writtenCount = filteredStreamers.filter((streamer) => {
-    const notes = getWakgoodNote(streamer.id)?.notes;
-    return Boolean(notes && notes.length > 0) && !isSkippedWakgoodNote(notes);
-  }).length;
-  const skippedStreamers = filteredStreamers.filter((streamer) =>
-    isSkippedWakgoodNote(getWakgoodNote(streamer.id)?.notes),
+  const writtenStreamers = streamersBeforeStatus.filter(
+    (streamer) => statusOf(streamer) === "written",
   );
-  const incompleteCount =
-    filteredStreamers.length - writtenCount - skippedStreamers.length;
+  const skippedStreamers = streamersBeforeStatus.filter(
+    (streamer) => statusOf(streamer) === "skipped",
+  );
+  const emptyStreamers = streamersBeforeStatus.filter(
+    (streamer) => statusOf(streamer) === "empty",
+  );
+  const filteredStreamers = useMemo(
+    () =>
+      statusFilter === "all"
+        ? streamersBeforeStatus
+        : streamersBeforeStatus.filter(
+            (streamer) => statusOf(streamer) === statusFilter,
+          ),
+    [streamersBeforeStatus, statusFilter],
+  );
+
+  function toggleStatusFilter(value: "written" | "skipped" | "empty") {
+    setStatusFilter((current) => (current === value ? "all" : value));
+  }
 
   return (
     <Modal
@@ -71,18 +94,41 @@ export function WakgoodNotebookModal({
                 <img className="wakgood-note-icon" src={notepadIcon} alt="" /> 우왁굳의 메모장
               </h2>
             </div>
-            <div className="wakgood-notebook__progress">
-              <span className="wakgood-notebook__progress-item wakgood-notebook__progress-item--written">
-                완료 {writtenCount}
-              </span>
-              <span className="wakgood-notebook__progress-item wakgood-notebook__progress-item--skipped">
+            <div className="segmented wakgood-notebook__progress">
+              <button
+                type="button"
+                className={statusFilter === "all" ? "active" : ""}
+                aria-pressed={statusFilter === "all"}
+                onClick={() => setStatusFilter("all")}
+              >
+                전체 {streamersBeforeStatus.length}
+              </button>
+              <button
+                type="button"
+                className={statusFilter === "written" ? "active" : ""}
+                aria-pressed={statusFilter === "written"}
+                onClick={() => toggleStatusFilter("written")}
+              >
+                완료 {writtenStreamers.length}
+              </button>
+              <button
+                type="button"
+                className={statusFilter === "skipped" ? "active" : ""}
+                aria-pressed={statusFilter === "skipped"}
+                onClick={() => toggleStatusFilter("skipped")}
+              >
                 넘어감 {skippedStreamers.length}
                 {skippedStreamers.length > 0 &&
                   `(${skippedStreamers.map((streamer) => streamer.displayName).join(", ")})`}
-              </span>
-              <span className="wakgood-notebook__progress-item wakgood-notebook__progress-item--empty">
-                미완료 {incompleteCount}
-              </span>
+              </button>
+              <button
+                type="button"
+                className={statusFilter === "empty" ? "active" : ""}
+                aria-pressed={statusFilter === "empty"}
+                onClick={() => toggleStatusFilter("empty")}
+              >
+                미완료 {emptyStreamers.length}
+              </button>
             </div>
           </div>
           <div className="wakgood-notebook__filters">
