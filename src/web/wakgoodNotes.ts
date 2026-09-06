@@ -142,7 +142,13 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
   y0unggam: {
     notes: ["소스 부족. 한데 일단 크게 못한건 없어서. 재시험 하면 좋을듯."],
   }, // 영감__
-  ttu0221: { notes: [] }, // 흠냥b
+  ttu0221: {
+    notes: [
+      "그냥 무난~하신데.. 수비할때 어깨를 못넣고 대충 뒤로 빼기만 해서 디테일한 스루나 로빙에 털릴 가능성 있음.",
+      "빌드업 가담력 없음. 뒤로빼서 안전수비.",
+      "1:1 수비력은 소스가 부족한데 무난한듯",
+    ],
+  }, // 흠냥b
   nsnowthemoon: { notes: [] }, // 설빈달
   sookbong777: { notes: [] }, // 숙봉이
   // 9/5 (ST)
