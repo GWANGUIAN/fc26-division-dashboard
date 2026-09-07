@@ -314,7 +314,12 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
       "얼크를 하거나 엔드라인 활용은 잘하시고 접중도 잘 보시려고 하는듯",
     ],
   }, // 하치_HACHI
-  cjstkdbsl3: { notes: [] }, // 깡담비
+  cjstkdbsl3: {
+    notes: [
+      "오프더볼 괜찮은편이고 드리블링 가능하고 마지막에 드리블 훼이크좀 치는거 가능.",
+      "접중각 살짝 아쉽스 마무리도 조금 살짝 아쉽스. 뒷공간 가끔씩 못파고듬",
+    ],
+  }, // 깡담비
   hikicomoring: {
     notes: [
       "오프더볼 움직임은 제일 좋음. 벌려야할때 오므려야할때를 정확히 알고 있음. 근데 마무리가 안되고 억접이 너무 많음.",
