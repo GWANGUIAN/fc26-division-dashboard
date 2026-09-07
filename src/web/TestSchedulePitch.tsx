@@ -27,7 +27,19 @@ function effectiveStreamerId(
   return view.baseStreamerId;
 }
 
-function PitchMarkings() {
+/**
+ * The pitch outline is stretched to fill a non-square box (`preserveAspectRatio="none"`
+ * on a 100x100 viewBox), so a circle drawn with equal rx/ry would come out
+ * oval on anything but a square container. `aspectRatio` (the container's
+ * width/height) lets us pre-compensate so the halfway circle still renders
+ * round — same box-width/box-height math for both the together (landscape)
+ * and split (portrait) pitches.
+ */
+function PitchMarkings({ aspectRatio }: { aspectRatio: number }) {
+  const circleRy = 9;
+  const circleRx = circleRy / aspectRatio;
+  const dotRy = 0.6;
+  const dotRx = dotRy / aspectRatio;
   return (
     <svg
       className="test-pitch__markings"
@@ -37,13 +49,16 @@ function PitchMarkings() {
     >
       <rect x="1" y="1" width="98" height="98" fill="none" stroke="currentColor" strokeWidth="0.35" />
       <line x1="1" y1="50" x2="99" y2="50" stroke="currentColor" strokeWidth="0.35" />
-      <circle cx="50" cy="50" r="9" fill="none" stroke="currentColor" strokeWidth="0.35" />
-      <circle cx="50" cy="50" r="0.6" fill="currentColor" />
+      <ellipse cx="50" cy="50" rx={circleRx} ry={circleRy} fill="none" stroke="currentColor" strokeWidth="0.35" />
+      <ellipse cx="50" cy="50" rx={dotRx} ry={dotRy} fill="currentColor" />
       <rect x="24" y="1" width="52" height="14" fill="none" stroke="currentColor" strokeWidth="0.35" />
       <rect x="24" y="85" width="52" height="14" fill="none" stroke="currentColor" strokeWidth="0.35" />
     </svg>
   );
 }
+
+const TOGETHER_PITCH_ASPECT_RATIO = 105 / 82;
+const PORTRAIT_PITCH_ASPECT_RATIO = 68 / 105;
 
 function TestPitchCard({
   view,
@@ -224,25 +239,49 @@ export function TestSchedulePitch({
   streamers,
   streamerById,
   locked,
+  layout = "together",
 }: {
   teams: TestScheduleTeam[];
   dateIso: string;
   streamers: StreamerRecord[];
   streamerById: Map<string, StreamerRecord>;
   locked?: boolean;
+  /** "together": one shared pitch, both teams facing off. "split": each team on its own portrait pitch, 1팀 left / 2팀 right. */
+  layout?: "together" | "split";
 }) {
   const [assignments, setAssignments] = useState<TestSchedulePitchAssignments>(
     loadTestSchedulePitchAssignments,
   );
   useEffect(() => saveTestSchedulePitchAssignments(assignments), [assignments]);
 
-  const allSlots = useMemo(
+  // 배열 순서상 teams[0]="2팀"(bottom)/teams[1]="1팀"(top)이 관례지만, 나눠서
+  // 보기에서는 순서 대신 라벨로 찾아 왼쪽에 1팀을 고정한다.
+  const team1 = teams.find((team) => team.label === "1팀") ?? teams[1];
+  const team2 = teams.find((team) => team.label === "2팀") ?? teams[0];
+
+  const togetherSlots = useMemo(
     () => [
       ...(teams[0] ? computeTeamPitchLayout(teams[0], dateIso, "bottom") : []),
       ...(teams[1] ? computeTeamPitchLayout(teams[1], dateIso, "top") : []),
     ],
     [teams, dateIso],
   );
+  // 1팀은 "한번에 보기"에서 위쪽 절반에 거꾸로(골키퍼가 위) 놓이므로, 골키퍼가
+  // 아래로 오게 하려면 통째로 180도 돌린 것처럼 좌우까지 뒤집어야 한다.
+  const splitTeam1Slots = useMemo(
+    () =>
+      team1
+        ? computeTeamPitchLayout(team1, dateIso, "standalone", { mirrorX: true })
+        : [],
+    [team1, dateIso],
+  );
+  const splitTeam2Slots = useMemo(
+    () => (team2 ? computeTeamPitchLayout(team2, dateIso, "standalone") : []),
+    [team2, dateIso],
+  );
+
+  const allSlots =
+    layout === "split" ? [...splitTeam1Slots, ...splitTeam2Slots] : togetherSlots;
   const slotByKey = useMemo(
     () => new Map(allSlots.map((view) => [view.key, view])),
     [allSlots],
@@ -265,37 +304,56 @@ export function TestSchedulePitch({
     }));
   }
 
+  function renderSlot(view: PitchSlotView) {
+    const cardLocked = locked || view.locked;
+    const streamerId = cardLocked
+      ? view.baseStreamerId
+      : effectiveStreamerId(assignments, view);
+    const mirror = view.mirrorKey ? slotByKey.get(view.mirrorKey) : undefined;
+    const mirrorLocked = locked || mirror?.locked;
+    const mirrorStreamerId = mirror
+      ? mirrorLocked
+        ? mirror.baseStreamerId
+        : effectiveStreamerId(assignments, mirror)
+      : undefined;
+    return (
+      <TestPitchCard
+        key={view.key}
+        view={view}
+        streamer={streamerId ? streamerById.get(streamerId) : undefined}
+        mirrorStreamer={mirrorStreamerId ? streamerById.get(mirrorStreamerId) : undefined}
+        streamers={streamers}
+        onAssign={(id) => assign(view.key, id)}
+        onVacate={() => assign(view.key, null)}
+        onSwap={() => swapMirror(view)}
+        locked={cardLocked}
+      />
+    );
+  }
+
+  if (layout === "split") {
+    return (
+      <div className="test-pitch-split">
+        <div className="test-pitch test-pitch--portrait">
+          <PitchMarkings aspectRatio={PORTRAIT_PITCH_ASPECT_RATIO} />
+          {team1 && <span className="test-pitch__team-tag test-pitch__team-tag--bottom">{team1.label}</span>}
+          {splitTeam1Slots.map(renderSlot)}
+        </div>
+        <div className="test-pitch test-pitch--portrait">
+          <PitchMarkings aspectRatio={PORTRAIT_PITCH_ASPECT_RATIO} />
+          {team2 && <span className="test-pitch__team-tag test-pitch__team-tag--bottom">{team2.label}</span>}
+          {splitTeam2Slots.map(renderSlot)}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="test-pitch">
-      <PitchMarkings />
+      <PitchMarkings aspectRatio={TOGETHER_PITCH_ASPECT_RATIO} />
       {teams[0] && <span className="test-pitch__team-tag test-pitch__team-tag--bottom">{teams[0].label}</span>}
       {teams[1] && <span className="test-pitch__team-tag test-pitch__team-tag--top">{teams[1].label}</span>}
-      {allSlots.map((view) => {
-        const cardLocked = locked || view.locked;
-        const streamerId = cardLocked
-          ? view.baseStreamerId
-          : effectiveStreamerId(assignments, view);
-        const mirror = view.mirrorKey ? slotByKey.get(view.mirrorKey) : undefined;
-        const mirrorLocked = locked || mirror?.locked;
-        const mirrorStreamerId = mirror
-          ? mirrorLocked
-            ? mirror.baseStreamerId
-            : effectiveStreamerId(assignments, mirror)
-          : undefined;
-        return (
-          <TestPitchCard
-            key={view.key}
-            view={view}
-            streamer={streamerId ? streamerById.get(streamerId) : undefined}
-            mirrorStreamer={mirrorStreamerId ? streamerById.get(mirrorStreamerId) : undefined}
-            streamers={streamers}
-            onAssign={(id) => assign(view.key, id)}
-            onVacate={() => assign(view.key, null)}
-            onSwap={() => swapMirror(view)}
-            locked={cardLocked}
-          />
-        );
-      })}
+      {togetherSlots.map(renderSlot)}
     </div>
   );
 }

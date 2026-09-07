@@ -43,9 +43,16 @@ const LINE_DEPTH: Record<Exclude<PitchLine, "GK">, number> = {
 };
 const GK_DEPTH = 0.09;
 
-/** Maps a line's depth onto the bottom half (own goal at y=100) or top half (own goal at y=0), leaving a gap around the halfway line (y=50) for the two teams to face off. */
-function yForLine(line: PitchLine, half: "bottom" | "top"): number {
+/**
+ * Maps a line's depth onto the bottom half (own goal at y=100) or top half
+ * (own goal at y=0) of a shared two-team pitch, leaving a gap around the
+ * halfway line (y=50) for the two teams to face off — or, for "standalone"
+ * (one team alone on its own portrait pitch), spreads across the full
+ * height with the goal line near y=100.
+ */
+function yForLine(line: PitchLine, half: "bottom" | "top" | "standalone"): number {
   const depth = line === "GK" ? GK_DEPTH : LINE_DEPTH[line];
+  if (half === "standalone") return 100 - depth * 96;
   return half === "bottom" ? 100 - depth * 48 : depth * 48;
 }
 
@@ -82,11 +89,18 @@ export interface PitchSlotView {
  * order. Same-line entries that end up mirrored across the center (paired
  * flanks, or an even center group split down the middle) get a `mirrorKey`
  * so the UI can offer a left/right swap.
+ *
+ * `mirrorX` flips every slot's x position (100 - x) after layout — used to
+ * show a "top half" team (attacking downward, GK at the top) as if the
+ * whole formation had been physically rotated 180° onto its own standalone
+ * portrait pitch (GK at the bottom, left/right swapped), instead of just
+ * flipping it vertically.
  */
 export function computeTeamPitchLayout(
   team: TestScheduleTeam,
   dateIso: string,
-  half: "bottom" | "top",
+  half: "bottom" | "top" | "standalone",
+  options?: { mirrorX?: boolean },
 ): PitchSlotView[] {
   const keyFor = (index: number) => `${dateIso}__${team.label}__${index}`;
   const lines: Record<PitchLine, { slot: TestScheduleSlot; index: number }[]> = {
@@ -171,5 +185,8 @@ export function computeTeamPitchLayout(
     }
   });
 
+  if (options?.mirrorX) {
+    return result.map((view) => ({ ...view, xPct: 100 - view.xPct }));
+  }
   return result;
 }

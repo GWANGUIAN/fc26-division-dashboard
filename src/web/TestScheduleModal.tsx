@@ -55,6 +55,7 @@ export function TestScheduleModal({
   );
   const [gameIndex, setGameIndex] = useState(0);
   const [view, setView] = useState<"list" | "pitch">("list");
+  const [pitchLayout, setPitchLayout] = useState<"together" | "split">("together");
   const streamerById = new Map(
     [...streamers, ...CUSTOM_TEST_SCHEDULE_STREAMERS].map((streamer) => [
       streamer.id,
@@ -128,13 +129,32 @@ export function TestScheduleModal({
       }
     >
       {view === "pitch" ? (
-        <TestSchedulePitch
-          teams={selectedGame.teams}
-          dateIso={pitchDateIso}
-          streamers={streamers}
-          streamerById={streamerById}
-          locked={selectedGame.locked ?? selected.locked}
-        />
+        <>
+          <div className="test-schedule__pitch-layout-row">
+            <div className="segmented test-schedule__pitch-layout-tabs">
+              <button
+                className={pitchLayout === "together" ? "active" : ""}
+                onClick={() => setPitchLayout("together")}
+              >
+                한번에 보기
+              </button>
+              <button
+                className={pitchLayout === "split" ? "active" : ""}
+                onClick={() => setPitchLayout("split")}
+              >
+                나눠서 보기
+              </button>
+            </div>
+          </div>
+          <TestSchedulePitch
+            teams={selectedGame.teams}
+            dateIso={pitchDateIso}
+            streamers={streamers}
+            streamerById={streamerById}
+            locked={selectedGame.locked ?? selected.locked}
+            layout={pitchLayout}
+          />
+        </>
       ) : (
         <div className="test-schedule__teams">
           {/* 포메이션뷰는 위/아래 배치를 유지하려고 배열 순서를 그대로 쓰지만,
