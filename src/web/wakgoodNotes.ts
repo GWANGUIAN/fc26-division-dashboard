@@ -291,7 +291,14 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
     vodUrls: [noteVodUrl2(11819)], // 03:16:59
   }, // 르니
   // 9/7 (ST)
-  ju010228: { notes: [] }, // 쥬멩이
+  ju010228: {
+    notes: [
+      "움직임이 굉장히 좋아보임.",
+      "공간창출 하려는 움직임 + 막힐시 다른 포지션으로 바로바로 찾는 모습 좋음.",
+      "침착함도 있어보이고 패스 연계도 빠르고 논스톱 리턴패스도 가능함.",
+      "골넣는 기회는 안와서 소스가 살짝 더 필요하긴함",
+    ],
+  }, // 쥬멩이
   habee511: { notes: [] }, // 망야_
   // 9/7 (WF)
   jejong5: { notes: [] }, // 제이제이잉
