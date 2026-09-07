@@ -30,7 +30,8 @@ const POSITION_GROUPS: PositionGroup[] = ["FW", "MF", "DF", "GK"];
 // TEMP: 나중에 실제 2차 결과 발표 후 문구를 채워 넣을 자리 — 비어 있으면 "2차
 // 탈락자 보기" 섹션에서 이 안내문이 아예 렌더링되지 않는다 (1차 탈락자 섹션의
 // 고정 안내문과 동일한 패턴, 스트리머별이 아니라 섹션 전체에 한 번만 쓰인다).
-const SECOND_ROUND_CHEER_MESSAGE = "";
+const SECOND_ROUND_CHEER_MESSAGE =
+  "2차까지 오면서 밤낮없이 연습하고 노력한 시간들, 팬분들은 다 지켜봐서 잘 알고 계실겁니다. 매일 조금씩 성장하는 모습 보면서 감동했습니다. 고생하셨습니다!!👍 ";
 
 export function DivisionResults({
   viewMode,
@@ -254,7 +255,8 @@ export function DivisionResults({
           </button>
         </div>
       )}
-      {(secondRoundNonPassedStreamers.length > 0 || nonPassedStreamers.length > 0) && (
+      {(secondRoundNonPassedStreamers.length > 0 ||
+        nonPassedStreamers.length > 0) && (
         <section
           className="division hidden-streamers"
           style={{ gridTemplateColumns: "1fr" }}
@@ -276,11 +278,12 @@ export function DivisionResults({
                       : "접기"}
                   </span>
                 </button>
-                {!secondRoundHiddenCollapsed && SECOND_ROUND_CHEER_MESSAGE.trim() && (
-                  <p className="second-round-hidden__note">
-                    {SECOND_ROUND_CHEER_MESSAGE}
-                  </p>
-                )}
+                {!secondRoundHiddenCollapsed &&
+                  SECOND_ROUND_CHEER_MESSAGE.trim() && (
+                    <p className="second-round-hidden__note">
+                      {SECOND_ROUND_CHEER_MESSAGE}
+                    </p>
+                  )}
                 {!secondRoundHiddenCollapsed &&
                   secondRoundNonPassedStreamers.map((streamer) => (
                     <StreamerCard
@@ -320,8 +323,9 @@ export function DivisionResults({
                 {!firstRoundHiddenCollapsed && (
                   <p className="first-round-hidden__note">
                     짧다면 짧고 길다면 길었던 시간 동안 FC 플레이 하시느라 고생
-                    많으셨습니다. 열심히 노력하시는 모습 보면서 시청자분들과 진심으로 응원했습니다.
-                    함께해주신 모든 분들, 정말 수고하셨습니다.💪
+                    많으셨습니다. 열심히 노력하시는 모습 보면서 시청자분들과
+                    진심으로 응원했습니다. 함께해주신 모든 분들, 정말
+                    수고하셨습니다.💪
                   </p>
                 )}
                 {!firstRoundHiddenCollapsed &&
