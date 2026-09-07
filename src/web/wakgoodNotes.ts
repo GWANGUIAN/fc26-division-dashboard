@@ -301,7 +301,13 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
   }, // 쥬멩이
   habee511: { notes: [] }, // 망야_
   // 9/7 (WF)
-  jejong5: { notes: [] }, // 제이제이잉
+  jejong5: {
+    notes: [
+      "윙포 위치선정은 괜찮음.",
+      "윙포쪽에 공간있어도 못가고 횡패스나 백패스 해버림",
+      "반대편 크로스각에서 헤딩이나 쇄도력 부족",
+    ],
+  }, // 제이제이잉
   hachi97: {
     notes: [
       "윙포워드인데 클랙식 윙어처럼 플레이를 해서 뒷공간 활용도가 0인 상황 그리고 우리팀 쇄도를 보지 못함.",
