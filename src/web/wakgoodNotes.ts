@@ -300,7 +300,13 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
   hikicomoring: { notes: [] }, // 히키☆
   // 9/7 (FB)
   secymyong: { notes: [] }, // 묭씨
-  whiteone325: { notes: [] }, // 난워니-_-+
+  whiteone325: {
+    notes: [
+      "캐릭터 조작이슈로 커버링이 미숙해서 공간을 털리거나 선수를 지나가게 하는 경향있음.",
+      "뒷공간은 인지하고 로빙스루 날림.",
+      "위치선정 아쉽스.. 계속 상대방 선수하고 붙어있으려는 성향.(수비걱정되서 앞으로 가지도 못하고 뒤로 빼주지도 못하는 어중간한 느낌스)",
+    ],
+  }, // 난워니-_-+
 };
 
 export function getWakgoodNote(
