@@ -302,7 +302,12 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
   habee511: { notes: [] }, // 망야_
   // 9/7 (WF)
   jejong5: { notes: [] }, // 제이제이잉
-  hachi97: { notes: [] }, // 하치_HACHI
+  hachi97: {
+    notes: [
+      "윙포워드인데 클랙식 윙어처럼 플레이를 해서 뒷공간 활용도가 0인 상황 그리고 우리팀 쇄도를 보지 못함.",
+      "얼크를 하거나 엔드라인 활용은 잘하시고 접중도 잘 보시려고 하는듯",
+    ],
+  }, // 하치_HACHI
   cjstkdbsl3: { notes: [] }, // 깡담비
   hikicomoring: { notes: [] }, // 히키☆
   // 9/7 (FB)
