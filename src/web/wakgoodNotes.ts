@@ -29,6 +29,11 @@ const NOTE_VOD_BASE_URL_3 = "https://vod.sooplive.com/player/206393463";
 const noteVodUrl3 = (seconds: number) =>
   `${NOTE_VOD_BASE_URL_3}?change_second=${seconds}`;
 
+/** 잔디동 2차 테스트 분석 • 평가 4 다시보기 VOD. */
+const NOTE_VOD_BASE_URL_4 = "https://vod.sooplive.com/player/206531121";
+const noteVodUrl4 = (seconds: number) =>
+  `${NOTE_VOD_BASE_URL_4}?change_second=${seconds}`;
+
 /**
  * 우왁굳이 1차 합격자 개개인에 대해 남긴 평가 메모 (+ 다시보기 링크).
  * roster.yaml의 slug(= StreamerRecord.id)를 키로 사용한다.
@@ -298,6 +303,7 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
       "침착함도 있어보이고 패스 연계도 빠르고 논스톱 리턴패스도 가능함.",
       "골넣는 기회는 안와서 소스가 살짝 더 필요하긴함",
     ],
+    vodUrls: [noteVodUrl4(1548)], // 25:48
   }, // 쥬멩이
   habee511: { notes: [] }, // 망야_
   // 9/7 (WF)
@@ -307,24 +313,28 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
       "윙포쪽에 공간있어도 못가고 횡패스나 백패스 해버림",
       "반대편 크로스각에서 헤딩이나 쇄도력 부족",
     ],
+    vodUrls: [noteVodUrl4(3698)], // 01:01:38
   }, // 제이제이잉
   hachi97: {
     notes: [
       "윙포워드인데 클랙식 윙어처럼 플레이를 해서 뒷공간 활용도가 0인 상황 그리고 우리팀 쇄도를 보지 못함.",
       "얼크를 하거나 엔드라인 활용은 잘하시고 접중도 잘 보시려고 하는듯",
     ],
+    vodUrls: [noteVodUrl4(2047)], // 00:34:07
   }, // 하치_HACHI
   cjstkdbsl3: {
     notes: [
       "오프더볼 괜찮은편이고 드리블링 가능하고 마지막에 드리블 훼이크좀 치는거 가능.",
       "접중각 살짝 아쉽스 마무리도 조금 살짝 아쉽스. 뒷공간 가끔씩 못파고듬",
     ],
+    vodUrls: [noteVodUrl4(5536)], // 01:32:16
   }, // 깡담비
   hikicomoring: {
     notes: [
       "오프더볼 움직임은 제일 좋음. 벌려야할때 오므려야할때를 정확히 알고 있음. 근데 마무리가 안되고 억접이 너무 많음.",
       "거의 100% 사이드에서 접어서 중앙 주는데 접지 않아야 할때도 무조건 접음",
     ],
+    vodUrls: [noteVodUrl4(4362)], // 01:12:42
   }, // 히키☆
   // 9/7 (FB)
   secymyong: { notes: [] }, // 묭씨
@@ -334,6 +344,7 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
       "뒷공간은 인지하고 로빙스루 날림.",
       "위치선정 아쉽스.. 계속 상대방 선수하고 붙어있으려는 성향.(수비걱정되서 앞으로 가지도 못하고 뒤로 빼주지도 못하는 어중간한 느낌스)",
     ],
+    vodUrls: [noteVodUrl4(635)], // 10:35
   }, // 난워니-_-+
   toocats: {
     notes: [
@@ -341,6 +352,7 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
       "다만 모든 상황에서 최전방을 보는 버릇이있어 조율이나 만들어가는 느낌이 적은편.(1경기만봐서 잘 모르겠는데 알론소병일수도 있어보임.. 무조건 최전방 때리는 원툴성향 살짝보임)",
       "수비가담은 전후좌우 다 폭 넓게 하는편이나 인터셉트 후 역습을 노리는 수비를 많이 하는 편. (4백 스위칭 커버 대비)",
     ],
+    vodUrls: [noteVodUrl4(6515)], // 01:48:35
   }, // 투냥츠
 };
 
