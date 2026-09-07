@@ -318,9 +318,11 @@ body { isolation: isolate; }
   -webkit-background-clip: text;
   background-clip: text;
   font-weight: 800;
+  font-size: 3em;
+  padding-left: 1.2em;
   animation: wakgood-fancy-text 2.8s linear infinite;
 }
-.wakgood-notebook__notes--fancy li::before { background: #ffd76a; box-shadow: 0 0 6px #ffd76a; }
+.wakgood-notebook__notes--fancy li::before { top: .64em; left: .08em; width: .4em; height: .4em; background: #ffd76a; box-shadow: 0 0 6px #ffd76a; }
 @keyframes wakgood-fancy-text { to { background-position: 300% center; } }
 @media (prefers-reduced-motion: reduce) {
   .wakgood-notebook__entry--fancy { animation: none; }
@@ -363,6 +365,7 @@ body { isolation: isolate; }
   -webkit-background-clip: text;
   background-clip: text;
   font-weight: 800;
+  font-size: 2em;
   animation: wakgood-fancy-text 2.8s linear infinite;
 }
 .wakgood-note-bubble__list--fancy li::marker { color: #ffd76a; }
@@ -412,6 +415,7 @@ body { isolation: isolate; }
   -webkit-background-clip: text;
   background-clip: text;
   font-weight: 800;
+  font-size: 2em;
   animation: wakgood-fancy-text 2.8s linear infinite;
 }
 .wakgood-note-panel__list--fancy li::marker { color: #ffd76a; }
