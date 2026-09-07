@@ -315,7 +315,12 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
     ],
   }, // 하치_HACHI
   cjstkdbsl3: { notes: [] }, // 깡담비
-  hikicomoring: { notes: [] }, // 히키☆
+  hikicomoring: {
+    notes: [
+      "오프더볼 움직임은 제일 좋음. 벌려야할때 오므려야할때를 정확히 알고 있음. 근데 마무리가 안되고 억접이 너무 많음.",
+      "거의 100% 사이드에서 접어서 중앙 주는데 접지 않아야 할때도 무조건 접음",
+    ],
+  }, // 히키☆
   // 9/7 (FB)
   secymyong: { notes: [] }, // 묭씨
   whiteone325: {
