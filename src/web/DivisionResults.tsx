@@ -31,7 +31,7 @@ const POSITION_GROUPS: PositionGroup[] = ["FW", "MF", "DF", "GK"];
 // 탈락자 보기" 섹션에서 이 안내문이 아예 렌더링되지 않는다 (1차 탈락자 섹션의
 // 고정 안내문과 동일한 패턴, 스트리머별이 아니라 섹션 전체에 한 번만 쓰인다).
 const SECOND_ROUND_CHEER_MESSAGE =
-  "2차까지 오면서 밤낮없이 연습하고 노력한 시간들, 팬분들은 다 지켜봐서 잘 알고 계실겁니다. 매일 조금씩 성장하는 모습 보면서 감동했습니다. 고생하셨습니다!!👍 ";
+  "2차까지 오면서 밤낮없이 연습하고 노력한 시간들, 팬분들은 다 지켜봐서 잘 알고 계실겁니다. 매일 조금씩 성장하는 모습 보면서 감동했습니다. 고생하셨습니다!! ";
 
 export function DivisionResults({
   viewMode,
@@ -282,6 +282,18 @@ export function DivisionResults({
                   SECOND_ROUND_CHEER_MESSAGE.trim() && (
                     <p className="second-round-hidden__note">
                       {SECOND_ROUND_CHEER_MESSAGE}
+                      <img
+                        className="second-round-hidden__note-icon"
+                        src="/cheer-up-1.webp"
+                        alt=""
+                        aria-hidden="true"
+                      />
+                      <img
+                        className="second-round-hidden__note-icon"
+                        src="/cheer-up-2.webp"
+                        alt=""
+                        aria-hidden="true"
+                      />
                     </p>
                   )}
                 {!secondRoundHiddenCollapsed &&
