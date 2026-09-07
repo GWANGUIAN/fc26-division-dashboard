@@ -17,26 +17,22 @@ export const POSITION_GROUP_COLORS: Record<PositionGroup, string> = {
 /** Fallback color for a position code that doesn't match any known group. */
 export const POSITION_GROUP_FALLBACK_COLOR = "#9aa5b1";
 
-const POSITION_CODE_GROUP: Record<string, PositionGroup> = {
-  ST: "FW",
-  CF: "FW",
-  WF: "FW",
-  RW: "FW",
-  LW: "FW",
-  CM: "MF",
-  CDM: "MF",
-  CAM: "MF",
-  RM: "MF",
-  LM: "MF",
-  CB: "DF",
-  FB: "DF",
-  RB: "DF",
-  LB: "DF",
-  RWB: "DF",
-  LWB: "DF",
-  SW: "DF",
-  GK: "GK",
+/** Source of truth for which individual position codes belong to which group — also drives the position filter dropdown's grouping. */
+export const POSITION_GROUP_CODES: Record<PositionGroup, string[]> = {
+  FW: ["ST", "CF", "WF", "RW", "LW"],
+  MF: ["CM", "CDM", "CAM", "RM", "LM"],
+  DF: ["CB", "FB", "RB", "LB", "RWB", "LWB", "SW"],
+  GK: ["GK"],
 };
+
+/** Every known position code, in group order (FW, MF, DF, GK). */
+export const ALL_POSITION_CODES: string[] = Object.values(POSITION_GROUP_CODES).flat();
+
+const POSITION_CODE_GROUP: Record<string, PositionGroup> = Object.fromEntries(
+  (Object.entries(POSITION_GROUP_CODES) as [PositionGroup, string[]][]).flatMap(
+    ([group, codes]) => codes.map((code) => [code, group]),
+  ),
+);
 
 export function positionGroupOf(code?: string): PositionGroup | undefined {
   return code ? POSITION_CODE_GROUP[code.toUpperCase()] : undefined;

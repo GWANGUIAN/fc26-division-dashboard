@@ -113,8 +113,10 @@ export function App() {
     setActivityOnly,
     achievementOnly,
     setAchievementOnly,
-    positionGroupFilter,
-    setPositionGroupFilter,
+    selectedPositions,
+    setSelectedPositions,
+    availablePositionCodes,
+    isAllPositionsSelected,
     trophyAwards,
     streamers,
     includedStreamers,
@@ -197,8 +199,9 @@ export function App() {
         }
         activityOnly={activityOnly}
         onToggleActivityOnly={() => setActivityOnly((current) => !current)}
-        positionGroupFilter={positionGroupFilter}
-        onPositionGroupFilterChange={setPositionGroupFilter}
+        selectedPositions={selectedPositions}
+        onSelectedPositionsChange={setSelectedPositions}
+        availablePositionCodes={availablePositionCodes}
         onCopyList={handleCopyDivisionList}
         onDownloadList={handleDownloadDivisionList}
         evaluationFilter={evaluationFilter}
@@ -245,7 +248,8 @@ export function App() {
           onOpenTrophy={() => setTrophyOpen(true)}
           hideEmptyDivisions={query.trim().length > 0}
           liveStreamerIds={liveStreamerIds}
-          positionGroupFilter={positionGroupFilter}
+          selectedPositions={selectedPositions}
+          isAllPositionsSelected={isAllPositionsSelected}
         />
       ) : (
         <EvaluationList

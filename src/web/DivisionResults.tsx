@@ -2,13 +2,13 @@ import { useState } from "react";
 import { ChevronDown, CirclePile } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
 import {
+  POSITION_GROUP_CODES,
   POSITION_GROUP_COLORS,
   POSITION_GROUP_LABELS,
   positionGroupOf,
   type PositionGroup,
 } from "../shared/position-theme.js";
 import type { TrophyAwards } from "../shared/trophy.js";
-import type { PositionGroupFilter } from "./useStreamerFilters";
 import { CardBoard, StreamerCard } from "./StreamerCards";
 import { StreamerTable } from "./StreamerTable";
 import {
@@ -52,7 +52,8 @@ export function DivisionResults({
   onOpenTrophy,
   hideEmptyDivisions,
   liveStreamerIds,
-  positionGroupFilter,
+  selectedPositions,
+  isAllPositionsSelected,
 }: {
   viewMode: "list" | "table" | "card";
   loading?: boolean;
@@ -72,8 +73,10 @@ export function DivisionResults({
   onOpenTrophy: () => void;
   hideEmptyDivisions?: boolean;
   liveStreamerIds: Set<string>;
-  positionGroupFilter: PositionGroupFilter;
+  selectedPositions: string[];
+  isAllPositionsSelected: boolean;
 }) {
+  const selectedPositionSet = new Set(selectedPositions);
   const [firstRoundHiddenCollapsed, setFirstRoundHiddenCollapsed] = useState(
     loadFirstRoundHiddenCollapsed,
   );
@@ -120,11 +123,17 @@ export function DivisionResults({
             <p className="empty-list">검색 결과가 없습니다.</p>
           )}
           {POSITION_GROUPS.map((group) => {
-            // A specific position filter is already applied to `streamers`
-            // upstream (useStreamerFilters), so the other groups would render
-            // empty anyway — but skip them outright so only the selected
-            // position's area shows at all, not an empty placeholder for it.
-            if (positionGroupFilter !== "all" && positionGroupFilter !== group)
+            // The selected position codes are already applied to `streamers`
+            // upstream (useStreamerFilters), so a group none of whose codes
+            // are selected would render empty anyway — but skip it outright
+            // so only the relevant position areas show at all, not an empty
+            // placeholder for the rest.
+            if (
+              !isAllPositionsSelected &&
+              !POSITION_GROUP_CODES[group].some((code) =>
+                selectedPositionSet.has(code),
+              )
+            )
               return null;
             const entries = streamers.filter(
               (streamer) => positionGroupOf(streamer.hopedPosition1) === group,
@@ -172,7 +181,7 @@ export function DivisionResults({
               </section>
             );
           })}
-          {positionGroupFilter === "all" &&
+          {isAllPositionsSelected &&
             (() => {
               const unassigned = streamers.filter(
                 (streamer) => !positionGroupOf(streamer.hopedPosition1),

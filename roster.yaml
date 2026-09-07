@@ -338,7 +338,7 @@ streamers:
       division: null
       policy: auto
     passedFirstRound: true
-    hopedPosition1: "RW"
+    hopedPosition1: "WF"
     sfx: "/sfxes/esa.mp3"
   - slug: banta251201
     displayName: 반타__

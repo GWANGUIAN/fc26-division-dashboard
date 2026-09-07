@@ -1,13 +1,6 @@
 import type { RefObject } from "react";
 import { Activity, Copy, Download, Trophy } from "lucide-react";
-import {
-  POSITION_GROUP_COLORS,
-  POSITION_GROUP_LABELS,
-  type PositionGroup,
-} from "../shared/position-theme.js";
-import type { PositionGroupFilter } from "./useStreamerFilters.js";
-
-const POSITION_GROUP_ORDER: PositionGroup[] = ["FW", "MF", "DF", "GK"];
+import { PositionFilterPicker } from "./PositionFilterPicker";
 
 export function ControlsBar({
   sentinelRef,
@@ -19,8 +12,9 @@ export function ControlsBar({
   onToggleAchievementOnly,
   activityOnly,
   onToggleActivityOnly,
-  positionGroupFilter,
-  onPositionGroupFilterChange,
+  selectedPositions,
+  onSelectedPositionsChange,
+  availablePositionCodes,
   onCopyList,
   onDownloadList,
   evaluationFilter,
@@ -35,8 +29,9 @@ export function ControlsBar({
   onToggleAchievementOnly: () => void;
   activityOnly: boolean;
   onToggleActivityOnly: () => void;
-  positionGroupFilter: PositionGroupFilter;
-  onPositionGroupFilterChange: (value: PositionGroupFilter) => void;
+  selectedPositions: string[];
+  onSelectedPositionsChange: (codes: string[]) => void;
+  availablePositionCodes: string[];
   onCopyList: () => void;
   onDownloadList: () => void;
   evaluationFilter: "all" | "pending" | "completed";
@@ -82,28 +77,11 @@ export function ControlsBar({
                   <span className="control-btn__label">활동글 작성자만</span>
                 </button>
               </div>
-              <div className="segmented segmented--position">
-                <button
-                  className={positionGroupFilter === "all" ? "active" : ""}
-                  onClick={() => onPositionGroupFilterChange("all")}
-                >
-                  전체
-                </button>
-                {POSITION_GROUP_ORDER.map((group) => (
-                  <button
-                    key={group}
-                    className={positionGroupFilter === group ? "active" : ""}
-                    onClick={() => onPositionGroupFilterChange(group)}
-                    style={
-                      {
-                        "--position-color": POSITION_GROUP_COLORS[group],
-                      } as React.CSSProperties
-                    }
-                  >
-                    {POSITION_GROUP_LABELS[group]}
-                  </button>
-                ))}
-              </div>
+              <PositionFilterPicker
+                availableCodes={availablePositionCodes}
+                selected={selectedPositions}
+                onChange={onSelectedPositionsChange}
+              />
               <button
                 className="copy-list-button"
                 type="button"

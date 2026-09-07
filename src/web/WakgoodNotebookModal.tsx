@@ -3,14 +3,10 @@ import { Download } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
 import { searchable } from "../shared/search.js";
 import notepadIcon from "./assets/icon-notepad.webp";
-import {
-  POSITION_GROUP_COLORS,
-  POSITION_GROUP_LABELS,
-  positionGroupOf,
-  type PositionGroup,
-} from "../shared/position-theme.js";
 import { Avatar, PositionTags } from "./cardVisuals";
 import { Modal, useEscape } from "./Modal";
+import { PositionFilterPicker } from "./PositionFilterPicker";
+import { usePositionCodeFilter } from "./usePositionCodeFilter";
 import {
   matchAppearancesForStreamer,
   matchDatesForStreamer,
@@ -20,8 +16,6 @@ import { useToast } from "./useToast";
 import { getWakgoodNote, isSkippedWakgoodNote } from "./wakgoodNotes";
 import { downloadWakgoodNotebookXlsx } from "./xlsx-export.js";
 import { WakgoodVodLinks } from "./WakgoodVodLinks";
-
-const POSITION_GROUP_ORDER: PositionGroup[] = ["FW", "MF", "DF", "GK"];
 
 export function WakgoodNotebookModal({
   streamers,
@@ -33,9 +27,13 @@ export function WakgoodNotebookModal({
   useEscape(onClose);
   const { toast, showToast } = useToast();
   const [query, setQuery] = useState("");
-  const [positionFilter, setPositionFilter] = useState<PositionGroup | "all">(
-    "all",
-  );
+  const {
+    selectedPositions,
+    setSelectedPositions,
+    selectedPositionSet,
+    availablePositionCodes,
+    isAllPositionsSelected,
+  } = usePositionCodeFilter(streamers);
   const [dateFilter, setDateFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<
     "all" | "written" | "skipped" | "empty"
@@ -53,13 +51,19 @@ export function WakgoodNotebookModal({
       streamers.filter(
         (streamer) =>
           searchable(streamer.displayName, streamer.cafeAliases, query) &&
-          (positionFilter === "all" ||
-            positionGroupOf(streamer.hopedPosition1) === positionFilter ||
-            positionGroupOf(streamer.hopedPosition2) === positionFilter) &&
+          (isAllPositionsSelected ||
+            selectedPositionSet.has((streamer.hopedPosition1 ?? "").toUpperCase()) ||
+            selectedPositionSet.has((streamer.hopedPosition2 ?? "").toUpperCase())) &&
           (dateFilter === "all" ||
             matchDatesForStreamer(streamer.id).has(dateFilter)),
       ),
-    [streamers, query, positionFilter, dateFilter],
+    [
+      streamers,
+      query,
+      isAllPositionsSelected,
+      selectedPositionSet,
+      dateFilter,
+    ],
   );
   const writtenStreamers = streamersBeforeStatus.filter(
     (streamer) => statusOf(streamer) === "written",
@@ -156,28 +160,11 @@ export function WakgoodNotebookModal({
                 placeholder="이름 또는 카페 닉네임 검색"
               />
             </label>
-            <div className="segmented segmented--position">
-              <button
-                className={positionFilter === "all" ? "active" : ""}
-                onClick={() => setPositionFilter("all")}
-              >
-                전체
-              </button>
-              {POSITION_GROUP_ORDER.map((group) => (
-                <button
-                  key={group}
-                  className={positionFilter === group ? "active" : ""}
-                  onClick={() => setPositionFilter(group)}
-                  style={
-                    {
-                      "--position-color": POSITION_GROUP_COLORS[group],
-                    } as React.CSSProperties
-                  }
-                >
-                  {POSITION_GROUP_LABELS[group]}
-                </button>
-              ))}
-            </div>
+            <PositionFilterPicker
+              availableCodes={availablePositionCodes}
+              selected={selectedPositions}
+              onChange={setSelectedPositions}
+            />
             <div className="segmented wakgood-notebook__date-tabs">
               <button
                 className={dateFilter === "all" ? "active" : ""}

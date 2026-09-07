@@ -3,10 +3,8 @@ import type { DashboardSnapshot } from "../shared/model.js";
 import { searchable } from "../shared/search.js";
 import { winRatePercent } from "../shared/record-extraction.js";
 import { buildTrophyAwards, trophyBadgesFor } from "../shared/trophy.js";
-import { positionGroupOf, type PositionGroup } from "../shared/position-theme.js";
 import { determineCelebrationRound } from "./useLatestActivity";
-
-export type PositionGroupFilter = PositionGroup | "all";
+import { usePositionCodeFilter } from "./usePositionCodeFilter";
 
 export function useStreamerFilters(
   snapshot: DashboardSnapshot | undefined,
@@ -15,8 +13,6 @@ export function useStreamerFilters(
   const [query, setQuery] = useState("");
   const [activityOnly, setActivityOnly] = useState(false);
   const [achievementOnly, setAchievementOnly] = useState(false);
-  const [positionGroupFilter, setPositionGroupFilter] =
-    useState<PositionGroupFilter>("all");
 
   // Only 1차 합격자로 확정된 스트리머만 메인 보드/집계 대상이다. 나머지는
   // nonPassedStreamers로 따로 모아, 접이식 섹션에서만 노출한다.
@@ -41,6 +37,15 @@ export function useStreamerFilters(
         : passedStreamers,
     [passedStreamers, celebrationRound],
   );
+  // Only codes with at least one candidate in the currently-shown board
+  // population appear in the filter dropdown at all.
+  const {
+    selectedPositions,
+    setSelectedPositions,
+    selectedPositionSet,
+    availablePositionCodes,
+    isAllPositionsSelected,
+  } = usePositionCodeFilter(boardStreamers);
   // 1차는 합격했지만 2차는 아닌 사람들 — "2차 탈락자 보기" 섹션. 2차 결과가 아직
   // 없으면(celebrationRound === 1) 항상 빈 배열.
   const secondRoundNonPassedStreamers = useMemo(
@@ -83,9 +88,9 @@ export function useStreamerFilters(
             )) &&
           (!achievementOnly ||
             trophyBadgesFor(streamer, trophyAwards).length > 0) &&
-          (positionGroupFilter === "all" ||
-            positionGroupOf(streamer.hopedPosition1) === positionGroupFilter ||
-            positionGroupOf(streamer.hopedPosition2) === positionGroupFilter),
+          (isAllPositionsSelected ||
+            selectedPositionSet.has((streamer.hopedPosition1 ?? "").toUpperCase()) ||
+            selectedPositionSet.has((streamer.hopedPosition2 ?? "").toUpperCase())),
       ),
     [
       boardStreamers,
@@ -93,7 +98,8 @@ export function useStreamerFilters(
       activityOnly,
       achievementOnly,
       trophyAwards,
-      positionGroupFilter,
+      isAllPositionsSelected,
+      selectedPositionSet,
     ],
   );
   const nonPassedStreamers = useMemo(
@@ -141,8 +147,10 @@ export function useStreamerFilters(
     setActivityOnly,
     achievementOnly,
     setAchievementOnly,
-    positionGroupFilter,
-    setPositionGroupFilter,
+    selectedPositions,
+    setSelectedPositions,
+    availablePositionCodes,
+    isAllPositionsSelected,
     trophyAwards,
     streamers,
     includedStreamers,
