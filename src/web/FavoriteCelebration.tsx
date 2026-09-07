@@ -6,6 +6,10 @@ import "swiper/css";
 export type CelebrationSlide = { key: string; message: string; fancyTier?: FancyTier };
 
 const CONFETTI = ["🎉", "🎊", "✨", "⭐", "🎊", "✨"];
+// Extra pieces/sparks shown only for the 2차 (final) celebration — keeps the
+// everyday 1차 banner at its original level of flair and reserves the fuller
+// effect for when there's an actual 2차 합격자 to celebrate.
+const CONFETTI_ROUND2_EXTRA = ["🥇", "🌟", "🎉", "✨"];
 const FANCY_ROW_SPARK_SLOTS = [1, 2, 3, 4] as const;
 
 export function FavoriteCelebrationRow({
@@ -44,14 +48,26 @@ export function FavoriteCelebrationRow({
   );
 }
 
-export function FavoriteCelebration({ slides }: { slides: CelebrationSlide[] }) {
+export function FavoriteCelebration({
+  slides,
+  round = 1,
+}: {
+  slides: CelebrationSlide[];
+  round?: 1 | 2;
+}) {
   if (slides.length === 0) return null;
   const label = slides.map((slide) => slide.message).join(" · ");
+  const isRound2 = round === 2;
+  const confetti = isRound2 ? [...CONFETTI, ...CONFETTI_ROUND2_EXTRA] : CONFETTI;
   return (
-    <aside className="favorite-celebration" role="note" aria-label={label}>
+    <aside
+      className={`favorite-celebration ${isRound2 ? "favorite-celebration--round2" : ""}`}
+      role="note"
+      aria-label={label}
+    >
       <span className="favorite-celebration__shine" aria-hidden="true" />
       <span className="favorite-celebration__confetti" aria-hidden="true">
-        {CONFETTI.map((emoji, index) => (
+        {confetti.map((emoji, index) => (
           <span
             key={index}
             className={`favorite-celebration__confetti-piece favorite-celebration__confetti-piece--${index + 1}`}
@@ -66,6 +82,22 @@ export function FavoriteCelebration({ slides }: { slides: CelebrationSlide[] }) 
       >
         ✦
       </span>
+      {isRound2 && (
+        <>
+          <span
+            className="favorite-celebration__spark favorite-celebration__spark--top"
+            aria-hidden="true"
+          >
+            ✦
+          </span>
+          <span
+            className="favorite-celebration__spark favorite-celebration__spark--bottom"
+            aria-hidden="true"
+          >
+            ✦
+          </span>
+        </>
+      )}
       <div className="favorite-celebration__viewport">
         {slides.length > 1 ? (
           <Swiper

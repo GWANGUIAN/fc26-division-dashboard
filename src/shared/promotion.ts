@@ -141,6 +141,7 @@ export function buildStreamerRecords(
       isExcluded: entry.isExcluded,
       latestReview,
       passedFirstRound: entry.passedFirstRound,
+      passedSecondRound: entry.passedSecondRound,
       hopedPosition1: entry.hopedPosition1,
       hopedPosition2: entry.hopedPosition2,
     };

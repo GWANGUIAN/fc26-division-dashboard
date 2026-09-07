@@ -3,7 +3,13 @@ import { fancyTierOf } from "../cardVisuals";
 import { FavoriteCelebrationRow } from "../FavoriteCelebration";
 import { celebrationMessageFor } from "../useLatestActivity";
 
-export function PhotoBoothBanner({ streamer }: { streamer: StreamerRecord }) {
+export function PhotoBoothBanner({
+  streamer,
+  round,
+}: {
+  streamer: StreamerRecord;
+  round: 1 | 2;
+}) {
   const fancyTier = fancyTierOf(streamer);
   const isFullFancy = fancyTier === "full";
   // On this stage a "lite" streamer renders as a fully plain banner (no
@@ -11,7 +17,9 @@ export function PhotoBoothBanner({ streamer }: { streamer: StreamerRecord }) {
   // where FavoriteCelebrationRow's own toned-down lite look still applies.
   const rowFancyTier = isFullFancy ? "full" : "none";
   return (
-    <div className={`photo-booth-banner ${isFullFancy ? "photo-booth-banner--fancy" : ""}`}>
+    <div
+      className={`photo-booth-banner ${round === 2 ? "photo-booth-banner--round2" : ""} ${isFullFancy ? "photo-booth-banner--fancy" : ""}`}
+    >
       <span className="photo-booth-banner__shine" aria-hidden="true" />
       <span className="photo-booth-banner__sparkles" aria-hidden="true">
         <i className="photo-booth-banner__spark photo-booth-banner__spark--1">✦</i>
@@ -30,7 +38,7 @@ export function PhotoBoothBanner({ streamer }: { streamer: StreamerRecord }) {
         )}
       </span>
       <FavoriteCelebrationRow
-        message={celebrationMessageFor(streamer.nickname?.trim() || streamer.displayName)}
+        message={celebrationMessageFor(streamer.nickname?.trim() || streamer.displayName, round)}
         fancyTier={rowFancyTier}
         size="large"
       />

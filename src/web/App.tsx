@@ -126,7 +126,8 @@ export function App() {
   } = useStreamerFilters(snapshot, sortMode);
   const { evaluationFilter, setEvaluationFilter, applications } =
     useEvaluationApplications(snapshot, query);
-  const { latest, celebrationSlides } = useLatestActivity(snapshot, streamers);
+  const { latest, celebrationSlides, celebrationRound, celebrationEligibleStreamers } =
+    useLatestActivity(snapshot, streamers);
   const soopLive = useSoopLiveStreamers(passedStreamers);
   const liveStreamerIds = useMemo(
     () => new Set(soopLive.entries.map((entry) => entry.streamerId)),
@@ -174,10 +175,10 @@ export function App() {
       />
       <div className="photo-booth-anchor">
         <PhotoBoothTrigger
-          passedStreamers={passedStreamers}
+          passedStreamers={celebrationEligibleStreamers}
           onOpen={() => setPhotoBoothOpen(true)}
         />
-        <FavoriteCelebration slides={celebrationSlides} />
+        <FavoriteCelebration slides={celebrationSlides} round={celebrationRound} />
       </div>
       <HeroSection isDivision={isDivision} />
       <SoopLiveSection soopLive={soopLive} />
@@ -314,7 +315,8 @@ export function App() {
       )}
       {photoBoothOpen && (
         <PhotoBoothOverlay
-          passedStreamers={passedStreamers}
+          passedStreamers={celebrationEligibleStreamers}
+          round={celebrationRound}
           sfxEnabled={sfxEnabled}
           sfxVolume={sfxVolume}
           onClose={() => setPhotoBoothOpen(false)}

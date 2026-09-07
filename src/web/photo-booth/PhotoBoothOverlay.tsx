@@ -45,11 +45,13 @@ function useBodyScrollLock() {
 
 export function PhotoBoothOverlay({
   passedStreamers,
+  round,
   sfxEnabled,
   sfxVolume,
   onClose,
 }: {
   passedStreamers: StreamerRecord[];
+  round: 1 | 2;
   sfxEnabled: boolean;
   sfxVolume: number;
   onClose: () => void;
@@ -103,7 +105,7 @@ export function PhotoBoothOverlay({
 
   return (
     <div
-      className="photo-booth-overlay"
+      className={`photo-booth-overlay ${round === 2 ? "photo-booth-overlay--round2" : ""}`}
       role="dialog"
       aria-modal="true"
       aria-label="합격 인증샷 찍기"
@@ -135,9 +137,14 @@ export function PhotoBoothOverlay({
         </button>
       </div>
       {directorVisible && (
-        <img className="photo-booth-director" src="/director.webp" alt="" aria-hidden="true" />
+        <img
+          className={`photo-booth-director ${round === 2 ? "photo-booth-director--round2" : ""}`}
+          src={round === 2 ? "/director-2.webp" : "/director.webp"}
+          alt=""
+          aria-hidden="true"
+        />
       )}
-      {selectedStreamer && <PhotoBoothBanner streamer={selectedStreamer} />}
+      {selectedStreamer && <PhotoBoothBanner streamer={selectedStreamer} round={round} />}
     </div>
   );
 }
