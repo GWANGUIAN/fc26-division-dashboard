@@ -51,10 +51,17 @@ export function PositionFilterPicker({
     addEventListener("mousedown", closeOnOutsideClick, true);
     addEventListener("keydown", closeOnEscape);
     addEventListener("resize", updateAnchor);
+    // Capture phase so this also fires for scrolling inside a nested
+    // container (e.g. a modal body), not just the window itself — the panel
+    // is `position: fixed` (viewport-relative), so without this it stays put
+    // on screen while the toggle button it's supposed to hang off scrolls
+    // away underneath it.
+    addEventListener("scroll", updateAnchor, true);
     return () => {
       removeEventListener("mousedown", closeOnOutsideClick, true);
       removeEventListener("keydown", closeOnEscape);
       removeEventListener("resize", updateAnchor);
+      removeEventListener("scroll", updateAnchor, true);
     };
   }, [isOpen]);
 
