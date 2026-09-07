@@ -65,6 +65,8 @@ export interface PitchSlotView {
   yPct: number;
   /** The base (pre-override) streamer id from the roster data, if any. */
   baseStreamerId?: string;
+  /** Mirrors `TestScheduleSlot.locked` — this one slot is fixed even when the game/date itself isn't. */
+  locked?: boolean;
   /**
    * Key of this slot's left/right mirror on the same line, if one exists —
    * swapping the two players' assignments flips who's on which flank.
@@ -111,6 +113,7 @@ export function computeTeamPitchLayout(
       xPct,
       yPct,
       baseStreamerId: entry.slot.streamerId,
+      locked: entry.slot.locked,
     });
   };
 

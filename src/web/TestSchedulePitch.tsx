@@ -271,12 +271,14 @@ export function TestSchedulePitch({
       {teams[0] && <span className="test-pitch__team-tag test-pitch__team-tag--bottom">{teams[0].label}</span>}
       {teams[1] && <span className="test-pitch__team-tag test-pitch__team-tag--top">{teams[1].label}</span>}
       {allSlots.map((view) => {
-        const streamerId = locked
+        const cardLocked = locked || view.locked;
+        const streamerId = cardLocked
           ? view.baseStreamerId
           : effectiveStreamerId(assignments, view);
         const mirror = view.mirrorKey ? slotByKey.get(view.mirrorKey) : undefined;
+        const mirrorLocked = locked || mirror?.locked;
         const mirrorStreamerId = mirror
-          ? locked
+          ? mirrorLocked
             ? mirror.baseStreamerId
             : effectiveStreamerId(assignments, mirror)
           : undefined;
@@ -290,7 +292,7 @@ export function TestSchedulePitch({
             onAssign={(id) => assign(view.key, id)}
             onVacate={() => assign(view.key, null)}
             onSwap={() => swapMirror(view)}
-            locked={locked}
+            locked={cardLocked}
           />
         );
       })}

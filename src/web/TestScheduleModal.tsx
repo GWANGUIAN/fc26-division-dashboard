@@ -133,7 +133,7 @@ export function TestScheduleModal({
           dateIso={pitchDateIso}
           streamers={streamers}
           streamerById={streamerById}
-          locked={selected.locked}
+          locked={selectedGame.locked ?? selected.locked}
         />
       ) : (
         <div className="test-schedule__teams">

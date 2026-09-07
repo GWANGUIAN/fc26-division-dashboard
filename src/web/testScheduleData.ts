@@ -11,6 +11,11 @@ export interface TestScheduleSlot {
   streamerId?: string;
   /** 이번 테스트에 배정된 포지션 코드 (예: "ST", "CDM"). */
   position: string;
+  /**
+   * 경기 전체는 편집 가능해도 이 자리 하나만 개별적으로 고정해서 포메이션
+   * 화면에서 바꾸지 못하게 할 때 true (예: 9/7 2경기의 우왁굳/피카온 자리).
+   */
+  locked?: boolean;
 }
 
 export interface TestScheduleTeam {
@@ -23,6 +28,8 @@ export interface TestScheduleGame {
   /** 토글에 표시할 라벨 (예: "1경기"). */
   label: string;
   teams: TestScheduleTeam[];
+  /** 이 경기만 개별적으로 고정 여부를 지정할 때 사용 (없으면 날짜 전체의 locked를 따른다). */
+  locked?: boolean;
 }
 
 export interface TestScheduleDate {
@@ -204,37 +211,83 @@ export const TEST_SCHEDULE: TestScheduleDate[] = [
   {
     date: "9/7",
     isoDate: "2026-09-07",
-    teams: [
+    games: [
       {
-        label: "2팀",
-        slots: [
-          { streamerId: "habee511", position: "ST" },
-          { streamerId: "cjstkdbsl3", position: "WF" },
-          { streamerId: "hikicomoring", position: "WF" },
-          { position: "CM" },
-          { position: "CM" },
-          { position: "CDM" },
-          { position: "CB" },
-          { position: "CB" },
-          { streamerId: "whiteone325", position: "FB" },
-          { position: "FB" },
-          { streamerId: "janine95kim", position: "GK" },
+        // 확정된 편성이라 포메이션 화면에서 통째로 잠금(수정 불가).
+        label: "1경기",
+        locked: true,
+        teams: [
+          {
+            label: "2팀",
+            slots: [
+              { streamerId: "habee511", position: "ST" },
+              { streamerId: "hikicomoring", position: "WF" },
+              { streamerId: "cjstkdbsl3", position: "WF" },
+              { streamerId: "zzimio3o", position: "CM" },
+              { streamerId: "kaksjak0730", position: "CM" },
+              { streamerId: "nsnowthemoon", position: "CDM" },
+              { streamerId: "haepalin", position: "CB" },
+              { streamerId: "custom-wakgood", position: "CB" },
+              { streamerId: "whiteone325", position: "FB" },
+              { streamerId: "secretto486", position: "FB" },
+              { streamerId: "janine95kim", position: "GK" },
+            ],
+          },
+          {
+            label: "1팀",
+            slots: [
+              { streamerId: "ju010228", position: "ST" },
+              { streamerId: "hachi97", position: "WF" },
+              { streamerId: "jejong5", position: "WF" },
+              { streamerId: "kur0ch4t", position: "CM" },
+              { streamerId: "bboringirl", position: "CM" },
+              { streamerId: "toocats", position: "CDM" },
+              { streamerId: "dokkhye0000", position: "CB" },
+              { streamerId: "ttu0221", position: "CB" },
+              { streamerId: "etwo22", position: "FB" },
+              { streamerId: "secymyong", position: "FB" },
+              { streamerId: "custom-picaon", position: "GK" },
+            ],
+          },
         ],
       },
       {
-        label: "1팀",
-        slots: [
-          { streamerId: "ju010228", position: "ST" },
-          { streamerId: "jejong5", position: "WF" },
-          { streamerId: "hachi97", position: "WF" },
-          { position: "CM" },
-          { position: "CM" },
-          { streamerId: "toocats", position: "CDM" },
-          { position: "CB" },
-          { position: "CB" },
-          { streamerId: "secymyong", position: "FB" },
-          { position: "FB" },
-          { streamerId: "janine95kim", position: "GK" },
+        // 자유 편성 경기. 기존 9/7 배정자 + 우왁굳/피카온 자리만 개별 고정하고
+        // 나머지는 비워둬서 포메이션 화면에서 자유롭게 채울 수 있게 한다.
+        label: "2경기",
+        teams: [
+          {
+            label: "2팀",
+            slots: [
+              { streamerId: "habee511", position: "ST", locked: true },
+              { streamerId: "hikicomoring", position: "WF", locked: true },
+              { streamerId: "cjstkdbsl3", position: "WF", locked: true },
+              { position: "CM" },
+              { position: "CM" },
+              { position: "CDM" },
+              { position: "CB" },
+              { streamerId: "custom-wakgood", position: "CB", locked: true },
+              { streamerId: "whiteone325", position: "FB", locked: true },
+              { position: "FB" },
+              { streamerId: "janine95kim", position: "GK", locked: true },
+            ],
+          },
+          {
+            label: "1팀",
+            slots: [
+              { streamerId: "ju010228", position: "ST", locked: true },
+              { streamerId: "hachi97", position: "WF", locked: true },
+              { streamerId: "jejong5", position: "WF", locked: true },
+              { position: "CM" },
+              { position: "CM" },
+              { streamerId: "toocats", position: "CDM", locked: true },
+              { position: "CB" },
+              { position: "CB" },
+              { position: "FB" },
+              { streamerId: "secymyong", position: "FB", locked: true },
+              { streamerId: "custom-picaon", position: "GK", locked: true },
+            ],
+          },
         ],
       },
     ],
