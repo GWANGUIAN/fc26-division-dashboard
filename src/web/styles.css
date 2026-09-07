@@ -245,6 +245,7 @@ body { isolation: isolate; }
 .wakgood-notebook__search input { width: min(260px, 42vw); min-width: 0; padding: 9px 12px; border: 1px solid var(--border-strong); border-radius: 3px; outline: none; color: var(--text-primary); background: var(--surface-input); font-size: 12px; transition: background .2s, border-color .2s; }
 .wakgood-notebook__search input:focus { border-color: var(--accent-border); box-shadow: 0 0 0 3px #00e9ae12; }
 .wakgood-notebook__date-tabs button + button { border-left: 1px solid var(--border-strong); }
+.wakgood-notebook__download { margin-left: auto; }
 .wakgood-notebook__list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin: 4px 0 0; padding: 0; list-style: none; }
 /* Rounded card with a soft lift on hover instead of the old flat, square,
    left-bar-accented box — the state (written/skipped/empty) now reads from

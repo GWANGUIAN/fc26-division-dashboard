@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Download } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
 import { searchable } from "../shared/search.js";
 import notepadIcon from "./assets/icon-notepad.webp";
@@ -15,7 +16,9 @@ import {
   matchDatesForStreamer,
   TEST_SCHEDULE,
 } from "./testScheduleData";
+import { useToast } from "./useToast";
 import { getWakgoodNote, isSkippedWakgoodNote } from "./wakgoodNotes";
+import { downloadWakgoodNotebookXlsx } from "./xlsx-export.js";
 import { WakgoodVodLinks } from "./WakgoodVodLinks";
 
 const POSITION_GROUP_ORDER: PositionGroup[] = ["FW", "MF", "DF", "GK"];
@@ -28,6 +31,7 @@ export function WakgoodNotebookModal({
   onClose: () => void;
 }) {
   useEscape(onClose);
+  const { toast, showToast } = useToast();
   const [query, setQuery] = useState("");
   const [positionFilter, setPositionFilter] = useState<PositionGroup | "all">(
     "all",
@@ -78,6 +82,18 @@ export function WakgoodNotebookModal({
 
   function toggleStatusFilter(value: "written" | "skipped" | "empty") {
     setStatusFilter((current) => (current === value ? "all" : value));
+  }
+
+  async function handleDownload() {
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      await downloadWakgoodNotebookXlsx(
+        filteredStreamers,
+        `wakgood-notebook-${today}.xlsx`,
+      );
+    } catch {
+      showToast("엑셀 다운로드에 실패했습니다");
+    }
   }
 
   return (
@@ -179,6 +195,15 @@ export function WakgoodNotebookModal({
                 </button>
               ))}
             </div>
+            <button
+              type="button"
+              className="copy-list-button wakgood-notebook__download"
+              onClick={handleDownload}
+              aria-label="엑셀 다운로드"
+            >
+              <Download aria-hidden="true" />
+              <span className="control-btn__label">엑셀 다운로드</span>
+            </button>
           </div>
         </div>
       }
@@ -251,6 +276,11 @@ export function WakgoodNotebookModal({
           <p className="empty-list">표시할 스트리머가 없습니다.</p>
         )}
       </ul>
+      {toast && (
+        <div className="toast" role="status">
+          {toast}
+        </div>
+      )}
     </Modal>
   );
 }
