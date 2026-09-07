@@ -245,6 +245,7 @@ export function App() {
           onOpenTrophy={() => setTrophyOpen(true)}
           hideEmptyDivisions={query.trim().length > 0}
           liveStreamerIds={liveStreamerIds}
+          positionGroupFilter={positionGroupFilter}
         />
       ) : (
         <EvaluationList

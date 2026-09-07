@@ -1,9 +1,14 @@
 import { useState } from "react";
 import { ChevronDown, CirclePile } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
-import { divisionColor } from "../shared/division-theme.js";
+import {
+  POSITION_GROUP_COLORS,
+  POSITION_GROUP_LABELS,
+  positionGroupOf,
+  type PositionGroup,
+} from "../shared/position-theme.js";
 import type { TrophyAwards } from "../shared/trophy.js";
-import { divisions } from "./appHelpers";
+import type { PositionGroupFilter } from "./useStreamerFilters";
 import { CardBoard, StreamerCard } from "./StreamerCards";
 import { StreamerTable } from "./StreamerTable";
 import {
@@ -20,7 +25,7 @@ import {
   seenKeyFor,
 } from "./storage";
 
-const visibleDivisions = divisions.filter((division) => division <= 7);
+const POSITION_GROUPS: PositionGroup[] = ["FW", "MF", "DF", "GK"];
 
 // TEMP: 나중에 실제 2차 결과 발표 후 문구를 채워 넣을 자리 — 비어 있으면 "2차
 // 탈락자 보기" 섹션에서 이 안내문이 아예 렌더링되지 않는다 (1차 탈락자 섹션의
@@ -46,6 +51,7 @@ export function DivisionResults({
   onOpenTrophy,
   hideEmptyDivisions,
   liveStreamerIds,
+  positionGroupFilter,
 }: {
   viewMode: "list" | "table" | "card";
   loading?: boolean;
@@ -65,6 +71,7 @@ export function DivisionResults({
   onOpenTrophy: () => void;
   hideEmptyDivisions?: boolean;
   liveStreamerIds: Set<string>;
+  positionGroupFilter: PositionGroupFilter;
 }) {
   const [firstRoundHiddenCollapsed, setFirstRoundHiddenCollapsed] = useState(
     loadFirstRoundHiddenCollapsed,
@@ -111,24 +118,30 @@ export function DivisionResults({
           {isSearching && streamers.length === 0 && (
             <p className="empty-list">검색 결과가 없습니다.</p>
           )}
-          {visibleDivisions.map((division) => {
+          {POSITION_GROUPS.map((group) => {
+            // A specific position filter is already applied to `streamers`
+            // upstream (useStreamerFilters), so the other groups would render
+            // empty anyway — but skip them outright so only the selected
+            // position's area shows at all, not an empty placeholder for it.
+            if (positionGroupFilter !== "all" && positionGroupFilter !== group)
+              return null;
             const entries = streamers.filter(
-              (streamer) => streamer.currentDivision === division,
+              (streamer) => positionGroupOf(streamer.hopedPosition1) === group,
             );
             if (hideEmptyDivisions && entries.length === 0) return null;
             return (
               <section
-                className={`division division-${division}`}
+                className={`division division-position-${group.toLowerCase()}`}
                 style={
                   {
-                    "--division-color": divisionColor(division),
+                    "--division-color": POSITION_GROUP_COLORS[group],
                   } as React.CSSProperties
                 }
-                key={division}
+                key={group}
               >
-                <div className="division__label">
-                  <span>DIVISION</span>
-                  <strong>{division}</strong>
+                <div className="division__label division__label--position">
+                  <span>POSITION</span>
+                  <strong>{POSITION_GROUP_LABELS[group]}</strong>
                 </div>
                 <div
                   className={
@@ -152,12 +165,48 @@ export function DivisionResults({
                     />
                   ))}
                   {entries.length === 0 && (
-                    <p className="vacant">후보 대기 중</p>
+                    <p className="vacant">해당 포지션 후보가 없습니다</p>
                   )}
                 </div>
               </section>
             );
           })}
+          {positionGroupFilter === "all" &&
+            (() => {
+              const unassigned = streamers.filter(
+                (streamer) => !positionGroupOf(streamer.hopedPosition1),
+              );
+              if (unassigned.length === 0) return null;
+              return (
+                <section
+                  className="division division-position-unassigned"
+                  style={
+                    { "--division-color": "#9aa5b1" } as React.CSSProperties
+                  }
+                >
+                  <div className="division__label division__label--position">
+                    <span>POSITION</span>
+                    <strong>미정</strong>
+                  </div>
+                  <div className="division__players">
+                    {unassigned.map((streamer) => (
+                      <StreamerCard
+                        key={streamer.id}
+                        streamer={streamer}
+                        awards={trophyAwards}
+                        isNew={
+                          isUpdatedToday(streamer) &&
+                          !seenKeys.has(seenKeyFor(streamer))
+                        }
+                        isLive={liveStreamerIds.has(streamer.id)}
+                        onOpen={() => onOpenStreamer(streamer)}
+                        onOpenTrophy={onOpenTrophy}
+                      />
+                    ))}
+                  </div>
+                </section>
+              );
+            })()}
         </section>
       ) : viewMode === "table" ? (
         <StreamerTable
