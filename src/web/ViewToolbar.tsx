@@ -24,11 +24,8 @@ export function ViewToolbar({
   refreshing,
 }: {
   divisionStats: {
-    total: number;
-    fourOrHigher: number;
-    fiveOrHigher: number;
-    sixOrHigher: number;
-    sevenOrHigher: number;
+    firstRoundTotal: number;
+    secondRoundTotal: number;
   };
   streamersForHistogram: StreamerRecord[];
   excludedNames: string[];
@@ -56,34 +53,20 @@ export function ViewToolbar({
           </small>
         )}
         <div className="division-summary__stats">
+          {divisionStats.secondRoundTotal > 0 && (
+            <div className="division-summary__item division-summary__item--total-passed-round2">
+              <BadgeCheck aria-hidden="true" />
+              <div>
+                <strong>{divisionStats.secondRoundTotal}</strong>
+                <span>총 2차 합격자</span>
+              </div>
+            </div>
+          )}
           <div className="division-summary__item division-summary__item--total-passed">
             <BadgeCheck aria-hidden="true" />
             <div>
-              <strong>{divisionStats.total}</strong>
+              <strong>{divisionStats.firstRoundTotal}</strong>
               <span>총 1차 합격자</span>
-            </div>
-          </div>
-        </div>
-        <div
-          className="division-summary__stats division-summary__stats--pass"
-          aria-label="1차 합격 기준 요약"
-        >
-          <div className="division-summary__item division-summary__item--pass4">
-            <div>
-              <strong>{divisionStats.fourOrHigher}</strong>
-              <span>4부 이상</span>
-            </div>
-          </div>
-          <div className="division-summary__item division-summary__item--pass5">
-            <div>
-              <strong>{divisionStats.fiveOrHigher}</strong>
-              <span>5부 이상</span>
-            </div>
-          </div>
-          <div className="division-summary__item division-summary__item--pass6">
-            <div>
-              <strong>{divisionStats.sixOrHigher}</strong>
-              <span>6부 이상</span>
             </div>
           </div>
         </div>

@@ -7,6 +7,14 @@ export function celebrationMessageFor(displayName: string, round: 1 | 2 = 1) {
   return `${displayName}의 잔디동 ${round}차 합격을 축하합니다!!`;
 }
 
+/** Once anyone has passedSecondRound, everything 2차-aware (celebration banner,
+ * 합격 인증샷 photo booth, main board/stats/histogram/growth graph) switches to a
+ * 2차-only view. Shared by useLatestActivity and useStreamerFilters so both stay
+ * in lockstep without depending on each other's hook output. */
+export function determineCelebrationRound(streamers: StreamerRecord[]): 1 | 2 {
+  return streamers.some((streamer) => streamer.passedSecondRound) ? 2 : 1;
+}
+
 export function useLatestActivity(
   snapshot: DashboardSnapshot | undefined,
   streamers: StreamerRecord[],
@@ -20,12 +28,8 @@ export function useLatestActivity(
   const latest = recentPosts.filter(
     (post) => Date.now() - new Date(post.publishedAt).getTime() < DAY_MS,
   );
-  // Once anyone has passedSecondRound, the celebration banner + 합격 인증샷 photo
-  // booth switch entirely to a 2차-only view (wording, eligible streamers, and
-  // photo booth assets). Until then everything stays keyed off passedFirstRound,
-  // same as the main board.
   const celebrationRound: 1 | 2 = useMemo(
-    () => ((snapshot?.streamers ?? []).some((streamer) => streamer.passedSecondRound) ? 2 : 1),
+    () => determineCelebrationRound(snapshot?.streamers ?? []),
     [snapshot],
   );
   const celebrationEligibleStreamers = useMemo(

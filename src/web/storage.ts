@@ -34,6 +34,7 @@ const SFX_HEARD_STORAGE_KEY = "fc26-sfx-heard";
 const PHOTO_BOOTH_DISCOVERED_STORAGE_KEY = "fc26-photo-booth-discovered";
 const VIEW_MODE_STORAGE_KEY = "fc26-view-mode";
 const FIRST_ROUND_HIDDEN_COLLAPSED_STORAGE_KEY = "fc26-first-round-hidden-collapsed";
+const SECOND_ROUND_HIDDEN_COLLAPSED_STORAGE_KEY = "fc26-second-round-hidden-collapsed";
 const PROMO_PICKER_OPEN_STORAGE_KEY = "fc26-promo-picker-open";
 const JANDY_VIDEOS_COLLAPSED_STORAGE_KEY = "fc26-jandy-videos-collapsed";
 const CARD_ZOOM_STORAGE_KEY = "fc26-card-zoom-level";
@@ -72,6 +73,26 @@ export function saveFirstRoundHiddenCollapsed(collapsed: boolean) {
   try {
     localStorage.setItem(
       FIRST_ROUND_HIDDEN_COLLAPSED_STORAGE_KEY,
+      collapsed ? "1" : "0",
+    );
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
+
+export function loadSecondRoundHiddenCollapsed(): boolean {
+  try {
+    const raw = localStorage.getItem(SECOND_ROUND_HIDDEN_COLLAPSED_STORAGE_KEY);
+    return raw === null ? true : raw === "1";
+  } catch {
+    return true;
+  }
+}
+
+export function saveSecondRoundHiddenCollapsed(collapsed: boolean) {
+  try {
+    localStorage.setItem(
+      SECOND_ROUND_HIDDEN_COLLAPSED_STORAGE_KEY,
       collapsed ? "1" : "0",
     );
   } catch {

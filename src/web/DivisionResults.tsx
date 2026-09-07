@@ -15,10 +15,17 @@ import {
   isUpdatedToday,
   loadFirstRoundHiddenCollapsed,
   saveFirstRoundHiddenCollapsed,
+  loadSecondRoundHiddenCollapsed,
+  saveSecondRoundHiddenCollapsed,
   seenKeyFor,
 } from "./storage";
 
 const visibleDivisions = divisions.filter((division) => division <= 7);
+
+// TEMP: 나중에 실제 2차 결과 발표 후 문구를 채워 넣을 자리 — 비어 있으면 "2차
+// 탈락자 보기" 섹션에서 이 안내문이 아예 렌더링되지 않는다 (1차 탈락자 섹션의
+// 고정 안내문과 동일한 패턴, 스트리머별이 아니라 섹션 전체에 한 번만 쓰인다).
+const SECOND_ROUND_CHEER_MESSAGE = "";
 
 export function DivisionResults({
   viewMode,
@@ -26,6 +33,7 @@ export function DivisionResults({
   streamers,
   cardStreamers,
   nonPassedStreamers,
+  secondRoundNonPassedStreamers,
   trophyAwards,
   seenKeys,
   onOpenStreamer,
@@ -44,6 +52,7 @@ export function DivisionResults({
   streamers: StreamerRecord[];
   cardStreamers: StreamerRecord[];
   nonPassedStreamers: StreamerRecord[];
+  secondRoundNonPassedStreamers: StreamerRecord[];
   trophyAwards: TrophyAwards;
   seenKeys: Set<string>;
   onOpenStreamer: (streamer: StreamerRecord) => void;
@@ -64,6 +73,16 @@ export function DivisionResults({
     setFirstRoundHiddenCollapsed((current) => {
       const next = !current;
       saveFirstRoundHiddenCollapsed(next);
+      return next;
+    });
+  };
+  const [secondRoundHiddenCollapsed, setSecondRoundHiddenCollapsed] = useState(
+    loadSecondRoundHiddenCollapsed,
+  );
+  const toggleSecondRoundHidden = () => {
+    setSecondRoundHiddenCollapsed((current) => {
+      const next = !current;
+      saveSecondRoundHiddenCollapsed(next);
       return next;
     });
   };
@@ -186,48 +205,93 @@ export function DivisionResults({
           </button>
         </div>
       )}
-      {nonPassedStreamers.length > 0 && (
+      {(secondRoundNonPassedStreamers.length > 0 || nonPassedStreamers.length > 0) && (
         <section
-          className="division first-round-hidden"
+          className="division hidden-streamers"
           style={{ gridTemplateColumns: "1fr" }}
-          aria-label="1차 탈락자"
+          aria-label="탈락자"
         >
           <div className="division__players">
-            <button
-              type="button"
-              className="division__players-toggle"
-              onClick={toggleFirstRoundHidden}
-              aria-expanded={!firstRoundHiddenCollapsed}
-            >
-              <ChevronDown aria-hidden="true" />
-              <span>
-                {firstRoundHiddenCollapsed
-                  ? `1차 탈락자 보기 (${nonPassedStreamers.length}명)`
-                  : "접기"}
-              </span>
-            </button>
-            {!firstRoundHiddenCollapsed && (
-              <p className="first-round-hidden__note">
-                짧다면 짧고 길다면 길었던 시간 동안 FC 플레이 하시느라 고생
-                많으셨습니다. 열심히 노력하시는 모습 보면서 시청자분들과 진심으로 응원했습니다.
-                함께해주신 모든 분들, 정말 수고하셨습니다.💪
-              </p>
+            {secondRoundNonPassedStreamers.length > 0 && (
+              <>
+                <button
+                  type="button"
+                  className="division__players-toggle"
+                  onClick={toggleSecondRoundHidden}
+                  aria-expanded={!secondRoundHiddenCollapsed}
+                >
+                  <ChevronDown aria-hidden="true" />
+                  <span>
+                    {secondRoundHiddenCollapsed
+                      ? `2차 탈락자 보기 (${secondRoundNonPassedStreamers.length}명)`
+                      : "접기"}
+                  </span>
+                </button>
+                {!secondRoundHiddenCollapsed && SECOND_ROUND_CHEER_MESSAGE.trim() && (
+                  <p className="second-round-hidden__note">
+                    {SECOND_ROUND_CHEER_MESSAGE}
+                  </p>
+                )}
+                {!secondRoundHiddenCollapsed &&
+                  secondRoundNonPassedStreamers.map((streamer) => (
+                    <StreamerCard
+                      key={streamer.id}
+                      streamer={streamer}
+                      awards={trophyAwards}
+                      isNew={
+                        isUpdatedToday(streamer) &&
+                        !seenKeys.has(seenKeyFor(streamer))
+                      }
+                      isLive={liveStreamerIds.has(streamer.id)}
+                      onOpen={() => onOpenStreamer(streamer)}
+                      onOpenTrophy={onOpenTrophy}
+                    />
+                  ))}
+              </>
             )}
-            {!firstRoundHiddenCollapsed &&
-              nonPassedStreamers.map((streamer) => (
-                <StreamerCard
-                  key={streamer.id}
-                  streamer={streamer}
-                  awards={trophyAwards}
-                  isNew={
-                    isUpdatedToday(streamer) &&
-                    !seenKeys.has(seenKeyFor(streamer))
-                  }
-                  isLive={liveStreamerIds.has(streamer.id)}
-                  onOpen={() => onOpenStreamer(streamer)}
-                  onOpenTrophy={onOpenTrophy}
-                />
-              ))}
+            {nonPassedStreamers.length > 0 && (
+              <>
+                <button
+                  type="button"
+                  className={`division__players-toggle ${
+                    secondRoundNonPassedStreamers.length > 0
+                      ? "division__players-toggle--divided"
+                      : ""
+                  }`}
+                  onClick={toggleFirstRoundHidden}
+                  aria-expanded={!firstRoundHiddenCollapsed}
+                >
+                  <ChevronDown aria-hidden="true" />
+                  <span>
+                    {firstRoundHiddenCollapsed
+                      ? `1차 탈락자 보기 (${nonPassedStreamers.length}명)`
+                      : "접기"}
+                  </span>
+                </button>
+                {!firstRoundHiddenCollapsed && (
+                  <p className="first-round-hidden__note">
+                    짧다면 짧고 길다면 길었던 시간 동안 FC 플레이 하시느라 고생
+                    많으셨습니다. 열심히 노력하시는 모습 보면서 시청자분들과 진심으로 응원했습니다.
+                    함께해주신 모든 분들, 정말 수고하셨습니다.💪
+                  </p>
+                )}
+                {!firstRoundHiddenCollapsed &&
+                  nonPassedStreamers.map((streamer) => (
+                    <StreamerCard
+                      key={streamer.id}
+                      streamer={streamer}
+                      awards={trophyAwards}
+                      isNew={
+                        isUpdatedToday(streamer) &&
+                        !seenKeys.has(seenKeyFor(streamer))
+                      }
+                      isLive={liveStreamerIds.has(streamer.id)}
+                      onOpen={() => onOpenStreamer(streamer)}
+                      onOpenTrophy={onOpenTrophy}
+                    />
+                  ))}
+              </>
+            )}
           </div>
         </section>
       )}

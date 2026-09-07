@@ -32,7 +32,7 @@ export interface RosterEntry {
   deleted?: boolean;
   /** True once this streamer is confirmed as a 1차 합격자. Everyone else is hidden from the main board. */
   passedFirstRound?: boolean;
-  /** True once this streamer is confirmed as a 2차 (final) 합격자. Once anyone has this set, the celebration banner and 합격 인증샷 photo booth switch to a 2차-only view; the main board still keys off passedFirstRound. */
+  /** True once this streamer is confirmed as a 2차 (final) 합격자. Once anyone has this set, the celebration banner, 합격 인증샷 photo booth, and main board (list/cards/table, distribution histogram, growth graph, division-summary stats) all switch to a 2차-only view; passedFirstRound streamers who did NOT pass 2차 move into a separate "2차 탈락자" section. */
   passedSecondRound?: boolean;
   /** Position code (e.g. "ST", "CDM") from the 1차 합격자 희망 포지션 survey. */
   hopedPosition1?: string;
@@ -137,7 +137,7 @@ export interface StreamerRecord {
   latestReview?: { mild: string; spicy: string; generatedAt: string; isCurrent: boolean };
   /** True once this streamer is confirmed as a 1차 합격자. Everyone else is hidden from the main board. */
   passedFirstRound?: boolean;
-  /** True once this streamer is confirmed as a 2차 (final) 합격자. Once anyone has this set, the celebration banner and 합격 인증샷 photo booth switch to a 2차-only view; the main board still keys off passedFirstRound. */
+  /** True once this streamer is confirmed as a 2차 (final) 합격자. Once anyone has this set, the celebration banner, 합격 인증샷 photo booth, and main board (list/cards/table, distribution histogram, growth graph, division-summary stats) all switch to a 2차-only view; passedFirstRound streamers who did NOT pass 2차 move into a separate "2차 탈락자" section. */
   passedSecondRound?: boolean;
   /** Position code (e.g. "ST", "CDM") from the 1차 합격자 희망 포지션 survey. */
   hopedPosition1?: string;

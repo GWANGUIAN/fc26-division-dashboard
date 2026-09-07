@@ -4,6 +4,7 @@ import { searchable } from "../shared/search.js";
 import { winRatePercent } from "../shared/record-extraction.js";
 import { buildTrophyAwards, trophyBadgesFor } from "../shared/trophy.js";
 import { positionGroupOf, type PositionGroup } from "../shared/position-theme.js";
+import { determineCelebrationRound } from "./useLatestActivity";
 
 export type PositionGroupFilter = PositionGroup | "all";
 
@@ -19,22 +20,52 @@ export function useStreamerFilters(
 
   // Only 1차 합격자로 확정된 스트리머만 메인 보드/집계 대상이다. 나머지는
   // nonPassedStreamers로 따로 모아, 접이식 섹션에서만 노출한다.
+  // Kept 1차-only (not round-aware) on purpose — squad builder, 합격자 발표,
+  // 2차 테스트일정, 우왁굳의 메모장, live-stream tracking all still key off this.
   const passedStreamers = useMemo(
     () => (snapshot?.streamers ?? []).filter((streamer) => streamer.passedFirstRound),
     [snapshot],
+  );
+  // Once anyone has passedSecondRound, the main board (list/cards/table,
+  // distribution histogram, growth graph, division-summary stats) switches to
+  // a 2차-only population — same round rule the celebration banner/photo booth
+  // already use (see useLatestActivity.ts's determineCelebrationRound).
+  const celebrationRound = useMemo(
+    () => determineCelebrationRound(snapshot?.streamers ?? []),
+    [snapshot],
+  );
+  const boardStreamers = useMemo(
+    () =>
+      celebrationRound === 2
+        ? passedStreamers.filter((streamer) => streamer.passedSecondRound)
+        : passedStreamers,
+    [passedStreamers, celebrationRound],
+  );
+  // 1차는 합격했지만 2차는 아닌 사람들 — "2차 탈락자 보기" 섹션. 2차 결과가 아직
+  // 없으면(celebrationRound === 1) 항상 빈 배열.
+  const secondRoundNonPassedStreamers = useMemo(
+    () =>
+      celebrationRound === 2
+        ? passedStreamers.filter(
+            (streamer) =>
+              !streamer.passedSecondRound &&
+              searchable(streamer.displayName, streamer.cafeAliases, query),
+          )
+        : [],
+    [passedStreamers, celebrationRound, query],
   );
   // Some streamers (e.g. non-applicants who post division reports anyway) are
   // flagged isExcluded so they're kept off every aggregate calculation while
   // still showing up normally in the list/cards.
   const includedStreamers = useMemo(
-    () => passedStreamers.filter((streamer) => !streamer.isExcluded),
-    [passedStreamers],
+    () => boardStreamers.filter((streamer) => !streamer.isExcluded),
+    [boardStreamers],
   );
   const excludedNames = useMemo(
-    () => passedStreamers
+    () => boardStreamers
       .filter((streamer) => streamer.isExcluded)
       .map((streamer) => streamer.displayName),
-    [passedStreamers],
+    [boardStreamers],
   );
   const trophyAwards = useMemo(
     () => buildTrophyAwards(includedStreamers),
@@ -42,7 +73,7 @@ export function useStreamerFilters(
   );
   const streamers = useMemo(
     () =>
-      passedStreamers.filter(
+      boardStreamers.filter(
         (streamer) =>
           searchable(streamer.displayName, streamer.cafeAliases, query) &&
           (!activityOnly ||
@@ -57,7 +88,7 @@ export function useStreamerFilters(
             positionGroupOf(streamer.hopedPosition2) === positionGroupFilter),
       ),
     [
-      passedStreamers,
+      boardStreamers,
       query,
       activityOnly,
       achievementOnly,
@@ -75,27 +106,19 @@ export function useStreamerFilters(
     [snapshot, query],
   );
   const divisionStats = useMemo(() => {
-    const all = includedStreamers;
-    const fourOrHigher = all.filter(
-      (streamer) => streamer.currentDivision <= 4,
+    // Always 1차/2차 raw totals (not board-aware) so both stat boxes can show
+    // side by side regardless of which population currently drives the board.
+    const firstRoundTotal = passedStreamers.filter(
+      (streamer) => !streamer.isExcluded,
     ).length;
-    const fiveOrHigher = all.filter(
-      (streamer) => streamer.currentDivision <= 5,
-    ).length;
-    const sixOrHigher = all.filter(
-      (streamer) => streamer.currentDivision <= 6,
-    ).length;
-    const sevenOrHigher = all.filter(
-      (streamer) => streamer.currentDivision <= 7,
+    const secondRoundTotal = passedStreamers.filter(
+      (streamer) => streamer.passedSecondRound && !streamer.isExcluded,
     ).length;
     return {
-      total: all.length,
-      fourOrHigher,
-      fiveOrHigher,
-      sixOrHigher,
-      sevenOrHigher,
+      firstRoundTotal,
+      secondRoundTotal,
     };
-  }, [includedStreamers]);
+  }, [passedStreamers]);
   const cardStreamers = useMemo(() => {
     if (sortMode === "division")
       return [...streamers].sort(
@@ -127,6 +150,8 @@ export function useStreamerFilters(
     divisionStats,
     cardStreamers,
     passedStreamers,
+    boardStreamers,
     nonPassedStreamers,
+    secondRoundNonPassedStreamers,
   };
 }

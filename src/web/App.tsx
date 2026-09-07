@@ -122,7 +122,9 @@ export function App() {
     divisionStats,
     cardStreamers,
     passedStreamers,
+    boardStreamers,
     nonPassedStreamers,
+    secondRoundNonPassedStreamers,
   } = useStreamerFilters(snapshot, sortMode);
   const { evaluationFilter, setEvaluationFilter, applications } =
     useEvaluationApplications(snapshot, query);
@@ -230,6 +232,7 @@ export function App() {
           streamers={streamers}
           cardStreamers={cardStreamers}
           nonPassedStreamers={nonPassedStreamers}
+          secondRoundNonPassedStreamers={secondRoundNonPassedStreamers}
           trophyAwards={trophyAwards}
           seenKeys={seenKeys}
           onOpenStreamer={openStreamer}
@@ -282,7 +285,7 @@ export function App() {
       )}
       {growthGraphOpen && (
         <GrowthGraphModal
-          streamers={passedStreamers ?? []}
+          streamers={boardStreamers ?? []}
           onClose={() => setGrowthGraphOpen(false)}
         />
       )}
