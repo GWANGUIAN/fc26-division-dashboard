@@ -80,7 +80,17 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
     vodUrls: [noteVodUrl(3088)], // 00:51:28
   }, // 도이지
   tleod1818: {
-    noteGroups: notes("초보."),
+    noteGroups: [
+      { label: "1트", notes: ["초보."] },
+      {
+        label: "2트",
+        notes: [
+          "공격시 빌드업 가담 몇번 좋았음",
+          "수비시 너무 무르는 수비를 해서 상대방 공격수들이 편함",
+          "수비시 수비키를 사용하지 않고 걸어서만 뺏는 상태",
+        ],
+      },
+    ],
     vodUrls: [noteVodUrl(3740)], // 01:02:20
   }, // 빙밍_
   janine95kim: {
