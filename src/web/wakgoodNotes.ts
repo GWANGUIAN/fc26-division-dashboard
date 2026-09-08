@@ -344,6 +344,7 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
   secymyong: {
     notes: [
       "달리기 버튼 누르고 있고 오버래핑 없음 사이드에서만 패스함. 아직은 초보스멜스. 너무 벌리고 수비.",
+      "수비는 무난해쓰야. 배급이 너무 평범해서 불안해쓰야."
     ],
   }, // 묭씨
   whiteone325: {
