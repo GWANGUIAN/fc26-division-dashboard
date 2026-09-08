@@ -171,7 +171,9 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
       },
       {
         label: "2트",
-        notes: [],
+        notes: [
+          "아직 살짝 앞으로 쏠리고, 드리븐 전방패스 잘될땐 좋은데 너무 불안하게 막쏴서 무조건 한번 짤릴것 같은 느낌스",
+        ],
       },
     ],
   }, // 독고혜지
