@@ -334,7 +334,10 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
       },
       {
         label: "2트",
-        notes: [],
+        notes: [
+          "기본 실력은 있으심. 아마 버튜버 딱 평균 무난 느낌인것 같습니다.",
+          "딱 포지션 지키면서 볼키핑 하고 적당히 돌려주고 쇄도하고 딱 이런느낌스.'",
+        ],
         vodUrls: [],
       },
     ],
