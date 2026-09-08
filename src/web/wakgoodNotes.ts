@@ -55,6 +55,11 @@ const NOTE_VOD_BASE_URL_4 = "https://vod.sooplive.com/player/206531121";
 const noteVodUrl4 = (seconds: number) =>
   `${NOTE_VOD_BASE_URL_4}?change_second=${seconds}`;
 
+/** 잔디동 2차 테스트 분석 • 평가 5(재평가) 다시보기 VOD. */
+const NOTE_VOD_BASE_URL_5 = "https://vod.sooplive.com/player/206622755";
+const noteVodUrl5 = (seconds: number) =>
+  `${NOTE_VOD_BASE_URL_5}?change_second=${seconds}`;
+
 /**
  * 우왁굳이 1차 합격자 개개인에 대해 남긴 평가 메모 (+ 다시보기 링크).
  * roster.yaml의 slug(= StreamerRecord.id)를 키로 사용한다.
@@ -105,6 +110,7 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
           "수비시 너무 무르는 수비를 해서 상대방 공격수들이 편함",
           "수비시 수비키를 사용하지 않고 걸어서만 뺏는 상태",
         ],
+        vodUrls: [noteVodUrl5(15712)], // 04:21:52
       },
     ],
   }, // 빙밍_
@@ -174,6 +180,7 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
         notes: [
           "아직 살짝 앞으로 쏠리고, 드리븐 전방패스 잘될땐 좋은데 너무 불안하게 막쏴서 무조건 한번 짤릴것 같은 느낌스",
         ],
+        vodUrls: [noteVodUrl5(18826)], // 05:13:46
       },
     ],
   }, // 독고혜지
@@ -224,6 +231,7 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
           "근데 배급할때 스루하면 한번에 쫙 뚫리는데 이번에도 역시 스루패스각을 .. 못봤다... 일반패스를 너무 많이씀..",
           "그래도 윙스위칭, 엔드라인 달리기 컷백, 얼리크로스, 쇄도, 복합적으로 다수행하면서 온더볼도 괜찮은건 장점.",
         ],
+        vodUrls: [noteVodUrl5(19384)], // 05:23:04
       },
     ],
   }, // 한결___
@@ -250,6 +258,7 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
           "수비는 최대한 붙이려고 하시는걸 봤습니다.",
           "나머지는 이전과 비슷한 느낌스. 빌드업이 아쉬운 느낌스. 평범패스 혹은 뻥으로 걷어내는 느낌스.",
         ],
+        vodUrls: [noteVodUrl5(18193)], // 05:03:13
       },
     ],
   }, // 흠냥b
@@ -336,6 +345,7 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
           "이번에는 하프 안파고 사이드좀 뿌리고 수미 역할을 좀 하신듯 함.",
           "생각보다 뒤에서 대기하면서 플레이하심.",
         ],
+        vodUrls: [noteVodUrl5(13133)], // 03:38:53
       },
     ],
   }, // 뽀린걸
@@ -357,7 +367,7 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
           "기본 실력은 있으심. 아마 버튜버 딱 평균 무난 느낌인것 같습니다.",
           "딱 포지션 지키면서 볼키핑 하고 적당히 돌려주고 쇄도하고 딱 이런느낌스.'",
         ],
-        vodUrls: [],
+        vodUrls: [noteVodUrl5(16401)], // 04:33:21
       },
     ],
   }, // 찌미
@@ -428,6 +438,7 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
           "뒷공간은 이제 안털리는데 공격 빌드업이 사라짐",
           "순수 수비 커버력이 아쉬움",
         ],
+        vodUrls: [noteVodUrl5(14554)], // 04:02:34
       },
     ],
   }, // 이투__
@@ -453,7 +464,7 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
   }, // 쥬멩이
   habee511: {
     noteGroups: notes(
-      undefined,
+      [noteVodUrl5(11944)], // 03:19:04
       "큰 캐릭으로 너무 사이드만 파는거 같긴한데 그건 둘째치고 센터에는 무징을 잘 안치시고 패스도 살짝 자세 안좋게 나가고 슛도 뭔가 이상하고.. 전체적으로 애매쓰야.. 소스가 부족하긴 한데 좋은 장면이 없었쓰야...",
     ),
   }, // 망야_
@@ -495,10 +506,12 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
         notes: [
           "달리기 버튼 누르고 있고 오버래핑 없음 사이드에서만 패스함. 아직은 초보스멜스. 너무 벌리고 수비.",
         ],
+        vodUrls: [noteVodUrl5(11522)], // 03:12:02
       },
       {
         label: "CB",
         notes: ["수비는 무난해쓰야. 배급이 너무 평범해서 불안해쓰야."],
+        vodUrls: [noteVodUrl5(12630)], // 03:30:30
       },
     ],
   }, // 묭씨
