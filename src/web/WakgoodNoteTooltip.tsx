@@ -3,7 +3,11 @@ import { createPortal } from "react-dom";
 import { ExternalLink } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
 import notepadIcon from "./assets/icon-notepad.webp";
-import { getWakgoodNote, isSkippedWakgoodNote } from "./wakgoodNotes";
+import {
+  flattenWakgoodNotes,
+  getWakgoodNote,
+  isSkippedWakgoodNote,
+} from "./wakgoodNotes";
 
 // Keeps the bubble open for a beat after the pointer leaves the trigger (and
 // while it's over the bubble itself), so a small gap or a slightly wobbly
@@ -97,9 +101,10 @@ export function WakgoodNoteBubble<T extends HTMLElement>({
 
   if (!pos) return null;
   const entry = getWakgoodNote(streamer.id);
-  const notes = entry?.notes;
-  const skipped = isSkippedWakgoodNote(notes);
-  const written = Boolean(notes && notes.length > 0) && !skipped;
+  const noteGroups = entry?.noteGroups;
+  const skipped = isSkippedWakgoodNote(noteGroups);
+  const flatNotes = flattenWakgoodNotes(noteGroups);
+  const written = flatNotes.length > 0 && !skipped;
   const stateClass = written
     ? "wakgood-note-bubble--written"
     : skipped
@@ -142,15 +147,26 @@ export function WakgoodNoteBubble<T extends HTMLElement>({
         )}
       </span>
       {written ? (
-        <ul
-          className={`wakgood-note-bubble__list ${fancy ? "wakgood-note-bubble__list--fancy" : ""}`}
-        >
-          {notes!.map((note, index) => (
-            <li key={index}>{note}</li>
+        <div className="wakgood-note-bubble__groups">
+          {noteGroups!.map((group, groupIndex) => (
+            <div className="wakgood-note-bubble__group" key={groupIndex}>
+              {group.label && (
+                <span className="wakgood-note-bubble__group-label">
+                  {group.label}
+                </span>
+              )}
+              <ul
+                className={`wakgood-note-bubble__list ${fancy ? "wakgood-note-bubble__list--fancy" : ""}`}
+              >
+                {group.notes.map((note, index) => (
+                  <li key={index}>{note}</li>
+                ))}
+              </ul>
+            </div>
           ))}
-        </ul>
+        </div>
       ) : skipped ? (
-        <p className="wakgood-note-bubble__skipped">{notes![0]}</p>
+        <p className="wakgood-note-bubble__skipped">{flatNotes[0]}</p>
       ) : (
         <p className="wakgood-note-bubble__empty">작성전</p>
       )}
@@ -166,9 +182,10 @@ export function WakgoodNoteBubble<T extends HTMLElement>({
  */
 export function WakgoodNotePanel({ streamer }: { streamer: StreamerRecord }) {
   const entry = getWakgoodNote(streamer.id);
-  const notes = entry?.notes;
-  const skipped = isSkippedWakgoodNote(notes);
-  const written = Boolean(notes && notes.length > 0) && !skipped;
+  const noteGroups = entry?.noteGroups;
+  const skipped = isSkippedWakgoodNote(noteGroups);
+  const flatNotes = flattenWakgoodNotes(noteGroups);
+  const written = flatNotes.length > 0 && !skipped;
   const stateClass = written
     ? "wakgood-note-panel--written"
     : skipped
@@ -202,15 +219,26 @@ export function WakgoodNotePanel({ streamer }: { streamer: StreamerRecord }) {
         )}
       </div>
       {written ? (
-        <ul
-          className={`wakgood-note-panel__list ${fancy ? "wakgood-note-panel__list--fancy" : ""}`}
-        >
-          {notes!.map((note, index) => (
-            <li key={index}>{note}</li>
+        <div className="wakgood-note-panel__groups">
+          {noteGroups!.map((group, groupIndex) => (
+            <div className="wakgood-note-panel__group" key={groupIndex}>
+              {group.label && (
+                <span className="wakgood-note-panel__group-label">
+                  {group.label}
+                </span>
+              )}
+              <ul
+                className={`wakgood-note-panel__list ${fancy ? "wakgood-note-panel__list--fancy" : ""}`}
+              >
+                {group.notes.map((note, index) => (
+                  <li key={index}>{note}</li>
+                ))}
+              </ul>
+            </div>
           ))}
-        </ul>
+        </div>
       ) : skipped ? (
-        <p className="wakgood-note-panel__skipped">{notes![0]}</p>
+        <p className="wakgood-note-panel__skipped">{flatNotes[0]}</p>
       ) : (
         <p className="wakgood-note-panel__empty">작성전</p>
       )}

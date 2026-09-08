@@ -13,7 +13,11 @@ import {
   TEST_SCHEDULE,
 } from "./testScheduleData";
 import { useToast } from "./useToast";
-import { getWakgoodNote, isSkippedWakgoodNote } from "./wakgoodNotes";
+import {
+  flattenWakgoodNotes,
+  getWakgoodNote,
+  isSkippedWakgoodNote,
+} from "./wakgoodNotes";
 import { downloadWakgoodNotebookXlsx } from "./xlsx-export.js";
 import { WakgoodVodLinks } from "./WakgoodVodLinks";
 
@@ -40,9 +44,9 @@ export function WakgoodNotebookModal({
   >("all");
 
   function statusOf(streamer: StreamerRecord): "written" | "skipped" | "empty" {
-    const notes = getWakgoodNote(streamer.id)?.notes;
-    if (isSkippedWakgoodNote(notes)) return "skipped";
-    if (notes && notes.length > 0) return "written";
+    const noteGroups = getWakgoodNote(streamer.id)?.noteGroups;
+    if (isSkippedWakgoodNote(noteGroups)) return "skipped";
+    if (flattenWakgoodNotes(noteGroups).length > 0) return "written";
     return "empty";
   }
 
@@ -198,9 +202,10 @@ export function WakgoodNotebookModal({
       <ul className="wakgood-notebook__list">
         {filteredStreamers.map((streamer) => {
           const entry = getWakgoodNote(streamer.id);
-          const notes = entry?.notes;
-          const skipped = isSkippedWakgoodNote(notes);
-          const written = Boolean(notes && notes.length > 0) && !skipped;
+          const noteGroups = entry?.noteGroups;
+          const skipped = isSkippedWakgoodNote(noteGroups);
+          const flatNotes = flattenWakgoodNotes(noteGroups);
+          const written = flatNotes.length > 0 && !skipped;
           const stateClass = written
             ? "wakgood-notebook__entry--written"
             : skipped
@@ -244,15 +249,26 @@ export function WakgoodNotebookModal({
                 )}
               </div>
               {written ? (
-                <ul
-                  className={`wakgood-notebook__notes ${fancy ? "wakgood-notebook__notes--fancy" : ""}`}
-                >
-                  {notes!.map((note, index) => (
-                    <li key={index}>{note}</li>
+                <div className="wakgood-notebook__note-groups">
+                  {noteGroups!.map((group, groupIndex) => (
+                    <div className="wakgood-notebook__note-group" key={groupIndex}>
+                      {group.label && (
+                        <span className="wakgood-notebook__note-group-label">
+                          {group.label}
+                        </span>
+                      )}
+                      <ul
+                        className={`wakgood-notebook__notes ${fancy ? "wakgood-notebook__notes--fancy" : ""}`}
+                      >
+                        {group.notes.map((note, index) => (
+                          <li key={index}>{note}</li>
+                        ))}
+                      </ul>
+                    </div>
                   ))}
-                </ul>
+                </div>
               ) : skipped ? (
-                <p className="wakgood-notebook__skipped">{notes![0]}</p>
+                <p className="wakgood-notebook__skipped">{flatNotes[0]}</p>
               ) : (
                 <p className="wakgood-notebook__empty">작성전</p>
               )}

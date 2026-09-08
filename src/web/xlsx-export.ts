@@ -3,7 +3,12 @@ import type { CareerRecord, StreamerRecord } from "../shared/model.js";
 import { soopChannelUrl } from "../shared/model.js";
 import { koreaDateKey } from "../shared/dates.js";
 import { winRatePercent } from "../shared/record-extraction.js";
-import { getWakgoodNote, isSkippedWakgoodNote } from "./wakgoodNotes.js";
+import {
+  flattenWakgoodNotes,
+  getWakgoodNote,
+  isSkippedWakgoodNote,
+  type WakgoodNoteGroup,
+} from "./wakgoodNotes.js";
 import { matchAppearancesForStreamer } from "./testScheduleData.js";
 
 const HEADERS = [
@@ -135,22 +140,33 @@ const WAKGOOD_NOTEBOOK_HEADERS = [
   "VOD 링크",
 ];
 
-function wakgoodNotebookStatusLabel(notes: string[] | undefined): "완료" | "넘어감" | "미완료" {
-  if (isSkippedWakgoodNote(notes)) return "넘어감";
-  if (notes && notes.length > 0) return "완료";
+function wakgoodNotebookStatusLabel(
+  noteGroups: WakgoodNoteGroup[] | undefined,
+): "완료" | "넘어감" | "미완료" {
+  if (isSkippedWakgoodNote(noteGroups)) return "넘어감";
+  if (flattenWakgoodNotes(noteGroups).length > 0) return "완료";
   return "미완료";
 }
 
 function wakgoodNotebookRow(streamer: StreamerRecord): Cell[] {
   const entry = getWakgoodNote(streamer.id);
-  const notes = entry?.notes;
-  const status = wakgoodNotebookStatusLabel(notes);
+  const noteGroups = entry?.noteGroups;
+  const status = wakgoodNotebookStatusLabel(noteGroups);
   const appearances = matchAppearancesForStreamer(streamer.id);
   const matchDaysLabel =
     appearances
       .map((appearance) => (appearance.gameLabel ? `${appearance.date} ${appearance.gameLabel}` : appearance.date))
       .join(", ") || "-";
-  const noteText = status === "미완료" ? "-" : (notes ?? []).join(" / ");
+  const noteText =
+    status === "미완료"
+      ? "-"
+      : (noteGroups ?? [])
+          .map((group) =>
+            group.label
+              ? `[${group.label}] ${group.notes.join(" / ")}`
+              : group.notes.join(" / "),
+          )
+          .join(" | ");
   return [
     { value: streamer.displayName, type: "str" },
     { value: streamer.cafeAliases.join(", ") || "-", type: "str" },

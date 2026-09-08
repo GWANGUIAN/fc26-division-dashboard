@@ -289,6 +289,12 @@ body { isolation: isolate; }
 .wakgood-notebook__notes { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; color: var(--text-primary); font-size: 12.5px; font-weight: 500; line-height: 1.6; }
 .wakgood-notebook__notes li { position: relative; padding-left: 15px; }
 .wakgood-notebook__notes li::before { content: ""; position: absolute; top: 8px; left: 1px; width: 5px; height: 5px; border-radius: 50%; background: #00e9ae; }
+/* Groups a note into a re-evaluation round (1트/2트) or a separate position
+   (FB/CB) under its own small pill label; a dashed divider marks the seam
+   between groups so multi-round entries read as distinct passes, not one list. */
+.wakgood-notebook__note-groups { display: grid; gap: 8px; }
+.wakgood-notebook__note-group + .wakgood-notebook__note-group { padding-top: 8px; border-top: 1px dashed var(--border-strong); }
+.wakgood-notebook__note-group-label { display: inline-flex; margin-bottom: 5px; padding: 1px 7px; border-radius: 999px; color: #04140f; background: #00e9ae; font-size: 9.5px; font-weight: 800; letter-spacing: .03em; }
 /* Written entries get a soft diagonal mint wash + a bright avatar ring so a
    finished note pops out of the grid at a glance; empty ones fade back
    instead of competing for attention. */
@@ -346,6 +352,9 @@ body { isolation: isolate; }
 .wakgood-note-bubble__vod svg { width: 10px; height: 10px; stroke-width: 2.6; }
 .wakgood-note-bubble__list { display: grid; gap: 4px; margin: 0; padding-left: 16px; color: var(--text-primary); font-size: 12px; font-weight: 500; line-height: 1.5; }
 .wakgood-note-bubble__empty { margin: 0; color: var(--text-muted); font-size: 12px; font-weight: 400; font-style: italic; }
+.wakgood-note-bubble__groups { display: grid; gap: 6px; }
+.wakgood-note-bubble__group + .wakgood-note-bubble__group { padding-top: 6px; border-top: 1px dashed var(--border-strong); }
+.wakgood-note-bubble__group-label { display: inline-flex; margin-bottom: 4px; padding: 1px 6px; border-radius: 999px; color: #04140f; background: #00e9ae; font-size: 9px; font-weight: 800; letter-spacing: .03em; }
 /* Written notes get the full mint-accented border; an unwritten bubble fades
    out (dashed, dimmer border/title, lower overall opacity) so the two states
    read differently even before the text itself is parsed. */
@@ -396,6 +405,9 @@ body { isolation: isolate; }
 .wakgood-note-panel__vod svg { width: 11px; height: 11px; stroke-width: 2.6; }
 .wakgood-note-panel__list { position: relative; display: grid; gap: 5px; margin: 0; padding-left: 18px; color: var(--text-primary); font-size: 12.5px; font-weight: 500; line-height: 1.55; }
 .wakgood-note-panel__empty { position: relative; margin: 0; color: var(--text-muted); font-size: 12.5px; font-weight: 400; font-style: italic; }
+.wakgood-note-panel__groups { position: relative; display: grid; gap: 8px; }
+.wakgood-note-panel__group + .wakgood-note-panel__group { padding-top: 8px; border-top: 1px dashed var(--border-strong); }
+.wakgood-note-panel__group-label { display: inline-flex; margin-bottom: 5px; padding: 1px 7px; border-radius: 999px; color: #04140f; background: #00e9ae; font-size: 9.5px; font-weight: 800; letter-spacing: .03em; }
 .wakgood-note-panel--empty { background: var(--surface-1); border-style: dashed; border-color: var(--border-strong); opacity: .82; }
 .wakgood-note-panel--empty::before { display: none; }
 .wakgood-note-panel--empty .wakgood-note-panel__title { color: var(--text-muted); }
