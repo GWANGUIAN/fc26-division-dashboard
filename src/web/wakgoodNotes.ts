@@ -305,7 +305,11 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
     ],
     vodUrls: [noteVodUrl4(1548)], // 25:48
   }, // 쥬멩이
-  habee511: { notes: [] }, // 망야_
+  habee511: {
+    notes: [
+      "큰 캐릭으로 너무 사이드만 파는거 같긴한데 그건 둘째치고 센터에는 무징을 잘 안치시고 패스도 살짝 자세 안좋게 나가고 슛도 뭔가 이상하고.. 전체적으로 애매쓰야.. 소스가 부족하긴 한데 좋은 장면이 없었쓰야...",
+    ],
+  }, // 망야_
   // 9/7 (WF)
   jejong5: {
     notes: [
