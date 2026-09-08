@@ -337,7 +337,11 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
     vodUrls: [noteVodUrl4(4362)], // 01:12:42
   }, // 히키☆
   // 9/7 (FB)
-  secymyong: { notes: [] }, // 묭씨
+  secymyong: {
+    notes: [
+      "달리기 버튼 누르고 있고 오버래핑 없음 사이드에서만 패스함. 아직은 초보스멜스. 너무 벌리고 수비.",
+    ],
+  }, // 묭씨
   whiteone325: {
     notes: [
       "캐릭터 조작이슈로 커버링이 미숙해서 공간을 털리거나 선수를 지나가게 하는 경향있음.",
