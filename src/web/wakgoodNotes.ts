@@ -173,7 +173,9 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
     vodUrls: [noteVodUrl3(4636)], // 01:17:16
   }, // 한결___
   y0unggam: {
-    noteGroups: notes("소스 부족. 한데 일단 크게 못한건 없어서. 재시험 하면 좋을듯."),
+    noteGroups: notes(
+      "소스 부족. 한데 일단 크게 못한건 없어서. 재시험 하면 좋을듯.",
+    ),
     vodUrls: [noteVodUrl3(6306)], // 01:45:06
   }, // 영감__
   ttu0221: {
@@ -218,7 +220,10 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
   }, // 다키_
   // 9/5 (WF)
   nlsb9718: {
-    noteGroups: notes("완벽한 크로스 상황을 너무.. 놓침", "기본실력은 있어보입니다."),
+    noteGroups: notes(
+      "완벽한 크로스 상황을 너무.. 놓침",
+      "기본실력은 있어보입니다.",
+    ),
     vodUrls: [noteVodUrl2(6445)], // 01:47:25
   }, // 판다비♥
   tdnlamuron: {
@@ -251,7 +256,9 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
     noteGroups: [
       {
         label: "1트",
-        notes: ["많이 불쌍했지만... 이겨내지 못했다.. 몇안되는 기회를... 버렸다."],
+        notes: [
+          "많이 불쌍했지만... 이겨내지 못했다.. 몇안되는 기회를... 버렸다.",
+        ],
       },
       {
         label: "2트",
@@ -311,11 +318,23 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
     vodUrls: [noteVodUrl2(14355)], // 03:59:15
   }, // 단츄♪
   etwo22: {
-    noteGroups: notes(
-      "앞으로 나가서 수비하는 성향이 너무 강해서 뒷공간이 다 털려버림스...",
-      "공걱시 오버래핑 움직임도 아쉬움..",
-      "공격시 뒷대각 만드는거 공부해오신 티가 나서 좋았음.",
-    ),
+    noteGroups: [
+      {
+        label: "1트",
+        notes: [
+          "앞으로 나가서 수비하는 성향이 너무 강해서 뒷공간이 다 털려버림스...",
+          "공걱시 오버래핑 움직임도 아쉬움..",
+          "공격시 뒷대각 만드는거 공부해오신 티가 나서 좋았음.",
+        ],
+      },
+      {
+        label: "2트",
+        notes: [
+          "뒷공간은 이제 안털리는데 공격 빌드업이 사라짐",
+          "순수 수비 커버력이 아쉬움",
+        ],
+      },
+    ],
     vodUrls: [noteVodUrl2(15461)], // 04:17:41
   }, // 이투__
   // 9/5 (CB)
