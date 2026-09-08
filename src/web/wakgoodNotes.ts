@@ -230,7 +230,10 @@ export const WAKGOOD_NOTES: Record<string, WakgoodNoteEntry> = {
       },
       {
         label: "2트",
-        notes: [],
+        notes: [
+          "수비는 최대한 붙이려고 하시는걸 봤습니다.",
+          "나머지는 이전과 비슷한 느낌스. 빌드업이 아쉬운 느낌스. 평범패스 혹은 뻥으로 걷어내는 느낌스.",
+        ],
       },
     ],
   }, // 흠냥b
