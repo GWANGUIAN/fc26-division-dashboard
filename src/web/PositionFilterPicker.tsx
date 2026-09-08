@@ -50,18 +50,21 @@ export function PositionFilterPicker({
     // also swallow this listener when the panel is portaled outside it.
     addEventListener("mousedown", closeOnOutsideClick, true);
     addEventListener("keydown", closeOnEscape);
-    addEventListener("resize", updateAnchor);
-    // Capture phase so this also fires for scrolling inside a nested
-    // container (e.g. a modal body), not just the window itself — the panel
-    // is `position: fixed` (viewport-relative), so without this it stays put
-    // on screen while the toggle button it's supposed to hang off scrolls
-    // away underneath it.
-    addEventListener("scroll", updateAnchor, true);
+    // The panel is `position: fixed` (viewport-relative), so it doesn't move
+    // with the toggle button on its own. Scroll/resize cover most cases, but
+    // the button can also shift for reasons that are neither — e.g. picking
+    // a filter shrinks the result list, which shrinks a centered modal and
+    // re-centers it, moving the button without any scroll or resize event
+    // firing. A per-frame poll while the panel is open catches all of these
+    // uniformly instead of chasing every possible trigger individually.
+    let frame = requestAnimationFrame(function track() {
+      updateAnchor();
+      frame = requestAnimationFrame(track);
+    });
     return () => {
       removeEventListener("mousedown", closeOnOutsideClick, true);
       removeEventListener("keydown", closeOnEscape);
-      removeEventListener("resize", updateAnchor);
-      removeEventListener("scroll", updateAnchor, true);
+      cancelAnimationFrame(frame);
     };
   }, [isOpen]);
 
