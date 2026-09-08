@@ -17,6 +17,7 @@ import {
   flattenWakgoodNotes,
   getWakgoodNote,
   isSkippedWakgoodNote,
+  visibleWakgoodNoteGroups,
 } from "./wakgoodNotes";
 import { downloadWakgoodNotebookXlsx } from "./xlsx-export.js";
 import { WakgoodVodLinks } from "./WakgoodVodLinks";
@@ -203,6 +204,7 @@ export function WakgoodNotebookModal({
         {filteredStreamers.map((streamer) => {
           const entry = getWakgoodNote(streamer.id);
           const noteGroups = entry?.noteGroups;
+          const visibleGroups = visibleWakgoodNoteGroups(noteGroups);
           const skipped = isSkippedWakgoodNote(noteGroups);
           const flatNotes = flattenWakgoodNotes(noteGroups);
           const written = flatNotes.length > 0 && !skipped;
@@ -212,6 +214,8 @@ export function WakgoodNotebookModal({
               ? "wakgood-notebook__entry--skipped"
               : "wakgood-notebook__entry--empty";
           const fancy = Boolean(entry?.fancy);
+          const singleGroupVodUrls =
+            visibleGroups.length === 1 ? visibleGroups[0].vodUrls : undefined;
           const appearances = matchAppearancesForStreamer(streamer.id);
           return (
             <li
@@ -227,7 +231,7 @@ export function WakgoodNotebookModal({
                   {written ? "완료" : skipped ? "넘어감" : "미완료"}
                 </span>
                 <WakgoodVodLinks
-                  urls={entry?.vodUrls}
+                  urls={singleGroupVodUrls}
                   className="wakgood-notebook__vod"
                 />
               </div>
@@ -250,11 +254,21 @@ export function WakgoodNotebookModal({
               </div>
               {written ? (
                 <div className="wakgood-notebook__note-groups">
-                  {noteGroups!.map((group, groupIndex) => (
+                  {visibleGroups.map((group, groupIndex) => (
                     <div className="wakgood-notebook__note-group" key={groupIndex}>
-                      {group.label && (
-                        <span className="wakgood-notebook__note-group-label">
-                          {group.label}
+                      {visibleGroups.length > 1 && (group.label || group.vodUrls?.length) && (
+                        <span className="wakgood-notebook__note-group-head">
+                          {group.label && (
+                            <span className="wakgood-notebook__note-group-label">
+                              {group.label}
+                            </span>
+                          )}
+                          {visibleGroups.length > 1 && (
+                            <WakgoodVodLinks
+                              urls={group.vodUrls}
+                              className="wakgood-notebook__vod"
+                            />
+                          )}
                         </span>
                       )}
                       <ul

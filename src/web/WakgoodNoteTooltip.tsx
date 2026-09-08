@@ -7,6 +7,7 @@ import {
   flattenWakgoodNotes,
   getWakgoodNote,
   isSkippedWakgoodNote,
+  visibleWakgoodNoteGroups,
 } from "./wakgoodNotes";
 
 // Keeps the bubble open for a beat after the pointer leaves the trigger (and
@@ -102,6 +103,7 @@ export function WakgoodNoteBubble<T extends HTMLElement>({
   if (!pos) return null;
   const entry = getWakgoodNote(streamer.id);
   const noteGroups = entry?.noteGroups;
+  const visibleGroups = visibleWakgoodNoteGroups(noteGroups);
   const skipped = isSkippedWakgoodNote(noteGroups);
   const flatNotes = flattenWakgoodNotes(noteGroups);
   const written = flatNotes.length > 0 && !skipped;
@@ -111,6 +113,8 @@ export function WakgoodNoteBubble<T extends HTMLElement>({
       ? "wakgood-note-bubble--skipped"
       : "wakgood-note-bubble--empty";
   const fancy = Boolean(entry?.fancy);
+  const singleGroupVodUrls =
+    visibleGroups.length === 1 ? visibleGroups[0].vodUrls : undefined;
 
   return createPortal(
     <span
@@ -129,9 +133,9 @@ export function WakgoodNoteBubble<T extends HTMLElement>({
         <strong className="wakgood-note-bubble__title">
           <img className="wakgood-note-icon" src={notepadIcon} alt="" /> 우왁굳의 메모장
         </strong>
-        {entry?.vodUrls && entry.vodUrls.length > 0 && (
+        {singleGroupVodUrls && singleGroupVodUrls.length > 0 && (
           <span className="wakgood-note-bubble__vod-group">
-            {entry.vodUrls.map((url, index) => (
+            {singleGroupVodUrls.map((url, index) => (
               <a
                 key={url}
                 className="wakgood-note-bubble__vod"
@@ -139,7 +143,7 @@ export function WakgoodNoteBubble<T extends HTMLElement>({
                 target="_blank"
                 rel="noreferrer"
               >
-                다시보기{entry.vodUrls!.length > 1 ? ` ${index + 1}` : ""}{" "}
+                다시보기{singleGroupVodUrls.length > 1 ? ` ${index + 1}` : ""}{" "}
                 <ExternalLink aria-hidden="true" />
               </a>
             ))}
@@ -148,11 +152,28 @@ export function WakgoodNoteBubble<T extends HTMLElement>({
       </span>
       {written ? (
         <div className="wakgood-note-bubble__groups">
-          {noteGroups!.map((group, groupIndex) => (
+          {visibleGroups.map((group, groupIndex) => (
             <div className="wakgood-note-bubble__group" key={groupIndex}>
-              {group.label && (
-                <span className="wakgood-note-bubble__group-label">
-                  {group.label}
+              {visibleGroups.length > 1 && (group.label || group.vodUrls?.length) && (
+                <span className="wakgood-note-bubble__group-head">
+                  {group.label && (
+                    <span className="wakgood-note-bubble__group-label">
+                      {group.label}
+                    </span>
+                  )}
+                  {visibleGroups.length > 1 &&
+                    group.vodUrls?.map((url, index) => (
+                      <a
+                        key={url}
+                        className="wakgood-note-bubble__vod"
+                        href={url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        다시보기{group.vodUrls!.length > 1 ? ` ${index + 1}` : ""}{" "}
+                        <ExternalLink aria-hidden="true" />
+                      </a>
+                    ))}
                 </span>
               )}
               <ul
@@ -183,6 +204,7 @@ export function WakgoodNoteBubble<T extends HTMLElement>({
 export function WakgoodNotePanel({ streamer }: { streamer: StreamerRecord }) {
   const entry = getWakgoodNote(streamer.id);
   const noteGroups = entry?.noteGroups;
+  const visibleGroups = visibleWakgoodNoteGroups(noteGroups);
   const skipped = isSkippedWakgoodNote(noteGroups);
   const flatNotes = flattenWakgoodNotes(noteGroups);
   const written = flatNotes.length > 0 && !skipped;
@@ -192,6 +214,8 @@ export function WakgoodNotePanel({ streamer }: { streamer: StreamerRecord }) {
       ? "wakgood-note-panel--skipped"
       : "wakgood-note-panel--empty";
   const fancy = Boolean(entry?.fancy);
+  const singleGroupVodUrls =
+    visibleGroups.length === 1 ? visibleGroups[0].vodUrls : undefined;
 
   return (
     <div
@@ -201,9 +225,9 @@ export function WakgoodNotePanel({ streamer }: { streamer: StreamerRecord }) {
         <strong className="wakgood-note-panel__title">
           <img className="wakgood-note-icon" src={notepadIcon} alt="" /> 우왁굳의 메모장
         </strong>
-        {entry?.vodUrls && entry.vodUrls.length > 0 && (
+        {singleGroupVodUrls && singleGroupVodUrls.length > 0 && (
           <span className="wakgood-note-panel__vod-group">
-            {entry.vodUrls.map((url, index) => (
+            {singleGroupVodUrls.map((url, index) => (
               <a
                 key={url}
                 className="wakgood-note-panel__vod"
@@ -211,7 +235,7 @@ export function WakgoodNotePanel({ streamer }: { streamer: StreamerRecord }) {
                 target="_blank"
                 rel="noreferrer"
               >
-                다시보기{entry.vodUrls!.length > 1 ? ` ${index + 1}` : ""}{" "}
+                다시보기{singleGroupVodUrls.length > 1 ? ` ${index + 1}` : ""}{" "}
                 <ExternalLink aria-hidden="true" />
               </a>
             ))}
@@ -220,11 +244,28 @@ export function WakgoodNotePanel({ streamer }: { streamer: StreamerRecord }) {
       </div>
       {written ? (
         <div className="wakgood-note-panel__groups">
-          {noteGroups!.map((group, groupIndex) => (
+          {visibleGroups.map((group, groupIndex) => (
             <div className="wakgood-note-panel__group" key={groupIndex}>
-              {group.label && (
-                <span className="wakgood-note-panel__group-label">
-                  {group.label}
+              {visibleGroups.length > 1 && (group.label || group.vodUrls?.length) && (
+                <span className="wakgood-note-panel__group-head">
+                  {group.label && (
+                    <span className="wakgood-note-panel__group-label">
+                      {group.label}
+                    </span>
+                  )}
+                  {visibleGroups.length > 1 &&
+                    group.vodUrls?.map((url, index) => (
+                      <a
+                        key={url}
+                        className="wakgood-note-panel__vod"
+                        href={url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        다시보기{group.vodUrls!.length > 1 ? ` ${index + 1}` : ""}{" "}
+                        <ExternalLink aria-hidden="true" />
+                      </a>
+                    ))}
                 </span>
               )}
               <ul

@@ -5,8 +5,10 @@ import { koreaDateKey } from "../shared/dates.js";
 import { winRatePercent } from "../shared/record-extraction.js";
 import {
   flattenWakgoodNotes,
+  flattenWakgoodVodUrls,
   getWakgoodNote,
   isSkippedWakgoodNote,
+  visibleWakgoodNoteGroups,
   type WakgoodNoteGroup,
 } from "./wakgoodNotes.js";
 import { matchAppearancesForStreamer } from "./testScheduleData.js";
@@ -157,12 +159,13 @@ function wakgoodNotebookRow(streamer: StreamerRecord): Cell[] {
     appearances
       .map((appearance) => (appearance.gameLabel ? `${appearance.date} ${appearance.gameLabel}` : appearance.date))
       .join(", ") || "-";
+  const visibleGroups = visibleWakgoodNoteGroups(noteGroups);
   const noteText =
     status === "미완료"
       ? "-"
-      : (noteGroups ?? [])
+      : visibleGroups
           .map((group) =>
-            group.label
+            visibleGroups.length > 1 && group.label
               ? `[${group.label}] ${group.notes.join(" / ")}`
               : group.notes.join(" / "),
           )
@@ -175,7 +178,7 @@ function wakgoodNotebookRow(streamer: StreamerRecord): Cell[] {
     { value: matchDaysLabel, type: "str" },
     { value: status, type: "str" },
     { value: noteText, type: "str" },
-    { value: entry?.vodUrls?.join(", ") || "-", type: "str" },
+    { value: flattenWakgoodVodUrls(noteGroups).join(", ") || "-", type: "str" },
   ];
 }
 
