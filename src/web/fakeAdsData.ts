@@ -14,6 +14,18 @@ export interface FakeAd {
 // Add or remove entries freely; the rail cycles through whatever is in this array.
 export const fakeAds: FakeAd[] = [
   {
+    id: "wakgood",
+    image: "/fake-ads/ad-wakgood.webp",
+    href: "https://www.sooplive.com/station/ecvhao",
+    label: "패러디 광고 - 왁굿",
+  },
+  {
+    id: "bingming",
+    image: "/fake-ads/ad-bingming.webp",
+    href: "https://www.sooplive.com/station/tleod1818",
+    label: "패러디 광고 - 빙밍",
+  },
+  {
     id: "chunyang",
     image: "/fake-ads/ad-chunyang.webp",
     href: "https://www.sooplive.com/station/243000/post/205727363",

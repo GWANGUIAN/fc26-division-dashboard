@@ -54,16 +54,25 @@ function usePreloadAdImages() {
   }, []);
 }
 
-function useAdRotation(startIndex: number, phaseOffsetMs: number) {
-  const [index, setIndex] = useState(startIndex);
+function shuffled<T>(items: T[]): T[] {
+  const copy = [...items];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function useAdRotation(order: FakeAd[], phaseOffsetMs: number) {
+  const [index, setIndex] = useState(0);
 
   useEffect(() => {
-    if (fakeAds.length < 2) return;
+    if (order.length < 2) return;
     let interval: number | undefined;
 
     const phaseTimeout = window.setTimeout(() => {
       interval = window.setInterval(() => {
-        setIndex((current) => (current + 1) % fakeAds.length);
+        setIndex((current) => (current + 1) % order.length);
       }, ROTATE_INTERVAL_MS);
     }, phaseOffsetMs);
 
@@ -71,9 +80,9 @@ function useAdRotation(startIndex: number, phaseOffsetMs: number) {
       window.clearTimeout(phaseTimeout);
       if (interval) window.clearInterval(interval);
     };
-  }, []);
+  }, [order]);
 
-  return fakeAds[index % fakeAds.length];
+  return order[index % order.length];
 }
 
 // Mirrors the real Google AdSense "AdChoices" menu flow — mock-only, nothing is
@@ -83,11 +92,6 @@ type PanelState = "closed" | "menu" | "reasons" | "why" | "done";
 function AdUnit({ ad }: { ad: FakeAd }) {
   const [panel, setPanel] = useState<PanelState>("closed");
   const [infoHover, setInfoHover] = useState(false);
-
-  useEffect(() => {
-    setPanel("closed");
-    setInfoHover(false);
-  }, [ad.id]);
 
   const openAd = () => {
     if (panel !== "closed") return;
@@ -228,9 +232,11 @@ function AdUnit({ ad }: { ad: FakeAd }) {
 export function FakeAdRail() {
   usePreloadAdImages();
   const offsets = useRailOffsets();
-  const half = Math.floor(fakeAds.length / 2);
-  const leftAd = useAdRotation(0, 0);
-  const rightAd = useAdRotation(half, ROTATE_INTERVAL_MS / 2);
+  // Reshuffled on every mount (i.e. every page load), independently per side.
+  const [leftOrder] = useState(() => shuffled(fakeAds));
+  const [rightOrder] = useState(() => shuffled(fakeAds));
+  const leftAd = useAdRotation(leftOrder, 0);
+  const rightAd = useAdRotation(rightOrder, ROTATE_INTERVAL_MS / 2);
 
   if (fakeAds.length === 0 || !offsets) return null;
 
