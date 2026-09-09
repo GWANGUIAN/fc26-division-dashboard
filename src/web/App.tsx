@@ -47,6 +47,7 @@ import { SfxIntroNotice, SfxToggle } from "./SfxControls";
 import { MusicPlayer } from "./MusicPlayer";
 import { ThemeToggle } from "./ThemeToggle";
 import { BrightnessGag } from "./BrightnessGag";
+import { FakeAdRail } from "./FakeAdRail";
 import { SquadBuilderOverlay } from "./squad-builder/SquadBuilderOverlay";
 import { PassAnnouncementOverlay } from "./pass-announcement/PassAnnouncementOverlay";
 import { PhotoBoothTrigger } from "./photo-booth/PhotoBoothTrigger";
@@ -170,6 +171,7 @@ export function App() {
   const isDivision = view === "division";
   return (
     <main>
+      <FakeAdRail />
       <TopBar
         view={view}
         onViewChange={setView}
