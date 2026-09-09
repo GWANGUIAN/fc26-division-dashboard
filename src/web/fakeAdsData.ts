@@ -55,4 +55,10 @@ export const fakeAds: FakeAd[] = [
     href: "https://vod.sooplive.com/player/205341287/catch?szSearchTnoList=205341287",
     label: "패러디 광고 - 판다딘",
   },
+  {
+    id: "hachi",
+    image: "/fake-ads/ad-hachi.webp",
+    href: "https://www.sooplive.com/station/hachi97",
+    label: "패러디 광고 - 하치",
+  },
 ];
