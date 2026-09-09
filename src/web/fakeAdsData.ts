@@ -43,4 +43,10 @@ export const fakeAds: FakeAd[] = [
     href: "https://www.sooplive.com/station/janine95kim",
     label: "패러디 광고 - 재닌",
   },
+  {
+    id: "linya",
+    image: "/fake-ads/ad-linya.webp",
+    href: "https://vod.sooplive.com/player/206348423?change_second=16553",
+    label: "패러디 광고 - 리냐",
+  },
 ];
