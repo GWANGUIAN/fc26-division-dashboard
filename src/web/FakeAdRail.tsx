@@ -3,7 +3,6 @@ import { ArrowLeft, Info, MoreVertical } from "lucide-react";
 import { fakeAds, type FakeAd } from "./fakeAdsData";
 
 const ROTATE_INTERVAL_MS = 8000;
-const FADE_MS = 350;
 
 const AD_WIDTH = 160;
 const GAP_FROM_CONTENT = 24;
@@ -57,38 +56,31 @@ function usePreloadAdImages() {
 
 function useAdRotation(startIndex: number, phaseOffsetMs: number) {
   const [index, setIndex] = useState(startIndex);
-  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     if (fakeAds.length < 2) return;
     let interval: number | undefined;
-    let fadeTimeout: number | undefined;
 
     const phaseTimeout = window.setTimeout(() => {
       interval = window.setInterval(() => {
-        setVisible(false);
-        fadeTimeout = window.setTimeout(() => {
-          setIndex((current) => (current + 1) % fakeAds.length);
-          setVisible(true);
-        }, FADE_MS);
+        setIndex((current) => (current + 1) % fakeAds.length);
       }, ROTATE_INTERVAL_MS);
     }, phaseOffsetMs);
 
     return () => {
       window.clearTimeout(phaseTimeout);
       if (interval) window.clearInterval(interval);
-      if (fadeTimeout) window.clearTimeout(fadeTimeout);
     };
   }, []);
 
-  return { ad: fakeAds[index % fakeAds.length], visible };
+  return fakeAds[index % fakeAds.length];
 }
 
 // Mirrors the real Google AdSense "AdChoices" menu flow — mock-only, nothing is
 // actually blocked or persisted, it's just local UI state for the parody.
 type PanelState = "closed" | "menu" | "reasons" | "why" | "done";
 
-function AdUnit({ ad, visible }: { ad: FakeAd; visible: boolean }) {
+function AdUnit({ ad }: { ad: FakeAd }) {
   const [panel, setPanel] = useState<PanelState>("closed");
   const [infoHover, setInfoHover] = useState(false);
 
@@ -103,7 +95,7 @@ function AdUnit({ ad, visible }: { ad: FakeAd; visible: boolean }) {
   };
 
   return (
-    <div className="fake-ad-rail__unit" style={{ opacity: visible ? 1 : 0 }}>
+    <div className="fake-ad-rail__unit">
       <div
         className="fake-ad-rail__body"
         role="link"
@@ -132,7 +124,7 @@ function AdUnit({ ad, visible }: { ad: FakeAd; visible: boolean }) {
               setPanel("menu");
             }}
           >
-            <MoreVertical size={13} />
+            <MoreVertical size={10} />
           </button>
           <div
             className="fake-ad-rail__info-wrap"
@@ -148,7 +140,7 @@ function AdUnit({ ad, visible }: { ad: FakeAd; visible: boolean }) {
                 setPanel("menu");
               }}
             >
-              <Info size={13} />
+              <Info size={10} />
             </button>
             {infoHover && <span className="fake-ad-rail__info-tip">Wakgle 광고</span>}
           </div>
@@ -237,18 +229,18 @@ export function FakeAdRail() {
   usePreloadAdImages();
   const offsets = useRailOffsets();
   const half = Math.floor(fakeAds.length / 2);
-  const left = useAdRotation(0, 0);
-  const right = useAdRotation(half, ROTATE_INTERVAL_MS / 2);
+  const leftAd = useAdRotation(0, 0);
+  const rightAd = useAdRotation(half, ROTATE_INTERVAL_MS / 2);
 
   if (fakeAds.length === 0 || !offsets) return null;
 
   return (
     <>
       <div className="fake-ad-rail fake-ad-rail--left" style={{ left: offsets.left }}>
-        <AdUnit ad={left.ad} visible={left.visible} />
+        <AdUnit ad={leftAd} />
       </div>
       <div className="fake-ad-rail fake-ad-rail--right" style={{ right: offsets.right }}>
-        <AdUnit ad={right.ad} visible={right.visible} />
+        <AdUnit ad={rightAd} />
       </div>
     </>
   );
