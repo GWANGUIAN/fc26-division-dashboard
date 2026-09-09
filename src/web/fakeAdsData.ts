@@ -49,4 +49,10 @@ export const fakeAds: FakeAd[] = [
     href: "https://vod.sooplive.com/player/206348423?change_second=16553",
     label: "패러디 광고 - 리냐",
   },
+  {
+    id: "pandadin",
+    image: "/fake-ads/ad-pandadin.webp",
+    href: "https://vod.sooplive.com/player/205341287/catch?szSearchTnoList=205341287",
+    label: "패러디 광고 - 판다딘",
+  },
 ];
