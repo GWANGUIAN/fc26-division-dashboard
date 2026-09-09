@@ -951,6 +951,7 @@ streamers:
     hopedPosition1: "FB"
     hopedPosition2: "CB"
     sfx: "/sfxes/myongssi.mp3"
+    nickname: "묭아가"
   - slug: n4w4nr
     displayName: "연푸_"
     cafeAliases: ["연푸"]
