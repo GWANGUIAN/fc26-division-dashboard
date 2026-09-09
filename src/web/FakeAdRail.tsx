@@ -48,16 +48,10 @@ function useRailOffsets() {
 // <img src>, which otherwise briefly renders blank and pops in — the "blink".
 function usePreloadAdImages() {
   useEffect(() => {
-    const images = fakeAds.map((ad) => {
+    fakeAds.forEach((ad) => {
       const img = new Image();
       img.src = ad.image;
-      return img;
     });
-    return () => {
-      images.forEach((img) => {
-        img.src = "";
-      });
-    };
   }, []);
 }
 
@@ -123,7 +117,7 @@ function AdUnit({ ad, visible }: { ad: FakeAd; visible: boolean }) {
           }
         }}
       >
-        <img className="fake-ad-rail__img" src={ad.image} alt={ad.label} loading="lazy" />
+        <img className="fake-ad-rail__img" src={ad.image} alt={ad.label} />
         <span className="fake-ad-rail__badge">광고</span>
       </div>
 
@@ -240,6 +234,7 @@ function AdUnit({ ad, visible }: { ad: FakeAd; visible: boolean }) {
 }
 
 export function FakeAdRail() {
+  usePreloadAdImages();
   const offsets = useRailOffsets();
   const half = Math.floor(fakeAds.length / 2);
   const left = useAdRotation(0, 0);
