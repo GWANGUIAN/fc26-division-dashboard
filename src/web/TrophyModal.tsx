@@ -336,30 +336,6 @@ export function TrophyModal({
             </p>
           )}
         </section>
-        <section className="trophy-award trophy-award--cutest">
-          <div className="trophy-award__heading">
-            <span className="trophy-award__icon" aria-hidden="true">
-              🐼
-            </span>
-            <div>
-              <h3>귀요미왕</h3>
-              <p>SOOP 선정 풀독 올랐을때 가장 귀여운 스트리머 부문 1위</p>
-            </div>
-          </div>
-          {awards.cutest.length ? (
-            <div className="trophy-award__winners">
-              {awards.cutest.map((award) => (
-                <article className="trophy-record" key={award.streamer.id}>
-                  <TrophyWinner streamer={award.streamer} />
-                </article>
-              ))}
-            </div>
-          ) : (
-            <p className="trophy-award__empty">
-              아직 집계된 귀요미가 없습니다.
-            </p>
-          )}
-        </section>
         <section className="trophy-award trophy-award--hard-worker">
           <div className="trophy-award__heading">
             <span className="trophy-award__icon" aria-hidden="true">

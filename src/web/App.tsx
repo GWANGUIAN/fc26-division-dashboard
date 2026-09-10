@@ -172,13 +172,7 @@ export function App() {
   return (
     <main>
       <FakeAdRail />
-      <TopBar
-        view={view}
-        onViewChange={setView}
-        latestCount={latest.length}
-        onFeedOpen={() => setFeedOpen(true)}
-        onTrophyOpen={() => setTrophyOpen(true)}
-      />
+      <TopBar onTrophyOpen={() => setTrophyOpen(true)} />
       <div className="photo-booth-anchor">
         <PhotoBoothTrigger
           passedStreamers={celebrationEligibleStreamers}

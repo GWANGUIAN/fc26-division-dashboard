@@ -46,10 +46,6 @@ export type LatecomerTrophy = {
   currentDivision: number;
 };
 
-export type CutestTrophy = {
-  streamer: StreamerRecord;
-};
-
 export type HardWorkderTrophy = {
   streamer: StreamerRecord;
 };
@@ -62,7 +58,6 @@ export type TrophyAwards = {
   bestWinRate: BestWinRateTrophy[];
   retention: RetentionTrophy[];
   latecomer: LatecomerTrophy[];
-  cutest: CutestTrophy[];
   hardWorker: HardWorkderTrophy[];
 };
 
@@ -75,7 +70,6 @@ export type TrophyBadge = {
     | "best-win-rate"
     | "retention"
     | "latecomer"
-    | "cutest"
     | "hard-worker";
   name: string;
   emoji: string;
@@ -85,7 +79,6 @@ export type TrophyBadge = {
 const RETENTION_MIN_DIVISION = 9;
 
 /** Not computed from any stat — this is a fixed production-team pick, not an objective ranking. */
-const CUTEST_STREAMER_ID = "nlsb9718";
 const HARD_WORKER_ID = "tleod1818";
 
 export const DIVISION_ONE_EMOJI = { 1: "🥇", 2: "🥈", 3: "🥉" } as const;
@@ -289,9 +282,6 @@ export function buildTrophyAwards(streamers: StreamerRecord[]): TrophyAwards {
             (record) => record.publishedAt === latestPublishedAt,
           )
         : [],
-    cutest: streamers
-      .filter((streamer) => streamer.id === CUTEST_STREAMER_ID)
-      .map((streamer) => ({ streamer })),
     hardWorker: streamers
       .filter((streamer) => streamer.id === HARD_WORKER_ID)
       .map((streamer) => ({ streamer })),
@@ -324,8 +314,6 @@ export function trophyBadgesFor(
     badges.push({ key: "retention", name: "잔류왕", emoji: "🛏️" });
   if (awards.latecomer.some((award) => award.streamer.id === streamer.id))
     badges.push({ key: "latecomer", name: "지각왕", emoji: "⏰" });
-  if (awards.cutest.some((award) => award.streamer.id === streamer.id))
-    badges.push({ key: "cutest", name: "귀요미왕", emoji: "🐼" });
   if (awards.hardWorker.some((award) => award.streamer.id === streamer.id))
     badges.push({ key: "hard-worker", name: "노력왕", emoji: "🔥" });
   return badges;

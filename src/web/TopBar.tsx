@@ -2,19 +2,10 @@ import { Trophy } from "lucide-react";
 import { AnnouncementWidget } from "./AnnouncementModal";
 
 export function TopBar({
-  view,
-  onViewChange,
-  latestCount,
-  onFeedOpen,
   onTrophyOpen,
 }: {
-  view: "division" | "evaluation";
-  onViewChange: (view: "division" | "evaluation") => void;
-  latestCount: number;
-  onFeedOpen: () => void;
   onTrophyOpen: () => void;
 }) {
-  const isDivision = view === "division";
   return (
     <header className="topbar">
       <div className="topbar__brand-group">
@@ -25,24 +16,7 @@ export function TopBar({
         </a>
         <AnnouncementWidget />
       </div>
-      <nav className="main-nav" aria-label="메인 메뉴">
-        <button
-          className={isDivision ? "active" : ""}
-          onClick={() => onViewChange("division")}
-        >
-          선수 현황
-        </button>
-        <button
-          className={!isDivision ? "active" : ""}
-          onClick={() => onViewChange("evaluation")}
-        >
-          1:1 평가
-        </button>
-      </nav>
       <div className="topbar__actions">
-        <button className="feed-toggle" onClick={onFeedOpen}>
-          최신 소식 <em>{latestCount}</em>
-        </button>
         <button
           className="trophy-toggle"
           type="button"
