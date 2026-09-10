@@ -181,7 +181,6 @@ footer { margin-top: 26px; color: var(--text-muted); text-align: center; font-si
 .division__players-toggle svg { width: 13px; height: 13px; flex: 0 0 13px; stroke-width: 2.6; transition: transform .18s; }
 .division__players-toggle[aria-expanded="false"] svg { transform: rotate(-90deg); }
 @media (prefers-reduced-motion: reduce) { .division__players-toggle svg { transition: none; } }
-.division__players-toggle--divided { margin-top: 10px; padding-top: 18px; border-top: 1px solid var(--border-default); }
 .first-round-hidden__note { grid-column: 1 / -1; margin: 8px 0 2px; padding: 12px 14px; border: 1px solid var(--border-default); border-left: 3px solid var(--accent-border); border-radius: 3px; background: var(--surface-1-alt); color: var(--text-secondary); font-size: 12px; line-height: 1.6; }
 .second-round-hidden__note { grid-column: 1 / -1; margin: 8px 0 2px; padding: 12px 14px; border: 1px solid #ffd96955; border-left: 3px solid #ffd969a8; border-radius: 3px; background: var(--surface-1-alt); color: var(--text-secondary); font-size: 12px; line-height: 1.6; }
 .second-round-hidden__note-icon { display: inline-block; width: 1.4em; height: 1.4em; margin-left: 3px; vertical-align: -.3em; object-fit: contain; }

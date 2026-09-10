@@ -326,11 +326,7 @@ export function DivisionResults({
               <>
                 <button
                   type="button"
-                  className={`division__players-toggle ${
-                    secondRoundNonPassedStreamers.length > 0
-                      ? "division__players-toggle--divided"
-                      : ""
-                  }`}
+                  className="division__players-toggle"
                   onClick={toggleFirstRoundHidden}
                   aria-expanded={!firstRoundHiddenCollapsed}
                 >
