@@ -4,7 +4,9 @@ import { fancyTierOf } from "./cardVisuals";
 import { DAY_MS } from "./storage";
 
 export function celebrationMessageFor(displayName: string, round: 1 | 2 = 1) {
-  return `${displayName}의 잔디동 ${round}차 합격을 축하합니다!!`;
+  // 2차 합격이 곧 최종 합격으로 개편되어, round 2는 "2차" 대신 "최종"으로 표기한다.
+  const roundLabel = round === 2 ? "최종" : `${round}차`;
+  return `${displayName}의 잔디동 ${roundLabel} 합격을 축하합니다!!`;
 }
 
 /** Once anyone has passedSecondRound, everything 2차-aware (celebration banner,

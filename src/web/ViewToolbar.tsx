@@ -58,7 +58,7 @@ export function ViewToolbar({
               <BadgeCheck aria-hidden="true" />
               <div>
                 <strong>{divisionStats.secondRoundTotal}</strong>
-                <span>총 2차 합격자</span>
+                <span>총 최종 합격자</span>
               </div>
             </div>
           )}
