@@ -22,7 +22,7 @@ export const fakeAds: FakeAd[] = [
   {
     id: "bingming",
     image: "/fake-ads/ad-bingming.webp",
-    href: "https://www.sooplive.com/station/tleod1818",
+    href: "https://vod.sooplive.com/player/206243369?change_second=33",
     label: "패러디 광고 - 빙밍",
   },
   {
