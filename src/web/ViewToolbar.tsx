@@ -58,7 +58,7 @@ export function ViewToolbar({
               <BadgeCheck aria-hidden="true" />
               <div>
                 <strong>{divisionStats.secondRoundTotal}</strong>
-                <span>총 최종 합격자</span>
+                <span>최종 합격자</span>
               </div>
             </div>
           )}
@@ -66,7 +66,7 @@ export function ViewToolbar({
             <BadgeCheck aria-hidden="true" />
             <div>
               <strong>{divisionStats.firstRoundTotal}</strong>
-              <span>총 1차 합격자</span>
+              <span>1차 합격자</span>
             </div>
           </div>
         </div>
