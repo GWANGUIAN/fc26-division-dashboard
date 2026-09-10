@@ -30,7 +30,7 @@ export function TopBar({
           className={isDivision ? "active" : ""}
           onClick={() => onViewChange("division")}
         >
-          디비전 현황
+          선수 현황
         </button>
         <button
           className={!isDivision ? "active" : ""}
