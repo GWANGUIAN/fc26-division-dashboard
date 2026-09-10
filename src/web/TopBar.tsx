@@ -21,7 +21,7 @@ export function TopBar({
         <a className="brand" href="#top">
           <span className="brand-wak">WAK</span>
           <span>JANDY</span>
-          <strong>동아리 후보 대시보드</strong>
+          <strong>동아리 대시보드</strong>
         </a>
         <AnnouncementWidget />
       </div>

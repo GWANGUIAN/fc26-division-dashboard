@@ -40,7 +40,7 @@ export function HeroSection({
           {isDivision ? (
             <>
               <span className="hero-title__line hero-title__line--1">
-                잰디 <mark>동아리 후보</mark>
+                잰디 <mark>동아리</mark>
               </span>
               <br />
               <span className="hero-title__line hero-title__line--2">
