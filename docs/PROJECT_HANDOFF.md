@@ -19,14 +19,14 @@
 
 - [x] `src/web/snapshotFixture.ts`(+ `snapshotFixture.json`)에 2026-09-10T18:07:49.680Z 시점 DynamoDB 스냅샷(스트리머 111명, 최신글 50건, 1:1 신청 5건, 활동글 52건)을 고정값으로 커밋. `src/web/api.ts`가 이 값을 그대로 반환하며 더 이상 `/api/snapshot`을 호출하지 않음.
 - [x] Cloudflare Worker의 `/api/snapshot` 라우팅을 `410`으로 비활성화(`src/worker.ts`)하고, `/healthz`의 스냅샷 신선도(`isFresh`) 체크를 제거.
-- [ ] `infrastructure/main.tf`의 EventBridge Scheduler 두 개(`incremental` 1시간마다, `reconcile` 매일 03:00 KST)를 `state = "DISABLED"`로 변경하고 `terraform apply`.
+- [x] `infrastructure/main.tf`의 EventBridge Scheduler 두 개(`incremental` 1시간마다, `reconcile` 매일 03:00 KST)를 `state = "DISABLED"`로 변경하고 `terraform apply` 완료 (`aws scheduler get-schedule`로 둘 다 `DISABLED` 확인됨).
 
 **재개(다시 자동 수집 켜기) 방법**: `main.tf`에서 `state = "DISABLED"` 제거 후 `terraform apply` → `src/worker.ts`의 `/api/snapshot` 라우팅·`/healthz` 신선도 체크를 원래대로 되돌림 → `src/web/api.ts`를 fetch 기반으로 되돌리고 `src/web/snapshotFixture.ts`/`snapshotFixture.json` 삭제.
 
 ## 데이터 흐름
 
 ```text
-EventBridge Scheduler  ⚠️ 현재 DISABLED 예정/처리됨 — 위 "현재 상태" 참고
+EventBridge Scheduler  ⚠️ 현재 DISABLED — 위 "현재 상태" 참고
   ├─ 1시간마다 incremental 수집
   └─ 매일 03:00 KST reconcile 수집
           │

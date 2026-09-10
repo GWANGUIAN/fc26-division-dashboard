@@ -275,6 +275,9 @@ resource "aws_scheduler_schedule" "incremental" {
   name                = "${var.project_name}-hourly"
   group_name          = aws_scheduler_schedule_group.main.name
   schedule_expression = "rate(1 hour)"
+  # Automatic collection is temporarily paused (no longer needed) — see the
+  # "현재 상태" section in docs/PROJECT_HANDOFF.md for why and how to resume.
+  state = "DISABLED"
   flexible_time_window { mode = "OFF" }
   target {
     arn      = aws_lambda_function.scraper.arn
@@ -287,6 +290,9 @@ resource "aws_scheduler_schedule" "reconcile" {
   group_name                   = aws_scheduler_schedule_group.main.name
   schedule_expression          = "cron(0 18 * * ? *)"
   schedule_expression_timezone = "UTC"
+  # Automatic collection is temporarily paused (no longer needed) — see the
+  # "현재 상태" section in docs/PROJECT_HANDOFF.md for why and how to resume.
+  state = "DISABLED"
   flexible_time_window { mode = "OFF" }
   target {
     arn      = aws_lambda_function.scraper.arn
