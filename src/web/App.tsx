@@ -133,7 +133,7 @@ export function App() {
     useEvaluationApplications(snapshot, query);
   const { latest, celebrationSlides, celebrationRound, celebrationEligibleStreamers } =
     useLatestActivity(snapshot, streamers);
-  const soopLive = useSoopLiveStreamers(passedStreamers);
+  const soopLive = useSoopLiveStreamers(boardStreamers);
   const liveStreamerIds = useMemo(
     () => new Set(soopLive.entries.map((entry) => entry.streamerId)),
     [soopLive.entries],

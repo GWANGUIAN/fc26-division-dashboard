@@ -17,7 +17,8 @@ export function useStreamerFilters(
   // Only 1차 합격자로 확정된 스트리머만 메인 보드/집계 대상이다. 나머지는
   // nonPassedStreamers로 따로 모아, 접이식 섹션에서만 노출한다.
   // Kept 1차-only (not round-aware) on purpose — squad builder, 합격자 발표,
-  // 2차 테스트일정, 우왁굳의 메모장, live-stream tracking all still key off this.
+  // 2차 테스트일정, 우왁굳의 메모장 all still key off this. Live-stream tracking
+  // uses boardStreamers instead, so once 2차 결과가 나오면 최종 합격자만 뜬다.
   const passedStreamers = useMemo(
     () => (snapshot?.streamers ?? []).filter((streamer) => streamer.passedFirstRound),
     [snapshot],
