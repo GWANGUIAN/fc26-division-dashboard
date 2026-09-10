@@ -1,10 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-export function HeroSection({
-  isDivision,
-}: {
-  isDivision: boolean;
-}) {
+export function HeroSection({ isDivision }: { isDivision: boolean }) {
   const heroRef = useRef<HTMLElement>(null);
   const [animKey, setAnimKey] = useState(0);
   const wasVisible = useRef(true);
@@ -73,11 +69,7 @@ export function HeroSection({
             </>
           )}
         </h1>
-        <p className="intro">
-          {isDivision
-            ? "왁물원에 보고된 FC26 디비전 승격 현황을 추적합니다."
-            : "1대1 평가 신청 게시글과 대결 결과를 표시합니다."}
-        </p>
+        <p className="intro">우왁굳의 잔디동 활동 현황을 기록합니다.</p>
       </div>
     </section>
   );
