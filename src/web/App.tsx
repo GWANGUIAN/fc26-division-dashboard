@@ -31,6 +31,7 @@ import { HeroSection } from "./HeroSection";
 import { FavoriteCelebration } from "./FavoriteCelebration";
 import { SoopLiveSection } from "./SoopLiveSection";
 import { JandyVideoSection } from "./JandyVideoSection";
+import { MatchRecordSection } from "./match-record/MatchRecordSection";
 import { ControlsBar } from "./ControlsBar";
 import { ViewToolbar } from "./ViewToolbar";
 import { DivisionResults } from "./DivisionResults";
@@ -183,6 +184,7 @@ export function App() {
       <HeroSection isDivision={isDivision} />
       <SoopLiveSection soopLive={soopLive} />
       <JandyVideoSection />
+      <MatchRecordSection streamers={passedStreamers ?? []} />
       <ControlsBar
         sentinelRef={controlsSentinelRef}
         stuck={controlsStuck}

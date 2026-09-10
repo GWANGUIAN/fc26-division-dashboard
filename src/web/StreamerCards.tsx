@@ -46,16 +46,10 @@ export function StreamerCard({
   const fancyColor = lite ? mixHex("#00e9ae", "white", 0.65) : "#00e9ae";
   const savior = isStreamerSavior(streamer);
   const rate = streamer.record ? winRatePercent(streamer.record) : undefined;
-  const { open: noteOpen, show: showNote, scheduleHide: hideNote, anchorRef } =
-    useWakgoodNoteHover<HTMLButtonElement>();
-  const showNoteTooltip = streamer.passedFirstRound;
   return (
     <button
-      ref={anchorRef}
       className={`streamer-card ${isNew ? "streamer-card--new" : ""} ${tier !== "none" ? "fancy-border" : ""} ${lite ? "fancy-border--lite" : ""} ${savior ? "savior-border" : ""}`}
       onClick={onOpen}
-      onMouseEnter={showNoteTooltip ? showNote : undefined}
-      onMouseLeave={showNoteTooltip ? hideNote : undefined}
       aria-label={`${streamer.displayName} 상세 보기${isNew ? " (24시간 이내 업데이트됨)" : ""}`}
       style={
         tier !== "none" || savior
@@ -130,14 +124,6 @@ export function StreamerCard({
         </span>
       )}
       {isNew && <span className="streamer-card__new-badge">NEW</span>}
-      {showNoteTooltip && noteOpen && (
-        <WakgoodNoteBubble
-          streamer={streamer}
-          anchorRef={anchorRef}
-          onMouseEnter={showNote}
-          onMouseLeave={hideNote}
-        />
-      )}
     </button>
   );
 }

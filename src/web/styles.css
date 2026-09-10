@@ -795,6 +795,9 @@ body { isolation: isolate; }
 .modal__position-row { display: flex; align-items: center; gap: 8px; margin-top: 7px; }
 .modal__position-label { color: var(--text-muted); font-size: 11px; }
 .modal__position-row .position-tag { font-size: 12px; padding: 2px 8px; }
+.modal__match-stats { display: flex; gap: 8px; margin: 16px 0; }
+.modal__match-stats span { display: inline-flex; align-items: center; gap: 5px; padding: 6px 11px; border: 1px solid var(--border-strong); border-radius: 4px; color: var(--text-primary); background: var(--surface-1-alt); font: 700 12px "Barlow Condensed", "Noto Sans KR"; }
+.modal__match-stats b { color: var(--accent-text); font-size: 14px; }
 .streamer-card__record-row { display: flex; align-items: baseline; gap: 0; }
 .streamer-card__name .position-tags { flex: 0 0 auto; margin-left: auto; padding-left: 6px; }
 .streamer-card__name .position-tag { padding: 1px 5px; font-size: 11px; }

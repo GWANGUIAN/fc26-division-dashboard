@@ -30,6 +30,7 @@ import {
   StreamerActivitySection,
 } from "./StreamerActivitySection";
 import { WakgoodNotePanel } from "./WakgoodNoteTooltip";
+import { computeMatchStats } from "./match-record/matchRecordData";
 
 export function DetailModal({
   streamer,
@@ -96,6 +97,8 @@ export function DetailModal({
     : "#00e9ae";
   const savior = isStreamerSavior(streamer);
   const showNotePanel = streamer.passedFirstRound;
+  const matchStats = computeMatchStats(streamer.id);
+  const hasMatchStats = matchStats.goals > 0 || matchStats.assists > 0;
   return (
     <Modal
       onClose={onClose}
@@ -177,6 +180,16 @@ export function DetailModal({
         </div>
       }
     >
+      {hasMatchStats && (
+        <div className="modal__match-stats">
+          <span>
+            ⚽ <b>{matchStats.goals}</b>골
+          </span>
+          <span>
+            🅰️ <b>{matchStats.assists}</b>어시스트
+          </span>
+        </div>
+      )}
       {showNotePanel && <WakgoodNotePanel streamer={streamer} />}
       <GeminiReviewSection review={streamer.latestReview} hasPost={!!post} />
       {post ? (
