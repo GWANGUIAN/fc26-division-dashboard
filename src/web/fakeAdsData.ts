@@ -73,4 +73,10 @@ export const fakeAds: FakeAd[] = [
     href: "https://vod.sooplive.com/player/206149139/catch",
     label: "야추털",
   },
+    {
+    id: "jumengee",
+    image: "/fake-ads/ad-jumengee.webp",
+    href: "https://vod.sooplive.com/player/206796559/catch",
+    label: "쥬ㅡㅡ멘",
+  },
 ];
