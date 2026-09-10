@@ -26,18 +26,6 @@ export const fakeAds: FakeAd[] = [
     label: "초보.빙밍",
   },
   {
-    id: "chunyang",
-    image: "/fake-ads/ad-chunyang.webp",
-    href: "https://www.sooplive.com/station/243000/post/205727363",
-    label: "천양",
-  },
-  {
-    id: "five-girl",
-    image: "/fake-ads/ad-five-girl.webp",
-    href: "https://www.sooplive.com/station/kaksjak0730/post/205548269",
-    label: "오여자FC",
-  },
-  {
     id: "jaenin",
     image: "/fake-ads/ad-jaenin.webp",
     href: "https://www.sooplive.com/station/janine95kim",
