@@ -54,6 +54,7 @@ streamers:
       division: null
       policy: auto
     passedFirstRound: true
+    passedSecondRound: true
     hopedPosition1: "GK"
     celebrationMessage: "재--신의 {n}부 리그 승격을 축하합니다~!!🥅"
     reviewNote: "골키퍼를 너무 잘해서 재신(야신에서 따옴)이라는 별명이 있음"
@@ -93,6 +94,7 @@ streamers:
       division: null
       policy: auto
     passedFirstRound: true
+    passedSecondRound: true
     hopedPosition1: "CM"
     celebrationMessage: "뽀햄 묵직허이 {n}부 리그 승격!!🔫"
     nickname: "린걸햄"
@@ -107,6 +109,7 @@ streamers:
       division: null
       policy: auto
     passedFirstRound: true
+    passedSecondRound: true
     hopedPosition1: "CB"
     sfx: "/sfxes/pinggu.mp3"
   - slug: qna0906
@@ -141,6 +144,7 @@ streamers:
       division: null
       policy: auto
     passedFirstRound: true
+    passedSecondRound: true
     hopedPosition1: "CDM"
     celebrationMessage: "ㅁㅁㅁ의 {n}부 리그 승격을 축하합니다~!!😏"
     reviewNote: "SOOP에서 원래 FC 1황이였음. 나나문, 플리, 빙밍, 임하밍, 김웰로, 체비와 함께 천타버스(수장: 천양) 크루 소속임"
@@ -181,6 +185,7 @@ streamers:
       division: null
       policy: auto
     passedFirstRound: true
+    passedSecondRound: true
     hopedPosition1: "WF"
     celebrationMessage: "핫짱의 {n}부 리그 승격을 축하합니다~!!🐉"
     sfx: "/sfxes/hachi.mp3"
@@ -314,6 +319,7 @@ streamers:
       division: null
       policy: auto
     passedFirstRound: true
+    passedSecondRound: true
     hopedPosition1: "CM"
     hopedPosition2: "CDM"
     celebrationMessage: "얼음공주의 {n}부 리그 승격을 축하합니다~!!🧊"
@@ -366,6 +372,7 @@ streamers:
       division: null
       policy: auto
     passedFirstRound: true
+    passedSecondRound: true
     hopedPosition1: "ST"
     sfx: "/sfxes/jyumenge.mp3"
   - slug: secretto486
@@ -644,6 +651,7 @@ streamers:
       division: null
       policy: auto
     passedFirstRound: true
+    passedSecondRound: true
     hopedPosition1: "CB"
     sfx: "/sfxes/haeparin.mp3"
   - slug: krtl6798
@@ -734,6 +742,7 @@ streamers:
       division: null
       policy: auto
     passedFirstRound: true
+    passedSecondRound: true
     hopedPosition1: "FB"
     celebrationMessage: "빵망이의 {n}부 리그 승격을 축하합니다~!!🤤"
     reviewNote: "배그 실력이 출중함. 성격이 좋고 귀여워서 수은(리그오브레전드의 수은 장식띠에서 나온 말로 분위기를 애교, 웃음 등으로 좋게 환기시키는 역할)력이 높음. 문모모, 나나문, 플리, 임하밍, 김웰로, 체비와 함께 천타버스(수장: 천양) 크루 소속임"
@@ -826,6 +835,7 @@ streamers:
       division: null
       policy: auto
     passedFirstRound: true
+    passedSecondRound: true
     hopedPosition1: "WF"
     sfx: "/sfxes/dashiba.mp3"
   - slug: usharko0o0
@@ -1099,6 +1109,7 @@ streamers:
       division: null
       policy: auto
     passedFirstRound: true
+    passedSecondRound: true
     hopedPosition1: "FB"
     isFancyLite: true
     celebrationMessage: "사시노 리냐의 {n}부 리그 승격을 축하합니다~!!🤪"
