@@ -24,10 +24,10 @@ const BANNER_ASCII_OPTIONS = { fit: "width", width: 50, color: false };
 const PROFILE_ASCII_OPTIONS = { fit: "width", width: 60, color: false };
 
 const defaultSoopProfileUrl = (soopId) =>
-  `https://stimg.sooplive.com/LOGO/${encodeURIComponent(soopId.slice(0, 2).toLowerCase())}/${encodeURIComponent(soopId)}/m/${encodeURIComponent(soopId)}.webp`;
+  `https://profile.img.sooplive.com/LOGO/${encodeURIComponent(soopId.slice(0, 2).toLowerCase())}/${encodeURIComponent(soopId)}/${encodeURIComponent(soopId)}.jpg`;
 
-async function webpBufferToAscii(webpBuffer, options) {
-  const pngBuffer = await sharp(webpBuffer).png().toBuffer();
+async function imageBufferToAscii(imageBuffer, options) {
+  const pngBuffer = await sharp(imageBuffer).png().toBuffer();
   return asciify(pngBuffer, options);
 }
 
@@ -36,7 +36,7 @@ async function fetchProfileAscii(soopId) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const buffer = Buffer.from(await res.arrayBuffer());
-  return webpBufferToAscii(buffer, PROFILE_ASCII_OPTIONS);
+  return imageBufferToAscii(buffer, PROFILE_ASCII_OPTIONS);
 }
 
 async function mapWithConcurrency(items, limit, fn) {

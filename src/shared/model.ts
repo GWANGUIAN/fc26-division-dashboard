@@ -195,7 +195,7 @@ export const soopLiveBroadcastUrl = (soopId?: string) =>
 
 export const defaultSoopProfileUrl = (soopId?: string) =>
   soopId
-    ? `https://stimg.sooplive.com/LOGO/${encodeURIComponent(soopId.slice(0, 2).toLowerCase())}/${encodeURIComponent(soopId)}/m/${encodeURIComponent(soopId)}.webp`
+    ? `https://profile.img.sooplive.com/LOGO/${encodeURIComponent(soopId.slice(0, 2).toLowerCase())}/${encodeURIComponent(soopId)}/${encodeURIComponent(soopId)}.jpg`
     : undefined;
 
 export interface OneVsOneApplication {
