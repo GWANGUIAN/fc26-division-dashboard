@@ -13,11 +13,21 @@
 - 통산 전적(W-D-L): 승급 게시글 스크린샷을 Gemini(멀티모달 LLM)로 읽어 자동 추출한다. 실패/오탐 시 `record-overrides.yaml`로 수동 보정한다.
 - Gemini 한줄평: 통산 전적이 확정된 승급 게시글마다 Gemini(텍스트 전용)로 "방송각" 있는 짧은 코멘트를 생성해 상세 모달에 타이핑 애니메이션과 함께 보여준다.
 
+## ⚠️ 현재 상태: 자동 수집 임시 중단 (2026-09-11~)
+
+더 이상 자동 업데이트가 필요 없어져서 네이버 카페 크롤링·수집 파이프라인을 임시로 껐다. 진행 순서:
+
+- [x] `src/web/snapshotFixture.ts`(+ `snapshotFixture.json`)에 2026-09-10T18:07:49.680Z 시점 DynamoDB 스냅샷(스트리머 111명, 최신글 50건, 1:1 신청 5건, 활동글 52건)을 고정값으로 커밋. `src/web/api.ts`가 이 값을 그대로 반환하며 더 이상 `/api/snapshot`을 호출하지 않음.
+- [ ] Cloudflare Worker의 `/api/snapshot` 라우팅을 비활성화(`410`)하고, `/healthz`의 스냅샷 신선도(`isFresh`) 체크를 제거 — 프런트 배포 확인 후 진행.
+- [ ] `infrastructure/main.tf`의 EventBridge Scheduler 두 개(`incremental` 1시간마다, `reconcile` 매일 03:00 KST)를 `state = "DISABLED"`로 변경하고 `terraform apply` — 위 배포 확인 후 진행.
+
+**재개(다시 자동 수집 켜기) 방법**: `main.tf`에서 `state = "DISABLED"` 제거 후 `terraform apply` → `src/worker.ts`의 `/api/snapshot` 라우팅·`/healthz` 신선도 체크를 원래대로 되돌림 → `src/web/api.ts`를 fetch 기반으로 되돌리고 `src/web/snapshotFixture.ts`/`snapshotFixture.json` 삭제.
+
 ## 데이터 흐름
 
 ```text
-EventBridge Scheduler
-  ├─ 3분마다 incremental 수집
+EventBridge Scheduler  ⚠️ 현재 DISABLED 예정/처리됨 — 위 "현재 상태" 참고
+  ├─ 1시간마다 incremental 수집
   └─ 매일 03:00 KST reconcile 수집
           │
           ▼
@@ -34,6 +44,7 @@ DynamoDB (원본 글, 로스터, 오버라이드 설정, 상태, 단일 공개 �
           │
           ▼
 Reader Lambda ── 인증 헤더 ── Cloudflare Worker 2분 캐시 ── React UI
+  ⚠️ React UI는 현재 이 경로를 타지 않고 src/web/snapshotFixture.ts의 고정 스냅샷을 직접 사용함
 
 GitHub push (roster/results/overrides YAML) → Config Sync Lambda → DynamoDB 설정/스냅샷 재생성
 ```
@@ -43,7 +54,7 @@ GitHub push (roster/results/overrides YAML) → Config Sync Lambda → DynamoDB 
 | 위치 | 책임 |
 | --- | --- |
 | `src/web/App.tsx` | 두 화면(디비전/1:1)을 그리는 오케스트레이터. 상태는 `use*.ts` 훅에서 모으고 화면은 섹션 컴포넌트에 위임한다 — 아래 "프런트엔드 구조" 참고 |
-| `src/web/api.ts` | 개발 시 데모 데이터, 운영 시 같은 출처 `/api/snapshot` 호출 |
+| `src/web/api.ts` | `src/web/snapshotFixture.ts`의 고정 스냅샷 반환 (자동 수집 중단 중 — 아래 "현재 상태" 참고) |
 | `src/worker.ts` | Cloudflare API 프록시·2분 Edge 캐시·`/healthz`·정적 자산 캐시 방어 |
 | `src/functions/scraper.ts` | 스케줄 수집, 게시판별 체크포인트, 이미지 재시도, 전적 추출 재시도, 스냅샷 발행 |
 | `src/functions/naver.ts` | Naver Café 목록/본문 렌더링, CAPTCHA·접근 차단 감지, 이미지 추출 |
@@ -222,8 +233,7 @@ pnpm build
 pnpm dev
 ```
 
-- `pnpm dev`는 `VITE_DATA_API_URL`이 없으면 안전한 데모 스냅샷을 표시한다.
-- 실제 Reader Lambda를 직접 검증하려면 `.env.example`을 참고해 `VITE_DATA_API_URL`을 설정한다. 운영 프런트에는 이 값을 설정하지 않는다.
+- `pnpm dev`는 (환경변수와 무관하게) `src/web/snapshotFixture.ts`의 고정 스냅샷을 표시한다 — 자동 수집이 중단된 동안의 임시 동작이며, `VITE_DATA_API_URL`은 현재 읽히지 않는다. 재개 방법은 위 "현재 상태" 섹션 참고.
 - Worker 인증 프록시를 로컬에서 확인하려면 `.dev.vars.example`을 `.dev.vars`로 복사해 실제 값으로 채운 뒤 `npx wrangler dev`를 사용한다. `.dev.vars`는 커밋하지 않는다.
 - Lambda 컨테이너의 번들만 검증하려면 `pnpm build:lambda`를 실행한다.
 

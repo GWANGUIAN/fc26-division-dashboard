@@ -122,7 +122,7 @@ pnpm build
 pnpm dev
 ```
 
-`VITE_DATA_API_URL`을 지정하지 않으면 실제 UI 검증을 위한 데모 데이터가 표시됩니다. 운영 빌드에서는 이 값을 설정하지 마세요. 프런트는 같은 출처의 Cloudflare Worker `/api/snapshot`을 통해 인증된 Reader Lambda 데이터를 받습니다.
+> **현재 자동 수집 중단 중**: `src/web/api.ts`는 `/api/snapshot`을 호출하지 않고 `src/web/snapshotFixture.ts`에 고정된 스냅샷을 반환합니다. `VITE_DATA_API_URL`은 더 이상 읽히지 않습니다. 자세한 내용과 재개 방법은 `docs/PROJECT_HANDOFF.md`의 "현재 상태" 섹션을 참고하세요.
 
 Lambda 번들만 별도로 확인할 때는 다음을 실행합니다.
 
