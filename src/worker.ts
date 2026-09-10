@@ -94,10 +94,10 @@ async function serveHealth(env: Env): Promise<Response> {
       generatedAt?: string;
       streamers?: unknown[];
     };
-    const generatedAt = Date.parse(snapshot.generatedAt ?? "");
-    const isFresh = Number.isFinite(generatedAt) && Date.now() - generatedAt <= HEALTH_MAX_SNAPSHOT_AGE_MS;
+    // Freshness (HEALTH_MAX_SNAPSHOT_AGE_MS) is intentionally not checked
+    // while automatic Naver Café collection is paused — see the "현재 상태"
+    // section in docs/PROJECT_HANDOFF.md. Re-enable once collection resumes.
     if (snapshot.status !== "ok") return healthResponse(503, "collection_degraded");
-    if (!isFresh) return healthResponse(503, "snapshot_stale");
     if (!snapshot.streamers?.length) return healthResponse(503, "snapshot_empty");
     return healthResponse(200, "ok");
   } catch {
@@ -201,7 +201,15 @@ export default {
     if (path === "/healthz") return (request.method === "GET" || request.method === "HEAD")
       ? serveHealth(env)
       : new Response("Method Not Allowed", { status: 405 });
-    if (path === "/api/snapshot" || path.startsWith("/api/snapshot/")) return serveApi(request, env, ctx);
+    // Automatic Naver Café collection is paused and the frontend now serves a
+    // hardcoded snapshot, so this no longer proxies to the Reader Lambda. See
+    // the "현재 상태" section in docs/PROJECT_HANDOFF.md to resume.
+    if (path === "/api/snapshot" || path.startsWith("/api/snapshot/")) {
+      return Response.json(
+        { message: "Automatic data collection is temporarily paused." },
+        { status: 410, headers: { "cache-control": "no-store", "x-content-type-options": "nosniff" } },
+      );
+    }
     if (path === "/api/soop-live") return serveSoopLive(request, ctx);
     return serveAsset(request, env);
   },
