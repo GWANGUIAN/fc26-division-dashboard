@@ -67,10 +67,16 @@ export const fakeAds: FakeAd[] = [
     href: "https://vod.sooplive.com/player/206434535/catch",
     label: "패러디 광고 - 유키라",
   },
-    {
+  {
     id: "bboringirl",
     image: "/fake-ads/ad-bboringirl.webp",
     href: "https://vod.sooplive.com/player/205333447/catch?szSearchTnoList=205333447",
     label: "패러디 광고 - 뽀린걸",
+  },
+  {
+    id: "roentgenium",
+    image: "/fake-ads/ad-roentgenium.webp",
+    href: "https://vod.sooplive.com/player/206526289?change_second=1185",
+    label: "패러디 광고 - 뢴트게늄",
   },
 ];
