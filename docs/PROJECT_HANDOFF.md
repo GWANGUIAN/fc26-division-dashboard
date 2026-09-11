@@ -118,7 +118,7 @@ GitHub push (roster/results/overrides YAML) → Config Sync Lambda → DynamoDB 
 | `Modal.tsx` | 공용 모달 셸, `FancyBurst`, `CafeLink`/`SoopLink` |
 | `AnnouncementModal.tsx` | 공지 모달·상단 공지 위젯 |
 | `SfxControls.tsx` | 효과음 토글, 최초 진입 안내 팝업 |
-| `JandyVideoSection.tsx` | 잔디동 참고 영상 캐러셀 |
+| `JandyVideoSection.tsx` | 참고 영상 캐러셀 |
 | `FavoriteCelebration.tsx` | 상단 축하 배너 |
 
 데이터·유틸:

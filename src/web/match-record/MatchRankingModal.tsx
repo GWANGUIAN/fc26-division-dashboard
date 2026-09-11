@@ -7,16 +7,14 @@ import type { LineupPlayer, PlayerRankingEntry } from "./types";
 function RankingList({
   entries,
   playerById,
-  statLabel,
-  statKey,
+  sortKey,
 }: {
   entries: PlayerRankingEntry[];
   playerById: Map<string, LineupPlayer>;
-  statLabel: string;
-  statKey: "goals" | "assists";
+  sortKey: "goals" | "assists";
 }) {
   if (entries.length === 0) {
-    return <p className="match-record__empty">아직 기록된 {statLabel}이 없습니다</p>;
+    return <p className="match-record__empty">아직 기록된 골/어시스트가 없습니다</p>;
   }
   return (
     <ol className="player-ranking">
@@ -38,8 +36,15 @@ function RankingList({
               </span>
             )}
             <span className="player-ranking__name">{displayName}</span>
-            <span className="player-ranking__stat player-ranking__stat--primary">
-              {entry[statKey]}
+            <span
+              className={`player-ranking__stat ${sortKey === "goals" ? "player-ranking__stat--primary" : ""}`}
+            >
+              ⚽ {entry.goals}
+            </span>
+            <span
+              className={`player-ranking__stat ${sortKey === "assists" ? "player-ranking__stat--primary" : ""}`}
+            >
+              🅰️ {entry.assists}
             </span>
           </li>
         );
@@ -57,43 +62,35 @@ export function MatchRankingModal({
 }) {
   useEscape(onClose);
   const [tab, setTab] = useState<"goals" | "assists">("goals");
-  const { goalRanking, assistRanking } = computeJandyPlayerRankings();
+  const { byGoals, byAssists } = computeJandyPlayerRankings();
+  const entries = tab === "goals" ? byGoals : byAssists;
 
   return (
     <Modal
       onClose={onClose}
-      label="잔디동 골/어시스트 순위"
+      label="골/어시스트 순위"
       header={
         <div>
           <p className="eyebrow">MATCH CENTER</p>
-          <h2 className="match-detail__title">잔디동 골/어시스트 순위</h2>
+          <h2 className="match-detail__title">골/어시스트 순위</h2>
           <div className="segmented player-ranking__tabs">
             <button
               className={tab === "goals" ? "active" : ""}
               onClick={() => setTab("goals")}
             >
-              ⚽ 골
+              골 순
             </button>
             <button
               className={tab === "assists" ? "active" : ""}
               onClick={() => setTab("assists")}
             >
-              🅰️ 어시스트
+              어시스트 순
             </button>
           </div>
         </div>
       }
     >
-      {tab === "goals" ? (
-        <RankingList entries={goalRanking} playerById={playerById} statLabel="골" statKey="goals" />
-      ) : (
-        <RankingList
-          entries={assistRanking}
-          playerById={playerById}
-          statLabel="어시스트"
-          statKey="assists"
-        />
-      )}
+      <RankingList entries={entries} playerById={playerById} sortKey={tab} />
     </Modal>
   );
 }

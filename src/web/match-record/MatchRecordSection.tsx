@@ -187,7 +187,7 @@ export function MatchRecordSection({ streamers }: { streamers: StreamerRecord[] 
         <div>
           <p className="eyebrow">MATCH CENTER</p>
           <h2 id="match-record-title" className="jandy-videos__title">
-            잔디동 경기 기록
+            경기 기록
           </h2>
         </div>
         <div className="jandy-videos__actions">

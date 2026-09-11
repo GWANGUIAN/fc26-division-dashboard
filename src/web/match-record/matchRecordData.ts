@@ -293,10 +293,13 @@ export function computeMatchStats(playerId: string): { goals: number; assists: n
   return { goals, assists };
 }
 
-/** 잔디동 선수별 골/어시스트 집계를 골 랭킹 · 어시 랭킹으로 따로 정렬해 반환한다. */
+/**
+ * 골이나 어시스트가 하나라도 있는 잔디동 선수 전원(같은 목록)을 골 순/어시 순
+ * 두 가지로 정렬해 반환한다 — 탭은 정렬 기준만 바꾸고, 목록 자체는 동일하다.
+ */
 export function computeJandyPlayerRankings(): {
-  goalRanking: PlayerRankingEntry[];
-  assistRanking: PlayerRankingEntry[];
+  byGoals: PlayerRankingEntry[];
+  byAssists: PlayerRankingEntry[];
 } {
   const jandyIds = new Set(
     JANDY_LINEUP.slots
@@ -326,11 +329,7 @@ export function computeJandyPlayerRankings(): {
     ...entry,
   }));
   return {
-    goalRanking: entries
-      .filter((entry) => entry.goals > 0)
-      .sort((a, b) => b.goals - a.goals || b.assists - a.assists),
-    assistRanking: entries
-      .filter((entry) => entry.assists > 0)
-      .sort((a, b) => b.assists - a.assists || b.goals - a.goals),
+    byGoals: [...entries].sort((a, b) => b.goals - a.goals || b.assists - a.assists),
+    byAssists: [...entries].sort((a, b) => b.assists - a.assists || b.goals - a.goals),
   };
 }

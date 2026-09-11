@@ -66,7 +66,7 @@ export interface LineupPlayer {
   profileImageUrl?: string;
 }
 
-/** One row of the 잔디동 골/어시스트 순위 (goal/assist ranking) modal. */
+/** One row of the 골/어시스트 순위 (goal/assist ranking) modal. */
 export interface PlayerRankingEntry {
   playerId: string;
   goals: number;

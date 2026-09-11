@@ -258,7 +258,7 @@ export function JandyVideoSection() {
         <div>
           <p className="eyebrow">WATCH &amp; LEARN</p>
           <h2 id="jandy-videos-title" className="jandy-videos__title">
-            잔디동 참고 영상
+            참고 영상
             <span className="jandy-videos__chevron">
               {collapsed ? (
                 <ChevronDown aria-hidden="true" />
