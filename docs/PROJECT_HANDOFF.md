@@ -119,6 +119,7 @@ GitHub push (roster/results/overrides YAML) → Config Sync Lambda → DynamoDB 
 | `AnnouncementModal.tsx` | 공지 모달·상단 공지 위젯 |
 | `SfxControls.tsx` | 효과음 토글, 최초 진입 안내 팝업 |
 | `JandyVideoSection.tsx` | 참고 영상 캐러셀 |
+| `match-record/` | 참고 영상 바로 아래 "경기 기록" 섹션(경기 목록·상세 모달·골/어시 순위) — 아래 "경기 기록" 절 참고 |
 | `FavoriteCelebration.tsx` | 상단 축하 배너 |
 
 데이터·유틸:
@@ -196,6 +197,21 @@ GitHub push (roster/results/overrides YAML) → Config Sync Lambda → DynamoDB 
 - 전적(W/D/L) 배지는 `RecordBadge` 컴포넌트(`src/web/cardVisuals.tsx`)가 그린다. `streamer.record`가 있으면 파랑/회색/빨강으로 승/무/패를 표기하고, 없으면 두 경우로 나뉜다: `lastPost`가 아예 없으면(보고 없음) 회색 `-/-/-`, `lastPost`는 있는데 `record`가 없으면 `recordExtractionStatus(lastPost)`(`src/shared/record-extraction.ts`)를 봐서 `"pending"`이면 "집계중", 그 외(`"failed"`)는 마찬가지로 회색 `-/-/-`로 표시한다 — 추출 실패와 데이터 없음을 프런트에서 굳이 구분하지 않기로 한 의도적 선택이다.
 - 목록/카드 뷰 토글(`viewMode: "list" | "card"`, `src/web/useViewPreferences.ts`)과 카드 뷰 전용 정렬 토글(`sortMode: "division" | "winRate"`, 승률 없는 스트리머는 정렬 방향과 무관하게 항상 맨 뒤)이 검색창과 디비전 보드 사이, `controls-bar`(스티키 영역) 바깥의 `view-toolbar`(`src/web/ViewToolbar.tsx`)에 있다. `viewMode`와 카드 줌 단계는 새로고침 후에도 유지되도록 localStorage에 저장한다(`loadViewMode`/`saveViewMode`, `loadCardZoomLevel`/`saveCardZoomLevel`, `src/web/storage.ts`). `sortMode`만 새로고침 시 `"division"`으로 초기화되며 의도적으로 저장하지 않는다.
 - 카드형 보기(`StreamerFifaCard`, `src/web/StreamerCards.tsx`)는 디비전 구분 없이 정렬된 스트리머를 방패 모양 SVG(`FifaShield`, `src/web/cardVisuals.tsx`) 위에 얹는다. `FIFA_SHIELD_OUTER`/`FIFA_SHIELD_INNER`의 path 좌표(`viewBox 0 0 300 450`)는 사용자가 제공한 참고 SVG를 그대로 가져온 것이라 임의로 좌표를 손보면 방패 윤곽이 깨질 수 있다 — 바깥 테두리·안쪽 흰색 하이라이트 테두리는 고정이고, 배경 그라데이션(`mixHex()`로 디비전 색을 검정/흰색과 섞어 생성)만 디비전별로 바뀐다. 이름은 카드색 계열의 진한 색, 나머지 텍스트는 흰색이며 전부 8방향 `text-shadow`(`--text-outline` CSS 변수)로 검정 외곽선을 둘러 어떤 배경 색에서도 읽히게 했다.
+
+### 경기 기록 (프런트엔드, `src/web/match-record/`)
+
+- 잔디동이 실제로 치른 경기(예: 9/11 제초동전 3경기)를 리그 전적처럼 보여주는 섹션. **완전히 프런트엔드 하드코딩이며 DynamoDB·백엔드와 무관하다** — 새 경기가 생기면 코드 배포로만 반영되고, `pnpm dev`/`pnpm build`만 다시 돌리면 된다. 새 경기를 추가하려면 `matchRecordData.ts`의 `MATCH_RECORDS` 배열을 직접 편집한다.
+- 파일 구성:
+  - `types.ts` — `MatchDay`/`MatchGame`/`MatchGoalEvent`/`MatchLineup` 등 타입.
+  - `matchRecordData.ts` — 실제 경기 데이터(스코어·라인업·골 타임라인·영상 링크)와 상대팀 선수 목록(`JECHO_PLAYERS`). 상대팀 선수는 `roster.yaml`에는 있지만 `passedSecondRound`가 아니라서 `passedStreamers`(=잔디동 최종 로스터)에는 없는 1차 합격자들이라, 이 파일에 `soopId`를 직접 하드코딩해 아바타를 붙였다(`CUSTOM_TEST_SCHEDULE_STREAMERS`, `testScheduleData.ts`와 동일한 이유). 선수별 골/어시 집계 함수 `computeMatchStats`, `computeJandyPlayerRankings`도 여기 있다.
+  - `MatchRecordSection.tsx` — 랜딩 목록(날짜 하나당 한 줄, 5줄 넘으면 더보기), 총 전적, 날짜 범위 필터(`react-day-picker` + 한국어 로케일), 골/어시 순위 버튼.
+  - `MatchDetailModal.tsx` — 경기 하나의 상세 화면: 스코어보드, 라인업 피치, 골 타임라인, 우왁굳 피드백 영상(경기별 값이 있으면 그걸, 없으면 날짜 단위 값으로 폴백).
+  - `MatchLineupPitch.tsx` — 2차 테스트 일정의 좌표 계산(`testSchedulePitchLayout.ts`의 `computeTeamPitchLayout`)을 그대로 재사용한 **읽기 전용** 라인업 피치. 편집 가능한 원본(`TestSchedulePitch.tsx`)과는 별개 컴포넌트다.
+  - `MatchTimeline.tsx` — 골 이벤트 목록. 화면에 보이는 시간(`MatchGoalEvent.minuteLabel`, 예: "45+2")은 사람이 직접 입력하는 표시용 값이고, 영상 딥링크에 쓰이는 `seconds`(VOD 안에서의 실제 위치, `?change_second=` 파라미터로 연결)와는 완전히 별개다 — 실제 경기 시간과 VOD 타임스탬프가 다를 수 있어서 분리했다.
+  - `MatchRankingModal.tsx` — "골 순"/"어시스트 순" 두 정렬 기준으로 **같은 선수 목록**을 보여준다(표시되는 선수 집합은 동일하고 정렬만 바뀐다). `JANDY_LINEUP`에 속한 선수만 대상이며, 골 순 정렬은 동률이면 어시로, 어시 순 정렬은 동률이면 골로 2차 정렬한다.
+- `src/web/DetailModal.tsx`(스트리머 상세 모달)에도 연동돼 있다: `computeMatchStats(streamer.id)`로 계산한 골/어시 합계를 우왁굳의 메모장(`WakgoodNotePanel`) 바로 위에 보여준다(기록이 하나도 없으면 표시하지 않는다).
+- 목록 뷰(`viewMode: "list"`, `StreamerCard`)에서는 우왁굳 메모장 호버 툴팁을 뺐다 — 표/카드 뷰는 그대로 유지된다.
+- 새 의존성: `react-day-picker`(날짜 범위 팝업 캘린더, `package.json`).
 
 ### 수집 안전 원칙
 
