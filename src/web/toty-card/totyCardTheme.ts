@@ -5,7 +5,7 @@
 // (--text-outline in toty-card.css) so they stay legible over any part of
 // the busy card art.
 const TOTY_CARD_TEXT_THEME: Record<string, { color: string; glow: string }> = {
-  hachi97: { color: "#ffdd7a", glow: "#fff6d2" }, // gold + sapphire crystal
+  hachi97: { color: "#ffe29e", glow: "#d9b3ff" }, // gold dragon + amethyst dragon-fire (special remake)
   tdnlamuron: { color: "#ffb454", glow: "#ffe3ad" }, // apricot-orange lava/ember
   ju010228: { color: "#d9f27a", glow: "#f3ffe0" }, // lime-green spring vine
   doormomo: { color: "#c9a6ff", glow: "#f0e6ff" }, // violet rune/arcane energy
