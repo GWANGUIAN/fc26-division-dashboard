@@ -1,7 +1,11 @@
-/* "Pack opening" reveal sequence (TotyCardReveal) — plays once when the
-   popup mounts, then unmounts in favor of a plain .toty-card (see
-   toty-card.css). Durations here (0.6s tunnel ring, 0.7s flip) must match
-   TUNNEL_MS/FLIP_MS in TotyCardReveal.tsx. */
+/* "Pack opening" reveal sequence (TotyCardReveal) — plays once the viewer
+   clicks the face-down card. TotyCardVisual (the real .toty-card, see
+   toty-card.css) stays mounted at the same place in the tree for this
+   component's whole lifetime, even once revealed — only the wrapper
+   chrome around it (tunnel/back-face/burst) stops rendering — so its own
+   idle-drift/idle-float animations never restart and jump. Durations here
+   (0.6s tunnel ring, 0.7s flip) must match TUNNEL_MS/FLIP_MS in
+   TotyCardReveal.tsx. */
 
 .toty-reveal {
   position: relative;
@@ -72,7 +76,7 @@
 .toty-reveal-flip--active {
   transition: transform .05s linear;
 }
-.toty-reveal-flip--flipping {
+.toty-reveal-flip--flip-anim {
   /* Blocks TotyCardVisual's own mousemove tilt handlers from firing mid-flip. */
   pointer-events: none;
 }
@@ -81,8 +85,20 @@
   inset: 0;
   transform-style: preserve-3d;
 }
-.toty-reveal-flip--flipping .toty-reveal-flip__inner {
+.toty-reveal-flip--flip-anim .toty-reveal-flip__inner {
   animation: toty-flip-inner .7s cubic-bezier(.34, 1.56, .64, 1) both;
+}
+/* Holds the animation's own end frame (rotateY(180deg)) once
+   --flip-anim is gone — TotyCardVisual (inside .toty-reveal-flip__front)
+   stays mounted for this component's entire lifetime (see
+   TotyCardReveal.tsx) specifically so its idle-drift/idle-float animations
+   never restart; this class is what keeps the flip's result in place
+   afterward without a static rule ever fighting the live animation (a
+   CSS animation always wins over a plain rule on the same property while
+   it's running, so the two classes never conflict while both are applied
+   during the "flip" phase). */
+.toty-reveal-flip--flipped .toty-reveal-flip__inner {
+  transform: rotateY(180deg);
 }
 @keyframes toty-flip-inner {
   0% { transform: rotateY(0deg) scale(1); }

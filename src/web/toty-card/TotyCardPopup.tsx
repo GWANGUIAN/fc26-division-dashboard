@@ -131,8 +131,8 @@ export function TotyCardPopup({
             flex column grows once these appear post-reveal, and centering
             that taller column shifts the card upward out of its original spot. */}
         <p className="toty-card-popup__hint" style={{ visibility: revealed ? "visible" : "hidden" }}>
-          <MousePointer2 aria-hidden="true" />
-          카드에 마우스를 올려 움직여 보세요
+          
+          카드에 마우스 커서<MousePointer2 aria-hidden="true" />를 올려 움직여 보세요
         </p>
 
         <div

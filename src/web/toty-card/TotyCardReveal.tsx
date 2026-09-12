@@ -93,10 +93,12 @@ function BurstEffect({ color, glow }: { color: string; glow: string }) {
  * face-down with a "클릭해서 카드 공개" prompt until the viewer clicks it,
  * then a light tunnel rushes past, the mystery card back flips over to the
  * real card, and a light-beam/spark burst fires at the moment of impact.
- * Once the sequence finishes it unmounts entirely, leaving a plain
- * TotyCardVisual behind — identical to what rendered here before this
- * component existed, so the existing hover-tilt/export/GIF paths are
- * untouched.
+ * TotyCardVisual itself stays mounted at the same spot in the tree for this
+ * component's whole life (even once fully revealed) — only the chrome
+ * around it (tunnel/back-face/burst) stops rendering. Swapping to a freshly
+ * mounted plain TotyCardVisual once revealed used to reset its idle-drift/
+ * idle-float CSS animations back to frame 0, which read as a visible
+ * stutter/jump right as the card finished revealing.
  */
 export function TotyCardReveal({
   streamer,
@@ -192,16 +194,12 @@ export function TotyCardReveal({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- fireImpact is stable enough for this one-shot sequence
   }, [phase]);
 
-  if (phase === "done") {
-    return <TotyCardVisual streamer={streamer} assets={assets} onCardClick={onCardClick} />;
-  }
-
   return (
     <div className="toty-reveal">
       {phase === "tunnel" && <TunnelOverlay color={theme.color} glow={theme.glow} />}
       <div
         ref={backCardRef}
-        className={`toty-reveal-flip toty-card-wrap ${phase === "flip" ? "toty-reveal-flip--flipping" : ""} ${phase === "waiting" && backTilt.active ? "toty-reveal-flip--active" : ""}`}
+        className={`toty-reveal-flip toty-card-wrap ${phase === "flip" ? "toty-reveal-flip--flip-anim" : ""} ${phase === "flip" || phase === "done" ? "toty-reveal-flip--flipped" : ""} ${phase === "waiting" && backTilt.active ? "toty-reveal-flip--active" : ""}`}
         onMouseMove={phase === "waiting" ? handleBackMouseMove : undefined}
         onMouseLeave={phase === "waiting" ? handleBackMouseLeave : undefined}
         style={
