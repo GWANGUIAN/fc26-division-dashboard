@@ -25,7 +25,7 @@ import {
 } from "./cardVisuals";
 import { DivisionSigil } from "./divisionSigils";
 import { TotyCardButton } from "./toty-card/TotyCardButton";
-import { hasTotyCard } from "./toty-card/totyCardAssets";
+import { getTotyCardAssets, preloadTotyCardAssets } from "./toty-card/totyCardAssets";
 
 export function StreamerCard({
   streamer,
@@ -49,6 +49,7 @@ export function StreamerCard({
   const fancyColor = lite ? mixHex("#00e9ae", "white", 0.65) : "#00e9ae";
   const savior = isStreamerSavior(streamer);
   const rate = streamer.record ? winRatePercent(streamer.record) : undefined;
+  const totyAssets = getTotyCardAssets(streamer.id);
   return (
     // Not a <button> — a 3D-card icon button needs to nest inside this, and
     // <button> can't validly contain another <button> (see StreamerFifaCard
@@ -96,11 +97,12 @@ export function StreamerCard({
         {streamer.sfx && (
           <Volume2 className="streamer-card__sfx-badge" aria-hidden="true" />
         )}
-        {onOpenTotyCard && hasTotyCard(streamer.id) && (
+        {onOpenTotyCard && totyAssets && (
           <TotyCardButton
             className="streamer-card__toty-btn"
             displayName={streamer.displayName}
             onOpen={() => onOpenTotyCard(streamer)}
+            onPrefetch={() => preloadTotyCardAssets(totyAssets)}
           />
         )}
       </span>
@@ -172,6 +174,7 @@ export function StreamerFifaCard({
     ? formatBoardPostDate(streamer.lastPost.publishedAt)
     : "첫 보고 대기";
   const photoSrc = streamer.profileImageUrl ?? defaultSoopProfileUrl(streamer.soopId);
+  const totyAssets = getTotyCardAssets(streamer.id);
   const cardRef = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({
     rx: 0,
@@ -282,11 +285,12 @@ export function StreamerFifaCard({
           </span>
         </span>
         <span className="fifa-card__photo">
-          {onOpenTotyCard && hasTotyCard(streamer.id) && (
+          {onOpenTotyCard && totyAssets && (
             <TotyCardButton
               className="fifa-card__toty-btn"
               displayName={streamer.displayName}
               onOpen={() => onOpenTotyCard(streamer)}
+              onPrefetch={() => preloadTotyCardAssets(totyAssets)}
             />
           )}
           <span

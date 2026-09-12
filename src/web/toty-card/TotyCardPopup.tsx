@@ -163,6 +163,7 @@ export function TotyCardPopup({
                 className="toty-card__bg"
                 src={assets.background}
                 alt=""
+                fetchPriority="high"
                 style={{ transform: `translate(${tilt.bgX}px, ${tilt.bgY}px) scale(1.06)` }}
               />
             </div>
@@ -171,6 +172,7 @@ export function TotyCardPopup({
                 className="toty-card__char"
                 src={assets.character}
                 alt=""
+                fetchPriority="high"
                 style={{ transform: `translate(${tilt.charX}px, ${tilt.charY}px)` }}
               />
             </div>

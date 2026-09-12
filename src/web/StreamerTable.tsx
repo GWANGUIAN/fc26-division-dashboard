@@ -16,7 +16,7 @@ import {
 } from "./cardVisuals";
 import { isUpdatedToday, seenKeyFor } from "./storage";
 import { TotyCardButton } from "./toty-card/TotyCardButton";
-import { hasTotyCard } from "./toty-card/totyCardAssets";
+import { getTotyCardAssets, preloadTotyCardAssets } from "./toty-card/totyCardAssets";
 
 type SortKey = "division" | "name" | "games" | "winRate" | "lastPromotion";
 type Sort = { key: SortKey; dir: "asc" | "desc" };
@@ -59,6 +59,7 @@ function StreamerTableRow({
 }) {
   const games = totalGamesOf(streamer);
   const winRate = winRateOf(streamer);
+  const totyAssets = getTotyCardAssets(streamer.id);
   return (
     <tr
       className="streamer-table__row"
@@ -93,11 +94,12 @@ function StreamerTableRow({
               aria-hidden="true"
             />
           )}
-          {onOpenTotyCard && hasTotyCard(streamer.id) && (
+          {onOpenTotyCard && totyAssets && (
             <TotyCardButton
               className="streamer-table__toty-btn"
               displayName={streamer.displayName}
               onOpen={() => onOpenTotyCard(streamer)}
+              onPrefetch={() => preloadTotyCardAssets(totyAssets)}
             />
           )}
         </span>

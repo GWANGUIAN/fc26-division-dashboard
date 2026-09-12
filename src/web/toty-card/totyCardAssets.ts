@@ -42,6 +42,22 @@ export function getTotyCardAssets(streamerId: string): TotyCardAssets | undefine
   return ASSETS[streamerId];
 }
 
+// Card art is a few hundred KB to ~1MB per file — fine once cached, but
+// fetching all three cold on click is what made the popup feel slow to open.
+// Callers kick this off early (button hover/focus, detail modal mount) so
+// the browser has a head start; the Set just avoids spawning redundant
+// Image() objects on repeat hovers, the HTTP cache handles the rest.
+const preloadedUrls = new Set<string>();
+
+export function preloadTotyCardAssets(assets: TotyCardAssets): void {
+  for (const url of [assets.frame, assets.background, assets.character]) {
+    if (preloadedUrls.has(url)) continue;
+    preloadedUrls.add(url);
+    const img = new Image();
+    img.src = url;
+  }
+}
+
 // Shared full-screen popup backdrop (same image behind every player's card —
 // see docs/toty-card-prompts.md). Optional: until it's dropped in as
 // popup-backdrop.webp, TotyCardPopup falls back to a plain CSS gradient.

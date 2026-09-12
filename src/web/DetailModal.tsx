@@ -32,7 +32,7 @@ import {
 import { WakgoodNotePanel } from "./WakgoodNoteTooltip";
 import { computeMatchStats } from "./match-record/matchRecordData";
 import { TotyCardButton } from "./toty-card/TotyCardButton";
-import { hasTotyCard } from "./toty-card/totyCardAssets";
+import { getTotyCardAssets, preloadTotyCardAssets } from "./toty-card/totyCardAssets";
 
 export function DetailModal({
   streamer,
@@ -94,6 +94,13 @@ export function DetailModal({
     const art = streamer.soopId ? STREAMER_ASCII_ART[streamer.soopId] : undefined;
     if (art) console.log(`${streamer.displayName} (@${streamer.soopId})\n${art}`);
   }, [streamer.soopId, streamer.displayName]);
+  const totyAssets = getTotyCardAssets(streamer.id);
+  // Opening this modal is already a strong "interested in this streamer"
+  // signal, so warm the 3D card art now instead of waiting for a hover on
+  // the button below — by the time it's clicked, it's likely cached already.
+  useEffect(() => {
+    if (totyAssets) preloadTotyCardAssets(totyAssets);
+  }, [totyAssets]);
   const fancyTier = fancyTierOf(streamer);
   const fancyLite = fancyTier === "lite";
   const fancyModalColor = fancyLite
@@ -172,11 +179,12 @@ export function DetailModal({
                   <Volume2 aria-hidden="true" />
                 </button>
               )}
-              {onOpenTotyCard && hasTotyCard(streamer.id) && (
+              {onOpenTotyCard && totyAssets && (
                 <TotyCardButton
                   className="modal__toty-btn"
                   displayName={streamer.displayName}
                   onOpen={onOpenTotyCard}
+                  onPrefetch={() => preloadTotyCardAssets(totyAssets)}
                   showLabel
                 />
               )}
