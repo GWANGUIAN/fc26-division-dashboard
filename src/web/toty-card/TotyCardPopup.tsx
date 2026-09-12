@@ -126,14 +126,19 @@ export function TotyCardPopup({
           onRevealed={() => setRevealed(true)}
         />
 
-        {revealed && (
-          <p className="toty-card-popup__hint">
-            <MousePointer2 aria-hidden="true" />
-            카드에 마우스를 올려 움직여 보세요
-          </p>
-        )}
+        {/* Always mounted (rather than conditionally rendered) so this
+            reserves its layout space from the start — otherwise the stage's
+            flex column grows once these appear post-reveal, and centering
+            that taller column shifts the card upward out of its original spot. */}
+        <p className="toty-card-popup__hint" style={{ visibility: revealed ? "visible" : "hidden" }}>
+          <MousePointer2 aria-hidden="true" />
+          카드에 마우스를 올려 움직여 보세요
+        </p>
 
-        <div className="toty-card-popup__actions">
+        <div
+          className="toty-card-popup__actions"
+          style={{ visibility: revealed ? "visible" : "hidden" }}
+        >
           <button
             type="button"
             className="toty-card-popup__download"

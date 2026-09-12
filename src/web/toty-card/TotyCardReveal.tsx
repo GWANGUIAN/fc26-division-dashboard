@@ -131,6 +131,37 @@ export function TotyCardReveal({
     );
   };
 
+  // Same mouse-tilt-plus-glare treatment as TotyCardVisual's own hover
+  // handler, applied to the face-down card back while it's waiting to be
+  // clicked (see toty-card-reveal.css's --pointer-x/y-driven glare/foil).
+  const backCardRef = useRef<HTMLDivElement>(null);
+  const backRafRef = useRef(0);
+  const [backTilt, setBackTilt] = useState({ rx: 0, ry: 0, px: 50, py: 50, active: false });
+
+  useEffect(() => () => cancelAnimationFrame(backRafRef.current), []);
+
+  const handleBackMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    const rect = backCardRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = (event.clientX - rect.left) / rect.width;
+    const y = (event.clientY - rect.top) / rect.height;
+    cancelAnimationFrame(backRafRef.current);
+    backRafRef.current = requestAnimationFrame(() => {
+      setBackTilt({
+        rx: (0.5 - y) * 22,
+        ry: (x - 0.5) * 26,
+        px: x * 100,
+        py: y * 100,
+        active: true,
+      });
+    });
+  };
+
+  const handleBackMouseLeave = () => {
+    cancelAnimationFrame(backRafRef.current);
+    setBackTilt((current) => ({ ...current, active: false }));
+  };
+
   useEffect(() => {
     if (phase === "done") {
       // Reached either by finishing the flip, or immediately when a click
@@ -169,7 +200,23 @@ export function TotyCardReveal({
     <div className="toty-reveal">
       {phase === "tunnel" && <TunnelOverlay color={theme.color} glow={theme.glow} />}
       <div
-        className={`toty-reveal-flip toty-card-wrap ${phase === "flip" ? "toty-reveal-flip--flipping" : ""}`}
+        ref={backCardRef}
+        className={`toty-reveal-flip toty-card-wrap ${phase === "flip" ? "toty-reveal-flip--flipping" : ""} ${phase === "waiting" && backTilt.active ? "toty-reveal-flip--active" : ""}`}
+        onMouseMove={phase === "waiting" ? handleBackMouseMove : undefined}
+        onMouseLeave={phase === "waiting" ? handleBackMouseLeave : undefined}
+        style={
+          phase === "waiting"
+            ? ({
+                "--pointer-x": `${backTilt.px}%`,
+                "--pointer-y": `${backTilt.py}%`,
+                ...(backTilt.active
+                  ? {
+                      transform: `perspective(900px) translateY(-6px) scale(1.04) rotateX(${backTilt.rx}deg) rotateY(${backTilt.ry}deg)`,
+                    }
+                  : {}),
+              } as React.CSSProperties)
+            : undefined
+        }
       >
         <div className="toty-reveal-flip__inner">
           <div className="toty-reveal-flip__back">
@@ -177,6 +224,32 @@ export function TotyCardReveal({
               <img src={cardBackUrl} alt="" />
             ) : (
               <div className="toty-reveal-flip__back-fallback">?</div>
+            )}
+            {phase === "waiting" && (
+              <>
+                {/* Masked to the art's own alpha shape (below) — otherwise
+                    the shine paints across the whole transparent canvas
+                    rectangle the card art sits on, not just the visible
+                    shield, and shows up as a stray glowing box. */}
+                <span
+                  className="toty-reveal-flip__glare"
+                  aria-hidden="true"
+                  style={
+                    cardBackUrl
+                      ? ({ "--toty-back-mask": `url("${cardBackUrl}")` } as React.CSSProperties)
+                      : undefined
+                  }
+                />
+                <span
+                  className="toty-reveal-flip__foil"
+                  aria-hidden="true"
+                  style={
+                    cardBackUrl
+                      ? ({ "--toty-back-mask": `url("${cardBackUrl}")` } as React.CSSProperties)
+                      : undefined
+                  }
+                />
+              </>
             )}
             {phase === "waiting" && (
               <button

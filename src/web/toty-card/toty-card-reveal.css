@@ -64,6 +64,13 @@
   /* Lets .toty-reveal-flip__reveal-btn's cqw font-size scale with the card
      itself, same trick .toty-card uses for its own text. */
   container-type: inline-size;
+  /* Hover-tilt transform (applied inline, waiting phase only — see
+     TotyCardReveal.tsx's backTilt state) eases in/out exactly like
+     .toty-card's own tilt in toty-card.css. */
+  transition: transform .5s cubic-bezier(.22, 1, .36, 1);
+}
+.toty-reveal-flip--active {
+  transition: transform .05s linear;
 }
 .toty-reveal-flip--flipping {
   /* Blocks TotyCardVisual's own mousemove tilt handlers from firing mid-flip. */
@@ -113,6 +120,43 @@
   font-weight: 800;
   font-size: 96px;
 }
+
+/* Same glare/foil recipe as .toty-card__glare/__foil in toty-card.css,
+   driven by the same --pointer-x/y set inline on .toty-reveal-flip while
+   waiting — makes the mystery back shimmer under the cursor exactly like
+   the revealed front card does. Masked to the card-back art's own alpha
+   shape (--toty-back-mask, set inline per streamer in TotyCardReveal.tsx):
+   the art's canvas is a plain transparent rectangle around the actual
+   shield shape, so without this mask the shine paints across that whole
+   rectangle — visible as a stray glowing box — instead of just the card. */
+.toty-reveal-flip__glare,
+.toty-reveal-flip__foil {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s;
+  -webkit-mask-image: var(--toty-back-mask, none);
+  mask-image: var(--toty-back-mask, none);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+.toty-reveal-flip__glare {
+  background: radial-gradient(circle at var(--pointer-x, 50%) var(--pointer-y, 50%), rgba(255, 255, 255, .85), transparent 55%);
+  mix-blend-mode: overlay;
+}
+.toty-reveal-flip__foil {
+  background: repeating-linear-gradient(115deg, #ff5ec4 0%, #ffde59 12%, #6affc2 24%, #5ec8ff 36%, #b980ff 48%, #ff5ec4 60%);
+  background-size: 250% 250%;
+  background-position: var(--pointer-x, 50%) var(--pointer-y, 50%);
+  mix-blend-mode: color-dodge;
+}
+.toty-reveal-flip--active .toty-reveal-flip__glare { opacity: .7; }
+.toty-reveal-flip--active .toty-reveal-flip__foil { opacity: .35; }
 
 /* "클릭해서 카드 공개" prompt overlaid on the card back — same GiantsInline
    family + black-outline treatment as .toty-card__name, tinted with this
