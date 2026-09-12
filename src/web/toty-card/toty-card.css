@@ -39,6 +39,26 @@ body.toty-capture-mode::after {
   background-position: center;
 }
 
+/* Per-player ambient light/particle overlay for the popup backdrop (see
+   totyCardAssets.ts's getPopupBackdropGlowUrl) — sits below the scrim so
+   it's darkened/muted consistently with the rest of the backdrop, and
+   drifts on its own via CSS independent of the mouse, same idea as the
+   card's own .toty-card__idle-glow. */
+.toty-card-popup__backdrop-glow {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: toty-popup-glow-drift 10s ease-in-out infinite;
+}
+@keyframes toty-popup-glow-drift {
+  0%, 100% { transform: scale(1.05) translate(0, 0); opacity: .85; }
+  50% { transform: scale(1.12) translate(-1%, 1%); opacity: 1; }
+}
+
 /* Sits between the backdrop image and everything else — a real backdrop
    photo can have a bright patch anywhere (sky, glow, particles), which was
    swallowing the close button and hint text. This darkens the edges

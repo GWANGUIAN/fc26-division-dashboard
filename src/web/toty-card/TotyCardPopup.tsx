@@ -8,6 +8,7 @@ import { exportTotyCardPng } from "./exportTotyCardImage.js";
 import {
   getBackgroundGlowUrl,
   getCardBackUrl,
+  getPopupBackdropGlowUrl,
   getPopupBackdropUrl,
   getTotyCardPreviewUrl,
   type TotyCardAssets,
@@ -94,7 +95,8 @@ export function TotyCardPopup({
     }
   };
 
-  const backdropUrl = getPopupBackdropUrl();
+  const backdropUrl = getPopupBackdropUrl(streamer.id);
+  const backdropGlowUrl = getPopupBackdropGlowUrl(streamer.id);
   // Pre-rendered offline (scripts/generate-toty-preview.mjs) rather than
   // encoded live in the browser — see the script's header comment for why.
   const previewUrl = getTotyCardPreviewUrl(streamer.id);
@@ -107,6 +109,13 @@ export function TotyCardPopup({
       aria-label={`${streamer.displayName} 3D 카드`}
       style={backdropUrl ? { backgroundImage: `url(${backdropUrl})` } : undefined}
     >
+      {backdropGlowUrl && (
+        <div
+          className="toty-card-popup__backdrop-glow"
+          aria-hidden="true"
+          style={{ backgroundImage: `url(${backdropGlowUrl})` }}
+        />
+      )}
       <div className="toty-card-popup__scrim" aria-hidden="true" />
       <button
         type="button"

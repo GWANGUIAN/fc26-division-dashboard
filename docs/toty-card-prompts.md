@@ -25,9 +25,9 @@
    ```
    를 실행하면 실제 카드를 헤드리스 브라우저로 열어 가상 마우스 경로로 훑으면서 프레임을 캡처하고, 투명 배경 애니메이션 WebP로 합쳐서 `src/web/assets/toty-cards/<id>-preview.webp`에 저장함(브라우저에서 실시간으로 만드는 게 아니라 미리 만들어두는 방식). Playwright 크로미움이 없으면 최초 1회 `npx playwright install chromium` 필요.
 
-## 공용 팝업 배경 이미지 (완료 — 1장, 전 선수 공통)
+## 공용 팝업 배경 이미지 (완료 — 1장, 폴백용)
 
-3D 카드 팝업을 열었을 때 카드 뒤에 깔리는 전체화면 배경. `src/web/assets/toty-cards/popup-backdrop.webp`로 이미 추가됨.
+3D 카드 팝업을 열었을 때 카드 뒤에 깔리는 전체화면 배경. `src/web/assets/toty-cards/popup-backdrop.webp`로 이미 추가됨. **아래 "스트리머별 팝업 배경" 섹션에서 그 선수 전용 배경(`<id>-popup-backdrop.webp`)이 없을 때만 쓰이는 폴백**임 — `getPopupBackdropUrl(streamerId)`가 전용 배경을 먼저 찾고, 없으면 이 공용 이미지로 떨어짐.
 
 - **캔버스**: 2560×1440px, PNG 또는 JPG (투명 불필요, 이후 webp로 변환)
 - **프롬프트**:
@@ -41,6 +41,16 @@
   green, sky blue) will stand out clearly. No text, no logos, no people, no
   readable shapes. Ultra-wide, minimal, elegant, 4K, 2560x1440.
   ```
+
+## 스트리머별 팝업 배경 (선수별로 각각 생성 — 미구현)
+
+공용 팝업 배경 대신, 그 선수 카드의 모티프에 맞춘 전용 팝업 배경. 카드 자체(배경 반짝임 오버레이)와 같은 이유로 **정적인 배경 이미지 한 장이 아니라 "빛 효과 없는 배경" + "빛 효과만 있는 투명 오버레이"를 따로 만들어서 CSS로 합성** — 오버레이는 마우스와 무관하게 항상 느리게 드리프트/펄스해서 팝업을 열자마자 그 선수만의 분위기가 살아있게 움직임. 아래 선수별 세트 섹션마다 **팝업 배경**/**팝업 배경 빛 효과** 프롬프트가 같이 있음.
+
+- **캔버스**: 2560×1440px, PNG 또는 JPG (투명 불필요, 이후 webp로 변환) — 단, 빛 효과 레이어는 알파 채널 있는 투명 PNG
+- **레퍼런스**: 불필요 (카드 프레임/캐릭터와 다른 넓은 환경 샷이라 참고 이미지 없이 프롬프트만으로 생성)
+- **파일명**: `<id>-popup-backdrop.webp` (배경), `<id>-popup-backdrop-glow.webp` (빛 효과, 둘 다 `totyCardAssets.ts`가 자동 스캔 — 둘 다 없으면 공용 배경으로 폴백, 배경만 있고 빛 효과가 없어도 정상 동작)
+- **적용 방식**: `TotyCardPopup.tsx`에서 배경은 팝업의 `background-image`로, 빛 효과는 그 위·스크림(어둡게 깔리는 비네트) 아래에 별도 레이어로 얹혀서 어두운 톤은 유지한 채로 반짝임만 살아있게 함.
+- **주의**: 카드가 배경 위에 얹히므로(카드 뒤 전체화면), 배경/빛 효과 모두 카드가 잘 보이도록 **저채도·저대비의 무드있는 톤**을 유지하고 화면 중앙에 지나치게 밝은 요소를 두지 말 것 (공용 배경 프롬프트의 "neutral enough that any brightly colored object... will stand out clearly" 원칙 그대로 적용).
 
 ## 카드 뒷면 (선수별로 각각 생성 — 미구현)
 
@@ -151,6 +161,30 @@ bloom, 4K. Entire canvas outside the glowing particles themselves must
 stay fully transparent (alpha 0), transparent PNG.
 ```
 
+**팝업 배경**:
+```
+A premium dark studio showcase backdrop for a trading-card reveal screen,
+themed around volcanic rock. A vast dim volcanic cavern with distant
+glowing amber-orange lava veins faintly visible in the rock walls, drifting
+heat haze. Low contrast, desaturated, moody and cinematic — no glow
+effects, no sparks, no particles (those are added separately), just the
+base environment/material. No text, no logos, no people, no readable
+shapes, no bright highlights. Ultra-wide, minimal, elegant, 4K, 2560x1440.
+```
+
+**팝업 배경 빛 효과**:
+```
+Abstract loose particle/light-effect overlay ONLY, ultra-wide, 2560x1440.
+Floating embers and sparks drifting slowly upward, soft warm amber-orange
+heat-haze glow — sparse and soft, concentrated toward the edges and
+corners, keep the vertical center column (a card sits there) mostly clear.
+No solid material, no border/frame, no characters, no text — this is a
+light layer meant to be composited on top of a popup backdrop behind a
+trading card, not a full scene. High detail, soft glow bloom, 4K. Entire
+canvas outside the glowing particles themselves must stay fully
+transparent (alpha 0), transparent PNG.
+```
+
 ---
 
 ### 2. 쥬멩이 — `ju010228` — 연두색 · 봄 넝쿨/새싹 (ST)
@@ -217,6 +251,30 @@ characters, no text — this is a light layer meant to be composited on top
 of the existing card background, not a full scene. High detail, soft glow
 bloom, 4K. Entire canvas outside the glowing particles themselves must
 stay fully transparent (alpha 0), transparent PNG.
+```
+
+**팝업 배경**:
+```
+A premium dark studio showcase backdrop for a trading-card reveal screen,
+themed around a spring forest. A soft misty spring forest clearing at
+dusk, distant moss-covered stone silhouettes fading into darkness. Low
+contrast, desaturated, moody and cinematic — no glow effects, no dew
+sparkle, no particles (those are added separately), just the base
+environment/material. No text, no logos, no people, no readable shapes,
+no bright highlights. Ultra-wide, minimal, elegant, 4K, 2560x1440.
+```
+
+**팝업 배경 빛 효과**:
+```
+Abstract loose particle/light-effect overlay ONLY, ultra-wide, 2560x1440.
+Tiny drifting motes of soft lime-green light and sparkling dew-drop
+glints — sparse and soft, concentrated toward the edges and corners, keep
+the vertical center column (a card sits there) mostly clear. No solid
+material, no border/frame, no characters, no text — this is a light layer
+meant to be composited on top of a popup backdrop behind a trading card,
+not a full scene. High detail, soft glow bloom, 4K. Entire canvas outside
+the glowing particles themselves must stay fully transparent (alpha 0),
+transparent PNG.
 ```
 
 ---
@@ -292,6 +350,31 @@ canvas outside the sparse glowing particles themselves must stay fully
 transparent (alpha 0), transparent PNG.
 ```
 
+**팝업 배경**:
+```
+A premium dark studio showcase backdrop for a trading-card reveal screen,
+themed around ancient stonework. A vast dim ancient stone chamber lined
+with faint carved rune pillars fading into darkness. Low contrast,
+desaturated, moody and cinematic — no glow effects, no magic-circle light,
+no particles (those are added separately), just the base
+environment/material. No text, no logos, no people, no readable shapes,
+no bright highlights. Ultra-wide, minimal, elegant, 4K, 2560x1440.
+```
+
+**팝업 배경 빛 효과**:
+```
+Abstract loose particle/light-effect overlay ONLY, ultra-wide, 2560x1440.
+Small, sparse, scattered wisps of glowing violet arcane energy and tiny
+rune-light specks — NOT one large centered magic-circle diagram. Sparse
+and soft, concentrated toward the edges and corners, keep the vertical
+center column (a card sits there) mostly clear. No solid material, no
+border/frame, no characters, no text — this is a light layer meant to be
+composited on top of a popup backdrop behind a trading card, not a full
+scene. High detail, soft glow bloom, 4K. Entire canvas outside the glowing
+particles themselves must stay fully transparent (alpha 0), transparent
+PNG.
+```
+
 ---
 
 ### 4. 뽀린걸 — `bboringirl` — 회색 + 빨강 · 기계 장갑판/회로 (CM)
@@ -358,6 +441,30 @@ stone texture, no border/frame, no characters, no text — this is a light
 layer meant to be composited on top of the existing card background, not a
 full scene. High detail, soft glow bloom, 4K. Entire canvas outside the
 glowing particles themselves must stay fully transparent (alpha 0),
+transparent PNG.
+```
+
+**팝업 배경**:
+```
+A premium dark studio showcase backdrop for a trading-card reveal screen,
+themed around industrial machinery. A dim industrial hangar with distant
+rows of gunmetal paneling and cabling fading into darkness. Low contrast,
+desaturated, moody and cinematic — no glow effects, no circuit sparks, no
+particles (those are added separately), just the base environment/material.
+No text, no logos, no people, no readable shapes, no bright highlights.
+Ultra-wide, minimal, elegant, 4K, 2560x1440.
+```
+
+**팝업 배경 빛 효과**:
+```
+Abstract loose particle/light-effect overlay ONLY, ultra-wide, 2560x1440.
+Small pulsing red circuit-light sparks and drifting glowing data-node
+particles — sparse and soft, concentrated toward the edges and corners,
+keep the vertical center column (a card sits there) mostly clear. No solid
+material, no border/frame, no characters, no text — this is a light layer
+meant to be composited on top of a popup backdrop behind a trading card,
+not a full scene. High detail, soft glow bloom, 4K. Entire canvas outside
+the glowing particles themselves must stay fully transparent (alpha 0),
 transparent PNG.
 ```
 
@@ -430,6 +537,30 @@ Entire canvas outside the glowing particles themselves must stay fully
 transparent (alpha 0), transparent PNG.
 ```
 
+**팝업 배경**:
+```
+A premium dark studio showcase backdrop for a trading-card reveal screen,
+themed around a starlit night. A vast dark starlit night sky with faint
+distant silhouettes of jagged glass-like peaks. Low contrast, desaturated,
+moody and cinematic — no glow effects, no starlight sparkle, no particles
+(those are added separately), just the base environment/material. No text,
+no logos, no people, no readable shapes, no bright highlights. Ultra-wide,
+minimal, elegant, 4K, 2560x1440.
+```
+
+**팝업 배경 빛 효과**:
+```
+Abstract loose particle/light-effect overlay ONLY, ultra-wide, 2560x1440.
+Tiny drifting sapphire-blue starlight motes and soft glass-shard glints —
+sparse and soft, concentrated toward the edges and corners, keep the
+vertical center column (a card sits there) mostly clear. No solid
+material, no border/frame, no characters, no text — this is a light layer
+meant to be composited on top of a popup backdrop behind a trading card,
+not a full scene. High detail, soft glow bloom, 4K. Entire canvas outside
+the glowing particles themselves must stay fully transparent (alpha 0),
+transparent PNG.
+```
+
 ---
 
 ### 6. 핑구 — `sjh4018` — 하늘색 + 연보라 · 구름/깃털 (CB)
@@ -495,6 +626,30 @@ meant to be composited on top of the existing card background, not a full
 scene. High detail, soft glow bloom, 4K. Entire canvas outside the glowing
 particles themselves must stay fully transparent (alpha 0), transparent
 PNG.
+```
+
+**팝업 배경**:
+```
+A premium dark studio showcase backdrop for a trading-card reveal screen,
+themed around a dusk sky. A soft dusk sky above distant layered clouds
+fading into darkness. Low contrast, desaturated, moody and cinematic — no
+glow effects, no feather sparkle, no particles (those are added
+separately), just the base environment/material. No text, no logos, no
+people, no readable shapes, no bright highlights. Ultra-wide, minimal,
+elegant, 4K, 2560x1440.
+```
+
+**팝업 배경 빛 효과**:
+```
+Abstract loose particle/light-effect overlay ONLY, ultra-wide, 2560x1440.
+Softly drifting pale lavender light motes and a faint glowing cloud-wisp
+haze — sparse and soft, concentrated toward the edges and corners, keep
+the vertical center column (a card sits there) mostly clear. No solid
+material, no border/frame, no characters, no text — this is a light layer
+meant to be composited on top of a popup backdrop behind a trading card,
+not a full scene. High detail, soft glow bloom, 4K. Entire canvas outside
+the glowing particles themselves must stay fully transparent (alpha 0),
+transparent PNG.
 ```
 
 ---
@@ -571,6 +726,30 @@ bloom, 4K. Entire canvas outside the glowing particles themselves must
 stay fully transparent (alpha 0), transparent PNG.
 ```
 
+**팝업 배경**:
+```
+A premium dark studio showcase backdrop for a trading-card reveal screen,
+themed around a deep-sea environment. A deep dim underwater scene with
+faint distant silhouettes and soft caustic light fading into darkness. Low
+contrast, desaturated, moody and cinematic — no glow effects, no
+bioluminescence, no particles (those are added separately), just the base
+environment/material. No text, no logos, no people, no readable shapes,
+no bright highlights. Ultra-wide, minimal, elegant, 4K, 2560x1440.
+```
+
+**팝업 배경 빛 효과**:
+```
+Abstract loose particle/light-effect overlay ONLY, ultra-wide, 2560x1440.
+Drifting lavender-purple bioluminescent glow particles and tiny glowing
+plankton specks — sparse and soft, concentrated toward the edges and
+corners, keep the vertical center column (a card sits there) mostly clear.
+No solid material, no border/frame, no characters, no text — this is a
+light layer meant to be composited on top of a popup backdrop behind a
+trading card, not a full scene. High detail, soft glow bloom, 4K. Entire
+canvas outside the glowing particles themselves must stay fully
+transparent (alpha 0), transparent PNG.
+```
+
 ---
 
 ### 8. 리냐 — `lina0108` — 선명한 핑크 + 연분홍 · 벚꽃 (FB)
@@ -636,6 +815,30 @@ light layer meant to be composited on top of the existing card background,
 not a full scene. High detail, soft glow bloom, 4K. Entire canvas outside
 the glowing particles themselves must stay fully transparent (alpha 0),
 transparent PNG.
+```
+
+**팝업 배경**:
+```
+A premium dark studio showcase backdrop for a trading-card reveal screen,
+themed around a spring garden at dusk. A soft dusk garden with distant
+cherry-blossom tree silhouettes fading into darkness. Low contrast,
+desaturated, moody and cinematic — no glow effects, no petal sparkle, no
+particles (those are added separately), just the base environment/material.
+No text, no logos, no people, no readable shapes, no bright highlights.
+Ultra-wide, minimal, elegant, 4K, 2560x1440.
+```
+
+**팝업 배경 빛 효과**:
+```
+Abstract loose particle/light-effect overlay ONLY, ultra-wide, 2560x1440.
+Softly drifting glowing pink sparkle motes and faint light glints — sparse
+and soft, concentrated toward the edges and corners, keep the vertical
+center column (a card sits there) mostly clear. No solid material, no
+border/frame, no characters, no text — this is a light layer meant to be
+composited on top of a popup backdrop behind a trading card, not a full
+scene. High detail, soft glow bloom, 4K. Entire canvas outside the glowing
+particles themselves must stay fully transparent (alpha 0), transparent
+PNG.
 ```
 
 ---
@@ -709,6 +912,30 @@ canvas outside the glowing particles themselves must stay fully
 transparent (alpha 0), transparent PNG.
 ```
 
+**팝업 배경**:
+```
+A premium dark studio showcase backdrop for a trading-card reveal screen,
+themed around a storm. A vast dark stormy sky with distant silhouettes of
+heavy storm clouds. Low contrast, desaturated, moody and cinematic — no
+glow effects, no lightning sparks, no particles (those are added
+separately), just the base environment/material. No text, no logos, no
+people, no readable shapes, no bright highlights. Ultra-wide, minimal,
+elegant, 4K, 2560x1440.
+```
+
+**팝업 배경 빛 효과**:
+```
+Abstract loose particle/light-effect overlay ONLY, ultra-wide, 2560x1440.
+Crackling emerald-green lightning-spark particles and faint electric-blue
+glow flickers — sparse and soft, concentrated toward the edges and
+corners, keep the vertical center column (a card sits there) mostly clear.
+No solid material, no border/frame, no characters, no text — this is a
+light layer meant to be composited on top of a popup backdrop behind a
+trading card, not a full scene. High detail, soft glow bloom, 4K. Entire
+canvas outside the glowing particles themselves must stay fully
+transparent (alpha 0), transparent PNG.
+```
+
 ---
 
 ### 10. 재닌 — `janine95kim` — 스카이 블루 · 서리/오로라 (GK)
@@ -773,6 +1000,29 @@ glowing frost-crystal sparkle particles, shimmering gently. No solid
 material, no rock or stone texture, no border/frame, no characters, no
 text — this is a light layer meant to be composited on top of the existing
 card background, not a full scene. High detail, soft glow bloom, 4K.
+Entire canvas outside the glowing particles themselves must stay fully
+transparent (alpha 0), transparent PNG.
+```
+
+**팝업 배경**:
+```
+A premium dark studio showcase backdrop for a trading-card reveal screen,
+themed around an icy tundra. A vast dim icy tundra horizon fading into
+darkness. Low contrast, desaturated, moody and cinematic — no glow
+effects, no aurora light, no particles (those are added separately), just
+the base environment/material. No text, no logos, no people, no readable
+shapes, no bright highlights. Ultra-wide, minimal, elegant, 4K, 2560x1440.
+```
+
+**팝업 배경 빛 효과**:
+```
+Abstract loose particle/light-effect overlay ONLY, ultra-wide, 2560x1440.
+Softly drifting silvery-white aurora light streaks and tiny glowing
+frost-crystal sparkle particles — sparse and soft, concentrated toward the
+edges and corners, keep the vertical center column (a card sits there)
+mostly clear. No solid material, no border/frame, no characters, no text —
+this is a light layer meant to be composited on top of a popup backdrop
+behind a trading card, not a full scene. High detail, soft glow bloom, 4K.
 Entire canvas outside the glowing particles themselves must stay fully
 transparent (alpha 0), transparent PNG.
 ```
@@ -880,4 +1130,32 @@ border/frame, no characters, no text — this is a light layer meant to be
 composited on top of the existing card background, not a full scene. High
 detail, soft glow bloom, 4K. Entire canvas outside the glowing particles
 themselves must stay fully transparent (alpha 0), transparent PNG.
+```
+
+**팝업 배경** (완성된 하치 프레임 이미지를 색상 참고용으로 함께 첨부):
+```
+A premium dark studio showcase backdrop for a trading-card reveal screen,
+themed around an ancient dragon lair. A vast dim ancient dragon lair with
+faint distant silhouettes of jagged claw/rock formations fading into
+darkness, using the exact same warm golden-amber + amethyst-violet color
+palette as the attached frame image (do not introduce a different color
+scheme such as blue). Low contrast, desaturated, moody and cinematic — no
+glow effects, no ember sparkle, no particles (those are added separately),
+just the base environment/material. No text, no logos, no people, no
+readable shapes, no bright highlights. Ultra-wide, minimal, elegant, 4K,
+2560x1440.
+```
+
+**팝업 배경 빛 효과** (완성된 하치 프레임 이미지를 색상 참고용으로 함께 첨부):
+```
+Abstract loose particle/light-effect overlay ONLY, ultra-wide, 2560x1440,
+matching the exact warm golden-amber + amethyst-violet color palette of
+the attached frame image. Wisps of glowing draconic energy, sparkle,
+ember, and glitter dust drifting slowly — sparse and soft, concentrated
+toward the edges and corners, keep the vertical center column (a card sits
+there) mostly clear. No solid material, no border/frame, no characters, no
+text — this is a light layer meant to be composited on top of a popup
+backdrop behind a trading card, not a full scene. High detail, soft glow
+bloom, 4K. Entire canvas outside the glowing particles themselves must
+stay fully transparent (alpha 0), transparent PNG.
 ```

@@ -53,9 +53,13 @@ const preloadedUrls = new Set<string>();
 export function preloadTotyCardAssets(assets: TotyCardAssets, streamerId: string): void {
   const cardBackUrl = getCardBackUrl(streamerId);
   const backgroundGlowUrl = getBackgroundGlowUrl(streamerId);
+  const popupBackdropUrl = getPopupBackdropUrl(streamerId);
+  const popupBackdropGlowUrl = getPopupBackdropGlowUrl(streamerId);
   const urls = [assets.frame, assets.background, assets.character];
   if (cardBackUrl) urls.push(cardBackUrl);
   if (backgroundGlowUrl) urls.push(backgroundGlowUrl);
+  if (popupBackdropUrl) urls.push(popupBackdropUrl);
+  if (popupBackdropGlowUrl) urls.push(popupBackdropGlowUrl);
   for (const url of urls) {
     if (preloadedUrls.has(url)) continue;
     preloadedUrls.add(url);
@@ -64,16 +68,42 @@ export function preloadTotyCardAssets(assets: TotyCardAssets, streamerId: string
   }
 }
 
-// Shared full-screen popup backdrop (same image behind every player's card —
-// see docs/toty-card-prompts.md). Optional: until it's dropped in as
-// popup-backdrop.webp, TotyCardPopup falls back to a plain CSS gradient.
+// Full-screen popup backdrop — per-player (<id>-popup-backdrop.webp,
+// themed to that card's motif) when available, otherwise the original
+// shared popup-backdrop.webp, otherwise TotyCardPopup falls back to a plain
+// CSS gradient. See docs/toty-card-prompts.md.
 const POPUP_BACKDROP_FILENAME = "popup-backdrop.webp";
 const popupBackdropEntry = Object.entries(modules).find(([path]) =>
   path.endsWith(`/${POPUP_BACKDROP_FILENAME}`),
 );
+const POPUP_BACKDROP_SUFFIX = "-popup-backdrop.webp";
+const popupBackdropUrls: Record<string, string> = {};
+for (const [path, url] of Object.entries(modules)) {
+  const filename = path.split("/").pop() ?? "";
+  if (filename.endsWith(POPUP_BACKDROP_SUFFIX)) {
+    popupBackdropUrls[filename.slice(0, -POPUP_BACKDROP_SUFFIX.length)] = url;
+  }
+}
 
-export function getPopupBackdropUrl(): string | undefined {
-  return popupBackdropEntry?.[1];
+export function getPopupBackdropUrl(streamerId?: string): string | undefined {
+  return (streamerId && popupBackdropUrls[streamerId]) ?? popupBackdropEntry?.[1];
+}
+
+// Per-player ambient light/particle overlay for the popup backdrop above —
+// same idea as getBackgroundGlowUrl below, but for the full-screen backdrop
+// rather than the card itself. Optional; no shared fallback (a mismatched
+// player's light effect over a different backdrop wouldn't make sense).
+const POPUP_BACKDROP_GLOW_SUFFIX = "-popup-backdrop-glow.webp";
+const popupBackdropGlowUrls: Record<string, string> = {};
+for (const [path, url] of Object.entries(modules)) {
+  const filename = path.split("/").pop() ?? "";
+  if (filename.endsWith(POPUP_BACKDROP_GLOW_SUFFIX)) {
+    popupBackdropGlowUrls[filename.slice(0, -POPUP_BACKDROP_GLOW_SUFFIX.length)] = url;
+  }
+}
+
+export function getPopupBackdropGlowUrl(streamerId: string): string | undefined {
+  return popupBackdropGlowUrls[streamerId];
 }
 
 // Per-player "mystery" card-back art shown mid-flip by TotyCardReveal before
