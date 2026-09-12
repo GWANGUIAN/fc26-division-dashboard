@@ -151,11 +151,12 @@
   filter: drop-shadow(0 14px 26px rgba(0, 0, 0, .5));
 }
 
-/* Division + position sit top-left over the crystal cluster like a normal
+/* Division + position sit top-left over the corner ornament like a normal
    FIFA card's rating stack (division takes the "big number" slot an OVR
-   rating would normally use — this card has no ability stats). Solid
-   warm-gold fill + black outline (--text-outline) keeps them legible
-   whether they land over white marble, dark crystal, or the render. */
+   rating would normally use — this card has no ability stats). Solid fill
+   (--toty-text-color, set per player in totyCardTheme.ts to match that
+   card's palette) + black outline (--text-outline) keeps them legible
+   whether they land over the light background or the dark render. */
 .toty-card__stats {
   position: absolute;
   left: 13%;
@@ -164,7 +165,7 @@
   flex-direction: column;
   align-items: center;
   gap: .05em;
-  color: #ffdd7a;
+  color: var(--toty-text-color);
   text-shadow: var(--text-outline);
   pointer-events: none;
 }
@@ -195,7 +196,7 @@
   top: 66%;
   transform: translateX(-50%);
   max-width: 80%;
-  color: #ffdd7a;
+  color: var(--toty-text-color);
   text-shadow: var(--text-outline);
   font-family: "Barlow Condensed", sans-serif;
   font-weight: 800;
@@ -209,7 +210,7 @@
   transition: text-shadow .3s;
 }
 .toty-card--active .toty-card__name {
-  text-shadow: var(--text-outline), 0 0 6px #fff6d2, 0 0 14px #ffdd7a;
+  text-shadow: var(--text-outline), 0 0 6px var(--toty-text-glow), 0 0 14px var(--toty-text-color);
 }
 .toty-card__name::before {
   content: attr(data-text);

@@ -18,6 +18,7 @@
    ```
    예: `다시바` 3장을 `public/test/`에 `frame.png`/`background.png`/`character.png`로 받아뒀다면 `pnpm convert:card-art -- tdnlamuron`.
 4. 3장(frame/background/character)이 모두 갖춰진 선수만 사이트에 "3D 카드 보기" 버튼이 자동으로 뜸 (`src/web/toty-card/totyCardAssets.ts`가 `src/web/assets/toty-cards/`를 자동 스캔).
+5. **포지션/디비전/이름 글자색**은 이미지와 별개로 `src/web/toty-card/totyCardTheme.ts`에 선수 `id`별로 지정되어 있음. 새 선수를 추가하면 이 파일에 `{ color, glow }` 항목을 하나 추가해서 그 선수 카드 팔레트에 어울리는 색으로 맞춰야 함 (안 넣으면 하치 금색으로 기본 표시됨). `color`는 본문 글자색, `glow`는 카드 호버 시 이름 주변에 번지는 은은한 하이라이트 색.
 
 ## 공용 팝업 배경 이미지 (완료 — 1장, 전 선수 공통)
 
@@ -101,208 +102,358 @@ name/stat overlays.
 
 ### 2. 쥬멩이 — `ju010228` — 연두색 · 봄 넝쿨/새싹 (ST)
 
-**프레임**: 실루엣은 하치와 동일 유지 지시문 + "redesign the surface as pale mossy stone, with fresh spring vines, budding leaves, and tiny dew-lit sprouts bursting from the top-left and bottom-right corners instead of crystal shards — lime-green foliage with soft morning dew sparkle."
+**프레임** (하치 프레임 이미지는 실루엣 참고용으로만 첨부):
+```
+Using the attached card frame image ONLY as a silhouette/structure reference
+— same ornate shield-shaped outer silhouette, same scalloped border curve,
+same laurel-wreath crest position at the top center, same inner content
+window position — but redesign the surface material completely: pale mossy
+stone, with fresh spring vines, budding leaves, and tiny dew-lit sprouts
+bursting from the top-left and bottom-right corners instead of crystal
+shards — lime-green foliage with soft morning dew sparkle. No player, no
+text, no stats. Entire canvas outside the frame's own linework (including
+the inner content window) must be fully transparent. PNG with alpha
+channel, 1060x1484.
+```
 
 **배경**:
 ```
-... Pale moss-covered stone slab with soft green vine-veins running through
-it, a cluster of fresh spring vines and budding leaves bursting from the
+Abstract premium trading-card background art, portrait orientation. Pale
+moss-covered stone slab with soft green vine-veins running through it, a
+cluster of fresh spring vines and budding leaves bursting from the
 upper-right corner, dew droplets catching the light, soft fresh daylight
-rim lighting. No characters, no text, no border. PNG, 1060x1484.
+rim lighting. No characters, no people, no border/frame, no text. High
+detail, 4K, PNG, 1060x1484.
 ```
 
-**캐릭터**:
+**캐릭터** (쥬멩이 참고 사진 첨부):
 ```
-... soccer kit in fresh lime-green and white tones. Joyful mid-air
-celebration pose right after scoring — knee raised, both arms spread wide,
-big excited smile, hair/clothing caught mid-motion. Viewed from a slight low
-front 3/4 angle, head to mid-thigh. Bright fresh lighting matching the
-lime-green palette. Transparent PNG, 1060x1484.
+Turn the reference photo into a stylized premium trading-card 3D player
+render, semi-realistic style. Soccer kit in fresh lime-green and white
+tones. Joyful mid-air celebration pose right after scoring — knee raised,
+both arms spread wide, big excited smile, hair/clothing caught mid-motion.
+Viewed from a slight low front 3/4 angle, visible head to mid-thigh. Bright
+fresh lighting matching the lime-green palette. No frame, no text, no
+background — fully transparent PNG with alpha channel, 1060x1484, leave
+open space above the head and below the waist for name/stat overlays.
 ```
 
 ---
 
 ### 3. 문모모 — `doormomo` — 보라색 · 마법진/룬문양 (CDM)
 
-**프레임**: 실루엣 동일 + "redesign the surface as a dark engraved stone tablet, with glowing violet runic sigils and arcane magic-circle patterns etched into it, mystical purple energy wisps bursting from the top-left and bottom-right corners instead of crystal shards."
+**프레임** (하치 프레임 이미지는 실루엣 참고용으로만 첨부):
+```
+Using the attached card frame image ONLY as a silhouette/structure reference
+— same ornate shield-shaped outer silhouette, same scalloped border curve,
+same laurel-wreath crest position at the top center, same inner content
+window position — but redesign the surface material completely: a dark
+engraved stone tablet, with glowing violet runic sigils and arcane
+magic-circle patterns etched into it, mystical purple energy wisps bursting
+from the top-left and bottom-right corners instead of crystal shards. No
+player, no text, no stats. Entire canvas outside the frame's own linework
+(including the inner content window) must be fully transparent. PNG with
+alpha channel, 1060x1484.
+```
 
 **배경**:
 ```
-... Dark engraved stone slab covered in glowing violet runic carvings, a
-cluster of swirling arcane energy and floating rune fragments bursting from
-the upper-right corner, faint magic-circle glow, cool moody purple rim
-lighting. No characters, no text, no border. PNG, 1060x1484.
+Abstract premium trading-card background art, portrait orientation. Dark
+engraved stone slab covered in glowing violet runic carvings, a cluster of
+swirling arcane energy and floating rune fragments bursting from the
+upper-right corner, faint magic-circle glow, cool moody purple rim
+lighting. No characters, no people, no border/frame, no text. High detail,
+4K, PNG, 1060x1484.
 ```
 
-**캐릭터**:
+**캐릭터** (문모모 참고 사진 첨부):
 ```
-... soccer kit in deep amethyst-purple and silver tones. Calm, commanding
-stance — arms crossed, ball resting still under one foot, chin slightly
-raised, composed confident expression (a midfield playmaker controlling the
-tempo of the game, not celebrating). Viewed from a slight low front 3/4
-angle, head to mid-thigh. Cool violet rim lighting. Transparent PNG,
-1060x1484.
+Turn the reference photo into a stylized premium trading-card 3D player
+render, semi-realistic style. Soccer kit in deep amethyst-purple and silver
+tones. Calm, commanding stance — arms crossed, ball resting still under one
+foot, chin slightly raised, composed confident expression (a midfield
+playmaker controlling the tempo of the game, not celebrating). Viewed from
+a slight low front 3/4 angle, visible head to mid-thigh. Cool violet rim
+lighting. No frame, no text, no background — fully transparent PNG with
+alpha channel, 1060x1484, leave open space above the head and below the
+waist for name/stat overlays.
 ```
 
 ---
 
 ### 4. 뽀린걸 — `bboringirl` — 회색 + 빨강 · 기계 장갑판/회로 (CM)
 
-**프레임**: 실루엣 동일 + "redesign the surface as brushed gunmetal-gray riveted armor plating, with glowing red energy circuit-lines running through it, small red circuit-light clusters bursting from the top-left and bottom-right corners instead of crystal shards — industrial mecha aesthetic."
+**프레임** (하치 프레임 이미지는 실루엣 참고용으로만 첨부):
+```
+Using the attached card frame image ONLY as a silhouette/structure reference
+— same ornate shield-shaped outer silhouette, same scalloped border curve,
+same laurel-wreath crest position at the top center, same inner content
+window position — but redesign the surface material completely: brushed
+gunmetal-gray riveted armor plating, with glowing red energy circuit-lines
+running through it, small red circuit-light clusters bursting from the
+top-left and bottom-right corners instead of crystal shards — industrial
+mecha aesthetic. No player, no text, no stats. Entire canvas outside the
+frame's own linework (including the inner content window) must be fully
+transparent. PNG with alpha channel, 1060x1484.
+```
 
 **배경**:
 ```
-... Brushed gunmetal armor-plate slab with glowing red circuit-line veins
-running through it, a cluster of red energy conduits and small glowing
-nodes bursting from the upper-right corner, cool steel-toned rim lighting
-with red accent glow. No characters, no text, no border. PNG, 1060x1484.
+Abstract premium trading-card background art, portrait orientation. Brushed
+gunmetal armor-plate slab with glowing red circuit-line veins running
+through it, a cluster of red energy conduits and small glowing nodes
+bursting from the upper-right corner, cool steel-toned rim lighting with
+red accent glow. No characters, no people, no border/frame, no text. High
+detail, 4K, PNG, 1060x1484.
 ```
 
-**캐릭터**:
+**캐릭터** (뽀린걸 참고 사진 첨부):
 ```
-... soccer kit in gunmetal-gray with red trim accents. Gritty determined
-mid-run pose, leaning forward, one arm extended pointing forward as if
-directing a teammate, intense focused expression. Viewed from a slight low
-front 3/4 angle, head to mid-thigh. Cool steel-gray rim lighting with a
-touch of red accent light. Transparent PNG, 1060x1484.
+Turn the reference photo into a stylized premium trading-card 3D player
+render, semi-realistic style. Soccer kit in gunmetal-gray with red trim
+accents. Gritty determined mid-run pose, leaning forward, one arm extended
+pointing forward as if directing a teammate, intense focused expression.
+Viewed from a slight low front 3/4 angle, visible head to mid-thigh. Cool
+steel-gray rim lighting with a touch of red accent light. No frame, no
+text, no background — fully transparent PNG with alpha channel, 1060x1484,
+leave open space above the head and below the waist for name/stat
+overlays.
 ```
 
 ---
 
 ### 5. 한결 — `kaksjak0730` — 딥블랙 + 사파이어 블루 · 밤하늘 유리 파편 (CM)
 
-**프레임**: 실루엣 동일 + "redesign the surface as matte deep-black obsidian, with the corner ornament reimagined as shattered night-sky glass shards embedded with tiny starlight glimmers (not generic gem crystals) bursting from the top-left and bottom-right corners — cool sapphire-blue starlight glow against the black."
-
-**배경**:
+**프레임** (하치 프레임 이미지는 실루엣 참고용으로만 첨부):
 ```
-... Near-black obsidian slab with faint star-like sparkle veins running
-through it, a cluster of shattered glass-like shards glowing with sapphire
-starlight bursting from the upper-right corner, tiny drifting light motes,
-cool icy-blue rim lighting. No characters, no text, no border. PNG,
+Using the attached card frame image ONLY as a silhouette/structure reference
+— same ornate shield-shaped outer silhouette, same scalloped border curve,
+same laurel-wreath crest position at the top center, same inner content
+window position — but redesign the surface material completely: matte
+deep-black obsidian, with the corner ornament reimagined as shattered
+night-sky glass shards embedded with tiny starlight glimmers (not generic
+gem crystals) bursting from the top-left and bottom-right corners — cool
+sapphire-blue starlight glow against the black. No player, no text, no
+stats. Entire canvas outside the frame's own linework (including the inner
+content window) must be fully transparent. PNG with alpha channel,
 1060x1484.
 ```
 
-**캐릭터**:
+**배경**:
 ```
-... soccer kit in matte black with sapphire-blue trim. Poised, elegant
-free-kick stance — one leg planted firmly, the other mid-swing, calm and
-focused gaze, composed rather than aggressive. Viewed from a slight low
-front 3/4 angle, head to mid-thigh. Cool icy-blue rim lighting against dark
-tones. Transparent PNG, 1060x1484.
+Abstract premium trading-card background art, portrait orientation.
+Near-black obsidian slab with faint star-like sparkle veins running through
+it, a cluster of shattered glass-like shards glowing with sapphire
+starlight bursting from the upper-right corner, tiny drifting light motes,
+cool icy-blue rim lighting. No characters, no people, no border/frame, no
+text. High detail, 4K, PNG, 1060x1484.
+```
+
+**캐릭터** (한결 참고 사진 첨부):
+```
+Turn the reference photo into a stylized premium trading-card 3D player
+render, semi-realistic style. Soccer kit in matte black with sapphire-blue
+trim. Poised, elegant free-kick stance — one leg planted firmly, the other
+mid-swing, calm and focused gaze, composed rather than aggressive. Viewed
+from a slight low front 3/4 angle, visible head to mid-thigh. Cool icy-blue
+rim lighting against dark tones. No frame, no text, no background — fully
+transparent PNG with alpha channel, 1060x1484, leave open space above the
+head and below the waist for name/stat overlays.
 ```
 
 ---
 
 ### 6. 핑구 — `sjh4018` — 하늘색 + 연보라 · 구름/깃털 (CB)
 
-**프레임**: 실루엣 동일 + "redesign the surface as soft pale sky-blue cloud-marble, with fluffy cloud wisps and pale lavender feathers bursting from the top-left and bottom-right corners instead of crystal shards — airy, soft, dreamlike."
+**프레임** (하치 프레임 이미지는 실루엣 참고용으로만 첨부):
+```
+Using the attached card frame image ONLY as a silhouette/structure reference
+— same ornate shield-shaped outer silhouette, same scalloped border curve,
+same laurel-wreath crest position at the top center, same inner content
+window position — but redesign the surface material completely: soft pale
+sky-blue cloud-marble, with fluffy cloud wisps and pale lavender feathers
+bursting from the top-left and bottom-right corners instead of crystal
+shards — airy, soft, dreamlike. No player, no text, no stats. Entire canvas
+outside the frame's own linework (including the inner content window) must
+be fully transparent. PNG with alpha channel, 1060x1484.
+```
 
 **배경**:
 ```
-... Soft pale sky-blue cloud-textured slab with faint lavender veins, a
-cluster of fluffy clouds and drifting pale feathers bursting from the
-upper-right corner, soft airy daylight rim lighting. No characters, no
-text, no border. PNG, 1060x1484.
+Abstract premium trading-card background art, portrait orientation. Soft
+pale sky-blue cloud-textured slab with faint lavender veins, a cluster of
+fluffy clouds and drifting pale feathers bursting from the upper-right
+corner, soft airy daylight rim lighting. No characters, no people, no
+border/frame, no text. High detail, 4K, PNG, 1060x1484.
 ```
 
-**캐릭터**:
+**캐릭터** (핑구 참고 사진 첨부):
 ```
-... soccer kit in sky-blue with pale lavender trim. Grounded, reliable
-defensive stance — low center of gravity, knees bent, arms out ready to
-block, alert and steady expression (a center-back holding the line, not
-celebrating). Viewed from a slight low front 3/4 angle, head to mid-thigh.
-Soft airy blue-lavender rim lighting. Transparent PNG, 1060x1484.
+Turn the reference photo into a stylized premium trading-card 3D player
+render, semi-realistic style. Soccer kit in sky-blue with pale lavender
+trim. Grounded, reliable defensive stance — low center of gravity, knees
+bent, arms out ready to block, alert and steady expression (a center-back
+holding the line, not celebrating). Viewed from a slight low front 3/4
+angle, visible head to mid-thigh. Soft airy blue-lavender rim lighting. No
+frame, no text, no background — fully transparent PNG with alpha channel,
+1060x1484, leave open space above the head and below the waist for
+name/stat overlays.
 ```
 
 ---
 
 ### 7. 해파린 — `haepalin` — 연한 라벤더 + 진보라 · 등나무꽃(위스테리아) (CB)
 
-**프레임**: 실루엣 동일 + "redesign the surface as pale lilac stone, with cascading wisteria flower clusters and vines in deep purple bursting from the top-left and bottom-right corners instead of crystal shards — dreamy, romantic, soft-focus floral."
+**프레임** (하치 프레임 이미지는 실루엣 참고용으로만 첨부):
+```
+Using the attached card frame image ONLY as a silhouette/structure reference
+— same ornate shield-shaped outer silhouette, same scalloped border curve,
+same laurel-wreath crest position at the top center, same inner content
+window position — but redesign the surface material completely: pale lilac
+stone, with cascading wisteria flower clusters and vines in deep purple
+bursting from the top-left and bottom-right corners instead of crystal
+shards — dreamy, romantic, soft-focus floral. No player, no text, no
+stats. Entire canvas outside the frame's own linework (including the inner
+content window) must be fully transparent. PNG with alpha channel,
+1060x1484.
+```
 
 **배경**:
 ```
-... Very pale lilac stone slab with soft violet veins, cascading wisteria
-flower vines and blossom clusters bursting from the upper-right corner,
-a few petals drifting in the air, dreamy soft-focus rim lighting. No
-characters, no text, no border. PNG, 1060x1484.
+Abstract premium trading-card background art, portrait orientation. Very
+pale lilac stone slab with soft violet veins, cascading wisteria flower
+vines and blossom clusters bursting from the upper-right corner, a few
+petals drifting in the air, dreamy soft-focus rim lighting. No characters,
+no people, no border/frame, no text. High detail, 4K, PNG, 1060x1484.
 ```
 
-**캐릭터**:
+**캐릭터** (해파린 참고 사진 첨부):
 ```
-... soccer kit in pale lavender with deep purple trim. Graceful heading
-pose — jumping to win an aerial ball, body arched, hair flowing with the
-motion, elegant and controlled rather than aggressive. Viewed from a
-slight low front 3/4 angle, head to mid-thigh. Soft dreamy lavender-purple
-rim lighting. Transparent PNG, 1060x1484.
+Turn the reference photo into a stylized premium trading-card 3D player
+render, semi-realistic style. Soccer kit in pale lavender with deep purple
+trim. Graceful heading pose — jumping to win an aerial ball, body arched,
+hair flowing with the motion, elegant and controlled rather than
+aggressive. Viewed from a slight low front 3/4 angle, visible head to
+mid-thigh. Soft dreamy lavender-purple rim lighting. No frame, no text, no
+background — fully transparent PNG with alpha channel, 1060x1484, leave
+open space above the head and below the waist for name/stat overlays.
 ```
 
 ---
 
 ### 8. 리냐 — `lina0108` — 선명한 핑크 + 연분홍 · 벚꽃 (FB)
 
-**프레임**: 실루엣 동일 + "redesign the surface as pale blush-pink stone, with a cherry-blossom branch and swirling sakura petals in vivid pink bursting from the top-left and bottom-right corners instead of crystal shards — playful, romantic spring aesthetic."
+**프레임** (하치 프레임 이미지는 실루엣 참고용으로만 첨부):
+```
+Using the attached card frame image ONLY as a silhouette/structure reference
+— same ornate shield-shaped outer silhouette, same scalloped border curve,
+same laurel-wreath crest position at the top center, same inner content
+window position — but redesign the surface material completely: pale
+blush-pink stone, with a cherry-blossom branch and swirling sakura petals
+in vivid pink bursting from the top-left and bottom-right corners instead
+of crystal shards — playful, romantic spring aesthetic. No player, no
+text, no stats. Entire canvas outside the frame's own linework (including
+the inner content window) must be fully transparent. PNG with alpha
+channel, 1060x1484.
+```
 
 **배경**:
 ```
-... Pale blush-pink stone slab with soft pink veins, a cherry-blossom
-branch with vivid pink blossoms bursting from the upper-right corner,
-swirling petals drifting through the air, warm playful rim lighting. No
-characters, no text, no border. PNG, 1060x1484.
+Abstract premium trading-card background art, portrait orientation. Pale
+blush-pink stone slab with soft pink veins, a cherry-blossom branch with
+vivid pink blossoms bursting from the upper-right corner, swirling petals
+drifting through the air, warm playful rim lighting. No characters, no
+people, no border/frame, no text. High detail, 4K, PNG, 1060x1484.
 ```
 
-**캐릭터**:
+**캐릭터** (리냐 참고 사진 첨부):
 ```
-... soccer kit in vivid pink with pale-pink trim. Playful, energetic
-overlapping run down the wing — mid-stride, one hand raised in a cheerful
-wave/celebration gesture, bright fun-loving grin. Viewed from a slight low
-front 3/4 angle, head to mid-thigh. Warm vivid pink rim lighting.
-Transparent PNG, 1060x1484.
+Turn the reference photo into a stylized premium trading-card 3D player
+render, semi-realistic style. Soccer kit in vivid pink with pale-pink trim.
+Playful, energetic overlapping run down the wing — mid-stride, one hand
+raised in a cheerful wave/celebration gesture, bright fun-loving grin.
+Viewed from a slight low front 3/4 angle, visible head to mid-thigh. Warm
+vivid pink rim lighting. No frame, no text, no background — fully
+transparent PNG with alpha channel, 1060x1484, leave open space above the
+head and below the waist for name/stat overlays.
 ```
 
 ---
 
 ### 9. 빙밍 — `tleod1818` — 어두운 남색 + 에메랄드 · 심해 산호/발광생물 (FB)
 
-**프레임**: 실루엣 동일 + "redesign the surface as a very dark navy coral-reef-like rock, with glowing emerald-green bioluminescent coral and small luminous sea creatures bursting from the top-left and bottom-right corners instead of crystal shards — deep-sea, mysterious, glowing."
+**프레임** (하치 프레임 이미지는 실루엣 참고용으로만 첨부):
+```
+Using the attached card frame image ONLY as a silhouette/structure reference
+— same ornate shield-shaped outer silhouette, same scalloped border curve,
+same laurel-wreath crest position at the top center, same inner content
+window position — but redesign the surface material completely: a very
+dark navy coral-reef-like rock, with glowing emerald-green bioluminescent
+coral and small luminous sea creatures bursting from the top-left and
+bottom-right corners instead of crystal shards — deep-sea, mysterious,
+glowing. No player, no text, no stats. Entire canvas outside the frame's
+own linework (including the inner content window) must be fully
+transparent. PNG with alpha channel, 1060x1484.
+```
 
 **배경**:
 ```
-... Near-black navy coral-textured slab with faint blue current-like veins,
-a cluster of glowing emerald-green bioluminescent coral and tiny luminous
+Abstract premium trading-card background art, portrait orientation.
+Near-black navy coral-textured slab with faint blue current-like veins, a
+cluster of glowing emerald-green bioluminescent coral and tiny luminous
 particles bursting from the upper-right corner, cool dark underwater rim
-lighting. No characters, no text, no border. PNG, 1060x1484.
+lighting. No characters, no people, no border/frame, no text. High detail,
+4K, PNG, 1060x1484.
 ```
 
-**캐릭터**:
+**캐릭터** (빙밍 참고 사진 첨부):
 ```
-... soccer kit in dark navy with emerald-green trim. Intense low defensive
-sliding-tackle pose — body low to the ground, one leg extended, sharp
-focused determination. Viewed from a slight low front 3/4 angle, head to
-mid-thigh. Cool dark rim lighting with an emerald-green highlight.
-Transparent PNG, 1060x1484.
+Turn the reference photo into a stylized premium trading-card 3D player
+render, semi-realistic style. Soccer kit in dark navy with emerald-green
+trim. Intense low defensive sliding-tackle pose — body low to the ground,
+one leg extended, sharp focused determination. Viewed from a slight low
+front 3/4 angle, visible head to mid-thigh. Cool dark rim lighting with an
+emerald-green highlight. No frame, no text, no background — fully
+transparent PNG with alpha channel, 1060x1484, leave open space above the
+head and below the waist for name/stat overlays.
 ```
 
 ---
 
 ### 10. 재닌 — `janine95kim` — 스카이 블루 · 서리/오로라 (GK)
 
-**프레임**: 실루엣 동일 + "redesign the surface as clean icy pale-blue frosted stone, with sharp frost patterns and a faint aurora-light streak in silvery-white bursting from the top-left and bottom-right corners instead of crystal shards — crisp, clean, wintry."
+**프레임** (하치 프레임 이미지는 실루엣 참고용으로만 첨부):
+```
+Using the attached card frame image ONLY as a silhouette/structure reference
+— same ornate shield-shaped outer silhouette, same scalloped border curve,
+same laurel-wreath crest position at the top center, same inner content
+window position — but redesign the surface material completely: clean icy
+pale-blue frosted stone, with sharp frost patterns and a faint aurora-light
+streak in silvery-white bursting from the top-left and bottom-right
+corners instead of crystal shards — crisp, clean, wintry. No player, no
+text, no stats. Entire canvas outside the frame's own linework (including
+the inner content window) must be fully transparent. PNG with alpha
+channel, 1060x1484.
+```
 
 **배경**:
 ```
-... Icy pale-blue frosted stone slab with silvery frost-vein cracks, a
-streak of faint aurora-like light and frost crystals bursting from the
-upper-right corner, crisp bright cold rim lighting. No characters, no text,
-no border. PNG, 1060x1484.
+Abstract premium trading-card background art, portrait orientation. Icy
+pale-blue frosted stone slab with silvery frost-vein cracks, a streak of
+faint aurora-like light and frost crystals bursting from the upper-right
+corner, crisp bright cold rim lighting. No characters, no people, no
+border/frame, no text. High detail, 4K, PNG, 1060x1484.
 ```
 
-**캐릭터**:
+**캐릭터** (재닌 참고 사진 첨부):
 ```
-... goalkeeper kit in sky-blue with silver trim, goalkeeper gloves.
-Dramatic full-stretch diving save pose — body fully extended horizontally
-in mid-air, both arms reaching out toward the ball, intense focused
-expression. Viewed from a slight low front 3/4 angle, head to mid-thigh
-(crop to keep the diving pose readable within the card's portrait canvas).
-Crisp bright rim lighting. Transparent PNG, 1060x1484.
+Turn the reference photo into a stylized premium trading-card 3D player
+render, semi-realistic style. Goalkeeper kit in sky-blue with silver trim,
+goalkeeper gloves. Dramatic full-stretch diving save pose — body fully
+extended horizontally in mid-air, both arms reaching out toward the ball,
+intense focused expression. Viewed from a slight low front 3/4 angle,
+visible head to mid-thigh (crop to keep the diving pose readable within the
+card's portrait canvas). Crisp bright rim lighting. No frame, no text, no
+background — fully transparent PNG with alpha channel, 1060x1484, leave
+open space above the head and below the waist for name/stat overlays.
 ```

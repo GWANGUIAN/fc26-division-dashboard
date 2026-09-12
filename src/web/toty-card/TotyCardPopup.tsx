@@ -4,6 +4,7 @@ import type { StreamerRecord } from "../../shared/model.js";
 import { useEscape } from "../Modal.js";
 import { playSfx } from "../sfxAudio.js";
 import { getPopupBackdropUrl, type TotyCardAssets } from "./totyCardAssets.js";
+import { getTotyCardTextTheme } from "./totyCardTheme.js";
 import "./toty-card.css";
 
 // Plays independently of the shared single-slot sfxAudio.ts player (same
@@ -51,12 +52,14 @@ export function TotyCardPopup({
   sfxVolume,
   onClose,
 }: {
-  streamer: Pick<StreamerRecord, "displayName" | "hopedPosition1" | "currentDivision" | "sfx">;
+  streamer: Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision" | "sfx">;
   assets: TotyCardAssets;
   sfxEnabled: boolean;
   sfxVolume: number;
   onClose: () => void;
 }) {
+  const textTheme = getTotyCardTextTheme(streamer.id);
+
   useEscape(onClose);
   useBodyScrollLock();
 
@@ -144,6 +147,8 @@ export function TotyCardPopup({
             {
               "--pointer-x": `${tilt.px}%`,
               "--pointer-y": `${tilt.py}%`,
+              "--toty-text-color": textTheme.color,
+              "--toty-text-glow": textTheme.glow,
               ...(tilt.active
                 ? {
                     transform: `perspective(900px) translateY(-6px) scale(1.04) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
