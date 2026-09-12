@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { TotyCardVisual } from "./TotyCardVisual.js";
-import { getTotyCardAssets } from "./totyCardAssets.js";
+import { getBackgroundGlowUrl, getTotyCardAssets } from "./totyCardAssets.js";
 import "./toty-card.css";
 
 /**
@@ -38,10 +38,19 @@ export function TotyCardCapturePage() {
 
   return (
     <div className="toty-capture-stage">
-      {/* No frame-glow, and backgroundGlowUrl left unset entirely: GIF's
-          1-bit alpha can't do either one's soft falloff (see
-          TotyCardVisual's showGlow doc comment) — both render hard-edged. */}
-      <TotyCardVisual streamer={streamer} assets={assets} showGlow={false} />
+      {/* Frame-glow (drop-shadow) stays off: it extends past the card's own
+          silhouette into what would otherwise be transparent space, and
+          GIF's 1-bit alpha can't do that soft falloff — it'd render as a
+          hard-edged ring. backgroundGlowUrl doesn't have that problem: it's
+          a mix-blend-mode:screen overlay contained entirely inside the
+          already-opaque window (behind the frame border), so it never
+          touches the alpha channel and is safe to include here. */}
+      <TotyCardVisual
+        streamer={streamer}
+        assets={assets}
+        backgroundGlowUrl={getBackgroundGlowUrl(id)}
+        showGlow={false}
+      />
     </div>
   );
 }
