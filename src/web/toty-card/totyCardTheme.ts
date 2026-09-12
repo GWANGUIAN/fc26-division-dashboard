@@ -8,6 +8,7 @@ const TOTY_CARD_TEXT_THEME: Record<string, { color: string; glow: string }> = {
   hachi97: { color: "#ffdd7a", glow: "#fff6d2" }, // gold + sapphire crystal
   tdnlamuron: { color: "#ffb454", glow: "#ffe3ad" }, // apricot-orange lava/ember
   ju010228: { color: "#d9f27a", glow: "#f3ffe0" }, // lime-green spring vine
+  doormomo: { color: "#c9a6ff", glow: "#f0e6ff" }, // violet rune/arcane energy
 };
 
 const DEFAULT_TEXT_THEME = TOTY_CARD_TEXT_THEME.hachi97;
