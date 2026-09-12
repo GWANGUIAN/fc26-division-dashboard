@@ -132,7 +132,7 @@ export function TotyCardPopup({
             that taller column shifts the card upward out of its original spot. */}
         <p className="toty-card-popup__hint" style={{ visibility: revealed ? "visible" : "hidden" }}>
           
-          카드에 마우스 커서<MousePointer2 aria-hidden="true" />를 올려 움직여 보세요
+          카드에 <MousePointer2 aria-hidden="true" />마우스 커서를 올려 움직여 보세요
         </p>
 
         <div
