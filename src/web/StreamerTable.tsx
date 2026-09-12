@@ -15,7 +15,6 @@ import {
   SaviorName,
 } from "./cardVisuals";
 import { isUpdatedToday, seenKeyFor } from "./storage";
-import { useWakgoodNoteHover, WakgoodNoteBubble } from "./WakgoodNoteTooltip";
 
 type SortKey = "division" | "name" | "games" | "winRate" | "lastPromotion";
 type Sort = { key: SortKey; dir: "asc" | "desc" };
@@ -56,9 +55,6 @@ function StreamerTableRow({
 }) {
   const games = totalGamesOf(streamer);
   const winRate = winRateOf(streamer);
-  const { open: noteOpen, show: showNote, scheduleHide: hideNote, anchorRef } =
-    useWakgoodNoteHover<HTMLTableCellElement>();
-  const showNoteTooltip = streamer.passedFirstRound;
   return (
     <tr
       className="streamer-table__row"
@@ -74,12 +70,7 @@ function StreamerTableRow({
       }}
     >
       <td className="streamer-table__rank">{index + 1}</td>
-      <td
-        ref={anchorRef}
-        className="streamer-table__identity"
-        onMouseEnter={showNoteTooltip ? showNote : undefined}
-        onMouseLeave={showNoteTooltip ? hideNote : undefined}
-      >
+      <td className="streamer-table__identity">
         <span className="streamer-table__avatar">
           <SaviorAvatar streamer={streamer}>
             <FancyAvatar streamer={streamer} />
@@ -119,14 +110,6 @@ function StreamerTableRow({
             <span className="streamer-table__new-badge">NEW</span>
           )}
         </span>
-        {showNoteTooltip && noteOpen && (
-          <WakgoodNoteBubble
-            streamer={streamer}
-            anchorRef={anchorRef}
-            onMouseEnter={showNote}
-            onMouseLeave={hideNote}
-          />
-        )}
       </td>
       <td>
         <span

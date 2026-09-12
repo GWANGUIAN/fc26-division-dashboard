@@ -24,7 +24,6 @@ import {
   SaviorTag,
 } from "./cardVisuals";
 import { DivisionSigil } from "./divisionSigils";
-import { useWakgoodNoteHover, WakgoodNoteBubble } from "./WakgoodNoteTooltip";
 
 export function StreamerCard({
   streamer,
@@ -148,9 +147,6 @@ export function StreamerFifaCard({
     ? formatBoardPostDate(streamer.lastPost.publishedAt)
     : "첫 보고 대기";
   const photoSrc = streamer.profileImageUrl ?? defaultSoopProfileUrl(streamer.soopId);
-  const { open: noteOpen, show: showNote, scheduleHide: hideNote } =
-    useWakgoodNoteHover<HTMLButtonElement>();
-  const showNoteTooltip = streamer.passedFirstRound;
   const cardRef = useRef<HTMLButtonElement>(null);
   const [tilt, setTilt] = useState({
     rx: 0,
@@ -187,7 +183,6 @@ export function StreamerFifaCard({
   const handleMouseLeave = () => {
     cancelAnimationFrame(rafRef.current);
     setTilt((current) => ({ ...current, active: false }));
-    if (showNoteTooltip) hideNote();
   };
 
   return (
@@ -195,7 +190,6 @@ export function StreamerFifaCard({
       ref={cardRef}
       className={`fifa-card fifa-card--holo ${tilt.active ? "fifa-card--active" : ""} ${tier !== "none" ? "fifa-card--fancy" : ""} ${lite ? "fifa-card--fancy-lite" : ""} ${savior ? "fifa-card--savior" : ""}`}
       onClick={onOpen}
-      onMouseEnter={showNoteTooltip ? showNote : undefined}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={
@@ -334,15 +328,6 @@ export function StreamerFifaCard({
           )}
         </span>
       </span>
-      {showNoteTooltip && noteOpen && (
-        <WakgoodNoteBubble
-          streamer={streamer}
-          anchorRef={cardRef}
-          onMouseEnter={showNote}
-          onMouseLeave={hideNote}
-          placement="top"
-        />
-      )}
     </button>
   );
 }
