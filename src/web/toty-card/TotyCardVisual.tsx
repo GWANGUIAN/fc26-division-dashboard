@@ -66,29 +66,7 @@ export function TotyCardVisual({
   };
 
   return (
-    <div
-      className={`toty-card-wrap ${tilt.active ? "toty-card-wrap--active" : ""}`}
-      style={
-        {
-          // Declared here (not on .toty-card) so the shadow below — a
-          // sibling, not a descendant of .toty-card — can also read this
-          // player's theme color via inheritance.
-          "--toty-text-color": textTheme.color,
-          "--toty-text-glow": textTheme.glow,
-        } as React.CSSProperties
-      }
-    >
-      {/* A colored glow shadow in this player's own theme color, matching
-          the card art instead of a generic dark blob — pulses on its own
-          and flares brighter/faster while hovering. Follows the tilt
-          horizontally so it still reads as "under" the floating card. */}
-      <div
-        className="toty-card-shadow"
-        aria-hidden="true"
-        style={{
-          transform: `translateX(calc(-50% + ${tilt.active ? tilt.ry * 1.4 : 0}px))`,
-        }}
-      />
+    <div className="toty-card-wrap">
       <div
         ref={cardRef}
         className={`toty-card ${tilt.active ? "toty-card--active" : ""}`}
@@ -99,6 +77,12 @@ export function TotyCardVisual({
           {
             "--pointer-x": `${tilt.px}%`,
             "--pointer-y": `${tilt.py}%`,
+            // Read by .toty-card__frame's drop-shadow glow below — a
+            // drop-shadow follows the frame PNG's actual alpha silhouette,
+            // so the glow hugs the card's ornate shield outline instead of
+            // sitting in a rectangular box or a floor-shadow blob under it.
+            "--toty-text-color": textTheme.color,
+            "--toty-text-glow": textTheme.glow,
             ...(tilt.active
               ? {
                   transform: `perspective(900px) translateY(-6px) scale(1.04) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
@@ -107,6 +91,12 @@ export function TotyCardVisual({
           } as React.CSSProperties
         }
       >
+        {/* Same frame art, but sitting BELOW the background/character so its
+            colored drop-shadow glow (which naturally bleeds both inward and
+            outward from the border's alpha edge) only ever shows on the
+            outward side — the opaque window content on top hides the
+            inward half. The crisp .toty-card__frame on top stays glow-free. */}
+        <img className="toty-card__frame-glow" src={assets.frame} alt="" aria-hidden="true" />
         <div className="toty-card__window">
           <div className="toty-card__idle-bg">
             <img
