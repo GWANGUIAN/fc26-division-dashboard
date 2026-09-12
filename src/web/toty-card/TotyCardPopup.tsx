@@ -1,9 +1,10 @@
-import { useEffect } from "react";
-import { Download, MousePointer2, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Download, ImageDown, MousePointer2, X } from "lucide-react";
 import type { StreamerRecord } from "../../shared/model.js";
 import { useEscape } from "../Modal.js";
 import { playSfx } from "../sfxAudio.js";
 import { TotyCardVisual } from "./TotyCardVisual.js";
+import { exportTotyCardPng } from "./exportTotyCardImage.js";
 import { getPopupBackdropUrl, getTotyCardPreviewUrl, type TotyCardAssets } from "./totyCardAssets.js";
 import "./toty-card.css";
 
@@ -70,6 +71,17 @@ export function TotyCardPopup({
     if (sfxEnabled && streamer.sfx) playSfx(streamer.sfx, sfxVolume / 100);
   };
 
+  const [exportingPng, setExportingPng] = useState(false);
+  const handlePngExport = async () => {
+    if (exportingPng) return;
+    setExportingPng(true);
+    try {
+      await exportTotyCardPng(streamer, assets);
+    } finally {
+      setExportingPng(false);
+    }
+  };
+
   const backdropUrl = getPopupBackdropUrl();
   // Pre-rendered offline (scripts/generate-toty-preview.mjs) rather than
   // encoded live in the browser — see the script's header comment for why.
@@ -101,16 +113,28 @@ export function TotyCardPopup({
           카드에 마우스를 올려 움직여 보세요
         </p>
 
-        {previewUrl && (
-          <a
+        <div className="toty-card-popup__actions">
+          <button
+            type="button"
             className="toty-card-popup__download"
-            href={previewUrl}
-            download={`${streamer.displayName}-3d-card.webp`}
+            onClick={handlePngExport}
+            disabled={exportingPng}
           >
-            <Download aria-hidden="true" />
-            움짤로 저장
-          </a>
-        )}
+            <ImageDown aria-hidden="true" />
+            {exportingPng ? "저장 중..." : "이미지로 저장"}
+          </button>
+
+          {previewUrl && (
+            <a
+              className="toty-card-popup__download"
+              href={previewUrl}
+              download={`${streamer.displayName}-3d-card.webp`}
+            >
+              <Download aria-hidden="true" />
+              움짤로 저장
+            </a>
+          )}
+        </div>
       </div>
     </div>
   );

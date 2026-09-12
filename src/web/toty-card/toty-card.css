@@ -111,7 +111,16 @@
   transition: background .15s;
 }
 .toty-card-popup__download:hover { background: rgba(0, 0, 0, .68); }
+.toty-card-popup__download:disabled { opacity: .6; cursor: default; }
 .toty-card-popup__download svg { width: 14px; height: 14px; }
+
+.toty-card-popup__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
 
 .toty-card-wrap {
   position: relative;
