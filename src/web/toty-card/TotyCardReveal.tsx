@@ -104,6 +104,7 @@ export function TotyCardReveal({
   streamer,
   assets,
   cardBackUrl,
+  backgroundGlowUrl,
   onCardClick,
   onImpact,
   onRevealed,
@@ -111,6 +112,7 @@ export function TotyCardReveal({
   streamer: Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision">;
   assets: TotyCardAssets;
   cardBackUrl?: string;
+  backgroundGlowUrl?: string;
   onCardClick?: () => void;
   onImpact?: () => void;
   /** Fired once the flip sequence finishes and the interactive card is showing. */
@@ -266,7 +268,12 @@ export function TotyCardReveal({
             )}
           </div>
           <div className="toty-reveal-flip__front">
-            <TotyCardVisual streamer={streamer} assets={assets} onCardClick={onCardClick} />
+            <TotyCardVisual
+              streamer={streamer}
+              assets={assets}
+              backgroundGlowUrl={backgroundGlowUrl}
+              onCardClick={onCardClick}
+            />
           </div>
         </div>
       </div>

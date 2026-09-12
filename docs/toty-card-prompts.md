@@ -50,6 +50,16 @@
 - **레퍼런스**: 하치 프레임 이미지를 실루엣 참고용으로만 첨부 (프레임과 동일한 방식)
 - **파일명**: `<id>-card-back.webp` (`totyCardAssets.ts`가 자동 스캔 — 없어도 다른 3장만으로 카드는 정상 동작하고, 리빌 연출은 플레이스홀더 "?"로 대체됨)
 
+## 배경 반짝임 오버레이 (선수별로 각각 생성 — 미구현)
+
+지금 배경(`<id>-background.webp`)은 정적 이미지라 카드가 심심해 보이는 문제 — **기존 배경은 그대로 두고**, 그 위에 겹쳐서 CSS로 계속 은은하게 움직이는(느린 드리프트 + opacity 펄스) "빛 효과만 있는" 투명 오버레이 레이어를 선수마다 추가함. 배경 자체를 다시 만들지 않는 이유: 이미 확정된 10장+보너스 배경을 전부 재생성하면 작업량이 두 배가 되고, 오버레이를 옅고 성기게 만들면 기존 배경에 박힌 빛 효과와 겹쳐도 자연스러움. 아래 선수별 세트 섹션마다 **빛 효과** 프롬프트가 같이 있음.
+
+- **캔버스**: 1060×1484px (다른 레이어와 동일 비율), 알파 채널 있는 투명 PNG — 반짝이는 입자/빛만 그리고 나머지는 전부 투명
+- **레퍼런스**: 불필요 (소재가 아니라 빛 자체라 프레임/배경 참고 없이 프롬프트만으로 생성)
+- **파일명**: `<id>-background-glow.webp` (`totyCardAssets.ts`가 자동 스캔 — 없어도 나머지 레이어만으로 카드는 정상 동작함)
+- **적용 방식**: `TotyCardVisual.tsx`에서 이 레이어가 **캐릭터 바로 위**에 얹힘(캐릭터보다 나중에 그려짐), 마우스와 무관하게 항상 재생되는 느린 CSS 키프레임(드리프트 이동 + 옅은 opacity 깜빡임)을 적용 — 기존 `.toty-card__idle-bg`/`__idle-char`와 같은 패턴.
+- **주의 (중요)**: 캐릭터 위에 그대로 얹히는 레이어라, 입자가 크거나 캔버스 중앙에 몰려 있으면(특히 "마법진"처럼 원형 도형을 큼직하게 그리는 모티프) 캐릭터를 가려버림. **작고 성긴 입자를 화면 가장자리·모서리 위주로 흩뿌리고, 캐릭터가 서는 중앙~하단 영역은 비워두도록** 프롬프트에 명시할 것.
+
 ## 선수별 세트 (10개)
 
 순서·컬러·모티프 확정본:
@@ -129,6 +139,18 @@ linework must stay fully transparent (alpha 0), only the shield shape
 itself is opaque. 1060x1484px, transparent PNG.
 ```
 
+**빛 효과**:
+```
+Abstract loose particle/light-effect overlay ONLY, portrait orientation,
+1060x1484. Floating embers and sparks drifting slowly upward, with a soft
+warm amber-orange heat-haze glow, like cinders rising off molten lava.
+No solid material, no rock or stone texture, no border/frame, no
+characters, no text — this is a light layer meant to be composited on top
+of the existing card background, not a full scene. High detail, soft glow
+bloom, 4K. Entire canvas outside the glowing particles themselves must
+stay fully transparent (alpha 0), transparent PNG.
+```
+
 ---
 
 ### 2. 쥬멩이 — `ju010228` — 연두색 · 봄 넝쿨/새싹 (ST)
@@ -183,6 +205,18 @@ unrevealed back of this card before it's flipped. No text, no numbers, no
 real brand marks. Entire canvas outside the frame's own linework must stay
 fully transparent (alpha 0), only the shield shape itself is opaque.
 1060x1484px, transparent PNG.
+```
+
+**빛 효과**:
+```
+Abstract loose particle/light-effect overlay ONLY, portrait orientation,
+1060x1484. Tiny drifting motes of soft lime-green light and sparkling
+dew-drop glints catching the sun, like fireflies floating over spring
+vines. No solid material, no rock or stone texture, no border/frame, no
+characters, no text — this is a light layer meant to be composited on top
+of the existing card background, not a full scene. High detail, soft glow
+bloom, 4K. Entire canvas outside the glowing particles themselves must
+stay fully transparent (alpha 0), transparent PNG.
 ```
 
 ---
@@ -242,6 +276,22 @@ fully transparent (alpha 0), only the shield shape itself is opaque.
 1060x1484px, transparent PNG.
 ```
 
+**빛 효과**:
+```
+Abstract loose particle/light-effect overlay ONLY, portrait orientation,
+1060x1484. Small, sparse, scattered wisps of glowing violet arcane energy
+and tiny floating rune-light specks, drifting slowly — NOT one large
+centered magic-circle diagram. This overlay is composited directly on top
+of a player render standing in the center of the frame, so the entire
+center column and lower two-thirds (where the player's body is) must stay
+almost completely empty/transparent — keep all particles small and
+concentrated near the top corners and edges only. No solid material, no
+rock or stone texture, no border/frame, no characters, no text — this is a
+light layer, not a full scene. High detail, soft glow bloom, 4K. Entire
+canvas outside the sparse glowing particles themselves must stay fully
+transparent (alpha 0), transparent PNG.
+```
+
 ---
 
 ### 4. 뽀린걸 — `bboringirl` — 회색 + 빨강 · 기계 장갑판/회로 (CM)
@@ -296,6 +346,18 @@ the inner border. Moody, premium, mysterious — looks like the unrevealed
 back of this card before it's flipped. No text, no numbers, no real brand
 marks. Entire canvas outside the frame's own linework must stay fully
 transparent (alpha 0), only the shield shape itself is opaque. 1060x1484px,
+transparent PNG.
+```
+
+**빛 효과**:
+```
+Abstract loose particle/light-effect overlay ONLY, portrait orientation,
+1060x1484. Small pulsing red circuit-light sparks and drifting glowing
+data-node particles, flickering gently. No solid material, no rock or
+stone texture, no border/frame, no characters, no text — this is a light
+layer meant to be composited on top of the existing card background, not a
+full scene. High detail, soft glow bloom, 4K. Entire canvas outside the
+glowing particles themselves must stay fully transparent (alpha 0),
 transparent PNG.
 ```
 
@@ -356,6 +418,18 @@ fully transparent (alpha 0), only the shield shape itself is opaque.
 1060x1484px, transparent PNG.
 ```
 
+**빛 효과**:
+```
+Abstract loose particle/light-effect overlay ONLY, portrait orientation,
+1060x1484. Tiny drifting sapphire-blue starlight motes and soft glass-shard
+glints, like starlight scattering slowly through the air. No solid
+material, no rock or stone texture, no border/frame, no characters, no
+text — this is a light layer meant to be composited on top of the existing
+card background, not a full scene. High detail, soft glow bloom, 4K.
+Entire canvas outside the glowing particles themselves must stay fully
+transparent (alpha 0), transparent PNG.
+```
+
 ---
 
 ### 6. 핑구 — `sjh4018` — 하늘색 + 연보라 · 구름/깃털 (CB)
@@ -409,6 +483,18 @@ unrevealed back of this card before it's flipped. No text, no numbers, no
 real brand marks. Entire canvas outside the frame's own linework must stay
 fully transparent (alpha 0), only the shield shape itself is opaque.
 1060x1484px, transparent PNG.
+```
+
+**빛 효과**:
+```
+Abstract loose particle/light-effect overlay ONLY, portrait orientation,
+1060x1484. Softly drifting pale lavender light motes and a faint glowing
+cloud-wisp haze, floating gently. No solid material, no rock or stone
+texture, no border/frame, no characters, no text — this is a light layer
+meant to be composited on top of the existing card background, not a full
+scene. High detail, soft glow bloom, 4K. Entire canvas outside the glowing
+particles themselves must stay fully transparent (alpha 0), transparent
+PNG.
 ```
 
 ---
@@ -473,6 +559,18 @@ outside the frame's own linework must stay fully transparent (alpha 0),
 only the shield shape itself is opaque. 1060x1484px, transparent PNG.
 ```
 
+**빛 효과**:
+```
+Abstract loose particle/light-effect overlay ONLY, portrait orientation,
+1060x1484. Drifting lavender-purple bioluminescent glow particles and tiny
+glowing plankton specks, pulsing softly like underwater bioluminescence.
+No solid material, no rock or stone texture, no border/frame, no
+characters, no text — this is a light layer meant to be composited on top
+of the existing card background, not a full scene. High detail, soft glow
+bloom, 4K. Entire canvas outside the glowing particles themselves must
+stay fully transparent (alpha 0), transparent PNG.
+```
+
 ---
 
 ### 8. 리냐 — `lina0108` — 선명한 핑크 + 연분홍 · 벚꽃 (FB)
@@ -526,6 +624,18 @@ unrevealed back of this card before it's flipped. No text, no numbers, no
 real brand marks. Entire canvas outside the frame's own linework must stay
 fully transparent (alpha 0), only the shield shape itself is opaque.
 1060x1484px, transparent PNG.
+```
+
+**빛 효과**:
+```
+Abstract loose particle/light-effect overlay ONLY, portrait orientation,
+1060x1484. Softly drifting glowing pink sparkle motes and faint light
+glints, like sunlight catching falling petals. No solid material, no rock
+or stone texture, no border/frame, no characters, no text — this is a
+light layer meant to be composited on top of the existing card background,
+not a full scene. High detail, soft glow bloom, 4K. Entire canvas outside
+the glowing particles themselves must stay fully transparent (alpha 0),
+transparent PNG.
 ```
 
 ---
@@ -587,6 +697,18 @@ linework must stay fully transparent (alpha 0), only the shield shape
 itself is opaque. 1060x1484px, transparent PNG.
 ```
 
+**빛 효과**:
+```
+Abstract loose particle/light-effect overlay ONLY, portrait orientation,
+1060x1484. Crackling emerald-green lightning-spark particles and faint
+electric-blue glow flickers, sparking intermittently. No solid material,
+no rock or stone texture, no border/frame, no characters, no text — this
+is a light layer meant to be composited on top of the existing card
+background, not a full scene. High detail, soft glow bloom, 4K. Entire
+canvas outside the glowing particles themselves must stay fully
+transparent (alpha 0), transparent PNG.
+```
+
 ---
 
 ### 10. 재닌 — `janine95kim` — 스카이 블루 · 서리/오로라 (GK)
@@ -643,21 +765,36 @@ transparent (alpha 0), only the shield shape itself is opaque. 1060x1484px,
 transparent PNG.
 ```
 
+**빛 효과**:
+```
+Abstract loose particle/light-effect overlay ONLY, portrait orientation,
+1060x1484. Softly drifting silvery-white aurora light streaks and tiny
+glowing frost-crystal sparkle particles, shimmering gently. No solid
+material, no rock or stone texture, no border/frame, no characters, no
+text — this is a light layer meant to be composited on top of the existing
+card background, not a full scene. High detail, soft glow bloom, 4K.
+Entire canvas outside the glowing particles themselves must stay fully
+transparent (alpha 0), transparent PNG.
+```
+
 ---
 
 ## 보너스: 하치 — 화려한 스페셜 리메이크 (`hachi97`)
 
-하치는 이 카드 시리즈의 첫 번째 테스트 카드이자 제일 좋아하는 캐릭터라, 다른 10명과 똑같은 톤으로 두지 않고 **더 화려하고 장식이 많은 상위 등급 느낌**으로 새로 만들고 싶을 때 쓰는 프롬프트. 하치 RP가 **용(龍)**이라(팬닉도 "용볼") 모티프를 용으로 고정하고, 색은 컨셉대로 정하지 않고 **하치 캐릭터 레퍼런스 사진을 직접 분석해서 어울리는 색을 생성 도구가 스스로 고르게** 하는 게 포인트 — 다른 9명처럼 크리스탈/식물/룬문양 같은 무생물 모티프가 아니라, 용 비늘·발톱·날개·용의 기운(불/신비로운 에너지) 같은 "용" 자체를 형상화한 장식으로.
+하치는 이 카드 시리즈의 첫 번째 테스트 카드이자 제일 좋아하는 캐릭터라, 다른 10명과 똑같은 톤으로 두지 않고 **더 화려하고 장식이 많은 상위 등급 느낌**으로 새로 만들고 싶을 때 쓰는 프롬프트. 하치 RP가 **용(龍)**이라(팬닉도 "용볼") 모티프를 용으로 고정 — 다른 9명처럼 크리스탈/식물/룬문양 같은 무생물 모티프가 아니라, 용 비늘·발톱·날개·용의 기운(불/신비로운 에너지) 같은 "용" 자체를 형상화한 장식으로.
+
+**팔레트는 고정: 금색(골드/앰버) + 자수정(바이올렛) 용의 기운** — `totyCardTheme.ts`의 `hachi97` 항목(`color: #ffe29e`, `glow: #d9b3ff`)과 이미 맞춰져 있는 값. 원래는 "캐릭터 사진에서 어울리는 색을 생성 도구가 스스로 고르게" 하려 했는데, 프레임/배경/캐릭터/뒷면/빛효과가 전부 **별도의 생성 요청**이다 보니 매번 새로 색을 추론하면서 서로 어긋남 — 실제로 프레임은 금색+자수정으로 나왔는데 배경은 하늘색으로 나오는 불일치가 발생했음. 그래서 **팔레트를 텍스트로 고정**하고, **프레임 이미지를 실루엣뿐 아니라 색상 참고용으로도 함께 첨부**하도록 아래 프롬프트를 수정함 — 하늘색 등으로 다시 어긋나면 이 두 가지(고정 팔레트 문구 + 프레임 이미지 색상 참고 첨부)가 실제로 지켜졌는지 먼저 확인.
 
 **프레임** (하치 캐릭터 참고 사진 첨부 + 기존 하치 프레임 이미지를 실루엣 참고용으로 첨부):
 ```
-First, look at the attached character reference photo and pick a cohesive
-premium color palette based on her actual design — hair color, eye color,
-outfit colors. Then, using the attached card frame image ONLY as a
-silhouette/structure reference (same ornate shield-shaped outer silhouette,
-same scalloped border curve, same inner content window position), design a
-noticeably more lavish, higher-rarity dragon-themed version of this frame
-using that palette: the corner ornament reimagined as coiling dragon
+Using a warm golden-amber palette with soft amethyst-violet accents (the
+same palette this card's dragon-fire motif always uses — do not substitute
+a different color scheme such as blue), and using the attached card frame
+image ONLY as a silhouette/structure reference (same ornate shield-shaped
+outer silhouette, same scalloped border curve, same inner content window
+position), design a noticeably more lavish, higher-rarity dragon-themed
+version of this frame using that palette: the corner ornament reimagined
+as coiling dragon
 claws and dragon scales bursting from the top-left and bottom-right
 corners (instead of generic crystal shards), fine dragon-scale texture
 etched into the metal along the whole border, small dragon horns or
@@ -673,24 +810,27 @@ content window) must be fully transparent. PNG with alpha channel,
 1060x1484.
 ```
 
-**배경**:
+**배경** (완성된 하치 프레임 이미지를 색상 참고용으로 함께 첨부 — 구도가 아니라 팔레트를 그 이미지에 맞추라는 의미):
 ```
 Abstract premium trading-card background art, portrait orientation, using
-the same color palette chosen for the frame above. A dense, richly detailed
-cracked slab with glowing veins, a large cluster of coiling dragon claws
-and dragon scales bursting from one corner, wisps of mystical dragon-fire
-or glowing draconic energy swirling through the air, extra layers of
-sparkle, ember, and glitter dust, dramatic rim lighting for a noticeably
-more lavish, higher-rarity look than a standard card in this series. No
-characters, no people, no border/frame, no text. High detail, 4K, PNG,
-1060x1484.
+the exact same warm golden-amber + amethyst-violet color palette as the
+attached frame image — match those colors closely, do not introduce a
+different color scheme such as blue. A dense, richly detailed cracked slab
+with glowing veins, a large cluster of coiling dragon claws and dragon
+scales bursting from one corner, wisps of mystical dragon-fire or glowing
+draconic energy swirling through the air, extra layers of sparkle, ember,
+and glitter dust, dramatic rim lighting for a noticeably more lavish,
+higher-rarity look than a standard card in this series. No characters, no
+people, no border/frame, no text. High detail, 4K, PNG, 1060x1484.
 ```
 
-**캐릭터** (하치 참고 사진 첨부):
+**캐릭터** (하치 참고 사진 + 완성된 하치 프레임 이미지를 색상 참고용으로 함께 첨부):
 ```
 Turn the reference photo into a stylized premium trading-card 3D player
-render, semi-realistic style, using a color palette drawn from her actual
-hair/eye/outfit colors in the photo. A confident, dynamic hero pose (keep
+render, semi-realistic style, using the same warm golden-amber +
+amethyst-violet palette as the attached frame image (not a palette
+re-derived from her hair/eye/outfit colors — match the frame's colors
+specifically). A confident, dynamic hero pose (keep
 her signature thumbs-up-forward energy if it fits, or a slightly more
 dynamic action variant), full of personality. Subtle draconic accents tying
 into her dragon RP — small dragon-scale pattern trim or a tiny dragon
@@ -705,13 +845,15 @@ fully transparent PNG with alpha channel, 1060x1484, leave open space
 above the head and below the waist for name/stat overlays.
 ```
 
-**뒷면** (같은 팔레트 재사용):
+**뒷면** (완성된 하치 프레임 이미지를 실루엣 + 색상 참고용으로 함께 첨부):
 ```
-Using the attached card frame image ONLY as a silhouette/structure reference
+Using the attached card frame image as a silhouette/structure reference
 (same ornate shield-shaped outer silhouette, same scalloped border curve,
-same inner content window position) and the same color palette chosen for
-the frame above, design the BACK of this same card (not the front): a dark
-holographic foil surface with faint dragon-scale texture and wisps of
+same inner content window position) AND matching its exact warm
+golden-amber + amethyst-violet color palette (do not introduce a different
+color scheme such as blue), design the BACK of this same card (not the
+front): a dark holographic foil surface with faint dragon-scale texture
+and wisps of
 glowing draconic energy drifting beneath the prismatic sheen, a single bold
 coiled-dragon emblem centered in the middle of the shield (no readable
 text, no logos, no player), metallic trim in that same palette tracing the
@@ -722,4 +864,20 @@ before it's flipped. No text, no numbers, no real brand marks. Entire
 canvas outside the frame's own linework must stay fully transparent
 (alpha 0), only the shield shape itself is opaque. 1060x1484px, transparent
 PNG.
+```
+
+**빛 효과** (완성된 하치 프레임 이미지를 색상 참고용으로 함께 첨부):
+```
+Abstract loose particle/light-effect overlay ONLY, portrait orientation,
+1060x1484, matching the exact warm golden-amber + amethyst-violet color
+palette of the attached frame image (do not introduce a different color
+scheme such as blue). Wisps of glowing draconic energy, sparkle, ember,
+and glitter dust drifting slowly through the air — noticeably more lavish
+and dense than a
+standard card in this series, matching the higher-rarity treatment of the
+rest of this card. No solid material, no rock or stone texture, no
+border/frame, no characters, no text — this is a light layer meant to be
+composited on top of the existing card background, not a full scene. High
+detail, soft glow bloom, 4K. Entire canvas outside the glowing particles
+themselves must stay fully transparent (alpha 0), transparent PNG.
 ```

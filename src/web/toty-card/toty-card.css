@@ -160,17 +160,24 @@ body.toty-capture-mode::after {
 }
 
 .toty-card__idle-bg,
-.toty-card__idle-char {
+.toty-card__idle-char,
+.toty-card__idle-glow {
   position: absolute;
   inset: -6%;
 }
 .toty-card__idle-bg { animation: toty-idle-drift 9s ease-in-out infinite; }
 .toty-card__idle-char { animation: toty-idle-float 6.5s ease-in-out infinite; }
+/* Ambient light/particle overlay (see totyCardAssets.ts's
+   getBackgroundGlowUrl) — twinkles + drifts on its own, independent of the
+   idle-bg/idle-char breathing above, so the card never sits fully static. */
+.toty-card__idle-glow { animation: toty-bg-glow-twinkle 5s ease-in-out infinite; }
 .toty-card--active .toty-card__idle-bg,
-.toty-card--active .toty-card__idle-char { animation-play-state: paused; }
+.toty-card--active .toty-card__idle-char,
+.toty-card--active .toty-card__idle-glow { animation-play-state: paused; }
 
 .toty-card__bg,
-.toty-card__char {
+.toty-card__char,
+.toty-card__glow {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -180,6 +187,11 @@ body.toty-capture-mode::after {
   will-change: transform;
 }
 .toty-card__char { object-fit: contain; object-position: center bottom; }
+.toty-card__glow {
+  object-fit: contain;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
 
 .toty-card__glare,
 .toty-card__foil {
@@ -344,4 +356,8 @@ body.toty-capture-mode::after {
 @keyframes toty-idle-float {
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
   50% { transform: translate(0, -1.4%) rotate(.6deg); }
+}
+@keyframes toty-bg-glow-twinkle {
+  0%, 100% { transform: translate(0, 0) scale(1.06); opacity: .8; }
+  50% { transform: translate(1%, -1.2%) scale(1.12); opacity: 1; }
 }

@@ -13,11 +13,16 @@ import { getTotyCardTextTheme } from "./totyCardTheme.js";
 export function TotyCardVisual({
   streamer,
   assets,
+  backgroundGlowUrl,
   onCardClick,
   showGlow = true,
 }: {
   streamer: Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision">;
   assets: TotyCardAssets;
+  /** Optional ambient light/particle overlay (see totyCardAssets.ts's
+   * getBackgroundGlowUrl) — animates on its own via CSS so the card isn't
+   * fully static while idle. Omitted entirely for a player without one yet. */
+  backgroundGlowUrl?: string;
   onCardClick?: () => void;
   /** Off for the offline GIF capture (TotyCardCapturePage) — GIF's 1-bit
    * alpha can't do the glow's soft falloff, so it renders as a hard-edged
@@ -123,6 +128,16 @@ export function TotyCardVisual({
               style={{ transform: `translate(${tilt.charX}px, ${tilt.charY}px)` }}
             />
           </div>
+          {backgroundGlowUrl && (
+            <div className="toty-card__idle-glow">
+              <img
+                className="toty-card__glow"
+                src={backgroundGlowUrl}
+                alt=""
+                style={{ transform: `translate(${tilt.bgX}px, ${tilt.bgY}px)` }}
+              />
+            </div>
+          )}
           <span className="toty-card__glare" aria-hidden="true" />
           <span className="toty-card__foil" aria-hidden="true" />
         </div>

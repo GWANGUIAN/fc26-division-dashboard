@@ -38,8 +38,9 @@ export function TotyCardCapturePage() {
 
   return (
     <div className="toty-capture-stage">
-      {/* No glow: GIF's 1-bit alpha can't do its soft falloff (see
-          TotyCardVisual's showGlow doc comment), and it looks bad hard-edged. */}
+      {/* No frame-glow, and backgroundGlowUrl left unset entirely: GIF's
+          1-bit alpha can't do either one's soft falloff (see
+          TotyCardVisual's showGlow doc comment) — both render hard-edged. */}
       <TotyCardVisual streamer={streamer} assets={assets} showGlow={false} />
     </div>
   );

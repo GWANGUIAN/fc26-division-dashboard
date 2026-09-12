@@ -6,6 +6,7 @@ import { playSfx } from "../sfxAudio.js";
 import { TotyCardReveal } from "./TotyCardReveal.js";
 import { exportTotyCardPng } from "./exportTotyCardImage.js";
 import {
+  getBackgroundGlowUrl,
   getCardBackUrl,
   getPopupBackdropUrl,
   getTotyCardPreviewUrl,
@@ -121,6 +122,7 @@ export function TotyCardPopup({
           streamer={streamer}
           assets={assets}
           cardBackUrl={getCardBackUrl(streamer.id)}
+          backgroundGlowUrl={getBackgroundGlowUrl(streamer.id)}
           onCardClick={handleCardClick}
           onImpact={handleRevealImpact}
           onRevealed={() => setRevealed(true)}

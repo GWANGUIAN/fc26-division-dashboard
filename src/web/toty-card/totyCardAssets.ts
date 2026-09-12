@@ -52,8 +52,10 @@ const preloadedUrls = new Set<string>();
 
 export function preloadTotyCardAssets(assets: TotyCardAssets, streamerId: string): void {
   const cardBackUrl = getCardBackUrl(streamerId);
+  const backgroundGlowUrl = getBackgroundGlowUrl(streamerId);
   const urls = [assets.frame, assets.background, assets.character];
   if (cardBackUrl) urls.push(cardBackUrl);
+  if (backgroundGlowUrl) urls.push(backgroundGlowUrl);
   for (const url of urls) {
     if (preloadedUrls.has(url)) continue;
     preloadedUrls.add(url);
@@ -90,6 +92,25 @@ for (const [path, url] of Object.entries(modules)) {
 
 export function getCardBackUrl(streamerId: string): string | undefined {
   return cardBackUrls[streamerId];
+}
+
+// Per-player ambient light/particle overlay (embers, sparks, motes, etc. —
+// matching that card's motif) layered over the background/character in
+// TotyCardVisual and animated independently of the mouse via CSS, so the
+// card doesn't sit completely static while idle — see
+// docs/toty-card-prompts.md. Collected separately for the same reason as
+// the card-back art above: optional, doesn't gate the "3D 카드 보기" button.
+const BACKGROUND_GLOW_SUFFIX = "-background-glow.webp";
+const backgroundGlowUrls: Record<string, string> = {};
+for (const [path, url] of Object.entries(modules)) {
+  const filename = path.split("/").pop() ?? "";
+  if (filename.endsWith(BACKGROUND_GLOW_SUFFIX)) {
+    backgroundGlowUrls[filename.slice(0, -BACKGROUND_GLOW_SUFFIX.length)] = url;
+  }
+}
+
+export function getBackgroundGlowUrl(streamerId: string): string | undefined {
+  return backgroundGlowUrls[streamerId];
 }
 
 // Pre-rendered animated GIF loop per player (background/character motion +
