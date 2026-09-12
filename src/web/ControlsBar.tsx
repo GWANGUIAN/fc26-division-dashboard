@@ -1,5 +1,5 @@
 import type { RefObject } from "react";
-import { Activity, Copy, Download, Trophy } from "lucide-react";
+import { Activity, Copy, Download } from "lucide-react";
 import { PositionFilterPicker } from "./PositionFilterPicker";
 
 export function ControlsBar({
@@ -8,8 +8,6 @@ export function ControlsBar({
   isDivision,
   query,
   onQueryChange,
-  achievementOnly,
-  onToggleAchievementOnly,
   activityOnly,
   onToggleActivityOnly,
   selectedPositions,
@@ -25,8 +23,6 @@ export function ControlsBar({
   isDivision: boolean;
   query: string;
   onQueryChange: (value: string) => void;
-  achievementOnly: boolean;
-  onToggleAchievementOnly: () => void;
   activityOnly: boolean;
   onToggleActivityOnly: () => void;
   selectedPositions: string[];
@@ -58,15 +54,6 @@ export function ControlsBar({
           {isDivision ? (
             <div className="controls__actions">
               <div className="segmented segmented--filters">
-                <button
-                  className={`segmented__trophy-toggle${achievementOnly ? " active" : ""}`}
-                  onClick={onToggleAchievementOnly}
-                  aria-pressed={achievementOnly}
-                  aria-label="업적 달성자만"
-                >
-                  <Trophy aria-hidden="true" />
-                  <span className="control-btn__label">업적 달성자만</span>
-                </button>
                 <button
                   className={`segmented__activity-toggle${activityOnly ? " active" : ""}`}
                   onClick={onToggleActivityOnly}

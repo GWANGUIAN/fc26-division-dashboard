@@ -116,8 +116,6 @@ export function App() {
     setQuery,
     activityOnly,
     setActivityOnly,
-    achievementOnly,
-    setAchievementOnly,
     selectedPositions,
     setSelectedPositions,
     availablePositionCodes,
@@ -194,10 +192,6 @@ export function App() {
         isDivision={isDivision}
         query={query}
         onQueryChange={setQuery}
-        achievementOnly={achievementOnly}
-        onToggleAchievementOnly={() =>
-          setAchievementOnly((current) => !current)
-        }
         activityOnly={activityOnly}
         onToggleActivityOnly={() => setActivityOnly((current) => !current)}
         selectedPositions={selectedPositions}

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import type { DashboardSnapshot } from "../shared/model.js";
 import { searchable } from "../shared/search.js";
 import { winRatePercent } from "../shared/record-extraction.js";
-import { buildTrophyAwards, trophyBadgesFor } from "../shared/trophy.js";
+import { buildTrophyAwards } from "../shared/trophy.js";
 import { determineCelebrationRound } from "./useLatestActivity";
 import { usePositionCodeFilter } from "./usePositionCodeFilter";
 
@@ -12,7 +12,6 @@ export function useStreamerFilters(
 ) {
   const [query, setQuery] = useState("");
   const [activityOnly, setActivityOnly] = useState(false);
-  const [achievementOnly, setAchievementOnly] = useState(false);
 
   // Only 1차 합격자로 확정된 스트리머만 메인 보드/집계 대상이다. 나머지는
   // nonPassedStreamers로 따로 모아, 접이식 섹션에서만 노출한다.
@@ -87,8 +86,6 @@ export function useStreamerFilters(
               streamer.scopePosts?.length ||
               streamer.elevenVsElevenPosts?.length,
             )) &&
-          (!achievementOnly ||
-            trophyBadgesFor(streamer, trophyAwards).length > 0) &&
           (isAllPositionsSelected ||
             selectedPositionSet.has((streamer.hopedPosition1 ?? "").toUpperCase()) ||
             selectedPositionSet.has((streamer.hopedPosition2 ?? "").toUpperCase())),
@@ -97,8 +94,6 @@ export function useStreamerFilters(
       boardStreamers,
       query,
       activityOnly,
-      achievementOnly,
-      trophyAwards,
       isAllPositionsSelected,
       selectedPositionSet,
     ],
@@ -146,8 +141,6 @@ export function useStreamerFilters(
     setQuery,
     activityOnly,
     setActivityOnly,
-    achievementOnly,
-    setAchievementOnly,
     selectedPositions,
     setSelectedPositions,
     availablePositionCodes,
