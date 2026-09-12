@@ -5,6 +5,16 @@
    (TotyCardCapturePage, driven by scripts/generate-toty-preview.mjs) — no
    backdrop/scrim/chrome, just the card, so Playwright's screenshot has a
    clean alpha background. */
+/* The app's ambient background lives on body::before/::after (fixed,
+   full-viewport gradients — see styles.css), not on body's own
+   `background`, so it has to be turned off separately for the capture
+   route to actually get a transparent screenshot. */
+body.toty-capture-mode { background: transparent; }
+body.toty-capture-mode::before,
+body.toty-capture-mode::after {
+  content: none;
+}
+
 .toty-capture-stage {
   position: fixed;
   inset: 0;

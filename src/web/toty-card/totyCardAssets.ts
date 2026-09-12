@@ -2,8 +2,9 @@
 // src/web/assets/toty-cards/ at build time — dropping in a new streamer's
 // <id>-frame.webp / -background.webp / -character.webp trio is enough to
 // make their "3D 카드 보기" button appear, no manifest to hand-maintain.
+// Includes .gif alongside .webp for the optional <id>-preview.gif export.
 
-const modules = import.meta.glob<string>("../assets/toty-cards/*.webp", {
+const modules = import.meta.glob<string>("../assets/toty-cards/*.{webp,gif}", {
   eager: true,
   import: "default",
   query: "?url",
@@ -70,12 +71,13 @@ export function getPopupBackdropUrl(): string | undefined {
   return popupBackdropEntry?.[1];
 }
 
-// Pre-rendered animated WebP loop per player (background/character motion +
-// a simulated hover sweep baked in) — offline/opt-in, produced by
+// Pre-rendered animated GIF loop per player (background/character motion +
+// a simulated hover sweep baked in, no rim glow — see TotyCardVisual's
+// showGlow doc comment) — offline/opt-in, produced by
 // scripts/generate-toty-preview.mjs, not required for the button/popup to
-// work. Named "<id>-preview.webp" so it doesn't collide with the
+// work. Named "<id>-preview.gif" so it doesn't collide with the
 // frame/background/character regex above.
-const PREVIEW_SUFFIX = "-preview.webp";
+const PREVIEW_SUFFIX = "-preview.gif";
 const previewUrls: Record<string, string> = {};
 for (const [path, url] of Object.entries(modules)) {
   const filename = path.split("/").pop() ?? "";

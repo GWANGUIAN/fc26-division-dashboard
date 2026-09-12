@@ -2,12 +2,14 @@
  * Renders a player's actual 3D card (via a headless browser hitting the
  * real ?totyCapture= route — not a from-scratch canvas reimplementation, so
  * it's pixel-identical to the live hover effect: same CSS, same blend
- * modes, same shine) while feeding it a synthetic sweeping mouse path, then
- * stitches the captured frames into a looping animated WebP with a
- * transparent background.
+ * modes, same shine, minus the rim glow which the capture route turns off
+ * via showGlow={false} — GIF's 1-bit alpha can't do its soft falloff)
+ * while feeding it a synthetic sweeping mouse path, then stitches the
+ * captured frames into a looping animated GIF with a transparent
+ * background.
  *
  * This runs offline/on-demand (not in the browser) because there's no solid
- * client-side animated-WebP encoder yet — sharp already ships one, and
+ * client-side animated-GIF encoder yet — sharp already ships one, and
  * driving the real page beats reimplementing glare/foil/text-shine in
  * <canvas>.
  *
@@ -29,11 +31,13 @@ const rootDir = path.resolve(__dirname, "..");
 // WebP's container format caps any single dimension at 16383px, and sharp's
 // raw-buffer animation path builds one tall "stack" of height*FRAME_COUNT
 // before slicing it back into pages — so that product must stay under the
-// limit regardless of how small pageHeight ends up being. 400x560 * 28 =
-// 15680, safely under it.
-const VIEWPORT = { width: 400, height: 560 };
-const FRAME_COUNT = 28;
-const FRAME_DELAY_MS = 90; // 28 * 90ms ≈ 2.5s loop
+// limit regardless of how small pageHeight ends up being. 572x800 * 20 =
+// 16000, safely under it. (Prioritizes per-frame resolution over frame
+// count — 20 frames is still a smooth-enough loop for a slow hover sweep,
+// and much crisper than a smaller viewport with more frames.)
+const VIEWPORT = { width: 572, height: 800 };
+const FRAME_COUNT = 20;
+const FRAME_DELAY_MS = 125; // 20 * 125ms = 2.5s loop
 const STEP_SETTLE_MS = 45; // lets the .toty-card--active transition finish before each screenshot
 
 async function main() {
@@ -104,17 +108,20 @@ async function main() {
     }
     const stacked = Buffer.concat(decoded.map(({ data }) => data));
 
-    const outPath = path.join(assetsDir, `${id}-preview.webp`);
+    const outPath = path.join(assetsDir, `${id}-preview.gif`);
     // pageHeight on the *input* raw options (sharp >=0.34.3) is what tells
     // it this buffer is a vertically-stacked multi-frame image, not
     // `animated`/`pages` — those only apply when reading an already-encoded
     // animated file. Without this, sharp silently wrote a single flat
     // image the height of the whole stack, with alpha dropped in the
     // process (see: https://github.com/lovell/sharp/issues/3236).
+    // Unlike .webp(), .gif()'s `delay` doesn't broadcast a single number to
+    // every frame — passing a scalar left every page but the first at a
+    // 0ms delay. Needs one entry per page explicitly.
     await sharp(stacked, {
       raw: { width, height: height * decoded.length, channels: 4, pageHeight: height },
     })
-      .webp({ pageHeight: height, delay: FRAME_DELAY_MS, loop: 0, quality: 82 })
+      .gif({ pageHeight: height, delay: Array(decoded.length).fill(FRAME_DELAY_MS), loop: 0 })
       .toFile(outPath);
 
     console.log(`Wrote ${path.relative(rootDir, outPath)} (${decoded.length} frames)`);

@@ -128,7 +128,7 @@ export function TotyCardPopup({
             <a
               className="toty-card-popup__download"
               href={previewUrl}
-              download={`${streamer.displayName}-3d-card.webp`}
+              download={`${streamer.displayName}-3d-card.gif`}
             >
               <Download aria-hidden="true" />
               움짤로 저장

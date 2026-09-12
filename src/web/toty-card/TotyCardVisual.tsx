@@ -14,10 +14,15 @@ export function TotyCardVisual({
   streamer,
   assets,
   onCardClick,
+  showGlow = true,
 }: {
   streamer: Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision">;
   assets: TotyCardAssets;
   onCardClick?: () => void;
+  /** Off for the offline GIF capture (TotyCardCapturePage) — GIF's 1-bit
+   * alpha can't do the glow's soft falloff, so it renders as a hard-edged
+   * ring there instead of a smooth aura; the live popup keeps it. */
+  showGlow?: boolean;
 }) {
   const textTheme = getTotyCardTextTheme(streamer.id);
 
@@ -96,7 +101,9 @@ export function TotyCardVisual({
             outward from the border's alpha edge) only ever shows on the
             outward side — the opaque window content on top hides the
             inward half. The crisp .toty-card__frame on top stays glow-free. */}
-        <img className="toty-card__frame-glow" src={assets.frame} alt="" aria-hidden="true" />
+        {showGlow && (
+          <img className="toty-card__frame-glow" src={assets.frame} alt="" aria-hidden="true" />
+        )}
         <div className="toty-card__window">
           <div className="toty-card__idle-bg">
             <img
