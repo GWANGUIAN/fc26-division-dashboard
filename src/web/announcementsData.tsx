@@ -33,7 +33,6 @@ export const ANNOUNCEMENTS: Announcement[] = [
         전체화면으로 감상할 수 있습니다.
       </>
     ),
-    note: "카드 아트는 선수별로 순차적으로 제작 중이라, 3D 카드 보기 버튼은 준비가 끝난 선수부터 차례로 보이게 됩니다.",
   },
   {
     id: "2026-09-wakgood-notebook",
