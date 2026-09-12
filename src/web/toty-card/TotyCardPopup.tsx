@@ -179,7 +179,7 @@ export function TotyCardPopup({
             <span className="toty-card__glare" aria-hidden="true" />
             <span className="toty-card__foil" aria-hidden="true" />
           </div>
-          <img className="toty-card__frame" src={assets.frame} alt="" />
+          <img className="toty-card__frame" src={assets.frame} alt="" fetchPriority="high" />
 
           <div className="toty-card__stats">
             {streamer.hopedPosition1 && (
