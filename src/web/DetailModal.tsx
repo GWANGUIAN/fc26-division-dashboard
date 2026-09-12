@@ -99,7 +99,7 @@ export function DetailModal({
   // signal, so warm the 3D card art now instead of waiting for a hover on
   // the button below — by the time it's clicked, it's likely cached already.
   useEffect(() => {
-    if (totyAssets) preloadTotyCardAssets(totyAssets);
+    if (totyAssets) preloadTotyCardAssets(totyAssets, streamer.id);
   }, [totyAssets]);
   const fancyTier = fancyTierOf(streamer);
   const fancyLite = fancyTier === "lite";
@@ -184,7 +184,7 @@ export function DetailModal({
                   className="modal__toty-btn"
                   displayName={streamer.displayName}
                   onOpen={onOpenTotyCard}
-                  onPrefetch={() => preloadTotyCardAssets(totyAssets)}
+                  onPrefetch={() => preloadTotyCardAssets(totyAssets, streamer.id)}
                   showLabel
                 />
               )}

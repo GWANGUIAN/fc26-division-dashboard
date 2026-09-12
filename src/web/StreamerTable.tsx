@@ -99,7 +99,7 @@ function StreamerTableRow({
               className="streamer-table__toty-btn"
               displayName={streamer.displayName}
               onOpen={() => onOpenTotyCard(streamer)}
-              onPrefetch={() => preloadTotyCardAssets(totyAssets)}
+              onPrefetch={() => preloadTotyCardAssets(totyAssets, streamer.id)}
             />
           )}
         </span>

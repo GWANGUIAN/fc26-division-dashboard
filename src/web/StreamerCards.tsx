@@ -102,7 +102,7 @@ export function StreamerCard({
             className="streamer-card__toty-btn"
             displayName={streamer.displayName}
             onOpen={() => onOpenTotyCard(streamer)}
-            onPrefetch={() => preloadTotyCardAssets(totyAssets)}
+            onPrefetch={() => preloadTotyCardAssets(totyAssets, streamer.id)}
           />
         )}
       </span>
@@ -290,7 +290,7 @@ export function StreamerFifaCard({
               className="fifa-card__toty-btn"
               displayName={streamer.displayName}
               onOpen={() => onOpenTotyCard(streamer)}
-              onPrefetch={() => preloadTotyCardAssets(totyAssets)}
+              onPrefetch={() => preloadTotyCardAssets(totyAssets, streamer.id)}
             />
           )}
           <span

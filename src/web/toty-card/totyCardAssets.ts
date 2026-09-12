@@ -50,8 +50,11 @@ export function getTotyCardAssets(streamerId: string): TotyCardAssets | undefine
 // Image() objects on repeat hovers, the HTTP cache handles the rest.
 const preloadedUrls = new Set<string>();
 
-export function preloadTotyCardAssets(assets: TotyCardAssets): void {
-  for (const url of [assets.frame, assets.background, assets.character]) {
+export function preloadTotyCardAssets(assets: TotyCardAssets, streamerId: string): void {
+  const cardBackUrl = getCardBackUrl(streamerId);
+  const urls = [assets.frame, assets.background, assets.character];
+  if (cardBackUrl) urls.push(cardBackUrl);
+  for (const url of urls) {
     if (preloadedUrls.has(url)) continue;
     preloadedUrls.add(url);
     const img = new Image();
