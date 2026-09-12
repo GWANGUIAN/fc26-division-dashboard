@@ -56,6 +56,8 @@ import { PhotoBoothOverlay } from "./photo-booth/PhotoBoothOverlay";
 import { KickupsToggle } from "./minigame/KickupsToggle";
 import { KickupsModal } from "./minigame/KickupsModal";
 import { FreekickToggle } from "./minigame/FreekickToggle";
+import { TotyCardPopup } from "./toty-card/TotyCardPopup";
+import { getTotyCardAssets } from "./toty-card/totyCardAssets";
 
 // Pulls in the `three` dependency (~600KB+), so it's lazy-loaded and only reaches the browser
 // once a user actually opens this modal.
@@ -76,6 +78,7 @@ export function App() {
   const [wakgoodNotebookOpen, setWakgoodNotebookOpen] = useState(false);
   const [photoBoothOpen, setPhotoBoothOpen] = useState(false);
   const [growthGraphOpen, setGrowthGraphOpen] = useState(false);
+  const [totyCardStreamer, setTotyCardStreamer] = useState<StreamerRecord>();
   // A single slot (rather than one boolean per minigame) makes it structurally impossible for two
   // minigame modals to be open at once.
   const [activeMinigame, setActiveMinigame] = useState<"kickups" | "freekick" | null>(null);
@@ -237,6 +240,7 @@ export function App() {
           trophyAwards={trophyAwards}
           seenKeys={seenKeys}
           onOpenStreamer={openStreamer}
+          onOpenTotyCard={setTotyCardStreamer}
           cardZoom={cardZoom}
           onZoomIn={handleZoomIn}
           onZoomOut={handleZoomOut}
@@ -269,8 +273,18 @@ export function App() {
             setSelected(undefined);
           }}
           onOpenTrophy={() => setTrophyOpen(true)}
+          onOpenTotyCard={() => setTotyCardStreamer(selected)}
           latestPosts={snapshot?.latestPosts}
           sfxVolume={sfxVolume}
+        />
+      )}
+      {totyCardStreamer && (
+        <TotyCardPopup
+          streamer={totyCardStreamer}
+          assets={getTotyCardAssets(totyCardStreamer.id)!}
+          sfxEnabled={sfxEnabled}
+          sfxVolume={sfxVolume}
+          onClose={() => setTotyCardStreamer(undefined)}
         />
       )}
       {selectedApplication && (

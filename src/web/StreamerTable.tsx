@@ -15,6 +15,8 @@ import {
   SaviorName,
 } from "./cardVisuals";
 import { isUpdatedToday, seenKeyFor } from "./storage";
+import { TotyCardButton } from "./toty-card/TotyCardButton";
+import { hasTotyCard } from "./toty-card/totyCardAssets";
 
 type SortKey = "division" | "name" | "games" | "winRate" | "lastPromotion";
 type Sort = { key: SortKey; dir: "asc" | "desc" };
@@ -44,6 +46,7 @@ function StreamerTableRow({
   isLive,
   onOpen,
   onOpenTrophy,
+  onOpenTotyCard,
 }: {
   streamer: StreamerRecord;
   index: number;
@@ -52,6 +55,7 @@ function StreamerTableRow({
   isLive: boolean;
   onOpen: (streamer: StreamerRecord) => void;
   onOpenTrophy?: () => void;
+  onOpenTotyCard?: (streamer: StreamerRecord) => void;
 }) {
   const games = totalGamesOf(streamer);
   const winRate = winRateOf(streamer);
@@ -87,6 +91,13 @@ function StreamerTableRow({
             <Volume2
               className="streamer-table__sfx-badge"
               aria-hidden="true"
+            />
+          )}
+          {onOpenTotyCard && hasTotyCard(streamer.id) && (
+            <TotyCardButton
+              className="streamer-table__toty-btn"
+              displayName={streamer.displayName}
+              onOpen={() => onOpenTotyCard(streamer)}
             />
           )}
         </span>
@@ -149,6 +160,7 @@ export function StreamerTable({
   liveStreamerIds,
   onOpen,
   onOpenTrophy,
+  onOpenTotyCard,
 }: {
   streamers: StreamerRecord[];
   awards: TrophyAwards;
@@ -156,6 +168,7 @@ export function StreamerTable({
   liveStreamerIds: Set<string>;
   onOpen: (streamer: StreamerRecord) => void;
   onOpenTrophy?: () => void;
+  onOpenTotyCard?: (streamer: StreamerRecord) => void;
 }) {
   const [sort, setSort] = useState<Sort | null>(null);
 
@@ -254,6 +267,7 @@ export function StreamerTable({
                 isLive={isLive}
                 onOpen={onOpen}
                 onOpenTrophy={onOpenTrophy}
+                onOpenTotyCard={onOpenTotyCard}
               />
             );
           })}

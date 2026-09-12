@@ -24,6 +24,8 @@ import {
   SaviorTag,
 } from "./cardVisuals";
 import { DivisionSigil } from "./divisionSigils";
+import { TotyCardButton } from "./toty-card/TotyCardButton";
+import { hasTotyCard } from "./toty-card/totyCardAssets";
 
 export function StreamerCard({
   streamer,
@@ -32,6 +34,7 @@ export function StreamerCard({
   isLive,
   onOpen,
   onOpenTrophy,
+  onOpenTotyCard,
 }: {
   streamer: StreamerRecord;
   awards: TrophyAwards;
@@ -39,6 +42,7 @@ export function StreamerCard({
   isLive?: boolean;
   onOpen: () => void;
   onOpenTrophy?: () => void;
+  onOpenTotyCard?: (streamer: StreamerRecord) => void;
 }) {
   const tier = fancyTierOf(streamer);
   const lite = tier === "lite";
@@ -46,9 +50,21 @@ export function StreamerCard({
   const savior = isStreamerSavior(streamer);
   const rate = streamer.record ? winRatePercent(streamer.record) : undefined;
   return (
-    <button
+    // Not a <button> — a 3D-card icon button needs to nest inside this, and
+    // <button> can't validly contain another <button> (see StreamerFifaCard
+    // below for the same reasoning). role="button" mirrors the pattern
+    // StreamerTableRow already uses in StreamerTable.tsx.
+    <div
+      role="button"
+      tabIndex={0}
       className={`streamer-card ${isNew ? "streamer-card--new" : ""} ${tier !== "none" ? "fancy-border" : ""} ${lite ? "fancy-border--lite" : ""} ${savior ? "savior-border" : ""}`}
       onClick={onOpen}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onOpen();
+        }
+      }}
       aria-label={`${streamer.displayName} 상세 보기${isNew ? " (24시간 이내 업데이트됨)" : ""}`}
       style={
         tier !== "none" || savior
@@ -79,6 +95,13 @@ export function StreamerCard({
         )}
         {streamer.sfx && (
           <Volume2 className="streamer-card__sfx-badge" aria-hidden="true" />
+        )}
+        {onOpenTotyCard && hasTotyCard(streamer.id) && (
+          <TotyCardButton
+            className="streamer-card__toty-btn"
+            displayName={streamer.displayName}
+            onOpen={() => onOpenTotyCard(streamer)}
+          />
         )}
       </span>
       <span className="streamer-card__copy">
@@ -123,7 +146,7 @@ export function StreamerCard({
         </span>
       )}
       {isNew && <span className="streamer-card__new-badge">NEW</span>}
-    </button>
+    </div>
   );
 }
 
@@ -132,11 +155,13 @@ export function StreamerFifaCard({
   awards,
   onOpen,
   onOpenTrophy,
+  onOpenTotyCard,
 }: {
   streamer: StreamerRecord;
   awards: TrophyAwards;
   onOpen: () => void;
   onOpenTrophy?: () => void;
+  onOpenTotyCard?: (streamer: StreamerRecord) => void;
 }) {
   const rate = streamer.record ? winRatePercent(streamer.record) : undefined;
   const color = divisionColor(streamer.currentDivision);
@@ -147,7 +172,7 @@ export function StreamerFifaCard({
     ? formatBoardPostDate(streamer.lastPost.publishedAt)
     : "첫 보고 대기";
   const photoSrc = streamer.profileImageUrl ?? defaultSoopProfileUrl(streamer.soopId);
-  const cardRef = useRef<HTMLButtonElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({
     rx: 0,
     ry: 0,
@@ -164,7 +189,7 @@ export function StreamerFifaCard({
   const rafRef = useRef(0);
   useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
 
-  const handleMouseMove = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     const rect = cardRef.current?.getBoundingClientRect();
     if (!rect) return;
     const x = (event.clientX - rect.left) / rect.width;
@@ -186,10 +211,21 @@ export function StreamerFifaCard({
   };
 
   return (
-    <button
+    // Not a <button> — the 3D-card icon button below needs to nest inside
+    // this, and a <button> can't validly contain another interactive
+    // <button>. role="button" mirrors StreamerTableRow's existing pattern.
+    <div
       ref={cardRef}
+      role="button"
+      tabIndex={0}
       className={`fifa-card fifa-card--holo ${tilt.active ? "fifa-card--active" : ""} ${tier !== "none" ? "fifa-card--fancy" : ""} ${lite ? "fifa-card--fancy-lite" : ""} ${savior ? "fifa-card--savior" : ""}`}
       onClick={onOpen}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onOpen();
+        }
+      }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={
@@ -246,6 +282,13 @@ export function StreamerFifaCard({
           </span>
         </span>
         <span className="fifa-card__photo">
+          {onOpenTotyCard && hasTotyCard(streamer.id) && (
+            <TotyCardButton
+              className="fifa-card__toty-btn"
+              displayName={streamer.displayName}
+              onOpen={() => onOpenTotyCard(streamer)}
+            />
+          )}
           <span
             className="fifa-card__photo-blur"
             style={{ backgroundImage: `url(${photoSrc})` }}
@@ -328,7 +371,7 @@ export function StreamerFifaCard({
           )}
         </span>
       </span>
-    </button>
+    </div>
   );
 }
 
@@ -338,6 +381,7 @@ export function CardBoard({
   zoom,
   onOpen,
   onOpenTrophy,
+  onOpenTotyCard,
   onZoomIn,
   onZoomOut,
   zoomMin,
@@ -349,6 +393,7 @@ export function CardBoard({
   zoom: number;
   onOpen: (streamer: StreamerRecord) => void;
   onOpenTrophy?: () => void;
+  onOpenTotyCard?: (streamer: StreamerRecord) => void;
   onZoomIn: () => void;
   onZoomOut: () => void;
   zoomMin: number;
@@ -387,6 +432,7 @@ export function CardBoard({
             awards={awards}
             onOpen={() => onOpen(streamer)}
             onOpenTrophy={onOpenTrophy}
+            onOpenTotyCard={onOpenTotyCard}
           />
         ))}
         {streamers.length === 0 && (

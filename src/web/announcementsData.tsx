@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import {
+  Box,
   CalendarDays,
   CirclePile,
   Shield,
@@ -17,6 +18,23 @@ export type Announcement = {
 };
 
 export const ANNOUNCEMENTS: Announcement[] = [
+  {
+    id: "2026-09-toty-card",
+    date: "2026.09.12",
+    body: (
+      <>
+        <strong>3D 카드 보기</strong> 기능이 추가되었습니다. 카드뷰/리스트뷰/표
+        보기의 프로필 영역과 선수 상세 정보에서{" "}
+        <span className="modal__toty-btn">
+          <Box aria-hidden="true" />
+          <span>3D 카드 보기</span>
+        </span>{" "}
+        버튼을 누르면 마우스 움직임에 반응해 살아 움직이는 3D 카드를
+        전체화면으로 감상할 수 있습니다.
+      </>
+    ),
+    note: "카드 아트는 선수별로 순차적으로 제작 중이라, 3D 카드 보기 버튼은 준비가 끝난 선수부터 차례로 보이게 됩니다.",
+  },
   {
     id: "2026-09-wakgood-notebook",
     date: "2026.09.05",

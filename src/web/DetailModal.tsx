@@ -31,6 +31,8 @@ import {
 } from "./StreamerActivitySection";
 import { WakgoodNotePanel } from "./WakgoodNoteTooltip";
 import { computeMatchStats } from "./match-record/matchRecordData";
+import { TotyCardButton } from "./toty-card/TotyCardButton";
+import { hasTotyCard } from "./toty-card/totyCardAssets";
 
 export function DetailModal({
   streamer,
@@ -38,6 +40,7 @@ export function DetailModal({
   isLive,
   onClose,
   onOpenTrophy,
+  onOpenTotyCard,
   latestPosts = [],
   sfxVolume,
 }: {
@@ -46,6 +49,7 @@ export function DetailModal({
   isLive?: boolean;
   onClose: () => void;
   onOpenTrophy?: () => void;
+  onOpenTotyCard?: () => void;
   latestPosts?: PromotionPost[];
   sfxVolume: number;
 }) {
@@ -167,6 +171,14 @@ export function DetailModal({
                 >
                   <Volume2 aria-hidden="true" />
                 </button>
+              )}
+              {onOpenTotyCard && hasTotyCard(streamer.id) && (
+                <TotyCardButton
+                  className="modal__toty-btn"
+                  displayName={streamer.displayName}
+                  onOpen={onOpenTotyCard}
+                  showLabel
+                />
               )}
             </span>
             {streamer.hopedPosition1 && (

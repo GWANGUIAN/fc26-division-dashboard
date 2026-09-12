@@ -43,6 +43,7 @@ export function DivisionResults({
   trophyAwards,
   seenKeys,
   onOpenStreamer,
+  onOpenTotyCard,
   cardZoom,
   onZoomIn,
   onZoomOut,
@@ -64,6 +65,7 @@ export function DivisionResults({
   trophyAwards: TrophyAwards;
   seenKeys: Set<string>;
   onOpenStreamer: (streamer: StreamerRecord) => void;
+  onOpenTotyCard?: (streamer: StreamerRecord) => void;
   cardZoom: number;
   onZoomIn: () => void;
   onZoomOut: () => void;
@@ -172,6 +174,7 @@ export function DivisionResults({
                       isLive={liveStreamerIds.has(streamer.id)}
                       onOpen={() => onOpenStreamer(streamer)}
                       onOpenTrophy={onOpenTrophy}
+                      onOpenTotyCard={onOpenTotyCard}
                     />
                   ))}
                   {entries.length === 0 && (
@@ -226,6 +229,7 @@ export function DivisionResults({
           liveStreamerIds={liveStreamerIds}
           onOpen={onOpenStreamer}
           onOpenTrophy={onOpenTrophy}
+          onOpenTotyCard={onOpenTotyCard}
         />
       ) : (
         <CardBoard
@@ -234,6 +238,7 @@ export function DivisionResults({
           zoom={cardZoom}
           onOpen={onOpenStreamer}
           onOpenTrophy={onOpenTrophy}
+          onOpenTotyCard={onOpenTotyCard}
           onZoomIn={onZoomIn}
           onZoomOut={onZoomOut}
           zoomMin={zoomMin}
@@ -318,6 +323,7 @@ export function DivisionResults({
                       isLive={liveStreamerIds.has(streamer.id)}
                       onOpen={() => onOpenStreamer(streamer)}
                       onOpenTrophy={onOpenTrophy}
+                      onOpenTotyCard={onOpenTotyCard}
                     />
                   ))}
               </>
@@ -358,6 +364,7 @@ export function DivisionResults({
                       isLive={liveStreamerIds.has(streamer.id)}
                       onOpen={() => onOpenStreamer(streamer)}
                       onOpenTrophy={onOpenTrophy}
+                      onOpenTotyCard={onOpenTotyCard}
                     />
                   ))}
               </>

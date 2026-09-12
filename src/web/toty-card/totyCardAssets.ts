@@ -1,0 +1,55 @@
+// Auto-detects which streamers have a full TOTY 3D card art set by scanning
+// src/web/assets/toty-cards/ at build time — dropping in a new streamer's
+// <id>-frame.webp / -background.webp / -character.webp trio is enough to
+// make their "3D 카드 보기" button appear, no manifest to hand-maintain.
+
+const modules = import.meta.glob<string>("../assets/toty-cards/*.webp", {
+  eager: true,
+  import: "default",
+  query: "?url",
+});
+
+export type TotyCardAssets = {
+  frame: string;
+  background: string;
+  character: string;
+};
+
+const PARTS = ["frame", "background", "character"] as const;
+
+const partial: Record<string, Partial<TotyCardAssets>> = {};
+
+for (const [path, url] of Object.entries(modules)) {
+  const filename = path.split("/").pop() ?? "";
+  const match = /^(.+)-(frame|background|character)\.webp$/.exec(filename);
+  if (!match) continue;
+  const [, id, part] = match;
+  (partial[id] ??= {})[part as (typeof PARTS)[number]] = url;
+}
+
+const ASSETS: Record<string, TotyCardAssets> = {};
+for (const [id, parts] of Object.entries(partial)) {
+  if (parts.frame && parts.background && parts.character) {
+    ASSETS[id] = parts as TotyCardAssets;
+  }
+}
+
+export function hasTotyCard(streamerId: string): boolean {
+  return streamerId in ASSETS;
+}
+
+export function getTotyCardAssets(streamerId: string): TotyCardAssets | undefined {
+  return ASSETS[streamerId];
+}
+
+// Shared full-screen popup backdrop (same image behind every player's card —
+// see docs/toty-card-prompts.md). Optional: until it's dropped in as
+// popup-backdrop.webp, TotyCardPopup falls back to a plain CSS gradient.
+const POPUP_BACKDROP_FILENAME = "popup-backdrop.webp";
+const popupBackdropEntry = Object.entries(modules).find(([path]) =>
+  path.endsWith(`/${POPUP_BACKDROP_FILENAME}`),
+);
+
+export function getPopupBackdropUrl(): string | undefined {
+  return popupBackdropEntry?.[1];
+}
