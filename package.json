@@ -9,6 +9,7 @@
     "build:lambda": "esbuild src/functions/scraper.ts src/functions/reader.ts src/functions/config-sync.ts src/functions/budget-guard.ts --bundle --platform=node --target=node22 --format=esm --outdir=dist/lambda --out-extension:.js=.mjs --external:@aws-sdk/* --external:@sparticuz/chromium --external:playwright-core --external:yaml --external:@google/genai",
     "generate:ascii-art": "node scripts/generate-ascii-art.mjs",
     "convert:card-art": "node scripts/convert-card-art.mjs",
+    "generate:toty-preview": "node scripts/generate-toty-preview.mjs",
     "sync:comments-roster": "node scripts/sync-roster-from-comments-xlsx.mjs",
     "fetch:collabot": "node scripts/fetch-collabot-export.mjs",
     "sync:collabot-live": "node scripts/sync-roster-from-collabot-xlsx.mjs",

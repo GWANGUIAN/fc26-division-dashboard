@@ -19,6 +19,11 @@
    예: `다시바` 3장을 `public/test/`에 `frame.png`/`background.png`/`character.png`로 받아뒀다면 `pnpm convert:card-art -- tdnlamuron`.
 4. 3장(frame/background/character)이 모두 갖춰진 선수만 사이트에 "3D 카드 보기" 버튼이 자동으로 뜸 (`src/web/toty-card/totyCardAssets.ts`가 `src/web/assets/toty-cards/`를 자동 스캔).
 5. **포지션/디비전/이름 글자색**은 이미지와 별개로 `src/web/toty-card/totyCardTheme.ts`에 선수 `id`별로 지정되어 있음. 새 선수를 추가하면 이 파일에 `{ color, glow }` 항목을 하나 추가해서 그 선수 카드 팔레트에 어울리는 색으로 맞춰야 함 (안 넣으면 하치 금색으로 기본 표시됨). `color`는 본문 글자색, `glow`는 카드 호버 시 이름 주변에 번지는 은은한 하이라이트 색.
+6. **(선택) 움짤 다운로드용 애니메이션 WebP**: 팝업의 "움짤로 저장" 버튼은 `<id>-preview.webp`가 있을 때만 뜸. 3장 이미지 다 넣은 뒤 `pnpm dev`를 켜둔 상태에서:
+   ```bash
+   pnpm generate:toty-preview -- <id>
+   ```
+   를 실행하면 실제 카드를 헤드리스 브라우저로 열어 가상 마우스 경로로 훑으면서 프레임을 캡처하고, 투명 배경 애니메이션 WebP로 합쳐서 `src/web/assets/toty-cards/<id>-preview.webp`에 저장함(브라우저에서 실시간으로 만드는 게 아니라 미리 만들어두는 방식). Playwright 크로미움이 없으면 최초 1회 `npx playwright install chromium` 필요.
 
 ## 공용 팝업 배경 이미지 (완료 — 1장, 전 선수 공통)
 

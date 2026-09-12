@@ -69,3 +69,21 @@ const popupBackdropEntry = Object.entries(modules).find(([path]) =>
 export function getPopupBackdropUrl(): string | undefined {
   return popupBackdropEntry?.[1];
 }
+
+// Pre-rendered animated WebP loop per player (background/character motion +
+// a simulated hover sweep baked in) — offline/opt-in, produced by
+// scripts/generate-toty-preview.mjs, not required for the button/popup to
+// work. Named "<id>-preview.webp" so it doesn't collide with the
+// frame/background/character regex above.
+const PREVIEW_SUFFIX = "-preview.webp";
+const previewUrls: Record<string, string> = {};
+for (const [path, url] of Object.entries(modules)) {
+  const filename = path.split("/").pop() ?? "";
+  if (filename.endsWith(PREVIEW_SUFFIX)) {
+    previewUrls[filename.slice(0, -PREVIEW_SUFFIX.length)] = url;
+  }
+}
+
+export function getTotyCardPreviewUrl(streamerId: string): string | undefined {
+  return previewUrls[streamerId];
+}

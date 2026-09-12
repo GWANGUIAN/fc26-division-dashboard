@@ -1,6 +1,19 @@
 /* Fullscreen "3D 카드 보기" popup — own fixed overlay (same convention as
    squad-builder/photo-booth), showing one player's layered hover-tilt card. */
 
+/* Bare, fully transparent stage used only by the offline capture route
+   (TotyCardCapturePage, driven by scripts/generate-toty-preview.mjs) — no
+   backdrop/scrim/chrome, just the card, so Playwright's screenshot has a
+   clean alpha background. */
+.toty-capture-stage {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 60px 24px;
+  background: transparent;
+}
+
 .toty-card-popup {
   position: fixed;
   z-index: 90;
@@ -78,11 +91,55 @@
   flex: 0 0 auto;
 }
 
+.toty-card-popup__download {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(0, 0, 0, .45);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .15s;
+}
+.toty-card-popup__download:hover { background: rgba(0, 0, 0, .68); }
+.toty-card-popup__download svg { width: 14px; height: 14px; }
+
+.toty-card-wrap {
+  position: relative;
+  width: min(70vw, 380px);
+}
+
+/* A soft blurred "contact shadow" beneath the card, so it reads as
+   physically floating above the backdrop rather than flat against it.
+   Position/opacity are driven from the same tilt state as the card itself
+   (see TotyCardVisual.tsx) so the shadow shifts opposite the tilt. */
+.toty-card-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: -7%;
+  width: 84%;
+  height: 18%;
+  transform: translateX(-50%);
+  /* The popup backdrop is already near-black, so a soft rgba(0,0,0,.6)
+     blob was blending straight into it — needs to be much denser at the
+     core to actually read as a shadow rather than disappearing. */
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, .95) 0%, rgba(0, 0, 0, .95) 35%, transparent 70%);
+  filter: blur(5px);
+  transition: opacity .3s, transform .3s;
+  pointer-events: none;
+}
+
 .toty-card {
   --text-outline: -1px -1px 0 #000, 0 -1px 0 #000, 1px -1px 0 #000, -1px 0 0 #000,
     1px 0 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 1px 1px 0 #000, 0 2px 3px rgba(0, 0, 0, .5);
   position: relative;
-  width: min(70vw, 380px);
+  z-index: 1;
+  width: 100%;
   aspect-ratio: 1060 / 1484;
   container-type: inline-size;
   transform-style: preserve-3d;
@@ -195,10 +252,17 @@
   left: 50%;
   top: 66%;
   transform: translateX(-50%);
-  max-width: 80%;
+  box-sizing: border-box;
+  max-width: 84%;
+  /* GiantsInline's outlined/embossed glyphs draw noticeably wider than
+     their nominal metrics on the first/last character — without this
+     padding the flush-against-the-edge overflow:hidden box below was
+     clipping those edges. inset:0 on ::before is measured from this same
+     padding box, so the shine overlay stays lined up automatically. */
+  padding: 0 .12em;
   color: var(--toty-text-color);
   text-shadow: var(--text-outline);
-  font-family: "Barlow Condensed", sans-serif;
+  font-family: 'GiantsInline', "Barlow Condensed", sans-serif;
   font-weight: 800;
   font-size: clamp(16px, 6cqw, 28px);
   letter-spacing: .03em;
