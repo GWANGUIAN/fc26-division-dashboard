@@ -42,6 +42,14 @@
   readable shapes. Ultra-wide, minimal, elegant, 4K, 2560x1440.
   ```
 
+## 카드 뒷면 (선수별로 각각 생성 — 미구현)
+
+팝업이 열리면 카드가 "팩 오프닝"처럼 미스터리 뒷면 → 실제 앞면으로 뒤집히는 리빌 연출(`TotyCardReveal.tsx`)에 쓰이는 카드 뒷면 이미지. **프레임/배경/캐릭터처럼 선수마다 따로 생성** — 그 선수 카드의 모티프/컬러를 그대로 살린 "봉인된 상태"의 뒷면이 되도록. 아래 선수별 세트 섹션마다 **뒷면** 프롬프트가 같이 있음.
+
+- **캔버스**: 1060×1484px (다른 3장과 동일 비율), 알파 채널 있는 투명 PNG
+- **레퍼런스**: 하치 프레임 이미지를 실루엣 참고용으로만 첨부 (프레임과 동일한 방식)
+- **파일명**: `<id>-card-back.webp` (`totyCardAssets.ts`가 자동 스캔 — 없어도 다른 3장만으로 카드는 정상 동작하고, 리빌 연출은 플레이스홀더 "?"로 대체됨)
+
 ## 선수별 세트 (10개)
 
 순서·컬러·모티프 확정본:
@@ -105,6 +113,22 @@ no text, no background — fully transparent PNG with alpha channel,
 name/stat overlays.
 ```
 
+**뒷면**:
+```
+Using the attached card frame image ONLY as a silhouette/structure reference
+— same ornate shield-shaped outer silhouette, same scalloped border curve,
+same laurel-wreath crest position at top center — design the BACK of this
+same card (not the front): a dark volcanic obsidian holographic foil
+surface, with faint glowing amber-orange magma cracks running beneath the
+prismatic sheen, a single bold ember/flame emblem centered in the middle of
+the shield (no readable text, no logos, no player), warm amber-orange
+metallic trim tracing the inner border. Moody, premium, mysterious — looks
+like the unrevealed back of this card before it's flipped. No text, no
+numbers, no real brand marks. Entire canvas outside the frame's own
+linework must stay fully transparent (alpha 0), only the shield shape
+itself is opaque. 1060x1484px, transparent PNG.
+```
+
 ---
 
 ### 2. 쥬멩이 — `ju010228` — 연두색 · 봄 넝쿨/새싹 (ST)
@@ -143,6 +167,22 @@ Viewed from a slight low front 3/4 angle, visible head to mid-thigh. Bright
 fresh lighting matching the lime-green palette. No frame, no text, no
 background — fully transparent PNG with alpha channel, 1060x1484, leave
 open space above the head and below the waist for name/stat overlays.
+```
+
+**뒷면**:
+```
+Using the attached card frame image ONLY as a silhouette/structure reference
+— same ornate shield-shaped outer silhouette, same scalloped border curve,
+same laurel-wreath crest position at top center — design the BACK of this
+same card (not the front): a pale moss-covered holographic foil surface,
+with faint lime-green vine-line patterns running beneath the prismatic
+sheen, a single bold budding-leaf emblem centered in the middle of the
+shield (no readable text, no logos, no player), soft lime-green metallic
+trim tracing the inner border. Moody, premium, mysterious — looks like the
+unrevealed back of this card before it's flipped. No text, no numbers, no
+real brand marks. Entire canvas outside the frame's own linework must stay
+fully transparent (alpha 0), only the shield shape itself is opaque.
+1060x1484px, transparent PNG.
 ```
 
 ---
@@ -186,6 +226,22 @@ alpha channel, 1060x1484, leave open space above the head and below the
 waist for name/stat overlays.
 ```
 
+**뒷면**:
+```
+Using the attached card frame image ONLY as a silhouette/structure reference
+— same ornate shield-shaped outer silhouette, same scalloped border curve,
+same laurel-wreath crest position at top center — design the BACK of this
+same card (not the front): a dark engraved-stone holographic foil surface,
+with faint glowing violet runic sigils running beneath the prismatic
+sheen, a single bold magic-circle emblem centered in the middle of the
+shield (no readable text, no logos, no player), violet metallic trim
+tracing the inner border. Moody, premium, mysterious — looks like the
+unrevealed back of this card before it's flipped. No text, no numbers, no
+real brand marks. Entire canvas outside the frame's own linework must stay
+fully transparent (alpha 0), only the shield shape itself is opaque.
+1060x1484px, transparent PNG.
+```
+
 ---
 
 ### 4. 뽀린걸 — `bboringirl` — 회색 + 빨강 · 기계 장갑판/회로 (CM)
@@ -225,6 +281,22 @@ steel-gray rim lighting with a touch of red accent light. No frame, no
 text, no background — fully transparent PNG with alpha channel, 1060x1484,
 leave open space above the head and below the waist for name/stat
 overlays.
+```
+
+**뒷면**:
+```
+Using the attached card frame image ONLY as a silhouette/structure reference
+— same ornate shield-shaped outer silhouette, same scalloped border curve,
+same laurel-wreath crest position at top center — design the BACK of this
+same card (not the front): a brushed gunmetal holographic foil surface,
+with faint glowing red circuit-line patterns running beneath the prismatic
+sheen, a single bold circuit-node emblem centered in the middle of the
+shield (no readable text, no logos, no player), red metallic trim tracing
+the inner border. Moody, premium, mysterious — looks like the unrevealed
+back of this card before it's flipped. No text, no numbers, no real brand
+marks. Entire canvas outside the frame's own linework must stay fully
+transparent (alpha 0), only the shield shape itself is opaque. 1060x1484px,
+transparent PNG.
 ```
 
 ---
@@ -268,6 +340,22 @@ transparent PNG with alpha channel, 1060x1484, leave open space above the
 head and below the waist for name/stat overlays.
 ```
 
+**뒷면**:
+```
+Using the attached card frame image ONLY as a silhouette/structure reference
+— same ornate shield-shaped outer silhouette, same scalloped border curve,
+same laurel-wreath crest position at top center — design the BACK of this
+same card (not the front): a matte deep-black holographic foil surface,
+with faint sapphire-blue starlight-shard patterns running beneath the
+prismatic sheen, a single bold star-shard emblem centered in the middle of
+the shield (no readable text, no logos, no player), sapphire-blue metallic
+trim tracing the inner border. Moody, premium, mysterious — looks like the
+unrevealed back of this card before it's flipped. No text, no numbers, no
+real brand marks. Entire canvas outside the frame's own linework must stay
+fully transparent (alpha 0), only the shield shape itself is opaque.
+1060x1484px, transparent PNG.
+```
+
 ---
 
 ### 6. 핑구 — `sjh4018` — 하늘색 + 연보라 · 구름/깃털 (CB)
@@ -305,6 +393,22 @@ angle, visible head to mid-thigh. Soft airy blue-lavender rim lighting. No
 frame, no text, no background — fully transparent PNG with alpha channel,
 1060x1484, leave open space above the head and below the waist for
 name/stat overlays.
+```
+
+**뒷면**:
+```
+Using the attached card frame image ONLY as a silhouette/structure reference
+— same ornate shield-shaped outer silhouette, same scalloped border curve,
+same laurel-wreath crest position at top center — design the BACK of this
+same card (not the front): a soft pale sky-blue holographic foil surface,
+with faint lavender cloud-and-feather patterns running beneath the
+prismatic sheen, a single bold cloud emblem centered in the middle of the
+shield (no readable text, no logos, no player), pale lavender metallic trim
+tracing the inner border. Moody, premium, mysterious — looks like the
+unrevealed back of this card before it's flipped. No text, no numbers, no
+real brand marks. Entire canvas outside the frame's own linework must stay
+fully transparent (alpha 0), only the shield shape itself is opaque.
+1060x1484px, transparent PNG.
 ```
 
 ---
@@ -353,6 +457,22 @@ alpha channel, 1060x1484, leave open space above the head and below the
 waist for name/stat overlays.
 ```
 
+**뒷면**:
+```
+Using the attached card frame image ONLY as a silhouette/structure reference
+— same ornate shield-shaped outer silhouette, same scalloped border curve,
+same laurel-wreath crest position at top center — design the BACK of this
+same card (not the front): a pale lilac holographic foil surface, with
+faint deep-purple bioluminescent jellyfish-tendril patterns running
+beneath the prismatic sheen, a single bold jellyfish-silhouette emblem
+centered in the middle of the shield (no readable text, no logos, no
+player), deep-purple metallic trim tracing the inner border. Moody,
+premium, mysterious — looks like the unrevealed back of this card before
+it's flipped. No text, no numbers, no real brand marks. Entire canvas
+outside the frame's own linework must stay fully transparent (alpha 0),
+only the shield shape itself is opaque. 1060x1484px, transparent PNG.
+```
+
 ---
 
 ### 8. 리냐 — `lina0108` — 선명한 핑크 + 연분홍 · 벚꽃 (FB)
@@ -390,6 +510,22 @@ Viewed from a slight low front 3/4 angle, visible head to mid-thigh. Warm
 vivid pink rim lighting. No frame, no text, no background — fully
 transparent PNG with alpha channel, 1060x1484, leave open space above the
 head and below the waist for name/stat overlays.
+```
+
+**뒷면**:
+```
+Using the attached card frame image ONLY as a silhouette/structure reference
+— same ornate shield-shaped outer silhouette, same scalloped border curve,
+same laurel-wreath crest position at top center — design the BACK of this
+same card (not the front): a pale blush-pink holographic foil surface,
+with faint vivid-pink sakura-branch patterns running beneath the prismatic
+sheen, a single bold cherry-blossom emblem centered in the middle of the
+shield (no readable text, no logos, no player), vivid-pink metallic trim
+tracing the inner border. Moody, premium, mysterious — looks like the
+unrevealed back of this card before it's flipped. No text, no numbers, no
+real brand marks. Entire canvas outside the frame's own linework must stay
+fully transparent (alpha 0), only the shield shape itself is opaque.
+1060x1484px, transparent PNG.
 ```
 
 ---
@@ -435,6 +571,22 @@ fully transparent PNG with alpha channel, 1060x1484, leave open space
 above the head and below the waist for name/stat overlays.
 ```
 
+**뒷면**:
+```
+Using the attached card frame image ONLY as a silhouette/structure reference
+— same ornate shield-shaped outer silhouette, same scalloped border curve,
+same laurel-wreath crest position at top center — design the BACK of this
+same card (not the front): a near-black navy holographic foil surface,
+with faint crackling emerald-green lightning-vein patterns running beneath
+the prismatic sheen, a single bold lightning-bolt emblem centered in the
+middle of the shield (no readable text, no logos, no player), emerald-green
+metallic trim tracing the inner border. Moody, premium, mysterious — looks
+like the unrevealed back of this card before it's flipped. No text, no
+numbers, no real brand marks. Entire canvas outside the frame's own
+linework must stay fully transparent (alpha 0), only the shield shape
+itself is opaque. 1060x1484px, transparent PNG.
+```
+
 ---
 
 ### 10. 재닌 — `janine95kim` — 스카이 블루 · 서리/오로라 (GK)
@@ -473,6 +625,22 @@ visible head to mid-thigh (crop to keep the diving pose readable within the
 card's portrait canvas). Crisp bright rim lighting. No frame, no text, no
 background — fully transparent PNG with alpha channel, 1060x1484, leave
 open space above the head and below the waist for name/stat overlays.
+```
+
+**뒷면**:
+```
+Using the attached card frame image ONLY as a silhouette/structure reference
+— same ornate shield-shaped outer silhouette, same scalloped border curve,
+same laurel-wreath crest position at top center — design the BACK of this
+same card (not the front): an icy pale-blue holographic foil surface, with
+faint silvery aurora-streak patterns running beneath the prismatic sheen, a
+single bold frost-crystal emblem centered in the middle of the shield (no
+readable text, no logos, no player), silvery-white metallic trim tracing
+the inner border. Moody, premium, mysterious — looks like the unrevealed
+back of this card before it's flipped. No text, no numbers, no real brand
+marks. Entire canvas outside the frame's own linework must stay fully
+transparent (alpha 0), only the shield shape itself is opaque. 1060x1484px,
+transparent PNG.
 ```
 
 ---
@@ -535,4 +703,23 @@ higher-rarity treatment of the rest of this card (more detail and polish
 than a standard card in this series). No frame, no text, no background —
 fully transparent PNG with alpha channel, 1060x1484, leave open space
 above the head and below the waist for name/stat overlays.
+```
+
+**뒷면** (같은 팔레트 재사용):
+```
+Using the attached card frame image ONLY as a silhouette/structure reference
+(same ornate shield-shaped outer silhouette, same scalloped border curve,
+same inner content window position) and the same color palette chosen for
+the frame above, design the BACK of this same card (not the front): a dark
+holographic foil surface with faint dragon-scale texture and wisps of
+glowing draconic energy drifting beneath the prismatic sheen, a single bold
+coiled-dragon emblem centered in the middle of the shield (no readable
+text, no logos, no player), metallic trim in that same palette tracing the
+inner border — noticeably more lavish and detailed than a standard card in
+this series, matching the higher-rarity treatment of the rest of this card.
+Moody, premium, mysterious — looks like the unrevealed back of this card
+before it's flipped. No text, no numbers, no real brand marks. Entire
+canvas outside the frame's own linework must stay fully transparent
+(alpha 0), only the shield shape itself is opaque. 1060x1484px, transparent
+PNG.
 ```

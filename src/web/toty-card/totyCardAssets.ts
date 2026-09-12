@@ -71,6 +71,24 @@ export function getPopupBackdropUrl(): string | undefined {
   return popupBackdropEntry?.[1];
 }
 
+// Per-player "mystery" card-back art shown mid-flip by TotyCardReveal before
+// the real card is revealed — same naming convention as the
+// frame/background/character trio above (see docs/toty-card-prompts.md), but
+// collected separately since a player can have a full card without one yet.
+// Optional: without it, the reveal falls back to a plain "?" placeholder.
+const CARD_BACK_SUFFIX = "-card-back.webp";
+const cardBackUrls: Record<string, string> = {};
+for (const [path, url] of Object.entries(modules)) {
+  const filename = path.split("/").pop() ?? "";
+  if (filename.endsWith(CARD_BACK_SUFFIX)) {
+    cardBackUrls[filename.slice(0, -CARD_BACK_SUFFIX.length)] = url;
+  }
+}
+
+export function getCardBackUrl(streamerId: string): string | undefined {
+  return cardBackUrls[streamerId];
+}
+
 // Pre-rendered animated GIF loop per player (background/character motion +
 // a simulated hover sweep baked in, no rim glow — see TotyCardVisual's
 // showGlow doc comment) — offline/opt-in, produced by

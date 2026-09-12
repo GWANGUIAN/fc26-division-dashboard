@@ -3,9 +3,14 @@ import { Download, ImageDown, MousePointer2, X } from "lucide-react";
 import type { StreamerRecord } from "../../shared/model.js";
 import { useEscape } from "../Modal.js";
 import { playSfx } from "../sfxAudio.js";
-import { TotyCardVisual } from "./TotyCardVisual.js";
+import { TotyCardReveal } from "./TotyCardReveal.js";
 import { exportTotyCardPng } from "./exportTotyCardImage.js";
-import { getPopupBackdropUrl, getTotyCardPreviewUrl, type TotyCardAssets } from "./totyCardAssets.js";
+import {
+  getCardBackUrl,
+  getPopupBackdropUrl,
+  getTotyCardPreviewUrl,
+  type TotyCardAssets,
+} from "./totyCardAssets.js";
 import "./toty-card.css";
 
 // Plays independently of the shared single-slot sfxAudio.ts player (same
@@ -62,14 +67,20 @@ export function TotyCardPopup({
   useEscape(onClose);
   useBodyScrollLock();
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- fires once when the popup opens, not on every sfx setting change
-  useEffect(() => {
+  // Fired by TotyCardReveal at the reveal's impact moment (or immediately,
+  // under prefers-reduced-motion) rather than as soon as the popup mounts,
+  // so the stinger lands together with the flip/burst instead of ahead of it.
+  const handleRevealImpact = () => {
     if (sfxEnabled) playRevealSfx(sfxVolume / 100);
-  }, []);
+  };
 
   const handleCardClick = () => {
     if (sfxEnabled && streamer.sfx) playSfx(streamer.sfx, sfxVolume / 100);
   };
+
+  // The mouse-tilt hint doesn't make sense over a face-down mystery card, so
+  // it only appears once TotyCardReveal's flip sequence has actually finished.
+  const [revealed, setRevealed] = useState(false);
 
   const [exportingPng, setExportingPng] = useState(false);
   const handlePngExport = async () => {
@@ -106,12 +117,21 @@ export function TotyCardPopup({
       </button>
 
       <div className="toty-card-popup__stage">
-        <TotyCardVisual streamer={streamer} assets={assets} onCardClick={handleCardClick} />
+        <TotyCardReveal
+          streamer={streamer}
+          assets={assets}
+          cardBackUrl={getCardBackUrl(streamer.id)}
+          onCardClick={handleCardClick}
+          onImpact={handleRevealImpact}
+          onRevealed={() => setRevealed(true)}
+        />
 
-        <p className="toty-card-popup__hint">
-          <MousePointer2 aria-hidden="true" />
-          카드에 마우스를 올려 움직여 보세요
-        </p>
+        {revealed && (
+          <p className="toty-card-popup__hint">
+            <MousePointer2 aria-hidden="true" />
+            카드에 마우스를 올려 움직여 보세요
+          </p>
+        )}
 
         <div className="toty-card-popup__actions">
           <button
