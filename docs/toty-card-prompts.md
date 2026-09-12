@@ -49,12 +49,14 @@
 | 4 | 뽀린걸 | `bboringirl` | CM | 회색 + 빨강 | 기계 장갑판 + 붉은 회로 |
 | 5 | 한결 | `kaksjak0730` | CM | 딥블랙 + 사파이어 블루 | 밤하늘 유리 파편 (별빛 조각) |
 | 6 | 핑구 | `sjh4018` | CB | 하늘색 + 연보라 | 구름/깃털 |
-| 7 | 해파린 | `haepalin` | CB | 연한 라벤더 + 진보라 | 등나무꽃(위스테리아) 덩굴 |
+| 7 | 해파린 | `haepalin` | CB | 연한 라벤더 + 진보라 | 심해 해파리/발광생물 |
 | 8 | 리냐 | `lina0108` | FB | 선명한 핑크 + 연분홍 | 벚꽃 가지/꽃잎 |
-| 9 | 빙밍 | `tleod1818` | FB | 어두운 남색 + 에메랄드 | 심해 산호 + 발광 생물 |
+| 9 | 빙밍 | `tleod1818` | FB | 어두운 남색 + 에메랄드 | 폭풍우/번개 |
 | 10 | 재닌 | `janine95kim` | GK | 스카이 블루 | 서리/오로라 |
 
 각 세트마다 자세는 서로 겹치지 않게, 포지션·모티프 무드에 맞춰 배정함.
+
+> **모티프 수정 이력**: 원래 빙밍이 심해 산호/해파리 모티프였는데, 해파린이 실제로 해파리 RP를 가지고 있어서 서로 뒤바뀌어 있던 것 — 심해/해파리는 해파린으로, 빙밍은 겹치지 않는 폭풍우/번개 모티프로 변경함. **해파린·빙밍은 이미 생성된 이미지(`haepalin-*.webp`, `tleod1818-*.webp`)가 옛 모티프라서, 아래 새 프롬프트로 재생성해서 같은 파일명으로 덮어써야 함.**
 
 ---
 
@@ -302,18 +304,21 @@ name/stat overlays.
 
 ---
 
-### 7. 해파린 — `haepalin` — 연한 라벤더 + 진보라 · 등나무꽃(위스테리아) (CB)
+### 7. 해파린 — `haepalin` — 연한 라벤더 + 진보라 · 심해 해파리/발광생물 (CB)
+
+해파린의 실제 해파리(jellyfish) RP를 반영한 모티프 — 색은 원래 배정된 라벤더/진보라 그대로, 소재만 심해/해파리 컨셉으로.
 
 **프레임** (하치 프레임 이미지는 실루엣 참고용으로만 첨부):
 ```
 Using the attached card frame image ONLY as a silhouette/structure reference
 — same ornate shield-shaped outer silhouette, same scalloped border curve,
 same laurel-wreath crest position at the top center, same inner content
-window position — but redesign the surface material completely: pale lilac
-stone, with cascading wisteria flower clusters and vines in deep purple
+window position — but redesign the surface material completely: pale
+lilac-white coral-like stone, with glowing lavender-to-deep-purple
+bioluminescent jellyfish tendrils and soft glowing sea anemone wisps
 bursting from the top-left and bottom-right corners instead of crystal
-shards — dreamy, romantic, soft-focus floral. No player, no text, no
-stats. Entire canvas outside the frame's own linework (including the inner
+shards — dreamy, ethereal, deep-sea glow. No player, no text, no stats.
+Entire canvas outside the frame's own linework (including the inner
 content window) must be fully transparent. PNG with alpha channel,
 1060x1484.
 ```
@@ -321,10 +326,12 @@ content window) must be fully transparent. PNG with alpha channel,
 **배경**:
 ```
 Abstract premium trading-card background art, portrait orientation. Very
-pale lilac stone slab with soft violet veins, cascading wisteria flower
-vines and blossom clusters bursting from the upper-right corner, a few
-petals drifting in the air, dreamy soft-focus rim lighting. No characters,
-no people, no border/frame, no text. High detail, 4K, PNG, 1060x1484.
+pale lilac coral-textured stone slab with soft violet current-like veins,
+a cluster of glowing lavender-purple bioluminescent jellyfish drifting and
+trailing tendrils bursting from the upper-right corner, tiny glowing
+plankton particles drifting in the water, dreamy soft-focus underwater rim
+lighting. No characters, no people, no border/frame, no text. High detail,
+4K, PNG, 1060x1484.
 ```
 
 **캐릭터** (해파린 참고 사진 첨부):
@@ -332,11 +339,13 @@ no people, no border/frame, no text. High detail, 4K, PNG, 1060x1484.
 Turn the reference photo into a stylized premium trading-card 3D player
 render, semi-realistic style. Soccer kit in pale lavender with deep purple
 trim. Graceful heading pose — jumping to win an aerial ball, body arched,
-hair flowing with the motion, elegant and controlled rather than
-aggressive. Viewed from a slight low front 3/4 angle, visible head to
-mid-thigh. Soft dreamy lavender-purple rim lighting. No frame, no text, no
-background — fully transparent PNG with alpha channel, 1060x1484, leave
-open space above the head and below the waist for name/stat overlays.
+hair and clothing flowing weightlessly like jellyfish tendrils, elegant
+and controlled rather than aggressive, a faint soft bioluminescent glow
+trailing off the hair/fabric edges. Viewed from a slight low front 3/4
+angle, visible head to mid-thigh. Soft dreamy lavender-purple rim
+lighting. No frame, no text, no background — fully transparent PNG with
+alpha channel, 1060x1484, leave open space above the head and below the
+waist for name/stat overlays.
 ```
 
 ---
@@ -380,7 +389,9 @@ head and below the waist for name/stat overlays.
 
 ---
 
-### 9. 빙밍 — `tleod1818` — 어두운 남색 + 에메랄드 · 심해 산호/발광생물 (FB)
+### 9. 빙밍 — `tleod1818` — 어두운 남색 + 에메랄드 · 폭풍우/번개 (FB)
+
+해파린에게 심해/해파리 모티프를 넘기면서, 빙밍은 다른 선수와 안 겹치는 폭풍우/번개 모티프로 변경 — 색은 원래 배정된 어두운 남색+에메랄드 그대로.
 
 **프레임** (하치 프레임 이미지는 실루엣 참고용으로만 첨부):
 ```
@@ -388,10 +399,10 @@ Using the attached card frame image ONLY as a silhouette/structure reference
 — same ornate shield-shaped outer silhouette, same scalloped border curve,
 same laurel-wreath crest position at the top center, same inner content
 window position — but redesign the surface material completely: a very
-dark navy coral-reef-like rock, with glowing emerald-green bioluminescent
-coral and small luminous sea creatures bursting from the top-left and
-bottom-right corners instead of crystal shards — deep-sea, mysterious,
-glowing. No player, no text, no stats. Entire canvas outside the frame's
+dark storm-cloud-textured navy rock, with crackling emerald-green
+lightning bolts and swirling storm-cloud wisps bursting from the top-left
+and bottom-right corners instead of crystal shards — intense, electric,
+stormy. No player, no text, no stats. Entire canvas outside the frame's
 own linework (including the inner content window) must be fully
 transparent. PNG with alpha channel, 1060x1484.
 ```
@@ -399,11 +410,11 @@ transparent. PNG with alpha channel, 1060x1484.
 **배경**:
 ```
 Abstract premium trading-card background art, portrait orientation.
-Near-black navy coral-textured slab with faint blue current-like veins, a
-cluster of glowing emerald-green bioluminescent coral and tiny luminous
-particles bursting from the upper-right corner, cool dark underwater rim
-lighting. No characters, no people, no border/frame, no text. High detail,
-4K, PNG, 1060x1484.
+Near-black navy storm-cloud-textured slab with faint electric-blue vein
+cracks, a cluster of crackling emerald-green lightning bolts and dark
+storm clouds bursting from the upper-right corner, tiny drifting spark
+particles, cool dramatic stormy rim lighting. No characters, no people, no
+border/frame, no text. High detail, 4K, PNG, 1060x1484.
 ```
 
 **캐릭터** (빙밍 참고 사진 첨부):
@@ -411,11 +422,12 @@ lighting. No characters, no people, no border/frame, no text. High detail,
 Turn the reference photo into a stylized premium trading-card 3D player
 render, semi-realistic style. Soccer kit in dark navy with emerald-green
 trim. Intense low defensive sliding-tackle pose — body low to the ground,
-one leg extended, sharp focused determination. Viewed from a slight low
-front 3/4 angle, visible head to mid-thigh. Cool dark rim lighting with an
-emerald-green highlight. No frame, no text, no background — fully
-transparent PNG with alpha channel, 1060x1484, leave open space above the
-head and below the waist for name/stat overlays.
+one leg extended, sharp focused determination, a crack of emerald-green
+lightning lighting up the scene behind. Viewed from a slight low front 3/4
+angle, visible head to mid-thigh. Cool dramatic rim lighting with an
+emerald-green electric highlight. No frame, no text, no background —
+fully transparent PNG with alpha channel, 1060x1484, leave open space
+above the head and below the waist for name/stat overlays.
 ```
 
 ---
@@ -456,4 +468,66 @@ visible head to mid-thigh (crop to keep the diving pose readable within the
 card's portrait canvas). Crisp bright rim lighting. No frame, no text, no
 background — fully transparent PNG with alpha channel, 1060x1484, leave
 open space above the head and below the waist for name/stat overlays.
+```
+
+---
+
+## 보너스: 하치 — 화려한 스페셜 리메이크 (`hachi97`)
+
+하치는 이 카드 시리즈의 첫 번째 테스트 카드이자 제일 좋아하는 캐릭터라, 다른 10명과 똑같은 톤으로 두지 않고 **더 화려하고 장식이 많은 상위 등급 느낌**으로 새로 만들고 싶을 때 쓰는 프롬프트. 하치 RP가 **용(龍)**이라(팬닉도 "용볼") 모티프를 용으로 고정하고, 색은 컨셉대로 정하지 않고 **하치 캐릭터 레퍼런스 사진을 직접 분석해서 어울리는 색을 생성 도구가 스스로 고르게** 하는 게 포인트 — 다른 9명처럼 크리스탈/식물/룬문양 같은 무생물 모티프가 아니라, 용 비늘·발톱·날개·용의 기운(불/신비로운 에너지) 같은 "용" 자체를 형상화한 장식으로.
+
+**프레임** (하치 캐릭터 참고 사진 첨부 + 기존 하치 프레임 이미지를 실루엣 참고용으로 첨부):
+```
+First, look at the attached character reference photo and pick a cohesive
+premium color palette based on her actual design — hair color, eye color,
+outfit colors. Then, using the attached card frame image ONLY as a
+silhouette/structure reference (same ornate shield-shaped outer silhouette,
+same scalloped border curve, same inner content window position), design a
+noticeably more lavish, higher-rarity dragon-themed version of this frame
+using that palette: the corner ornament reimagined as coiling dragon
+claws and dragon scales bursting from the top-left and bottom-right
+corners (instead of generic crystal shards), fine dragon-scale texture
+etched into the metal along the whole border, small dragon horns or
+wing-tip motifs flanking the top crest. Replace the plain laurel-wreath
+crest with a larger, more intricate crest featuring a small coiled dragon
+emblem. Add wisps of mystical dragon-fire or glowing draconic energy
+drifting from the claw clusters, extra sparkle/ember particles, and a
+subtle prismatic sheen along the metal edges to read as the rarest tier in
+the set — more ornate and detailed than a standard card in this series,
+while keeping the same overall silhouette. No player, no text, no stats.
+Entire canvas outside the frame's own linework (including the inner
+content window) must be fully transparent. PNG with alpha channel,
+1060x1484.
+```
+
+**배경**:
+```
+Abstract premium trading-card background art, portrait orientation, using
+the same color palette chosen for the frame above. A dense, richly detailed
+cracked slab with glowing veins, a large cluster of coiling dragon claws
+and dragon scales bursting from one corner, wisps of mystical dragon-fire
+or glowing draconic energy swirling through the air, extra layers of
+sparkle, ember, and glitter dust, dramatic rim lighting for a noticeably
+more lavish, higher-rarity look than a standard card in this series. No
+characters, no people, no border/frame, no text. High detail, 4K, PNG,
+1060x1484.
+```
+
+**캐릭터** (하치 참고 사진 첨부):
+```
+Turn the reference photo into a stylized premium trading-card 3D player
+render, semi-realistic style, using a color palette drawn from her actual
+hair/eye/outfit colors in the photo. A confident, dynamic hero pose (keep
+her signature thumbs-up-forward energy if it fits, or a slightly more
+dynamic action variant), full of personality. Subtle draconic accents tying
+into her dragon RP — small dragon-scale pattern trim or a tiny dragon
+emblem on the kit, and a faint aura of glowing draconic energy or wisps of
+mystical fire curling around her (she stays fully human — this is a subtle
+aura/accessory effect, not a literal dragon transformation). Viewed from a
+slight low front 3/4 angle, visible head to mid-thigh. Rich, dramatic rim
+lighting with a touch of sparkle/ember, matching the more lavish,
+higher-rarity treatment of the rest of this card (more detail and polish
+than a standard card in this series). No frame, no text, no background —
+fully transparent PNG with alpha channel, 1060x1484, leave open space
+above the head and below the waist for name/stat overlays.
 ```
