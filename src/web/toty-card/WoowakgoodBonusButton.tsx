@@ -1,6 +1,9 @@
+import { useEffect } from "react";
 import type { CSSProperties } from "react";
 import { Sparkles } from "lucide-react";
 import { hexToRgba } from "../cardVisuals";
+import { getTotyCardAssets, preloadTotyCardAssets } from "./totyCardAssets";
+import { WOOWAKGOOD_ID } from "./woowakgoodBonusCard";
 
 // Peridot green — matches totyCardTheme.ts's `woowakgood` entry, fed into
 // the shared --fancy-color/--fancy-glow-* custom properties that drive the
@@ -26,6 +29,16 @@ const SHAPE_PATH =
  * true — opens the hidden 우왁굳 bonus card via the same TotyCardPopup every
  * other card uses. No internal gating here; the parent decides visibility. */
 export function WoowakgoodBonusButton({ onOpen }: { onOpen: () => void }) {
+  // This button only ever mounts once the bonus is unlocked (see
+  // useWoowakgoodBonusUnlock) — its very appearance is a stronger "about to
+  // click this" signal than a hover, so warm the card art immediately
+  // rather than waiting for a hover/focus, same reasoning DetailModal uses
+  // for its own toty card button.
+  useEffect(() => {
+    const assets = getTotyCardAssets(WOOWAKGOOD_ID);
+    if (assets) preloadTotyCardAssets(assets, WOOWAKGOOD_ID);
+  }, []);
+
   return (
     <button
       type="button"
