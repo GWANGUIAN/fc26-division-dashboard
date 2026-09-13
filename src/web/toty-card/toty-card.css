@@ -264,6 +264,17 @@ body.toty-capture-mode::after {
   will-change: transform;
 }
 .toty-card__char { object-fit: contain; object-position: center bottom; }
+/* Optional alternate character render (see totyCardAssets.ts's
+   getCharacterHoverUrl) — a true crossfade swap, not an overlay: the base
+   character (only once it carries --has-hover, so every card without this
+   asset is completely untouched) fades OUT while the hover image fades IN,
+   so the base art is fully hidden while hovering rather than peeking out
+   from behind the hover art wherever the two poses don't line up. Both
+   directions use the same transition, so mouse-leave reverses it smoothly. */
+.toty-card__char--has-hover { transition: transform .12s linear, opacity .25s ease; }
+.toty-card--active .toty-card__char--has-hover { opacity: 0; }
+.toty-card__char-hover { opacity: 0; transition: opacity .25s ease; }
+.toty-card--active .toty-card__char-hover { opacity: 1; }
 .toty-card__glow {
   object-fit: contain;
   mix-blend-mode: screen;

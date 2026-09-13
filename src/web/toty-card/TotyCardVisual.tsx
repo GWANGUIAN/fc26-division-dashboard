@@ -14,6 +14,7 @@ export function TotyCardVisual({
   streamer,
   assets,
   backgroundGlowUrl,
+  characterHoverUrl,
   onCardClick,
   showGlow = true,
   punch = false,
@@ -24,6 +25,11 @@ export function TotyCardVisual({
    * getBackgroundGlowUrl) — animates on its own via CSS so the card isn't
    * fully static while idle. Omitted entirely for a player without one yet. */
   backgroundGlowUrl?: string;
+  /** Optional alternate character render (see totyCardAssets.ts's
+   * getCharacterHoverUrl) — crossfades in over assets.character while the
+   * card is active (mouse hovering it), and back out on mouse-leave.
+   * Omitted entirely for a player without one yet. */
+  characterHoverUrl?: string;
   onCardClick?: () => void;
   /** Off for the offline GIF capture (TotyCardCapturePage) — GIF's 1-bit
    * alpha can't do the glow's soft falloff, so it renders as a hard-edged
@@ -130,12 +136,20 @@ export function TotyCardVisual({
           </div>
           <div className="toty-card__idle-char">
             <img
-              className="toty-card__char"
+              className={`toty-card__char${characterHoverUrl ? " toty-card__char--has-hover" : ""}`}
               src={assets.character}
               alt=""
               fetchPriority="high"
               style={{ transform: `translate(${tilt.charX}px, ${tilt.charY}px)` }}
             />
+            {characterHoverUrl && (
+              <img
+                className="toty-card__char toty-card__char-hover"
+                src={characterHoverUrl}
+                alt=""
+                style={{ transform: `translate(${tilt.charX}px, ${tilt.charY}px)` }}
+              />
+            )}
           </div>
           {backgroundGlowUrl && (
             <div className="toty-card__idle-glow">

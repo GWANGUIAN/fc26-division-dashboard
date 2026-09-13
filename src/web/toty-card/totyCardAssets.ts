@@ -55,11 +55,13 @@ export function preloadTotyCardAssets(assets: TotyCardAssets, streamerId: string
   const backgroundGlowUrl = getBackgroundGlowUrl(streamerId);
   const popupBackdropUrl = getPopupBackdropUrl(streamerId);
   const popupBackdropGlowUrl = getPopupBackdropGlowUrl(streamerId);
+  const characterHoverUrl = getCharacterHoverUrl(streamerId);
   const urls = [assets.frame, assets.background, assets.character];
   if (cardBackUrl) urls.push(cardBackUrl);
   if (backgroundGlowUrl) urls.push(backgroundGlowUrl);
   if (popupBackdropUrl) urls.push(popupBackdropUrl);
   if (popupBackdropGlowUrl) urls.push(popupBackdropGlowUrl);
+  if (characterHoverUrl) urls.push(characterHoverUrl);
   for (const url of urls) {
     if (preloadedUrls.has(url)) continue;
     preloadedUrls.add(url);
@@ -141,6 +143,24 @@ for (const [path, url] of Object.entries(modules)) {
 
 export function getBackgroundGlowUrl(streamerId: string): string | undefined {
   return backgroundGlowUrls[streamerId];
+}
+
+// Per-player alternate character render swapped in on hover (see
+// TotyCardVisual's characterHoverUrl prop) — crossfades over the base
+// assets.character art while the card is active, e.g. a more animated pose
+// or an expression change. Optional, same "drop the file in, it just
+// works" convention as every other suffix in this file.
+const CHARACTER_HOVER_SUFFIX = "-character-hover.webp";
+const characterHoverUrls: Record<string, string> = {};
+for (const [path, url] of Object.entries(modules)) {
+  const filename = path.split("/").pop() ?? "";
+  if (filename.endsWith(CHARACTER_HOVER_SUFFIX)) {
+    characterHoverUrls[filename.slice(0, -CHARACTER_HOVER_SUFFIX.length)] = url;
+  }
+}
+
+export function getCharacterHoverUrl(streamerId: string): string | undefined {
+  return characterHoverUrls[streamerId];
 }
 
 // Pre-rendered animated GIF loop per player (background/character motion +

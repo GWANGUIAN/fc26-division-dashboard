@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { TotyCardVisual } from "./TotyCardVisual.js";
-import { getBackgroundGlowUrl, getTotyCardAssets } from "./totyCardAssets.js";
+import { getBackgroundGlowUrl, getCharacterHoverUrl, getTotyCardAssets } from "./totyCardAssets.js";
 import "./toty-card.css";
 
 /**
@@ -49,6 +49,7 @@ export function TotyCardCapturePage() {
         streamer={streamer}
         assets={assets}
         backgroundGlowUrl={getBackgroundGlowUrl(id)}
+        characterHoverUrl={getCharacterHoverUrl(id)}
         showGlow={false}
       />
     </div>

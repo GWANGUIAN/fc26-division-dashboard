@@ -122,6 +122,7 @@ export function TotyCardReveal({
   assets,
   cardBackUrl,
   backgroundGlowUrl,
+  characterHoverUrl,
   onCardClick,
   onRevealStart,
   onImpact,
@@ -131,6 +132,7 @@ export function TotyCardReveal({
   assets: TotyCardAssets;
   cardBackUrl?: string;
   backgroundGlowUrl?: string;
+  characterHoverUrl?: string;
   onCardClick?: () => void;
   /** Fired the instant the viewer clicks "클릭해서 카드 공개" — before the
    * tunnel/flip even starts (or immediately under prefers-reduced-motion). */
@@ -305,6 +307,7 @@ export function TotyCardReveal({
               streamer={streamer}
               assets={assets}
               backgroundGlowUrl={backgroundGlowUrl}
+              characterHoverUrl={characterHoverUrl}
               onCardClick={onCardClick}
               // showBurst turns on at the flip's exact 90°-rotation midpoint
               // (see the FLIP_MS/2 timer below), where the card is edge-on

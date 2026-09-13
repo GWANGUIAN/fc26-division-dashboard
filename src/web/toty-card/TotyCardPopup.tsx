@@ -8,6 +8,7 @@ import { exportTotyCardPng } from "./exportTotyCardImage.js";
 import {
   getBackgroundGlowUrl,
   getCardBackUrl,
+  getCharacterHoverUrl,
   getPopupBackdropGlowUrl,
   getPopupBackdropUrl,
   getTotyCardPreviewUrl,
@@ -214,6 +215,7 @@ export function TotyCardPopup({
           assets={assets}
           cardBackUrl={getCardBackUrl(streamer.id)}
           backgroundGlowUrl={getBackgroundGlowUrl(streamer.id)}
+          characterHoverUrl={getCharacterHoverUrl(streamer.id)}
           onCardClick={handleCardClick}
           onRevealStart={handleRevealStart}
           onImpact={handleRevealImpact}
