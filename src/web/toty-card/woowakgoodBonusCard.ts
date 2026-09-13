@@ -17,4 +17,8 @@ export const WOOWAKGOOD_BONUS_STREAMER: Pick<
   displayName: "우왁굳",
   hopedPosition1: "ALL",
   currentDivision: 1,
+  // public/sfxes/woowakgood.mp3 — TotyCardPopup's handleCardClick already
+  // plays streamer.sfx on every card click for real streamers, so setting
+  // this is the only change needed to wire it up here too.
+  sfx: "/sfxes/woowakgood.mp3",
 };
