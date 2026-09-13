@@ -205,10 +205,31 @@ body.toty-capture-mode::after {
 /* Ambient light/particle overlay (see totyCardAssets.ts's
    getBackgroundGlowUrl) — twinkles + drifts on its own, independent of the
    idle-bg/idle-char breathing above, so the card never sits fully static. */
-.toty-card__idle-glow { animation: toty-bg-glow-twinkle 5s ease-in-out infinite; }
+.toty-card__idle-glow {
+  animation: toty-bg-glow-twinkle 5s ease-in-out infinite;
+  transition: opacity .3s;
+}
 .toty-card--active .toty-card__idle-bg,
-.toty-card--active .toty-card__idle-char,
-.toty-card--active .toty-card__idle-glow { animation-play-state: paused; }
+.toty-card--active .toty-card__idle-char { animation-play-state: paused; }
+/* .toty-card__idle-glow sits directly beneath .toty-card__glare/__foil and
+   blends via `screen`, raising the local brightness right where those two
+   apply `overlay`/`color-dodge` — both of those blow out toward white very
+   easily on an already-bright backdrop, so even a dimmed glow was still
+   enough to wash the cursor-driven rainbow foil toward white. Hiding it
+   outright while hovering lets the foil read as actual color; it's an
+   idle/ambient effect anyway, so it isn't missed while the interactive
+   glare/foil are the ones on screen.
+   `animation-play-state: paused` (used for idle-bg/idle-char above) is NOT
+   enough here: a paused animation still holds its last keyframe value and
+   that wins over any plain `opacity` rule regardless of specificity, so a
+   `.toty-card--active .toty-card__idle-glow { opacity: 0 }` rule alone was
+   silently ignored (verified: computed opacity stayed ~1). The animation
+   itself has to be removed for the plain opacity rule — and the transition
+   on .toty-card__idle-glow above — to take over. */
+.toty-card--active .toty-card__idle-glow {
+  animation: none;
+  opacity: 0;
+}
 
 .toty-card__bg,
 .toty-card__char,
