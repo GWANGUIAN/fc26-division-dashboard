@@ -10,7 +10,10 @@ import { WOOWAKGOOD_ID } from "./woowakgoodBonusCard.js";
 // folded into the shared storage.ts grab-bag.
 const UNLOCK_STORAGE_KEY = "toty-card-woowakgood-bonus-unlocked";
 
-function hasUnlockedBonus(): boolean {
+// Exported so other features can gate on the same one-way achievement without duplicating it —
+// e.g. the card-match minigame includes 우왁굳 in its candidate pool once this is true, rather than
+// tracking its own separate "unlocked" condition.
+export function hasUnlockedWoowakgoodBonus(): boolean {
   try {
     return localStorage.getItem(UNLOCK_STORAGE_KEY) === "1";
   } catch {
@@ -48,7 +51,7 @@ export function useWoowakgoodBonusUnlock(
     getRevealedIds,
     getRevealedIds,
   );
-  const [unlocked, setUnlocked] = useState(() => hasUnlockedBonus());
+  const [unlocked, setUnlocked] = useState(() => hasUnlockedWoowakgoodBonus());
 
   useEffect(() => {
     if (unlocked) return;

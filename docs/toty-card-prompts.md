@@ -1288,3 +1288,32 @@ not a full scene. High detail, soft glow bloom, 4K. Entire canvas outside
 the glowing particles themselves must stay fully transparent (alpha 0),
 transparent PNG.
 ```
+
+---
+
+## 미니게임 공용 카드 뒷면 (카드 짝 맞추기, 미구현)
+
+`src/web/minigame/`에 구현된 "카드 짝 맞추기" 미니게임(20장 뒤집어서 짝 맞추기)에 쓰이는 **모든 카드가 공유하는 단일 뒷면 이미지**. 위 "카드 뒷면" 섹션의 `<id>-card-back.webp`들은 선수마다 디자인이 전부 달라서 뒷면만 보고도 어떤 카드인지 구별되기 때문에 이 미니게임에는 쓸 수 없음 — 대신 어떤 선수 카드에도 어울리는 중립적인 "?" 디자인 한 장만 생성하면 됨.
+
+- **캔버스**: 1060×1484px (다른 카드 아트와 동일 비율), 알파 채널 있는 투명 PNG
+- **레퍼런스**: 하치 프레임 이미지(`src/web/assets/toty-cards/hachi97-frame.webp`)를 실루엣 참고용으로만 첨부
+- **파일명**: `card-match-back.webp` → `src/web/assets/minigame/card-match-back.webp`에 저장 (기존 `totyCardAssets.ts`가 스캔하는 `<id>-card-back.webp`와는 별도 경로 — `cardMatchAssets.ts`가 이 폴더를 자동 스캔함). 이미지가 없어도 게임은 CSS로 그린 "?" 플레이스홀더로 정상 동작하고, 파일을 넣으면 자동으로 교체됨.
+
+**뒷면**:
+```
+Using the attached card frame image ONLY as a silhouette/structure reference
+— same ornate shield-shaped outer silhouette, same scalloped border curve,
+same laurel-wreath crest position at top center, same inner content window
+position — design a neutral, player-agnostic "mystery" card back meant to be
+reused across an entire deck (not themed to any single character's colors):
+a cool silver-and-slate holographic foil surface with a faint prismatic
+sheen, subtle engraved constellation-like line patterns beneath the foil,
+and one large bold glowing question mark ("?") centered in the middle of
+the shield, rendered in a soft cyan-white glow. Silvery-white metallic trim
+tracing the inner border. Moody, premium, mysterious — looks like the
+unrevealed back of any card in the set, generic enough to represent all of
+them equally. No text other than the single "?" glyph, no numbers, no
+logos, no player art. Entire canvas outside the frame's own linework must
+stay fully transparent (alpha 0), only the shield shape itself is opaque.
+1060x1484px, transparent PNG.
+```

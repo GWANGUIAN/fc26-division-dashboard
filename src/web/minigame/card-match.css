@@ -1,0 +1,110 @@
+.cardmatch__title { display: flex; align-items: center; gap: 9px; font: 800 32px/1 "Barlow Condensed", "Noto Sans KR"; }
+.cardmatch__title-icon { width: 30px; height: 42px; object-fit: contain; }
+.cardmatch__intro { margin: 6px 0 0; color: var(--text-secondary); font-size: 13px; }
+
+.cardmatch-play-area { position: relative; display: flex; flex-direction: column; gap: 8px; width: 100%; margin: 8px auto 0; }
+
+.cardmatch-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.cardmatch-badge { padding: 5px 12px; border: 1px solid var(--border-default); border-radius: 20px; color: var(--text-primary); background: var(--surface-3); font: 700 13px/1 "Barlow Condensed", "Noto Sans KR"; letter-spacing: .02em; }
+.cardmatch-badge--best { color: var(--accent-text); }
+.cardmatch-restart { margin-left: auto; padding: 7px 16px; border: 1px solid var(--accent-border); border-radius: 999px; color: #002219; background: var(--accent-text); font: 700 13px/1 "Barlow Condensed", "Noto Sans KR"; letter-spacing: .04em; transition: transform .15s; }
+.cardmatch-restart:hover, .cardmatch-restart:focus-visible { transform: scale(1.05); outline: 0; }
+
+.cardmatch-empty { color: var(--text-secondary); font-size: 13px; }
+
+.cardmatch-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 137px)); justify-content: center; gap: 7px; }
+@media (max-width: 680px) { .cardmatch-grid { grid-template-columns: repeat(4, minmax(0, 115px)); gap: 6px; } }
+
+.cardmatch-cell { position: relative; aspect-ratio: 1060 / 1484; padding: 0; border: 0; background: none; container-type: inline-size; perspective: 900px; cursor: pointer; }
+.cardmatch-cell:disabled { cursor: default; }
+
+.cardmatch-cell__inner { position: relative; display: block; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .45s cubic-bezier(.34, 1.56, .64, 1); }
+.cardmatch-cell--flipped .cardmatch-cell__inner { transform: rotateY(180deg); }
+
+.cardmatch-cell__face { position: absolute; inset: 0; backface-visibility: hidden; }
+
+/* Same reasoning as --front below: card-match-back.webp is already a transparent-PNG shield shape,
+   so this face should show nothing but that art — no rounded-rect panel/gradient behind it. */
+.cardmatch-cell__face--back { display: grid; place-items: center; }
+.cardmatch-cell__face--back img { width: 100%; height: 100%; object-fit: contain; }
+.cardmatch-cell:not(:disabled):hover .cardmatch-cell__face--back img { filter: brightness(1.15); }
+.cardmatch-cell__back-fallback { font: 800 34px/1 "Barlow Condensed", "Noto Sans KR"; color: #8fa3ff; text-shadow: 0 0 12px #4a7fff88; }
+
+/* No box background/border here on purpose — the frame art is a transparent-PNG shield shape (same
+   as TotyCardVisual's .toty-card), so this face should show nothing but that shield floating over
+   whatever sits behind the grid, not a rectangular card-shaped panel around it. */
+.cardmatch-cell__face--front { transform: rotateY(180deg); }
+
+/* Clips the background/character layers to a rounded rect pulled safely inside the frame's own
+   inner window (TotyCardVisual's .toty-card__window uses 7.5% 12.5% 9% 12.5% at full popup size;
+   pulled in further here) so the opaque border ring has enough overlap margin to fully hide the
+   approximation seam even at this grid cell's much smaller render size — the frame image itself is
+   layered separately on top, unclipped, since its border art is what actually needs to reach the
+   shield's outer edge. */
+.cardmatch-cell__window { position: absolute; inset: 11% 17% 14% 17%; overflow: hidden; border-radius: 42% 42% 36% 36% / 18% 18% 12% 12%; }
+.cardmatch-cell__bg,
+.cardmatch-cell__char { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.cardmatch-cell__char { object-fit: contain; object-position: center bottom; }
+.cardmatch-cell__frame { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+
+/* Match glow: a duplicate of the frame art with a colored drop-shadow, so the glow traces the
+   shield's actual curved silhouette (like TotyCardVisual's .toty-card__frame-glow) instead of a
+   rectangular box-shadow around the cell. Off by default, only lit up on a match. */
+.cardmatch-cell__frame-glow { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; opacity: 0; }
+.cardmatch-cell--matched .cardmatch-cell__frame-glow {
+  animation: cardmatch-frame-glow-pulse 1s ease-out;
+}
+@keyframes cardmatch-frame-glow-pulse {
+  0% {
+    opacity: 0;
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  35% {
+    opacity: 1;
+    filter:
+      drop-shadow(0 0 5px var(--toty-text-color, #4a7fff))
+      drop-shadow(0 0 10px var(--toty-text-glow, #4a7fff));
+  }
+  100% {
+    opacity: 0;
+    filter: drop-shadow(0 0 0 transparent);
+  }
+}
+
+.cardmatch-cell__name {
+  position: absolute;
+  left: 50%;
+  top: 66%;
+  transform: translateX(-50%);
+  max-width: 88%;
+  overflow: hidden;
+  color: var(--toty-text-color, #fff);
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: 'GiantsInline', "Barlow Condensed", sans-serif;
+  font-weight: 800;
+  font-size: clamp(12px, 13cqw, 16px);
+  letter-spacing: .02em;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 1px 2px rgba(0, 0, 0, .5);
+}
+
+.cardmatch-cell--matched { animation: cardmatch-matched-pop .4s ease-out; }
+@keyframes cardmatch-matched-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.cardmatch-cell--shake .cardmatch-cell__inner { animation: cardmatch-shake .4s ease-in-out; }
+@keyframes cardmatch-shake {
+  0%, 100% { transform: rotateY(180deg) translateX(0); }
+  20% { transform: rotateY(180deg) translateX(-6px); }
+  40% { transform: rotateY(180deg) translateX(6px); }
+  60% { transform: rotateY(180deg) translateX(-4px); }
+  80% { transform: rotateY(180deg) translateX(4px); }
+}
+
+.cardmatch-result { display: grid; gap: 8px; justify-items: center; padding: 16px; border: 1px solid var(--border-default); border-radius: 12px; background: var(--surface-elevated); box-shadow: 0 12px 30px rgba(var(--shadow-color), .5); text-align: center; }
+.cardmatch-result__label { font: 800 22px/1 "Barlow Condensed", "Noto Sans KR"; }
+.cardmatch-result__record { color: var(--accent-text); font: 700 14px/1 "Barlow Condensed", "Noto Sans KR"; }

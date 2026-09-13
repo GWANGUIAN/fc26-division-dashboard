@@ -56,6 +56,8 @@ import { PhotoBoothOverlay } from "./photo-booth/PhotoBoothOverlay";
 import { KickupsToggle } from "./minigame/KickupsToggle";
 import { KickupsModal } from "./minigame/KickupsModal";
 import { FreekickToggle } from "./minigame/FreekickToggle";
+import { CardMatchToggle } from "./minigame/CardMatchToggle";
+import { CardMatchModal } from "./minigame/CardMatchModal";
 import { TotyCardPopup } from "./toty-card/TotyCardPopup";
 import { getTotyCardAssets } from "./toty-card/totyCardAssets";
 import { useWoowakgoodBonusUnlock } from "./toty-card/useWoowakgoodBonusUnlock";
@@ -85,7 +87,7 @@ export function App() {
     useState<Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision" | "sfx">>();
   // A single slot (rather than one boolean per minigame) makes it structurally impossible for two
   // minigame modals to be open at once.
-  const [activeMinigame, setActiveMinigame] = useState<"kickups" | "freekick" | null>(null);
+  const [activeMinigame, setActiveMinigame] = useState<"kickups" | "freekick" | "cardmatch" | null>(null);
 
   const { toast, showToast } = useToast();
   const woowakgoodUnlocked = useWoowakgoodBonusUnlock(snapshot?.streamers, showToast);
@@ -362,6 +364,13 @@ export function App() {
           />
         </Suspense>
       )}
+      {activeMinigame === "cardmatch" && (
+        <CardMatchModal
+          onClose={() => setActiveMinigame(null)}
+          streamers={snapshot?.streamers}
+          sfxVolume={sfxVolume}
+        />
+      )}
       <LatestFeedDrawer
         open={feedOpen}
         onClose={() => setFeedOpen(false)}
@@ -371,6 +380,7 @@ export function App() {
         <ThemeToggle theme={theme} onToggle={toggleTheme} />
         <KickupsToggle onClick={() => setActiveMinigame("kickups")} />
         <FreekickToggle onClick={() => setActiveMinigame("freekick")} />
+        <CardMatchToggle onClick={() => setActiveMinigame("cardmatch")} />
       </div>
       <BrightnessGag />
       <div className="floating-toolbar">

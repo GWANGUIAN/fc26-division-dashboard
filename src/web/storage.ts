@@ -357,6 +357,26 @@ export function saveFreekickMusicVolume(volume: number) {
   }
 }
 
+const CARD_MATCH_BEST_TURNS_KEY = "fc26-cardmatch-best-turns";
+
+export function loadCardMatchBestTurns(): number | null {
+  try {
+    const raw = localStorage.getItem(CARD_MATCH_BEST_TURNS_KEY);
+    const value = raw === null ? NaN : Number(raw);
+    return Number.isFinite(value) && value > 0 ? Math.floor(value) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveCardMatchBestTurns(turns: number) {
+  try {
+    localStorage.setItem(CARD_MATCH_BEST_TURNS_KEY, String(Math.floor(turns)));
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
+
 export function hasHeardSfx(): boolean {
   try {
     return localStorage.getItem(SFX_HEARD_STORAGE_KEY) === "1";
