@@ -28,6 +28,20 @@ function playRevealSfx(volume: number): HTMLAudioElement {
   return audio;
 }
 
+// Shared across every player (unlike the per-player popup-open sfx below) —
+// a generic "whoosh" that plays the instant the viewer clicks "클릭해서 카드
+// 공개", right as the light-tunnel effect starts, distinct from the impact
+// stinger that lands later at the flip's midpoint.
+const REVEAL_WHOOSH_SFX_URL = "/sfxes/toty-reveal-whoosh.mp3";
+function playRevealWhooshSfx(volume: number): HTMLAudioElement {
+  const audio = new Audio(REVEAL_WHOOSH_SFX_URL);
+  audio.volume = volume;
+  audio.play().catch(() => {
+    // ignore autoplay/decoding failures, and a not-yet-provided file's 404
+  });
+  return audio;
+}
+
 // Per-player ambient sting (thunder for 빙밍, a water bloop for 해파린, a
 // dragon roar for 하치, etc.) that plays the moment the popup opens — before
 // the viewer has even clicked to reveal the card. Lives in public/sfxes/
@@ -108,6 +122,11 @@ export function TotyCardPopup({
     if (sfxEnabled) localSfxRef.current.push(playPopupOpenSfx(streamer.id, sfxVolume / 100));
   }, []);
 
+  // Fired by TotyCardReveal the instant the viewer clicks "클릭해서 카드 공개".
+  const handleRevealStart = () => {
+    if (sfxEnabled) localSfxRef.current.push(playRevealWhooshSfx(sfxVolume / 100));
+  };
+
   // Fired by TotyCardReveal at the reveal's impact moment (or immediately,
   // under prefers-reduced-motion) rather than as soon as the popup mounts,
   // so the stinger lands together with the flip/burst instead of ahead of it.
@@ -172,6 +191,7 @@ export function TotyCardPopup({
           cardBackUrl={getCardBackUrl(streamer.id)}
           backgroundGlowUrl={getBackgroundGlowUrl(streamer.id)}
           onCardClick={handleCardClick}
+          onRevealStart={handleRevealStart}
           onImpact={handleRevealImpact}
           onRevealed={() => setRevealed(true)}
         />

@@ -106,6 +106,7 @@ export function TotyCardReveal({
   cardBackUrl,
   backgroundGlowUrl,
   onCardClick,
+  onRevealStart,
   onImpact,
   onRevealed,
 }: {
@@ -114,6 +115,9 @@ export function TotyCardReveal({
   cardBackUrl?: string;
   backgroundGlowUrl?: string;
   onCardClick?: () => void;
+  /** Fired the instant the viewer clicks "클릭해서 카드 공개" — before the
+   * tunnel/flip even starts (or immediately under prefers-reduced-motion). */
+  onRevealStart?: () => void;
   onImpact?: () => void;
   /** Fired once the flip sequence finishes and the interactive card is showing. */
   onRevealed?: () => void;
@@ -130,9 +134,14 @@ export function TotyCardReveal({
   };
 
   const handleReveal = () => {
-    setPhase((current) =>
-      current === "waiting" ? (prefersReducedMotion() ? "done" : "tunnel") : current,
-    );
+    // Safe to read `phase` directly rather than go through a setPhase
+    // updater: the reveal button (the only caller) only exists in the DOM
+    // while phase === "waiting" and is removed the instant it changes, so
+    // this can't double-fire the way a stale-closure updater callback
+    // could under React StrictMode's double-invocation.
+    if (phase !== "waiting") return;
+    onRevealStart?.();
+    setPhase(prefersReducedMotion() ? "done" : "tunnel");
   };
 
   // Same mouse-tilt-plus-glare treatment as TotyCardVisual's own hover
