@@ -70,14 +70,14 @@
 - **적용 방식**: `TotyCardVisual.tsx`에서 이 레이어가 **캐릭터 바로 위**에 얹힘(캐릭터보다 나중에 그려짐), 마우스와 무관하게 항상 재생되는 느린 CSS 키프레임(드리프트 이동 + 옅은 opacity 깜빡임)을 적용 — 기존 `.toty-card__idle-bg`/`__idle-char`와 같은 패턴.
 - **주의 (중요)**: 캐릭터 위에 그대로 얹히는 레이어라, 입자가 크거나 캔버스 중앙에 몰려 있으면(특히 "마법진"처럼 원형 도형을 큼직하게 그리는 모티프) 캐릭터를 가려버림. **작고 성긴 입자를 화면 가장자리·모서리 위주로 흩뿌리고, 캐릭터가 서는 중앙~하단 영역은 비워두도록** 프롬프트에 명시할 것.
 
-## 캐릭터 호버 대체 이미지 (선수별로 각각 생성 — 선택)
+## 캐릭터 호버 대체 이미지 (선수별로 각각 생성 — 미구현, 우왁굳만 완료)
 
-기본 `<id>-character.webp` 위에, 마우스를 카드에 올리고 있는 동안(`.toty-card--active`)만 크로스페이드로 겹쳐 보이는 대체 캐릭터 렌더. 다른 포즈/표정 등 "호버했을 때 반응한다"는 느낌을 주기 위한 용도.
+마우스를 카드에 올리고 있는 동안(`.toty-card--active`)만 기본 `<id>-character.webp`가 완전히 사라지고 대체 캐릭터 렌더로 크로스페이드 교체됨 — 겹쳐 보이는 게 아니라 진짜로 다른 이미지로 스왑되는 것이라 기본 포즈와 실루엣이 많이 달라도 됨. 좀 더 이쁘거나 역동적인 포즈로 "호버했을 때 반응한다"는 느낌을 주기 위한 용도. 아래 선수별 세트 섹션마다 **캐릭터 호버** 프롬프트가 같이 있음.
 
 - **캔버스**: 1060×1484px (다른 레이어와 동일 비율), 알파 채널 있는 투명 PNG
-- **레퍼런스**: 기본 캐릭터 이미지와 같은 인물이므로 스트리머 참고 사진 + (선택) 기존 `<id>-character.webp`를 포즈/구도 참고용으로 첨부
+- **레퍼런스**: 같은 인물의 정체성/키트 색상을 유지해야 하므로 **기존에 이미 생성된 그 선수의 `<id>-character.webp`를 레퍼런스로 첨부**(스트리머 실사진이 아님) — 포즈는 그대로 베끼지 말고 새로운 포즈로.
 - **파일명**: `<id>-character-hover.webp` (`totyCardAssets.ts`가 자동 스캔 — 없어도 기본 캐릭터 이미지만으로 카드는 정상 동작함)
-- **적용 방식**: `TotyCardVisual.tsx`에서 기본 캐릭터 이미지 바로 위에 얹혀서, 호버 시작 시 0.25초에 걸쳐 서서히 나타났다가 호버가 끝나면 다시 서서히 사라짐(`toty-card.css`의 `.toty-card__char-hover`).
+- **적용 방식**: `TotyCardVisual.tsx`에서 기본 캐릭터 이미지와 이 이미지가 같은 자리에 겹쳐 있다가, 호버 시작 시 기본 이미지는 0.25초에 걸쳐 사라지고 이 이미지가 그만큼 나타남(크로스페이드), 호버가 끝나면 반대로 되돌아감 — `toty-card.css`의 `.toty-card__char--has-hover`/`.toty-card__char-hover`.
 
 ## 선수별 세트 (10개)
 
@@ -140,6 +140,20 @@ mid-thigh. Warm ember-lit rim lighting matching the lava palette. No frame,
 no text, no background — fully transparent PNG with alpha channel,
 1060x1484, leave open space above the head and below the waist for
 name/stat overlays.
+```
+
+**캐릭터 호버** (기존 다시바 캐릭터 이미지를 참고로 첨부):
+```
+Using the attached existing character render ONLY as an identity/likeness
+and kit-color reference (same person, same warm apricot-orange and cream
+kit, same overall art style) — do NOT repeat the same pose. Design a NEW,
+more dynamic and eye-catching alternate pose for this same player: an
+airborne bicycle-kick / overhead strike, body twisting dramatically in
+mid-air, embers and sparks trailing off the striking boot. Viewed from a
+slight low front 3/4 angle, visible head to mid-thigh. Warm ember-lit rim
+lighting matching the lava palette. No frame, no text, no background —
+fully transparent PNG with alpha channel, 1060x1484, leave open space
+above the head and below the waist for name/stat overlays.
 ```
 
 **뒷면**:
@@ -234,6 +248,20 @@ background — fully transparent PNG with alpha channel, 1060x1484, leave
 open space above the head and below the waist for name/stat overlays.
 ```
 
+**캐릭터 호버** (기존 쥬멩이 캐릭터 이미지를 참고로 첨부):
+```
+Using the attached existing character render ONLY as an identity/likeness
+and kit-color reference (same person, same fresh lime-green and white kit,
+same overall art style) — do NOT repeat the same pose. Design a NEW, more
+dynamic and eye-catching alternate pose for this same player: a full-power
+side-volley strike caught mid-air, body twisted sideways, spring vines and
+budding leaves whipping around the striking leg. Viewed from a slight low
+front 3/4 angle, visible head to mid-thigh. Bright fresh lighting matching
+the lime-green palette. No frame, no text, no background — fully
+transparent PNG with alpha channel, 1060x1484, leave open space above the
+head and below the waist for name/stat overlays.
+```
+
 **뒷면**:
 ```
 Using the attached card frame image ONLY as a silhouette/structure reference
@@ -321,6 +349,20 @@ render, semi-realistic style. Soccer kit in deep amethyst-purple and silver
 tones. Calm, commanding stance — arms crossed, ball resting still under one
 foot, chin slightly raised, composed confident expression (a midfield
 playmaker controlling the tempo of the game, not celebrating). Viewed from
+a slight low front 3/4 angle, visible head to mid-thigh. Cool violet rim
+lighting. No frame, no text, no background — fully transparent PNG with
+alpha channel, 1060x1484, leave open space above the head and below the
+waist for name/stat overlays.
+```
+
+**캐릭터 호버** (기존 문모모 캐릭터 이미지를 참고로 첨부):
+```
+Using the attached existing character render ONLY as an identity/likeness
+and kit-color reference (same person, same deep amethyst-purple and silver
+kit, same overall art style) — do NOT repeat the same pose. Design a NEW,
+more dynamic and eye-catching alternate pose for this same player:
+mid-stride, whipping a long diagonal through-ball pass, coat hem and
+violet arcane energy trailing dramatically behind the motion. Viewed from
 a slight low front 3/4 angle, visible head to mid-thigh. Cool violet rim
 lighting. No frame, no text, no background — fully transparent PNG with
 alpha channel, 1060x1484, leave open space above the head and below the
@@ -425,6 +467,20 @@ leave open space above the head and below the waist for name/stat
 overlays.
 ```
 
+**캐릭터 호버** (기존 뽀린걸 캐릭터 이미지를 참고로 첨부):
+```
+Using the attached existing character render ONLY as an identity/likeness
+and kit-color reference (same person, same gunmetal-gray kit with red trim,
+same overall art style) — do NOT repeat the same pose. Design a NEW, more
+dynamic and eye-catching alternate pose for this same player: the explosive
+follow-through of a long-range strike, leg fully extended after the kick,
+red circuit-energy crackling off the striking boot. Viewed from a slight
+low front 3/4 angle, visible head to mid-thigh. Cool steel-gray rim
+lighting with a touch of red accent light. No frame, no text, no
+background — fully transparent PNG with alpha channel, 1060x1484, leave
+open space above the head and below the waist for name/stat overlays.
+```
+
 **뒷면**:
 ```
 Using the attached card frame image ONLY as a silhouette/structure reference
@@ -518,6 +574,21 @@ transparent PNG with alpha channel, 1060x1484, leave open space above the
 head and below the waist for name/stat overlays.
 ```
 
+**캐릭터 호버** (기존 한결 캐릭터 이미지를 참고로 첨부):
+```
+Using the attached existing character render ONLY as an identity/likeness
+and kit-color reference (same person, same matte black kit with
+sapphire-blue trim, same overall art style) — do NOT repeat the same pose.
+Design a NEW, more dynamic and eye-catching alternate pose for this same
+player: the explosive follow-through of a free-kick strike, leg fully
+extended after the kick, a comet-like trail of sapphire starlight bursting
+off the ball. Viewed from a slight low front 3/4 angle, visible head to
+mid-thigh. Cool icy-blue rim lighting against dark tones. No frame, no
+text, no background — fully transparent PNG with alpha channel, 1060x1484,
+leave open space above the head and below the waist for name/stat
+overlays.
+```
+
 **뒷면**:
 ```
 Using the attached card frame image ONLY as a silhouette/structure reference
@@ -607,6 +678,20 @@ angle, visible head to mid-thigh. Soft airy blue-lavender rim lighting. No
 frame, no text, no background — fully transparent PNG with alpha channel,
 1060x1484, leave open space above the head and below the waist for
 name/stat overlays.
+```
+
+**캐릭터 호버** (기존 핑구 캐릭터 이미지를 참고로 첨부):
+```
+Using the attached existing character render ONLY as an identity/likeness
+and kit-color reference (same person, same sky-blue kit with pale lavender
+trim, same overall art style) — do NOT repeat the same pose. Design a NEW,
+more dynamic and eye-catching alternate pose for this same player: a
+leaping diving header clearance, body arched in mid-air, fluffy clouds and
+pale lavender feathers scattering dramatically around the motion. Viewed
+from a slight low front 3/4 angle, visible head to mid-thigh. Soft airy
+blue-lavender rim lighting. No frame, no text, no background — fully
+transparent PNG with alpha channel, 1060x1484, leave open space above the
+head and below the waist for name/stat overlays.
 ```
 
 **뒷면**:
@@ -707,6 +792,20 @@ alpha channel, 1060x1484, leave open space above the head and below the
 waist for name/stat overlays.
 ```
 
+**캐릭터 호버** (기존 해파린 캐릭터 이미지를 참고로 첨부):
+```
+Using the attached existing character render ONLY as an identity/likeness
+and kit-color reference (same person, same pale lavender kit with deep
+purple trim, same overall art style) — do NOT repeat the same pose. Design
+a NEW, more dynamic and eye-catching alternate pose for this same player: a
+full-stretch sliding tackle/interception, body extended low across the
+ground, glowing lavender-purple jellyfish tendrils trailing weightlessly
+behind the motion. Viewed from a slight low front 3/4 angle, visible head
+to mid-thigh. Soft dreamy lavender-purple rim lighting. No frame, no text,
+no background — fully transparent PNG with alpha channel, 1060x1484, leave
+open space above the head and below the waist for name/stat overlays.
+```
+
 **뒷면**:
 ```
 Using the attached card frame image ONLY as a silhouette/structure reference
@@ -796,6 +895,20 @@ Viewed from a slight low front 3/4 angle, visible head to mid-thigh. Warm
 vivid pink rim lighting. No frame, no text, no background — fully
 transparent PNG with alpha channel, 1060x1484, leave open space above the
 head and below the waist for name/stat overlays.
+```
+
+**캐릭터 호버** (기존 리냐 캐릭터 이미지를 참고로 첨부):
+```
+Using the attached existing character render ONLY as an identity/likeness
+and kit-color reference (same person, same vivid pink kit with pale-pink
+trim, same overall art style) — do NOT repeat the same pose. Design a NEW,
+more dynamic and eye-catching alternate pose for this same player: a
+dynamic crossing strike caught mid-run, body leaning into the kick, sakura
+petals bursting off the striking foot. Viewed from a slight low front 3/4
+angle, visible head to mid-thigh. Warm vivid pink rim lighting. No frame,
+no text, no background — fully transparent PNG with alpha channel,
+1060x1484, leave open space above the head and below the waist for
+name/stat overlays.
 ```
 
 **뒷면**:
@@ -893,6 +1006,21 @@ fully transparent PNG with alpha channel, 1060x1484, leave open space
 above the head and below the waist for name/stat overlays.
 ```
 
+**캐릭터 호버** (기존 빙밍 캐릭터 이미지를 참고로 첨부):
+```
+Using the attached existing character render ONLY as an identity/likeness
+and kit-color reference (same person, same dark navy kit with
+emerald-green trim, same overall art style) — do NOT repeat the same pose.
+Design a NEW, more dynamic and eye-catching alternate pose for this same
+player: an explosive upright sprint, one arm driving forward, a crackling
+emerald-green lightning bolt streaking off the trailing boot — a more
+vertical, powerful motion than a low tackle. Viewed from a slight low
+front 3/4 angle, visible head to mid-thigh. Cool dramatic rim lighting
+with an emerald-green electric highlight. No frame, no text, no
+background — fully transparent PNG with alpha channel, 1060x1484, leave
+open space above the head and below the waist for name/stat overlays.
+```
+
 **뒷면**:
 ```
 Using the attached card frame image ONLY as a silhouette/structure reference
@@ -983,6 +1111,22 @@ visible head to mid-thigh (crop to keep the diving pose readable within the
 card's portrait canvas). Crisp bright rim lighting. No frame, no text, no
 background — fully transparent PNG with alpha channel, 1060x1484, leave
 open space above the head and below the waist for name/stat overlays.
+```
+
+**캐릭터 호버** (기존 재닌 캐릭터 이미지를 참고로 첨부):
+```
+Using the attached existing character render ONLY as an identity/likeness
+and kit-color reference (same person, same goalkeeper kit in sky-blue with
+silver trim and goalkeeper gloves, same overall art style) — do NOT repeat
+the same pose. Design a NEW, more dynamic and eye-catching alternate pose
+for this same player: an acrobatic one-handed tip-over-the-bar save, body
+arched vertically upward (a different axis of motion than the horizontal
+dive), silvery aurora light trailing off the outstretched glove. Viewed
+from a slight low front 3/4 angle, visible head to mid-thigh (crop to keep
+the pose readable within the card's portrait canvas). Crisp bright rim
+lighting. No frame, no text, no background — fully transparent PNG with
+alpha channel, 1060x1484, leave open space above the head and below the
+waist for name/stat overlays.
 ```
 
 **뒷면**:
@@ -1100,6 +1244,22 @@ slight low front 3/4 angle, visible head to mid-thigh. Rich, dramatic rim
 lighting with a touch of sparkle/ember, matching the more lavish,
 higher-rarity treatment of the rest of this card (more detail and polish
 than a standard card in this series). No frame, no text, no background —
+fully transparent PNG with alpha channel, 1060x1484, leave open space
+above the head and below the waist for name/stat overlays.
+```
+
+**캐릭터 호버** (기존 하치 캐릭터 이미지 + 완성된 하치 프레임 이미지를 색상 참고용으로 함께 첨부):
+```
+Using the attached existing character render ONLY as an identity/likeness
+reference (same person, same overall art style) and the attached frame
+image for its exact warm golden-amber + amethyst-violet palette (do not
+introduce a different color scheme such as blue) — do NOT repeat the same
+pose. Design a NEW, even more dynamic and dramatic alternate pose for this
+same player, matching the more lavish, higher-rarity treatment of the rest
+of this card: a leaping mid-air action pose with wings of glowing draconic
+fire flaring open behind her, full of theatrical energy. Viewed from a
+slight low front 3/4 angle, visible head to mid-thigh. Rich, dramatic rim
+lighting with a touch of sparkle/ember. No frame, no text, no background —
 fully transparent PNG with alpha channel, 1060x1484, leave open space
 above the head and below the waist for name/stat overlays.
 ```
