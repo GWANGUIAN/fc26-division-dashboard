@@ -1159,3 +1159,132 @@ backdrop behind a trading card, not a full scene. High detail, soft glow
 bloom, 4K. Entire canvas outside the glowing particles themselves must
 stay fully transparent (alpha 0), transparent PNG.
 ```
+
+---
+
+## 보너스: 우왁굳 — 숨겨진 이스터에그 카드 (`woowakgood`)
+
+이 동아리(디비전 테스트)를 운영하는 방장 우왁굳을 소재로 한 **숨겨진 12번째 카드**. 신청자가 아니라서 `roster.yaml`에는 없고, 코드에도 하드코딩된 별도 객체(`src/web/toty-card/woowakgoodBonusCard.ts`)로만 존재함. 사이트 방문자가 **위의 11장(선수 10명 + 하치 보너스) 카드를 전부 한 번씩 열람(공개)하면** 그 순간 화면 상단 가운데에 해금 토스트가 뜨고 우측 상단에 반짝이는 플로팅 버튼이 나타나며, 눌러야만 이 카드를 열람할 수 있음(`useWoowakgoodBonusUnlock.ts`). 포지션은 "ALL", 디비전은 1(=1부 리그, 이 사이트 기준 최상위 등급)로 고정 — 숨겨진 만큼 "궁극/전설급" 카드로 읽히게 하려는 의도.
+
+**팔레트/모티프는 고정: 페리도트 그린(연두빛 보석 톤) 메인 + BMW를 좋아하는 취향을 반영한 모터스포츠 모티프.** `totyCardTheme.ts`의 `woowakgood` 항목(`color: #7fdca4`, `glow: #4a7fff`)과 맞춰져 있음 — 초록이 메인 텍스트/장식색, 파랑은 은은한 글로우 악센트. 하치 섹션과 같은 이유로(프레임/배경/캐릭터가 각각 별도 생성 요청이라 색이 서로 어긋나기 쉬움) **완성된 프레임 이미지를 이후 배경/캐릭터/뒷면/빛효과 프롬프트에 색상 참고용으로 같이 첨부**할 것.
+
+**⚠️ 상표 주의 (이 섹션에만 해당)**: BMW는 실존 브랜드이므로, 실제 BMW 로고(키드니 그릴, 프로펠러 라운델 엠블럼)나 "BMW" 워드마크를 그대로 그리게 하면 안 됨. 아래 프롬프트들은 전부 "모터스포츠 실루엣 / 스피드라인 / 카본파이버·크롬 질감 / M 스트라이프 느낌의 청록-보라-적 3색 악센트"처럼 **연상되는 요소만** 쓰고 실제 로고 재현은 명시적으로 금지하는 문구를 넣었음 — 생성 결과에 라운델이나 로고가 비친다면 반드시 다시 생성할 것.
+
+**프레임** (하치 프레임 이미지는 실루엣 참고용으로만 첨부):
+```
+Using the attached card frame image ONLY as a silhouette/structure reference
+— same ornate shield-shaped outer silhouette, same scalloped border curve,
+same laurel-wreath crest position at the top center, same inner content
+window position — but redesign the surface material completely: a sleek
+brushed-chrome and matte-black carbon-fiber-weave frame in a vivid
+peridot-green primary tone, with sharp motorsport speed-line streaks and a
+subtle tricolor racing-stripe accent (teal, violet, crimson — evoking a
+premium German sports-sedan racing livery WITHOUT reproducing any real car
+brand's actual logo, badge, roundel, or wordmark) bursting from the
+top-left and bottom-right corners instead of crystal shards. Replace the
+plain laurel-wreath crest with a larger, more intricate crest featuring a
+small stylized checkered-flag/speed-chevron emblem (generic motorsport
+iconography only, no real brand marks). This is the rarest, most lavish
+card in the whole set — more ornate and detailed than a standard card,
+with a subtle prismatic sheen along the metal edges. No player, no text,
+no stats, no real logos or trademarks of any kind. Entire canvas outside
+the frame's own linework (including the inner content window) must be
+fully transparent. PNG with alpha channel, 1060x1484.
+```
+
+**배경** (완성된 프레임 이미지를 색상 참고용으로 함께 첨부):
+```
+Abstract premium trading-card background art, portrait orientation, using
+the exact same vivid peridot-green primary palette as the attached frame
+image (with subtle teal-violet-crimson racing-stripe accents) — match those
+colors closely. A dense, richly detailed brushed-chrome and carbon-fiber
+slab with glowing green speed-line veins running through it, a large
+cluster of motorsport-inspired chrome shards and racing-stripe light
+streaks bursting from the upper-right corner, dramatic garage/track rim
+lighting. No real car logos, badges, or brand marks of any kind — evoke a
+premium sports-sedan racing aesthetic abstractly only. No characters, no
+people, no border/frame, no text. High detail, 4K, PNG, 1060x1484.
+```
+
+**캐릭터** (우왁굳 참고 사진 첨부 + 완성된 프레임 이미지를 색상 참고용으로 함께 첨부):
+```
+Turn the reference photo into a stylized premium trading-card 3D player
+render, semi-realistic style, using the same vivid peridot-green +
+teal-violet-crimson racing-stripe palette as the attached frame image. Kit
+in peridot-green with matte-black and chrome trim, subtle racing-stripe
+accents on the sleeve/collar (no real car brand logos or badges anywhere on
+the kit). A confident, commanding "team captain / director" pose — arms
+crossed or one hand raised in a decisive gesture, standing tall with a
+knowing grin, radiating authority over the whole club rather than a
+specific playing pose. A faint aura of glowing peridot-green energy with
+streaks of light like motion-blur speed lines curling around him. Viewed
+from a slight low front 3/4 angle, visible head to mid-thigh. Rich,
+dramatic rim lighting with a touch of chrome sparkle, matching the most
+lavish, highest-rarity treatment in this whole card series. No frame, no
+text, no background, no real brand logos — fully transparent PNG with
+alpha channel, 1060x1484, leave open space above the head and below the
+waist for name/stat overlays.
+```
+
+**뒷면** (완성된 프레임 이미지를 실루엣 + 색상 참고용으로 함께 첨부):
+```
+Using the attached card frame image as a silhouette/structure reference
+(same ornate shield-shaped outer silhouette, same scalloped border curve,
+same inner content window position) AND matching its exact vivid
+peridot-green + teal-violet-crimson racing-stripe palette, design the BACK
+of this same card (not the front): a dark holographic foil surface with
+faint carbon-fiber-weave texture and streaks of glowing peridot-green
+speed-line energy drifting beneath the prismatic sheen, a single bold
+stylized checkered-flag/speed-chevron emblem centered in the middle of the
+shield (no readable text, no real car logos, no player), chrome metallic
+trim tracing the inner border — noticeably more lavish and detailed than a
+standard card in this series. Moody, premium, mysterious — looks like the
+unrevealed back of the rarest hidden card in the set. No text, no numbers,
+no real brand marks of any kind. Entire canvas outside the frame's own
+linework must stay fully transparent (alpha 0), only the shield shape
+itself is opaque. 1060x1484px, transparent PNG.
+```
+
+**빛 효과** (완성된 프레임 이미지를 색상 참고용으로 함께 첨부):
+```
+Abstract loose particle/light-effect overlay ONLY, portrait orientation,
+1060x1484, matching the exact vivid peridot-green + teal-violet-crimson
+racing-stripe palette of the attached frame image. Streaks of glowing
+peridot-green motion-blur speed lines, chrome sparkle, and drifting light
+motes — noticeably more lavish and dense than a standard card in this
+series, matching the highest-rarity treatment of the rest of this card. No
+solid material, no rock or stone texture, no border/frame, no characters,
+no text, no real brand marks — this is a light layer meant to be
+composited on top of the existing card background, not a full scene. High
+detail, soft glow bloom, 4K. Entire canvas outside the glowing particles
+themselves must stay fully transparent (alpha 0), transparent PNG.
+```
+
+**팝업 배경** (완성된 프레임 이미지를 색상 참고용으로 함께 첨부):
+```
+A premium dark studio showcase backdrop for a trading-card reveal screen,
+themed around a moody night garage/showroom. A vast dim showroom with
+distant silhouettes of sleek car forms and chrome paneling fading into
+darkness, faint peridot-green ambient light glowing from below, using the
+exact same vivid peridot-green primary tone as the attached frame image
+(do not introduce a different dominant color). Low contrast, desaturated,
+moody and cinematic — no glow effects, no sparkle, no particles (those are
+added separately), just the base environment/material. No text, no real
+car logos or brand marks of any kind, no people, no readable shapes, no
+bright highlights. Ultra-wide, minimal, elegant, 4K, 2560x1440.
+```
+
+**팝업 배경 빛 효과** (완성된 프레임 이미지를 색상 참고용으로 함께 첨부):
+```
+Abstract loose particle/light-effect overlay ONLY, ultra-wide, 2560x1440,
+matching the exact vivid peridot-green + teal-violet-crimson racing-stripe
+palette of the attached frame image. Streaks of glowing peridot-green
+motion-blur speed lines and chrome sparkle drifting slowly — sparse and
+soft, concentrated toward the edges and corners, keep the vertical center
+column (a card sits there) mostly clear. No solid material, no border/
+frame, no characters, no text, no real brand marks — this is a light layer
+meant to be composited on top of a popup backdrop behind a trading card,
+not a full scene. High detail, soft glow bloom, 4K. Entire canvas outside
+the glowing particles themselves must stay fully transparent (alpha 0),
+transparent PNG.
+```

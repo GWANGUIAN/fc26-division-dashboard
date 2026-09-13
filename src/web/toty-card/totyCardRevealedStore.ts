@@ -32,6 +32,13 @@ export function isTotyCardRevealed(streamerId: string): boolean {
   return revealedIds.has(streamerId);
 }
 
+// Stable-reference getter (revealedIds is only ever replaced, never mutated
+// in place — see markTotyCardRevealed) so it doubles as a useSyncExternalStore
+// getSnapshot without needing a second observable store.
+export function getRevealedIds(): Set<string> {
+  return revealedIds;
+}
+
 export function markTotyCardRevealed(streamerId: string): void {
   if (revealedIds.has(streamerId)) return;
   revealedIds = new Set(revealedIds).add(streamerId);

@@ -58,6 +58,9 @@ import { KickupsModal } from "./minigame/KickupsModal";
 import { FreekickToggle } from "./minigame/FreekickToggle";
 import { TotyCardPopup } from "./toty-card/TotyCardPopup";
 import { getTotyCardAssets } from "./toty-card/totyCardAssets";
+import { useWoowakgoodBonusUnlock } from "./toty-card/useWoowakgoodBonusUnlock";
+import { WoowakgoodBonusButton } from "./toty-card/WoowakgoodBonusButton";
+import { WOOWAKGOOD_BONUS_STREAMER } from "./toty-card/woowakgoodBonusCard";
 
 // Pulls in the `three` dependency (~600KB+), so it's lazy-loaded and only reaches the browser
 // once a user actually opens this modal.
@@ -78,12 +81,14 @@ export function App() {
   const [wakgoodNotebookOpen, setWakgoodNotebookOpen] = useState(false);
   const [photoBoothOpen, setPhotoBoothOpen] = useState(false);
   const [growthGraphOpen, setGrowthGraphOpen] = useState(false);
-  const [totyCardStreamer, setTotyCardStreamer] = useState<StreamerRecord>();
+  const [totyCardStreamer, setTotyCardStreamer] =
+    useState<Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision" | "sfx">>();
   // A single slot (rather than one boolean per minigame) makes it structurally impossible for two
   // minigame modals to be open at once.
   const [activeMinigame, setActiveMinigame] = useState<"kickups" | "freekick" | null>(null);
 
   const { toast, showToast } = useToast();
+  const woowakgoodUnlocked = useWoowakgoodBonusUnlock(snapshot?.streamers, showToast);
   const { theme, toggleTheme } = useTheme();
   const {
     sfxEnabled,
@@ -175,6 +180,9 @@ export function App() {
     <main>
       <FakeAdRail />
       <TopBar onTrophyOpen={() => setTrophyOpen(true)} />
+      {woowakgoodUnlocked && (
+        <WoowakgoodBonusButton onOpen={() => setTotyCardStreamer(WOOWAKGOOD_BONUS_STREAMER)} />
+      )}
       <div className="photo-booth-anchor">
         <PhotoBoothTrigger
           passedStreamers={celebrationEligibleStreamers}

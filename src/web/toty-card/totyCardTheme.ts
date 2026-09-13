@@ -16,6 +16,7 @@ const TOTY_CARD_TEXT_THEME: Record<string, { color: string; glow: string }> = {
   lina0108: { color: "#ff8fc0", glow: "#ffe3f0" }, // sakura pink + gold
   tleod1818: { color: "#5cffb8", glow: "#d8fff0" }, // deep-sea coral + emerald
   janine95kim: { color: "#a6dcff", glow: "#f0faff" }, // sky blue frost/aurora
+  woowakgood: { color: "#7fdca4", glow: "#4a7fff" }, // peridot green + BMW-blue glow (hidden bonus)
 };
 
 const DEFAULT_TEXT_THEME = TOTY_CARD_TEXT_THEME.hachi97;

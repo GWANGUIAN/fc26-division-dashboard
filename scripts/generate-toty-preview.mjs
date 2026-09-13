@@ -40,6 +40,18 @@ const FRAME_COUNT = 20;
 const FRAME_DELAY_MS = 125; // 20 * 125ms = 2.5s loop
 const STEP_SETTLE_MS = 45; // lets the .toty-card--active transition finish before each screenshot
 
+// snapshotFixture.json IS the live roster data the deployed app currently
+// serves (see src/web/api.ts) — never add a non-applicant "guest" card's id
+// to it just to satisfy this script, that would make them show up as a real
+// roster streamer in the actual app. Guest/bonus cards (e.g. the hidden
+// 우왁굳 card — see src/web/toty-card/woowakgoodBonusCard.ts) instead get a
+// small manual fallback entry here. This is plain ESM with no TS build
+// step, so it can't just import that .ts module — keep this in sync by hand
+// if that file's display info ever changes.
+const NON_ROSTER_STREAMERS = {
+  woowakgood: { displayName: "우왁굳", hopedPosition1: "ALL", currentDivision: 1 },
+};
+
 async function main() {
   const [id, port = "5184"] = process.argv.slice(2);
   if (!id) {
@@ -58,9 +70,12 @@ async function main() {
   const fixture = JSON.parse(
     readFileSync(path.join(rootDir, "src", "web", "snapshotFixture.json"), "utf8"),
   );
-  const streamer = fixture.streamers.find((entry) => entry.id === id);
+  const fromFixture = fixture.streamers.find((entry) => entry.id === id);
+  const streamer = fromFixture ?? (NON_ROSTER_STREAMERS[id] ? { id, ...NON_ROSTER_STREAMERS[id] } : undefined);
   if (!streamer) {
-    console.error(`No streamer with id "${id}" in src/web/snapshotFixture.json — can't fill in name/position/division.`);
+    console.error(
+      `No streamer with id "${id}" in src/web/snapshotFixture.json and no NON_ROSTER_STREAMERS fallback in this script — can't fill in name/position/division.`,
+    );
     process.exit(1);
   }
 
