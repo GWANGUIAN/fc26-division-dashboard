@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Download, ImageDown, MousePointer2, X } from "lucide-react";
 import type { StreamerRecord } from "../../shared/model.js";
 import { useEscape } from "../Modal.js";
-import { playSfx } from "../sfxAudio.js";
+import { playSfx, stopSfx } from "../sfxAudio.js";
 import { TotyCardReveal } from "./TotyCardReveal.js";
 import { exportTotyCardPng } from "./exportTotyCardImage.js";
 import {
@@ -19,12 +19,29 @@ import "./toty-card.css";
 // reasoning as passAnnouncementSfx.ts) so the reveal stinger below never
 // gets cut off by a later click on the card playing the streamer's own sfx.
 const REVEAL_SFX_URL = "/sfxes/toty-reveal.mp3";
-function playRevealSfx(volume: number) {
+function playRevealSfx(volume: number): HTMLAudioElement {
   const audio = new Audio(REVEAL_SFX_URL);
   audio.volume = volume;
   audio.play().catch(() => {
     // ignore autoplay/decoding failures, and a not-yet-provided file's 404
   });
+  return audio;
+}
+
+// Per-player ambient sting (thunder for 빙밍, a water bloop for 해파린, a
+// dragon roar for 하치, etc.) that plays the moment the popup opens — before
+// the viewer has even clicked to reveal the card. Lives in public/sfxes/
+// (not src/web/assets/toty-cards/, so it isn't glob-scanned by
+// totyCardAssets.ts) — a missing file just 404s and playRevealSfx-style
+// silently no-ops, same as the shared reveal stinger above, so a player
+// without one yet simply gets no sound instead of a fallback.
+function playPopupOpenSfx(streamerId: string, volume: number): HTMLAudioElement {
+  const audio = new Audio(`/sfxes/${streamerId}-popup-open.mp3`);
+  audio.volume = volume;
+  audio.play().catch(() => {
+    // ignore autoplay/decoding failures, and a not-yet-provided file's 404
+  });
+  return audio;
 }
 
 /** Locks the page behind the overlay from scrolling while it's open. */
@@ -69,11 +86,33 @@ export function TotyCardPopup({
   useEscape(onClose);
   useBodyScrollLock();
 
+  // playRevealSfx/playPopupOpenSfx each spin up their own independent Audio
+  // element (see their comments above), so nothing normally holds onto them
+  // — track the ones this popup has started here so they can all be cut off
+  // together if the popup closes while one is still playing.
+  const localSfxRef = useRef<HTMLAudioElement[]>([]);
+  useEffect(() => {
+    return () => {
+      for (const audio of localSfxRef.current) audio.pause();
+      // Also cuts off the streamer's own click sfx below, which plays via
+      // the shared sfxAudio.ts singleton rather than a locally-tracked Audio.
+      stopSfx();
+    };
+  }, []);
+
+  // Plays once, immediately, over the face-down "클릭해서 카드 공개" screen —
+  // separate from (and in addition to) the reveal-impact stinger and the
+  // streamer's own click sfx below, both of which stay exactly as they were.
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- fires once on mount, not on every sfx setting change
+  useEffect(() => {
+    if (sfxEnabled) localSfxRef.current.push(playPopupOpenSfx(streamer.id, sfxVolume / 100));
+  }, []);
+
   // Fired by TotyCardReveal at the reveal's impact moment (or immediately,
   // under prefers-reduced-motion) rather than as soon as the popup mounts,
   // so the stinger lands together with the flip/burst instead of ahead of it.
   const handleRevealImpact = () => {
-    if (sfxEnabled) playRevealSfx(sfxVolume / 100);
+    if (sfxEnabled) localSfxRef.current.push(playRevealSfx(sfxVolume / 100));
   };
 
   const handleCardClick = () => {
