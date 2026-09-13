@@ -24,6 +24,23 @@ body.toty-capture-mode::after {
   background: transparent;
 }
 
+/* "Haven't opened this one yet" nudge on TotyCardButton (see
+   totyCardRevealedStore.ts) — rather than a separate badge element, the
+   button itself periodically flashes brighter/bigger like it briefly went
+   through its own :hover, then settles back, on a loop. Uses `filter` +
+   `transform` (never touches `background`/`box-shadow` directly) so it
+   layers on top of whichever button skin this class lands on
+   (streamer-card__toty-btn/fifa-card__toty-btn/streamer-table__toty-btn/
+   modal__toty-btn all differ) without needing to duplicate each one's own
+   base colors here. */
+.toty-card-btn--unrevealed {
+  animation: toty-card-btn-blink 2.6s ease-in-out infinite;
+}
+@keyframes toty-card-btn-blink {
+  0%, 82%, 100% { filter: brightness(1); transform: scale(1); }
+  88% { filter: brightness(1.8) saturate(1.3); transform: scale(1.15); }
+}
+
 .toty-card-popup {
   position: fixed;
   z-index: 90;
@@ -39,6 +56,32 @@ body.toty-capture-mode::after {
   background-position: center;
 }
 
+/* Wraps the backdrop image + its glow overlay so the impact shake (below)
+   can move both together as one rigid layer, independent of
+   backdrop-glow's own continuous drift animation on itself. */
+.toty-card-popup__backdrop-wrap {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+}
+.toty-card-popup__backdrop-wrap--shake {
+  animation: toty-popup-backdrop-shake .4s ease-out;
+}
+@keyframes toty-popup-backdrop-shake {
+  0% { transform: translate(0, 0) scale(1); }
+  20% { transform: translate(-10px, 6px) scale(1.02); }
+  45% { transform: translate(8px, -8px) scale(1.03); }
+  70% { transform: translate(-6px, -3px) scale(1.015); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+.toty-card-popup__backdrop {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+
 /* Per-player ambient light/particle overlay for the popup backdrop (see
    totyCardAssets.ts's getPopupBackdropGlowUrl) — sits below the scrim so
    it's darkened/muted consistently with the rest of the backdrop, and
@@ -46,7 +89,6 @@ body.toty-capture-mode::after {
    card's own .toty-card__idle-glow. */
 .toty-card-popup__backdrop-glow {
   position: absolute;
-  z-index: 0;
   inset: 0;
   background-size: cover;
   background-position: center;
@@ -226,6 +268,33 @@ body.toty-capture-mode::after {
   object-fit: contain;
   mix-blend-mode: screen;
   pointer-events: none;
+}
+
+/* One-shot punch on top of the whole-card .toty-reveal--shake (see
+   TotyCardReveal.tsx's `punch` prop / toty-card-reveal.css) — a CSS
+   animation overrides the inline hover-parallax `transform` on these two
+   only while it's actively running, then hands control straight back to
+   that inline style once it finishes (no fill-mode), so the punch plays
+   once and normal cursor parallax resumes right after. */
+.toty-card__bg--punch { animation: toty-bg-punch .35s ease-out; }
+@keyframes toty-bg-punch {
+  0% { transform: translate(0, 0) scale(1.06); }
+  20% { transform: translate(-7px, 5px) scale(1.1); }
+  45% { transform: translate(6px, -6px) scale(1.08); }
+  70% { transform: translate(-4px, -2px) scale(1.07); }
+  100% { transform: translate(0, 0) scale(1.06); }
+}
+/* Separate (unscaled) keyframe for the glow — unlike .toty-card__bg, its
+   inline transform has no `scale()` term, so reusing toty-bg-punch here
+   would make it visibly snap in scale the instant the animation hands
+   back to that inline style. */
+.toty-card__glow--punch { animation: toty-glow-punch .35s ease-out .03s; }
+@keyframes toty-glow-punch {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-7px, 5px); }
+  45% { transform: translate(6px, -6px); }
+  70% { transform: translate(-4px, -2px); }
+  100% { transform: translate(0, 0); }
 }
 
 .toty-card__glare,

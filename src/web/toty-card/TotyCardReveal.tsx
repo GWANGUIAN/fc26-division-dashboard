@@ -22,8 +22,16 @@ function prefersReducedMotion(): boolean {
   );
 }
 
-function TunnelOverlay({ color, glow }: { color: string; glow: string }) {
-  const rings = Array.from({ length: 9 }, (_, i) => i);
+function TunnelOverlay({
+  color,
+  glow,
+  ringCount = 9,
+}: {
+  color: string;
+  glow: string;
+  ringCount?: number;
+}) {
+  const rings = Array.from({ length: ringCount }, (_, i) => i);
   return (
     <div
       className="toty-reveal-tunnel"
@@ -42,11 +50,21 @@ function TunnelOverlay({ color, glow }: { color: string; glow: string }) {
   );
 }
 
-function BurstEffect({ color, glow }: { color: string; glow: string }) {
+function BurstEffect({
+  color,
+  glow,
+  particleCount = PARTICLE_COUNT,
+  beamAngles = [0, 45, 90, 135],
+}: {
+  color: string;
+  glow: string;
+  particleCount?: number;
+  beamAngles?: number[];
+}) {
   // Computed once per mount (not on every render) — angle/distance are
   // decorative randomness, not state that should ever change mid-burst.
   const particles = useRef(
-    Array.from({ length: PARTICLE_COUNT }, () => {
+    Array.from({ length: particleCount }, () => {
       const angle = Math.random() * Math.PI * 2;
       const dist = 70 + Math.random() * 90;
       return {
@@ -56,7 +74,6 @@ function BurstEffect({ color, glow }: { color: string; glow: string }) {
       };
     }),
   ).current;
-  const beamAngles = [0, 45, 90, 135];
 
   return (
     <div
@@ -123,6 +140,11 @@ export function TotyCardReveal({
   onRevealed?: () => void;
 }) {
   const theme = getTotyCardTextTheme(streamer.id);
+  // hachi97 is the one deliberately "more lavish, higher-rarity" card (see
+  // docs/toty-card-prompts.md's bonus section and totyCardTheme.ts) — its
+  // reveal gets a denser tunnel/burst to match, rather than adding a whole
+  // generic rarity system for a single special-cased card.
+  const isSpecial = streamer.id === "hachi97";
   const [phase, setPhase] = useState<RevealPhase>("waiting");
   const [showBurst, setShowBurst] = useState(false);
   const impactFiredRef = useRef(false);
@@ -206,8 +228,10 @@ export function TotyCardReveal({
   }, [phase]);
 
   return (
-    <div className="toty-reveal">
-      {phase === "tunnel" && <TunnelOverlay color={theme.color} glow={theme.glow} />}
+    <div className={`toty-reveal ${showBurst ? "toty-reveal--shake" : ""}`}>
+      {phase === "tunnel" && (
+        <TunnelOverlay color={theme.color} glow={theme.glow} ringCount={isSpecial ? 14 : 9} />
+      )}
       <div
         ref={backCardRef}
         className={`toty-reveal-flip toty-card-wrap ${phase === "flip" ? "toty-reveal-flip--flip-anim" : ""} ${phase === "flip" || phase === "done" ? "toty-reveal-flip--flipped" : ""} ${phase === "waiting" && backTilt.active ? "toty-reveal-flip--active" : ""}`}
@@ -282,11 +306,29 @@ export function TotyCardReveal({
               assets={assets}
               backgroundGlowUrl={backgroundGlowUrl}
               onCardClick={onCardClick}
+              // showBurst turns on at the flip's exact 90°-rotation midpoint
+              // (see the FLIP_MS/2 timer below), where the card is edge-on
+              // and this face isn't actually visible yet — punching then
+              // shakes background/glow images nobody can see. Wait for the
+              // flip to actually finish facing the viewer instead; the
+              // still-flying burst sparks (their own longer keyframe,
+              // already started at the midpoint) carry the "impact" past
+              // this point regardless. Also keeps punch off entirely under
+              // prefers-reduced-motion, which jumps straight to "done"
+              // without ever setting showBurst.
+              punch={phase === "done" && showBurst}
             />
           </div>
         </div>
       </div>
-      {showBurst && <BurstEffect color={theme.color} glow={theme.glow} />}
+      {showBurst && (
+        <BurstEffect
+          color={theme.color}
+          glow={theme.glow}
+          particleCount={isSpecial ? 32 : PARTICLE_COUNT}
+          beamAngles={isSpecial ? [0, 30, 60, 90, 120, 150] : [0, 45, 90, 135]}
+        />
+      )}
     </div>
   );
 }

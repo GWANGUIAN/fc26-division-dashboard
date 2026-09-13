@@ -100,6 +100,7 @@ export function StreamerCard({
         {onOpenTotyCard && totyAssets && (
           <TotyCardButton
             className="streamer-card__toty-btn"
+            streamerId={streamer.id}
             displayName={streamer.displayName}
             onOpen={() => onOpenTotyCard(streamer)}
             onPrefetch={() => preloadTotyCardAssets(totyAssets, streamer.id)}
@@ -288,6 +289,7 @@ export function StreamerFifaCard({
           {onOpenTotyCard && totyAssets && (
             <TotyCardButton
               className="fifa-card__toty-btn"
+              streamerId={streamer.id}
               displayName={streamer.displayName}
               onOpen={() => onOpenTotyCard(streamer)}
               onPrefetch={() => preloadTotyCardAssets(totyAssets, streamer.id)}

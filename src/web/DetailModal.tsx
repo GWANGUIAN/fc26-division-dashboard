@@ -182,6 +182,7 @@ export function DetailModal({
               {onOpenTotyCard && totyAssets && (
                 <TotyCardButton
                   className="modal__toty-btn"
+                  streamerId={streamer.id}
                   displayName={streamer.displayName}
                   onOpen={onOpenTotyCard}
                   onPrefetch={() => preloadTotyCardAssets(totyAssets, streamer.id)}

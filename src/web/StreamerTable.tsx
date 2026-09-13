@@ -97,6 +97,7 @@ function StreamerTableRow({
           {onOpenTotyCard && totyAssets && (
             <TotyCardButton
               className="streamer-table__toty-btn"
+              streamerId={streamer.id}
               displayName={streamer.displayName}
               onOpen={() => onOpenTotyCard(streamer)}
               onPrefetch={() => preloadTotyCardAssets(totyAssets, streamer.id)}

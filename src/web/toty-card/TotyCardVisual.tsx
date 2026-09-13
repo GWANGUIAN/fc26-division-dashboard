@@ -16,6 +16,7 @@ export function TotyCardVisual({
   backgroundGlowUrl,
   onCardClick,
   showGlow = true,
+  punch = false,
 }: {
   streamer: Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision">;
   assets: TotyCardAssets;
@@ -28,6 +29,14 @@ export function TotyCardVisual({
    * alpha can't do the glow's soft falloff, so it renders as a hard-edged
    * ring there instead of a smooth aura; the live popup keeps it. */
   showGlow?: boolean;
+  /** Set (and left set) by TotyCardReveal the instant its burst fires — adds
+   * a one-shot punchy shake to just the background/glow layers, on top of
+   * (not instead of) the whole-card shake on .toty-reveal. A plain, finite
+   * CSS animation only plays once when its class is added and never
+   * replays just because the class stays applied afterward, so this is
+   * safe to leave true forever once set (same reasoning as
+   * .toty-reveal-flip--flipped / .toty-reveal--shake elsewhere). */
+  punch?: boolean;
 }) {
   const textTheme = getTotyCardTextTheme(streamer.id);
 
@@ -112,7 +121,7 @@ export function TotyCardVisual({
         <div className="toty-card__window">
           <div className="toty-card__idle-bg">
             <img
-              className="toty-card__bg"
+              className={`toty-card__bg ${punch ? "toty-card__bg--punch" : ""}`}
               src={assets.background}
               alt=""
               fetchPriority="high"
@@ -131,7 +140,7 @@ export function TotyCardVisual({
           {backgroundGlowUrl && (
             <div className="toty-card__idle-glow">
               <img
-                className="toty-card__glow"
+                className={`toty-card__glow ${punch ? "toty-card__glow--punch" : ""}`}
                 src={backgroundGlowUrl}
                 alt=""
                 style={{ transform: `translate(${tilt.bgX}px, ${tilt.bgY}px)` }}

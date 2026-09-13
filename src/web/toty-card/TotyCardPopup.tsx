@@ -13,6 +13,7 @@ import {
   getTotyCardPreviewUrl,
   type TotyCardAssets,
 } from "./totyCardAssets.js";
+import { markTotyCardRevealed } from "./totyCardRevealedStore.js";
 import "./toty-card.css";
 
 // Plays independently of the shared single-slot sfxAudio.ts player (same
@@ -130,8 +131,14 @@ export function TotyCardPopup({
   // Fired by TotyCardReveal at the reveal's impact moment (or immediately,
   // under prefers-reduced-motion) rather than as soon as the popup mounts,
   // so the stinger lands together with the flip/burst instead of ahead of it.
+  // Also punches the popup backdrop image/glow (below) — unlike the card's
+  // own background/glow layers, these sit outside the 3D flip entirely and
+  // are always fully visible, so (unlike the card ones) this moment reads
+  // fine for them without waiting for the flip to finish.
+  const [backdropShake, setBackdropShake] = useState(false);
   const handleRevealImpact = () => {
     if (sfxEnabled) localSfxRef.current.push(playRevealSfx(sfxVolume / 100));
+    setBackdropShake(true);
   };
 
   const handleCardClick = () => {
@@ -165,15 +172,32 @@ export function TotyCardPopup({
       role="dialog"
       aria-modal="true"
       aria-label={`${streamer.displayName} 3D 카드`}
-      style={backdropUrl ? { backgroundImage: `url(${backdropUrl})` } : undefined}
     >
-      {backdropGlowUrl && (
-        <div
-          className="toty-card-popup__backdrop-glow"
-          aria-hidden="true"
-          style={{ backgroundImage: `url(${backdropGlowUrl})` }}
-        />
-      )}
+      {/* Own wrapper (rather than .toty-card-popup's own `background`) so the
+          impact shake below can move just the backdrop image + glow — not
+          the close button or card stage sitting on top of them. The shake
+          lands on this wrapper rather than on the image/glow divs
+          themselves specifically so it doesn't fight backdrop-glow's own
+          continuous drift animation (two `animation` values on one element
+          would replace each other, not combine). */}
+      <div
+        className={`toty-card-popup__backdrop-wrap ${backdropShake ? "toty-card-popup__backdrop-wrap--shake" : ""}`}
+      >
+        {backdropUrl && (
+          <div
+            className="toty-card-popup__backdrop"
+            aria-hidden="true"
+            style={{ backgroundImage: `url(${backdropUrl})` }}
+          />
+        )}
+        {backdropGlowUrl && (
+          <div
+            className="toty-card-popup__backdrop-glow"
+            aria-hidden="true"
+            style={{ backgroundImage: `url(${backdropGlowUrl})` }}
+          />
+        )}
+      </div>
       <div className="toty-card-popup__scrim" aria-hidden="true" />
       <button
         type="button"
@@ -193,7 +217,10 @@ export function TotyCardPopup({
           onCardClick={handleCardClick}
           onRevealStart={handleRevealStart}
           onImpact={handleRevealImpact}
-          onRevealed={() => setRevealed(true)}
+          onRevealed={() => {
+            setRevealed(true);
+            markTotyCardRevealed(streamer.id);
+          }}
         />
 
         {/* Always mounted (rather than conditionally rendered) so this
