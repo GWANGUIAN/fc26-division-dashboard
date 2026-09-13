@@ -291,6 +291,8 @@ export function App() {
         <TrophyModal
           awards={trophyAwards}
           excludedNames={excludedNames}
+          sfxEnabled={sfxEnabled}
+          sfxVolume={sfxVolume}
           onClose={() => setTrophyOpen(false)}
         />
       )}

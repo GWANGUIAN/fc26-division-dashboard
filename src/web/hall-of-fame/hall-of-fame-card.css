@@ -1,0 +1,309 @@
+/* Atmospheric "stage" behind one trophy category's heading + card grid
+   (see HallOfFameSectionBackdrop.tsx) — sits at z-index:0 inside
+   .trophy-award, which is why .trophy-award__heading/.hof-winner-grid/
+   .trophy-award__empty below get z-index:1 to paint above it. Its own
+   overflow:hidden (not the parent .trophy-award's, which stays `visible`
+   so the heading's TrophyHelp tooltip can still escape the section edge). */
+.hof-section-backdrop {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.hof-section-backdrop__image {
+  position: absolute;
+  inset: -4%;
+  background-size: cover;
+  background-position: center;
+  opacity: .5;
+  animation: hof-backdrop-drift 18s ease-in-out infinite;
+}
+.hof-section-backdrop__glow {
+  position: absolute;
+  inset: -4%;
+  background-size: cover;
+  background-position: center;
+  mix-blend-mode: screen;
+  opacity: .7;
+  animation: hof-backdrop-glow-drift 9s ease-in-out infinite;
+}
+.hof-section-backdrop__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(6, 8, 10, .25), rgba(6, 8, 10, .7) 55%, rgba(6, 8, 10, .92));
+}
+@keyframes hof-backdrop-drift {
+  0%, 100% { transform: scale(1.06) translate(0, 0); }
+  50% { transform: scale(1.12) translate(-1.2%, 1%); }
+}
+@keyframes hof-backdrop-glow-drift {
+  0%, 100% { transform: scale(1.05); opacity: .55; }
+  50% { transform: scale(1.14); opacity: .85; }
+}
+
+.trophy-award__heading,
+.hof-winner-grid,
+.trophy-award__empty {
+  position: relative;
+  z-index: 1;
+}
+
+.hof-winner-grid {
+  display: grid;
+  /* A wider minimum (vs. the original 108px) than are common with fewer
+     winners — narrower columns were what squeezed stat-line text into
+     wrapping mid-word (see .hof-card__stat below). auto-fill (not
+     auto-fit) is deliberate: auto-fit would stretch a lone winner's single
+     card to fill the whole row, making its medal comically larger than
+     every other category's — auto-fill keeps card size consistent across
+     sections regardless of winner count, at the cost of some empty track
+     space beside a section with few winners. */
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  padding: 12px;
+}
+
+/* Trophy medallion card — deliberately a different shape/material from
+   toty-card.css's vertical trading card: a circular engraved-metal disc
+   above an engraved name plate, tilting less (a medal is "heavier" than a
+   character card) and using a tight metallic sheen instead of a rainbow
+   holo foil. See docs/hall-of-fame-card-prompts.md for the art direction. */
+
+.hof-card-wrap {
+  width: 100%;
+  /* Two-level stagger delay is set inline per card by
+     HallOfFameWinnerGrid.tsx (section index * card index) — this animation
+     just consumes it. */
+  animation: hof-card-enter .5s cubic-bezier(.22, 1, .36, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hof-card-wrap { animation: none; }
+}
+@keyframes hof-card-enter {
+  from { opacity: 0; transform: scale(.86) rotateY(10deg); }
+  to { opacity: 1; transform: scale(1) rotateY(0); }
+}
+
+.hof-card {
+  --text-outline: -1px -1px 0 #000, 0 -1px 0 #000, 1px -1px 0 #000, -1px 0 0 #000,
+    1px 0 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 1px 1px 0 #000;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  container-type: inline-size;
+  transform-style: preserve-3d;
+  transition: transform .5s cubic-bezier(.22, 1, .36, 1);
+  cursor: pointer;
+}
+.hof-card--active { transition: transform .05s linear; }
+
+.hof-card__disc {
+  position: relative;
+  width: 82%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #3a3f4a, #14161b 70%);
+  box-shadow:
+    0 0 0 3px rgba(0, 0, 0, .45),
+    0 0 0 5px color-mix(in srgb, var(--hof-color, #ffd76a) 55%, transparent),
+    0 10px 22px rgba(0, 0, 0, .5),
+    0 0 16px color-mix(in srgb, var(--hof-color, #ffd76a) 45%, transparent);
+}
+
+.hof-card__emblem {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .12s linear;
+  will-change: transform;
+}
+
+/* Ambient particle/light overlay (see hallOfFameArt.ts's
+   getHallOfFameGlowUrl) — twinkles/drifts on its own via CSS, independent
+   of the mouse-driven parallax on the <img> inside it (same split as
+   toty-card.css's .toty-card__idle-glow). */
+.hof-card__idle-glow {
+  position: absolute;
+  inset: -6%;
+  animation: hof-glow-twinkle 5s ease-in-out infinite;
+}
+.hof-card--active .hof-card__idle-glow { animation-play-state: paused; }
+.hof-card__glow {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  transition: transform .12s linear;
+  will-change: transform;
+}
+@keyframes hof-glow-twinkle {
+  0%, 100% { transform: translate(0, 0) scale(1.05); opacity: .75; }
+  50% { transform: translate(1%, -1%) scale(1.14); opacity: 1; }
+}
+
+.hof-card__emblem-fallback {
+  position: absolute;
+  inset: -20%;
+  display: grid;
+  place-items: center;
+}
+.hof-card__emblem-fallback svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Tight metallic highlight (narrower falloff than toty-card's glare) —
+   reads as a polished-metal reflection rather than a soft card sheen. */
+.hof-card__glare {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--pointer-x) var(--pointer-y), rgba(255, 255, 255, .95), transparent 38%);
+  mix-blend-mode: overlay;
+  transition: opacity .3s;
+}
+/* Single metallic sweep instead of toty-card's rainbow holo foil — a
+   brushed-metal reflection, not a trading-card prism. */
+.hof-card__foil {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, .6) 50%, transparent 70%);
+  background-size: 250% 250%;
+  background-position: var(--pointer-x) var(--pointer-y);
+  mix-blend-mode: overlay;
+  transition: opacity .3s;
+}
+.hof-card--active .hof-card__glare { opacity: .55; }
+.hof-card--active .hof-card__foil { opacity: .5; }
+
+/* Sits beside the name (see .hof-card__identity below), not centered over
+   the disc — an avatar there used to cover most of the emblem art. */
+.hof-card__identity {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  /* Extra breathing room before the stat-line block below — .hof-card__plate's
+     own `gap` alone read as too tight between the name and its first stat. */
+  margin-bottom: 4px;
+}
+.hof-card__avatar-ring {
+  display: grid;
+  width: clamp(16px, 15cqw, 24px);
+  height: clamp(16px, 15cqw, 24px);
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--hof-color, #ffd76a), 0 2px 5px rgba(0, 0, 0, .5);
+}
+.hof-card__avatar-ring .avatar {
+  width: 100%;
+  height: 100%;
+  flex-basis: auto;
+  border: 0;
+}
+
+.hof-card__rank {
+  position: absolute;
+  z-index: 2;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: clamp(16px, 9cqw, 24px);
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .6));
+  pointer-events: none;
+}
+
+.hof-card__plate {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 88%;
+  margin-top: -8%;
+  padding: 12% 8% 6%;
+  border: 1px solid color-mix(in srgb, var(--hof-color, #ffd76a) 45%, var(--border-strong));
+  border-radius: 10px;
+  background: linear-gradient(180deg, var(--surface-1), var(--surface-1-alt));
+  box-shadow: 0 6px 14px rgba(0, 0, 0, .35);
+  text-align: center;
+}
+.hof-card__name {
+  overflow: hidden;
+  min-width: 0;
+  color: var(--text-primary);
+  font: 800 clamp(12px, 6cqw, 15px)/1.2 "Barlow Condensed", "Noto Sans KR";
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Reserves the same vertical space every populated card's stat block takes
+   (2 lines' worth) even when a card has zero stat lines (노력왕) — keeps
+   every card, and therefore every .trophy-award section, the same height
+   regardless of which categories happen to have a metric to show. */
+/* A 2-column grid (label column, value column) rather than each row being
+   its own independent flex line — .hof-card__stat becomes `display:contents`
+   so its label/value spans join this grid directly as row cells. That's
+   what lines up "달성"/"현재" flush-right in column 1 and their values
+   flush-left in column 2 across rows, table-style, instead of each row's
+   value starting wherever that row's own label happened to end. */
+.hof-card__stats {
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: 6px;
+  row-gap: 3px;
+  min-height: 34px;
+  align-content: center;
+  justify-content: center;
+}
+.hof-card__stat { display: contents; }
+.hof-card__stat-label,
+.hof-card__stat-value {
+  overflow: hidden;
+  min-width: 0;
+  font-size: clamp(10px, 4.4cqw, 11px);
+  /* Without this, a narrow card wraps the TEXT inside these cells instead
+     of just letting them overflow — e.g. "전적" splitting into "전"/"적" on
+     two lines. A wide-enough minimum column width on .hof-winner-grid
+     (above) means this rarely needs to actually clip anything; nowrap +
+     ellipsis is the safety net for when it still doesn't quite fit. */
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.hof-card__stat-label { grid-column: 1; color: var(--text-muted); text-align: right; }
+.hof-card__stat-value {
+  grid-column: 2;
+  color: var(--hof-color, #ffd76a);
+  font-weight: 800;
+  text-align: left;
+}
+.hof-card__stat--emphasis .hof-card__stat-value {
+  text-shadow: 0 0 8px color-mix(in srgb, var(--hof-color, #ffd76a) 60%, transparent);
+}
+/* One-off flavor caption (see HallOfFameWinner's `quote`) — spans both stat
+   columns rather than sitting in the label/value table, since it isn't a
+   label:value pair. */
+.hof-card__quote {
+  grid-column: 1 / -1;
+  margin: 0;
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-size: clamp(9px, 4cqw, 10.5px);
+  font-style: italic;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

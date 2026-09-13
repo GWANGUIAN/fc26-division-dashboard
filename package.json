@@ -10,6 +10,7 @@
     "generate:ascii-art": "node scripts/generate-ascii-art.mjs",
     "convert:card-art": "node scripts/convert-card-art.mjs",
     "generate:toty-preview": "node scripts/generate-toty-preview.mjs",
+    "convert:hof-art": "node scripts/convert-hall-of-fame-art.mjs",
     "sync:comments-roster": "node scripts/sync-roster-from-comments-xlsx.mjs",
     "fetch:collabot": "node scripts/fetch-collabot-export.mjs",
     "sync:collabot-live": "node scripts/sync-roster-from-collabot-xlsx.mjs",
