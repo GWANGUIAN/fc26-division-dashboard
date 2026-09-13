@@ -26,12 +26,6 @@ export const fakeAds: FakeAd[] = [
     label: "재--신",
   },
   {
-    id: "linya",
-    image: "/fake-ads/ad-linya.webp",
-    href: "https://vod.sooplive.com/player/206348423?change_second=16553",
-    label: "풀백 1황 사시노 리냐",
-  },
-  {
     id: "pandadin",
     image: "/fake-ads/ad-pandabi.webp",
     href: "https://vod.sooplive.com/player/206780319?change_second=28",
@@ -40,8 +34,8 @@ export const fakeAds: FakeAd[] = [
   {
     id: "hachi",
     image: "/fake-ads/ad-hachi.webp",
-    href: "https://www.sooplive.com/station/hachi97",
-    label: "멘헤라 하치쿤",
+    href: "https://vod.sooplive.com/player/207076087",
+    label: "우왁굳의 은밀한 과외",
   },
   {
     id: "bboringirl",
