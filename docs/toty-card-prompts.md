@@ -1377,22 +1377,53 @@ people, no border/frame, no text. High detail, 4K, PNG, 1060x1484.
 
 **캐릭터** (우왁굳 참고 사진 첨부 + 완성된 프레임 이미지를 색상 참고용으로 함께 첨부):
 ```
-Turn the reference photo into a stylized premium trading-card 3D player
-render, semi-realistic style, using the same vivid peridot-green +
-teal-violet-crimson racing-stripe palette as the attached frame image. Kit
-in peridot-green with matte-black and chrome trim, subtle racing-stripe
-accents on the sleeve/collar (no real car brand logos or badges anywhere on
-the kit). A confident, commanding "team captain / director" pose — arms
-crossed or one hand raised in a decisive gesture, standing tall with a
-knowing grin, radiating authority over the whole club rather than a
-specific playing pose. A faint aura of glowing peridot-green energy with
-streaks of light like motion-blur speed lines curling around him. Viewed
-from a slight low front 3/4 angle, visible head to mid-thigh. Rich,
-dramatic rim lighting with a touch of chrome sparkle, matching the most
-lavish, highest-rarity treatment in this whole card series. No frame, no
-text, no background, no real brand logos — fully transparent PNG with
-alpha channel, 1060x1484, leave open space above the head and below the
-waist for name/stat overlays.
+Turn the reference photo into a stylized premium trading-card 3D render,
+semi-realistic style, using the same vivid peridot-green +
+teal-violet-crimson racing-stripe palette as the attached frame image. The
+reference photo's headphone ear-cup shows the number "30" — change this to
+"40" in the render (keep the same font/style/red badge look, digits only
+changed). Dressed as an elite football club manager/director rather than a
+player —
+a sharply tailored blazer over a crisp dress shirt, a slim racing-stripe
+silk tie in the teal-violet-crimson accent colors, a peridot-green pocket
+square, sleeve cuffs precise (no real car brand logos or badges anywhere
+on the outfit). A confident, commanding "club owner / manager" stance —
+arms crossed or one hand tucked into the blazer pocket, standing tall with
+a knowing grin, radiating authority over the whole club rather than a
+playing pose. A faint aura of glowing peridot-green energy with streaks of
+light like motion-blur speed lines curling around him. Viewed from a
+slight low front 3/4 angle, visible head to mid-thigh. Rich, dramatic rim
+lighting with a touch of chrome sparkle, matching the most lavish,
+highest-rarity treatment in this whole card series. No frame, no text, no
+background, no real brand logos — fully transparent PNG with alpha
+channel, 1060x1484, leave open space above the head and below the waist
+for name/stat overlays.
+```
+
+**캐릭터 호버** (기존 우왁굳 캐릭터 이미지를 참고로 첨부 + 완성된 프레임 이미지를 색상 참고용으로 함께 첨부):
+```
+Using the attached existing character render ONLY as an identity/likeness
+and outfit-color reference (same person, same tailored peridot-green +
+teal-violet-crimson racing-stripe manager's suit, same overall art style).
+That reference render's headphone ear-cup shows the number "30" — change
+this to "40" in the new render (keep the same font/style/red badge look,
+digits only changed). Do NOT repeat the same pose, and do NOT have him
+tearing, opening, or
+removing his shirt/jacket to reveal his body; keep him fully and sharply
+dressed in the suit throughout. Design a NEW, more dynamic and
+eye-catching alternate pose for this same "club director" character: a
+passionate touchline outburst — tie loosened, blazer caught flaring open
+like a cape in the wind (still worn, not shed), sleeves rolled up to the
+forearm, one arm thrust forward in a sharp pointing gesture as if barking
+tactical orders to the team, fierce determined expression. Streaks of
+glowing peridot-green motion-blur speed lines and chrome sparkle surge
+more intensely around him than in the base pose. Viewed from a slight low
+front 3/4 angle, visible head to mid-thigh. Rich, dramatic rim lighting
+with a touch of chrome sparkle, matching the most lavish, highest-rarity
+treatment in this whole card series. No frame, no text, no background, no
+real brand logos, no exposed torso — fully transparent PNG with alpha
+channel, 1060x1484, leave open space above the head and below the waist
+for name/stat overlays.
 ```
 
 **뒷면** (완성된 프레임 이미지를 실루엣 + 색상 참고용으로 함께 첨부):
