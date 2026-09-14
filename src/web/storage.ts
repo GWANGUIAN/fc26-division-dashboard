@@ -377,6 +377,63 @@ export function saveCardMatchBestTurns(turns: number) {
   }
 }
 
+const FORTUNE_MUSIC_ENABLED_KEY = "fc26-fortune-music-enabled";
+
+export function loadFortuneMusicEnabled(): boolean {
+  try {
+    const raw = localStorage.getItem(FORTUNE_MUSIC_ENABLED_KEY);
+    return raw === null ? true : raw === "1";
+  } catch {
+    return true;
+  }
+}
+
+export function saveFortuneMusicEnabled(enabled: boolean) {
+  try {
+    localStorage.setItem(FORTUNE_MUSIC_ENABLED_KEY, enabled ? "1" : "0");
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
+
+const FORTUNE_MUSIC_VOLUME_KEY = "fc26-fortune-music-volume";
+
+export function loadFortuneMusicVolume(): number {
+  try {
+    const raw = localStorage.getItem(FORTUNE_MUSIC_VOLUME_KEY);
+    const value = raw === null ? 35 : Number(raw);
+    return Number.isFinite(value) ? Math.min(100, Math.max(0, Math.floor(value))) : 35;
+  } catch {
+    return 35;
+  }
+}
+
+export function saveFortuneMusicVolume(volume: number) {
+  try {
+    localStorage.setItem(FORTUNE_MUSIC_VOLUME_KEY, String(Math.min(100, Math.max(0, Math.floor(volume)))));
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
+
+const FORTUNE_OPENED_STORAGE_KEY = "fc26-fortune-opened";
+
+export function hasOpenedFortune(): boolean {
+  try {
+    return localStorage.getItem(FORTUNE_OPENED_STORAGE_KEY) === "1";
+  } catch {
+    return true;
+  }
+}
+
+export function markFortuneOpened() {
+  try {
+    localStorage.setItem(FORTUNE_OPENED_STORAGE_KEY, "1");
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
+
 export function hasHeardSfx(): boolean {
   try {
     return localStorage.getItem(SFX_HEARD_STORAGE_KEY) === "1";

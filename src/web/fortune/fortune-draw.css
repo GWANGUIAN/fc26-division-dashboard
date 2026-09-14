@@ -1,0 +1,322 @@
+/* Shuffle -> 3-card spread -> pick -> flip+glow -> description slide-up
+   sequence for the "오늘의 운세" draw. Durations (1.8s shuffle, 0.7s flip)
+   must match SHUFFLE_MS/FLIP_MS in FortuneDraw.tsx. */
+
+.fortune-draw {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  width: 100%;
+}
+
+/* Contextual "카드를 섞는 중...", "카드 한 장을 선택하세요" banner — one
+   mounts per phase (keyed by phase in FortuneDraw.tsx so it re-plays its
+   entrance animation on every change) rather than a generic toast, so it
+   always reflects exactly what's happening right now. Pinned to the
+   viewport (position: fixed, same anchoring as .fortune-popup__close)
+   rather than flowing inline in .fortune-draw — the card stack below it
+   changes height a lot across phases (shuffle stack vs 3-card fan vs one
+   big flipped card vs the reveal panel), and since .fortune-draw sits
+   inside a vertically-centered flex stage, letting the banner flow with
+   that content made it visibly drift up/down as the layout re-centered
+   each time. Fixed positioning keeps it planted in the same spot. */
+.fortune-status {
+  position: fixed;
+  z-index: 2;
+  top: 84px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border: 1px solid rgba(255, 226, 158, .35);
+  border-radius: 999px;
+  background: rgba(10, 13, 28, .65);
+  backdrop-filter: blur(8px);
+  color: #ffe29e;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .01em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, .5);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .4);
+  animation: fortune-status-in .35s cubic-bezier(.22, 1, .36, 1);
+}
+@keyframes fortune-status-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(-8px) scale(.96); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+.fortune-status svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  animation: fortune-status-twinkle 1.6s ease-in-out infinite;
+}
+@keyframes fortune-status-twinkle {
+  0%, 100% { opacity: .7; transform: scale(1) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.15) rotate(12deg); }
+}
+
+/* Card art is now an alpha-shaped cutout (ornate tarot silhouette baked
+   into the PNG itself, see docs/fortune-prompts.md) rather than an opaque
+   rectangle clipped by CSS — so no border-radius/overflow:hidden here, and
+   the lift shadow uses `filter: drop-shadow` (which follows the image's
+   actual alpha edges) instead of a bounding-box `box-shadow`. */
+.fortune-card-face {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, .5));
+}
+.fortune-card-face img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.fortune-card-face__placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 8% / 6%;
+  background: radial-gradient(circle at 50% 35%, #2a3466, #0a0d1c 75%);
+  color: rgba(255, 255, 255, .55);
+  font-size: 20cqw;
+}
+
+/* --- Shuffle phase: a stack of card backs riffling left/right and back to
+   center — two wide, clearly-separated arcs (not a tiny in-place jitter)
+   so it actually reads as "shuffling" rather than a nervous wobble. Runs
+   twice (2 full riffle passes) to fill the whole SHUFFLE_MS window. */
+.fortune-shuffle {
+  position: relative;
+  width: min(96vw, 359px);
+  aspect-ratio: 1060 / 1484;
+}
+.fortune-shuffle__leaf {
+  position: absolute;
+  inset: 0;
+}
+.fortune-shuffle__leaf:nth-child(odd) {
+  animation: fortune-shuffle-left 900ms ease-in-out 2 both;
+}
+.fortune-shuffle__leaf:nth-child(even) {
+  animation: fortune-shuffle-right 900ms ease-in-out 2 both;
+}
+.fortune-shuffle__leaf:nth-child(1) { animation-delay: 0ms; }
+.fortune-shuffle__leaf:nth-child(2) { animation-delay: 70ms; }
+.fortune-shuffle__leaf:nth-child(3) { animation-delay: 140ms; }
+.fortune-shuffle__leaf:nth-child(4) { animation-delay: 210ms; }
+.fortune-shuffle__leaf:nth-child(5) { animation-delay: 280ms; }
+.fortune-shuffle__leaf:nth-child(6) { animation-delay: 350ms; }
+@keyframes fortune-shuffle-left {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  30% { transform: translate(-38%, -14%) rotate(-18deg) scale(1.04); }
+  55% { transform: translate(-16%, 6%) rotate(-8deg) scale(1.02); }
+  100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+}
+@keyframes fortune-shuffle-right {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  30% { transform: translate(38%, -14%) rotate(18deg) scale(1.04); }
+  55% { transform: translate(16%, 6%) rotate(8deg) scale(1.02); }
+  100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+}
+
+/* --- Dealt phase: 3 face-down cards spread in a fan --- */
+.fortune-spread {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+}
+.fortune-slot {
+  position: relative;
+  width: min(47vw, 257px);
+  aspect-ratio: 1060 / 1484;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  animation: fortune-deal-in .4s cubic-bezier(.22, 1, .36, 1) both;
+  transition: transform .2s ease, filter .3s ease, opacity .3s ease;
+}
+.fortune-slot:nth-child(1) { animation-delay: 0ms; transform: rotate(-6deg); }
+.fortune-slot:nth-child(2) { animation-delay: 90ms; transform: translateY(-10px); }
+.fortune-slot:nth-child(3) { animation-delay: 180ms; transform: rotate(6deg); }
+@keyframes fortune-deal-in {
+  from { opacity: 0; transform: translateY(40px) scale(.7); }
+  to { opacity: 1; }
+}
+.fortune-slot:hover:not(:disabled), .fortune-slot:focus-visible:not(:disabled) {
+  transform: translateY(-10px) scale(1.06);
+  filter: drop-shadow(0 0 14px #ffe29e88);
+  outline: 0;
+}
+.fortune-slot--dismissed {
+  opacity: 0;
+  filter: blur(4px);
+  transform: scale(.7) translateY(10px);
+  pointer-events: none;
+}
+
+/* --- Flip phase: chosen card grows to the center, back flips to front --- */
+.fortune-flip {
+  position: relative;
+  width: min(91vw, 437px);
+  aspect-ratio: 1060 / 1484;
+  perspective: 1600px;
+  animation: fortune-flip-grow .4s cubic-bezier(.22, 1, .36, 1) both;
+}
+@keyframes fortune-flip-grow {
+  from { width: min(47vw, 257px); }
+}
+.fortune-flip__inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+.fortune-flip--anim .fortune-flip__inner {
+  animation: fortune-flip-inner .7s cubic-bezier(.34, 1.56, .64, 1) both;
+}
+.fortune-flip--flipped .fortune-flip__inner {
+  transform: rotateY(180deg);
+}
+@keyframes fortune-flip-inner {
+  0% { transform: rotateY(0deg) scale(1); }
+  50% { transform: rotateY(90deg) scale(1.15); }
+  100% { transform: rotateY(180deg) scale(1); }
+}
+.fortune-flip__back, .fortune-flip__front {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+}
+.fortune-flip__front { transform: rotateY(180deg); }
+
+/* Pulsing rim glow in the revealed player's own independent tarot palette
+   (see glowColor/glowColorSoft in fortuneCardData.ts) — `filter:
+   drop-shadow` (not `box-shadow`) so the glow traces the card art's own
+   irregular alpha silhouette (ornate corners/crest/finial) instead of a
+   rectangular box. Applied directly on .fortune-card-face--glow (the
+   wrapper around the front <img>) so it composites against whatever's
+   actually painted inside it. */
+.fortune-card-face--glow {
+  animation: fortune-frame-glow-pulse 2.4s ease-in-out infinite;
+}
+@keyframes fortune-frame-glow-pulse {
+  0%, 100% {
+    filter:
+      drop-shadow(0 10px 22px rgba(0, 0, 0, .5))
+      drop-shadow(0 0 6px var(--fortune-glow, #ffdd7a))
+      drop-shadow(0 0 12px var(--fortune-glow-soft, #fff6d2));
+  }
+  50% {
+    filter:
+      drop-shadow(0 10px 22px rgba(0, 0, 0, .5))
+      drop-shadow(0 0 12px var(--fortune-glow, #ffdd7a))
+      drop-shadow(0 0 22px var(--fortune-glow-soft, #fff6d2));
+  }
+}
+
+/* --- Revealed phase: description slides up from below --- */
+.fortune-reveal-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: min(94vw, 600px);
+  padding: 22px 28px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 16px;
+  background: rgba(0, 0, 0, .5);
+  backdrop-filter: blur(8px);
+  text-align: center;
+  animation: fortune-reveal-panel-enter .5s cubic-bezier(.22, 1, .36, 1);
+}
+@keyframes fortune-reveal-panel-enter {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fortune-reveal-panel__eyebrow {
+  margin: 0;
+  color: rgba(255, 255, 255, .68);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+.fortune-reveal-panel__name {
+  margin: 0;
+  color: #ffe29e;
+  font-family: 'MapodaCapo', "Barlow Condensed", sans-serif;
+  font-weight: 400;
+  font-size: clamp(26px, 7vw, 36px);
+  letter-spacing: .02em;
+}
+.fortune-reveal-panel__text {
+  margin: 0;
+  color: rgba(255, 255, 255, .94);
+  font-family: 'MapodaCapo', sans-serif;
+  font-size: 18px;
+  line-height: 1.7;
+  /* fortuneText embeds literal "\n"s at its natural sentence/clause breaks
+     (see fortuneCardData.ts) — pre-line renders those as real line breaks
+     while still wrapping normally within each line. */
+  white-space: pre-line;
+}
+.fortune-reveal-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+/* Same glassmorphism "achievement tooltip" look as
+   .woowakgood-bonus-announce (styles.css) — rounded-square (not pill),
+   translucent dark glass + backdrop blur/saturate, a colored border/glow
+   instead of a solid fill. Tinted per-card via --fortune-glow/-glow-soft
+   (set inline on .fortune-reveal-panel in FortuneDraw.tsx from the
+   revealed card's own glowColor/glowColorSoft) so the buttons pick up
+   whichever player's palette is showing, same idea as the card's own rim
+   glow (.fortune-card-face--glow above). */
+.fortune-reveal-panel__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: 1px solid var(--fortune-glow, #ffe29e);
+  border-radius: 14px;
+  color: var(--fortune-glow, #ffe29e);
+  background: rgba(10, 13, 28, .55);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .45), 0 0 18px color-mix(in srgb, var(--fortune-glow, #ffe29e) 35%, transparent);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .2s, background .2s;
+}
+.fortune-reveal-panel__btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: rgba(10, 13, 28, .7);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, .5), 0 0 26px color-mix(in srgb, var(--fortune-glow, #ffe29e) 55%, transparent);
+}
+.fortune-reveal-panel__btn:disabled { opacity: .55; cursor: default; transform: none; }
+.fortune-reveal-panel__btn svg { width: 17px; height: 17px; filter: drop-shadow(0 0 4px var(--fortune-glow-soft, transparent)); }
+
+/* "이미지로 저장" gets a fixed mint accent (the site's own accent color,
+   same family as the toolbar toggles' hover state) instead of the
+   card-tinted --fortune-glow — keeps it visually distinct from "다시 뽑기"
+   so the two actions don't read as the same button twice. */
+.fortune-reveal-panel__btn--save {
+  border-color: #6dfbd0;
+  color: #6dfbd0;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .45), 0 0 18px rgba(109, 251, 208, .35);
+}
+.fortune-reveal-panel__btn--save:hover:not(:disabled) {
+  box-shadow: 0 14px 32px rgba(0, 0, 0, .5), 0 0 26px rgba(109, 251, 208, .55);
+}
+.fortune-reveal-panel__btn--save svg { filter: drop-shadow(0 0 4px rgba(109, 251, 208, .6)); }

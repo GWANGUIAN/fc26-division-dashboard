@@ -58,6 +58,8 @@ import { KickupsModal } from "./minigame/KickupsModal";
 import { FreekickToggle } from "./minigame/FreekickToggle";
 import { CardMatchToggle } from "./minigame/CardMatchToggle";
 import { CardMatchModal } from "./minigame/CardMatchModal";
+import { FortuneToggle } from "./fortune/FortuneToggle";
+import { FortunePopup } from "./fortune/FortunePopup";
 import { TotyCardPopup } from "./toty-card/TotyCardPopup";
 import { getTotyCardAssets } from "./toty-card/totyCardAssets";
 import { useWoowakgoodBonusUnlock } from "./toty-card/useWoowakgoodBonusUnlock";
@@ -83,6 +85,7 @@ export function App() {
   const [wakgoodNotebookOpen, setWakgoodNotebookOpen] = useState(false);
   const [photoBoothOpen, setPhotoBoothOpen] = useState(false);
   const [growthGraphOpen, setGrowthGraphOpen] = useState(false);
+  const [fortuneOpen, setFortuneOpen] = useState(false);
   const [totyCardStreamer, setTotyCardStreamer] =
     useState<Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision" | "sfx">>();
   // A single slot (rather than one boolean per minigame) makes it structurally impossible for two
@@ -375,6 +378,14 @@ export function App() {
           sfxVolume={sfxVolume}
         />
       )}
+      {fortuneOpen && (
+        <FortunePopup
+          streamers={snapshot?.streamers}
+          sfxEnabled={sfxEnabled}
+          sfxVolume={sfxVolume}
+          onClose={() => setFortuneOpen(false)}
+        />
+      )}
       <LatestFeedDrawer
         open={feedOpen}
         onClose={() => setFeedOpen(false)}
@@ -385,6 +396,7 @@ export function App() {
         <KickupsToggle onClick={() => setActiveMinigame("kickups")} />
         <FreekickToggle onClick={() => setActiveMinigame("freekick")} />
         <CardMatchToggle onClick={() => setActiveMinigame("cardmatch")} />
+        <FortuneToggle onClick={() => setFortuneOpen(true)} />
       </div>
       <BrightnessGag />
       <div className="floating-toolbar">

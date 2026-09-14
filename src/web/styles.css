@@ -7,6 +7,22 @@
   font-display: swap;
 }
 
+/* 오늘의 운세 카드 이름/버튼 텍스트용 — see fortune-draw.css/fortune-popup.css/fortune-toggle.css */
+@font-face {
+  font-family: 'SchoolSafetyWizard';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2402_keris@1.0/TTHakgyoansimMabeopsaR.woff2') format('woff2');
+  font-weight: normal;
+  font-display: swap;
+}
+
+/* 오늘의 운세 카드 설명 텍스트용 — see fortune-draw.css */
+@font-face {
+  font-family: 'MapodaCapo';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/MapoDacapoA.woff') format('woff');
+  font-weight: normal;
+  font-display: swap;
+}
+
 :root {
   --bg-base: #040706;
   --bg-blob-1: #00cbb127;

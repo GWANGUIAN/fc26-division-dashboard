@@ -1,0 +1,144 @@
+/* Fullscreen "오늘의 운세" popup — own fixed overlay (same convention as
+   toty-card/squad-builder/photo-booth), showing the witch mascot + draw
+   button until started, then the FortuneDraw sequence (fortune-draw.css). */
+
+.fortune-popup {
+  position: fixed;
+  z-index: 90;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: 24px;
+  background: radial-gradient(ellipse at 50% 40%, #1b2240, #05060b 72%);
+  background-size: cover;
+  background-position: center;
+}
+
+.fortune-popup__backdrop-wrap { position: absolute; z-index: 0; inset: 0; }
+.fortune-popup__backdrop { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.fortune-popup__backdrop-glow {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: fortune-popup-glow-drift 10s ease-in-out infinite;
+}
+@keyframes fortune-popup-glow-drift {
+  0%, 100% { transform: scale(1.05) translate(0, 0); opacity: .85; }
+  50% { transform: scale(1.12) translate(-1%, 1%); opacity: 1; }
+}
+.fortune-popup__scrim {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 45%, transparent 35%, rgba(0, 0, 0, .55) 100%);
+  pointer-events: none;
+}
+
+.fortune-popup__close {
+  position: absolute;
+  z-index: 2;
+  top: 16px;
+  right: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(0, 0, 0, .55);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .4);
+  cursor: pointer;
+}
+.fortune-popup__close:hover { background: rgba(0, 0, 0, .75); }
+.fortune-popup__close svg { width: 18px; height: 18px; }
+
+/* Sized/positioned like KickupsModal's own .kickups-icon-toggle--music, just
+   inline here since this popup isn't wrapped in the shared <Modal>. */
+.fortune-popup__music-toggle {
+  position: absolute;
+  z-index: 2;
+  top: 16px;
+  right: 62px;
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+}
+.fortune-popup__music-toggle .sound-control__button {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(0, 0, 0, .55);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .4);
+}
+.fortune-popup__music-toggle .sound-control__button svg { width: 16px; height: 16px; }
+.fortune-popup__music-toggle--muted .sound-control__button { color: rgba(255, 255, 255, .5); }
+
+.fortune-popup__stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: min(96vw, 900px);
+  animation: fortune-popup-enter .5s cubic-bezier(.22, 1, .36, 1);
+}
+@keyframes fortune-popup-enter {
+  from { opacity: 0; transform: translateY(32px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fortune-popup__title { width: min(84vw, 480px); }
+.fortune-popup__title-fallback {
+  margin: 0;
+  color: #ffe29e;
+  font-family: "Barlow Condensed", sans-serif;
+  font-weight: 800;
+  font-size: clamp(20px, 5vw, 30px);
+  text-align: center;
+  text-shadow: 0 0 16px #ffe29e66;
+}
+
+.fortune-popup__mascot { width: min(78vw, 380px); filter: drop-shadow(0 16px 30px rgba(0, 0, 0, .5)); }
+.fortune-popup__mascot-fallback { font-size: 140px; line-height: 1; filter: drop-shadow(0 16px 30px rgba(0, 0, 0, .5)); }
+
+.fortune-popup__draw-btn {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  transition: transform .15s, filter .2s;
+}
+.fortune-popup__draw-btn:hover, .fortune-popup__draw-btn:focus-visible {
+  transform: translateY(-2px) scale(1.04);
+  filter: brightness(1.12);
+  outline: 0;
+}
+.fortune-popup__draw-btn:active { transform: scale(.97); }
+.fortune-popup__draw-btn img { display: block; width: min(60vw, 280px); }
+.fortune-popup__draw-btn-fallback {
+  display: inline-block;
+  padding: 12px 32px;
+  border: 1px solid #ffe29e88;
+  border-radius: 999px;
+  color: #0a0d1c;
+  background: #ffe29e;
+  font-family: 'MapodaCapo', "Barlow Condensed", sans-serif;
+  font-weight: 400;
+  font-size: 17px;
+}
