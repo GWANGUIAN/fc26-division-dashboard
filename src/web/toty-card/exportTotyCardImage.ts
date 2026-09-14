@@ -79,12 +79,17 @@ function fitFontSize(ctx: CanvasRenderingContext2D, text: string, family: string
 export async function exportTotyCardPng(
   streamer: Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision">,
   assets: TotyCardAssets,
+  /** Renders this URL (see totyCardAssets.ts's getCharacterHoverUrl) in
+   * place of assets.character — lets the "이미지로 저장" menu offer a "호버
+   * 이미지" option alongside the default "기본 이미지" one, for players who
+   * have an alternate hover pose. Omit for the base render. */
+  characterOverrideUrl?: string,
 ): Promise<void> {
   const theme = getTotyCardTextTheme(streamer.id);
   const [frame, background, character] = await Promise.all([
     loadImage(assets.frame),
     loadImage(assets.background),
-    loadImage(assets.character),
+    loadImage(characterOverrideUrl ?? assets.character),
   ]);
 
   // Canvas text needs the webfont already loaded, or it silently falls
@@ -137,7 +142,7 @@ export async function exportTotyCardPng(
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `${streamer.displayName}-3d-card.png`;
+  a.download = `${streamer.displayName}-3d-card${characterOverrideUrl ? "-hover" : ""}.png`;
   a.click();
   URL.revokeObjectURL(url);
 }

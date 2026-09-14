@@ -4,6 +4,7 @@ import type { StreamerRecord } from "../../shared/model.js";
 import { useEscape } from "../Modal.js";
 import { playSfx, stopSfx } from "../sfxAudio.js";
 import { TotyCardReveal } from "./TotyCardReveal.js";
+import { TotyCardDownloadMenu } from "./TotyCardDownloadMenu.js";
 import { exportTotyCardPng } from "./exportTotyCardImage.js";
 import {
   getBackgroundGlowUrl,
@@ -11,6 +12,7 @@ import {
   getCharacterHoverUrl,
   getPopupBackdropGlowUrl,
   getPopupBackdropUrl,
+  getTotyCardPreviewBaseUrl,
   getTotyCardPreviewUrl,
   type TotyCardAssets,
 } from "./totyCardAssets.js";
@@ -151,11 +153,11 @@ export function TotyCardPopup({
   const [revealed, setRevealed] = useState(false);
 
   const [exportingPng, setExportingPng] = useState(false);
-  const handlePngExport = async () => {
+  const handlePngExport = async (characterOverrideUrl?: string) => {
     if (exportingPng) return;
     setExportingPng(true);
     try {
-      await exportTotyCardPng(streamer, assets);
+      await exportTotyCardPng(streamer, assets, characterOverrideUrl);
     } finally {
       setExportingPng(false);
     }
@@ -163,8 +165,14 @@ export function TotyCardPopup({
 
   const backdropUrl = getPopupBackdropUrl(streamer.id);
   const backdropGlowUrl = getPopupBackdropGlowUrl(streamer.id);
+  const characterHoverUrl = getCharacterHoverUrl(streamer.id);
   // Pre-rendered offline (scripts/generate-toty-preview.mjs) rather than
   // encoded live in the browser — see the script's header comment for why.
+  // previewUrl bakes in characterHoverUrl's swap for the whole loop (the
+  // capture script's synthetic mouse never leaves the card), so it reads as
+  // the "호버 이미지" option once one exists; previewBaseUrl is the older
+  // pre-hover capture, offered alongside it as "기본 이미지".
+  const previewBaseUrl = getTotyCardPreviewBaseUrl(streamer.id);
   const previewUrl = getTotyCardPreviewUrl(streamer.id);
 
   return (
@@ -238,26 +246,34 @@ export function TotyCardPopup({
           className="toty-card-popup__actions"
           style={{ visibility: revealed ? "visible" : "hidden" }}
         >
-          <button
-            type="button"
+          <TotyCardDownloadMenu
             className="toty-card-popup__download"
-            onClick={handlePngExport}
+            icon={<ImageDown aria-hidden="true" />}
+            label={exportingPng ? "저장 중..." : "이미지로 저장"}
             disabled={exportingPng}
-          >
-            <ImageDown aria-hidden="true" />
-            {exportingPng ? "저장 중..." : "이미지로 저장"}
-          </button>
+            options={
+              characterHoverUrl
+                ? [
+                    { key: "base", label: "기본 이미지", onSelect: () => handlePngExport() },
+                    { key: "hover", label: "호버 이미지", onSelect: () => handlePngExport(characterHoverUrl) },
+                  ]
+                : [{ key: "base", label: "기본 이미지", onSelect: () => handlePngExport() }]
+            }
+          />
 
-          {previewUrl && (
-            <a
-              className="toty-card-popup__download"
-              href={previewUrl}
-              download={`${streamer.displayName}-3d-card.gif`}
-            >
-              <Download aria-hidden="true" />
-              움짤로 저장
-            </a>
-          )}
+          <TotyCardDownloadMenu
+            className="toty-card-popup__download"
+            icon={<Download aria-hidden="true" />}
+            label="움짤로 저장"
+            options={[
+              ...(previewBaseUrl
+                ? [{ key: "base", label: "기본 이미지", href: previewBaseUrl, download: `${streamer.displayName}-3d-card-base.gif` }]
+                : []),
+              ...(previewUrl
+                ? [{ key: "hover", label: "호버 이미지", href: previewUrl, download: `${streamer.displayName}-3d-card-hover.gif` }]
+                : []),
+            ]}
+          />
         </div>
       </div>
     </div>

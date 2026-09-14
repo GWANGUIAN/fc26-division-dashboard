@@ -168,7 +168,10 @@ export function getCharacterHoverUrl(streamerId: string): string | undefined {
 // showGlow doc comment) — offline/opt-in, produced by
 // scripts/generate-toty-preview.mjs, not required for the button/popup to
 // work. Named "<id>-preview.gif" so it doesn't collide with the
-// frame/background/character regex above.
+// frame/background/character regex above. Since the capture script's
+// synthetic mouse never leaves the card, this now bakes in whatever
+// characterHoverUrl swap that player has (see CHARACTER_HOVER_SUFFIX above)
+// for the whole loop — effectively a "hover" version once one exists.
 const PREVIEW_SUFFIX = "-preview.gif";
 const previewUrls: Record<string, string> = {};
 for (const [path, url] of Object.entries(modules)) {
@@ -180,4 +183,23 @@ for (const [path, url] of Object.entries(modules)) {
 
 export function getTotyCardPreviewUrl(streamerId: string): string | undefined {
   return previewUrls[streamerId];
+}
+
+// Pre-hover-effect capture of the same loop, kept around (rather than
+// discarded once CHARACTER_HOVER_SUFFIX art landed) purely so the "움짤로
+// 저장"/"이미지로 저장" download menus can still offer the original idle
+// pose as a "기본 이미지" option alongside the newer "호버 이미지" one.
+// Optional: without it, those menus just fall back to a single plain button
+// using whatever preview *does* exist, same convention as every other layer.
+const PREVIEW_BASE_SUFFIX = "-preview-base.gif";
+const previewBaseUrls: Record<string, string> = {};
+for (const [path, url] of Object.entries(modules)) {
+  const filename = path.split("/").pop() ?? "";
+  if (filename.endsWith(PREVIEW_BASE_SUFFIX)) {
+    previewBaseUrls[filename.slice(0, -PREVIEW_BASE_SUFFIX.length)] = url;
+  }
+}
+
+export function getTotyCardPreviewBaseUrl(streamerId: string): string | undefined {
+  return previewBaseUrls[streamerId];
 }
