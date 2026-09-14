@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { Music4, X } from "lucide-react";
+import { Images, Music4, X } from "lucide-react";
 import type { StreamerRecord } from "../../shared/model.js";
 import { useEscape } from "../Modal.js";
 import { SoundControl } from "../minigame/SoundControl.js";
 import { FortuneDraw } from "./FortuneDraw";
+import { FortuneHistoryModal } from "./FortuneHistoryModal";
 import {
   getFortuneDrawButtonUrl,
   getFortuneMascotUrl,
@@ -73,6 +74,7 @@ export function FortunePopup({
   const { musicOn, toggleMusic, musicVolume, changeMusicVolume } = useFortuneMusic();
 
   const [started, setStarted] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   const localSfxRef = useRef<HTMLAudioElement[]>([]);
   useEffect(() => {
@@ -112,6 +114,17 @@ export function FortunePopup({
         )}
       </div>
       <div className="fortune-popup__scrim" aria-hidden="true" />
+
+      <button
+        type="button"
+        className="fortune-popup__history-btn"
+        onClick={() => setHistoryOpen(true)}
+        aria-label="뽑았던 카드 보기"
+        title="뽑았던 카드 보기"
+      >
+        <Images aria-hidden="true" />
+        <span>뽑았던 카드 보기</span>
+      </button>
 
       <SoundControl
         enabled={musicOn}
@@ -158,6 +171,8 @@ export function FortunePopup({
           />
         )}
       </div>
+
+      {historyOpen && <FortuneHistoryModal streamers={streamers} onClose={() => setHistoryOpen(false)} />}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import type { StreamerRecord } from "../../shared/model.js";
 import { drawRandomFortuneCards, type FortuneCardEntry } from "./fortuneCardData";
 import { getFortuneCardBackUrl, getFortuneCardFrontUrl } from "./fortuneCardAssets";
 import { exportFortuneCardPng } from "./exportFortuneCardImage";
+import { markFortuneCardRevealed } from "./fortuneCardHistoryStore";
 import "./fortune-draw.css";
 
 const SHUFFLE_MS = 1800;
@@ -87,6 +88,16 @@ export function FortuneDraw({
       window.clearTimeout(doneTimer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- onCardSelectImpact is stable enough for this one-shot sequence
+  }, [phase]);
+
+  // Records the pick into the persistent "뽑았던 카드" collection the
+  // instant it's actually revealed (not at pick/flip-start) — same timing
+  // TOTY uses for its own markTotyCardRevealed.
+  useEffect(() => {
+    if (phase === "revealed" && selectedIndex !== null) {
+      markFortuneCardRevealed(drawn[selectedIndex].id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- drawn/selectedIndex read once per reveal, not meant to re-fire on redraw alone
   }, [phase]);
 
   const handlePick = (index: number) => {

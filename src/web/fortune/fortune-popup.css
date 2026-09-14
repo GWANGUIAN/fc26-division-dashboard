@@ -40,6 +40,34 @@
   pointer-events: none;
 }
 
+/* Top-left counterpart to the close/music buttons on the right — only
+   rendered once the viewer has revealed at least one card (see
+   revealedCount in FortunePopup.tsx), opening FortuneHistoryModal. */
+.fortune-popup__history-btn {
+  position: absolute;
+  z-index: 2;
+  top: 16px;
+  left: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 14px 0 11px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(0, 0, 0, .55);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .4);
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background .15s, transform .15s;
+}
+.fortune-popup__history-btn:hover { background: rgba(0, 0, 0, .75); transform: translateY(-1px); }
+.fortune-popup__history-btn svg { width: 15px; height: 15px; }
+@media (max-width: 480px) { .fortune-popup__history-btn span { display: none; } .fortune-popup__history-btn { padding: 0 9px; gap: 0; } }
+
 .fortune-popup__close {
   position: absolute;
   z-index: 2;

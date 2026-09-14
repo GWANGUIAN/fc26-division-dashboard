@@ -1,0 +1,266 @@
+/* "뽑았던 카드 보기" — its own fixed overlay stacked above .fortune-popup
+   (z-index 90), same bespoke-overlay convention as every other popup in
+   this codebase, glassmorphism-styled to match .fortune-reveal-panel /
+   .woowakgood-bonus-announce (translucent dark glass + backdrop blur). */
+
+.fortune-history-modal {
+  position: fixed;
+  z-index: 95;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+.fortune-history-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, .6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.fortune-history-modal__panel {
+  position: relative;
+  z-index: 1;
+  width: min(96vw, 1100px);
+  /* Fixed height (not max-height) so switching between cards with
+     shorter/longer descriptions never resizes the panel — the taller
+     description just scrolls inside .fortune-history-modal__detail
+     instead. Sized to the content now that the image-height bug (the
+     card was rendering at ~1080px tall instead of ~392px) is fixed —
+     the earlier 1290px cap was compensating for that bug and left a lot
+     of empty space once the card sized correctly. */
+  height: min(72vh, 684px);
+  display: flex;
+  flex-direction: column;
+  padding: 52px 28px 28px;
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 0;
+  background: rgba(0, 0, 0, .72);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .55);
+  animation: fortune-history-modal-enter .35s cubic-bezier(.22, 1, .36, 1);
+}
+@keyframes fortune-history-modal-enter {
+  from { opacity: 0; transform: translateY(16px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.fortune-history-modal__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(0, 0, 0, .4);
+  cursor: pointer;
+}
+.fortune-history-modal__close:hover { background: rgba(0, 0, 0, .6); }
+.fortune-history-modal__close svg { width: 16px; height: 16px; }
+
+.fortune-history-modal__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  margin: 0;
+  padding: 40px 0;
+  color: rgba(255, 255, 255, .7);
+  font-size: 14px;
+  text-align: center;
+}
+
+.fortune-history-modal__body {
+  display: flex;
+  gap: 20px;
+  min-height: 0;
+  flex: 1;
+}
+
+/* Thin translucent-white scrollbar (Firefox + WebKit/Blink) for both
+   scrollable panes below — the default OS scrollbar reads jarring against
+   the glass panel. */
+.fortune-history-modal__list,
+.fortune-history-modal__detail {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, .28) transparent;
+}
+.fortune-history-modal__list::-webkit-scrollbar,
+.fortune-history-modal__detail::-webkit-scrollbar {
+  width: 7px;
+}
+.fortune-history-modal__list::-webkit-scrollbar-track,
+.fortune-history-modal__detail::-webkit-scrollbar-track {
+  background: transparent;
+}
+.fortune-history-modal__list::-webkit-scrollbar-thumb,
+.fortune-history-modal__detail::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, .28);
+  border-radius: 999px;
+}
+.fortune-history-modal__list::-webkit-scrollbar-thumb:hover,
+.fortune-history-modal__detail::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, .45);
+}
+
+/* --- Left: scrollable list of revealed cards --- */
+.fortune-history-modal__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 0 0 240px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+.fortune-history-modal__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 0;
+  background: rgba(255, 255, 255, .04);
+  color: rgba(255, 255, 255, .82);
+  text-align: left;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, transform .15s;
+}
+.fortune-history-modal__item:hover {
+  background: rgba(255, 255, 255, .08);
+  transform: translateX(2px);
+}
+.fortune-history-modal__item--active {
+  border-color: var(--fortune-glow, #ffe29e);
+  background: color-mix(in srgb, var(--fortune-glow, #ffe29e) 16%, transparent);
+  color: #fff;
+}
+.fortune-history-modal__item-thumb {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 48px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .5));
+}
+.fortune-history-modal__item-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.fortune-history-modal__item-thumb-fallback {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, .08);
+  color: rgba(255, 255, 255, .5);
+  font-size: 14px;
+}
+.fortune-history-modal__item-name {
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Right: enlarged selected card + description --- */
+.fortune-history-modal__detail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Explicit flex-start (rather than relying on the default) — this pane
+     stretches to the modal's full fixed height (see .fortune-history-modal__panel),
+     so without it any accidental stretch on a child would otherwise be free
+     to drift the content away from the top. */
+  justify-content: flex-start;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 4px 8px;
+  text-align: center;
+}
+.fortune-history-modal__detail-card {
+  width: min(42vw, 280px);
+  /* .fortune-card-face (fortune-draw.css) sets height:100% for contexts
+     where its parent's height IS the card's own height — here the parent
+     (.fortune-history-modal__detail) stretches to fill the whole tall
+     modal body, so that 100% blew this card up to the full panel height
+     instead of the aspect-ratio-derived ~392px. Override back to auto so
+     aspect-ratio is what actually sizes it. */
+  height: auto;
+  aspect-ratio: 1060 / 1484;
+  flex: 0 0 auto;
+  margin-bottom: 4px;
+}
+.fortune-history-modal__detail-eyebrow {
+  margin: 0;
+  color: rgba(255, 255, 255, .68);
+  font-size: 13px;
+  font-weight: 700;
+}
+.fortune-history-modal__detail-name {
+  margin: 0;
+  color: #ffe29e;
+  font-family: 'MapodaCapo', "Barlow Condensed", sans-serif;
+  font-weight: 400;
+  font-size: clamp(20px, 5vw, 26px);
+}
+.fortune-history-modal__detail-text {
+  margin: 0;
+  max-width: 44ch;
+  color: rgba(255, 255, 255, .92);
+  font-family: 'MapodaCapo', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+/* Same glassmorphism treatment as .fortune-reveal-panel__btn (fortune-draw.css)
+   — mint accent, rounded-square, translucent dark glass. */
+.fortune-history-modal__detail-save-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px 20px;
+  border: 1px solid #6dfbd0;
+  border-radius: 14px;
+  color: #6dfbd0;
+  background: rgba(10, 13, 28, .55);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .45), 0 0 16px rgba(109, 251, 208, .3);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .2s, background .2s;
+}
+.fortune-history-modal__detail-save-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: rgba(10, 13, 28, .7);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .5), 0 0 22px rgba(109, 251, 208, .5);
+}
+.fortune-history-modal__detail-save-btn:disabled { opacity: .55; cursor: default; transform: none; }
+.fortune-history-modal__detail-save-btn svg { width: 15px; height: 15px; }
+
+@media (max-width: 620px) {
+  .fortune-history-modal__body { flex-direction: column; overflow-y: auto; }
+  .fortune-history-modal__list {
+    flex: 0 0 auto;
+    flex-direction: row;
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+  .fortune-history-modal__item { flex: 0 0 auto; }
+  .fortune-history-modal__item-name { max-width: 90px; }
+  .fortune-history-modal__detail-card { width: min(50vw, 200px); }
+}

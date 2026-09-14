@@ -5,6 +5,7 @@
    keeps the same neutral surface/hover colors as the other toggles so it
    doesn't visually compete with them. */
 .fortune-toggle {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -29,18 +30,15 @@
 .fortune-toggle:active { transform: scale(.96); }
 .fortune-toggle:hover .fortune-toggle__icon { transform: scale(1.12) rotate(-6deg); }
 
-/* Blinks until the viewer opens the popup for the first time (see
-   hasOpenedFortune/markFortuneOpened in storage.ts) — same "flash brighter
-   then settle" technique as TOTY's own .toty-card-btn--unrevealed, kept off
-   background/box-shadow so it layers cleanly on this button's own pill
-   skin. Stops permanently (this class stops being applied) the first time
-   it's clicked. */
-.fortune-toggle--unopened {
-  animation: fortune-toggle-blink 2.6s ease-in-out infinite;
-}
-@keyframes fortune-toggle-blink {
-  0%, 82%, 100% { filter: brightness(1); transform: scale(1); }
-  88% { filter: brightness(1.6) saturate(1.3); transform: scale(1.06); }
+/* Non-interactive replica used inline inside announcement text (see
+   announcementsData.tsx) — same look as the real floating button, just
+   nudged to sit on the text baseline instead of being a fixed toolbar
+   pill. */
+.fortune-toggle--inline {
+  height: 32px;
+  margin: 0 2px;
+  vertical-align: middle;
+  transform: translateY(-3px);
 }
 
 .fortune-toggle__icon {
