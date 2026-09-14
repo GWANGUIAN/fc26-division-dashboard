@@ -142,8 +142,50 @@
   text-shadow: 0 0 16px #ffe29e66;
 }
 
-.fortune-popup__mascot { width: min(78vw, 380px); filter: drop-shadow(0 16px 30px rgba(0, 0, 0, .5)); }
+.fortune-popup__mascot-wrap { position: relative; display: inline-block; }
+
+/* The generated mascot art is cut off flush at the waist (no natural
+   taper), which reads as an abrupt hard edge floating over the backdrop —
+   fading the bottom ~22% out to transparent via a mask softens that edge
+   into a "dissolving into mist" look instead of a visible crop line. Kept
+   on a CSS mask (not just an opacity gradient div on top) so it actually
+   erases the art's own pixels rather than just dimming them. */
+.fortune-popup__mascot {
+  width: min(78vw, 380px);
+  filter: drop-shadow(0 16px 30px rgba(0, 0, 0, .5));
+  -webkit-mask-image: linear-gradient(to bottom, #000 76%, transparent 98%);
+  mask-image: linear-gradient(to bottom, #000 76%, transparent 98%);
+}
 .fortune-popup__mascot-fallback { font-size: 140px; line-height: 1; filter: drop-shadow(0 16px 30px rgba(0, 0, 0, .5)); }
+
+/* Twinkling stars scattered around the mascot — same recipe as
+   .view-toggle-card__spark (styles.css) but self-contained here with a
+   fixed gold/mint palette matching this popup's own theme rather than the
+   --fancy-color convention those "you found something" callouts use. */
+.fortune-popup__mascot-sparks { position: absolute; z-index: 1; inset: -6% -10%; pointer-events: none; }
+.fortune-popup__mascot-spark {
+  position: absolute;
+  font-size: 15px;
+  line-height: 1;
+  font-style: normal;
+  color: #ffe29e;
+  text-shadow: 0 0 6px #ffe29e, 0 0 14px #6dfbd0;
+  opacity: 0;
+  animation: fortune-mascot-spark-twinkle 3.2s ease-in-out infinite;
+}
+.fortune-popup__mascot-spark--1 { top: 4%;  left: 2%;  font-size: 13px; animation-delay: 0s; }
+.fortune-popup__mascot-spark--2 { top: 14%; right: 4%; font-size: 18px; animation-delay: .5s; }
+.fortune-popup__mascot-spark--3 { top: 46%; left: -4%; font-size: 14px; animation-delay: 1.1s; }
+.fortune-popup__mascot-spark--4 { top: 54%; right: -2%; font-size: 16px; animation-delay: 1.7s; }
+.fortune-popup__mascot-spark--5 { top: 2%;  left: 42%; font-size: 12px; animation-delay: 2.2s; }
+.fortune-popup__mascot-spark--6 { top: 30%; right: 10%; font-size: 11px; animation-delay: 2.7s; }
+@keyframes fortune-mascot-spark-twinkle {
+  0%, 100% { opacity: 0; transform: scale(.3) rotate(0deg); }
+  20% { opacity: 1; transform: scale(1.3) rotate(20deg); }
+  40% { opacity: .15; transform: scale(.5) rotate(0deg); }
+  60% { opacity: 1; transform: scale(1.15) rotate(-15deg); }
+  80% { opacity: 0; transform: scale(.4) rotate(0deg); }
+}
 
 .fortune-popup__draw-btn {
   border: 0;
@@ -158,15 +200,15 @@
   outline: 0;
 }
 .fortune-popup__draw-btn:active { transform: scale(.97); }
-.fortune-popup__draw-btn img { display: block; width: min(60vw, 280px); }
+.fortune-popup__draw-btn img { display: block; width: min(72vw, 336px); }
 .fortune-popup__draw-btn-fallback {
   display: inline-block;
-  padding: 12px 32px;
+  padding: 14px 38px;
   border: 1px solid #ffe29e88;
   border-radius: 999px;
   color: #0a0d1c;
   background: #ffe29e;
   font-family: 'MapodaCapo', "Barlow Condensed", sans-serif;
   font-weight: 400;
-  font-size: 17px;
+  font-size: 20px;
 }

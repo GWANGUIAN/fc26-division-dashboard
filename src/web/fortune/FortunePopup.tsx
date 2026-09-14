@@ -147,13 +147,23 @@ export function FortunePopup({
             ) : (
               <h2 className="fortune-popup__title-fallback">🔮 오늘의 운세 뽑아보기</h2>
             )}
-            {mascotUrl ? (
-              <img src={mascotUrl} alt="" className="fortune-popup__mascot" />
-            ) : (
-              <div className="fortune-popup__mascot-fallback" aria-hidden="true">
-                🧙
-              </div>
-            )}
+            <div className="fortune-popup__mascot-wrap">
+              <span className="fortune-popup__mascot-sparks" aria-hidden="true">
+                <i className="fortune-popup__mascot-spark fortune-popup__mascot-spark--1">✦</i>
+                <i className="fortune-popup__mascot-spark fortune-popup__mascot-spark--2">✦</i>
+                <i className="fortune-popup__mascot-spark fortune-popup__mascot-spark--3">✦</i>
+                <i className="fortune-popup__mascot-spark fortune-popup__mascot-spark--4">✦</i>
+                <i className="fortune-popup__mascot-spark fortune-popup__mascot-spark--5">✦</i>
+                <i className="fortune-popup__mascot-spark fortune-popup__mascot-spark--6">✦</i>
+              </span>
+              {mascotUrl ? (
+                <img src={mascotUrl} alt="" className="fortune-popup__mascot" />
+              ) : (
+                <div className="fortune-popup__mascot-fallback" aria-hidden="true">
+                  🧙
+                </div>
+              )}
+            </div>
             <button type="button" className="fortune-popup__draw-btn" onClick={() => setStarted(true)}>
               {drawButtonUrl ? (
                 <img src={drawButtonUrl} alt="운세 뽑기" />
