@@ -40,6 +40,9 @@
 | 9 | 빙밍 | `tleod1818` | FB | 터콰이즈+흰색 · 번개의 전령 | 번개의 질주자 |
 | 10 | 재닌 | `janine95kim` | GK | 옅은 시안+차콜 · 서리의 수호자 | 서리의 골키퍼 |
 | 11 | 하치 | `hachi97` | WF | 골드+보라 · 황금 드래곤 (스페셜, 유일한 예외) | 황금 드래곤의 강림 |
+| 12 | 우왁굳 (숨겨진 카드) | `woowakgood` | — | 샴페인 골드+차콜 · 개그 | 벤치에 있던 감독 |
+
+**12번(우왁굳)은 11장을 전부 뽑기 전까지는 뽑기 풀에 등장하지 않는 숨겨진 보너스 카드** — 자세한 내용은 아래 "12. 우왁굳" 섹션 참고.
 
 **컬러/모티프는 3D 카드(`totyCardTheme.ts`/`docs/toty-card-prompts.md`)와 의도적으로 다르게 설계** — 같은 선수라도 두 카드 시리즈가 서로 다른 독자적인 정체성을 갖도록 함(하치만 예외, 위 디자인 방향 참고). 카드 이름은 이전 초안에서 3D 카드 모티프를 그대로 언급하던 것들(룬문양/구름/심해/폭풍/오로라)을 이번 새 컨셉에 맞게 다시 지었음 — 실제 운세 문구(`fortuneCardData.ts`)는 그대로 유지.
 
@@ -445,6 +448,52 @@ numbers. Entire canvas outside the card's own decorative silhouette
 must be fully transparent (alpha 0). Portrait orientation, 1060x1484,
 PNG with alpha channel.
 ```
+
+---
+
+## 12. 우왁굳 — `woowakgood` — 샴페인 골드+차콜 · 벤치에 있던 감독 (숨겨진 보너스 카드)
+
+**11명 카드를 전부 뽑아야만 등장하는 숨겨진 카드** — TOTY 3D 카드의 "숨겨진 우왁굳 보너스 카드"(`useWoowakgoodBonusUnlock.ts`)와 똑같은 방식으로 구현됨: 뽑았던 11장이 전부 채워지는 순간 화면 상단에 "숨겨진 카드가 공개되었습니다" 안내가 뜨고(`FortuneBonusAnnounce.tsx`), 그 다음부터 운세 뽑기 풀에 이 카드가 섞여서 나올 수 있음(`fortuneWoowakgoodCard.ts`). roster.yaml에 없는 인물이라 다른 11장과 달리 스트리머 실사진 대신 **우왁굳 본인 참고 사진**을 얼굴 레퍼런스로 첨부.
+
+카드 이름·운세 문구는 이미 확정됨 — 우왁굳이 원래는 감독(그라운드 밖에서 지시만 내리는 역할)인데, 벤치에 가만히 못 있고 몰래 유니폼으로 갈아입고 심판 눈을 피해 경기에 난입한다는 컨셉의 **개그 카드**. **이미지도 이 상황을 코믹하게 담아야 함** — 실력과 무관하게 텐션만 넘치는 느낌.
+
+**카드 앞면** (우왁굳 참고 사진 + 카드 뒷면 레퍼런스):
+```
+Using the attached card-back image ONLY as a silhouette/structure
+reference — same rounded-rectangle card body with gold filigree
+ornaments curling outward past the edges at all four corners, same
+small arched crest above the top-center edge, same small pointed
+finial below the bottom-center edge — but redesign the illustration and
+palette completely for this player (this is a hidden bonus card, so a
+slightly more lavish/eye-catching ornament treatment than the regular 11
+is fine, similar in spirit to the "special rarity" card but with its own
+champagne-gold palette, not gold-and-violet dragon).
+
+A cute chibi/SD-style mystical tarot illustration composed like a real
+Major-Arcana tarot card, but played for laughs (a comedic scene, not a
+solemn one) — big head small body, 2-3 head-tall proportions. The
+character (from the attached reference photo, keep his actual face and
+likeness clearly recognizable) is a soccer team's manager who couldn't
+resist watching from the bench any longer: his tracksuit jacket is
+flying open mid-sprint to reveal a hastily half-buttoned team jersey
+underneath, one sock comically slipping down, a coach's whistle and
+clipboard flung into the air behind him with papers scattering
+everywhere, sprinting onto the pitch with a huge determined grin and
+comically wide eyes. In the background, a shocked referee blows a
+whistle and points dramatically at him, and small chibi teammates on
+the sideline are doubled over laughing. Champagne-gold and charcoal
+color palette (his tracksuit/manager colors), small whistle and
+scattered-paper flourishes decorate the corner ornaments (replacing the
+back's mint-gold cosmic motif with this palette, while keeping the same
+silhouette shape). Chaotic, joyful, over-the-top comedic energy, warm
+golden rim lighting. Leave the bottom ~15% of the card's inner area as a
+simple, uncluttered space (no text) for a card-name overlay to be added
+later. No text, no logos, no numbers. Entire canvas outside the card's
+own decorative silhouette must be fully transparent (alpha 0). Portrait
+orientation, 1060x1484, PNG with alpha channel.
+```
+
+**파일명**: `woowakgood-fortune-card.webp` (다른 11장과 동일 규칙, `src/web/assets/fortune/`에 저장)
 
 ---
 

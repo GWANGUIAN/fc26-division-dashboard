@@ -2,10 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { ImageDown, RotateCcw, Sparkles } from "lucide-react";
 import type { StreamerRecord } from "../../shared/model.js";
-import { drawRandomFortuneCards, type FortuneCardEntry } from "./fortuneCardData";
+import { stopSfx } from "../sfxAudio.js";
+import { drawRandomFromPool, FORTUNE_CARDS, type FortuneCardEntry } from "./fortuneCardData";
 import { getFortuneCardBackUrl, getFortuneCardFrontUrl } from "./fortuneCardAssets";
 import { exportFortuneCardPng } from "./exportFortuneCardImage";
-import { markFortuneCardRevealed } from "./fortuneCardHistoryStore";
+import { getFortuneRevealedIds, markFortuneCardRevealed } from "./fortuneCardHistoryStore";
+import { FORTUNE_WOOWAKGOOD_CARD, FORTUNE_WOOWAKGOOD_DISPLAY_NAME, FORTUNE_WOOWAKGOOD_ID } from "./fortuneWoowakgoodCard";
 import "./fortune-draw.css";
 
 const SHUFFLE_MS = 1800;
@@ -19,6 +21,15 @@ function prefersReducedMotion(): boolean {
     typeof window !== "undefined" &&
     window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true
   );
+}
+
+/** Samples `count` entries from `pool` WITH replacement — used only when
+ * "새로운 카드만 뽑기" is on and fewer than 3 unrevealed cards remain, so the
+ * 3-card spread can still always show 3 face-down cards (a real card back,
+ * not an empty slot) while guaranteeing every one of them is new, even if
+ * that means the same 1-2 unrevealed entries appear more than once. */
+function drawWithReplacement(pool: FortuneCardEntry[], count: number): FortuneCardEntry[] {
+  return Array.from({ length: count }, () => pool[Math.floor(Math.random() * pool.length)]);
 }
 
 function CardBack({ className }: { className?: string }) {
@@ -47,16 +58,49 @@ function CardBack({ className }: { className?: string }) {
  */
 export function FortuneDraw({
   streamers,
+  includeHidden,
+  onlyNewCards,
   onShuffleStart,
   onCardHover,
   onCardSelectImpact,
+  onStreamerSfx,
 }: {
-  streamers?: Pick<StreamerRecord, "id" | "displayName">[];
+  streamers?: Pick<StreamerRecord, "id" | "displayName" | "sfx">[];
+  /** Mixes the hidden 우왁굳 card into the draw pool once
+   * useFortuneBonusUnlock.ts says it's been unlocked. */
+  includeHidden?: boolean;
+  /** "새로운 카드만 뽑기" — every dealt card is guaranteed unrevealed (see
+   * fortuneCardHistoryStore.ts). With 3+ unrevealed cards left this is a
+   * normal distinct 3-card draw; with only 1-2 left, those same entries
+   * are sampled with replacement (drawWithReplacement) so the spread still
+   * shows 3 cards and every one of them is still new. FortunePopup only
+   * lets this be true when at least 1 unrevealed card exists. */
+  onlyNewCards?: boolean;
   onShuffleStart?: () => void;
   onCardHover?: () => void;
   onCardSelectImpact?: () => void;
+  /** Fired alongside onCardSelectImpact with that player's own sfx URL
+   * (StreamerRecord.sfx), if they have one — lets the parent play it
+   * through the shared sfxAudio.ts singleton, same as every other
+   * "click this streamer" interaction in the app. */
+  onStreamerSfx?: (sfxUrl: string) => void;
 }) {
-  const [drawn, setDrawn] = useState<FortuneCardEntry[]>(() => drawRandomFortuneCards(3));
+  const hiddenPool = includeHidden ? [FORTUNE_WOOWAKGOOD_CARD] : [];
+
+  const drawThree = (): FortuneCardEntry[] => {
+    const basePool = [...FORTUNE_CARDS, ...hiddenPool];
+    if (!onlyNewCards) return drawRandomFromPool(basePool, 3);
+    const revealedIds = getFortuneRevealedIds();
+    const unrevealedPool = basePool.filter((entry) => !revealedIds.has(entry.id));
+    // FortunePopup only allows onlyNewCards when unrevealedPool has at
+    // least 1 entry — the empty-pool branch here is just a defensive
+    // fallback in case that ever gets out of sync.
+    if (unrevealedPool.length === 0) return drawRandomFromPool(basePool, 3);
+    if (unrevealedPool.length < 3) return drawWithReplacement(unrevealedPool, 3);
+    return drawRandomFromPool(unrevealedPool, 3);
+  };
+
+  const [drawn, setDrawn] = useState<FortuneCardEntry[]>(drawThree);
   const [phase, setPhase] = useState<Phase>(() => (prefersReducedMotion() ? "dealt" : "shuffling"));
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [exportingImage, setExportingImage] = useState(false);
@@ -81,13 +125,17 @@ export function FortuneDraw({
       if (impactFiredRef.current) return;
       impactFiredRef.current = true;
       onCardSelectImpact?.();
+      if (selectedIndex !== null) {
+        const sfxUrl = getStreamerSfx(selectedIndex);
+        if (sfxUrl) onStreamerSfx?.(sfxUrl);
+      }
     }, FLIP_MS / 2);
     const doneTimer = window.setTimeout(() => setPhase("revealed"), FLIP_MS);
     return () => {
       window.clearTimeout(impactTimer);
       window.clearTimeout(doneTimer);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- onCardSelectImpact is stable enough for this one-shot sequence
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- onCardSelectImpact/fireStreamerSfx are stable enough for this one-shot sequence
   }, [phase]);
 
   // Records the pick into the persistent "뽑았던 카드" collection the
@@ -100,12 +148,21 @@ export function FortuneDraw({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- drawn/selectedIndex read once per reveal, not meant to re-fire on redraw alone
   }, [phase]);
 
+  // Looked up by explicit index (never via the selectedIndex state) so
+  // there's no risk of reading it one render too early — handlePick's own
+  // reduced-motion branch calls this in the same tick as setSelectedIndex,
+  // before that state update has flushed.
+  const getStreamerSfx = (index: number): string | undefined =>
+    streamers?.find((s) => s.id === drawn[index].id)?.sfx;
+
   const handlePick = (index: number) => {
     if (phase !== "dealt") return;
     setSelectedIndex(index);
     if (prefersReducedMotion()) {
       impactFiredRef.current = true;
       onCardSelectImpact?.();
+      const sfxUrl = getStreamerSfx(index);
+      if (sfxUrl) onStreamerSfx?.(sfxUrl);
       setPhase("revealed");
     } else {
       setPhase("flipping");
@@ -119,14 +176,23 @@ export function FortuneDraw({
   };
 
   const handleRedraw = () => {
-    setDrawn(drawRandomFortuneCards(3));
+    // Cuts off the just-revealed card's streamer sfx (played via the shared
+    // sfxAudio.ts singleton, see getStreamerSfx/onStreamerSfx above) so it
+    // doesn't keep playing over the next shuffle.
+    stopSfx();
+    setDrawn(drawThree());
     setSelectedIndex(null);
     hoveredIndexRef.current = null;
     setPhase(prefersReducedMotion() ? "dealt" : "shuffling");
   };
 
   const selectedEntry = selectedIndex !== null ? drawn[selectedIndex] : undefined;
-  const selectedDisplayName = selectedEntry
+  // 우왁굳 never appears in roster.yaml, so the streamers lookup below can't
+  // find him — his display name is hardcoded the same way woowakgoodBonusCard.ts
+  // does it for the 3D card feature.
+  const selectedDisplayName = selectedEntry?.id === FORTUNE_WOOWAKGOOD_ID
+    ? FORTUNE_WOOWAKGOOD_DISPLAY_NAME
+    : selectedEntry
     ? streamers?.find((s) => s.id === selectedEntry.id)?.displayName
     : undefined;
   const selectedFrontUrl = selectedEntry ? getFortuneCardFrontUrl(selectedEntry.id) : undefined;
@@ -172,6 +238,9 @@ export function FortuneDraw({
 
       {phase !== "shuffling" && (
         <div className={`fortune-spread ${selectedIndex !== null ? "fortune-spread--picked" : ""}`}>
+          {/* Keyed by slot position (not entry.id) — "새로운 카드만 뽑기" can
+              legitimately deal the same entry into more than one of the 3
+              slots (see drawWithReplacement), so entry.id isn't unique here. */}
           {drawn.map((entry, index) => {
             const isSelected = index === selectedIndex;
             const isDismissed = selectedIndex !== null && !isSelected;
@@ -180,7 +249,7 @@ export function FortuneDraw({
             if (isSelected && (phase === "flipping" || phase === "revealed")) {
               return (
                 <div
-                  key={entry.id}
+                  key={index}
                   className={`fortune-flip ${phase === "flipping" ? "fortune-flip--anim" : ""} fortune-flip--flipped`}
                 >
                   <div className="fortune-flip__inner">
@@ -207,7 +276,7 @@ export function FortuneDraw({
 
             return (
               <button
-                key={entry.id}
+                key={index}
                 type="button"
                 className={`fortune-slot ${isDismissed ? "fortune-slot--dismissed" : ""}`}
                 onClick={() => handlePick(index)}

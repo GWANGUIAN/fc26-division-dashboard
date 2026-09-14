@@ -1,10 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Images, Music4, X } from "lucide-react";
 import type { StreamerRecord } from "../../shared/model.js";
 import { useEscape } from "../Modal.js";
+import { playSfx, stopSfx } from "../sfxAudio.js";
 import { SoundControl } from "../minigame/SoundControl.js";
 import { FortuneDraw } from "./FortuneDraw";
 import { FortuneHistoryModal } from "./FortuneHistoryModal";
+import { FortuneBonusAnnounce } from "./FortuneBonusAnnounce";
+import { FORTUNE_CARDS } from "./fortuneCardData";
 import {
   getFortuneDrawButtonUrl,
   getFortuneMascotUrl,
@@ -12,6 +15,8 @@ import {
   getFortunePopupBackdropUrl,
   getFortuneTitleUrl,
 } from "./fortuneCardAssets";
+import { getFortuneRevealedIds, subscribeFortuneCardRevealed } from "./fortuneCardHistoryStore";
+import { useFortuneBonusUnlock } from "./useFortuneBonusUnlock";
 import { useFortuneMusic } from "./useFortuneMusic";
 import "./fortune-popup.css";
 
@@ -75,11 +80,45 @@ export function FortunePopup({
 
   const [started, setStarted] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [bonusAnnounceVisible, setBonusAnnounceVisible] = useState(false);
+  const bonusUnlocked = useFortuneBonusUnlock(() => setBonusAnnounceVisible(true));
+
+  // Reactive so the checkbox locks itself the instant the last card gets
+  // revealed, without needing the popup closed/reopened.
+  const revealedCount = useSyncExternalStore(
+    subscribeFortuneCardRevealed,
+    () => getFortuneRevealedIds().size,
+  );
+  const totalCardCount = FORTUNE_CARDS.length + (bonusUnlocked ? 1 : 0);
+  // Only disabled once there's truly nothing new left to draw — with 1-2
+  // unrevealed cards remaining, FortuneDraw.tsx's drawThree() samples them
+  // WITH replacement so the 3-card spread still always shows 3 backs and
+  // every one of them is still guaranteed new (see drawWithReplacement).
+  // Unlocking the hidden 우왁굳 card after drawing all 11 regular ones bumps
+  // totalCardCount to 12 while revealedCount stays at 11, which re-enables
+  // this on its own — no separate wiring needed for that case.
+  const newCardsRemaining = totalCardCount - revealedCount;
+  const newOnlyUnavailable = newCardsRemaining < 1;
+
+  const [onlyNewCards, setOnlyNewCards] = useState(false);
+  // "새로운 카드만 뽑기" stops making sense once there's nothing new left —
+  // force it back off (rather than just disabling the checkbox while it
+  // stays checked underneath) so FortuneDraw never has to
+  // reconcile a checked-but-inert option.
+  useEffect(() => {
+    if (newOnlyUnavailable) setOnlyNewCards(false);
+  }, [newOnlyUnavailable]);
 
   const localSfxRef = useRef<HTMLAudioElement[]>([]);
   useEffect(() => {
     return () => {
       for (const audio of localSfxRef.current) audio.pause();
+      // Also cuts off the currently revealed card's streamer sfx (see
+      // handleStreamerSfx below), which plays through the shared
+      // sfxAudio.ts singleton rather than one of the local Audio()
+      // instances tracked above — same reasoning as TotyCardPopup's own
+      // unmount cleanup.
+      stopSfx();
     };
   }, []);
 
@@ -91,6 +130,13 @@ export function FortunePopup({
   };
   const handleCardSelectImpact = () => {
     if (sfxEnabled) localSfxRef.current.push(playLocalSfx("/sfxes/fortune-card-select.mp3", sfxVolume / 100));
+  };
+  // That specific player's own click sfx — routed through the shared
+  // sfxAudio.ts singleton (not the independent Audio() instances above),
+  // same convention TOTY's TotyCardPopup.handleCardClick uses for a
+  // streamer's own sfx.
+  const handleStreamerSfx = (url: string) => {
+    if (sfxEnabled) playSfx(url, sfxVolume / 100);
   };
 
   const backdropUrl = getFortunePopupBackdropUrl();
@@ -115,16 +161,30 @@ export function FortunePopup({
       </div>
       <div className="fortune-popup__scrim" aria-hidden="true" />
 
-      <button
-        type="button"
-        className="fortune-popup__history-btn"
-        onClick={() => setHistoryOpen(true)}
-        aria-label="뽑았던 카드 보기"
-        title="뽑았던 카드 보기"
-      >
-        <Images aria-hidden="true" />
-        <span>뽑았던 카드 보기</span>
-      </button>
+      <div className="fortune-popup__top-left-controls">
+        <button
+          type="button"
+          className="fortune-popup__history-btn"
+          onClick={() => setHistoryOpen(true)}
+          aria-label="뽑았던 카드 보기"
+          title="뽑았던 카드 보기"
+        >
+          <Images aria-hidden="true" />
+          <span>뽑았던 카드 보기</span>
+        </button>
+        <label
+          className={`fortune-popup__new-only-toggle ${newOnlyUnavailable ? "fortune-popup__new-only-toggle--disabled" : ""}`}
+          title={newOnlyUnavailable ? "모든 카드를 다 뽑았어요" : "새로운 카드만 뽑기"}
+        >
+          <input
+            type="checkbox"
+            checked={onlyNewCards}
+            disabled={newOnlyUnavailable}
+            onChange={(event) => setOnlyNewCards(event.target.checked)}
+          />
+          <span>새로운 카드만 뽑기</span>
+        </label>
+      </div>
 
       <SoundControl
         enabled={musicOn}
@@ -175,14 +235,18 @@ export function FortunePopup({
         ) : (
           <FortuneDraw
             streamers={streamers}
+            includeHidden={bonusUnlocked}
+            onlyNewCards={onlyNewCards && !newOnlyUnavailable}
             onShuffleStart={handleShuffleStart}
             onCardHover={handleCardHover}
             onCardSelectImpact={handleCardSelectImpact}
+            onStreamerSfx={handleStreamerSfx}
           />
         )}
       </div>
 
       {historyOpen && <FortuneHistoryModal streamers={streamers} onClose={() => setHistoryOpen(false)} />}
+      {bonusAnnounceVisible && <FortuneBonusAnnounce onDone={() => setBonusAnnounceVisible(false)} />}
     </div>
   );
 }

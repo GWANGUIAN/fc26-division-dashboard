@@ -1,0 +1,52 @@
+/* Bigger, longer-lived, more animated cousin of the plain toast — same idea
+   as toty-card's own .woowakgood-bonus-announce (styles.css), but its own
+   copy since this message wraps to two lines instead of staying on one. */
+.fortune-bonus-announce {
+  position: fixed;
+  z-index: 1000;
+  top: 18px;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: min(92vw, 480px);
+  padding: 16px 24px;
+  border: 1px solid #ffd76a;
+  border-radius: 14px;
+  color: #ffd76a;
+  background: rgba(16, 12, 4, .84);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, .55), 0 0 22px rgba(255, 215, 106, .4);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.5;
+  text-align: left;
+  transform: translateX(-50%);
+  animation:
+    fortune-bonus-announce-in .4s cubic-bezier(.2, .9, .25, 1.3),
+    fortune-bonus-announce-pulse 1.6s ease-in-out .4s infinite;
+}
+.fortune-bonus-announce svg {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  filter: drop-shadow(0 0 6px rgba(255, 240, 194, .85));
+}
+.fortune-bonus-announce--exiting { animation: fortune-bonus-announce-out .35s ease-in forwards; }
+@keyframes fortune-bonus-announce-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(-24px) scale(.92); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+@keyframes fortune-bonus-announce-out {
+  from { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  to { opacity: 0; transform: translateX(-50%) translateY(-16px) scale(.94); }
+}
+@keyframes fortune-bonus-announce-pulse {
+  0%, 100% { box-shadow: 0 16px 40px rgba(0, 0, 0, .55), 0 0 18px rgba(255, 215, 106, .35); }
+  50% { box-shadow: 0 16px 40px rgba(0, 0, 0, .55), 0 0 34px rgba(255, 215, 106, .7); }
+}
+@media (max-width: 680px) {
+  .fortune-bonus-announce { top: 12px; max-width: calc(100vw - 24px); padding: 12px 16px; font-size: 13px; gap: 8px; }
+  .fortune-bonus-announce svg { width: 20px; height: 20px; }
+}

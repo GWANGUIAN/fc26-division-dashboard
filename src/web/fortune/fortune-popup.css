@@ -40,14 +40,23 @@
   pointer-events: none;
 }
 
-/* Top-left counterpart to the close/music buttons on the right — only
-   rendered once the viewer has revealed at least one card (see
-   revealedCount in FortunePopup.tsx), opening FortuneHistoryModal. */
-.fortune-popup__history-btn {
+/* Top-left counterpart to the close/music buttons on the right — the
+   "뽑았던 카드 보기" button (opens FortuneHistoryModal) and, beside it, the
+   "새로운 카드만 뽑기" checkbox (FortuneDraw's onlyNewCards prop). Grouped in
+   one flex row so they line up and wrap together on narrow viewports. */
+.fortune-popup__top-left-controls {
   position: absolute;
   z-index: 2;
   top: 16px;
   left: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100vw - 32px);
+}
+
+.fortune-popup__history-btn {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -67,6 +76,61 @@
 .fortune-popup__history-btn:hover { background: rgba(0, 0, 0, .75); transform: translateY(-1px); }
 .fortune-popup__history-btn svg { width: 15px; height: 15px; }
 @media (max-width: 480px) { .fortune-popup__history-btn span { display: none; } .fortune-popup__history-btn { padding: 0 9px; gap: 0; } }
+
+/* Plain pill checkbox, same visual family as the history button beside it
+   — only the checkbox box itself (below) is translucent, not this whole
+   pill. */
+.fortune-popup__new-only-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(0, 0, 0, .55);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .4);
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+/* Custom-drawn (appearance:none) so the box itself can have a translucent
+   fill — a plain accent-color checkbox is opaque and can't be styled that
+   way. */
+.fortune-popup__new-only-toggle input {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, .55);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, .18);
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.fortune-popup__new-only-toggle input:checked {
+  border-color: #ffe29e;
+  background: rgba(255, 226, 158, .35);
+}
+.fortune-popup__new-only-toggle input:checked::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 4px;
+  height: 8px;
+  border: solid #ffe29e;
+  border-width: 0 2px 2px 0;
+  transform: rotate(40deg);
+}
+.fortune-popup__new-only-toggle--disabled { opacity: .5; cursor: default; }
+.fortune-popup__new-only-toggle--disabled input { cursor: default; }
+@media (max-width: 480px) { .fortune-popup__new-only-toggle span { display: none; } .fortune-popup__new-only-toggle { padding: 0 10px; } }
 
 .fortune-popup__close {
   position: absolute;

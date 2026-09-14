@@ -110,12 +110,24 @@ export function getFortuneCard(id: string): FortuneCardEntry | undefined {
   return FORTUNE_CARDS.find((card) => card.id === id);
 }
 
-/** Picks `count` distinct random entries from the deck (Fisher–Yates partial shuffle). */
-export function drawRandomFortuneCards(count: number): FortuneCardEntry[] {
-  const pool = [...FORTUNE_CARDS];
-  for (let i = pool.length - 1; i > 0; i--) {
+/** Picks `count` distinct random entries from an arbitrary `pool`
+ * (Fisher–Yates partial shuffle) — the primitive both
+ * drawRandomFortuneCards below and FortuneDraw.tsx's own "새로운 카드만
+ * 뽑기" filtering build on. */
+export function drawRandomFromPool(pool: FortuneCardEntry[], count: number): FortuneCardEntry[] {
+  const shuffled = [...pool];
+  for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [pool[i], pool[j]] = [pool[j], pool[i]];
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
-  return pool.slice(0, count);
+  return shuffled.slice(0, count);
+}
+
+/** Picks `count` distinct random entries from the full 11-card deck.
+ * `extraCards` is folded into the pool alongside the base 11 — used to mix
+ * in the hidden 우왁굳 card (see fortuneWoowakgoodCard.ts) once
+ * useFortuneBonusUnlock.ts says it's been unlocked, without this module
+ * needing to import that standalone card itself. */
+export function drawRandomFortuneCards(count: number, extraCards: FortuneCardEntry[] = []): FortuneCardEntry[] {
+  return drawRandomFromPool([...FORTUNE_CARDS, ...extraCards], count);
 }

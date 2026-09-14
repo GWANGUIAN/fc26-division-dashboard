@@ -7,7 +7,21 @@ import { FORTUNE_CARDS } from "./fortuneCardData";
 import { getFortuneCardFrontUrl } from "./fortuneCardAssets";
 import { getFortuneRevealedIds } from "./fortuneCardHistoryStore";
 import { exportFortuneCardPng } from "./exportFortuneCardImage";
+import { FORTUNE_WOOWAKGOOD_CARD, FORTUNE_WOOWAKGOOD_DISPLAY_NAME, FORTUNE_WOOWAKGOOD_ID } from "./fortuneWoowakgoodCard";
 import "./fortune-history-modal.css";
+
+// The hidden card lives outside FORTUNE_CARDS (see fortuneWoowakgoodCard.ts)
+// — folded back in here so it shows up in the history list too, once
+// revealed, same as every other card.
+const ALL_FORTUNE_CARDS = [...FORTUNE_CARDS, FORTUNE_WOOWAKGOOD_CARD];
+
+function displayNameFor(
+  id: string,
+  streamers: Pick<StreamerRecord, "id" | "displayName">[] | undefined,
+): string | undefined {
+  if (id === FORTUNE_WOOWAKGOOD_ID) return FORTUNE_WOOWAKGOOD_DISPLAY_NAME;
+  return streamers?.find((s) => s.id === id)?.displayName;
+}
 
 /**
  * "뽑았던 카드 보기" — a glassmorphism overlay stacked above FortunePopup
@@ -29,15 +43,13 @@ export function FortuneHistoryModal({
   // time the button is clicked, so there's no need for the live
   // subscribeFortuneCardRevealed() plumbing FortunePopup's toggle uses.
   const [revealedIds] = useState(() => getFortuneRevealedIds());
-  const history = FORTUNE_CARDS.filter((entry) => revealedIds.has(entry.id));
+  const history = ALL_FORTUNE_CARDS.filter((entry) => revealedIds.has(entry.id));
   const [selectedId, setSelectedId] = useState(() => history[0]?.id);
   const [exportingImage, setExportingImage] = useState(false);
 
   const selectedEntry = history.find((entry) => entry.id === selectedId);
   const selectedFrontUrl = selectedEntry ? getFortuneCardFrontUrl(selectedEntry.id) : undefined;
-  const selectedDisplayName = selectedEntry
-    ? streamers?.find((s) => s.id === selectedEntry.id)?.displayName
-    : undefined;
+  const selectedDisplayName = selectedEntry ? displayNameFor(selectedEntry.id, streamers) : undefined;
 
   const handleSaveImage = async () => {
     if (exportingImage || !selectedEntry || !selectedFrontUrl) return;
@@ -63,7 +75,7 @@ export function FortuneHistoryModal({
           <div className="fortune-history-modal__body">
             <div className="fortune-history-modal__list">
               {history.map((entry) => {
-                const displayName = streamers?.find((s) => s.id === entry.id)?.displayName;
+                const displayName = displayNameFor(entry.id, streamers);
                 const thumbUrl = getFortuneCardFrontUrl(entry.id);
                 const isActive = entry.id === selectedId;
                 return (
