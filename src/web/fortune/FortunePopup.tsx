@@ -24,13 +24,27 @@ import "./fortune-popup.css";
 // player) — same reasoning as TotyCardPopup's own reveal stingers: these
 // shouldn't get cut off by each other or by anything else playing via the
 // shared slot.
-function playLocalSfx(url: string, volume: number): HTMLAudioElement {
+//
+// Self-removes from `tracked` once playback ends/errors, instead of just
+// accumulating there for the popup's whole lifetime — a single draw can fire
+// several of these (shuffle + up to 3 hovers + select), so leaving finished
+// ones in the array let it grow unbounded across "다시 뽑기" replays within
+// one popup session. `tracked` still exists so FortunePopup's unmount
+// cleanup can pause anything still actually playing.
+function playLocalSfx(url: string, volume: number, tracked: HTMLAudioElement[]): void {
   const audio = new Audio(url);
   audio.volume = volume;
+  const untrack = () => {
+    const index = tracked.indexOf(audio);
+    if (index !== -1) tracked.splice(index, 1);
+  };
+  audio.addEventListener("ended", untrack);
+  audio.addEventListener("error", untrack);
+  tracked.push(audio);
   audio.play().catch(() => {
     // ignore autoplay/decoding failures, and a not-yet-provided file's 404
+    untrack();
   });
-  return audio;
 }
 
 /** Locks the page behind the overlay from scrolling while it's open — same
@@ -127,13 +141,13 @@ export function FortunePopup({
   }, []);
 
   const handleShuffleStart = () => {
-    if (sfxEnabled) localSfxRef.current.push(playLocalSfx("/sfxes/fortune-shuffle.mp3", sfxVolume / 100));
+    if (sfxEnabled) playLocalSfx("/sfxes/fortune-shuffle.mp3", sfxVolume / 100, localSfxRef.current);
   };
   const handleCardHover = () => {
-    if (sfxEnabled) localSfxRef.current.push(playLocalSfx("/sfxes/fortune-card-hover.mp3", sfxVolume / 100));
+    if (sfxEnabled) playLocalSfx("/sfxes/fortune-card-hover.mp3", sfxVolume / 100, localSfxRef.current);
   };
   const handleCardSelectImpact = () => {
-    if (sfxEnabled) localSfxRef.current.push(playLocalSfx("/sfxes/fortune-card-select.mp3", sfxVolume / 100));
+    if (sfxEnabled) playLocalSfx("/sfxes/fortune-card-select.mp3", sfxVolume / 100, localSfxRef.current);
   };
   // That specific player's own click sfx — routed through the shared
   // sfxAudio.ts singleton (not the independent Audio() instances above),
