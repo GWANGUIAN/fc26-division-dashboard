@@ -100,7 +100,7 @@ export function FortunePopup({
   const newCardsRemaining = totalCardCount - revealedCount;
   const newOnlyUnavailable = newCardsRemaining < 1;
 
-  const [onlyNewCards, setOnlyNewCards] = useState(false);
+  const [onlyNewCards, setOnlyNewCards] = useState(true);
   // "새로운 카드만 뽑기" stops making sense once there's nothing new left —
   // force it back off (rather than just disabling the checkbox while it
   // stays checked underneath) so FortuneDraw never has to
