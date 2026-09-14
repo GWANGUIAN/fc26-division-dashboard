@@ -1,4 +1,4 @@
-import { BadgeCheck, CalendarDays, CirclePile, List, Minus, Plus, RefreshCw, Rows3, Shield, TrendingUp } from "lucide-react";
+import { BadgeCheck, CalendarDays, CirclePile, List, Minus, Plus, Rows3, Shield, TrendingUp } from "lucide-react";
 import type { StreamerRecord } from "../shared/model.js";
 import notepadIcon from "./assets/icon-notepad.webp";
 import { DivisionHistogram } from "./DivisionHistogram";
@@ -20,8 +20,6 @@ export function ViewToolbar({
   onTestScheduleOpen,
   onWakgoodNotebookOpen,
   onGrowthGraphOpen,
-  onRefresh,
-  refreshing,
 }: {
   divisionStats: {
     firstRoundTotal: number;
@@ -41,8 +39,6 @@ export function ViewToolbar({
   onTestScheduleOpen: () => void;
   onWakgoodNotebookOpen: () => void;
   onGrowthGraphOpen: () => void;
-  onRefresh: () => void;
-  refreshing: boolean;
 }) {
   return (
     <section className="view-toolbar" aria-label="보기 설정">
@@ -182,19 +178,6 @@ export function ViewToolbar({
             <span>카드뷰로 보기</span>
           </button>
         </div>
-        <button
-          type="button"
-          className="view-toolbar__refresh"
-          onClick={onRefresh}
-          disabled={refreshing}
-          aria-label="새로고침"
-          title="새로고침"
-        >
-          <RefreshCw
-            aria-hidden="true"
-            className={refreshing ? "view-toolbar__refresh-icon--spinning" : ""}
-          />
-        </button>
       </div>
     </section>
   );

@@ -70,8 +70,7 @@ import { WOOWAKGOOD_BONUS_STREAMER } from "./toty-card/woowakgoodBonusCard";
 const FreekickModal = lazy(() => import("./minigame/FreekickModal"));
 
 export function App() {
-  const { snapshot, loading: snapshotLoading, refresh: refreshSnapshot } =
-    useDashboardSnapshot();
+  const { snapshot, loading: snapshotLoading } = useDashboardSnapshot();
   const { view, setView } = useView();
   const [selected, setSelected] = useState<StreamerRecord>();
   const [selectedApplication, setSelectedApplication] =
@@ -236,8 +235,6 @@ export function App() {
           onTestScheduleOpen={() => setTestScheduleOpen(true)}
           onWakgoodNotebookOpen={() => setWakgoodNotebookOpen(true)}
           onGrowthGraphOpen={() => setGrowthGraphOpen(true)}
-          onRefresh={refreshSnapshot}
-          refreshing={snapshotLoading}
         />
       )}
       {isDivision ? (
