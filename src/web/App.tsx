@@ -62,6 +62,7 @@ import { TotyCardPopup } from "./toty-card/TotyCardPopup";
 import { getTotyCardAssets } from "./toty-card/totyCardAssets";
 import { useWoowakgoodBonusUnlock } from "./toty-card/useWoowakgoodBonusUnlock";
 import { WoowakgoodBonusButton } from "./toty-card/WoowakgoodBonusButton";
+import { WoowakgoodBonusAnnounce } from "./toty-card/WoowakgoodBonusAnnounce";
 import { WOOWAKGOOD_BONUS_STREAMER } from "./toty-card/woowakgoodBonusCard";
 
 // Pulls in the `three` dependency (~600KB+), so it's lazy-loaded and only reaches the browser
@@ -90,7 +91,10 @@ export function App() {
   const [activeMinigame, setActiveMinigame] = useState<"kickups" | "freekick" | "cardmatch" | null>(null);
 
   const { toast, showToast } = useToast();
-  const woowakgoodUnlocked = useWoowakgoodBonusUnlock(snapshot?.streamers, showToast);
+  const [woowakgoodAnnounceVisible, setWoowakgoodAnnounceVisible] = useState(false);
+  const woowakgoodUnlocked = useWoowakgoodBonusUnlock(snapshot?.streamers, () =>
+    setWoowakgoodAnnounceVisible(true),
+  );
   const { theme, toggleTheme } = useTheme();
   const {
     sfxEnabled,
@@ -184,6 +188,9 @@ export function App() {
       <TopBar onTrophyOpen={() => setTrophyOpen(true)} />
       {woowakgoodUnlocked && (
         <WoowakgoodBonusButton onOpen={() => setTotyCardStreamer(WOOWAKGOOD_BONUS_STREAMER)} />
+      )}
+      {woowakgoodAnnounceVisible && (
+        <WoowakgoodBonusAnnounce onDone={() => setWoowakgoodAnnounceVisible(false)} />
       )}
       <div className="photo-booth-anchor">
         <PhotoBoothTrigger

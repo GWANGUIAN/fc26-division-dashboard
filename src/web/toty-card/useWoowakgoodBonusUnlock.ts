@@ -32,19 +32,25 @@ function markBonusUnlocked() {
 /**
  * Unlocks the hidden 우왁굳 bonus card once every real player's card (i.e.
  * every id with a full art set — see totyCardAssets.ts's hasTotyCard) has
- * been revealed at least once. Fires `showToast` and persists the unlock
- * the first time this happens; once unlocked it stays unlocked (a later
- * roster addition or a stale/cleared revealed-ids entry never re-locks it —
- * this is a one-way achievement, not a live "still complete?" check).
+ * been revealed at least once. Fires `onUnlock` and persists the unlock the
+ * first time this happens; once unlocked it stays unlocked (a later roster
+ * addition or a stale/cleared revealed-ids entry never re-locks it — this
+ * is a one-way achievement, not a live "still complete?" check).
  *
  * Also gates on hasTotyCard(WOOWAKGOOD_ID) itself, so the whole feature
- * stays inert — no button, no toast — until the bonus card's own
+ * stays inert — no button, no announcement — until the bonus card's own
  * frame/background/character art actually exists, exactly like every other
  * per-id asset in this system.
+ *
+ * `onUnlock` takes no message (unlike the shared useToast's showToast) — the
+ * caller pairs this with <WoowakgoodBonusAnnounce>, a bespoke banner rather
+ * than the generic small `.toast` used everywhere else, so this achievement
+ * gets to be bigger/longer-lived/more animated without changing that shared
+ * component for every other toast in the app.
  */
 export function useWoowakgoodBonusUnlock(
   streamers: StreamerRecord[] | undefined,
-  showToast: (message: string) => void,
+  onUnlock: () => void,
 ): boolean {
   const revealedIds = useSyncExternalStore(
     subscribeTotyCardRevealed,
@@ -65,8 +71,8 @@ export function useWoowakgoodBonusUnlock(
     if (!realCardIds.every((id) => revealedIds.has(id))) return;
     markBonusUnlocked();
     setUnlocked(true);
-    showToast("🎉 모든 3D 카드를 확인했어요! 숨겨진 카드가 나타났습니다");
-  }, [unlocked, streamers, revealedIds, showToast]);
+    onUnlock();
+  }, [unlocked, streamers, revealedIds, onUnlock]);
 
   return unlocked;
 }
