@@ -4,11 +4,15 @@ import {
   CalendarDays,
   CirclePile,
   Shield,
+  Sparkles,
   Trophy,
 } from "lucide-react";
 import geminiLogo from "./assets/gemini-logo.svg";
 import notepadIcon from "./assets/icon-notepad.webp";
 import { positionColor } from "../shared/position-theme.js";
+import { getFortuneCardBackUrl } from "./fortune/fortuneCardAssets";
+
+const fortuneCardBackUrl = getFortuneCardBackUrl();
 
 export type Announcement = {
   id: string;
@@ -18,6 +22,25 @@ export type Announcement = {
 };
 
 export const ANNOUNCEMENTS: Announcement[] = [
+  {
+    id: "2026-09-fortune-draw",
+    date: "2026.09.14",
+    body: (
+      <>
+        <strong>오늘의 운세 뽑기</strong> 기능이 추가되었습니다. 화면 왼쪽 아래{" "}
+        <span className="fortune-toggle fortune-toggle--inline">
+          {fortuneCardBackUrl ? (
+            <img src={fortuneCardBackUrl} alt="" className="fortune-toggle__icon" />
+          ) : (
+            <Sparkles aria-hidden="true" className="fortune-toggle__icon fortune-toggle__icon--fallback" />
+          )}
+          <span className="fortune-toggle__label">오늘의 운세 뽑기</span>
+        </span>{" "}
+        버튼을 누르면 타로 카드 3장 중 한 장을 뽑아 오늘의 축구 운세를 확인할
+        수 있습니다.
+      </>
+    ),
+  },
   {
     id: "2026-09-toty-card",
     date: "2026.09.12",
