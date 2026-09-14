@@ -220,7 +220,9 @@
   font-family: 'MapodaCapo', sans-serif;
   font-size: 15px;
   line-height: 1.6;
-  white-space: pre-line;
+  /* Same reasoning as .fortune-reveal-panel__text in fortune-draw.css —
+     keeps line breaks at spaces (어절 boundaries) instead of mid-word. */
+  word-break: keep-all;
 }
 
 /* Same glassmorphism treatment as .fortune-reveal-panel__btn (fortune-draw.css)

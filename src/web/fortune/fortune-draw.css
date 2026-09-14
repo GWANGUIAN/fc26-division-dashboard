@@ -262,10 +262,11 @@
   font-family: 'MapodaCapo', sans-serif;
   font-size: 18px;
   line-height: 1.7;
-  /* fortuneText embeds literal "\n"s at its natural sentence/clause breaks
-     (see fortuneCardData.ts) — pre-line renders those as real line breaks
-     while still wrapping normally within each line. */
-  white-space: pre-line;
+  /* Korean's default line-breaking treats every syllable as its own
+     breakable unit (same as CJK ideographs), so a line can wrap in the
+     middle of a word — keep-all restricts breaks to actual spaces (어절
+     boundaries) instead. */
+  word-break: keep-all;
 }
 .fortune-reveal-panel__actions {
   display: flex;
