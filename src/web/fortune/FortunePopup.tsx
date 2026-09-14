@@ -100,14 +100,18 @@ export function FortunePopup({
   const newCardsRemaining = totalCardCount - revealedCount;
   const newOnlyUnavailable = newCardsRemaining < 1;
 
+  // Deliberately NOT force-reset to false when newOnlyUnavailable goes
+  // true — it used to be, but that fought the 우왁굳 unlock sequence: the
+  // instant the 11th regular card is revealed, newOnlyUnavailable flips
+  // true for one render (nothing new left yet) and then false again right
+  // after (the bonus card unlocking adds one), and forcing the checkbox
+  // off during that brief window threw away whatever the viewer had it
+  // set to. The checkbox's own `disabled` state below already keeps it
+  // inert while nothing new exists — and `onlyNewCards={onlyNewCards &&
+  // !newOnlyUnavailable}` passed to FortuneDraw is what actually gates the
+  // behavior — so leaving the underlying state alone just means it picks
+  // back up automatically the moment something new becomes drawable again.
   const [onlyNewCards, setOnlyNewCards] = useState(true);
-  // "새로운 카드만 뽑기" stops making sense once there's nothing new left —
-  // force it back off (rather than just disabling the checkbox while it
-  // stays checked underneath) so FortuneDraw never has to
-  // reconcile a checked-but-inert option.
-  useEffect(() => {
-    if (newOnlyUnavailable) setOnlyNewCards(false);
-  }, [newOnlyUnavailable]);
 
   const localSfxRef = useRef<HTMLAudioElement[]>([]);
   useEffect(() => {
