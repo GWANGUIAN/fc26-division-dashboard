@@ -7,7 +7,12 @@ import { drawRandomFromPool, FORTUNE_CARDS, type FortuneCardEntry } from "./fort
 import { getFortuneCardBackUrl, getFortuneCardFrontUrl } from "./fortuneCardAssets";
 import { exportFortuneCardPng } from "./exportFortuneCardImage";
 import { getFortuneRevealedIds, markFortuneCardRevealed } from "./fortuneCardHistoryStore";
-import { FORTUNE_WOOWAKGOOD_CARD, FORTUNE_WOOWAKGOOD_DISPLAY_NAME, FORTUNE_WOOWAKGOOD_ID } from "./fortuneWoowakgoodCard";
+import {
+  FORTUNE_WOOWAKGOOD_CARD,
+  FORTUNE_WOOWAKGOOD_DISPLAY_NAME,
+  FORTUNE_WOOWAKGOOD_ID,
+  FORTUNE_WOOWAKGOOD_SFX,
+} from "./fortuneWoowakgoodCard";
 import "./fortune-draw.css";
 
 const SHUFFLE_MS = 1800;
@@ -106,6 +111,30 @@ export function FortuneDraw({
   const [exportingImage, setExportingImage] = useState(false);
   const impactFiredRef = useRef(false);
   const hoveredIndexRef = useRef<number | null>(null);
+  const skipNextOnlyNewCardsEffectRef = useRef(true);
+
+  // Re-rolls the 3-card spread when "새로운 카드만 뽑기" is toggled WHILE
+  // nothing has been picked yet (still shuffling or waiting on the dealt
+  // face-down cards) — so flipping it on/off before committing to a card
+  // always takes effect immediately instead of only on the next redraw.
+  // Once a card is flipping/revealed, this deliberately does nothing: the
+  // pick already happened, and silently swapping it out from under the
+  // viewer would be confusing/unfair. Skips its very first run (the
+  // mount-time effect pass every dependency-having effect gets) since
+  // drawThree() already ran once for the lazy useState initializer above —
+  // re-running here too would just discard that draw and pick a second one
+  // for no reason.
+  useEffect(() => {
+    if (skipNextOnlyNewCardsEffectRef.current) {
+      skipNextOnlyNewCardsEffectRef.current = false;
+      return;
+    }
+    if (phase !== "shuffling" && phase !== "dealt") return;
+    setDrawn(drawThree());
+    setSelectedIndex(null);
+    hoveredIndexRef.current = null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deliberately keyed only on onlyNewCards; phase/drawThree are read fresh from the closure at the moment it changes
+  }, [onlyNewCards]);
 
   // Fires once per mount/redraw — not on every render — same "read phase
   // directly rather than through the effect deps" reasoning TotyCardReveal
@@ -151,9 +180,14 @@ export function FortuneDraw({
   // Looked up by explicit index (never via the selectedIndex state) so
   // there's no risk of reading it one render too early — handlePick's own
   // reduced-motion branch calls this in the same tick as setSelectedIndex,
-  // before that state update has flushed.
-  const getStreamerSfx = (index: number): string | undefined =>
-    streamers?.find((s) => s.id === drawn[index].id)?.sfx;
+  // before that state update has flushed. 우왁굳 isn't in streamers (see
+  // fortuneWoowakgoodCard.ts), so his sfx is hardcoded the same way his
+  // display name is above.
+  const getStreamerSfx = (index: number): string | undefined => {
+    const entry = drawn[index];
+    if (entry.id === FORTUNE_WOOWAKGOOD_ID) return FORTUNE_WOOWAKGOOD_SFX;
+    return streamers?.find((s) => s.id === entry.id)?.sfx;
+  };
 
   const handlePick = (index: number) => {
     if (phase !== "dealt") return;

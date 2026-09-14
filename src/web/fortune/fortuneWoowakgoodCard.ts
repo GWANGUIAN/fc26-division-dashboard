@@ -8,6 +8,10 @@ import type { FortuneCardEntry } from "./fortuneCardData";
 // this card is composed in separately by whoever needs it, once unlocked.
 export const FORTUNE_WOOWAKGOOD_ID = "woowakgood";
 export const FORTUNE_WOOWAKGOOD_DISPLAY_NAME = "우왁굳";
+// Same file TOTY's own WOOWAKGOOD_BONUS_STREAMER.sfx points at — he's not in
+// streamers (see above), so FortuneDraw.tsx's normal StreamerRecord.sfx
+// lookup can't find this on its own and checks this constant instead.
+export const FORTUNE_WOOWAKGOOD_SFX = "/sfxes/woowakgood.mp3";
 
 export const FORTUNE_WOOWAKGOOD_CARD: FortuneCardEntry = {
   id: FORTUNE_WOOWAKGOOD_ID,
