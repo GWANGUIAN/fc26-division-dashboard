@@ -34,7 +34,7 @@ export const fakeAds: FakeAd[] = [
   {
     id: "wowhachi",
     image: "/fake-ads/ad-wowhachi.webp",
-    href: "https://vod.sooplive.com/player/206965259/catch",
+    href: "https://vod.sooplive.com/player/207158227",
     label: "두고하치...",
   },
   {
