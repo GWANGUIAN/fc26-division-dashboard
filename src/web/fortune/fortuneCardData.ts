@@ -212,6 +212,7 @@ export const FORTUNE_CARDS: FortuneCardEntry[] = [
     fortuneText: "번개처럼 내달리던 발끝이 오늘은 그 속도를 이기지 못한다. 크로스를 올리기도 전에 먼저 균형을 잃고, 그 틈을 상대가 그대로 걷어간다.",
     glowColor: "#3d6b6e",
     glowColorSoft: "#9dc2c4",
+    sfxOverride: "/sfxes/tleod1818-2.mp3",
   },
   {
     id: "janine95kim",
