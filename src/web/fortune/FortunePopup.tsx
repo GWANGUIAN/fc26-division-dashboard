@@ -8,6 +8,7 @@ import { FortuneDraw } from "./FortuneDraw";
 import { FortuneHistoryModal } from "./FortuneHistoryModal";
 import { FortuneBonusAnnounce } from "./FortuneBonusAnnounce";
 import { FORTUNE_CARDS } from "./fortuneCardData";
+import { FORTUNE_WOOWAKGOOD_CARDS } from "./fortuneWoowakgoodCard";
 import {
   getFortuneDrawButtonUrl,
   getFortuneMascotUrl,
@@ -103,14 +104,15 @@ export function FortunePopup({
     subscribeFortuneCardRevealed,
     () => getFortuneRevealedIds().size,
   );
-  const totalCardCount = FORTUNE_CARDS.length + (bonusUnlocked ? 1 : 0);
+  const totalCardCount = FORTUNE_CARDS.length + (bonusUnlocked ? FORTUNE_WOOWAKGOOD_CARDS.length : 0);
   // Only disabled once there's truly nothing new left to draw — with 1-2
   // unrevealed cards remaining, FortuneDraw.tsx's drawThree() samples them
   // WITH replacement so the 3-card spread still always shows 3 backs and
   // every one of them is still guaranteed new (see drawWithReplacement).
-  // Unlocking the hidden 우왁굳 card after drawing all 11 regular ones bumps
-  // totalCardCount to 12 while revealedCount stays at 11, which re-enables
-  // this on its own — no separate wiring needed for that case.
+  // Unlocking the hidden 우왁굳 cards after drawing every regular one bumps
+  // totalCardCount up by FORTUNE_WOOWAKGOOD_CARDS.length while revealedCount
+  // stays behind, which re-enables this on its own — no separate wiring
+  // needed for that case.
   const newCardsRemaining = totalCardCount - revealedCount;
   const newOnlyUnavailable = newCardsRemaining < 1;
 

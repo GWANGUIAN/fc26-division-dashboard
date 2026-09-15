@@ -16,6 +16,7 @@
 - **하치의 두 번째 카드 — "두고하치" 밈 패러디 컨셉** (11번 원래 카드는 그대로 두고, 별도 보너스 카드로 추가함 — 아래 "14. 하치 (두 번째 카드)" 섹션 참고): 하치가 우왁굳에게 어떤 게임을 강력 추천해서 실제로 플레이까지 이어졌는데, 그 결과가 호불호가 갈리면서 일부 팬들이 "두고보자"와 "하치"를 합쳐 "두고하치..."라는 채팅을 치는 게 굳어져 밈이 됨. 이 카드는 하치 얼굴/정체성은 그대로 유지한 채, 뒤에서 그를 벼르는(하지만 전혀 안 무서운, 코믹한) 작은 군중 실루엣이 등장하는 장면으로 그려서 이 밈을 패러디함(11번 카드처럼 진지한 판타지 톤이 아니라 **12번 우왁굳 카드처럼 개그 톤**). 이미지/문구 어디에도 실제 게임 이름은 언급하지 않음 — "두고하치"라는 밈 자체와 그 반응(벼르는 군중)만 그림으로 표현. `fortuneCardData.ts`에는 `hachi97`(원래 카드)과 별개로 `hachi972`(이 패러디 카드) 항목이 추가되어 있고, 이미지도 `hachi972-fortune-card.webp`로 독립된 파일임.
 - **다시바의 두 번째 카드 — "수은추" 별명 패러디 컨셉** (1번 원래 카드는 그대로 두고, 별도 보너스 카드로 추가함 — 아래 "15. 다시바 (두 번째 카드)" 섹션 참고): 다시바는 "수은추"라는 별명이 있음 — "수은"은 리그 오브 레전드에서 모든 디버프를 제거하는 아이템 "수은 장식띠"에서 따온 말로, 안 좋은 분위기를 잘 환기시키거나 곁에 있으면 힐링되는 사람을 뜻하고, "추"는 실제로는 여자인데 장난삼아 "남자"라고 놀리는 접미사임. 이 카드는 그 "수은"(정화/디버프 제거) 쪽 이미지를 정면으로 살려서, 다시바가 지나가기만 해도 팀원들의 어두운 기운(디버프 같은 그림자/사슬)이 씻겨나가는 장면으로 그림 — 1번 카드(진홍빛 혜성)와는 완전히 다른 은빛/백금 "정화" 팔레트. 성별을 놀리는 뉘앙스("추")는 이미지가 아니라 카드 이름·운세 문구 쪽의 애정 어린 드립으로만 살짝 살림. `fortuneCardData.ts`에는 `tdnlamuron`(원래 카드)과 별개로 `tdnlamuron2`(이 패러디 카드) 항목이 추가되어 있고, 이미지도 `tdnlamuron2-fortune-card.webp`로 독립된 파일임. 효과음은 원래 카드와 같은 `dashiba.mp3`를 그대로 사용(전용 sfx 없음).
 - **나머지 8명(재닌·하치·다시바를 제외한 전원)의 두 번째 카드 — 밈 패러디가 아니라 "역방향 타로"(리버스 카드) 컨셉, 전부 안 좋은 내용** (아래 "16~23" 섹션 참고): 위 세 장은 특정 밈/별명을 패러디한 카드지만, 나머지 8명(쥬멩이/문모모/뽀린걸/한결/핑구/해파린/리냐/빙밍)에게는 그런 밈이 없어서 대신 **자신의 1번 카드를 정반대로 뒤집은 "리버스 카드"**로 설계함 — 실제 타로에서 같은 카드가 정방향/역방향으로 정반대 의미를 갖는 것처럼, 모티프·소품·구도는 1번 카드와 거의 유사하게 유지하되 **결과만 실패/불운으로 뒤집음**(예: "떠오르는 태양"→"저무는 태양", "무엇도 뚫을 수 없는 요새"→"무너지는 요새"). **사용자 요청에 따라 이 8장은 전부 안 좋은 내용으로만 구성**(기존 11장이 전반적으로 좋은 내용인 것과 의도적으로 대비됨) — 이 문서의 다른 카드들과 달리 "몇 장만 주의를 주는" 게 아니라 이 배치 전체가 그러함. 톤은 12번 우왁굳처럼 코믹하게 웃기는 게 아니라, **실제 타로의 The Tower/Ten of Swords 역방향 카드들처럼 진지하고 불길한 분위기**로 그림(캐릭터 스타일 자체는 다른 카드들과 동일하게 chibi/SD 유지). 각 카드는 원래 카드와 같은 실루엣 레퍼런스를 쓰고, 3D 카드와도 무관하게 독자적으로 설계함. 8장 전부 `streamerId`만 원래 선수를 가리키고 `sfxOverride` 없이 원래 카드의 효과음을 그대로 재사용함(전용 효과음 없음).
+- **우왁굳의 두 번째 카드 — "왁초리"(우왁굳+회초리) 패러디, 안 좋은 내용** (아래 "12-2. 우왁굳 (두 번째 카드)" 섹션 참고): 1번 우왁굳 카드는 신나는 개그 톤이지만, 이 두 번째 카드는 사용자 요청대로 **정반대로 안 좋은 내용**임 — 우왁굳이 회초리를 손에 들고 무서운 코치 모드로 등장해서 팀 전체가 얼어붙는다는 컨셉. 이미지에도 실제로 **회초리를 든 모습**을 담음(사용자가 명시적으로 요청). 다른 8명의 "역방향 타로"들과 마찬가지로 톤은 심각/불길하게 잡되(코믹 아님), `fortuneWoowakgoodCard.ts`에 `FORTUNE_WOOWAKGOOD_CARD_2`(id: `woowakgood2`)로 별도 추가되어 있고, 1번 카드와 함께 `FORTUNE_WOOWAKGOOD_CARDS` 배열로 묶여서 언락 시 동시에 뽑기 풀에 들어감. 효과음은 사용자가 직접 준비 예정 — 파일명은 아래 12-2 섹션 참고.
 
 ## 공통 작업 방식
 
@@ -25,7 +26,7 @@
 2. **레퍼런스 이미지 첨부**:
    - ① 먼저 **카드 뒷면**(`fortune-card-back.webp`)부터 생성해서 장식 실루엣을 확정.
    - ② 이후 **각 선수 카드 앞면** 생성 시, (a) 확정된 카드 뒷면 이미지를 "동일한 외곽 실루엣/장식 테두리 구조 레퍼런스"로(장식 자체의 디자인 디테일은 앞면마다 살짝 달라도 되지만, 전체적인 윤곽선 구조·비율은 반드시 동일해야 함), (b) 그 선수 실제 사진을 "얼굴/헤어 특징 레퍼런스"로 같이 첨부.
-3. **파일명 규칙**: `fortune-card-back.webp`(공용, 1장), `<id>-fortune-card.webp`(11명 선수 1번 카드 + 11명 전원의 두 번째 보너스 카드, 총 22장) — 아래 표의 `id` 컬럼 사용. `src/web/assets/fortune/` 폴더에 저장(이미 폴더 생성해둠). PNG로 받으면 webp로 변환 후 이 폴더에 그대로 넣으면 `fortuneCardAssets.ts`가 자동으로 인식함(빌드 시 `import.meta.glob`으로 스캔 — 별도 등록 코드 필요 없음).
+3. **파일명 규칙**: `fortune-card-back.webp`(공용, 1장), `<id>-fortune-card.webp`(11명 선수 1번 카드 + 11명 전원의 두 번째 보너스 카드 + 우왁굳 1번·2번 숨겨진 카드, 총 24장) — 아래 표의 `id` 컬럼 사용. `src/web/assets/fortune/` 폴더에 저장(이미 폴더 생성해둠). PNG로 받으면 webp로 변환 후 이 폴더에 그대로 넣으면 `fortuneCardAssets.ts`가 자동으로 인식함(빌드 시 `import.meta.glob`으로 스캔 — 별도 등록 코드 필요 없음).
 4. 앞면이 다 없어도 사이트는 정상 동작함(없는 카드는 "?" 플레이스홀더 박스로 대체) — 급하지 않게 하나씩 채워 넣으면 됨. 카드 뒷면만 먼저 넣어도 셔플/딜 애니메이션은 바로 확인 가능.
 5. **팝업 배경/제목/마스코트/버튼 이미지**는 아래 "공용 팝업 에셋" 섹션 참고 — 이것도 같은 `src/web/assets/fortune/` 폴더에 파일명 규칙대로 저장.
 
@@ -56,10 +57,11 @@
 | 21 | 해파린 (두 번째 카드) | `haepalin2` | CB | 짙은 폭풍청 · 역방향(집어삼키는 파도) | 휩쓸리는 파도 |
 | 22 | 리냐 (두 번째 카드) | `lina01082` | FB | 탁한 자보라+회색 · 역방향(막다른 길) | 엇나간 갈림길 |
 | 23 | 빙밍 (두 번째 카드) | `tleod18182` | FB | 그을린 터콰이즈 · 역방향(균형을 잃은 질주) | 헛디딘 질주 |
+| 24 | 우왁굳 (두 번째 카드, 숨겨진 카드) | `woowakgood2` | — | 짙은 적갈+차콜 · "왁초리" 패러디, 안 좋은 내용 | 회초리를 든 왁초리 |
 
-**12번(우왁굳)은 11장을 전부 뽑기 전까지는 뽑기 풀에 등장하지 않는 숨겨진 보너스 카드** — 자세한 내용은 아래 "12. 우왁굳" 섹션 참고.
+**12번(우왁굳)과 24번(우왁굳 두 번째 카드)은 정규 22장을 전부 뽑기 전까지는 뽑기 풀에 등장하지 않는 숨겨진 보너스 카드이며, 언락되는 순간 둘 다 동시에 뽑기 풀에 섞여 들어감**(순차 언락 아님) — 자세한 내용은 아래 "12. 우왁굳"·"12-2. 우왁굳 (두 번째 카드)" 섹션 참고.
 
-**13번 이후(재닌·하치·다시바·쥬멩이·문모모·뽀린걸·한결·핑구·해파린·리냐·빙밍의 두 번째 카드, 즉 11명 전원)는 숨겨진 카드가 아님** — 12번 우왁굳과 달리 처음부터 나머지 카드들과 함께 뽑기 풀에 항상 포함되는 "보너스 카드"(우왁굳을 제외한 11명 전원이 카드 2장씩 가짐). `fortuneCardData.ts`의 `FORTUNE_CARDS` 배열에 정식 항목으로 들어있어서, 우왁굳 언락 조건("전부 뽑아야 함")도 이제 이 8장까지 포함한 전체 22장 기준으로 판정됨. 16~23번(쥬멩이~빙밍의 두 번째 카드)은 **전부 안 좋은 내용**으로만 구성된 "역방향 타로" 카드임 — 자세한 배경은 위 디자인 방향 항목 참고.
+**13~23번(재닌·하치·다시바·쥬멩이·문모모·뽀린걸·한결·핑구·해파린·리냐·빙밍의 두 번째 카드, 즉 로스터 11명 전원)은 숨겨진 카드가 아님** — 12/24번 우왁굳과 달리 처음부터 나머지 카드들과 함께 뽑기 풀에 항상 포함되는 "보너스 카드"(로스터 11명 전원이 카드 2장씩 가짐). `fortuneCardData.ts`의 `FORTUNE_CARDS` 배열에 정식 항목으로 들어있어서, 우왁굳 언락 조건("전부 뽑아야 함")도 이제 이 8장까지 포함한 전체 22장 기준으로 판정됨. 16~23번(쥬멩이~빙밍의 두 번째 카드)과 24번(우왁굳 두 번째 카드)은 **전부 안 좋은 내용**으로만 구성된 카드임 — 자세한 배경은 위 디자인 방향 항목 참고.
 
 **컬러/모티프는 3D 카드(`totyCardTheme.ts`/`docs/toty-card-prompts.md`)와 의도적으로 다르게 설계** — 같은 선수라도 두 카드 시리즈가 서로 다른 독자적인 정체성을 갖도록 함(하치만 예외, 위 디자인 방향 참고). 카드 이름은 이전 초안에서 3D 카드 모티프를 그대로 언급하던 것들(룬문양/구름/심해/폭풍/오로라)을 이번 새 컨셉에 맞게 다시 지었음 — 실제 운세 문구(`fortuneCardData.ts`)는 그대로 유지.
 
@@ -511,6 +513,58 @@ orientation, 1060x1484, PNG with alpha channel.
 ```
 
 **파일명**: `woowakgood-fortune-card.webp` (다른 11장과 동일 규칙, `src/web/assets/fortune/`에 저장)
+
+**효과음**: `/sfxes/woowakgood.mp3` (기존 3D 카드 기능의 우왁굳 보너스 카드와 동일 파일 재사용).
+
+---
+
+## 12-2. 우왁굳 (두 번째 카드) — `woowakgood2` — 짙은 적갈+차콜 · "왁초리" 패러디 (숨겨진 보너스 카드) — 안 좋은 내용
+
+**1번 우왁굳 카드와 함께 묶여서 언락되는 두 번째 숨겨진 카드** — 11명 전원의 카드를 전부 뽑으면(1번 카드 포함 총 22장) `useFortuneBonusUnlock.ts`가 언락시키는데, 이번엔 우왁굳 카드가 1장이 아니라 2장(`FORTUNE_WOOWAKGOOD_CARDS`) 한꺼번에 뽑기 풀에 섞여 들어감 — 순차 언락이 아니라 둘 다 동시에 나타남. 1번 카드(신나는 개그, 텐션 만점)와 정반대로 **"왁초리"(우왁굳 + 회초리)라는 패러디 컨셉의 안 좋은 내용 카드**임(사용자 요청) — 우왁굳이 회초리를 든 무서운 코치 모드로 등장해서 팀 전체가 얼어붙는다는 컨셉. roster.yaml에 없는 인물이라 1번 카드와 마찬가지로 **우왁굳 본인 참고 사진**을 얼굴 레퍼런스로 첨부.
+
+**카드 앞면** (우왁굳 참고 사진 + 카드 뒷면 레퍼런스):
+```
+Using the attached card-back image ONLY as a silhouette/structure
+reference — same rounded-rectangle card body with gold filigree
+ornaments curling outward past the edges at all four corners, same
+small arched crest above the top-center edge, same small pointed
+finial below the bottom-center edge — but redesign the illustration and
+palette completely for this second hidden bonus card (do NOT reuse this
+player's first tarot card's joyful champagne-gold "sneaking onto the
+pitch" look — this is the polar-opposite mood: same "special/hidden
+rarity" lavish ornament treatment is fine, but in a dark, ominous
+palette instead).
+
+A chibi/SD-style mystical tarot illustration composed like a real
+Major-Arcana tarot card, but in an unsettling, dread-inducing mood (NOT
+comedic this time — a serious, foreboding scene) — big head small body,
+2-3 head-tall proportions. The character (from the attached reference
+photo, keep his actual face and likeness clearly recognizable) stands
+perfectly still at the center in full coach's tracksuit, properly
+zipped up (unlike his chaotic first card), holding a long thin wooden
+switch/cane in one hand, slowly tapping it against his other open palm;
+his expression has gone sharp and stern, a faint shadow cast over his
+eyes. Behind him a chalkboard looms with only harsh red scribbled X
+marks and slash-marks on it (no readable text or numbers). In the
+foreground, small chibi teammate silhouettes huddle together, frozen
+stiff and wide-eyed with fear, one visibly trembling — visually telling
+the story "the fun coach is gone; today's training is going to hurt."
+Deep blood-red and charcoal color palette (a darker, harsher inversion
+of the first card's champagne-gold/charcoal), small switch/cane and
+jagged crack flourishes decorate the corner ornaments (replacing the
+back's mint-gold cosmic motif with this palette, while keeping the same
+silhouette shape). Cold, harsh, dramatic side lighting with a long
+ominous shadow stretching from the character. Leave the bottom ~15% of
+the card's inner area as a simple, uncluttered space (no text) for a
+card-name overlay to be added later. No text, no logos, no numbers, no
+readable words of any kind anywhere in the scene. Entire canvas outside
+the card's own decorative silhouette must be fully transparent (alpha
+0). Portrait orientation, 1060x1484, PNG with alpha channel.
+```
+
+**파일명**: `woowakgood2-fortune-card.webp` (다른 카드들과 동일 규칙, `src/web/assets/fortune/`에 저장)
+
+**효과음**: 사용자가 직접 추가 예정 — **`public/sfxes/wakchori.mp3`** 라는 이름으로 그 폴더에 넣으면 됨(`fortuneWoowakgoodCard.ts`의 `FORTUNE_WOOWAKGOOD_CARD_2`에 이미 이 경로가 `sfxOverride`로 지정되어 있어서, 파일만 추가하면 코드 수정 없이 바로 재생됨 — 파일이 없는 동안에는 조용히 무음 처리됨).
 
 ---
 

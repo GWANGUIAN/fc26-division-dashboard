@@ -7,8 +7,10 @@
 // lina01082/tleod18182) are plain "reversed tarot" cards — the mirror-image
 // BAD-luck version of that player's own first card, deliberately downbeat
 // where the rest of the deck leans positive (see docs/fortune-prompts.md's
-// design-direction notes on this batch). 우왁굳 is the only card with no
-// second card, since he's a hidden one-off gag, not a roster player.
+// design-direction notes on this batch). 우왁굳 also has a second (also
+// BAD-luck) card, but since he isn't a roster player his pair lives outside
+// this array entirely — see FORTUNE_WOOWAKGOOD_CARDS in
+// fortuneWoowakgoodCard.ts.
 // displayName/position are NOT duplicated here; FortunePopup looks those up
 // live from the streamers list by id instead (same reasoning as
 // totyCardTheme.ts staying id-keyed while TotyCardPopup reads the name from
@@ -268,16 +270,21 @@ function effectiveStreamerId(entry: Pick<FortuneCardEntry, "id" | "streamerId">)
   return entry.streamerId ?? entry.id;
 }
 
-/** 1-based position of `entry` among the FORTUNE_CARDS entries that share
- * its streamer (via `streamerId ?? id`), in array order — always 1 for a
+/** 1-based position of `entry` among the `pool` entries that share its
+ * streamer (via `streamerId ?? id`), in array order — always 1 for a
  * single-card player, 1/2/... for a multi-card player's cards (e.g.
- * janine95kim → 1, janine95kim2 → 2). A card that isn't in FORTUNE_CARDS at
- * all (the hidden 우왁굳 card lives outside it, see
- * fortuneWoowakgoodCard.ts) reports 1. */
-export function getFortuneCardOrdinal(entry: Pick<FortuneCardEntry, "id" | "streamerId">): number {
+ * janine95kim → 1, janine95kim2 → 2). Defaults to FORTUNE_CARDS, but the
+ * hidden 우왁굳 cards live outside it (see fortuneWoowakgoodCard.ts) — pass
+ * a pool that includes them (e.g. `[...FORTUNE_CARDS,
+ * ...FORTUNE_WOOWAKGOOD_CARDS]`) to get a correct ordinal for those. A card
+ * missing from `pool` entirely reports 1. */
+export function getFortuneCardOrdinal(
+  entry: Pick<FortuneCardEntry, "id" | "streamerId">,
+  pool: FortuneCardEntry[] = FORTUNE_CARDS,
+): number {
   const sid = effectiveStreamerId(entry);
   let ordinal = 0;
-  for (const candidate of FORTUNE_CARDS) {
+  for (const candidate of pool) {
     if (effectiveStreamerId(candidate) === sid) {
       ordinal++;
       if (candidate.id === entry.id) return ordinal;
@@ -286,12 +293,16 @@ export function getFortuneCardOrdinal(entry: Pick<FortuneCardEntry, "id" | "stre
   return 1;
 }
 
-/** How many FORTUNE_CARDS entries share `entry`'s streamer — 1 for every
- * player with a single card, 2+ for janine95kim/hachi97/tdnlamuron (each of
- * which also has a second bonus card). */
-export function getFortuneCardCountForStreamer(entry: Pick<FortuneCardEntry, "id" | "streamerId">): number {
+/** How many `pool` entries share `entry`'s streamer — 1 for every player
+ * with a single card, 2+ for a multi-card player (e.g. janine95kim/hachi97/
+ * tdnlamuron and, once unlocked, 우왁굳). See getFortuneCardOrdinal above for
+ * why `pool` defaults to FORTUNE_CARDS but should be widened for 우왁굳. */
+export function getFortuneCardCountForStreamer(
+  entry: Pick<FortuneCardEntry, "id" | "streamerId">,
+  pool: FortuneCardEntry[] = FORTUNE_CARDS,
+): number {
   const sid = effectiveStreamerId(entry);
-  const count = FORTUNE_CARDS.filter((candidate) => effectiveStreamerId(candidate) === sid).length;
+  const count = pool.filter((candidate) => effectiveStreamerId(candidate) === sid).length;
   return count || 1;
 }
 
@@ -303,31 +314,35 @@ function ordinalWord(n: number): string {
 
 /** "~의 카드" eyebrow text shown above a revealed card — FortuneDraw.tsx's
  * reveal panel and FortuneHistoryModal.tsx's detail panel both use this, so
- * a multi-card streamer (재닌/하치/다시바) reads "~의 첫번째 카드"/"~의
- * 두번째 카드" in both places instead of an ambiguous "~의 카드" that
- * doesn't say which of their cards this is. Falls back to "오늘의 카드"
- * when `displayName` couldn't be resolved. */
+ * a multi-card streamer (재닌/하치/다시바/..., and once unlocked 우왁굳) reads
+ * "~의 첫번째 카드"/"~의 두번째 카드" in both places instead of an ambiguous
+ * "~의 카드" that doesn't say which of their cards this is. `pool` should
+ * include the hidden 우왁굳 cards when relevant — see getFortuneCardOrdinal.
+ * Falls back to "오늘의 카드" when `displayName` couldn't be resolved. */
 export function formatFortuneCardEyebrow(
   displayName: string | undefined,
   entry: FortuneCardEntry,
+  pool: FortuneCardEntry[] = FORTUNE_CARDS,
 ): string {
   if (!displayName) return "오늘의 카드";
-  if (getFortuneCardCountForStreamer(entry) <= 1) return `${displayName}의 카드`;
-  return `${displayName}의 ${ordinalWord(getFortuneCardOrdinal(entry))} 카드`;
+  if (getFortuneCardCountForStreamer(entry, pool) <= 1) return `${displayName}의 카드`;
+  return `${displayName}의 ${ordinalWord(getFortuneCardOrdinal(entry, pool))} 카드`;
 }
 
 /** "이름" / "이름(1)" / "이름(2)" label used in the "뽑았던 카드" history
  * list (FortuneHistoryModal.tsx) — only a multi-card streamer gets the
  * "(n)" suffix, so single-card players' entries look exactly as before.
- * Falls back to the card's own name when `displayName` couldn't be
- * resolved (same fallback the list already had). */
+ * `pool` should include the hidden 우왁굳 cards when relevant — see
+ * getFortuneCardOrdinal. Falls back to the card's own name when
+ * `displayName` couldn't be resolved (same fallback the list already had). */
 export function formatFortuneCardListLabel(
   displayName: string | undefined,
   entry: FortuneCardEntry,
+  pool: FortuneCardEntry[] = FORTUNE_CARDS,
 ): string {
   const name = displayName ?? entry.cardName;
-  if (!displayName || getFortuneCardCountForStreamer(entry) <= 1) return name;
-  return `${name}(${getFortuneCardOrdinal(entry)})`;
+  if (!displayName || getFortuneCardCountForStreamer(entry, pool) <= 1) return name;
+  return `${name}(${getFortuneCardOrdinal(entry, pool)})`;
 }
 
 /** Picks `count` distinct random entries from an arbitrary `pool`

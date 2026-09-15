@@ -8,7 +8,7 @@ import { getFortuneCardBackUrl, getFortuneCardFrontUrl } from "./fortuneCardAsse
 import { exportFortuneCardPng } from "./exportFortuneCardImage";
 import { getFortuneRevealedIds, markFortuneCardRevealed } from "./fortuneCardHistoryStore";
 import {
-  FORTUNE_WOOWAKGOOD_CARD,
+  FORTUNE_WOOWAKGOOD_CARDS,
   FORTUNE_WOOWAKGOOD_DISPLAY_NAME,
   FORTUNE_WOOWAKGOOD_ID,
   FORTUNE_WOOWAKGOOD_SFX,
@@ -71,8 +71,9 @@ export function FortuneDraw({
   onStreamerSfx,
 }: {
   streamers?: Pick<StreamerRecord, "id" | "displayName" | "sfx">[];
-  /** Mixes the hidden 우왁굳 card into the draw pool once
-   * useFortuneBonusUnlock.ts says it's been unlocked. */
+  /** Mixes 우왁굳's hidden cards (both of them, see FORTUNE_WOOWAKGOOD_CARDS)
+   * into the draw pool once useFortuneBonusUnlock.ts says it's been
+   * unlocked. */
   includeHidden?: boolean;
   /** "새로운 카드만 뽑기" — every dealt card is guaranteed unrevealed (see
    * fortuneCardHistoryStore.ts). With 3+ unrevealed cards left this is a
@@ -90,7 +91,7 @@ export function FortuneDraw({
    * "click this streamer" interaction in the app. */
   onStreamerSfx?: (sfxUrl: string) => void;
 }) {
-  const hiddenPool = includeHidden ? [FORTUNE_WOOWAKGOOD_CARD] : [];
+  const hiddenPool = includeHidden ? FORTUNE_WOOWAKGOOD_CARDS : [];
 
   const drawThree = (): FortuneCardEntry[] => {
     const basePool = [...FORTUNE_CARDS, ...hiddenPool];
@@ -180,17 +181,19 @@ export function FortuneDraw({
   // Looked up by explicit index (never via the selectedIndex state) so
   // there's no risk of reading it one render too early — handlePick's own
   // reduced-motion branch calls this in the same tick as setSelectedIndex,
-  // before that state update has flushed. 우왁굳 isn't in streamers (see
-  // fortuneWoowakgoodCard.ts), so his sfx is hardcoded the same way his
-  // display name is above. A card's own `sfxOverride` (see janine95kim2 in
-  // fortuneCardData.ts) wins over the streamer lookup, and that lookup uses
-  // `streamerId ?? id` so a second/alt card (own `id`, but no matching
-  // roster entry) still resolves to its real streamer's sfx by default.
+  // before that state update has flushed. A card's own `sfxOverride` (see
+  // janine95kim2/우왁굳's 왁초리 card in fortuneCardData.ts/
+  // fortuneWoowakgoodCard.ts) wins over everything else. 우왁굳 isn't in
+  // streamers (see fortuneWoowakgoodCard.ts), so absent an override his sfx
+  // falls back to the hardcoded FORTUNE_WOOWAKGOOD_SFX (checked via
+  // `streamerId ?? id` so this covers both of his cards); everyone else
+  // falls back to their own StreamerRecord.sfx via that same lookup.
   const getStreamerSfx = (index: number): string | undefined => {
     const entry = drawn[index];
-    if (entry.id === FORTUNE_WOOWAKGOOD_ID) return FORTUNE_WOOWAKGOOD_SFX;
     if (entry.sfxOverride) return entry.sfxOverride;
-    return streamers?.find((s) => s.id === (entry.streamerId ?? entry.id))?.sfx;
+    const sid = entry.streamerId ?? entry.id;
+    if (sid === FORTUNE_WOOWAKGOOD_ID) return FORTUNE_WOOWAKGOOD_SFX;
+    return streamers?.find((s) => s.id === sid)?.sfx;
   };
 
   const handlePick = (index: number) => {
@@ -227,13 +230,15 @@ export function FortuneDraw({
   const selectedEntry = selectedIndex !== null ? drawn[selectedIndex] : undefined;
   // 우왁굳 never appears in roster.yaml, so the streamers lookup below can't
   // find him — his display name is hardcoded the same way woowakgoodBonusCard.ts
-  // does it for the 3D card feature. A second/alt card (e.g. janine95kim2)
-  // has its own `id` for the image asset/history entry but resolves its
-  // displayName from `streamerId` (the real roster id) instead.
-  const selectedDisplayName = selectedEntry?.id === FORTUNE_WOOWAKGOOD_ID
-    ? FORTUNE_WOOWAKGOOD_DISPLAY_NAME
-    : selectedEntry
-    ? streamers?.find((s) => s.id === (selectedEntry.streamerId ?? selectedEntry.id))?.displayName
+  // does it for the 3D card feature (checked via `streamerId ?? id` so this
+  // covers both of his cards, see fortuneWoowakgoodCard.ts). A second/alt
+  // card (e.g. janine95kim2) has its own `id` for the image asset/history
+  // entry but resolves its displayName from `streamerId` (the real roster
+  // id) instead.
+  const selectedDisplayName = selectedEntry
+    ? (selectedEntry.streamerId ?? selectedEntry.id) === FORTUNE_WOOWAKGOOD_ID
+      ? FORTUNE_WOOWAKGOOD_DISPLAY_NAME
+      : streamers?.find((s) => s.id === (selectedEntry.streamerId ?? selectedEntry.id))?.displayName
     : undefined;
   const selectedFrontUrl = selectedEntry ? getFortuneCardFrontUrl(selectedEntry.id) : undefined;
 
@@ -342,7 +347,7 @@ export function FortuneDraw({
           }
         >
           <p className="fortune-reveal-panel__eyebrow">
-            {formatFortuneCardEyebrow(selectedDisplayName, selectedEntry)}
+            {formatFortuneCardEyebrow(selectedDisplayName, selectedEntry, [...FORTUNE_CARDS, ...hiddenPool])}
           </p>
           <h3 className="fortune-reveal-panel__name">{selectedEntry.cardName}</h3>
           <p className="fortune-reveal-panel__text">{selectedEntry.fortuneText}</p>

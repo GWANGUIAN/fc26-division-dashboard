@@ -7,22 +7,25 @@ import { FORTUNE_CARDS, formatFortuneCardEyebrow, formatFortuneCardListLabel, ty
 import { getFortuneCardFrontUrl } from "./fortuneCardAssets";
 import { getFortuneRevealedIds } from "./fortuneCardHistoryStore";
 import { exportFortuneCardPng } from "./exportFortuneCardImage";
-import { FORTUNE_WOOWAKGOOD_CARD, FORTUNE_WOOWAKGOOD_DISPLAY_NAME, FORTUNE_WOOWAKGOOD_ID } from "./fortuneWoowakgoodCard";
+import { FORTUNE_WOOWAKGOOD_CARDS, FORTUNE_WOOWAKGOOD_DISPLAY_NAME, FORTUNE_WOOWAKGOOD_ID } from "./fortuneWoowakgoodCard";
 import "./fortune-history-modal.css";
 
-// The hidden card lives outside FORTUNE_CARDS (see fortuneWoowakgoodCard.ts)
-// — folded back in here so it shows up in the history list too, once
-// revealed, same as every other card.
-const ALL_FORTUNE_CARDS = [...FORTUNE_CARDS, FORTUNE_WOOWAKGOOD_CARD];
+// The hidden cards live outside FORTUNE_CARDS (see fortuneWoowakgoodCard.ts)
+// — folded back in here so both of them show up in the history list too,
+// once revealed, same as every other card. This is also the pool
+// getFortuneCardOrdinal-based helpers use below, so 우왁굳's two cards
+// correctly read as "~의 첫번째/두번째 카드" once both exist.
+const ALL_FORTUNE_CARDS = [...FORTUNE_CARDS, ...FORTUNE_WOOWAKGOOD_CARDS];
 
 // Takes the whole entry (not just its `id`) so a second/alt card (e.g.
-// janine95kim2, see fortuneCardData.ts) can resolve its real streamer's
-// displayName via `streamerId` instead of its own asset/history-only `id`.
+// janine95kim2, 우왁굳's 왁초리 card, see fortuneCardData.ts/
+// fortuneWoowakgoodCard.ts) can resolve its real streamer's displayName via
+// `streamerId` instead of its own asset/history-only `id`.
 function displayNameFor(
   entry: FortuneCardEntry,
   streamers: Pick<StreamerRecord, "id" | "displayName">[] | undefined,
 ): string | undefined {
-  if (entry.id === FORTUNE_WOOWAKGOOD_ID) return FORTUNE_WOOWAKGOOD_DISPLAY_NAME;
+  if ((entry.streamerId ?? entry.id) === FORTUNE_WOOWAKGOOD_ID) return FORTUNE_WOOWAKGOOD_DISPLAY_NAME;
   return streamers?.find((s) => s.id === (entry.streamerId ?? entry.id))?.displayName;
 }
 
@@ -96,7 +99,7 @@ export function FortuneHistoryModal({
                         <span className="fortune-history-modal__item-thumb-fallback">?</span>
                       )}
                     </span>
-                    <span className="fortune-history-modal__item-name">{formatFortuneCardListLabel(displayName, entry)}</span>
+                    <span className="fortune-history-modal__item-name">{formatFortuneCardListLabel(displayName, entry, ALL_FORTUNE_CARDS)}</span>
                   </button>
                 );
               })}
@@ -112,7 +115,7 @@ export function FortuneHistoryModal({
                   )}
                 </div>
                 <p className="fortune-history-modal__detail-eyebrow">
-                  {formatFortuneCardEyebrow(selectedDisplayName, selectedEntry)}
+                  {formatFortuneCardEyebrow(selectedDisplayName, selectedEntry, ALL_FORTUNE_CARDS)}
                 </p>
                 <h3 className="fortune-history-modal__detail-name">{selectedEntry.cardName}</h3>
                 <p className="fortune-history-modal__detail-text">{selectedEntry.fortuneText}</p>
