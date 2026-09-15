@@ -5,13 +5,15 @@
 ## 디자인 방향 (중요)
 
 - **캐릭터 스타일**: TOTY 카드(세미 리얼)와 달리 이번엔 **SD(2~3등신 귀여운 치비) 타로카드 일러스트** 톤으로 통일. 모든 캐릭터 프롬프트에 "chibi/SD, big head small body, cute mystical tarot illustration style" 명시.
-- **"축구공 들고 포즈" 구도 지양 — 실제 타로 카드처럼 의미가 담긴 장면으로**: TOTY 3D 카드는 "캐릭터가 축구공과 함께 역동적인 포즈"였지만, 이번 타로 카드는 그 컨셉을 그대로 따라가지 않는다. 실제 타로 카드(예: The Chariot, The Star, Strength 등)가 그렇듯, **각 카드에 적힌 운세 문구(`fortuneCardData.ts`)의 의미를 상징적으로 표현하는 한 장면**을 그림 — 인물의 포즈, 배경 요소, 소품, 구도 전체가 그 문구의 스토리를 말해줘야 함(아래 11개 프롬프트 각각에 이미 그 장면을 구체적으로 설계해뒀음). **축구와 직접 관련될 필요는 없음** — 운세 내용이 자연스럽게 축구 장면(예: 수비를 뚫고 나가는 질주, 골키퍼의 선방)을 요구하면 그대로 담되, 좀 더 추상적/신비로운 상징(예: 서로 다른 방향을 보는 시선, 필드를 내려다보는 예언의 거울, 고요한 물결로 상대를 부드럽게 묶어두는 장면)이 문구를 더 잘 표현한다면 그쪽으로 감.
-- **TOTY 3D 카드의 대표 색상·모티프를 그대로 따라가지 않음**: 같은 선수라도 이 타로 카드는 3D 카드(`totyCardTheme.ts`/`docs/toty-card-prompts.md`)와 **완전히 다른 색상·소재·컨셉**으로 독립적으로 설계함(예: 다시바=3D 카드는 용암/화산암이었지만 타로 카드는 진홍빛 혜성, 문모모=3D 카드는 마법진/룬문양이었지만 타로 카드는 예언의 거울 등). 운세 문구에 이미 들어있는 단어(예: 다시바 문구의 "불이 붙는다"🔥, 재닌 문구의 "서리가 피어나는")는 문구 자체가 요구하는 요소라 어쩔 수 없이 겹칠 수 있지만, 그런 경우에도 **구체적인 장면·소재·주변 색상 구성은 3D 카드와 다르게** 감(아래 각 프롬프트에 반영됨). 유일한 예외는 **하치**(11번) — 카드 이름 자체가 "황금 드래곤의 강림"이라 드래곤 모티프는 유지하되, 장면 구성은 3D 카드와 다르게 새로 그림.
+- **"축구공 들고 포즈" 구도 지양 — 실제 타로 카드처럼 의미가 담긴 장면으로**: TOTY 3D 카드는 "캐릭터가 축구공과 함께 역동적인 포즈"였지만, 이번 타로 카드는 그 컨셉을 그대로 따라가지 않는다. 실제 타로 카드(예: The Chariot, The Star, Strength 등)가 그렇듯, **각 카드에 적힌 운세 문구(`fortuneCardData.ts`)의 의미를 상징적으로 표현하는 한 장면**을 그림 — 인물의 포즈, 배경 요소, 소품, 구도 전체가 그 문구의 스토리를 말해줘야 함(아래 각 프롬프트에 이미 그 장면을 구체적으로 설계해뒀음). **축구와 직접 관련될 필요는 없음** — 운세 내용이 자연스럽게 축구 장면(예: 수비를 뚫고 나가는 질주, 골키퍼의 선방)을 요구하면 그대로 담되, 좀 더 추상적/신비로운 상징(예: 서로 다른 방향을 보는 시선, 필드를 내려다보는 예언의 거울, 고요한 물결로 상대를 부드럽게 묶어두는 장면)이 문구를 더 잘 표현한다면 그쪽으로 감.
+- **TOTY 3D 카드의 대표 색상·모티프를 그대로 따라가지 않음**: 같은 선수라도 이 타로 카드는 3D 카드(`totyCardTheme.ts`/`docs/toty-card-prompts.md`)와 **완전히 다른 색상·소재·컨셉**으로 독립적으로 설계함(예: 다시바=3D 카드는 용암/화산암이었지만 타로 카드는 진홍빛 혜성, 문모모=3D 카드는 마법진/룬문양이었지만 타로 카드는 예언의 거울 등). 운세 문구에 이미 들어있는 단어(예: 다시바 문구의 "불이 붙는다"🔥, 재닌 문구의 "얼어붙는다")는 문구 자체가 요구하는 요소라 어쩔 수 없이 겹칠 수 있지만, 그런 경우에도 **구체적인 장면·소재·주변 색상 구성은 3D 카드와 다르게** 감(아래 각 프롬프트에 반영됨). 유일한 예외는 **하치**(11번) — 카드 이름 자체가 "황금 드래곤의 강림"이라 드래곤 모티프는 유지하되, 장면 구성은 3D 카드와 다르게 새로 그림.
 - **카드 실루엣 — 장식이 바깥으로 삐져나온 유기적인 모양** (중요, 아래에서 변경됨): 카드를 단순 사각형이 아니라, **둥근 사각형 몸체 + 네 모서리마다 바깥으로 뻗어나가는 금색 필리그리(덩굴무늬) 장식 + 상단 중앙의 작은 아치형 크레스트 + 하단 중앙의 작은 뾰족한 피니얼(장식 돌기)**을 가진 타로카드 특유의 윤곽선으로 생성함. 이 장식 돌기들이 카드의 사각형 경계 바깥으로 살짝 삐져나오는 게 포인트 — TOTY 카드의 방패형 프레임과 같은 기법(알파 채널로 실루엣 자체를 그려냄)이되, 모양은 "축구 FIFA 카드"가 아니라 "타로카드"답게 곡선+필리그리 장식으로 감. 그래서 **카드 앞/뒷면 전부 알파 채널 있는 투명 PNG로 생성**하고 실루엣 바깥은 완전히 투명하게 만들어야 함(이전 버전 문서에서는 "불투명 사각형 + CSS로 모서리만 둥글게"였는데, 이번에 이 방식으로 변경함).
-- **레이어 안 나눔**: TOTY처럼 frame/background/character를 따로 합성하지 않고, **카드 앞면은 한 장짜리 완성 일러스트**로 생성한다(실루엣 장식 + 일러스트 + 캐릭터가 전부 한 이미지 안에 있음). 대신 **카드 뒷면(`fortune-card-back.webp`)을 가장 먼저 만들어서 이 장식 실루엣을 확정**하고, 이후 11명 앞면을 생성할 때마다 그 뒷면 이미지를 "동일한 외곽 실루엣/장식 테두리 레퍼런스"로 같이 첨부해서 **12장 전부 정확히 같은 윤곽선**을 갖도록 함(뒷면이 진짜 뒷면이니 앞면과 크기·윤곽이 안 맞으면 셔플/딜 애니메이션에서 카드들이 서로 다른 모양으로 보여 어색해짐).
+- **레이어 안 나눔**: TOTY처럼 frame/background/character를 따로 합성하지 않고, **카드 앞면은 한 장짜리 완성 일러스트**로 생성한다(실루엣 장식 + 일러스트 + 캐릭터가 전부 한 이미지 안에 있음). 대신 **카드 뒷면(`fortune-card-back.webp`)을 가장 먼저 만들어서 이 장식 실루엣을 확정**하고, 이후 각 앞면을 생성할 때마다 그 뒷면 이미지를 "동일한 외곽 실루엣/장식 테두리 레퍼런스"로 같이 첨부해서 **전체 카드가 전부 정확히 같은 윤곽선**을 갖도록 함(뒷면이 진짜 뒷면이니 앞면과 크기·윤곽이 안 맞으면 셔플/딜 애니메이션에서 카드들이 서로 다른 모양으로 보여 어색해짐).
 - **텍스트는 이미지에 굽지 않음**: 카드 이름(예: "타오르는 돌격병")은 AI 이미지에 직접 그리지 않고 웹에서 HTML로 오버레이함 — AI가 한글 텍스트를 그리면 깨지기 쉽다는 게 TOTY 작업에서 이미 확인된 교훈. 그래서 모든 캐릭터 프롬프트에 "no text, no logos"를 명시하고, **하단 12~15% 영역(장식 실루엣 안쪽)은 비워두도록**(카드 이름 오버레이 자리) 요청함.
 - **운세 설명 문구는 전부 축구 드립**: 실제 문구는 이미 `src/web/fortune/fortuneCardData.ts`에 확정되어 있음 — "~수도/~지도" 식으로 얼버무리지 않고, 실제 타로 카드를 해석해주는 것처럼 단정적인 문장으로 씀. 모든 카드가 다 좋은 얘기일 필요는 없고, 몇 장은 "서두르면 놓친다", "초반엔 힘들지만" 처럼 주의를 주는 카드로도 섞어뒀음. 이 문서는 이미지만 다룸 — 문구 자체를 수정하고 싶으면 그 파일을 고치면 됨.
 - **리냐 카드 — 사시(사팔눈) 컨셉**: 실제 전달할 리냐 레퍼런스 사진이 사시(두 눈이 서로 다른 방향을 보는) 특징을 가지고 있음. 이걸 결점이 아니라 **귀엽고 코믹한 매력 포인트**로 명시적으로 살릴 것(아래 8번 섹션 프롬프트 참고). 운세 문구도 "시선이 어디로 향하는지 모르겠다 → 그런데 그 끝에 의외의 행운이 있다"는 개그로 이미 연결해뒀음.
+- **재닌의 두 번째 카드 — 도라에몽 "퉁퉁이" 패러디 컨셉** (10번 원래 카드는 그대로 두고, 별도 보너스 카드로 추가함 — 아래 "13. 재닌 (두 번째 카드)" 섹션 참고): 재닌은 평소 목소리가 걸걸하고 노래를 잘 못해서 팬들 사이에서 도라에몽의 "퉁퉁이"(그 유명한 음치 골목 리사이틀 캐릭터)라는 별명으로 불림. 이 카드는 **재닌 실제 사진 + 퉁퉁이 캐릭터 사진, 두 장을 합성 레퍼런스로 같이 전달**해서 얼굴은 재닌 그대로 알아볼 수 있게 유지하되, 의상·체형·포즈는 퉁퉁이 스타일(황토색/겨자색 라운드넥 니트, 다부진 체형, 골목대장 특유의 당당한 자세)을 입힌 패러디 캐릭터로 그림(다른 카드들처럼 진지한 톤이 아니라 **12번 우왁굳 카드처럼 개그 톤**). 원래 카드의 서리(얼음) 모티프는 "노래/포효가 너무 강력해서 상대가 얼어붙는다"는 개그로 재해석해 소리 충격파가 서리로 얼어붙는 형태로 살짝 남겨둠. `fortuneCardData.ts`에는 `janine95kim`(원래 카드)과 별개로 `janine95kim2`(이 패러디 카드) 항목이 추가되어 있고, 이미지도 `janine95kim2-fortune-card.webp`로 독립된 파일임 — 뽑기 풀/기록/이미지 전부 원래 카드와 완전히 별개로 취급됨.
+- **하치의 두 번째 카드 — "두고하치" 밈 패러디 컨셉** (11번 원래 카드는 그대로 두고, 별도 보너스 카드로 추가함 — 아래 "14. 하치 (두 번째 카드)" 섹션 참고): 하치가 우왁굳에게 어떤 게임을 강력 추천해서 실제로 플레이까지 이어졌는데, 그 결과가 호불호가 갈리면서 일부 팬들이 "두고보자"와 "하치"를 합쳐 "두고하치..."라는 채팅을 치는 게 굳어져 밈이 됨. 이 카드는 하치 얼굴/정체성은 그대로 유지한 채, 뒤에서 그를 벼르는(하지만 전혀 안 무서운, 코믹한) 작은 군중 실루엣이 등장하는 장면으로 그려서 이 밈을 패러디함(11번 카드처럼 진지한 판타지 톤이 아니라 **12번 우왁굳 카드처럼 개그 톤**). 이미지/문구 어디에도 실제 게임 이름은 언급하지 않음 — "두고하치"라는 밈 자체와 그 반응(벼르는 군중)만 그림으로 표현. `fortuneCardData.ts`에는 `hachi97`(원래 카드)과 별개로 `hachi972`(이 패러디 카드) 항목이 추가되어 있고, 이미지도 `hachi972-fortune-card.webp`로 독립된 파일임.
 
 ## 공통 작업 방식
 
@@ -21,8 +23,8 @@
 2. **레퍼런스 이미지 첨부**:
    - ① 먼저 **카드 뒷면**(`fortune-card-back.webp`)부터 생성해서 장식 실루엣을 확정.
    - ② 이후 **각 선수 카드 앞면** 생성 시, (a) 확정된 카드 뒷면 이미지를 "동일한 외곽 실루엣/장식 테두리 구조 레퍼런스"로(장식 자체의 디자인 디테일은 앞면마다 살짝 달라도 되지만, 전체적인 윤곽선 구조·비율은 반드시 동일해야 함), (b) 그 선수 실제 사진을 "얼굴/헤어 특징 레퍼런스"로 같이 첨부.
-3. **파일명 규칙**: `fortune-card-back.webp`(공용, 1장), `<id>-fortune-card.webp`(선수별, 11장) — 아래 표의 `id` 컬럼 사용. `src/web/assets/fortune/` 폴더에 저장(이미 폴더 생성해둠). PNG로 받으면 webp로 변환 후 이 폴더에 그대로 넣으면 `fortuneCardAssets.ts`가 자동으로 인식함(빌드 시 `import.meta.glob`으로 스캔 — 별도 등록 코드 필요 없음).
-4. 11장 앞면이 다 없어도 사이트는 정상 동작함(없는 카드는 "?" 플레이스홀더 박스로 대체) — 급하지 않게 하나씩 채워 넣으면 됨. 카드 뒷면만 먼저 넣어도 셔플/딜 애니메이션은 바로 확인 가능.
+3. **파일명 규칙**: `fortune-card-back.webp`(공용, 1장), `<id>-fortune-card.webp`(11명 선수 + 재닌·하치의 두 번째 보너스 카드 2장, 총 13장) — 아래 표의 `id` 컬럼 사용. `src/web/assets/fortune/` 폴더에 저장(이미 폴더 생성해둠). PNG로 받으면 webp로 변환 후 이 폴더에 그대로 넣으면 `fortuneCardAssets.ts`가 자동으로 인식함(빌드 시 `import.meta.glob`으로 스캔 — 별도 등록 코드 필요 없음).
+4. 앞면이 다 없어도 사이트는 정상 동작함(없는 카드는 "?" 플레이스홀더 박스로 대체) — 급하지 않게 하나씩 채워 넣으면 됨. 카드 뒷면만 먼저 넣어도 셔플/딜 애니메이션은 바로 확인 가능.
 5. **팝업 배경/제목/마스코트/버튼 이미지**는 아래 "공용 팝업 에셋" 섹션 참고 — 이것도 같은 `src/web/assets/fortune/` 폴더에 파일명 규칙대로 저장.
 
 ## 선수별 카드 데이터 요약
@@ -41,8 +43,12 @@
 | 10 | 재닌 | `janine95kim` | GK | 옅은 시안+차콜 · 서리의 수호자 | 서리의 골키퍼 |
 | 11 | 하치 | `hachi97` | WF | 골드+보라 · 황금 드래곤 (스페셜, 유일한 예외) | 황금 드래곤의 강림 |
 | 12 | 우왁굳 (숨겨진 카드) | `woowakgood` | — | 샴페인 골드+차콜 · 개그 | 벤치에 있던 감독 |
+| 13 | 재닌 (두 번째 카드) | `janine95kim2` | GK | 겨자색+차콜 · 도라에몽 퉁퉁이 패러디(골목대장의 포효) | 울부짖는 수문장 |
+| 14 | 하치 (두 번째 카드) | `hachi972` | WF | 주황+차콜 · "두고하치" 밈 패러디(벼르는 군중) | 두고하치의 심판 |
 
 **12번(우왁굳)은 11장을 전부 뽑기 전까지는 뽑기 풀에 등장하지 않는 숨겨진 보너스 카드** — 자세한 내용은 아래 "12. 우왁굳" 섹션 참고.
+
+**13/14번(재닌·하치의 두 번째 카드)은 숨겨진 카드가 아님** — 12번 우왁굳과 달리 처음부터 나머지 카드들과 함께 뽑기 풀에 항상 포함되는 "보너스 카드"(재닌·하치만 카드 2장씩 가짐). `fortuneCardData.ts`의 `FORTUNE_CARDS` 배열에 정식 항목으로 들어있어서, 우왁굳 언락 조건("전부 뽑아야 함")도 이제 이 두 장까지 포함한 전체 개수를 기준으로 판정됨.
 
 **컬러/모티프는 3D 카드(`totyCardTheme.ts`/`docs/toty-card-prompts.md`)와 의도적으로 다르게 설계** — 같은 선수라도 두 카드 시리즈가 서로 다른 독자적인 정체성을 갖도록 함(하치만 예외, 위 디자인 방향 참고). 카드 이름은 이전 초안에서 3D 카드 모티프를 그대로 언급하던 것들(룬문양/구름/심해/폭풍/오로라)을 이번 새 컨셉에 맞게 다시 지었음 — 실제 운세 문구(`fortuneCardData.ts`)는 그대로 유지.
 
@@ -494,6 +500,115 @@ orientation, 1060x1484, PNG with alpha channel.
 ```
 
 **파일명**: `woowakgood-fortune-card.webp` (다른 11장과 동일 규칙, `src/web/assets/fortune/`에 저장)
+
+---
+
+## 13. 재닌 (두 번째 카드) — `janine95kim2` — 겨자색+차콜 · 도라에몽 퉁퉁이 패러디 (GK, 보너스 카드) — ✅ 이미지 완료
+
+**12번 우왁굳과 달리 숨겨진 카드가 아님** — 처음부터 나머지 11장과 함께 항상 뽑기 풀에 포함되는 재닌만의 두 번째 카드. 재닌이 평소 목소리가 걸걸하고 노래를 잘 못해서 팬들 사이에서 도라에몽 "퉁퉁이"(그 유명한 음치 골목 리사이틀 캐릭터)라는 별명으로 불리는 걸 패러디함. 얼굴은 재닌 본인 그대로, 의상·체형·포즈만 퉁퉁이 스타일을 입힌 합성 캐릭터로 그림(다른 카드들처럼 진지한 톤이 아니라 12번 우왁굳 카드처럼 개그 톤). 10번 원래 카드의 서리(얼음) 모티프는 "포효가 너무 강력해서 상대가 얼어붙는다"는 개그로 재해석해 소리 충격파가 서리로 얼어붙는 형태로 살짝 남겨둠.
+
+**카드 앞면** (①카드 뒷면 레퍼런스 + ②재닌 실제 참고 사진[얼굴 레퍼런스] + ③도라에몽 퉁퉁이 캐릭터 참고 이미지[의상·체형·포즈 레퍼런스], 이 순서로 총 3장 첨부 — 프롬프트 안의 "second/third attached image"가 이 순서를 가리킴):
+```
+Using the attached card-back image ONLY as a silhouette/structure
+reference — same rounded-rectangle card body with gold filigree
+ornaments curling outward past the edges at all four corners, same
+small arched crest above the top-center edge, same small pointed
+finial below the bottom-center edge — but redesign the illustration and
+palette completely for this player's second/bonus card (do NOT reuse
+this player's 3D-card look of sky-blue with aurora ribbons, and do NOT
+reuse this player's own first tarot card's "frost goalkeeper" concept
+either — this is a separate, standalone comedic design for a second
+card).
+
+Using the second attached photo (the player's own face) for the face —
+this must clearly be the same person as that reference photo (keep her
+actual face and hairstyle recognizable). Using the third attached image
+(a well-known bully character from a classic Japanese kids' cartoon,
+known for his terrible off-key singing recitals that clear the whole
+neighborhood) ONLY as a costume/body-type/pose reference — dress the
+player's character in that character's signature mustard-yellow
+round-neck knit sweater with dark ribbed trim, give her that same
+stocky, sturdy, confident chibi body type and cocky "neighborhood boss"
+stance (one fist on hip, chest out), but keep it clearly HER face, not
+his.
+
+A cute chibi/SD-style tarot illustration played for laughs (a comedic
+scene, not a solemn one) — big head small body, 2-3 head-tall
+proportions, composed like a real Major-Arcana tarot card. The character
+stands on a small overturned crate like a makeshift stage, mid-shout
+with her mouth wide open belting out an off-key note, holding a dented
+tin-can "microphone"; visible sound-wave rings blast outward from her
+mouth and crystallize into sharp ice crystals as they travel, freezing a
+dark silhouetted striker and the ball solid in mid-air just before the
+goal line — visually telling the story "her battle-cry is so loud and
+off-key it freezes the shot cold, nothing gets past this recital."
+Mustard-yellow and deep charcoal color palette with pale icy-cyan crack
+accents where the sound freezes, small musical-note and ice-crystal
+flourishes decorate the corner ornaments (replacing the back's
+mint-gold cosmic motif with this player's own colors, while keeping the
+same silhouette shape). Comically confident, eyes-closed belting
+expression, warm mischievous energy despite the icy effect. Leave the
+bottom ~15% of the card's inner area as a simple, uncluttered space (no
+text) for a card-name overlay to be added later. No text, no logos, no
+numbers. Entire canvas outside the card's own decorative silhouette
+must be fully transparent (alpha 0). Portrait orientation, 1060x1484,
+PNG with alpha channel.
+```
+
+**파일명**: `janine95kim2-fortune-card.webp` (다른 카드들과 동일 규칙, `src/web/assets/fortune/`에 저장 — 이미 생성 완료)
+
+**효과음**: 본인의 원래 카드(`janine95kim`, `jaenin.mp3`)와 겹치지 않도록, git 히스토리에서 복원한 재닌의 예전 효과음을 `public/sfxes/jaenin-tongtongi.mp3`로 별도 저장하고 `fortuneCardData.ts`의 `janine95kim2` 항목에서 `sfxOverride`로 지정해뒀음(코드가 `streamers` 목록의 `sfx`를 자동으로 가져오는 대신 이 값을 우선 사용함).
+
+---
+
+## 14. 하치 (두 번째 카드) — `hachi972` — 주황+차콜 · "두고하치" 밈 패러디 (WF, 보너스 카드)
+
+**12번 우왁굳과 달리 숨겨진 카드가 아님** — 처음부터 나머지 카드들과 함께 항상 뽑기 풀에 포함되는 하치만의 두 번째 카드. 하치가 우왁굳에게 어떤 게임을 강력 추천해서 실제로 플레이까지 이어졌는데, 그 결과가 호불호가 갈리면서 일부 팬들이 "두고보자"와 "하치"를 합쳐 "두고하치..."라는 채팅을 치는 게 굳어져 밈이 된 걸 패러디함. **이미지와 문구 어디에도 실제 게임 이름은 넣지 않고**, "두고하치"라는 밈과 그 반응(전혀 안 무섭고 코믹하게 그를 벼르는 작은 군중)만으로 장면을 구성함. 11번 원래 카드(황금 드래곤)의 진지한 판타지 톤이 아니라 **12번 우왁굳 카드처럼 개그 톤**.
+
+**카드 앞면** (하치 참고 사진 + 카드 뒷면 레퍼런스):
+```
+Using the attached card-back image ONLY as a silhouette/structure
+reference — same rounded-rectangle card body with gold filigree
+ornaments curling outward past the edges at all four corners, same
+small arched crest above the top-center edge, same small pointed
+finial below the bottom-center edge — but redesign the illustration and
+palette completely for this player's second/bonus card (do NOT reuse
+this player's first tarot card's golden-dragon look — this is a
+separate, standalone comedic design for a second card, parodying the
+traditional "Judgement" Major Arcana card instead).
+
+A cute chibi/SD-style tarot illustration played for laughs (a comedic
+scene, not a solemn one) — big head small body, 2-3 head-tall
+proportions. The character (from the attached reference photo, keep his
+actual face and likeness clearly recognizable) stands triumphantly in
+the foreground, grinning obliviously wide as he enthusiastically holds
+a glowing golden game controller high overhead like a torch, clearly in
+the middle of confidently recommending something to someone off-frame;
+below and behind him, rising out of a low mist, a small crowd of tiny
+dark shadow-silhouette chibi figures shake tiny fists and wave tiny
+blank pitchfork-shaped banners (no readable text or symbols on them),
+narrow-eyed and comically vengeful rather than genuinely scary —
+visually telling the story "he recommends something with total
+confidence, chaos follows, and somewhere out there a small crowd is
+quietly plotting revenge... which never actually arrives." Warm gold
+(his own signature color) mixed with a deep burnt-orange and charcoal
+"warning" color palette, small tiny-pitchfork and warning-spark
+flourishes decorate the corner ornaments (replacing the back's
+mint-gold cosmic motif with this palette, while keeping the same
+silhouette shape). Oblivious, beaming, over-the-top confident
+expression up front contrasted with the comically ominous crowd below,
+warm golden rim lighting fading into dramatic orange backlight from the
+crowd. Leave the bottom ~15% of the card's inner area as a simple,
+uncluttered space (no text) for a card-name overlay to be added later.
+No text, no logos, no numbers, no readable words of any kind anywhere
+in the scene. Entire canvas outside the card's own decorative
+silhouette must be fully transparent (alpha 0). Portrait orientation,
+1060x1484, PNG with alpha channel.
+```
+
+**파일명**: `hachi972-fortune-card.webp` (다른 카드들과 동일 규칙, `src/web/assets/fortune/`에 저장)
+
+**효과음**: 본인의 원래 카드(`hachi97`, `hachi.mp3`)와 겹치지 않는 전용 효과음 — **`public/sfxes/hachi-dugohachi.mp3`** (이미 추가 완료). `fortuneCardData.ts`의 `hachi972` 항목에 이 경로가 `sfxOverride`로 지정되어 있어서 바로 재생됨. 나중에 파일을 다른 걸로 교체하고 싶으면 같은 파일명으로 덮어쓰기만 하면 됨(코드 수정 불필요).
 
 ---
 

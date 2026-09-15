@@ -1,12 +1,14 @@
-// Static copy for the "오늘의 운세" tarot draw — 11 roster players, one tarot
-// card each (same 11 ids as the TOTY 3D card feature's main roster, see
-// docs/toty-card-prompts.md). displayName/position are NOT duplicated here;
-// FortunePopup looks those up live from the streamers list by id instead
-// (same reasoning as totyCardTheme.ts staying id-keyed while TotyCardPopup
-// reads the name from StreamerRecord), so a roster.yaml name change doesn't
-// require touching this file. Card names/fortune text are all
-// soccer-flavored per the feature's concept — see docs/fortune-prompts.md
-// for the matching image-generation prompts.
+// Static copy for the "오늘의 운세" tarot draw — one tarot card per roster
+// player (same ids as the TOTY 3D card feature's main roster, see
+// docs/toty-card-prompts.md), plus two players (재닌, 하치) who each also
+// have a second bonus card (see janine95kim2/hachi972 below).
+// displayName/position are NOT duplicated here; FortunePopup looks those up
+// live from the streamers list by id instead (same reasoning as
+// totyCardTheme.ts staying id-keyed while TotyCardPopup reads the name from
+// StreamerRecord), so a roster.yaml name change doesn't require touching
+// this file. Card names/fortune text are all soccer-flavored per the
+// feature's concept — see docs/fortune-prompts.md for the matching
+// image-generation prompts.
 //
 // glowColor/glowColorSoft drive the pulsing rim glow on the revealed card
 // (see FortuneDraw.tsx) — deliberately its OWN independent palette per
@@ -20,6 +22,18 @@ export interface FortuneCardEntry {
   fortuneText: string;
   glowColor: string;
   glowColorSoft: string;
+  /** Set only when `id` does NOT match a roster.yaml id directly — e.g. a
+   * player's second/alternate card (see janine95kim2, hachi972), which needs
+   * its own `id` for a distinct image asset (`<id>-fortune-card.webp`) and
+   * its own reveal-history entry, but should still show that player's real
+   * displayName when revealed. FortuneDraw.tsx/FortuneHistoryModal.tsx look
+   * up the streamer by `streamerId ?? id`. */
+  streamerId?: string;
+  /** Explicit sfx URL to play instead of that streamer's own
+   * StreamerRecord.sfx — used by janine95kim2/hachi972 so a player's second
+   * card has its own distinct sound rather than replaying their regular
+   * card's sfx. */
+  sfxOverride?: string;
 }
 
 export const FORTUNE_CARDS: FortuneCardEntry[] = [
@@ -94,11 +108,46 @@ export const FORTUNE_CARDS: FortuneCardEntry[] = [
     glowColorSoft: "#f0faff",
   },
   {
+    // 재닌의 두 번째(보너스) 카드 — 평소 목소리가 걸걸하고 노래를 못해서 붙은
+    // 별명 "퉁퉁이"(도라에몽)를 패러디한 개그 카드. 얼굴은 재닌 본인이고
+    // 의상/포즈만 퉁퉁이 스타일인 합성 캐릭터라 위 janine95kim 카드와는 완전히
+    // 별개의 항목으로 둠 — id를 다르게 줘서 전용 이미지
+    // (janine95kim2-fortune-card.webp)와 별도의 "뽑았던 카드" 기록을 갖게
+    // 하되, streamerId로 실제 표시 이름(재닌)은 그대로 가져옴. 자세한 내용은
+    // docs/fortune-prompts.md 참고.
+    id: "janine95kim2",
+    streamerId: "janine95kim",
+    cardName: "울부짖는 수문장",
+    fortuneText: "재닌이 목청을 가다듬는 순간, 상대 공격수의 다리가 얼어붙는다. 오늘 그 어떤 슈팅도 그 우렁찬 포효를 뚫지 못한다.",
+    glowColor: "#e8bf4e",
+    glowColorSoft: "#fff3d6",
+    // 본인 카드(jaenin.mp3)와 겹치지 않도록 예전에 쓰이던 재닌 효과음(git
+    // 히스토리상 jaenin.mp3의 바로 이전 버전)을 별도 파일로 복원해서 사용.
+    sfxOverride: "/sfxes/jaenin-tongtongi.mp3",
+  },
+  {
     id: "hachi97",
     cardName: "황금 드래곤의 강림",
     fortuneText: "황금빛 기운이 온몸을 감싸는 날. 무엇을 하든 다 이루어진다 — 드리블로 세 명을 제치는 상상마저 현실이 된다.",
     glowColor: "#ffe29e",
     glowColorSoft: "#d9b3ff",
+  },
+  {
+    // 하치의 두 번째(보너스) 카드 — "두고하치"(하치가 우왁굳에게 강력 추천한
+    // 게임이 실제로 플레이됐는데 그 게임을 싫어하던 일부 팬들이 "두고보자"+
+    // "하치"를 합쳐 채팅으로 벼르면서 굳어진 밈) 패러디. janine95kim2와 같은
+    // 패턴: 얼굴/정체성은 하치 그대로, id만 달라서 전용 이미지
+    // (hachi972-fortune-card.webp)와 별도의 "뽑았던 카드" 기록을 가짐 —
+    // streamerId로 실제 표시 이름(하치)은 그대로 가져옴. 자세한 내용은
+    // docs/fortune-prompts.md 참고.
+    id: "hachi972",
+    streamerId: "hachi97",
+    cardName: "두고하치의 심판",
+    fortuneText: "하치가 오늘도 자신만만하게 다음 수를 추천한다. 어디선가 '두고하치...'라는 채팅이 스쳐 지나가지만, 정작 본인은 신경도 안 쓰고 이미 다음 골 세리머니를 준비하는 중.",
+    glowColor: "#ff8a4d",
+    glowColorSoft: "#ffe3c2",
+    // 본인 카드(hachi.mp3)와 겹치지 않는 전용 효과음.
+    sfxOverride: "/sfxes/hachi-dugohachi.mp3",
   },
 ];
 
@@ -119,9 +168,9 @@ export function drawRandomFromPool(pool: FortuneCardEntry[], count: number): For
   return shuffled.slice(0, count);
 }
 
-/** Picks `count` distinct random entries from the full 11-card deck.
- * `extraCards` is folded into the pool alongside the base 11 — used to mix
- * in the hidden 우왁굳 card (see fortuneWoowakgoodCard.ts) once
+/** Picks `count` distinct random entries from the full FORTUNE_CARDS deck.
+ * `extraCards` is folded into the pool alongside it — used to mix in the
+ * hidden 우왁굳 card (see fortuneWoowakgoodCard.ts) once
  * useFortuneBonusUnlock.ts says it's been unlocked, without this module
  * needing to import that standalone card itself. */
 export function drawRandomFortuneCards(count: number, extraCards: FortuneCardEntry[] = []): FortuneCardEntry[] {

@@ -3,7 +3,7 @@ import type { CSSProperties } from "react";
 import { ImageDown, X } from "lucide-react";
 import type { StreamerRecord } from "../../shared/model.js";
 import { useEscape } from "../Modal.js";
-import { FORTUNE_CARDS } from "./fortuneCardData";
+import { FORTUNE_CARDS, type FortuneCardEntry } from "./fortuneCardData";
 import { getFortuneCardFrontUrl } from "./fortuneCardAssets";
 import { getFortuneRevealedIds } from "./fortuneCardHistoryStore";
 import { exportFortuneCardPng } from "./exportFortuneCardImage";
@@ -15,12 +15,15 @@ import "./fortune-history-modal.css";
 // revealed, same as every other card.
 const ALL_FORTUNE_CARDS = [...FORTUNE_CARDS, FORTUNE_WOOWAKGOOD_CARD];
 
+// Takes the whole entry (not just its `id`) so a second/alt card (e.g.
+// janine95kim2, see fortuneCardData.ts) can resolve its real streamer's
+// displayName via `streamerId` instead of its own asset/history-only `id`.
 function displayNameFor(
-  id: string,
+  entry: FortuneCardEntry,
   streamers: Pick<StreamerRecord, "id" | "displayName">[] | undefined,
 ): string | undefined {
-  if (id === FORTUNE_WOOWAKGOOD_ID) return FORTUNE_WOOWAKGOOD_DISPLAY_NAME;
-  return streamers?.find((s) => s.id === id)?.displayName;
+  if (entry.id === FORTUNE_WOOWAKGOOD_ID) return FORTUNE_WOOWAKGOOD_DISPLAY_NAME;
+  return streamers?.find((s) => s.id === (entry.streamerId ?? entry.id))?.displayName;
 }
 
 /**
@@ -49,7 +52,7 @@ export function FortuneHistoryModal({
 
   const selectedEntry = history.find((entry) => entry.id === selectedId);
   const selectedFrontUrl = selectedEntry ? getFortuneCardFrontUrl(selectedEntry.id) : undefined;
-  const selectedDisplayName = selectedEntry ? displayNameFor(selectedEntry.id, streamers) : undefined;
+  const selectedDisplayName = selectedEntry ? displayNameFor(selectedEntry, streamers) : undefined;
 
   const handleSaveImage = async () => {
     if (exportingImage || !selectedEntry || !selectedFrontUrl) return;
@@ -75,7 +78,7 @@ export function FortuneHistoryModal({
           <div className="fortune-history-modal__body">
             <div className="fortune-history-modal__list">
               {history.map((entry) => {
-                const displayName = displayNameFor(entry.id, streamers);
+                const displayName = displayNameFor(entry, streamers);
                 const thumbUrl = getFortuneCardFrontUrl(entry.id);
                 const isActive = entry.id === selectedId;
                 return (

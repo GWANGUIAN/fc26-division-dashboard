@@ -182,11 +182,15 @@ export function FortuneDraw({
   // reduced-motion branch calls this in the same tick as setSelectedIndex,
   // before that state update has flushed. 우왁굳 isn't in streamers (see
   // fortuneWoowakgoodCard.ts), so his sfx is hardcoded the same way his
-  // display name is above.
+  // display name is above. A card's own `sfxOverride` (see janine95kim2 in
+  // fortuneCardData.ts) wins over the streamer lookup, and that lookup uses
+  // `streamerId ?? id` so a second/alt card (own `id`, but no matching
+  // roster entry) still resolves to its real streamer's sfx by default.
   const getStreamerSfx = (index: number): string | undefined => {
     const entry = drawn[index];
     if (entry.id === FORTUNE_WOOWAKGOOD_ID) return FORTUNE_WOOWAKGOOD_SFX;
-    return streamers?.find((s) => s.id === entry.id)?.sfx;
+    if (entry.sfxOverride) return entry.sfxOverride;
+    return streamers?.find((s) => s.id === (entry.streamerId ?? entry.id))?.sfx;
   };
 
   const handlePick = (index: number) => {
@@ -223,11 +227,13 @@ export function FortuneDraw({
   const selectedEntry = selectedIndex !== null ? drawn[selectedIndex] : undefined;
   // 우왁굳 never appears in roster.yaml, so the streamers lookup below can't
   // find him — his display name is hardcoded the same way woowakgoodBonusCard.ts
-  // does it for the 3D card feature.
+  // does it for the 3D card feature. A second/alt card (e.g. janine95kim2)
+  // has its own `id` for the image asset/history entry but resolves its
+  // displayName from `streamerId` (the real roster id) instead.
   const selectedDisplayName = selectedEntry?.id === FORTUNE_WOOWAKGOOD_ID
     ? FORTUNE_WOOWAKGOOD_DISPLAY_NAME
     : selectedEntry
-    ? streamers?.find((s) => s.id === selectedEntry.id)?.displayName
+    ? streamers?.find((s) => s.id === (selectedEntry.streamerId ?? selectedEntry.id))?.displayName
     : undefined;
   const selectedFrontUrl = selectedEntry ? getFortuneCardFrontUrl(selectedEntry.id) : undefined;
 
