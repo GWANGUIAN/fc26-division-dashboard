@@ -143,6 +143,7 @@ export const FORTUNE_CARDS: FortuneCardEntry[] = [
     fortuneText: "달빛조차 오늘은 그의 손을 들어주지 않는다. 자신만만하게 벼린 화살이 골대를 살짝 비껴가고, 그 여운만 씁쓸하게 남는다.",
     glowColor: "#5c5470",
     glowColorSoft: "#bdb6d1",
+    sfxOverride: "/sfxes/kaksjak0730-2.mp3",
   },
   {
     id: "sjh4018",
@@ -160,6 +161,7 @@ export const FORTUNE_CARDS: FortuneCardEntry[] = [
     fortuneText: "단단하던 요새에 금이 가는 날. 하늘 위에서 내려다보던 그 시야가 오늘따라 한 박자 느리게 반응한다. 방심한 틈을 놓치지 않는 상대가 있다.",
     glowColor: "#6e6b63",
     glowColorSoft: "#cfcac0",
+    sfxOverride: "/sfxes/sjh4018-2.mp3",
   },
   {
     id: "haepalin",
@@ -195,6 +197,7 @@ export const FORTUNE_CARDS: FortuneCardEntry[] = [
     fortuneText: "이번엔 그 알 수 없는 시선 끝에 아무것도 없다. 두 갈래 길 모두 막다른 곳으로 이어지고, 애꿎은 타이밍만 계속 엇나간다.",
     glowColor: "#5a4a63",
     glowColorSoft: "#b8a8c2",
+    sfxOverride: "/sfxes/lina0108-2.mp3",
   },
   {
     id: "tleod1818",
