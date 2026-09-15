@@ -13,8 +13,8 @@ const JANDY_LINEUP: MatchLineup = {
   slots: [
     { playerId: "janine95kim", position: "GK" },
     { playerId: "tleod1818", position: "FB" },
-    { playerId: "haepalin", position: "CB" },
     { playerId: "sjh4018", position: "CB" },
+    { playerId: "haepalin", position: "CB" },
     { playerId: "lina0108", position: "FB" },
     { playerId: "doormomo", position: "CDM" },
     { playerId: "bboringirl", position: "CM" },
