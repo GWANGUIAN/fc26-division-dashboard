@@ -24,7 +24,8 @@ function markBonusUnlocked() {
 /**
  * Unlocks the hidden 우왁굳 bonus tarot card once every one of the real
  * cards (FORTUNE_CARDS, including players' second/bonus cards like
- * janine95kim2/hachi972) has been revealed at least once — mirrors
+ * janine95kim2/hachi972/tdnlamuron2) has been revealed at least once —
+ * mirrors
  * toty-card/useWoowakgoodBonusUnlock.ts, but simpler: the fortune deck is a
  * fixed static list (not derived from the live roster), so this just checks
  * FORTUNE_CARDS.every(...) against the revealed-id store directly, no

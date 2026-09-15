@@ -14,6 +14,7 @@
 - **리냐 카드 — 사시(사팔눈) 컨셉**: 실제 전달할 리냐 레퍼런스 사진이 사시(두 눈이 서로 다른 방향을 보는) 특징을 가지고 있음. 이걸 결점이 아니라 **귀엽고 코믹한 매력 포인트**로 명시적으로 살릴 것(아래 8번 섹션 프롬프트 참고). 운세 문구도 "시선이 어디로 향하는지 모르겠다 → 그런데 그 끝에 의외의 행운이 있다"는 개그로 이미 연결해뒀음.
 - **재닌의 두 번째 카드 — 도라에몽 "퉁퉁이" 패러디 컨셉** (10번 원래 카드는 그대로 두고, 별도 보너스 카드로 추가함 — 아래 "13. 재닌 (두 번째 카드)" 섹션 참고): 재닌은 평소 목소리가 걸걸하고 노래를 잘 못해서 팬들 사이에서 도라에몽의 "퉁퉁이"(그 유명한 음치 골목 리사이틀 캐릭터)라는 별명으로 불림. 이 카드는 **재닌 실제 사진 + 퉁퉁이 캐릭터 사진, 두 장을 합성 레퍼런스로 같이 전달**해서 얼굴은 재닌 그대로 알아볼 수 있게 유지하되, 의상·체형·포즈는 퉁퉁이 스타일(황토색/겨자색 라운드넥 니트, 다부진 체형, 골목대장 특유의 당당한 자세)을 입힌 패러디 캐릭터로 그림(다른 카드들처럼 진지한 톤이 아니라 **12번 우왁굳 카드처럼 개그 톤**). 원래 카드의 서리(얼음) 모티프는 "노래/포효가 너무 강력해서 상대가 얼어붙는다"는 개그로 재해석해 소리 충격파가 서리로 얼어붙는 형태로 살짝 남겨둠. `fortuneCardData.ts`에는 `janine95kim`(원래 카드)과 별개로 `janine95kim2`(이 패러디 카드) 항목이 추가되어 있고, 이미지도 `janine95kim2-fortune-card.webp`로 독립된 파일임 — 뽑기 풀/기록/이미지 전부 원래 카드와 완전히 별개로 취급됨.
 - **하치의 두 번째 카드 — "두고하치" 밈 패러디 컨셉** (11번 원래 카드는 그대로 두고, 별도 보너스 카드로 추가함 — 아래 "14. 하치 (두 번째 카드)" 섹션 참고): 하치가 우왁굳에게 어떤 게임을 강력 추천해서 실제로 플레이까지 이어졌는데, 그 결과가 호불호가 갈리면서 일부 팬들이 "두고보자"와 "하치"를 합쳐 "두고하치..."라는 채팅을 치는 게 굳어져 밈이 됨. 이 카드는 하치 얼굴/정체성은 그대로 유지한 채, 뒤에서 그를 벼르는(하지만 전혀 안 무서운, 코믹한) 작은 군중 실루엣이 등장하는 장면으로 그려서 이 밈을 패러디함(11번 카드처럼 진지한 판타지 톤이 아니라 **12번 우왁굳 카드처럼 개그 톤**). 이미지/문구 어디에도 실제 게임 이름은 언급하지 않음 — "두고하치"라는 밈 자체와 그 반응(벼르는 군중)만 그림으로 표현. `fortuneCardData.ts`에는 `hachi97`(원래 카드)과 별개로 `hachi972`(이 패러디 카드) 항목이 추가되어 있고, 이미지도 `hachi972-fortune-card.webp`로 독립된 파일임.
+- **다시바의 두 번째 카드 — "수은추" 별명 패러디 컨셉** (1번 원래 카드는 그대로 두고, 별도 보너스 카드로 추가함 — 아래 "15. 다시바 (두 번째 카드)" 섹션 참고): 다시바는 "수은추"라는 별명이 있음 — "수은"은 리그 오브 레전드에서 모든 디버프를 제거하는 아이템 "수은 장식띠"에서 따온 말로, 안 좋은 분위기를 잘 환기시키거나 곁에 있으면 힐링되는 사람을 뜻하고, "추"는 실제로는 여자인데 장난삼아 "남자"라고 놀리는 접미사임. 이 카드는 그 "수은"(정화/디버프 제거) 쪽 이미지를 정면으로 살려서, 다시바가 지나가기만 해도 팀원들의 어두운 기운(디버프 같은 그림자/사슬)이 씻겨나가는 장면으로 그림 — 1번 카드(진홍빛 혜성)와는 완전히 다른 은빛/백금 "정화" 팔레트. 성별을 놀리는 뉘앙스("추")는 이미지가 아니라 카드 이름·운세 문구 쪽의 애정 어린 드립으로만 살짝 살림. `fortuneCardData.ts`에는 `tdnlamuron`(원래 카드)과 별개로 `tdnlamuron2`(이 패러디 카드) 항목이 추가되어 있고, 이미지도 `tdnlamuron2-fortune-card.webp`로 독립된 파일임. 효과음은 원래 카드와 같은 `dashiba.mp3`를 그대로 사용(전용 sfx 없음).
 
 ## 공통 작업 방식
 
@@ -23,7 +24,7 @@
 2. **레퍼런스 이미지 첨부**:
    - ① 먼저 **카드 뒷면**(`fortune-card-back.webp`)부터 생성해서 장식 실루엣을 확정.
    - ② 이후 **각 선수 카드 앞면** 생성 시, (a) 확정된 카드 뒷면 이미지를 "동일한 외곽 실루엣/장식 테두리 구조 레퍼런스"로(장식 자체의 디자인 디테일은 앞면마다 살짝 달라도 되지만, 전체적인 윤곽선 구조·비율은 반드시 동일해야 함), (b) 그 선수 실제 사진을 "얼굴/헤어 특징 레퍼런스"로 같이 첨부.
-3. **파일명 규칙**: `fortune-card-back.webp`(공용, 1장), `<id>-fortune-card.webp`(11명 선수 + 재닌·하치의 두 번째 보너스 카드 2장, 총 13장) — 아래 표의 `id` 컬럼 사용. `src/web/assets/fortune/` 폴더에 저장(이미 폴더 생성해둠). PNG로 받으면 webp로 변환 후 이 폴더에 그대로 넣으면 `fortuneCardAssets.ts`가 자동으로 인식함(빌드 시 `import.meta.glob`으로 스캔 — 별도 등록 코드 필요 없음).
+3. **파일명 규칙**: `fortune-card-back.webp`(공용, 1장), `<id>-fortune-card.webp`(11명 선수 + 재닌·하치·다시바의 두 번째 보너스 카드 3장, 총 14장) — 아래 표의 `id` 컬럼 사용. `src/web/assets/fortune/` 폴더에 저장(이미 폴더 생성해둠). PNG로 받으면 webp로 변환 후 이 폴더에 그대로 넣으면 `fortuneCardAssets.ts`가 자동으로 인식함(빌드 시 `import.meta.glob`으로 스캔 — 별도 등록 코드 필요 없음).
 4. 앞면이 다 없어도 사이트는 정상 동작함(없는 카드는 "?" 플레이스홀더 박스로 대체) — 급하지 않게 하나씩 채워 넣으면 됨. 카드 뒷면만 먼저 넣어도 셔플/딜 애니메이션은 바로 확인 가능.
 5. **팝업 배경/제목/마스코트/버튼 이미지**는 아래 "공용 팝업 에셋" 섹션 참고 — 이것도 같은 `src/web/assets/fortune/` 폴더에 파일명 규칙대로 저장.
 
@@ -45,10 +46,11 @@
 | 12 | 우왁굳 (숨겨진 카드) | `woowakgood` | — | 샴페인 골드+차콜 · 개그 | 벤치에 있던 감독 |
 | 13 | 재닌 (두 번째 카드) | `janine95kim2` | GK | 겨자색+차콜 · 도라에몽 퉁퉁이 패러디(골목대장의 포효) | 울부짖는 수문장 |
 | 14 | 하치 (두 번째 카드) | `hachi972` | WF | 주황+차콜 · "두고하치" 밈 패러디(벼르는 군중) | 두고하치의 심판 |
+| 15 | 다시바 (두 번째 카드) | `tdnlamuron2` | WF | 은빛+백금 · "수은추" 별명 패러디(정화의 오라) | 수은추의 정화 |
 
 **12번(우왁굳)은 11장을 전부 뽑기 전까지는 뽑기 풀에 등장하지 않는 숨겨진 보너스 카드** — 자세한 내용은 아래 "12. 우왁굳" 섹션 참고.
 
-**13/14번(재닌·하치의 두 번째 카드)은 숨겨진 카드가 아님** — 12번 우왁굳과 달리 처음부터 나머지 카드들과 함께 뽑기 풀에 항상 포함되는 "보너스 카드"(재닌·하치만 카드 2장씩 가짐). `fortuneCardData.ts`의 `FORTUNE_CARDS` 배열에 정식 항목으로 들어있어서, 우왁굳 언락 조건("전부 뽑아야 함")도 이제 이 두 장까지 포함한 전체 개수를 기준으로 판정됨.
+**13/14/15번(재닌·하치·다시바의 두 번째 카드)은 숨겨진 카드가 아님** — 12번 우왁굳과 달리 처음부터 나머지 카드들과 함께 뽑기 풀에 항상 포함되는 "보너스 카드"(이 세 선수만 카드 2장씩 가짐). `fortuneCardData.ts`의 `FORTUNE_CARDS` 배열에 정식 항목으로 들어있어서, 우왁굳 언락 조건("전부 뽑아야 함")도 이제 이 세 장까지 포함한 전체 개수를 기준으로 판정됨.
 
 **컬러/모티프는 3D 카드(`totyCardTheme.ts`/`docs/toty-card-prompts.md`)와 의도적으로 다르게 설계** — 같은 선수라도 두 카드 시리즈가 서로 다른 독자적인 정체성을 갖도록 함(하치만 예외, 위 디자인 방향 참고). 카드 이름은 이전 초안에서 3D 카드 모티프를 그대로 언급하던 것들(룬문양/구름/심해/폭풍/오로라)을 이번 새 컨셉에 맞게 다시 지었음 — 실제 운세 문구(`fortuneCardData.ts`)는 그대로 유지.
 
@@ -609,6 +611,55 @@ silhouette must be fully transparent (alpha 0). Portrait orientation,
 **파일명**: `hachi972-fortune-card.webp` (다른 카드들과 동일 규칙, `src/web/assets/fortune/`에 저장)
 
 **효과음**: 본인의 원래 카드(`hachi97`, `hachi.mp3`)와 겹치지 않는 전용 효과음 — **`public/sfxes/hachi-dugohachi.mp3`** (이미 추가 완료). `fortuneCardData.ts`의 `hachi972` 항목에 이 경로가 `sfxOverride`로 지정되어 있어서 바로 재생됨. 나중에 파일을 다른 걸로 교체하고 싶으면 같은 파일명으로 덮어쓰기만 하면 됨(코드 수정 불필요).
+
+---
+
+## 15. 다시바 (두 번째 카드) — `tdnlamuron2` — 은빛+백금 · "수은추" 별명 패러디 (WF, 보너스 카드)
+
+**12번 우왁굳과 달리 숨겨진 카드가 아님** — 처음부터 나머지 카드들과 함께 항상 뽑기 풀에 포함되는 다시바만의 두 번째 카드. 다시바는 "수은추"라는 별명이 있음 — "수은"은 리그 오브 레전드에서 모든 디버프를 제거하는 아이템 "수은 장식띠"에서 따온 말로 안 좋은 분위기를 환기시키거나 곁에 있으면 힐링되는 사람을 뜻하고, "추"는 실제로는 여자인데 장난삼아 "남자"라고 놀리는 접미사임. 이미지는 그 "수은"(정화/디버프 제거) 쪽을 정면으로 살려서 그리고, 성별을 놀리는 뉘앙스는 카드 이름·운세 문구 쪽에서만 살짝 담음. 1번 원래 카드(진홍빛 혜성)와는 완전히 다른 은빛/백금 "정화" 팔레트.
+
+**카드 앞면** (다시바 참고 사진 + 카드 뒷면 레퍼런스):
+```
+Using the attached card-back image ONLY as a silhouette/structure
+reference — same rounded-rectangle card body with gold filigree
+ornaments curling outward past the edges at all four corners, same
+small arched crest above the top-center edge, same small pointed
+finial below the bottom-center edge — but redesign the illustration and
+palette completely for this player's second/bonus card (do NOT reuse
+this player's first tarot card's crimson-comet look, and do NOT reuse
+this player's 3D-card look of orange volcanic rock/lava either — this
+is a separate, standalone design for a second card).
+
+A cute chibi/SD-style mystical tarot illustration composed like a real
+Major-Arcana tarot card (parodying the traditional "Temperance" card's
+purifying, harmonizing energy) — big head small body, 2-3 head-tall
+proportions. The character (from the attached reference photo) walks
+forward with a cool, confident, effortless swagger, hands loosely in
+pockets, a faint knowing half-smile; a soft argent-silver cleansing
+aura radiates outward from her like liquid mercury, and as it washes
+over two small shadow-silhouette teammates flanking her, dark
+chain-like tangles and gloomy storm-cloud wisps clinging to them
+visibly dissolve into bright silver sparkles and drift away — visually
+telling the story "she doesn't even try, and the bad vibes just wash
+right off everyone around her." A pair of small stylized winged silver
+ankle-bands glint faintly at her feet (a subtle nod to a
+cleansing/purification charm, not any specific real-world logo or
+brand). Silver-white and pale platinum color palette with the faintest
+warm gold shimmer, small winged-anklet and mercury-droplet flourishes
+decorate the corner ornaments (replacing the back's mint-gold cosmic
+motif with this palette, while keeping the same silhouette shape).
+Cool, breezy, unbothered confident expression, soft silver rim
+lighting. Leave the bottom ~15% of the card's inner area as a simple,
+uncluttered space (no text) for a card-name overlay to be added later.
+No text, no logos, no numbers, no real brand names or game UI anywhere
+in the scene. Entire canvas outside the card's own decorative
+silhouette must be fully transparent (alpha 0). Portrait orientation,
+1060x1484, PNG with alpha channel.
+```
+
+**파일명**: `tdnlamuron2-fortune-card.webp` (다른 카드들과 동일 규칙, `src/web/assets/fortune/`에 저장)
+
+**효과음**: 전용 효과음 없이 원래 카드와 같은 `dashiba.mp3`를 그대로 사용(`fortuneCardData.ts`의 `tdnlamuron2` 항목에 `sfxOverride`를 지정하지 않아서, `streamerId`로 다시바 본인 sfx를 자동으로 가져옴).
 
 ---
 

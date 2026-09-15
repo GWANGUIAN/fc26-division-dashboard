@@ -3,7 +3,7 @@ import type { CSSProperties } from "react";
 import { ImageDown, RotateCcw, Sparkles } from "lucide-react";
 import type { StreamerRecord } from "../../shared/model.js";
 import { stopSfx } from "../sfxAudio.js";
-import { drawRandomFromPool, FORTUNE_CARDS, type FortuneCardEntry } from "./fortuneCardData";
+import { drawRandomFromPool, formatFortuneCardEyebrow, FORTUNE_CARDS, type FortuneCardEntry } from "./fortuneCardData";
 import { getFortuneCardBackUrl, getFortuneCardFrontUrl } from "./fortuneCardAssets";
 import { exportFortuneCardPng } from "./exportFortuneCardImage";
 import { getFortuneRevealedIds, markFortuneCardRevealed } from "./fortuneCardHistoryStore";
@@ -342,7 +342,7 @@ export function FortuneDraw({
           }
         >
           <p className="fortune-reveal-panel__eyebrow">
-            {selectedDisplayName ? `${selectedDisplayName}의 카드` : "오늘의 카드"}
+            {formatFortuneCardEyebrow(selectedDisplayName, selectedEntry)}
           </p>
           <h3 className="fortune-reveal-panel__name">{selectedEntry.cardName}</h3>
           <p className="fortune-reveal-panel__text">{selectedEntry.fortuneText}</p>

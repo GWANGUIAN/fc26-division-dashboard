@@ -1,7 +1,8 @@
 // Static copy for the "오늘의 운세" tarot draw — one tarot card per roster
 // player (same ids as the TOTY 3D card feature's main roster, see
-// docs/toty-card-prompts.md), plus two players (재닌, 하치) who each also
-// have a second bonus card (see janine95kim2/hachi972 below).
+// docs/toty-card-prompts.md), plus three players (재닌, 하치, 다시바) who
+// each also have a second bonus card (see janine95kim2/hachi972/
+// tdnlamuron2 below).
 // displayName/position are NOT duplicated here; FortunePopup looks those up
 // live from the streamers list by id instead (same reasoning as
 // totyCardTheme.ts staying id-keyed while TotyCardPopup reads the name from
@@ -23,16 +24,18 @@ export interface FortuneCardEntry {
   glowColor: string;
   glowColorSoft: string;
   /** Set only when `id` does NOT match a roster.yaml id directly — e.g. a
-   * player's second/alternate card (see janine95kim2, hachi972), which needs
-   * its own `id` for a distinct image asset (`<id>-fortune-card.webp`) and
-   * its own reveal-history entry, but should still show that player's real
-   * displayName when revealed. FortuneDraw.tsx/FortuneHistoryModal.tsx look
-   * up the streamer by `streamerId ?? id`. */
+   * player's second/alternate card (see janine95kim2, hachi972, tdnlamuron2),
+   * which needs its own `id` for a distinct image asset
+   * (`<id>-fortune-card.webp`) and its own reveal-history entry, but should
+   * still show that player's real displayName when revealed.
+   * FortuneDraw.tsx/FortuneHistoryModal.tsx look up the streamer by
+   * `streamerId ?? id`. */
   streamerId?: string;
   /** Explicit sfx URL to play instead of that streamer's own
    * StreamerRecord.sfx — used by janine95kim2/hachi972 so a player's second
    * card has its own distinct sound rather than replaying their regular
-   * card's sfx. */
+   * card's sfx. Not every second card needs this — tdnlamuron2 deliberately
+   * leaves it unset to reuse 다시바's own sfx (see below). */
   sfxOverride?: string;
 }
 
@@ -43,6 +46,23 @@ export const FORTUNE_CARDS: FortuneCardEntry[] = [
     fortuneText: "그라운드에 불이 붙는다🔥 오늘의 질주는 브레이크가 없다 — 수비 세 명쯤은 스쳐 지나가는 바람일 뿐.",
     glowColor: "#ff5c5c",
     glowColorSoft: "#ffe0e0",
+  },
+  {
+    // 다시바의 두 번째(보너스) 카드 — 별명 "수은추"(리그 오브 레전드의 모든
+    // 디버프를 제거하는 아이템 "수은 장식띠"에서 따온 "수은"=분위기를
+    // 환기시키고 곁에 있으면 힐링되는 사람 + "추"="남자" 놀림조 접미사, 실제
+    // 여자인데 장난삼아 붙은 별명)를 패러디한 개그 카드. janine95kim2/hachi972와
+    // 같은 패턴: 정체성은 다시바 그대로, id만 달라서 전용 이미지
+    // (tdnlamuron2-fortune-card.webp)와 별도의 "뽑았던 카드" 기록을 가짐 —
+    // streamerId로 실제 표시 이름(다시바)은 그대로 가져옴. sfxOverride 없이
+    // 원래 카드와 같은 효과음(dashiba.mp3)을 그대로 씀(사용자 요청). 자세한
+    // 내용은 docs/fortune-prompts.md 참고.
+    id: "tdnlamuron2",
+    streamerId: "tdnlamuron",
+    cardName: "수은추의 정화",
+    fortuneText: "다시바가 스쳐 지나가기만 해도 안 좋은 기운은 전부 씻겨 내려간다. 팀은 오늘도 장난삼아 그녀를 '수은추'라 부르지만, 그 정화 능력만큼은 의심할 여지가 없다.",
+    glowColor: "#b8c9dc",
+    glowColorSoft: "#f2f6fb",
   },
   {
     id: "ju010228",
@@ -153,6 +173,72 @@ export const FORTUNE_CARDS: FortuneCardEntry[] = [
 
 export function getFortuneCard(id: string): FortuneCardEntry | undefined {
   return FORTUNE_CARDS.find((card) => card.id === id);
+}
+
+function effectiveStreamerId(entry: Pick<FortuneCardEntry, "id" | "streamerId">): string {
+  return entry.streamerId ?? entry.id;
+}
+
+/** 1-based position of `entry` among the FORTUNE_CARDS entries that share
+ * its streamer (via `streamerId ?? id`), in array order — always 1 for a
+ * single-card player, 1/2/... for a multi-card player's cards (e.g.
+ * janine95kim → 1, janine95kim2 → 2). A card that isn't in FORTUNE_CARDS at
+ * all (the hidden 우왁굳 card lives outside it, see
+ * fortuneWoowakgoodCard.ts) reports 1. */
+export function getFortuneCardOrdinal(entry: Pick<FortuneCardEntry, "id" | "streamerId">): number {
+  const sid = effectiveStreamerId(entry);
+  let ordinal = 0;
+  for (const candidate of FORTUNE_CARDS) {
+    if (effectiveStreamerId(candidate) === sid) {
+      ordinal++;
+      if (candidate.id === entry.id) return ordinal;
+    }
+  }
+  return 1;
+}
+
+/** How many FORTUNE_CARDS entries share `entry`'s streamer — 1 for every
+ * player with a single card, 2+ for janine95kim/hachi97/tdnlamuron (each of
+ * which also has a second bonus card). */
+export function getFortuneCardCountForStreamer(entry: Pick<FortuneCardEntry, "id" | "streamerId">): number {
+  const sid = effectiveStreamerId(entry);
+  const count = FORTUNE_CARDS.filter((candidate) => effectiveStreamerId(candidate) === sid).length;
+  return count || 1;
+}
+
+const ORDINAL_WORDS = ["첫번째", "두번째", "세번째", "네번째", "다섯번째"];
+
+function ordinalWord(n: number): string {
+  return ORDINAL_WORDS[n - 1] ?? `${n}번째`;
+}
+
+/** "~의 카드" eyebrow text shown above a revealed card — FortuneDraw.tsx's
+ * reveal panel and FortuneHistoryModal.tsx's detail panel both use this, so
+ * a multi-card streamer (재닌/하치/다시바) reads "~의 첫번째 카드"/"~의
+ * 두번째 카드" in both places instead of an ambiguous "~의 카드" that
+ * doesn't say which of their cards this is. Falls back to "오늘의 카드"
+ * when `displayName` couldn't be resolved. */
+export function formatFortuneCardEyebrow(
+  displayName: string | undefined,
+  entry: FortuneCardEntry,
+): string {
+  if (!displayName) return "오늘의 카드";
+  if (getFortuneCardCountForStreamer(entry) <= 1) return `${displayName}의 카드`;
+  return `${displayName}의 ${ordinalWord(getFortuneCardOrdinal(entry))} 카드`;
+}
+
+/** "이름" / "이름(1)" / "이름(2)" label used in the "뽑았던 카드" history
+ * list (FortuneHistoryModal.tsx) — only a multi-card streamer gets the
+ * "(n)" suffix, so single-card players' entries look exactly as before.
+ * Falls back to the card's own name when `displayName` couldn't be
+ * resolved (same fallback the list already had). */
+export function formatFortuneCardListLabel(
+  displayName: string | undefined,
+  entry: FortuneCardEntry,
+): string {
+  const name = displayName ?? entry.cardName;
+  if (!displayName || getFortuneCardCountForStreamer(entry) <= 1) return name;
+  return `${name}(${getFortuneCardOrdinal(entry)})`;
 }
 
 /** Picks `count` distinct random entries from an arbitrary `pool`

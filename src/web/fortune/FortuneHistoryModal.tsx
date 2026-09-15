@@ -3,7 +3,7 @@ import type { CSSProperties } from "react";
 import { ImageDown, X } from "lucide-react";
 import type { StreamerRecord } from "../../shared/model.js";
 import { useEscape } from "../Modal.js";
-import { FORTUNE_CARDS, type FortuneCardEntry } from "./fortuneCardData";
+import { FORTUNE_CARDS, formatFortuneCardEyebrow, formatFortuneCardListLabel, type FortuneCardEntry } from "./fortuneCardData";
 import { getFortuneCardFrontUrl } from "./fortuneCardAssets";
 import { getFortuneRevealedIds } from "./fortuneCardHistoryStore";
 import { exportFortuneCardPng } from "./exportFortuneCardImage";
@@ -96,7 +96,7 @@ export function FortuneHistoryModal({
                         <span className="fortune-history-modal__item-thumb-fallback">?</span>
                       )}
                     </span>
-                    <span className="fortune-history-modal__item-name">{displayName ?? entry.cardName}</span>
+                    <span className="fortune-history-modal__item-name">{formatFortuneCardListLabel(displayName, entry)}</span>
                   </button>
                 );
               })}
@@ -112,7 +112,7 @@ export function FortuneHistoryModal({
                   )}
                 </div>
                 <p className="fortune-history-modal__detail-eyebrow">
-                  {selectedDisplayName ? `${selectedDisplayName}의 카드` : "오늘의 카드"}
+                  {formatFortuneCardEyebrow(selectedDisplayName, selectedEntry)}
                 </p>
                 <h3 className="fortune-history-modal__detail-name">{selectedEntry.cardName}</h3>
                 <p className="fortune-history-modal__detail-text">{selectedEntry.fortuneText}</p>
