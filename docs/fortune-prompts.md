@@ -15,6 +15,7 @@
 - **재닌의 두 번째 카드 — 도라에몽 "퉁퉁이" 패러디 컨셉** (10번 원래 카드는 그대로 두고, 별도 보너스 카드로 추가함 — 아래 "13. 재닌 (두 번째 카드)" 섹션 참고): 재닌은 평소 목소리가 걸걸하고 노래를 잘 못해서 팬들 사이에서 도라에몽의 "퉁퉁이"(그 유명한 음치 골목 리사이틀 캐릭터)라는 별명으로 불림. 이 카드는 **재닌 실제 사진 + 퉁퉁이 캐릭터 사진, 두 장을 합성 레퍼런스로 같이 전달**해서 얼굴은 재닌 그대로 알아볼 수 있게 유지하되, 의상·체형·포즈는 퉁퉁이 스타일(황토색/겨자색 라운드넥 니트, 다부진 체형, 골목대장 특유의 당당한 자세)을 입힌 패러디 캐릭터로 그림(다른 카드들처럼 진지한 톤이 아니라 **12번 우왁굳 카드처럼 개그 톤**). 원래 카드의 서리(얼음) 모티프는 "노래/포효가 너무 강력해서 상대가 얼어붙는다"는 개그로 재해석해 소리 충격파가 서리로 얼어붙는 형태로 살짝 남겨둠. `fortuneCardData.ts`에는 `janine95kim`(원래 카드)과 별개로 `janine95kim2`(이 패러디 카드) 항목이 추가되어 있고, 이미지도 `janine95kim2-fortune-card.webp`로 독립된 파일임 — 뽑기 풀/기록/이미지 전부 원래 카드와 완전히 별개로 취급됨.
 - **하치의 두 번째 카드 — "두고하치" 밈 패러디 컨셉** (11번 원래 카드는 그대로 두고, 별도 보너스 카드로 추가함 — 아래 "14. 하치 (두 번째 카드)" 섹션 참고): 하치가 우왁굳에게 어떤 게임을 강력 추천해서 실제로 플레이까지 이어졌는데, 그 결과가 호불호가 갈리면서 일부 팬들이 "두고보자"와 "하치"를 합쳐 "두고하치..."라는 채팅을 치는 게 굳어져 밈이 됨. 이 카드는 하치 얼굴/정체성은 그대로 유지한 채, 뒤에서 그를 벼르는(하지만 전혀 안 무서운, 코믹한) 작은 군중 실루엣이 등장하는 장면으로 그려서 이 밈을 패러디함(11번 카드처럼 진지한 판타지 톤이 아니라 **12번 우왁굳 카드처럼 개그 톤**). 이미지/문구 어디에도 실제 게임 이름은 언급하지 않음 — "두고하치"라는 밈 자체와 그 반응(벼르는 군중)만 그림으로 표현. `fortuneCardData.ts`에는 `hachi97`(원래 카드)과 별개로 `hachi972`(이 패러디 카드) 항목이 추가되어 있고, 이미지도 `hachi972-fortune-card.webp`로 독립된 파일임.
 - **다시바의 두 번째 카드 — "수은추" 별명 패러디 컨셉** (1번 원래 카드는 그대로 두고, 별도 보너스 카드로 추가함 — 아래 "15. 다시바 (두 번째 카드)" 섹션 참고): 다시바는 "수은추"라는 별명이 있음 — "수은"은 리그 오브 레전드에서 모든 디버프를 제거하는 아이템 "수은 장식띠"에서 따온 말로, 안 좋은 분위기를 잘 환기시키거나 곁에 있으면 힐링되는 사람을 뜻하고, "추"는 실제로는 여자인데 장난삼아 "남자"라고 놀리는 접미사임. 이 카드는 그 "수은"(정화/디버프 제거) 쪽 이미지를 정면으로 살려서, 다시바가 지나가기만 해도 팀원들의 어두운 기운(디버프 같은 그림자/사슬)이 씻겨나가는 장면으로 그림 — 1번 카드(진홍빛 혜성)와는 완전히 다른 은빛/백금 "정화" 팔레트. 성별을 놀리는 뉘앙스("추")는 이미지가 아니라 카드 이름·운세 문구 쪽의 애정 어린 드립으로만 살짝 살림. `fortuneCardData.ts`에는 `tdnlamuron`(원래 카드)과 별개로 `tdnlamuron2`(이 패러디 카드) 항목이 추가되어 있고, 이미지도 `tdnlamuron2-fortune-card.webp`로 독립된 파일임. 효과음은 원래 카드와 같은 `dashiba.mp3`를 그대로 사용(전용 sfx 없음).
+- **나머지 8명(재닌·하치·다시바를 제외한 전원)의 두 번째 카드 — 밈 패러디가 아니라 "역방향 타로"(리버스 카드) 컨셉, 전부 안 좋은 내용** (아래 "16~23" 섹션 참고): 위 세 장은 특정 밈/별명을 패러디한 카드지만, 나머지 8명(쥬멩이/문모모/뽀린걸/한결/핑구/해파린/리냐/빙밍)에게는 그런 밈이 없어서 대신 **자신의 1번 카드를 정반대로 뒤집은 "리버스 카드"**로 설계함 — 실제 타로에서 같은 카드가 정방향/역방향으로 정반대 의미를 갖는 것처럼, 모티프·소품·구도는 1번 카드와 거의 유사하게 유지하되 **결과만 실패/불운으로 뒤집음**(예: "떠오르는 태양"→"저무는 태양", "무엇도 뚫을 수 없는 요새"→"무너지는 요새"). **사용자 요청에 따라 이 8장은 전부 안 좋은 내용으로만 구성**(기존 11장이 전반적으로 좋은 내용인 것과 의도적으로 대비됨) — 이 문서의 다른 카드들과 달리 "몇 장만 주의를 주는" 게 아니라 이 배치 전체가 그러함. 톤은 12번 우왁굳처럼 코믹하게 웃기는 게 아니라, **실제 타로의 The Tower/Ten of Swords 역방향 카드들처럼 진지하고 불길한 분위기**로 그림(캐릭터 스타일 자체는 다른 카드들과 동일하게 chibi/SD 유지). 각 카드는 원래 카드와 같은 실루엣 레퍼런스를 쓰고, 3D 카드와도 무관하게 독자적으로 설계함. 8장 전부 `streamerId`만 원래 선수를 가리키고 `sfxOverride` 없이 원래 카드의 효과음을 그대로 재사용함(전용 효과음 없음).
 
 ## 공통 작업 방식
 
@@ -24,7 +25,7 @@
 2. **레퍼런스 이미지 첨부**:
    - ① 먼저 **카드 뒷면**(`fortune-card-back.webp`)부터 생성해서 장식 실루엣을 확정.
    - ② 이후 **각 선수 카드 앞면** 생성 시, (a) 확정된 카드 뒷면 이미지를 "동일한 외곽 실루엣/장식 테두리 구조 레퍼런스"로(장식 자체의 디자인 디테일은 앞면마다 살짝 달라도 되지만, 전체적인 윤곽선 구조·비율은 반드시 동일해야 함), (b) 그 선수 실제 사진을 "얼굴/헤어 특징 레퍼런스"로 같이 첨부.
-3. **파일명 규칙**: `fortune-card-back.webp`(공용, 1장), `<id>-fortune-card.webp`(11명 선수 + 재닌·하치·다시바의 두 번째 보너스 카드 3장, 총 14장) — 아래 표의 `id` 컬럼 사용. `src/web/assets/fortune/` 폴더에 저장(이미 폴더 생성해둠). PNG로 받으면 webp로 변환 후 이 폴더에 그대로 넣으면 `fortuneCardAssets.ts`가 자동으로 인식함(빌드 시 `import.meta.glob`으로 스캔 — 별도 등록 코드 필요 없음).
+3. **파일명 규칙**: `fortune-card-back.webp`(공용, 1장), `<id>-fortune-card.webp`(11명 선수 1번 카드 + 11명 전원의 두 번째 보너스 카드, 총 22장) — 아래 표의 `id` 컬럼 사용. `src/web/assets/fortune/` 폴더에 저장(이미 폴더 생성해둠). PNG로 받으면 webp로 변환 후 이 폴더에 그대로 넣으면 `fortuneCardAssets.ts`가 자동으로 인식함(빌드 시 `import.meta.glob`으로 스캔 — 별도 등록 코드 필요 없음).
 4. 앞면이 다 없어도 사이트는 정상 동작함(없는 카드는 "?" 플레이스홀더 박스로 대체) — 급하지 않게 하나씩 채워 넣으면 됨. 카드 뒷면만 먼저 넣어도 셔플/딜 애니메이션은 바로 확인 가능.
 5. **팝업 배경/제목/마스코트/버튼 이미지**는 아래 "공용 팝업 에셋" 섹션 참고 — 이것도 같은 `src/web/assets/fortune/` 폴더에 파일명 규칙대로 저장.
 
@@ -47,10 +48,18 @@
 | 13 | 재닌 (두 번째 카드) | `janine95kim2` | GK | 겨자색+차콜 · 도라에몽 퉁퉁이 패러디(골목대장의 포효) | 울부짖는 수문장 |
 | 14 | 하치 (두 번째 카드) | `hachi972` | WF | 주황+차콜 · "두고하치" 밈 패러디(벼르는 군중) | 두고하치의 심판 |
 | 15 | 다시바 (두 번째 카드) | `tdnlamuron2` | WF | 은빛+백금 · "수은추" 별명 패러디(정화의 오라) | 수은추의 정화 |
+| 16 | 쥬멩이 (두 번째 카드) | `ju0102282` | ST | 탁한 황갈+회갈 · 역방향(저무는 태양) | 저무는 태양 |
+| 17 | 문모모 (두 번째 카드) | `doormomo2` | CDM | 슬레이트 그레이+금 간 은빛 · 역방향(깨진 거울) | 깨진 거울 |
+| 18 | 뽀린걸 (두 번째 카드) | `bboringirl2` | CM | 녹슨 오렌지+갈색 · 역방향(멈춘 엔진) | 녹슨 엔진 |
+| 19 | 한결 (두 번째 카드) | `kaksjak07302` | CM | 탁한 자수정+회보라 · 역방향(빗나간 화살) | 빗나간 화살 |
+| 20 | 핑구 (두 번째 카드) | `sjh40182` | CB | 무너진 석재 회색 · 역방향(균열) | 무너지는 요새 |
+| 21 | 해파린 (두 번째 카드) | `haepalin2` | CB | 짙은 폭풍청 · 역방향(집어삼키는 파도) | 휩쓸리는 파도 |
+| 22 | 리냐 (두 번째 카드) | `lina01082` | FB | 탁한 자보라+회색 · 역방향(막다른 길) | 엇나간 갈림길 |
+| 23 | 빙밍 (두 번째 카드) | `tleod18182` | FB | 그을린 터콰이즈 · 역방향(균형을 잃은 질주) | 헛디딘 질주 |
 
 **12번(우왁굳)은 11장을 전부 뽑기 전까지는 뽑기 풀에 등장하지 않는 숨겨진 보너스 카드** — 자세한 내용은 아래 "12. 우왁굳" 섹션 참고.
 
-**13/14/15번(재닌·하치·다시바의 두 번째 카드)은 숨겨진 카드가 아님** — 12번 우왁굳과 달리 처음부터 나머지 카드들과 함께 뽑기 풀에 항상 포함되는 "보너스 카드"(이 세 선수만 카드 2장씩 가짐). `fortuneCardData.ts`의 `FORTUNE_CARDS` 배열에 정식 항목으로 들어있어서, 우왁굳 언락 조건("전부 뽑아야 함")도 이제 이 세 장까지 포함한 전체 개수를 기준으로 판정됨.
+**13번 이후(재닌·하치·다시바·쥬멩이·문모모·뽀린걸·한결·핑구·해파린·리냐·빙밍의 두 번째 카드, 즉 11명 전원)는 숨겨진 카드가 아님** — 12번 우왁굳과 달리 처음부터 나머지 카드들과 함께 뽑기 풀에 항상 포함되는 "보너스 카드"(우왁굳을 제외한 11명 전원이 카드 2장씩 가짐). `fortuneCardData.ts`의 `FORTUNE_CARDS` 배열에 정식 항목으로 들어있어서, 우왁굳 언락 조건("전부 뽑아야 함")도 이제 이 8장까지 포함한 전체 22장 기준으로 판정됨. 16~23번(쥬멩이~빙밍의 두 번째 카드)은 **전부 안 좋은 내용**으로만 구성된 "역방향 타로" 카드임 — 자세한 배경은 위 디자인 방향 항목 참고.
 
 **컬러/모티프는 3D 카드(`totyCardTheme.ts`/`docs/toty-card-prompts.md`)와 의도적으로 다르게 설계** — 같은 선수라도 두 카드 시리즈가 서로 다른 독자적인 정체성을 갖도록 함(하치만 예외, 위 디자인 방향 참고). 카드 이름은 이전 초안에서 3D 카드 모티프를 그대로 언급하던 것들(룬문양/구름/심해/폭풍/오로라)을 이번 새 컨셉에 맞게 다시 지었음 — 실제 운세 문구(`fortuneCardData.ts`)는 그대로 유지.
 
@@ -660,6 +669,350 @@ silhouette must be fully transparent (alpha 0). Portrait orientation,
 **파일명**: `tdnlamuron2-fortune-card.webp` (다른 카드들과 동일 규칙, `src/web/assets/fortune/`에 저장)
 
 **효과음**: 전용 효과음 없이 원래 카드와 같은 `dashiba.mp3`를 그대로 사용(`fortuneCardData.ts`의 `tdnlamuron2` 항목에 `sfxOverride`를 지정하지 않아서, `streamerId`로 다시바 본인 sfx를 자동으로 가져옴).
+
+---
+
+## 16~23. 나머지 8명의 두 번째 카드 — 전부 "역방향 타로"(안 좋은 내용)
+
+아래 8장은 재닌/하치/다시바처럼 특정 밈을 패러디한 게 아니라, **그 선수의 1번 카드를 정반대로 뒤집은 "리버스 카드"**임 — 소품·구도·모티프는 1번 카드와 거의 그대로 이어가되 결과만 실패로 뒤집는 방식(실제 타로에서 같은 카드의 정방향/역방향이 정반대 의미를 갖는 것과 동일한 원리). **8장 전부 안 좋은 내용**(사용자 요청)이라 이 문서의 다른 카드들과 톤이 다름 — 12번 우왁굳처럼 웃긴 개그가 아니라, 실제 타로의 역방향 메이저 카드(The Tower, Ten of Swords 등)처럼 **진지하고 불길한 분위기**로 그려야 함. 캐릭터 스타일 자체(chibi/SD)는 다른 카드들과 동일하게 유지. 8장 모두 전용 효과음 없이 원래 카드의 sfx를 그대로 재사용함.
+
+### 16. 쥬멩이 (두 번째 카드) — `ju0102282` — 탁한 황갈+회갈 · 저무는 태양 (ST)
+
+**카드 앞면** (쥬멩이 참고 사진 + 카드 뒷면 레퍼런스):
+```
+Using the attached card-back image ONLY as a silhouette/structure
+reference — same rounded-rectangle card body with gold filigree
+ornaments curling outward past the edges at all four corners, same
+small arched crest above the top-center edge, same small pointed
+finial below the bottom-center edge — but redesign the illustration and
+palette completely for this player's second/bonus card (do NOT reuse
+this player's 3D-card look of lime-green vines, and do NOT reuse this
+player's own first tarot card's bright golden-sunrise look either —
+this is the "reversed" mirror-image of that first card: same pose
+language, opposite fortune).
+
+A chibi/SD-style mystical tarot illustration composed like a real
+Major-Arcana tarot card, but in its REVERSED / bad-omen reading (a
+somber, foreboding mood, not comedic) — big head small body, 2-3
+head-tall proportions. The character (from the attached reference
+photo) stands in the same triumphant arms-raised pose as their first
+card, but the sun behind them is now a dim, dying orange disc being
+swallowed by an eclipse-like shadow; the once-radiant sunbeams have gone
+dull and grey, wilting like dry grass. A faint trail of light still arcs
+from their foot toward a goal net in the distance, but it visibly curves
+and fizzles out just short of the goal line — visually telling the
+story "the momentum that used to carry every shot home has quietly run
+out today." Dull burnt-ochre and ash-grey color palette (a faded,
+sun-drained version of the first card's gold/orange), small wilted-ray
+and dying-ember flourishes decorate the corner ornaments (replacing the
+back's mint-gold cosmic motif with this palette, while keeping the same
+silhouette shape). Deflated, quietly disappointed expression, flat
+overcast lighting. Leave the bottom ~15% of the card's inner area as a
+simple, uncluttered space (no text) for a card-name overlay to be added
+later. No text, no logos, no numbers. Entire canvas outside the card's
+own decorative silhouette must be fully transparent (alpha 0). Portrait
+orientation, 1060x1484, PNG with alpha channel.
+```
+
+**파일명**: `ju0102282-fortune-card.webp`
+
+---
+
+### 17. 문모모 (두 번째 카드) — `doormomo2` — 슬레이트 그레이+금 간 은빛 · 깨진 거울 (CDM)
+
+**카드 앞면** (문모모 참고 사진 + 카드 뒷면 레퍼런스):
+```
+Using the attached card-back image ONLY as a silhouette/structure
+reference — same rounded-rectangle card body with gold filigree
+ornaments curling outward past the edges at all four corners, same
+small arched crest above the top-center edge, same small pointed
+finial below the bottom-center edge — but redesign the illustration and
+palette completely for this player's second/bonus card (do NOT reuse
+this player's 3D-card look of violet runes/magic-circles, and do NOT
+reuse this player's own first tarot card's calm navy-silver mirror look
+either — this is the "reversed" mirror-image of that first card: same
+pose language, opposite fortune).
+
+A chibi/SD-style mystical tarot illustration composed like a real
+Major-Arcana tarot card, but in its REVERSED / bad-omen reading (a
+somber, foreboding mood, not comedic) — big head small body, 2-3
+head-tall proportions. The character (from the attached reference
+photo) holds up the same ornate hand mirror as their first card, but
+now it's visibly cracked with a jagged spiderweb fracture across it; the
+tiny reflection of the soccer pitch inside is warped and upside-down,
+and the thin thread of silver-blue light that once extended toward a
+perfect pass now splits into several directions and scatters uselessly
+— visually telling the story "the clear sight that once saw everything
+now shows only a distorted, unreliable picture." Slate-grey and
+tarnished silver color palette (a cracked, dimmed version of the first
+card's navy/silver), small crack-line and shattered-star-map flourishes
+decorate the corner ornaments (replacing the back's mint-gold cosmic
+motif with this palette, while keeping the same silhouette shape).
+Uneasy, second-guessing expression, cold flat lighting with a harsh
+crack-shaped shadow across the face. Leave the bottom ~15% of the
+card's inner area as a simple, uncluttered space (no text) for a
+card-name overlay to be added later. No text, no logos, no numbers.
+Entire canvas outside the card's own decorative silhouette must be
+fully transparent (alpha 0). Portrait orientation, 1060x1484, PNG with
+alpha channel.
+```
+
+**파일명**: `doormomo2-fortune-card.webp`
+
+---
+
+### 18. 뽀린걸 (두 번째 카드) — `bboringirl2` — 녹슨 오렌지+갈색 · 녹슨 엔진 (CM)
+
+**카드 앞면** (뽀린걸 참고 사진 + 카드 뒷면 레퍼런스):
+```
+Using the attached card-back image ONLY as a silhouette/structure
+reference — same rounded-rectangle card body with gold filigree
+ornaments curling outward past the edges at all four corners, same
+small arched crest above the top-center edge, same small pointed
+finial below the bottom-center edge — but redesign the illustration and
+palette completely for this player's second/bonus card (do NOT reuse
+this player's 3D-card look of gunmetal-gray mecha armor/red circuits,
+and do NOT reuse this player's own first tarot card's burnished-bronze
+ember-heart look either — this is the "reversed" mirror-image of that
+first card: same pose language, opposite fortune).
+
+A chibi/SD-style mystical tarot illustration composed like a real
+Major-Arcana tarot card, but in its REVERSED / bad-omen reading (a
+somber, foreboding mood, not comedic) — big head small body, 2-3
+head-tall proportions. The character (from the attached reference
+photo), in the same small warrior armor as their first card, now stands
+slumped with one knee bent, the once-glowing ember-red heart in their
+breastplate reduced to grey smothered ash with only a faint dying
+flicker; behind them the hourglass that used to endlessly refill itself
+now sits cracked and completely empty, its sand spilled and still —
+visually telling the story "even the engine that never tired has
+finally run dry, and today it stalls early." Rusted burnt-orange and
+dull ash-brown color palette (a corroded, faded version of the first
+card's burgundy/bronze), small broken-gear and cold-ember flourishes
+decorate the corner ornaments (replacing the back's mint-gold cosmic
+motif with this palette, while keeping the same silhouette shape).
+Exhausted, drained expression, dim flat lighting. Leave the bottom ~15%
+of the card's inner area as a simple, uncluttered space (no text) for a
+card-name overlay to be added later. No text, no logos, no numbers.
+Entire canvas outside the card's own decorative silhouette must be
+fully transparent (alpha 0). Portrait orientation, 1060x1484, PNG with
+alpha channel.
+```
+
+**파일명**: `bboringirl2-fortune-card.webp`
+
+---
+
+### 19. 한결 (두 번째 카드) — `kaksjak07302` — 탁한 자수정+회보라 · 빗나간 화살 (CM)
+
+**카드 앞면** (한결 참고 사진 + 카드 뒷면 레퍼런스):
+```
+Using the attached card-back image ONLY as a silhouette/structure
+reference — same rounded-rectangle card body with gold filigree
+ornaments curling outward past the edges at all four corners, same
+small arched crest above the top-center edge, same small pointed
+finial below the bottom-center edge — but redesign the illustration and
+palette completely for this player's second/bonus card (do NOT reuse
+this player's 3D-card look of deep-black shattered glass shards, and do
+NOT reuse this player's own first tarot card's calm silver-moonlight
+archer look either — this is the "reversed" mirror-image of that first
+card: same pose language, opposite fortune).
+
+A chibi/SD-style mystical tarot illustration composed like a real
+Major-Arcana tarot card, but in its REVERSED / bad-omen reading (a
+somber, foreboding mood, not comedic) — big head small body, 2-3
+head-tall proportions. The character (from the attached reference
+photo), the same calm moonlit archer as their first card, releases the
+same silver-moonlight arrow, but this time it visibly curves and veers
+wide past a goalpost silhouette in the distance, breaking apart into
+scattered dim light shards instead of striking true; the full moon
+behind them is half-swallowed by drifting storm clouds. — visually
+telling the story "even the steadiest hand can overreach, and tonight
+the shot drifts just wide." Muted amethyst and dull grey-violet color
+palette (a dimmed, clouded version of the first card's silver/plum),
+small broken-arrow and clouded-crescent flourishes decorate the corner
+ornaments (replacing the back's mint-gold cosmic motif with this
+palette, while keeping the same silhouette shape). Tense, faintly
+frustrated expression, cold dim moonlight partly obscured by shadow.
+Leave the bottom ~15% of the card's inner area as a simple, uncluttered
+space (no text) for a card-name overlay to be added later. No text, no
+logos, no numbers. Entire canvas outside the card's own decorative
+silhouette must be fully transparent (alpha 0). Portrait orientation,
+1060x1484, PNG with alpha channel.
+```
+
+**파일명**: `kaksjak07302-fortune-card.webp`
+
+---
+
+### 20. 핑구 (두 번째 카드) — `sjh40182` — 무너진 석재 회색 · 무너지는 요새 (CB)
+
+**카드 앞면** (핑구 참고 사진 + 카드 뒷면 레퍼런스):
+```
+Using the attached card-back image ONLY as a silhouette/structure
+reference — same rounded-rectangle card body with gold filigree
+ornaments curling outward past the edges at all four corners, same
+small arched crest above the top-center edge, same small pointed
+finial below the bottom-center edge — but redesign the illustration and
+palette completely for this player's second/bonus card (do NOT reuse
+this player's 3D-card look of pastel sky-blue clouds/feathers, and do
+NOT reuse this player's own first tarot card's steel-blue/marble-white
+guardian-knight look either — this is the "reversed" mirror-image of
+that first card: same pose language, opposite fortune).
+
+A chibi/SD-style mystical tarot illustration composed like a real
+Major-Arcana tarot card, but in its REVERSED / bad-omen reading (a
+somber, foreboding mood, not comedic) — big head small body, 2-3
+head-tall proportions. The character (from the attached reference
+photo), the same small guardian knight as their first card, still
+leaps from the same floating rampart, but now visible cracks are
+spreading across the marble-white stone and chunks are crumbling away
+beneath their feet; the large shield they raise has a spiderweb crack
+across it, and this time the dark shadowy comet is breaking straight
+through it instead of bouncing off — visually telling the story "the
+wall that never broke finally shows a crack, right when it matters
+most." Weathered stone-grey and dull steel color palette (a cracked,
+crumbling version of the first card's steel-blue/marble-white), small
+falling-rubble and crack-line flourishes decorate the corner ornaments
+(replacing the back's mint-gold cosmic motif with this palette, while
+keeping the same silhouette shape). Startled, off-balance expression,
+harsh cold overcast lighting. Leave the bottom ~15% of the card's inner
+area as a simple, uncluttered space (no text) for a card-name overlay
+to be added later. No text, no logos, no numbers. Entire canvas outside
+the card's own decorative silhouette must be fully transparent (alpha
+0). Portrait orientation, 1060x1484, PNG with alpha channel.
+```
+
+**파일명**: `sjh40182-fortune-card.webp`
+
+---
+
+### 21. 해파린 (두 번째 카드) — `haepalin2` — 짙은 폭풍청 · 휩쓸리는 파도 (CB)
+
+**카드 앞면** (해파린 참고 사진 + 카드 뒷면 레퍼런스):
+```
+Using the attached card-back image ONLY as a silhouette/structure
+reference — same rounded-rectangle card body with gold filigree
+ornaments curling outward past the edges at all four corners, same
+small arched crest above the top-center edge, same small pointed
+finial below the bottom-center edge — but redesign the illustration and
+palette completely for this player's second/bonus card (do NOT reuse
+this player's 3D-card look of lavender-purple deep-sea jellyfish, and
+do NOT reuse this player's own first tarot card's calm sage-green lake
+look either — this is the "reversed" mirror-image of that first card:
+same pose language, opposite fortune).
+
+A chibi/SD-style mystical tarot illustration composed like a real
+Major-Arcana tarot card, but in its REVERSED / bad-omen reading (a
+somber, foreboding mood, not comedic) — big head small body, 2-3
+head-tall proportions. The character (from the attached reference
+photo) stands at the edge of the same lake as their first card, but it
+has turned into a churning, stormy whirlpool; the ribbons of water they
+once used to calmly bind an exhausted opponent are now wrapped around
+their OWN ankles instead, visibly pulling them off balance, while the
+dark shadow-silhouette figure that used to tire out first now looms
+larger and reaches toward them — visually telling the story "the
+patience that always outlasted the opponent finally runs out first
+today." Dark storm-teal and murky slate-blue color palette (a
+turbulent, darkened version of the first card's sage-green/grey-blue),
+small churning-whirlpool and storm-spray flourishes decorate the corner
+ornaments (replacing the back's mint-gold cosmic motif with this
+palette, while keeping the same silhouette shape). Off-balance,
+startled expression, cold stormy lighting. Leave the bottom ~15% of the
+card's inner area as a simple, uncluttered space (no text) for a
+card-name overlay to be added later. No text, no logos, no numbers.
+Entire canvas outside the card's own decorative silhouette must be
+fully transparent (alpha 0). Portrait orientation, 1060x1484, PNG with
+alpha channel.
+```
+
+**파일명**: `haepalin2-fortune-card.webp`
+
+---
+
+### 22. 리냐 (두 번째 카드) — `lina01082` — 탁한 자보라+회색 · 엇나간 갈림길 (FB)
+
+**카드 앞면** (리냐 참고 사진[사시 특징 포함] + 카드 뒷면 레퍼런스):
+```
+Using the attached card-back image ONLY as a silhouette/structure
+reference — same rounded-rectangle card body with gold filigree
+ornaments curling outward past the edges at all four corners, same
+small arched crest above the top-center edge, same small pointed
+finial below the bottom-center edge — but redesign the illustration and
+palette completely for this player's second/bonus card (do NOT reuse
+this player's 3D-card look of vivid pink cherry blossoms, and do NOT
+reuse this player's own first tarot card's shimmering opal crossroads
+look either — this is the "reversed" mirror-image of that first card:
+same pose language, opposite fortune).
+
+A chibi/SD-style mystical tarot illustration composed like a real
+Major-Arcana tarot card, but in its REVERSED / bad-omen reading (a
+somber, foreboding mood, not comedic) — big head small body, 2-3
+head-tall proportions. The character (from the attached reference
+photo, keeping her distinctive slightly wall-eyed/cross-eyed gaze
+exactly as shown — still an endearing quirk, not the source of the bad
+luck here) stands at the same glowing crossroads as their first card,
+with the same two shimmering trails of light diverging from her eyes —
+but this time BOTH trails wander off and dead-end into withered, thorny
+dark hedges with no goal or chance in sight, the once-glowing flowers
+along the path now wilted and grey — visually telling the story
+"even her unpredictable luck runs out sometimes, and today both paths
+lead nowhere." Faded murky violet and ash-grey color palette (a dimmed,
+withered version of the first card's opal/teal/lavender), small wilted
+petal and dead-end-path flourishes decorate the corner ornaments
+(replacing the back's mint-gold cosmic motif with this palette, while
+keeping the same silhouette shape). Confused, slightly deflated
+expression, flat dim lighting. Leave the bottom ~15% of the card's
+inner area as a simple, uncluttered space (no text) for a card-name
+overlay to be added later. No text, no logos, no numbers. Entire canvas
+outside the card's own decorative silhouette must be fully transparent
+(alpha 0). Portrait orientation, 1060x1484, PNG with alpha channel.
+```
+
+**파일명**: `lina01082-fortune-card.webp`
+
+---
+
+### 23. 빙밍 (두 번째 카드) — `tleod18182` — 그을린 터콰이즈 · 헛디딘 질주 (FB)
+
+**카드 앞면** (빙밍 참고 사진 + 카드 뒷면 레퍼런스):
+```
+Using the attached card-back image ONLY as a silhouette/structure
+reference — same rounded-rectangle card body with gold filigree
+ornaments curling outward past the edges at all four corners, same
+small arched crest above the top-center edge, same small pointed
+finial below the bottom-center edge — but redesign the illustration and
+palette completely for this player's second/bonus card (do NOT reuse
+this player's 3D-card look of deep-navy storm clouds/emerald lightning,
+and do NOT reuse this player's own first tarot card's bright turquoise
+cliff-sprint look either — this is the "reversed" mirror-image of that
+first card: same pose language, opposite fortune).
+
+A chibi/SD-style mystical tarot illustration composed like a real
+Major-Arcana tarot card, but in its REVERSED / bad-omen reading (a
+somber, foreboding mood, not comedic) — big head small body, 2-3
+head-tall proportions. The character (from the attached reference
+photo) sprints along the same coastal cliff edge as their first card,
+the same ribbon of turquoise lightning trailing from their heel — but
+this time they're caught mid-stumble, one foot catching on nothing,
+body pitching off balance; the lightning trail crackles erratically and
+snaps back on itself instead of reaching a teammate, and the ball
+squirts away from their control toward the cliff's edge — visually
+telling the story "speed without control just trips over its own
+feet." Scorched dull turquoise and ash-grey color palette (a dimmed,
+static-crackling version of the first card's bright turquoise/white),
+small broken-lightning and stumbling-dust flourishes decorate the
+corner ornaments (replacing the back's mint-gold cosmic motif with this
+palette, while keeping the same silhouette shape). Startled,
+off-balance expression, harsh flickering lighting. Leave the bottom
+~15% of the card's inner area as a simple, uncluttered space (no text)
+for a card-name overlay to be added later. No text, no logos, no
+numbers. Entire canvas outside the card's own decorative silhouette
+must be fully transparent (alpha 0). Portrait orientation, 1060x1484,
+PNG with alpha channel.
+```
+
+**파일명**: `tleod18182-fortune-card.webp`
 
 ---
 

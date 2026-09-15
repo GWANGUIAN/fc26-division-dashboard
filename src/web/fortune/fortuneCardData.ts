@@ -1,8 +1,14 @@
 // Static copy for the "오늘의 운세" tarot draw — one tarot card per roster
 // player (same ids as the TOTY 3D card feature's main roster, see
-// docs/toty-card-prompts.md), plus three players (재닌, 하치, 다시바) who
-// each also have a second bonus card (see janine95kim2/hachi972/
-// tdnlamuron2 below).
+// docs/toty-card-prompts.md), plus a second bonus card for every player.
+// 재닌/하치/다시바's second cards are meme/nickname parodies (see
+// janine95kim2/hachi972/tdnlamuron2); the other 8 players' second cards
+// (ju0102282/doormomo2/bboringirl2/kaksjak07302/sjh40182/haepalin2/
+// lina01082/tleod18182) are plain "reversed tarot" cards — the mirror-image
+// BAD-luck version of that player's own first card, deliberately downbeat
+// where the rest of the deck leans positive (see docs/fortune-prompts.md's
+// design-direction notes on this batch). 우왁굳 is the only card with no
+// second card, since he's a hidden one-off gag, not a roster player.
 // displayName/position are NOT duplicated here; FortunePopup looks those up
 // live from the streamers list by id instead (same reasoning as
 // totyCardTheme.ts staying id-keyed while TotyCardPopup reads the name from
@@ -72,11 +78,33 @@ export const FORTUNE_CARDS: FortuneCardEntry[] = [
     glowColorSoft: "#fff3d0",
   },
   {
+    // 쥬멩이의 두 번째(보너스) 카드 — 특정 밈/별명 패러디가 아니라, 1번 카드의
+    // "떠오르는 태양"을 정반대로 뒤집은 "역방향 타로"(리버스 카드) 컨셉. 이
+    // 배치(ju010228~tleod18182)는 사용자 요청대로 전부 안 좋은 내용으로만
+    // 구성함 — 기존 11장이 전반적으로 좋은 내용인 것과 의도적으로 대비됨.
+    id: "ju0102282",
+    streamerId: "ju010228",
+    cardName: "저무는 태양",
+    fortuneText: "오늘의 태양은 이미 저물고 있다. 어제까지 골문 안으로 빨려 들어가던 슈팅들이, 오늘따라 하나같이 골대를 살짝 비껴간다.",
+    glowColor: "#8a6a4d",
+    glowColorSoft: "#d8c7b0",
+  },
+  {
     id: "doormomo",
     cardName: "천리안의 지휘관",
     fortuneText: "필드 전체가 손바닥 위에 놓인 듯 훤히 보이는 날. 다만 큰 그림에 몰두하다 눈앞의 쉬운 기회를 놓치기 쉬우니, 가끔은 단순하게 갈 것.",
     glowColor: "#8fb4ff",
     glowColorSoft: "#eaf2ff",
+  },
+  {
+    // 문모모의 두 번째(보너스) 카드 — 1번 카드의 "천리안 거울"을 뒤집은
+    // 역방향 타로. 거울이 깨져서 시야가 왜곡된다는 컨셉.
+    id: "doormomo2",
+    streamerId: "doormomo",
+    cardName: "깨진 거울",
+    fortuneText: "거울에 금이 간 날. 필드가 훤히 보인다고 믿었던 것들이 전부 어긋난 상으로 비친다. 자신 있게 찔러넣은 패스일수록 엉뚱한 곳으로 향한다.",
+    glowColor: "#6b7785",
+    glowColorSoft: "#c7d0d8",
   },
   {
     id: "bboringirl",
@@ -86,11 +114,31 @@ export const FORTUNE_CARDS: FortuneCardEntry[] = [
     glowColorSoft: "#ffd9b3",
   },
   {
+    // 뽀린걸의 두 번째(보너스) 카드 — 1번 카드의 "멈추지 않는 무쇠 심장"을
+    // 뒤집은 역방향 타로. 이번엔 그 엔진이 일찍 멈춰버린다는 컨셉.
+    id: "bboringirl2",
+    streamerId: "bboringirl",
+    cardName: "녹슨 엔진",
+    fortuneText: "오늘은 그 무쇠 심장에도 녹이 슨다. 후반 추가시간까지 버티던 그 뚝심이, 정작 오늘은 전반 중반부터 무릎을 꿇는다.",
+    glowColor: "#8a4a2f",
+    glowColorSoft: "#d9a97e",
+  },
+  {
     id: "kaksjak0730",
     cardName: "밤하늘의 프리키커",
     fortuneText: "밤하늘의 별처럼 흔들림 없는 눈. 오늘의 프리킥 한 방이 상대 골키퍼의 두 발을 얼려버린다.",
     glowColor: "#c9a6ff",
     glowColorSoft: "#f0e6ff",
+  },
+  {
+    // 한결의 두 번째(보너스) 카드 — 1번 카드의 "흔들림 없는 프리키커"를 뒤집은
+    // 역방향 타로. 이번엔 그 화살이 과신 때문에 빗나간다는 컨셉.
+    id: "kaksjak07302",
+    streamerId: "kaksjak0730",
+    cardName: "빗나간 화살",
+    fortuneText: "달빛조차 오늘은 그의 손을 들어주지 않는다. 자신만만하게 벼린 화살이 골대를 살짝 비껴가고, 그 여운만 씁쓸하게 남는다.",
+    glowColor: "#5c5470",
+    glowColorSoft: "#bdb6d1",
   },
   {
     id: "sjh4018",
@@ -100,11 +148,32 @@ export const FORTUNE_CARDS: FortuneCardEntry[] = [
     glowColorSoft: "#f2fbff",
   },
   {
+    // 핑구의 두 번째(보너스) 카드 — 1번 카드의 "무엇도 뚫을 수 없는 요새"를
+    // 뒤집은 역방향 타로. 이번엔 그 요새에 금이 간다는 컨셉.
+    id: "sjh40182",
+    streamerId: "sjh4018",
+    cardName: "무너지는 요새",
+    fortuneText: "단단하던 요새에 금이 가는 날. 하늘 위에서 내려다보던 그 시야가 오늘따라 한 박자 느리게 반응한다. 방심한 틈을 놓치지 않는 상대가 있다.",
+    glowColor: "#6e6b63",
+    glowColorSoft: "#cfcac0",
+  },
+  {
     id: "haepalin",
     cardName: "고요한 물결의 파수꾼",
     fortuneText: "서두르면 오히려 놓친다. 물처럼 차분히 기다리면, 상대가 먼저 제풀에 지쳐 무너진다.",
     glowColor: "#9fd8b0",
     glowColorSoft: "#eafff2",
+  },
+  {
+    // 해파린의 두 번째(보너스) 카드 — 1번 카드의 "차분히 기다리면 이기는
+    // 물결"을 뒤집은 역방향 타로. 이번엔 그 기다림이 오히려 자신을 집어삼킨다는
+    // 컨셉.
+    id: "haepalin2",
+    streamerId: "haepalin",
+    cardName: "휩쓸리는 파도",
+    fortuneText: "차분히 기다리던 물결이 오늘은 거꾸로 그를 집어삼킨다. 상대가 지치기를 기다리다, 정작 먼저 균형을 잃는 쪽은 자신이다.",
+    glowColor: "#355761",
+    glowColorSoft: "#9fc4cf",
   },
   {
     id: "lina0108",
@@ -114,11 +183,31 @@ export const FORTUNE_CARDS: FortuneCardEntry[] = [
     glowColorSoft: "#8be8d8",
   },
   {
+    // 리냐의 두 번째(보너스) 카드 — 1번 카드의 "엇갈린 시선 끝의 의외의 행운"을
+    // 뒤집은 역방향 타로. 이번엔 그 시선 끝에 아무 것도 없다는 컨셉.
+    id: "lina01082",
+    streamerId: "lina0108",
+    cardName: "엇나간 갈림길",
+    fortuneText: "이번엔 그 알 수 없는 시선 끝에 아무것도 없다. 두 갈래 길 모두 막다른 곳으로 이어지고, 애꿎은 타이밍만 계속 엇나간다.",
+    glowColor: "#5a4a63",
+    glowColorSoft: "#b8a8c2",
+  },
+  {
     id: "tleod1818",
     cardName: "번개의 질주자",
     fortuneText: "번개처럼 빠르지만, 너무 서두르면 발이 꼬인다. 속도를 늦추고 타이밍을 노리면, 완벽한 크로스가 어시스트로 이어진다.",
     glowColor: "#4dd9e0",
     glowColorSoft: "#e0fbff",
+  },
+  {
+    // 빙밍의 두 번째(보너스) 카드 — 1번 카드의 "번개 같은 질주"를 뒤집은
+    // 역방향 타로. 이번엔 그 속도를 스스로 감당하지 못한다는 컨셉.
+    id: "tleod18182",
+    streamerId: "tleod1818",
+    cardName: "헛디딘 질주",
+    fortuneText: "번개처럼 내달리던 발끝이 오늘은 그 속도를 이기지 못한다. 크로스를 올리기도 전에 먼저 균형을 잃고, 그 틈을 상대가 그대로 걷어간다.",
+    glowColor: "#3d6b6e",
+    glowColorSoft: "#9dc2c4",
   },
   {
     id: "janine95kim",

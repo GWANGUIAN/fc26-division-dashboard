@@ -278,23 +278,25 @@
 /* Same glassmorphism "achievement tooltip" look as
    .woowakgood-bonus-announce (styles.css) — rounded-square (not pill),
    translucent dark glass + backdrop blur/saturate, a colored border/glow
-   instead of a solid fill. Tinted per-card via --fortune-glow/-glow-soft
-   (set inline on .fortune-reveal-panel in FortuneDraw.tsx from the
-   revealed card's own glowColor/glowColorSoft) so the buttons pick up
-   whichever player's palette is showing, same idea as the card's own rim
-   glow (.fortune-card-face--glow above). */
+   instead of a solid fill. Fixed warm-gold accent (NOT the per-card
+   --fortune-glow) — some cards (e.g. the muted/ashen "reversed tarot"
+   bonus cards) have a deliberately dull, low-saturation glowColor, and
+   tinting this button with it made "다시 뽑기" look greyed-out/disabled
+   even though it's always clickable. The card's own rim glow
+   (.fortune-card-face--glow above) still uses --fortune-glow — only this
+   button's color is decoupled from it. */
 .fortune-reveal-panel__btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 12px 24px;
-  border: 1px solid var(--fortune-glow, #ffe29e);
+  border: 1px solid #ffe29e;
   border-radius: 14px;
-  color: var(--fortune-glow, #ffe29e);
+  color: #ffe29e;
   background: rgba(10, 13, 28, .55);
   backdrop-filter: blur(14px) saturate(160%);
   -webkit-backdrop-filter: blur(14px) saturate(160%);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, .45), 0 0 18px color-mix(in srgb, var(--fortune-glow, #ffe29e) 35%, transparent);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .45), 0 0 18px rgba(255, 226, 158, .35);
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
@@ -303,10 +305,10 @@
 .fortune-reveal-panel__btn:hover:not(:disabled) {
   transform: translateY(-2px);
   background: rgba(10, 13, 28, .7);
-  box-shadow: 0 14px 32px rgba(0, 0, 0, .5), 0 0 26px color-mix(in srgb, var(--fortune-glow, #ffe29e) 55%, transparent);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, .5), 0 0 26px rgba(255, 226, 158, .55);
 }
 .fortune-reveal-panel__btn:disabled { opacity: .55; cursor: default; transform: none; }
-.fortune-reveal-panel__btn svg { width: 17px; height: 17px; filter: drop-shadow(0 0 4px var(--fortune-glow-soft, transparent)); }
+.fortune-reveal-panel__btn svg { width: 17px; height: 17px; filter: drop-shadow(0 0 4px rgba(255, 243, 208, .6)); }
 
 /* "이미지로 저장" gets a fixed mint accent (the site's own accent color,
    same family as the toolbar toggles' hover state) instead of the
