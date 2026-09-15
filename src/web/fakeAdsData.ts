@@ -20,18 +20,6 @@ export const fakeAds: FakeAd[] = [
     label: "초보.빙밍",
   },
   {
-    id: "jaenin",
-    image: "/fake-ads/ad-jaenin.webp",
-    href: "https://www.sooplive.com/station/janine95kim",
-    label: "재--신",
-  },
-  {
-    id: "pandadin",
-    image: "/fake-ads/ad-pandabi.webp",
-    href: "https://vod.sooplive.com/player/206780319?change_second=28",
-    label: "샤브샤브 판다비",
-  },
-  {
     id: "hachi",
     image: "/fake-ads/ad-hachi.webp",
     href: "https://vod.sooplive.com/player/207076087",
@@ -44,22 +32,16 @@ export const fakeAds: FakeAd[] = [
     label: "치즈 중독자 뽀린걸",
   },
   {
-    id: "roentgenium",
-    image: "/fake-ads/ad-roentgenium.webp",
-    href: "https://vod.sooplive.com/player/206526289?change_second=1185",
-    label: "여없노밥",
+    id: "wowhachi",
+    image: "/fake-ads/ad-wowhachi.webp",
+    href: "https://vod.sooplive.com/player/206965259/catch",
+    label: "두고하치...",
   },
   {
     id: "panzee",
     image: "/fake-ads/ad-panzee.webp",
     href: "https://vod.sooplive.com/player/206149139/catch",
     label: "야추털",
-  },
-  {
-    id: "jumengee",
-    image: "/fake-ads/ad-jumengee.webp",
-    href: "https://vod.sooplive.com/player/206796559/catch",
-    label: "쥬ㅡㅡ멘",
   },
   {
     id: "haeparin",
