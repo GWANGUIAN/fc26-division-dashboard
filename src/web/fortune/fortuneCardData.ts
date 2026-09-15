@@ -62,15 +62,15 @@ export const FORTUNE_CARDS: FortuneCardEntry[] = [
     // 여자인데 장난삼아 붙은 별명)를 패러디한 개그 카드. janine95kim2/hachi972와
     // 같은 패턴: 정체성은 다시바 그대로, id만 달라서 전용 이미지
     // (tdnlamuron2-fortune-card.webp)와 별도의 "뽑았던 카드" 기록을 가짐 —
-    // streamerId로 실제 표시 이름(다시바)은 그대로 가져옴. sfxOverride 없이
-    // 원래 카드와 같은 효과음(dashiba.mp3)을 그대로 씀(사용자 요청). 자세한
-    // 내용은 docs/fortune-prompts.md 참고.
+    // streamerId로 실제 표시 이름(다시바)은 그대로 가져옴. 자세한 내용은
+    // docs/fortune-prompts.md 참고.
     id: "tdnlamuron2",
     streamerId: "tdnlamuron",
     cardName: "수은추의 정화",
     fortuneText: "다시바가 스쳐 지나가기만 해도 안 좋은 기운은 전부 씻겨 내려간다. 팀은 오늘도 장난삼아 그녀를 '수은추'라 부르지만, 그 정화 능력만큼은 의심할 여지가 없다.",
     glowColor: "#b8c9dc",
     glowColorSoft: "#f2f6fb",
+    sfxOverride: "/sfxes/tdnlamuron-2.mp3",
   },
   {
     id: "ju010228",
@@ -90,6 +90,7 @@ export const FORTUNE_CARDS: FortuneCardEntry[] = [
     fortuneText: "오늘의 태양은 이미 저물고 있다. 어제까지 골문 안으로 빨려 들어가던 슈팅들이, 오늘따라 하나같이 골대를 살짝 비껴간다.",
     glowColor: "#8a6a4d",
     glowColorSoft: "#d8c7b0",
+    sfxOverride: "/sfxes/ju010228-2.mp3",
   },
   {
     id: "doormomo",
@@ -107,6 +108,7 @@ export const FORTUNE_CARDS: FortuneCardEntry[] = [
     fortuneText: "거울에 금이 간 날. 필드가 훤히 보인다고 믿었던 것들이 전부 어긋난 상으로 비친다. 자신 있게 찔러넣은 패스일수록 엉뚱한 곳으로 향한다.",
     glowColor: "#6b7785",
     glowColorSoft: "#c7d0d8",
+    sfxOverride: "/sfxes/doormomo-2.mp3",
   },
   {
     id: "bboringirl",
