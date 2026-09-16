@@ -18,6 +18,7 @@ export function TotyCardVisual({
   onCardClick,
   showGlow = true,
   punch = false,
+  lowQuality = false,
 }: {
   streamer: Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision">;
   assets: TotyCardAssets;
@@ -43,6 +44,11 @@ export function TotyCardVisual({
    * safe to leave true forever once set (same reasoning as
    * .toty-reveal-flip--flipped / .toty-reveal--shake elsewhere). */
   punch?: boolean;
+  /** True on the 1/3-chance easter-egg roll (TotyCardPopup) — `assets` is
+   * already swapped to the crayon-on-sketchbook trio by the caller, this
+   * just adds a CSS hook (.toty-card--lowq) for text styling (e.g. a rough
+   * hand-drawn font for position/division/name) to key off. */
+  lowQuality?: boolean;
 }) {
   const textTheme = getTotyCardTextTheme(streamer.id);
 
@@ -94,7 +100,7 @@ export function TotyCardVisual({
     <div className="toty-card-wrap">
       <div
         ref={cardRef}
-        className={`toty-card ${tilt.active ? "toty-card--active" : ""}`}
+        className={`toty-card ${tilt.active ? "toty-card--active" : ""} ${lowQuality ? "toty-card--lowq" : ""}`}
         onClick={onCardClick}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}

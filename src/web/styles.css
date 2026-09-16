@@ -23,6 +23,14 @@
   font-display: swap;
 }
 
+/* TOTY 3D 카드 저퀄리티(크레파스) 이스터에그의 포지션/디비전/이름 텍스트용 — see toty-card.css's .toty-card--lowq */
+@font-face {
+  font-family: 'YunChorokwoosanEoriniMinguk';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408@1.0/YoonChildfundkoreaMinGuk.woff2') format('woff2');
+  font-weight: normal;
+  font-display: swap;
+}
+
 :root {
   --bg-base: #040706;
   --bg-blob-1: #00cbb127;

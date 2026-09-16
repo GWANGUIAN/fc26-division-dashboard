@@ -127,6 +127,7 @@ export function TotyCardReveal({
   onRevealStart,
   onImpact,
   onRevealed,
+  lowQuality = false,
 }: {
   streamer: Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision">;
   assets: TotyCardAssets;
@@ -140,6 +141,9 @@ export function TotyCardReveal({
   onImpact?: () => void;
   /** Fired once the flip sequence finishes and the interactive card is showing. */
   onRevealed?: () => void;
+  /** See TotyCardVisual's `lowQuality` doc — passed straight through, the
+   * face-down back (cardBackUrl) stays the normal one either way. */
+  lowQuality?: boolean;
 }) {
   const theme = getTotyCardTextTheme(streamer.id);
   // hachi97 is the one deliberately "more lavish, higher-rarity" card (see
@@ -308,6 +312,7 @@ export function TotyCardReveal({
               assets={assets}
               backgroundGlowUrl={backgroundGlowUrl}
               characterHoverUrl={characterHoverUrl}
+              lowQuality={lowQuality}
               onCardClick={onCardClick}
               // showBurst turns on at the flip's exact 90°-rotation midpoint
               // (see the FLIP_MS/2 timer below), where the card is edge-on

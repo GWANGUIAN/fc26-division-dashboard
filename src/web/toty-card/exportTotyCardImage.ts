@@ -84,6 +84,11 @@ export async function exportTotyCardPng(
    * 이미지" option alongside the default "기본 이미지" one, for players who
    * have an alternate hover pose. Omit for the base render. */
   characterOverrideUrl?: string,
+  /** Mirrors TotyCardVisual's `lowQuality` prop (see toty-card.css's
+   * .toty-card--lowq) — swaps position/division/name over to the crude
+   * hand-drawn font so a PNG saved during the 1/3 easter-egg roll matches
+   * what's actually on screen instead of the normal card's fonts. */
+  lowQuality = false,
 ): Promise<void> {
   const theme = getTotyCardTextTheme(streamer.id);
   const [frame, background, character] = await Promise.all([
@@ -100,8 +105,19 @@ export async function exportTotyCardPng(
       document.fonts.load("800 60px 'GiantsInline'"),
       document.fonts.load("800 60px 'Barlow Condensed'"),
       document.fonts.load("700 60px 'Barlow Condensed'"),
+      document.fonts.load("800 60px 'YunChorokwoosanEoriniMinguk'"),
     ]).catch(() => {});
   }
+
+  const statFont = lowQuality ? "'YunChorokwoosanEoriniMinguk', 'Barlow Condensed', sans-serif" : "'Barlow Condensed', sans-serif";
+  const nameFont = lowQuality
+    ? "'YunChorokwoosanEoriniMinguk', 'Barlow Condensed', sans-serif"
+    : "'GiantsInline', 'Barlow Condensed', sans-serif";
+  // Mirrors toty-card.css's .toty-card--lowq .toty-card__name — the
+  // hand-drawn font reads smaller/thinner than GiantsInline at the same
+  // size, so the lowq name gets 1.5x the start size and a heavier weight.
+  const nameWeight = lowQuality ? 900 : 800;
+  const nameStartSize = lowQuality ? 93 : 62;
 
   const canvas = document.createElement("canvas");
   canvas.width = WIDTH;
@@ -124,16 +140,16 @@ export async function exportTotyCardPng(
   // .toty-card__stats' `left: 13%; top: 12%` in toty-card.css.
   const statsX = WIDTH * 0.13;
   if (streamer.hopedPosition1) {
-    ctx.font = "800 78px 'Barlow Condensed', sans-serif";
+    ctx.font = `800 78px ${statFont}`;
     drawOutlinedText(ctx, streamer.hopedPosition1, statsX, HEIGHT * 0.155, theme.color);
   }
-  ctx.font = "700 44px 'Barlow Condensed', sans-serif";
+  ctx.font = `700 44px ${statFont}`;
   drawOutlinedText(ctx, `D${streamer.currentDivision}`, statsX, HEIGHT * 0.205, theme.color);
 
   // Name, matching .toty-card__name's `top: 66%`, shrunk to fit like the
   // live card's ellipsis/max-width does for long names.
-  const nameSize = fitFontSize(ctx, streamer.displayName, "'GiantsInline', 'Barlow Condensed', sans-serif", 800, 62, WIDTH * 0.8);
-  ctx.font = `800 ${nameSize}px 'GiantsInline', 'Barlow Condensed', sans-serif`;
+  const nameSize = fitFontSize(ctx, streamer.displayName, nameFont, nameWeight, nameStartSize, WIDTH * 0.8);
+  ctx.font = `${nameWeight} ${nameSize}px ${nameFont}`;
   drawOutlinedText(ctx, streamer.displayName, WIDTH / 2, HEIGHT * 0.67, theme.color);
 
   const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));

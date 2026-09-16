@@ -10,12 +10,15 @@ import {
   getBackgroundGlowUrl,
   getCardBackUrl,
   getCharacterHoverUrl,
+  getLowQualityTotyCardAssets,
+  getLowQualityTotyCardPreviewUrl,
   getPopupBackdropGlowUrl,
   getPopupBackdropUrl,
   getTotyCardPreviewBaseUrl,
   getTotyCardPreviewUrl,
   type TotyCardAssets,
 } from "./totyCardAssets.js";
+import { rollTotyCardLowQuality } from "./totyCardLowQualityRoll.js";
 import { markTotyCardRevealed } from "./totyCardRevealedStore.js";
 import "./toty-card.css";
 
@@ -104,6 +107,24 @@ export function TotyCardPopup({
   useEscape(onClose);
   useBodyScrollLock();
 
+  // Easter egg: shows a crude crayon-on-sketchbook version of the card
+  // instead (see docs/toty-card-prompts.md) — only possible once that
+  // streamer's <id>-lowq-* trio has actually been added, so this stays a
+  // no-op (always false) for everyone else. Per streamer (see
+  // totyCardLowQualityRoll.ts): the first-ever open is 50/50 random, every
+  // open after that alternates with the previous one. Rolled once per popup
+  // open via a ref guarded against React StrictMode's dev-only double-
+  // invocation of the component body — rollTotyCardLowQuality both reads
+  // and writes localStorage, so calling it twice in a row here would
+  // silently cancel the alternation back to its prior value.
+  const lowQualityAssets = getLowQualityTotyCardAssets(streamer.id);
+  const lowQualityRolledRef = useRef<boolean | null>(null);
+  if (lowQualityRolledRef.current === null) {
+    lowQualityRolledRef.current = Boolean(lowQualityAssets) && rollTotyCardLowQuality(streamer.id);
+  }
+  const useLowQuality = lowQualityRolledRef.current;
+  const cardAssets = useLowQuality && lowQualityAssets ? lowQualityAssets : assets;
+
   // playRevealSfx/playPopupOpenSfx each spin up their own independent Audio
   // element (see their comments above), so nothing normally holds onto them
   // — track the ones this popup has started here so they can all be cut off
@@ -157,7 +178,7 @@ export function TotyCardPopup({
     if (exportingPng) return;
     setExportingPng(true);
     try {
-      await exportTotyCardPng(streamer, assets, characterOverrideUrl);
+      await exportTotyCardPng(streamer, cardAssets, characterOverrideUrl, useLowQuality);
     } finally {
       setExportingPng(false);
     }
@@ -165,15 +186,25 @@ export function TotyCardPopup({
 
   const backdropUrl = getPopupBackdropUrl(streamer.id);
   const backdropGlowUrl = getPopupBackdropGlowUrl(streamer.id);
-  const characterHoverUrl = getCharacterHoverUrl(streamer.id);
+  // Both undefined under the lowq easter egg — that variant is explicitly
+  // just the three crayon frame/background/character images, no hover swap
+  // and no glow overlay (see docs/toty-card-prompts.md).
+  const characterHoverUrl = useLowQuality ? undefined : getCharacterHoverUrl(streamer.id);
   // Pre-rendered offline (scripts/generate-toty-preview.mjs) rather than
   // encoded live in the browser — see the script's header comment for why.
   // previewUrl bakes in characterHoverUrl's swap for the whole loop (the
   // capture script's synthetic mouse never leaves the card), so it reads as
   // the "호버 이미지" option once one exists; previewBaseUrl is the older
-  // pre-hover capture, offered alongside it as "기본 이미지".
-  const previewBaseUrl = getTotyCardPreviewBaseUrl(streamer.id);
-  const previewUrl = getTotyCardPreviewUrl(streamer.id);
+  // pre-hover capture, offered alongside it as "기본 이미지". Under the lowq
+  // easter egg, previewBaseUrl stays hidden (that variant never has a
+  // separate pre-hover capture) and previewUrl swaps to the crayon card's
+  // own gif (--lowq flag on the same script) instead of the real card's —
+  // still hidden if that hasn't been generated for this player yet, rather
+  // than falling back to a mismatched download of the real card.
+  const previewBaseUrl = useLowQuality ? undefined : getTotyCardPreviewBaseUrl(streamer.id);
+  const previewUrl = useLowQuality
+    ? getLowQualityTotyCardPreviewUrl(streamer.id)
+    : getTotyCardPreviewUrl(streamer.id);
 
   return (
     <div
@@ -220,10 +251,11 @@ export function TotyCardPopup({
       <div className="toty-card-popup__stage">
         <TotyCardReveal
           streamer={streamer}
-          assets={assets}
+          assets={cardAssets}
           cardBackUrl={getCardBackUrl(streamer.id)}
-          backgroundGlowUrl={getBackgroundGlowUrl(streamer.id)}
-          characterHoverUrl={getCharacterHoverUrl(streamer.id)}
+          backgroundGlowUrl={useLowQuality ? undefined : getBackgroundGlowUrl(streamer.id)}
+          characterHoverUrl={characterHoverUrl}
+          lowQuality={useLowQuality}
           onCardClick={handleCardClick}
           onRevealStart={handleRevealStart}
           onImpact={handleRevealImpact}

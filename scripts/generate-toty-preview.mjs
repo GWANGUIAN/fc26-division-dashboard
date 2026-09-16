@@ -16,8 +16,14 @@
  * Requires the Vite dev server already running (`pnpm dev`) and Playwright's
  * Chromium installed (`npx playwright install chromium` once).
  *
- * Run with: pnpm generate:toty-preview -- <streamerId> [port]
+ * Run with: pnpm generate:toty-preview -- <streamerId> [port] [--lowq]
  * Example:  pnpm generate:toty-preview -- hachi97
+ *
+ * --lowq captures the "저퀄리티" easter-egg trio (<id>-lowq-*.webp — see
+ * docs/toty-card-prompts.md) instead of the real card, writing
+ * <id>-lowq-preview.gif. That variant never has hover art or a glow overlay
+ * (TotyCardCapturePage leaves both off under ?lowq=1), so there's no
+ * separate "-lowq-preview-base.gif" the way the real card has one.
  */
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
@@ -53,16 +59,19 @@ const NON_ROSTER_STREAMERS = {
 };
 
 async function main() {
-  const [id, port = "5184"] = process.argv.slice(2);
+  const rawArgs = process.argv.slice(2);
+  const lowQuality = rawArgs.includes("--lowq");
+  const [id, port = "5184"] = rawArgs.filter((arg) => arg !== "--lowq");
   if (!id) {
-    console.error("Usage: pnpm generate:toty-preview -- <streamerId> [port]");
+    console.error("Usage: pnpm generate:toty-preview -- <streamerId> [port] [--lowq]");
     process.exit(1);
   }
 
   const assetsDir = path.join(rootDir, "src", "web", "assets", "toty-cards");
+  const assetPrefix = lowQuality ? `${id}-lowq` : id;
   for (const part of ["frame", "background", "character"]) {
-    if (!existsSync(path.join(assetsDir, `${id}-${part}.webp`))) {
-      console.error(`Missing ${id}-${part}.webp in src/web/assets/toty-cards/ — generate the 3 card images first.`);
+    if (!existsSync(path.join(assetsDir, `${assetPrefix}-${part}.webp`))) {
+      console.error(`Missing ${assetPrefix}-${part}.webp in src/web/assets/toty-cards/ — generate the 3 card images first.`);
       process.exit(1);
     }
   }
@@ -84,8 +93,9 @@ async function main() {
   url.searchParams.set("name", streamer.displayName);
   if (streamer.hopedPosition1) url.searchParams.set("pos", streamer.hopedPosition1);
   url.searchParams.set("div", String(streamer.currentDivision ?? 1));
+  if (lowQuality) url.searchParams.set("lowq", "1");
 
-  console.log(`Capturing ${streamer.displayName} (${id}) from ${url}`);
+  console.log(`Capturing ${streamer.displayName} (${id})${lowQuality ? " [lowq]" : ""} from ${url}`);
   const browser = await chromium.launch();
   try {
     const page = await browser.newPage({ viewport: VIEWPORT });
@@ -123,7 +133,7 @@ async function main() {
     }
     const stacked = Buffer.concat(decoded.map(({ data }) => data));
 
-    const outPath = path.join(assetsDir, `${id}-preview.gif`);
+    const outPath = path.join(assetsDir, `${id}${lowQuality ? "-lowq" : ""}-preview.gif`);
     // pageHeight on the *input* raw options (sharp >=0.34.3) is what tells
     // it this buffer is a vertically-stacked multi-frame image, not
     // `animated`/`pages` — those only apply when reading an already-encoded

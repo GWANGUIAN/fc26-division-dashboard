@@ -445,6 +445,25 @@ body.toty-capture-mode::after {
   font-size: clamp(20px, 9cqw, 48px);
 }
 
+/* .toty-card--lowq is set on .toty-card (TotyCardVisual's lowQuality prop)
+   on the 1/3 "저퀄리티" easter-egg roll — swaps position/division/name over
+   to a crude hand-drawn-looking font (@font-face in styles.css) to match
+   the crayon card art. .toty-card__name::before (the hover shine copy)
+   picks this up too since font-family inherits onto it automatically. */
+.toty-card--lowq .toty-card__div,
+.toty-card--lowq .toty-card__pos,
+.toty-card--lowq .toty-card__name {
+  font-family: 'YunChorokwoosanEoriniMinguk', "Barlow Condensed", sans-serif;
+}
+/* Name specifically: 1.5x .toty-card__name's own clamp() + heavier weight
+   (900, vs. the normal card's 800) — this hand-drawn font reads noticeably
+   smaller/thinner than GiantsInline at the same size, so it needs the boost
+   to stay as legible/bold as the real card's name. */
+.toty-card--lowq .toty-card__name {
+  font-size: clamp(24px, 9cqw, 42px);
+  font-weight: 900;
+}
+
 /* Name: plain outlined text (no plate) sitting around the 2/3 mark of the
    card, over the character's torso where the art is dark enough for the
    gold fill + black outline to stay readable on its own. The real text node

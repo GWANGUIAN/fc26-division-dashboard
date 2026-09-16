@@ -79,6 +79,808 @@
 - **파일명**: `<id>-character-hover.webp` (`totyCardAssets.ts`가 자동 스캔 — 없어도 기본 캐릭터 이미지만으로 카드는 정상 동작함)
 - **적용 방식**: `TotyCardVisual.tsx`에서 기본 캐릭터 이미지와 이 이미지가 같은 자리에 겹쳐 있다가, 호버 시작 시 기본 이미지는 0.25초에 걸쳐 사라지고 이 이미지가 그만큼 나타남(크로스페이드), 호버가 끝나면 반대로 되돌아감 — `toty-card.css`의 `.toty-card__char--has-hover`/`.toty-card__char-hover`.
 
+## 이스터에그: 저퀄리티(크레파스) 3D 카드 (선수별로 각각 생성 — 미구현)
+
+팝업을 열 때마다, 진짜 카드 대신 그 선수의 카드를 "유치원생이 스케치북에 크레파스로 그린 듯한" 완전히 저퀄리티 버전으로 보여주는 숨겨진 이스터에그. 선수별로 독립적으로 굴림(`totyCardLowQualityRoll.ts`) — **그 선수 카드를 처음 여는 순간은 50/50 랜덤**이고, **그다음부터는 열 때마다 직전과 번갈아가며(alternate)** 나옴(연속으로 같은 버전이 두 번 뜨지 않음), localStorage에 선수별로 마지막 결과를 저장해서 세션이 바뀌어도 이어짐. 프레임/배경/캐릭터 **3장만** 따로 만들고, **캐릭터 호버 대체 이미지와 배경 반짝임(빛 효과) 오버레이는 이 버전에서 아예 쓰지 않음**(그런 게 있을 리 없는 조악한 카드라는 컨셉). 카드 뒷면(`<id>-card-back.webp`)과 리빌 연출(터널/플립/버스트), 팝업 배경은 전부 기존 것 그대로 사용 — 뒤집었을 때 앞면 그림 3장만 저퀄리티로 바뀌는 것.
+
+- **캔버스**: 1060×1484px (다른 3장과 동일 비율). **프레임**과 **캐릭터**는 알파 채널 있는 투명 PNG(도안 바깥은 완전 투명 — 나머지 레이어처럼), **배경**은 불투명 PNG(스케치북 종이 바탕까지 포함해서 꽉 채움).
+- **레퍼런스**: 프레임은 하치 프레임이 아니라 **그 선수의 이미 생성된 `<id>-frame.webp`**를 첨부 — 실루엣뿐 아니라 이미 완성된 모티프·컬러까지 그대로 참고해서 "그 프레임을 크레파스로 다시 그린 버전"을 만드는 것(용암/서리/해파리 등 모티프 자체는 유지, 표현만 조악하게). 배경은 참고 이미지 불필요. 캐릭터는 그 선수의 **이미 생성된 `<id>-character.webp`**를 정체성/키트 컬러 참고용으로만 첨부(스트리머 실사진이 아님) — 포즈·비율은 그대로 베끼지 않고 크레파스 낙서 수준으로 뭉개도 됨.
+- **파일명**: `<id>-lowq-frame.webp`, `<id>-lowq-background.webp`, `<id>-lowq-character.webp`. 변환 스크립트를 그대로 재사용 가능 — PNG 3장을 `public/test/`에 `frame.png`/`background.png`/`character.png`로 받아뒀다면:
+  ```bash
+  pnpm convert:card-art -- <id>-lowq
+  ```
+  (예: 다시바용이면 `pnpm convert:card-art -- tdnlamuron-lowq`) — 스크립트는 `<streamerId>-<part>.webp`로만 저장하므로 `<id>-lowq`를 그대로 id처럼 넘기면 파일명 규칙이 자동으로 맞음.
+- **자동 인식**: `totyCardAssets.ts`의 `getLowQualityTotyCardAssets`가 `-lowq-` 트리오를 따로 스캔함 — 3장이 모두 갖춰진 선수만 이스터에그 대상이 되고, 아직 없는 선수는 항상 원래 카드만 나옴(=순차 추가 가능). 버튼이나 별도 UI는 없고, `TotyCardPopup`이 팝업을 열 때마다 조용히 위의 "처음엔 50/50, 그다음부턴 번갈아" 규칙을 굴림.
+- **공용 크레파스 화풍 문구**: 아래 12명(선수 10명 + 하치·우왁굳 보너스 2명) 프롬프트 전부 다음 문구를 그대로 포함함 — *"in the style of a small child's crayon drawing on lined sketchbook paper — thick waxy crayon strokes, wobbly crooked outlines that don't quite close, visible paper texture and faint pencil guide lines peeking through, colors scribbled messily outside the lines, crude flat proportions, no shading or gradients, looks like an actual elementary schooler's homework drawing, intentionally bad and charming — NOT a polished 'cute chibi' illustration, NOT clean vector art."*
+- **우왁굳(보너스) 주의**: 위 "보너스: 우왁굳" 섹션과 동일하게, 실제 BMW 로고/라운델/워드마크를 그대로 그리게 하면 안 됨 — 아래 우왁굳 저퀄리티 프롬프트에도 같은 금지 문구를 넣어뒀으니 생성 결과에 실제 브랜드 마크가 비치면 반드시 다시 생성할 것.
+
+### 1. 다시바 — `tdnlamuron`
+
+**프레임** (기존 `tdnlamuron-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a small child's crayon drawing on
+lined sketchbook paper — thick waxy crayon strokes, wobbly crooked
+outlines that don't quite close, visible paper texture and faint pencil
+guide lines peeking through, colors scribbled messily outside the lines,
+crude flat proportions, no shading or gradients, looks like an actual
+elementary schooler's homework drawing, intentionally bad and charming —
+NOT a polished "cute chibi" illustration, NOT clean vector art. Using the
+attached card frame image as a full reference (not just a shape) — same
+shield-shaped outer silhouette, same crest bump at the top center, same
+inner window opening, and the same molten-lava/ember motif and
+orange-and-black color palette already on it — redraw this exact frame
+as if a small child copied it freehand in crayon: keep the same corner
+decoration idea but make it crude, lopsided, and scribbled. No player, no
+text, no stats. Entire canvas outside the drawn shield's own outline
+(including the inner window) must be fully transparent. PNG with alpha
+channel, 1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a small child's crayon drawing
+on a single flat sheet of lined notebook paper — thick waxy crayon
+strokes, wobbly crooked lines, visible paper texture and faint blue
+ruled lines and pencil guide lines peeking through, colors scribbled
+messily outside the lines, crude flat shapes, no shading or gradients,
+looks like an actual elementary schooler's homework drawing,
+intentionally bad and charming. This is a full-bleed close-up crop of
+just the paper's flat surface, filling the entire canvas edge-to-edge —
+do NOT depict a spiral-bound notebook, ring binder, hole-punch holes,
+perforated edge, torn edge, page corner/curl, or any part of a book or
+notebook itself; there must be no holes, rings, wire coil, or binding of
+any kind anywhere in the image, just the flat ruled paper texture itself
+filling the whole frame. Portrait orientation, a
+messy orange-and-red crayon scribble of a volcano with lava and a few
+triangle "fire" shapes in the corner, filling the whole page including
+the visible lined sketchbook paper background. No characters, no people,
+no border/frame, no text. PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `tdnlamuron-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same apricot-orange and cream soccer kit) — redraw
+it MUCH more crudely, like a genuinely bad drawing by a 5-year-old just
+learning to hold a crayon: lopsided potato-shaped head far too big for the
+body, one arm noticeably longer than the other, legs of uneven thickness,
+no neck, hands and feet drawn as simple round blobs with no fingers or
+toes, facial features uneven and off-center (eyes different sizes, crooked
+scribbled smile), thick shaky crayon outlines that overshoot and don't
+fully close, color scribbled sloppily outside the lines with visible gaps
+of blank space showing through, no shading, no clean linework, no correct
+anatomy or proportion anywhere. This must look like an actual amateur
+child's homework drawing — clumsy and a little ugly — NOT cute, NOT
+polished, NOT chibi, NOT a skillful "bad on purpose" stylization; it
+should read as genuinely, artlessly poorly drawn. Draw a crude standing
+soccer pose with a wobbly circle for a ball near one foot. No frame, no
+text, no background — fully transparent PNG with alpha channel, 1060x1484,
+leave open space above the head and below the waist for name/stat
+overlays.
+```
+
+### 2. 쥬멩이 — `ju010228`
+
+**프레임** (기존 `ju010228-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a small child's crayon drawing on
+lined sketchbook paper — thick waxy crayon strokes, wobbly crooked
+outlines that don't quite close, visible paper texture and faint pencil
+guide lines peeking through, colors scribbled messily outside the lines,
+crude flat proportions, no shading or gradients, looks like an actual
+elementary schooler's homework drawing, intentionally bad and charming —
+NOT a polished "cute chibi" illustration, NOT clean vector art. Using the
+attached card frame image as a full reference (not just a shape) — same
+shield-shaped outer silhouette, same crest bump at the top center, same
+inner window opening, and the same spring-vine/budding-leaf motif and
+lime-green color palette already on it — redraw this exact frame as if a
+small child copied it freehand in crayon: keep the same corner decoration
+idea but make it crude, lopsided, and scribbled. No player, no text, no
+stats. Entire canvas outside the drawn shield's own outline (including
+the inner window) must be fully transparent. PNG with alpha channel,
+1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a small child's crayon drawing
+on a single flat sheet of lined notebook paper — thick waxy crayon
+strokes, wobbly crooked lines, visible paper texture and faint blue
+ruled lines and pencil guide lines peeking through, colors scribbled
+messily outside the lines, crude flat shapes, no shading or gradients,
+looks like an actual elementary schooler's homework drawing,
+intentionally bad and charming. This is a full-bleed close-up crop of
+just the paper's flat surface, filling the entire canvas edge-to-edge —
+do NOT depict a spiral-bound notebook, ring binder, hole-punch holes,
+perforated edge, torn edge, page corner/curl, or any part of a book or
+notebook itself; there must be no holes, rings, wire coil, or binding of
+any kind anywhere in the image, just the flat ruled paper texture itself
+filling the whole frame. Portrait orientation, a
+messy lime-green crayon scribble of vines, leaves and a couple of round
+"flower" doodles in the corner, filling the whole page including the
+visible lined sketchbook paper background. No characters, no people, no
+border/frame, no text. PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `ju010228-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same lime-green and white soccer kit) — redraw it
+MUCH more crudely, like a genuinely bad drawing by a 5-year-old just
+learning to hold a crayon: lopsided potato-shaped head far too big for the
+body, one arm noticeably longer than the other, legs of uneven thickness,
+no neck, hands and feet drawn as simple round blobs with no fingers or
+toes, facial features uneven and off-center (eyes different sizes, crooked
+scribbled smile), thick shaky crayon outlines that overshoot and don't
+fully close, color scribbled sloppily outside the lines with visible gaps
+of blank space showing through, no shading, no clean linework, no correct
+anatomy or proportion anywhere. This must look like an actual amateur
+child's homework drawing — clumsy and a little ugly — NOT cute, NOT
+polished, NOT chibi, NOT a skillful "bad on purpose" stylization; it
+should read as genuinely, artlessly poorly drawn. Draw a crude pose with
+both arms thrown straight up in a lopsided "hooray" celebration. No frame,
+no text, no background — fully transparent PNG with alpha channel,
+1060x1484, leave open space above the head and below the waist for
+name/stat overlays.
+```
+
+### 3. 문모모 — `doormomo`
+
+**프레임** (기존 `doormomo-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a small child's crayon drawing on
+lined sketchbook paper — thick waxy crayon strokes, wobbly crooked
+outlines that don't quite close, visible paper texture and faint pencil
+guide lines peeking through, colors scribbled messily outside the lines,
+crude flat proportions, no shading or gradients, looks like an actual
+elementary schooler's homework drawing, intentionally bad and charming —
+NOT a polished "cute chibi" illustration, NOT clean vector art. Using the
+attached card frame image as a full reference (not just a shape) — same
+shield-shaped outer silhouette, same crest bump at the top center, same
+inner window opening, and the same magic-circle/rune motif and purple
+color palette already on it — redraw this exact frame as if a small
+child copied it freehand in crayon: keep the same corner decoration idea
+but make it crude, lopsided, and scribbled. No player, no text, no stats.
+Entire canvas outside the drawn shield's own outline (including the
+inner window) must be fully transparent. PNG with alpha channel,
+1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a small child's crayon drawing
+on a single flat sheet of lined notebook paper — thick waxy crayon
+strokes, wobbly crooked lines, visible paper texture and faint blue
+ruled lines and pencil guide lines peeking through, colors scribbled
+messily outside the lines, crude flat shapes, no shading or gradients,
+looks like an actual elementary schooler's homework drawing,
+intentionally bad and charming. This is a full-bleed close-up crop of
+just the paper's flat surface, filling the entire canvas edge-to-edge —
+do NOT depict a spiral-bound notebook, ring binder, hole-punch holes,
+perforated edge, torn edge, page corner/curl, or any part of a book or
+notebook itself; there must be no holes, rings, wire coil, or binding of
+any kind anywhere in the image, just the flat ruled paper texture itself
+filling the whole frame. Portrait orientation, a
+messy purple crayon scribble of a lopsided magic circle, star shapes and
+squiggly rune symbols in the corner, filling the whole page including the
+visible lined sketchbook paper background. No characters, no people, no
+border/frame, no text. PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `doormomo-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same purple and silver soccer kit) — redraw it
+MUCH more crudely, like a genuinely bad drawing by a 5-year-old just
+learning to hold a crayon: lopsided potato-shaped head far too big for the
+body, one arm noticeably longer than the other, legs of uneven thickness,
+no neck, hands and feet drawn as simple round blobs with no fingers or
+toes, facial features uneven and off-center (eyes different sizes, crooked
+scribbled smile), thick shaky crayon outlines that overshoot and don't
+fully close, color scribbled sloppily outside the lines with visible gaps
+of blank space showing through, no shading, no clean linework, no correct
+anatomy or proportion anywhere. This must look like an actual amateur
+child's homework drawing — clumsy and a little ugly — NOT cute, NOT
+polished, NOT chibi, NOT a skillful "bad on purpose" stylization; it
+should read as genuinely, artlessly poorly drawn. Draw a crude standing
+pose with arms crossed and a wobbly circle for a ball under one foot. No
+frame, no text, no background — fully transparent PNG with alpha channel,
+1060x1484, leave open space above the head and below the waist for
+name/stat overlays.
+```
+
+### 4. 뽀린걸 — `bboringirl`
+
+**프레임** (기존 `bboringirl-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a small child's crayon drawing on
+lined sketchbook paper — thick waxy crayon strokes, wobbly crooked
+outlines that don't quite close, visible paper texture and faint pencil
+guide lines peeking through, colors scribbled messily outside the lines,
+crude flat proportions, no shading or gradients, looks like an actual
+elementary schooler's homework drawing, intentionally bad and charming —
+NOT a polished "cute chibi" illustration, NOT clean vector art. Using the
+attached card frame image as a full reference (not just a shape) — same
+shield-shaped outer silhouette, same crest bump at the top center, same
+inner window opening, and the same robot-plate/circuit motif and
+gray-and-red color palette already on it — redraw this exact frame as if
+a small child copied it freehand in crayon: keep the same corner
+decoration idea but make it crude, lopsided, and scribbled. No player, no
+text, no stats. Entire canvas outside the drawn shield's own outline
+(including the inner window) must be fully transparent. PNG with alpha
+channel, 1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a small child's crayon drawing
+on a single flat sheet of lined notebook paper — thick waxy crayon
+strokes, wobbly crooked lines, visible paper texture and faint blue
+ruled lines and pencil guide lines peeking through, colors scribbled
+messily outside the lines, crude flat shapes, no shading or gradients,
+looks like an actual elementary schooler's homework drawing,
+intentionally bad and charming. This is a full-bleed close-up crop of
+just the paper's flat surface, filling the entire canvas edge-to-edge —
+do NOT depict a spiral-bound notebook, ring binder, hole-punch holes,
+perforated edge, torn edge, page corner/curl, or any part of a book or
+notebook itself; there must be no holes, rings, wire coil, or binding of
+any kind anywhere in the image, just the flat ruled paper texture itself
+filling the whole frame. Portrait orientation, a
+messy gray crayon scribble of blocky robot armor plates with red zigzag
+"circuit" lines scrawled through them in the corner, filling the whole
+page including the visible lined sketchbook paper background. No
+characters, no people, no border/frame, no text. PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `bboringirl-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same gunmetal-gray kit with red trim) — redraw it
+MUCH more crudely, like a genuinely bad drawing by a 5-year-old just
+learning to hold a crayon: lopsided potato-shaped head far too big for the
+body, one arm noticeably longer than the other, legs of uneven thickness,
+no neck, hands and feet drawn as simple round blobs with no fingers or
+toes, facial features uneven and off-center (eyes different sizes, crooked
+scribbled smile), thick shaky crayon outlines that overshoot and don't
+fully close, color scribbled sloppily outside the lines with visible gaps
+of blank space showing through, no shading, no clean linework, no correct
+anatomy or proportion anywhere. This must look like an actual amateur
+child's homework drawing — clumsy and a little ugly — NOT cute, NOT
+polished, NOT chibi, NOT a skillful "bad on purpose" stylization; it
+should read as genuinely, artlessly poorly drawn. Draw a crude running
+pose with one stick arm pointing forward. No frame, no text, no
+background — fully transparent PNG with alpha channel, 1060x1484, leave
+open space above the head and below the waist for name/stat overlays.
+```
+
+### 5. 한결 — `kaksjak0730`
+
+**프레임** (기존 `kaksjak0730-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a small child's crayon drawing on
+lined sketchbook paper — thick waxy crayon strokes, wobbly crooked
+outlines that don't quite close, visible paper texture and faint pencil
+guide lines peeking through, colors scribbled messily outside the lines,
+crude flat proportions, no shading or gradients, looks like an actual
+elementary schooler's homework drawing, intentionally bad and charming —
+NOT a polished "cute chibi" illustration, NOT clean vector art. Using the
+attached card frame image as a full reference (not just a shape) — same
+shield-shaped outer silhouette, same crest bump at the top center, same
+inner window opening, and the same night-sky/glass-shard motif and
+black-and-blue color palette already on it — redraw this exact frame as
+if a small child copied it freehand in crayon: keep the same corner
+decoration idea but make it crude, lopsided, and scribbled. No player, no
+text, no stats. Entire canvas outside the drawn shield's own outline
+(including the inner window) must be fully transparent. PNG with alpha
+channel, 1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a small child's crayon drawing
+on a single flat sheet of lined notebook paper — thick waxy crayon
+strokes, wobbly crooked lines, visible paper texture and faint blue
+ruled lines and pencil guide lines peeking through, colors scribbled
+messily outside the lines, crude flat shapes, no shading or gradients,
+looks like an actual elementary schooler's homework drawing,
+intentionally bad and charming. This is a full-bleed close-up crop of
+just the paper's flat surface, filling the entire canvas edge-to-edge —
+do NOT depict a spiral-bound notebook, ring binder, hole-punch holes,
+perforated edge, torn edge, page corner/curl, or any part of a book or
+notebook itself; there must be no holes, rings, wire coil, or binding of
+any kind anywhere in the image, just the flat ruled paper texture itself
+filling the whole frame. Portrait orientation, a
+messy dark navy-and-black crayon scribble of a night sky with a bunch of
+crooked star shapes and a few jagged "glass shard" doodles in the corner,
+filling the whole page including the visible lined sketchbook paper
+background. No characters, no people, no border/frame, no text. PNG,
+1060x1484.
+```
+
+**캐릭터** (기존 `kaksjak0730-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same matte black kit with sapphire-blue trim) —
+redraw it MUCH more crudely, like a genuinely bad drawing by a 5-year-old
+just learning to hold a crayon: lopsided potato-shaped head far too big
+for the body, one arm noticeably longer than the other, legs of uneven
+thickness, no neck, hands and feet drawn as simple round blobs with no
+fingers or toes, facial features uneven and off-center (eyes different
+sizes, crooked scribbled smile), thick shaky crayon outlines that
+overshoot and don't fully close, color scribbled sloppily outside the
+lines with visible gaps of blank space showing through, no shading, no
+clean linework, no correct anatomy or proportion anywhere. This must look
+like an actual amateur child's homework drawing — clumsy and a little
+ugly — NOT cute, NOT polished, NOT chibi, NOT a skillful "bad on purpose"
+stylization; it should read as genuinely, artlessly poorly drawn. Draw a
+crude free-kick stance with one stick leg drawn mid-swing. No frame, no
+text, no background — fully transparent PNG with alpha channel,
+1060x1484, leave open space above the head and below the waist for
+name/stat overlays.
+```
+
+### 6. 핑구 — `sjh4018`
+
+**프레임** (기존 `sjh4018-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a small child's crayon drawing on
+lined sketchbook paper — thick waxy crayon strokes, wobbly crooked
+outlines that don't quite close, visible paper texture and faint pencil
+guide lines peeking through, colors scribbled messily outside the lines,
+crude flat proportions, no shading or gradients, looks like an actual
+elementary schooler's homework drawing, intentionally bad and charming —
+NOT a polished "cute chibi" illustration, NOT clean vector art. Using the
+attached card frame image as a full reference (not just a shape) — same
+shield-shaped outer silhouette, same crest bump at the top center, same
+inner window opening, and the same cloud/feather motif and
+sky-blue-and-lavender color palette already on it — redraw this exact
+frame as if a small child copied it freehand in crayon: keep the same
+corner decoration idea but make it crude, lopsided, and scribbled. No
+player, no text, no stats. Entire canvas outside the drawn shield's own
+outline (including the inner window) must be fully transparent. PNG with
+alpha channel, 1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a small child's crayon drawing
+on a single flat sheet of lined notebook paper — thick waxy crayon
+strokes, wobbly crooked lines, visible paper texture and faint blue
+ruled lines and pencil guide lines peeking through, colors scribbled
+messily outside the lines, crude flat shapes, no shading or gradients,
+looks like an actual elementary schooler's homework drawing,
+intentionally bad and charming. This is a full-bleed close-up crop of
+just the paper's flat surface, filling the entire canvas edge-to-edge —
+do NOT depict a spiral-bound notebook, ring binder, hole-punch holes,
+perforated edge, torn edge, page corner/curl, or any part of a book or
+notebook itself; there must be no holes, rings, wire coil, or binding of
+any kind anywhere in the image, just the flat ruled paper texture itself
+filling the whole frame. Portrait orientation, a
+messy sky-blue crayon scribble of a few lumpy cloud shapes and lavender
+feather doodles in the corner, filling the whole page including the
+visible lined sketchbook paper background. No characters, no people, no
+border/frame, no text. PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `sjh4018-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same sky-blue kit with pale lavender trim) —
+redraw it MUCH more crudely, like a genuinely bad drawing by a 5-year-old
+just learning to hold a crayon: lopsided potato-shaped head far too big
+for the body, one arm noticeably longer than the other, legs of uneven
+thickness, no neck, hands and feet drawn as simple round blobs with no
+fingers or toes, facial features uneven and off-center (eyes different
+sizes, crooked scribbled smile), thick shaky crayon outlines that
+overshoot and don't fully close, color scribbled sloppily outside the
+lines with visible gaps of blank space showing through, no shading, no
+clean linework, no correct anatomy or proportion anywhere. This must look
+like an actual amateur child's homework drawing — clumsy and a little
+ugly — NOT cute, NOT polished, NOT chibi, NOT a skillful "bad on purpose"
+stylization; it should read as genuinely, artlessly poorly drawn. Draw a
+crude wide defensive stance with both stick arms out. No frame, no text,
+no background — fully transparent PNG with alpha channel, 1060x1484,
+leave open space above the head and below the waist for name/stat
+overlays.
+```
+
+### 7. 해파린 — `haepalin`
+
+**프레임** (기존 `haepalin-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a small child's crayon drawing on
+lined sketchbook paper — thick waxy crayon strokes, wobbly crooked
+outlines that don't quite close, visible paper texture and faint pencil
+guide lines peeking through, colors scribbled messily outside the lines,
+crude flat proportions, no shading or gradients, looks like an actual
+elementary schooler's homework drawing, intentionally bad and charming —
+NOT a polished "cute chibi" illustration, NOT clean vector art. Using the
+attached card frame image as a full reference (not just a shape) — same
+shield-shaped outer silhouette, same crest bump at the top center, same
+inner window opening, and the same jellyfish/bioluminescent motif and
+lavender-and-purple color palette already on it — redraw this exact
+frame as if a small child copied it freehand in crayon: keep the same
+corner decoration idea but make it crude, lopsided, and scribbled. No
+player, no text, no stats. Entire canvas outside the drawn shield's own
+outline (including the inner window) must be fully transparent. PNG with
+alpha channel, 1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a small child's crayon drawing
+on a single flat sheet of lined notebook paper — thick waxy crayon
+strokes, wobbly crooked lines, visible paper texture and faint blue
+ruled lines and pencil guide lines peeking through, colors scribbled
+messily outside the lines, crude flat shapes, no shading or gradients,
+looks like an actual elementary schooler's homework drawing,
+intentionally bad and charming. This is a full-bleed close-up crop of
+just the paper's flat surface, filling the entire canvas edge-to-edge —
+do NOT depict a spiral-bound notebook, ring binder, hole-punch holes,
+perforated edge, torn edge, page corner/curl, or any part of a book or
+notebook itself; there must be no holes, rings, wire coil, or binding of
+any kind anywhere in the image, just the flat ruled paper texture itself
+filling the whole frame. Portrait orientation, a
+messy pale-lilac crayon scribble of a couple of round jellyfish with wavy
+purple tentacle lines dangling down in the corner, filling the whole page
+including the visible lined sketchbook paper background. No characters,
+no people, no border/frame, no text. PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `haepalin-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same pale lavender kit with deep purple trim) —
+redraw it MUCH more crudely, like a genuinely bad drawing by a 5-year-old
+just learning to hold a crayon: lopsided potato-shaped head far too big
+for the body, one arm noticeably longer than the other, legs of uneven
+thickness, no neck, hands and feet drawn as simple round blobs with no
+fingers or toes, facial features uneven and off-center (eyes different
+sizes, crooked scribbled smile), thick shaky crayon outlines that
+overshoot and don't fully close, color scribbled sloppily outside the
+lines with visible gaps of blank space showing through, no shading, no
+clean linework, no correct anatomy or proportion anywhere. This must look
+like an actual amateur child's homework drawing — clumsy and a little
+ugly — NOT cute, NOT polished, NOT chibi, NOT a skillful "bad on purpose"
+stylization; it should read as genuinely, artlessly poorly drawn. Draw a
+crude pose jumping with both stick arms up for a header. No frame, no
+text, no background — fully transparent PNG with alpha channel,
+1060x1484, leave open space above the head and below the waist for
+name/stat overlays.
+```
+
+### 8. 리냐 — `lina0108`
+
+**프레임** (기존 `lina0108-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a small child's crayon drawing on
+lined sketchbook paper — thick waxy crayon strokes, wobbly crooked
+outlines that don't quite close, visible paper texture and faint pencil
+guide lines peeking through, colors scribbled messily outside the lines,
+crude flat proportions, no shading or gradients, looks like an actual
+elementary schooler's homework drawing, intentionally bad and charming —
+NOT a polished "cute chibi" illustration, NOT clean vector art. Using the
+attached card frame image as a full reference (not just a shape) — same
+shield-shaped outer silhouette, same crest bump at the top center, same
+inner window opening, and the same cherry-blossom motif and vivid-pink
+color palette already on it — redraw this exact frame as if a small
+child copied it freehand in crayon: keep the same corner decoration idea
+but make it crude, lopsided, and scribbled. No player, no text, no
+stats. Entire canvas outside the drawn shield's own outline (including
+the inner window) must be fully transparent. PNG with alpha channel,
+1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a small child's crayon drawing
+on a single flat sheet of lined notebook paper — thick waxy crayon
+strokes, wobbly crooked lines, visible paper texture and faint blue
+ruled lines and pencil guide lines peeking through, colors scribbled
+messily outside the lines, crude flat shapes, no shading or gradients,
+looks like an actual elementary schooler's homework drawing,
+intentionally bad and charming. This is a full-bleed close-up crop of
+just the paper's flat surface, filling the entire canvas edge-to-edge —
+do NOT depict a spiral-bound notebook, ring binder, hole-punch holes,
+perforated edge, torn edge, page corner/curl, or any part of a book or
+notebook itself; there must be no holes, rings, wire coil, or binding of
+any kind anywhere in the image, just the flat ruled paper texture itself
+filling the whole frame. Portrait orientation, a
+messy pink crayon scribble of a wobbly tree branch with round pink petal
+dots scattered around it in the corner, filling the whole page including
+the visible lined sketchbook paper background. No characters, no people,
+no border/frame, no text. PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `lina0108-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same vivid pink kit with pale-pink trim) — redraw
+it MUCH more crudely, like a genuinely bad drawing by a 5-year-old just
+learning to hold a crayon: lopsided potato-shaped head far too big for the
+body, one arm noticeably longer than the other, legs of uneven thickness,
+no neck, hands and feet drawn as simple round blobs with no fingers or
+toes, facial features uneven and off-center (eyes different sizes, crooked
+scribbled smile), thick shaky crayon outlines that overshoot and don't
+fully close, color scribbled sloppily outside the lines with visible gaps
+of blank space showing through, no shading, no clean linework, no correct
+anatomy or proportion anywhere. This must look like an actual amateur
+child's homework drawing — clumsy and a little ugly — NOT cute, NOT
+polished, NOT chibi, NOT a skillful "bad on purpose" stylization; it
+should read as genuinely, artlessly poorly drawn. Draw a crude running
+pose with one stick hand waving. No frame, no text, no background — fully
+transparent PNG with alpha channel, 1060x1484, leave open space above the
+head and below the waist for name/stat overlays.
+```
+
+### 9. 빙밍 — `tleod1818`
+
+**프레임** (기존 `tleod1818-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a small child's crayon drawing on
+lined sketchbook paper — thick waxy crayon strokes, wobbly crooked
+outlines that don't quite close, visible paper texture and faint pencil
+guide lines peeking through, colors scribbled messily outside the lines,
+crude flat proportions, no shading or gradients, looks like an actual
+elementary schooler's homework drawing, intentionally bad and charming —
+NOT a polished "cute chibi" illustration, NOT clean vector art. Using the
+attached card frame image as a full reference (not just a shape) — same
+shield-shaped outer silhouette, same crest bump at the top center, same
+inner window opening, and the same storm/lightning motif and
+navy-and-emerald color palette already on it — redraw this exact frame
+as if a small child copied it freehand in crayon: keep the same corner
+decoration idea but make it crude, lopsided, and scribbled. No player, no
+text, no stats. Entire canvas outside the drawn shield's own outline
+(including the inner window) must be fully transparent. PNG with alpha
+channel, 1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a small child's crayon drawing
+on a single flat sheet of lined notebook paper — thick waxy crayon
+strokes, wobbly crooked lines, visible paper texture and faint blue
+ruled lines and pencil guide lines peeking through, colors scribbled
+messily outside the lines, crude flat shapes, no shading or gradients,
+looks like an actual elementary schooler's homework drawing,
+intentionally bad and charming. This is a full-bleed close-up crop of
+just the paper's flat surface, filling the entire canvas edge-to-edge —
+do NOT depict a spiral-bound notebook, ring binder, hole-punch holes,
+perforated edge, torn edge, page corner/curl, or any part of a book or
+notebook itself; there must be no holes, rings, wire coil, or binding of
+any kind anywhere in the image, just the flat ruled paper texture itself
+filling the whole frame. Portrait orientation, a
+messy dark-navy crayon scribble of lumpy storm clouds with a jagged
+emerald-green lightning-bolt zigzag in the corner, filling the whole page
+including the visible lined sketchbook paper background. No characters,
+no people, no border/frame, no text. PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `tleod1818-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same dark navy kit with emerald trim) — redraw it
+MUCH more crudely, like a genuinely bad drawing by a 5-year-old just
+learning to hold a crayon: lopsided potato-shaped head far too big for the
+body, one arm noticeably longer than the other, legs of uneven thickness,
+no neck, hands and feet drawn as simple round blobs with no fingers or
+toes, facial features uneven and off-center (eyes different sizes, crooked
+scribbled smile), thick shaky crayon outlines that overshoot and don't
+fully close, color scribbled sloppily outside the lines with visible gaps
+of blank space showing through, no shading, no clean linework, no correct
+anatomy or proportion anywhere. This must look like an actual amateur
+child's homework drawing — clumsy and a little ugly — NOT cute, NOT
+polished, NOT chibi, NOT a skillful "bad on purpose" stylization; it
+should read as genuinely, artlessly poorly drawn. Draw a crude mid-tackle
+pose leaning sideways with a stick leg stretched out. No frame, no text,
+no background — fully transparent PNG with alpha channel, 1060x1484,
+leave open space above the head and below the waist for name/stat
+overlays.
+```
+
+### 10. 재닌 — `janine95kim`
+
+**프레임** (기존 `janine95kim-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a small child's crayon drawing on
+lined sketchbook paper — thick waxy crayon strokes, wobbly crooked
+outlines that don't quite close, visible paper texture and faint pencil
+guide lines peeking through, colors scribbled messily outside the lines,
+crude flat proportions, no shading or gradients, looks like an actual
+elementary schooler's homework drawing, intentionally bad and charming —
+NOT a polished "cute chibi" illustration, NOT clean vector art. Using the
+attached card frame image as a full reference (not just a shape) — same
+shield-shaped outer silhouette, same crest bump at the top center, same
+inner window opening, and the same frost/aurora motif and
+sky-blue-and-white color palette already on it — redraw this exact frame
+as if a small child copied it freehand in crayon: keep the same corner
+decoration idea but make it crude, lopsided, and scribbled. No player, no
+text, no stats. Entire canvas outside the drawn shield's own outline
+(including the inner window) must be fully transparent. PNG with alpha
+channel, 1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a small child's crayon drawing
+on a single flat sheet of lined notebook paper — thick waxy crayon
+strokes, wobbly crooked lines, visible paper texture and faint blue
+ruled lines and pencil guide lines peeking through, colors scribbled
+messily outside the lines, crude flat shapes, no shading or gradients,
+looks like an actual elementary schooler's homework drawing,
+intentionally bad and charming. This is a full-bleed close-up crop of
+just the paper's flat surface, filling the entire canvas edge-to-edge —
+do NOT depict a spiral-bound notebook, ring binder, hole-punch holes,
+perforated edge, torn edge, page corner/curl, or any part of a book or
+notebook itself; there must be no holes, rings, wire coil, or binding of
+any kind anywhere in the image, just the flat ruled paper texture itself
+filling the whole frame. Portrait orientation, a
+messy sky-blue crayon scribble of lopsided snowflake shapes and a couple
+of frosty swirl doodles in the corner, filling the whole page including
+the visible lined sketchbook paper background. No characters, no people,
+no border/frame, no text. PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `janine95kim-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same sky-blue goalkeeper kit) — redraw it MUCH
+more crudely, like a genuinely bad drawing by a 5-year-old just learning
+to hold a crayon: lopsided potato-shaped head far too big for the body,
+one arm noticeably longer than the other, legs of uneven thickness, no
+neck, hands and feet drawn as simple round blobs with no fingers or toes,
+facial features uneven and off-center (eyes different sizes, crooked
+scribbled smile), thick shaky crayon outlines that overshoot and don't
+fully close, color scribbled sloppily outside the lines with visible gaps
+of blank space showing through, no shading, no clean linework, no correct
+anatomy or proportion anywhere. This must look like an actual amateur
+child's homework drawing — clumsy and a little ugly — NOT cute, NOT
+polished, NOT chibi, NOT a skillful "bad on purpose" stylization; it
+should read as genuinely, artlessly poorly drawn. Draw a crude pose diving
+sideways with both stick arms stretched out. No frame, no text, no
+background — fully transparent PNG with alpha channel, 1060x1484, leave
+open space above the head and below the waist for name/stat overlays.
+```
+
+### 11. 하치 (보너스) — `hachi97`
+
+**프레임** (기존 `hachi97-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a small child's crayon drawing on
+lined sketchbook paper — thick waxy crayon strokes, wobbly crooked
+outlines that don't quite close, visible paper texture and faint pencil
+guide lines peeking through, colors scribbled messily outside the lines,
+crude flat proportions, no shading or gradients, looks like an actual
+elementary schooler's homework drawing, intentionally bad and charming —
+NOT a polished "cute chibi" illustration, NOT clean vector art. Using the
+attached card frame image as a full reference (not just a shape) — same
+shield-shaped outer silhouette, same crest bump at the top center, same
+inner window opening, and the same dragon-claw/dragon-scale motif and
+golden-amber + amethyst-violet color palette already on it — redraw this
+exact frame as if a small child copied it freehand in crayon: keep the
+same corner decoration idea but make it crude, lopsided, and scribbled.
+No player, no text, no stats. Entire canvas outside the drawn shield's
+own outline (including the inner window) must be fully transparent. PNG
+with alpha channel, 1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a small child's crayon drawing
+on a single flat sheet of lined notebook paper — thick waxy crayon
+strokes, wobbly crooked lines, visible paper texture and faint blue
+ruled lines and pencil guide lines peeking through, colors scribbled
+messily outside the lines, crude flat shapes, no shading or gradients,
+looks like an actual elementary schooler's homework drawing,
+intentionally bad and charming. This is a full-bleed close-up crop of
+just the paper's flat surface, filling the entire canvas edge-to-edge —
+do NOT depict a spiral-bound notebook, ring binder, hole-punch holes,
+perforated edge, torn edge, page corner/curl, or any part of a book or
+notebook itself; there must be no holes, rings, wire coil, or binding of
+any kind anywhere in the image, just the flat ruled paper texture itself
+filling the whole frame. Portrait orientation, a messy gold-and-violet
+crayon scribble of a lopsided dragon claw with a few triangle "scale" and
+wavy "fire" shapes in the corner, filling the whole page including the
+visible lined sketchbook paper background. No characters, no people, no
+border/frame, no text. PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `hachi97-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same golden-amber and amethyst-violet
+dragon-themed kit) — redraw it MUCH more crudely, like a genuinely bad
+drawing by a 5-year-old just learning to hold a crayon: lopsided
+potato-shaped head far too big for the body, one arm noticeably longer
+than the other, legs of uneven thickness, no neck, hands and feet drawn
+as simple round blobs with no fingers or toes, facial features uneven
+and off-center (eyes different sizes, crooked scribbled smile), thick
+shaky crayon outlines that overshoot and don't fully close, color
+scribbled sloppily outside the lines with visible gaps of blank space
+showing through, no shading, no clean linework, no correct anatomy or
+proportion anywhere. This must look like an actual amateur child's
+homework drawing — clumsy and a little ugly — NOT cute, NOT polished,
+NOT chibi, NOT a skillful "bad on purpose" stylization; it should read
+as genuinely, artlessly poorly drawn. Draw a crude standing pose giving a
+big lopsided thumbs-up, with a couple of squiggly "fire" scribbles near
+the hand. No frame, no text, no background — fully transparent PNG with
+alpha channel, 1060x1484, leave open space above the head and below the
+waist for name/stat overlays.
+```
+
+### 12. 우왁굳 (보너스) — `woowakgood`
+
+**⚠️ 상표 주의**: 위 "보너스: 우왁굳" 섹션과 동일 — 실제 BMW 로고(키드니 그릴, 프로펠러 라운델)나 "BMW" 워드마크가 그대로 그려지면 안 됨. 아래 프롬프트에도 금지 문구를 넣어뒀지만, 생성 결과에 실제 브랜드 마크가 비치면 반드시 다시 생성할 것.
+
+**프레임** (기존 `woowakgood-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a small child's crayon drawing on
+lined sketchbook paper — thick waxy crayon strokes, wobbly crooked
+outlines that don't quite close, visible paper texture and faint pencil
+guide lines peeking through, colors scribbled messily outside the lines,
+crude flat proportions, no shading or gradients, looks like an actual
+elementary schooler's homework drawing, intentionally bad and charming —
+NOT a polished "cute chibi" illustration, NOT clean vector art. Using the
+attached card frame image as a full reference (not just a shape) — same
+shield-shaped outer silhouette, same crest bump at the top center, same
+inner window opening, and the same motorsport speed-line motif and vivid
+peridot-green + teal-violet-crimson racing-stripe color palette already
+on it — redraw this exact frame as if a small child copied it freehand in
+crayon: keep the same corner decoration idea but make it crude, lopsided,
+and scribbled. No real car logos, badges, roundels, or brand wordmarks of
+any kind — only generic scribbled stripes and speed-lines. No player, no
+text, no stats. Entire canvas outside the drawn shield's own outline
+(including the inner window) must be fully transparent. PNG with alpha
+channel, 1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a small child's crayon drawing
+on a single flat sheet of lined notebook paper — thick waxy crayon
+strokes, wobbly crooked lines, visible paper texture and faint blue
+ruled lines and pencil guide lines peeking through, colors scribbled
+messily outside the lines, crude flat shapes, no shading or gradients,
+looks like an actual elementary schooler's homework drawing,
+intentionally bad and charming. This is a full-bleed close-up crop of
+just the paper's flat surface, filling the entire canvas edge-to-edge —
+do NOT depict a spiral-bound notebook, ring binder, hole-punch holes,
+perforated edge, torn edge, page corner/curl, or any part of a book or
+notebook itself; there must be no holes, rings, wire coil, or binding of
+any kind anywhere in the image, just the flat ruled paper texture itself
+filling the whole frame. Portrait orientation, a messy green crayon
+scribble of a few speed-line stripes and a lopsided checkered-flag doodle
+in the corner (no real car logos or brand marks of any kind), filling the
+whole page including the visible lined sketchbook paper background. No
+characters, no people, no border/frame, no text. PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `woowakgood-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same peridot-green suit with teal-violet-crimson
+tie accent — dressed as a club manager, NOT a soccer kit) — redraw it
+MUCH more crudely, like a genuinely bad drawing by a 5-year-old just
+learning to hold a crayon: lopsided potato-shaped head far too big for
+the body, one arm noticeably longer than the other, legs of uneven
+thickness, no neck, hands and feet drawn as simple round blobs with no
+fingers or toes, facial features uneven and off-center (eyes different
+sizes, crooked scribbled smile), thick shaky crayon outlines that
+overshoot and don't fully close, color scribbled sloppily outside the
+lines with visible gaps of blank space showing through, no shading, no
+clean linework, no correct anatomy or proportion anywhere, no real car
+logos, badges, or brand marks anywhere on the outfit. This must look like
+an actual amateur child's homework drawing — clumsy and a little ugly —
+NOT cute, NOT polished, NOT chibi, NOT a skillful "bad on purpose"
+stylization; it should read as genuinely, artlessly poorly drawn. Draw a
+crude standing pose with arms crossed and a big lopsided grin. No frame,
+no text, no background — fully transparent PNG with alpha channel,
+1060x1484, leave open space above the head and below the waist for
+name/stat overlays.
+```
+
+---
+
 ## 선수별 세트 (10개)
 
 순서·컬러·모티프 확정본:

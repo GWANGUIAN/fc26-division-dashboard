@@ -19,9 +19,22 @@ export type TotyCardAssets = {
 const PARTS = ["frame", "background", "character"] as const;
 
 const partial: Record<string, Partial<TotyCardAssets>> = {};
+// Easter-egg "저퀄리티" set — same three parts, but drawn crayon-on-
+// sketchbook style (see docs/toty-card-prompts.md's easter egg section),
+// named `<id>-lowq-<part>.webp` so `pnpm convert:card-art -- <id>-lowq`
+// just works unmodified. Collected into its own map (matched and stripped
+// out below *before* the regular regex runs) so it never leaks into ASSETS
+// under a bogus "<id>-lowq" streamer id.
+const lowQualityPartial: Record<string, Partial<TotyCardAssets>> = {};
 
 for (const [path, url] of Object.entries(modules)) {
   const filename = path.split("/").pop() ?? "";
+  const lowQualityMatch = /^(.+)-lowq-(frame|background|character)\.webp$/.exec(filename);
+  if (lowQualityMatch) {
+    const [, id, part] = lowQualityMatch;
+    (lowQualityPartial[id] ??= {})[part as (typeof PARTS)[number]] = url;
+    continue;
+  }
   const match = /^(.+)-(frame|background|character)\.webp$/.exec(filename);
   if (!match) continue;
   const [, id, part] = match;
@@ -35,12 +48,26 @@ for (const [id, parts] of Object.entries(partial)) {
   }
 }
 
+const LOW_QUALITY_ASSETS: Record<string, TotyCardAssets> = {};
+for (const [id, parts] of Object.entries(lowQualityPartial)) {
+  if (parts.frame && parts.background && parts.character) {
+    LOW_QUALITY_ASSETS[id] = parts as TotyCardAssets;
+  }
+}
+
 export function hasTotyCard(streamerId: string): boolean {
   return streamerId in ASSETS;
 }
 
 export function getTotyCardAssets(streamerId: string): TotyCardAssets | undefined {
   return ASSETS[streamerId];
+}
+
+// 1/3 "이스터에그" chance (rolled by TotyCardPopup on open) of showing this
+// crayon-drawn trio instead of the real card — only for streamers whose
+// low-quality trio has actually been added, so the rollout is per-member.
+export function getLowQualityTotyCardAssets(streamerId: string): TotyCardAssets | undefined {
+  return LOW_QUALITY_ASSETS[streamerId];
 }
 
 // Card art is a few hundred KB to ~1MB per file — fine once cached, but
@@ -56,12 +83,16 @@ export function preloadTotyCardAssets(assets: TotyCardAssets, streamerId: string
   const popupBackdropUrl = getPopupBackdropUrl(streamerId);
   const popupBackdropGlowUrl = getPopupBackdropGlowUrl(streamerId);
   const characterHoverUrl = getCharacterHoverUrl(streamerId);
+  const lowQualityAssets = getLowQualityTotyCardAssets(streamerId);
   const urls = [assets.frame, assets.background, assets.character];
   if (cardBackUrl) urls.push(cardBackUrl);
   if (backgroundGlowUrl) urls.push(backgroundGlowUrl);
   if (popupBackdropUrl) urls.push(popupBackdropUrl);
   if (popupBackdropGlowUrl) urls.push(popupBackdropGlowUrl);
   if (characterHoverUrl) urls.push(characterHoverUrl);
+  // Preloaded unconditionally (not just on the 1/3 roll) so the easter egg
+  // never has a visible loading flash on the rare open where it lands.
+  if (lowQualityAssets) urls.push(lowQualityAssets.frame, lowQualityAssets.background, lowQualityAssets.character);
   for (const url of urls) {
     if (preloadedUrls.has(url)) continue;
     preloadedUrls.add(url);
@@ -173,16 +204,34 @@ export function getCharacterHoverUrl(streamerId: string): string | undefined {
 // characterHoverUrl swap that player has (see CHARACTER_HOVER_SUFFIX above)
 // for the whole loop — effectively a "hover" version once one exists.
 const PREVIEW_SUFFIX = "-preview.gif";
+// Checked first so a lowq preview's "<id>-lowq-preview.gif" filename (which
+// also ends in "-preview.gif") doesn't leak into previewUrls under the bogus
+// key "<id>-lowq" — same reasoning as the lowq frame/background/character
+// trio in the ASSETS scan above.
+const LOW_QUALITY_PREVIEW_SUFFIX = "-lowq-preview.gif";
 const previewUrls: Record<string, string> = {};
+const lowQualityPreviewUrls: Record<string, string> = {};
 for (const [path, url] of Object.entries(modules)) {
   const filename = path.split("/").pop() ?? "";
-  if (filename.endsWith(PREVIEW_SUFFIX)) {
+  if (filename.endsWith(LOW_QUALITY_PREVIEW_SUFFIX)) {
+    lowQualityPreviewUrls[filename.slice(0, -LOW_QUALITY_PREVIEW_SUFFIX.length)] = url;
+  } else if (filename.endsWith(PREVIEW_SUFFIX)) {
     previewUrls[filename.slice(0, -PREVIEW_SUFFIX.length)] = url;
   }
 }
 
 export function getTotyCardPreviewUrl(streamerId: string): string | undefined {
   return previewUrls[streamerId];
+}
+
+// Same idea as getTotyCardPreviewUrl above, but for the "저퀄리티" easter-egg
+// card (see getLowQualityTotyCardAssets) — produced by
+// scripts/generate-toty-preview.mjs's --lowq flag. Optional; TotyCardPopup
+// hides the "움짤로 저장" option entirely on the lowq roll when this is
+// absent, rather than falling back to the real card's gif (that would be a
+// mismatched download for what's actually on screen).
+export function getLowQualityTotyCardPreviewUrl(streamerId: string): string | undefined {
+  return lowQualityPreviewUrls[streamerId];
 }
 
 // Pre-hover-effect capture of the same loop, kept around (rather than
