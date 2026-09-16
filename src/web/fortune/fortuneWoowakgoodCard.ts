@@ -39,7 +39,7 @@ export const FORTUNE_WOOWAKGOOD_ID_2 = "woowakgood2";
 export const FORTUNE_WOOWAKGOOD_CARD_2: FortuneCardEntry = {
   id: FORTUNE_WOOWAKGOOD_ID_2,
   streamerId: FORTUNE_WOOWAKGOOD_ID,
-  cardName: "회초리를 든 왁초리",
+  cardName: "왁초리를 든 우왁굳",
   fortuneText:
     "벤치에서 조용히 왁초리가 등장하는 순간, 팀 전체에 서늘한 침묵이 흐른다. 오늘 훈련은 웃을 일이 없다.",
   glowColor: "#8a2f2f",
