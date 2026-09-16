@@ -377,6 +377,25 @@ export function saveCardMatchBestTurns(turns: number) {
   }
 }
 
+const FORTUNE_SFX_ENABLED_KEY = "fc26-fortune-sfx-enabled";
+
+export function loadFortuneSfxEnabled(): boolean {
+  try {
+    const raw = localStorage.getItem(FORTUNE_SFX_ENABLED_KEY);
+    return raw === null ? true : raw === "1";
+  } catch {
+    return true;
+  }
+}
+
+export function saveFortuneSfxEnabled(enabled: boolean) {
+  try {
+    localStorage.setItem(FORTUNE_SFX_ENABLED_KEY, enabled ? "1" : "0");
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
+
 const FORTUNE_MUSIC_ENABLED_KEY = "fc26-fortune-music-enabled";
 
 export function loadFortuneMusicEnabled(): boolean {

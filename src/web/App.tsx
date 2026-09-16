@@ -381,8 +381,8 @@ export function App() {
       {fortuneOpen && (
         <FortunePopup
           streamers={snapshot?.streamers}
-          sfxEnabled={sfxEnabled}
           sfxVolume={sfxVolume}
+          onSfxVolumeChange={changeSfxVolume}
           onClose={() => setFortuneOpen(false)}
         />
       )}

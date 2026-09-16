@@ -180,6 +180,32 @@
 .fortune-popup__music-toggle .sound-control__button svg { width: 16px; height: 16px; }
 .fortune-popup__music-toggle--muted .sound-control__button { color: rgba(255, 255, 255, .5); }
 
+.fortune-popup__sfx-toggle {
+  position: absolute;
+  z-index: 2;
+  top: 16px;
+  right: 108px;
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+}
+.fortune-popup__sfx-toggle .sound-control__button {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(0, 0, 0, .55);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .4);
+}
+.fortune-popup__sfx-toggle .sound-control__button svg { width: 16px; height: 16px; }
+.fortune-popup__sfx-toggle--muted .sound-control__button { color: rgba(255, 255, 255, .5); }
+
 .fortune-popup__stage {
   position: relative;
   z-index: 1;

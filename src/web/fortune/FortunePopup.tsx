@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { Images, Music4, X } from "lucide-react";
+import { Images, Music4, Volume2, VolumeX, X } from "lucide-react";
 import type { StreamerRecord } from "../../shared/model.js";
 import { useEscape } from "../Modal.js";
 import { playSfx, stopSfx } from "../sfxAudio.js";
@@ -19,6 +19,7 @@ import {
 import { getFortuneRevealedIds, subscribeFortuneCardRevealed } from "./fortuneCardHistoryStore";
 import { useFortuneBonusUnlock } from "./useFortuneBonusUnlock";
 import { useFortuneMusic } from "./useFortuneMusic";
+import { useFortuneSfx } from "./useFortuneSfx";
 import "./fortune-popup.css";
 
 // Independent Audio() instances (not the shared single-slot sfxAudio.ts
@@ -80,18 +81,19 @@ function useBodyScrollLock() {
 
 export function FortunePopup({
   streamers,
-  sfxEnabled,
   sfxVolume,
+  onSfxVolumeChange,
   onClose,
 }: {
   streamers?: StreamerRecord[];
-  sfxEnabled: boolean;
   sfxVolume: number;
+  onSfxVolumeChange: (value: number) => void;
   onClose: () => void;
 }) {
   useEscape(onClose);
   useBodyScrollLock();
   const { musicOn, toggleMusic, musicVolume, changeMusicVolume } = useFortuneMusic();
+  const { sfxOn, toggleSfx } = useFortuneSfx();
 
   const [started, setStarted] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -143,20 +145,20 @@ export function FortunePopup({
   }, []);
 
   const handleShuffleStart = () => {
-    if (sfxEnabled) playLocalSfx("/sfxes/fortune-shuffle.mp3", sfxVolume / 100, localSfxRef.current);
+    if (sfxOn) playLocalSfx("/sfxes/fortune-shuffle.mp3", sfxVolume / 100, localSfxRef.current);
   };
   const handleCardHover = () => {
-    if (sfxEnabled) playLocalSfx("/sfxes/fortune-card-hover.mp3", sfxVolume / 100, localSfxRef.current);
+    if (sfxOn) playLocalSfx("/sfxes/fortune-card-hover.mp3", sfxVolume / 100, localSfxRef.current);
   };
   const handleCardSelectImpact = () => {
-    if (sfxEnabled) playLocalSfx("/sfxes/fortune-card-select.mp3", sfxVolume / 100, localSfxRef.current);
+    if (sfxOn) playLocalSfx("/sfxes/fortune-card-select.mp3", sfxVolume / 100, localSfxRef.current);
   };
   // That specific player's own click sfx — routed through the shared
   // sfxAudio.ts singleton (not the independent Audio() instances above),
   // same convention TOTY's TotyCardPopup.handleCardClick uses for a
   // streamer's own sfx.
   const handleStreamerSfx = (url: string) => {
-    if (sfxEnabled) playSfx(url, sfxVolume / 100);
+    if (sfxOn) playSfx(url, sfxVolume / 100);
   };
 
   const backdropUrl = getFortunePopupBackdropUrl();
@@ -214,6 +216,15 @@ export function FortunePopup({
         icon={<Music4 aria-hidden="true" />}
         label="배경음악"
         wrapperClassName={`fortune-popup__music-toggle ${musicOn ? "" : "fortune-popup__music-toggle--muted"}`}
+      />
+      <SoundControl
+        enabled={sfxOn}
+        volume={sfxVolume}
+        onToggle={toggleSfx}
+        onVolumeChange={onSfxVolumeChange}
+        icon={sfxOn ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
+        label="효과음"
+        wrapperClassName={`fortune-popup__sfx-toggle ${sfxOn ? "" : "fortune-popup__sfx-toggle--muted"}`}
       />
       <button type="button" className="fortune-popup__close" onClick={onClose} aria-label="오늘의 운세 닫기">
         <X aria-hidden="true" />
