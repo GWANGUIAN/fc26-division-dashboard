@@ -126,6 +126,7 @@ export const FORTUNE_CARDS: FortuneCardEntry[] = [
     fortuneText: "오늘은 그 무쇠 심장에도 녹이 슨다. 후반 추가시간까지 버티던 그 뚝심이, 정작 오늘은 전반 중반부터 무릎을 꿇는다.",
     glowColor: "#8a4a2f",
     glowColorSoft: "#d9a97e",
+    sfxOverride: "/sfxes/bboringirl-2.mp3",
   },
   {
     id: "kaksjak0730",
@@ -180,6 +181,7 @@ export const FORTUNE_CARDS: FortuneCardEntry[] = [
     fortuneText: "차분히 기다리던 물결이 오늘은 거꾸로 그를 집어삼킨다. 상대가 지치기를 기다리다, 정작 먼저 균형을 잃는 쪽은 자신이다.",
     glowColor: "#355761",
     glowColorSoft: "#9fc4cf",
+    sfxOverride: "/sfxes/haepalin-2.mp3",
   },
   {
     id: "lina0108",
