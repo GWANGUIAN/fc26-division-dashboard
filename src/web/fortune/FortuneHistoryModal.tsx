@@ -1,13 +1,19 @@
 import { useState } from "react";
 import type { CSSProperties } from "react";
-import { ImageDown, X } from "lucide-react";
+import { ImageDown, Volume2, X } from "lucide-react";
 import type { StreamerRecord } from "../../shared/model.js";
 import { useEscape } from "../Modal.js";
+import { playSfx } from "../sfxAudio.js";
 import { FORTUNE_CARDS, formatFortuneCardEyebrow, formatFortuneCardListLabel, type FortuneCardEntry } from "./fortuneCardData";
 import { getFortuneCardFrontUrl } from "./fortuneCardAssets";
 import { getFortuneRevealedIds } from "./fortuneCardHistoryStore";
 import { exportFortuneCardPng } from "./exportFortuneCardImage";
-import { FORTUNE_WOOWAKGOOD_CARDS, FORTUNE_WOOWAKGOOD_DISPLAY_NAME, FORTUNE_WOOWAKGOOD_ID } from "./fortuneWoowakgoodCard";
+import {
+  FORTUNE_WOOWAKGOOD_CARDS,
+  FORTUNE_WOOWAKGOOD_DISPLAY_NAME,
+  FORTUNE_WOOWAKGOOD_ID,
+  resolveFortuneCardSfx,
+} from "./fortuneWoowakgoodCard";
 import "./fortune-history-modal.css";
 
 // The hidden cards live outside FORTUNE_CARDS (see fortuneWoowakgoodCard.ts)
@@ -38,9 +44,11 @@ function displayNameFor(
  */
 export function FortuneHistoryModal({
   streamers,
+  sfxVolume,
   onClose,
 }: {
-  streamers?: Pick<StreamerRecord, "id" | "displayName">[];
+  streamers?: Pick<StreamerRecord, "id" | "displayName" | "sfx">[];
+  sfxVolume: number;
   onClose: () => void;
 }) {
   useEscape(onClose);
@@ -56,6 +64,15 @@ export function FortuneHistoryModal({
   const selectedEntry = history.find((entry) => entry.id === selectedId);
   const selectedFrontUrl = selectedEntry ? getFortuneCardFrontUrl(selectedEntry.id) : undefined;
   const selectedDisplayName = selectedEntry ? displayNameFor(selectedEntry, streamers) : undefined;
+  const selectedSfxUrl = selectedEntry ? resolveFortuneCardSfx(selectedEntry, streamers) : undefined;
+
+  // Same DetailModal.tsx convention as FortuneDraw.tsx's own reveal-panel
+  // speaker button — plays directly via the shared sfxAudio.ts singleton
+  // regardless of the "효과음" on/off toggle, since this is a deliberate
+  // click on the speaker icon rather than an automatic reveal-moment sting.
+  const handlePlaySfx = () => {
+    if (selectedSfxUrl) playSfx(selectedSfxUrl, sfxVolume / 100);
+  };
 
   const handleSaveImage = async () => {
     if (exportingImage || !selectedEntry || !selectedFrontUrl) return;
@@ -117,7 +134,20 @@ export function FortuneHistoryModal({
                 <p className="fortune-history-modal__detail-eyebrow">
                   {formatFortuneCardEyebrow(selectedDisplayName, selectedEntry, ALL_FORTUNE_CARDS)}
                 </p>
-                <h3 className="fortune-history-modal__detail-name">{selectedEntry.cardName}</h3>
+                <h3 className="fortune-history-modal__detail-name">
+                  {selectedEntry.cardName}
+                  {selectedSfxUrl && (
+                    <button
+                      type="button"
+                      className="fortune-history-modal__detail-sfx-btn"
+                      onClick={handlePlaySfx}
+                      aria-label="카드 효과음 재생"
+                      title="카드 효과음 재생"
+                    >
+                      <Volume2 aria-hidden="true" />
+                    </button>
+                  )}
+                </h3>
                 <p className="fortune-history-modal__detail-text">{selectedEntry.fortuneText}</p>
                 {selectedFrontUrl && (
                   <button

@@ -207,12 +207,39 @@
   font-weight: 700;
 }
 .fortune-history-modal__detail-name {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   margin: 0;
   color: #ffe29e;
   font-family: 'MapodaCapo', "Barlow Condensed", sans-serif;
   font-weight: 400;
   font-size: clamp(20px, 5vw, 26px);
 }
+/* Small icon-only "카드 효과음 재생" button — same treatment as
+   .fortune-reveal-panel__sfx-btn (fortune-draw.css)/DetailModal.tsx's
+   .modal__sfx-play, sized for this panel's smaller card-name text. */
+.fortune-history-modal__detail-sfx-btn {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid rgba(255, 226, 158, .55);
+  border-radius: 50%;
+  color: #ffe29e;
+  background: rgba(255, 226, 158, .12);
+  cursor: pointer;
+  transition: transform .15s, background .15s, box-shadow .2s;
+}
+.fortune-history-modal__detail-sfx-btn:hover, .fortune-history-modal__detail-sfx-btn:focus-visible {
+  background: rgba(255, 226, 158, .22);
+  box-shadow: 0 0 10px rgba(255, 226, 158, .45);
+  outline: 0;
+}
+.fortune-history-modal__detail-sfx-btn svg { display: block; width: 13px; height: 13px; stroke-width: 2.6; }
 .fortune-history-modal__detail-text {
   margin: 0;
   max-width: 44ch;

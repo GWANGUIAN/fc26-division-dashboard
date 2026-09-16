@@ -1,3 +1,4 @@
+import type { StreamerRecord } from "../../shared/model.js";
 import type { FortuneCardEntry } from "./fortuneCardData";
 
 // 우왁굳 is the host running this whole club, not an applicant — he never
@@ -53,3 +54,20 @@ export const FORTUNE_WOOWAKGOOD_CARD_2: FortuneCardEntry = {
  * (see FortuneDraw.tsx's hiddenPool) and into the "뽑았던 카드" history list
  * together (see FortuneHistoryModal.tsx's ALL_FORTUNE_CARDS). */
 export const FORTUNE_WOOWAKGOOD_CARDS: FortuneCardEntry[] = [FORTUNE_WOOWAKGOOD_CARD, FORTUNE_WOOWAKGOOD_CARD_2];
+
+/** Resolves the sfx URL a given fortune card should play — shared by
+ * FortuneDraw.tsx (auto-plays it on reveal) and FortuneHistoryModal.tsx
+ * (manual "효과음 재생" button on a past card), so both places agree on the
+ * exact same precedence: a card's own `sfxOverride` wins first (e.g.
+ * janine95kim2/우왁굳's 왁초리 카드), then 우왁굳's hardcoded
+ * FORTUNE_WOOWAKGOOD_SFX (he isn't in `streamers`, see above, so the normal
+ * lookup can't find him), then that streamer's own StreamerRecord.sfx. */
+export function resolveFortuneCardSfx(
+  entry: Pick<FortuneCardEntry, "id" | "streamerId" | "sfxOverride">,
+  streamers?: Pick<StreamerRecord, "id" | "sfx">[],
+): string | undefined {
+  if (entry.sfxOverride) return entry.sfxOverride;
+  const sid = entry.streamerId ?? entry.id;
+  if (sid === FORTUNE_WOOWAKGOOD_ID) return FORTUNE_WOOWAKGOOD_SFX;
+  return streamers?.find((s) => s.id === sid)?.sfx;
+}

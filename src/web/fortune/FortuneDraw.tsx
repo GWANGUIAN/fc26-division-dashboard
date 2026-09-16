@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import { ImageDown, RotateCcw, Sparkles } from "lucide-react";
+import { ImageDown, RotateCcw, Sparkles, Volume2 } from "lucide-react";
 import type { StreamerRecord } from "../../shared/model.js";
-import { stopSfx } from "../sfxAudio.js";
+import { playSfx, stopSfx } from "../sfxAudio.js";
 import { drawRandomFromPool, formatFortuneCardEyebrow, FORTUNE_CARDS, type FortuneCardEntry } from "./fortuneCardData";
 import { getFortuneCardBackUrl, getFortuneCardFrontUrl } from "./fortuneCardAssets";
 import { exportFortuneCardPng } from "./exportFortuneCardImage";
@@ -11,7 +11,7 @@ import {
   FORTUNE_WOOWAKGOOD_CARDS,
   FORTUNE_WOOWAKGOOD_DISPLAY_NAME,
   FORTUNE_WOOWAKGOOD_ID,
-  FORTUNE_WOOWAKGOOD_SFX,
+  resolveFortuneCardSfx,
 } from "./fortuneWoowakgoodCard";
 import "./fortune-draw.css";
 
@@ -65,6 +65,7 @@ export function FortuneDraw({
   streamers,
   includeHidden,
   onlyNewCards,
+  sfxVolume,
   onShuffleStart,
   onCardHover,
   onCardSelectImpact,
@@ -82,6 +83,13 @@ export function FortuneDraw({
    * shows 3 cards and every one of them is still new. FortunePopup only
    * lets this be true when at least 1 unrevealed card exists. */
   onlyNewCards?: boolean;
+  /** Powers the reveal panel's own manual "효과음 재생" replay button —
+   * same DetailModal.tsx convention of playSfx(url, sfxVolume / 100),
+   * played directly rather than routed through onStreamerSfx below (that
+   * one is gated by the "효과음" on/off toggle for the automatic
+   * reveal-moment sting; a deliberate click on the speaker icon should
+   * always play regardless of that toggle). */
+  sfxVolume: number;
   onShuffleStart?: () => void;
   onCardHover?: () => void;
   onCardSelectImpact?: () => void;
@@ -181,20 +189,11 @@ export function FortuneDraw({
   // Looked up by explicit index (never via the selectedIndex state) so
   // there's no risk of reading it one render too early — handlePick's own
   // reduced-motion branch calls this in the same tick as setSelectedIndex,
-  // before that state update has flushed. A card's own `sfxOverride` (see
-  // janine95kim2/우왁굳's 왁초리 card in fortuneCardData.ts/
-  // fortuneWoowakgoodCard.ts) wins over everything else. 우왁굳 isn't in
-  // streamers (see fortuneWoowakgoodCard.ts), so absent an override his sfx
-  // falls back to the hardcoded FORTUNE_WOOWAKGOOD_SFX (checked via
-  // `streamerId ?? id` so this covers both of his cards); everyone else
-  // falls back to their own StreamerRecord.sfx via that same lookup.
-  const getStreamerSfx = (index: number): string | undefined => {
-    const entry = drawn[index];
-    if (entry.sfxOverride) return entry.sfxOverride;
-    const sid = entry.streamerId ?? entry.id;
-    if (sid === FORTUNE_WOOWAKGOOD_ID) return FORTUNE_WOOWAKGOOD_SFX;
-    return streamers?.find((s) => s.id === sid)?.sfx;
-  };
+  // before that state update has flushed. Precedence itself lives in
+  // resolveFortuneCardSfx (fortuneWoowakgoodCard.ts), shared with the
+  // reveal panel's own manual replay button (selectedSfxUrl below) and
+  // FortuneHistoryModal.tsx's.
+  const getStreamerSfx = (index: number): string | undefined => resolveFortuneCardSfx(drawn[index], streamers);
 
   const handlePick = (index: number) => {
     if (phase !== "dealt") return;
@@ -241,6 +240,11 @@ export function FortuneDraw({
       : streamers?.find((s) => s.id === (selectedEntry.streamerId ?? selectedEntry.id))?.displayName
     : undefined;
   const selectedFrontUrl = selectedEntry ? getFortuneCardFrontUrl(selectedEntry.id) : undefined;
+  const selectedSfxUrl = selectedEntry ? resolveFortuneCardSfx(selectedEntry, streamers) : undefined;
+
+  const handlePlaySfx = () => {
+    if (selectedSfxUrl) playSfx(selectedSfxUrl, sfxVolume / 100);
+  };
 
   const handleSaveImage = async () => {
     if (exportingImage || !selectedEntry || !selectedFrontUrl) return;
@@ -349,7 +353,20 @@ export function FortuneDraw({
           <p className="fortune-reveal-panel__eyebrow">
             {formatFortuneCardEyebrow(selectedDisplayName, selectedEntry, [...FORTUNE_CARDS, ...hiddenPool])}
           </p>
-          <h3 className="fortune-reveal-panel__name">{selectedEntry.cardName}</h3>
+          <h3 className="fortune-reveal-panel__name">
+            {selectedEntry.cardName}
+            {selectedSfxUrl && (
+              <button
+                type="button"
+                className="fortune-reveal-panel__sfx-btn"
+                onClick={handlePlaySfx}
+                aria-label="카드 효과음 재생"
+                title="카드 효과음 재생"
+              >
+                <Volume2 aria-hidden="true" />
+              </button>
+            )}
+          </h3>
           <p className="fortune-reveal-panel__text">{selectedEntry.fortuneText}</p>
           <div className="fortune-reveal-panel__actions">
             <button type="button" className="fortune-reveal-panel__btn" onClick={handleRedraw}>

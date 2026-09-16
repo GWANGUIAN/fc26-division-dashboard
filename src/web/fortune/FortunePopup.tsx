@@ -257,6 +257,7 @@ export function FortunePopup({
             streamers={streamers}
             includeHidden={bonusUnlocked}
             onlyNewCards={onlyNewCards && !newOnlyUnavailable}
+            sfxVolume={sfxVolume}
             onShuffleStart={handleShuffleStart}
             onCardHover={handleCardHover}
             onCardSelectImpact={handleCardSelectImpact}
@@ -265,7 +266,9 @@ export function FortunePopup({
         )}
       </div>
 
-      {historyOpen && <FortuneHistoryModal streamers={streamers} onClose={() => setHistoryOpen(false)} />}
+      {historyOpen && (
+        <FortuneHistoryModal streamers={streamers} sfxVolume={sfxVolume} onClose={() => setHistoryOpen(false)} />
+      )}
       {bonusAnnounceVisible && <FortuneBonusAnnounce onDone={() => setBonusAnnounceVisible(false)} />}
     </div>
   );

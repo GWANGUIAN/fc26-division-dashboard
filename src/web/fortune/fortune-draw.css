@@ -249,6 +249,9 @@
   letter-spacing: .04em;
 }
 .fortune-reveal-panel__name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin: 0;
   color: #ffe29e;
   font-family: 'MapodaCapo', "Barlow Condensed", sans-serif;
@@ -256,6 +259,29 @@
   font-size: clamp(26px, 7vw, 36px);
   letter-spacing: .02em;
 }
+/* Small icon-only "카드 효과음 재생" button — same circular treatment as
+   DetailModal.tsx's .modal__sfx-play, sized up slightly to sit comfortably
+   next to this panel's much larger card-name text. */
+.fortune-reveal-panel__sfx-btn {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid rgba(255, 226, 158, .55);
+  border-radius: 50%;
+  color: #ffe29e;
+  background: rgba(255, 226, 158, .12);
+  cursor: pointer;
+  transition: transform .15s, background .15s, box-shadow .2s;
+}
+.fortune-reveal-panel__sfx-btn:hover, .fortune-reveal-panel__sfx-btn:focus-visible {
+  background: rgba(255, 226, 158, .22);
+  box-shadow: 0 0 12px rgba(255, 226, 158, .45);
+  outline: 0;
+}
+.fortune-reveal-panel__sfx-btn svg { display: block; width: 15px; height: 15px; stroke-width: 2.6; }
 .fortune-reveal-panel__text {
   margin: 0;
   color: rgba(255, 255, 255, .94);
