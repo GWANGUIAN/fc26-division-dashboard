@@ -30,10 +30,12 @@ function bitcrushCurve(steps: number): Float32Array {
 }
 
 /**
- * Routes an <audio> element through a lowpass + bitcrush filter chain before
- * it reaches the speakers, so it sounds like it's coming out of a cheap old
- * arcade-cabinet speaker instead of the crisp original — "90년대 고전 도트".
- * Must be called before .play() — creating a MediaElementAudioSourceNode
+ * Shared lowpass + bitcrush chain builder for the two functions below —
+ * `steps`/`oversample` control how harsh the bitcrush crackle reads (fewer
+ * steps and no oversampling = harsher), `lowpassFreq` controls how muffled
+ * it sounds (lower = more muffled, and past a point starts eating the
+ * consonants/transients that make it recognizable as a specific sound at
+ * all). Must be called before .play() — creating a MediaElementAudioSourceNode
  * redirects the element's ENTIRE output into the Web Audio graph, so this
  * only actually changes anything once connected through to .destination
  * (below). Silently no-ops, leaving the element to play normally through
@@ -41,21 +43,44 @@ function bitcrushCurve(steps: number): Float32Array {
  * (e.g. this element already has a source node — shouldn't happen since
  * every caller here uses a freshly-constructed Audio()).
  */
-export function applyRetroSfxFilter(audio: HTMLAudioElement): void {
+function applyBitcrushFilter(audio: HTMLAudioElement, steps: number, oversample: OverSampleType, lowpassFreq: number): void {
   const ctx = getAudioContext();
   if (!ctx) return;
   try {
     const source = ctx.createMediaElementSource(audio);
     const lowpass = ctx.createBiquadFilter();
     lowpass.type = "lowpass";
-    lowpass.frequency.value = 2600;
+    lowpass.frequency.value = lowpassFreq;
     const shaper = ctx.createWaveShaper();
-    shaper.curve = bitcrushCurve(12) as Float32Array<ArrayBuffer>;
-    shaper.oversample = "none";
+    shaper.curve = bitcrushCurve(steps) as Float32Array<ArrayBuffer>;
+    shaper.oversample = oversample;
     source.connect(lowpass).connect(shaper).connect(ctx.destination);
   } catch {
     // Web Audio unsupported/blocked — element just plays normally instead.
   }
+}
+
+/**
+ * Routes an <audio> element through the bitcrush chain above at its full,
+ * original harshness — used for every "90년대 고전 도트" sfx EXCEPT the
+ * card-click sound (see applyRetroClickSfxFilter below, which is much
+ * gentler).
+ */
+export function applyRetroSfxFilter(audio: HTMLAudioElement): void {
+  applyBitcrushFilter(audio, 12, "none", 2600);
+}
+
+/**
+ * Same idea as applyRetroSfxFilter, but much gentler on both axes — finer
+ * quantization + heavier oversampling tones down the crackle, and a
+ * noticeably higher lowpass cutoff keeps more of the original sound's
+ * transients/consonants intact so it stays recognizable as whatever it
+ * actually is instead of turning into unintelligible mush. Used ONLY for
+ * the card's own click sfx while "90년대 고전 도트" is showing; every other
+ * retro sfx keeps the harsher applyRetroSfxFilter above.
+ */
+export function applyRetroClickSfxFilter(audio: HTMLAudioElement): void {
+  applyBitcrushFilter(audio, 22, "2x", 3600);
 }
 
 /**

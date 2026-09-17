@@ -11,6 +11,7 @@ import { TotyCardDownloadMenu } from "./TotyCardDownloadMenu.js";
 import { exportTotyCardPng } from "./exportTotyCardImage.js";
 import {
   applyLowQualityPitchFilter,
+  applyRetroClickSfxFilter,
   applyRetroSfxFilter,
   playCrayonScratch,
   playRetroBlip,
@@ -49,6 +50,16 @@ const VARIANT_LABELS: Record<TotyCardVariant, string> = {
 // every local sfx helper below plus the streamer's own click sfx.
 function applyVariantSfxFilter(audio: HTMLAudioElement, variant: TotyCardVariant): void {
   if (variant === "retro") applyRetroSfxFilter(audio);
+  else if (variant === "lowq") applyLowQualityPitchFilter(audio);
+}
+
+// Same dispatch as applyVariantSfxFilter above, but used ONLY for the card's
+// own click sfx (handleCardClick below) — "90년대 고전 도트" gets the
+// noticeably gentler applyRetroClickSfxFilter there instead of the harsher
+// applyRetroSfxFilter every other retro sfx moment (reveal impact/whoosh,
+// popup-open sting) still uses unchanged.
+function applyClickSfxFilter(audio: HTMLAudioElement, variant: TotyCardVariant): void {
+  if (variant === "retro") applyRetroClickSfxFilter(audio);
   else if (variant === "lowq") applyLowQualityPitchFilter(audio);
 }
 
@@ -258,7 +269,7 @@ export function TotyCardPopup({
     if (!sfxEnabled) return;
     const clickSfxUrl = variant === "harugomem" ? `/sfxes/${streamer.id}-harugomem.mp3` : streamer.sfx;
     if (clickSfxUrl) {
-      playSfx(clickSfxUrl, sfxVolume / 100, (audio) => applyVariantSfxFilter(audio, variant));
+      playSfx(clickSfxUrl, sfxVolume / 100, (audio) => applyClickSfxFilter(audio, variant));
     }
   };
 
