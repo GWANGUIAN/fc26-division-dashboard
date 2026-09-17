@@ -430,6 +430,25 @@ body.toty-capture-mode::after {
 .toty-card--active .toty-card__glare { opacity: .7; }
 .toty-card--active .toty-card__foil { opacity: .35; }
 
+/* "조카의 스케치북" — a rainbow holographic foil shine doesn't fit a kid's
+   crayon drawing, so this variant reuses .toty-card__foil's element/opacity
+   mechanics (same --pointer-x/-y cursor-follow, same trigger) but swaps its
+   background to a small scattered cluster of colorful crayon-dust specks
+   instead — reads as loose crayon shavings drifting near the cursor. */
+.toty-card--lowq .toty-card__foil {
+  background-image:
+    radial-gradient(circle 3px at 22% 28%, #ff8a5c 0%, transparent 100%),
+    radial-gradient(circle 2px at 68% 18%, #ffd23f 0%, transparent 100%),
+    radial-gradient(circle 2.5px at 40% 68%, #4fd3c4 0%, transparent 100%),
+    radial-gradient(circle 2px at 82% 62%, #ff6fae 0%, transparent 100%),
+    radial-gradient(circle 3px at 55% 42%, #8c6dfc 0%, transparent 100%),
+    radial-gradient(circle 2px at 30% 82%, #6fd86f 0%, transparent 100%);
+  background-size: 220% 220%;
+  background-position: var(--pointer-x) var(--pointer-y);
+  mix-blend-mode: normal;
+}
+.toty-card--lowq.toty-card--active .toty-card__foil { opacity: .8; }
+
 /* "90년대 고전 도트" CRT scanlines — rendered by TotyCardVisual only when
    variant === "retro", confined to .toty-card__window (which already clips
    its children to the shield-window shape via overflow:hidden above) so it
@@ -483,6 +502,14 @@ body.toty-capture-mode::after {
   height: 100%;
   pointer-events: none;
   filter: drop-shadow(0 14px 26px rgba(0, 0, 0, .5));
+}
+
+/* "조카의 스케치북" — layers the animated hand-tremble SVG filter (defined
+   inline by TotyCardVisual, see its own comment) on top of the same
+   drop-shadow every other variant gets, so the ornate border line reads as
+   a subtly trembling hand-drawn ink line instead of a perfectly still one. */
+.toty-card--lowq .toty-card__frame {
+  filter: url(#toty-lowq-wobble) drop-shadow(0 14px 26px rgba(0, 0, 0, .5));
 }
 
 /* Sits BELOW .toty-card__window (see the JSX order in TotyCardVisual.tsx)
@@ -595,6 +622,37 @@ body.toty-capture-mode::after {
 .toty-card--lowq .toty-card__name {
   font-size: clamp(24px, 9cqw, 42px);
   font-weight: 900;
+}
+
+/* Wobbly hand-drawn underline beneath the name (TotyCardVisual renders the
+   <svg><path pathLength=100> only under variant === "lowq") — continuously
+   "redraws" itself as a small kid's-notebook flourish, looping forever
+   rather than tied to any specific interaction. */
+.toty-card__name-underline {
+  position: absolute;
+  left: 50%;
+  top: 71%;
+  width: 34%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  overflow: visible;
+}
+.toty-card__name-underline path {
+  fill: none;
+  stroke: var(--toty-text-color, #ffdd7a);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .6));
+  animation: toty-lowq-underline-draw 4s ease-in-out infinite;
+}
+@keyframes toty-lowq-underline-draw {
+  0% { stroke-dashoffset: 100; opacity: 0; }
+  15% { opacity: 1; }
+  45%, 70% { stroke-dashoffset: 0; opacity: 1; }
+  90% { opacity: 0; }
+  100% { stroke-dashoffset: 100; opacity: 0; }
 }
 
 /* .toty-card--retro is set on .toty-card (TotyCardVisual's `variant` prop)

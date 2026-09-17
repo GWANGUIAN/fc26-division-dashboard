@@ -137,6 +137,27 @@ export function TotyCardVisual({
           } as React.CSSProperties
         }
       >
+        {/* "조카의 스케치북" only: a hidden SVG filter (feTurbulence +
+            feDisplacementMap, animated via SMIL <animate> so it needs no JS
+            driving it) applied to just the crisp .toty-card__frame border
+            below — reads as a subtly trembling hand-drawn ink line. Not
+            applied to .toty-card__frame-glow or the background/character
+            art: the glow already animates its own `filter` (a competing
+            CSS animation would just win and discard this), and wobbling the
+            character/background too would blur the art rather than read as
+            charming. Zero-size and aria-hidden — this renders nothing
+            itself, it only defines the filter toty-card.css references via
+            url(#toty-lowq-wobble). */}
+        {variant === "lowq" && (
+          <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true" focusable="false">
+            <filter id="toty-lowq-wobble">
+              <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="2" seed="2" result="toty-lowq-noise">
+                <animate attributeName="seed" values="1;9;4;7;2;5;1" dur="7s" repeatCount="indefinite" />
+              </feTurbulence>
+              <feDisplacementMap in="SourceGraphic" in2="toty-lowq-noise" scale="5" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+          </svg>
+        )}
         {/* Same frame art, but sitting BELOW the background/character so its
             colored drop-shadow glow (which naturally bleeds both inward and
             outward from the border's alpha edge) only ever shows on the
@@ -200,6 +221,20 @@ export function TotyCardVisual({
         <div className="toty-card__name" data-text={streamer.displayName}>
           {streamer.displayName}
         </div>
+        {/* "조카의 스케치북" only: a wobbly hand-drawn underline beneath the
+            name that continuously "redraws" itself (stroke-dasharray/
+            -dashoffset loop in toty-card.css) — a small kid's-notebook
+            flourish. Purely decorative/live-view-only, same as the scanline
+            overlay above; not reproduced in exportTotyCardImage.ts's static
+            PNG export. */}
+        {variant === "lowq" && (
+          <svg className="toty-card__name-underline" viewBox="0 0 160 14" aria-hidden="true" focusable="false">
+            {/* pathLength=100 normalizes stroke-dasharray/-dashoffset in CSS
+                to a flat 0–100 scale regardless of this curve's actual
+                geometric length — avoids hand-computing arc length by hand. */}
+            <path d="M4,7 Q30,2 55,7 T104,6 T156,8" pathLength={100} />
+          </svg>
+        )}
       </div>
     </div>
   );

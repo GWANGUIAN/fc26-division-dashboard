@@ -7,7 +7,12 @@ import { TotyCardReveal } from "./TotyCardReveal.js";
 import { TotyCardVariantSelect } from "./TotyCardVariantSelect.js";
 import { TotyCardDownloadMenu } from "./TotyCardDownloadMenu.js";
 import { exportTotyCardPng } from "./exportTotyCardImage.js";
-import { applyRetroSfxFilter, playRetroBlip } from "./totyCardRetroSfx.js";
+import {
+  applyLowQualityPitchFilter,
+  applyRetroSfxFilter,
+  playCrayonScratch,
+  playRetroBlip,
+} from "./totyCardEasterEggSfx.js";
 import {
   getAvailableTotyCardVariants,
   getBackgroundGlowUrl,
@@ -33,16 +38,22 @@ const VARIANT_LABELS: Record<TotyCardVariant, string> = {
   retro: "90년대 고전 도트",
 };
 
+// Dispatches to whichever easter-egg sfx filter (see totyCardEasterEggSfx.ts)
+// matches the currently-showing variant — a no-op for "normal". Used by
+// every local sfx helper below plus the streamer's own click sfx.
+function applyVariantSfxFilter(audio: HTMLAudioElement, variant: TotyCardVariant): void {
+  if (variant === "retro") applyRetroSfxFilter(audio);
+  else if (variant === "lowq") applyLowQualityPitchFilter(audio);
+}
+
 // Plays independently of the shared single-slot sfxAudio.ts player (same
 // reasoning as passAnnouncementSfx.ts) so the reveal stinger below never
 // gets cut off by a later click on the card playing the streamer's own sfx.
-// `retro` (see totyCardRetroSfx.ts) routes it through the lowpass+bitcrush
-// filter instead, for the "90년대 고전 도트" roll/select.
 const REVEAL_SFX_URL = "/sfxes/toty-reveal.mp3";
-function playRevealSfx(volume: number, retro: boolean): HTMLAudioElement {
+function playRevealSfx(volume: number, variant: TotyCardVariant): HTMLAudioElement {
   const audio = new Audio(REVEAL_SFX_URL);
   audio.volume = volume;
-  if (retro) applyRetroSfxFilter(audio);
+  applyVariantSfxFilter(audio, variant);
   audio.play().catch(() => {
     // ignore autoplay/decoding failures, and a not-yet-provided file's 404
   });
@@ -54,10 +65,10 @@ function playRevealSfx(volume: number, retro: boolean): HTMLAudioElement {
 // 공개", right as the light-tunnel effect starts, distinct from the impact
 // stinger that lands later at the flip's midpoint.
 const REVEAL_WHOOSH_SFX_URL = "/sfxes/toty-reveal-whoosh.mp3";
-function playRevealWhooshSfx(volume: number, retro: boolean): HTMLAudioElement {
+function playRevealWhooshSfx(volume: number, variant: TotyCardVariant): HTMLAudioElement {
   const audio = new Audio(REVEAL_WHOOSH_SFX_URL);
   audio.volume = volume;
-  if (retro) applyRetroSfxFilter(audio);
+  applyVariantSfxFilter(audio, variant);
   audio.play().catch(() => {
     // ignore autoplay/decoding failures, and a not-yet-provided file's 404
   });
@@ -71,10 +82,10 @@ function playRevealWhooshSfx(volume: number, retro: boolean): HTMLAudioElement {
 // totyCardAssets.ts) — a missing file just 404s and playRevealSfx-style
 // silently no-ops, same as the shared reveal stinger above, so a player
 // without one yet simply gets no sound instead of a fallback.
-function playPopupOpenSfx(streamerId: string, volume: number, retro: boolean): HTMLAudioElement {
+function playPopupOpenSfx(streamerId: string, volume: number, variant: TotyCardVariant): HTMLAudioElement {
   const audio = new Audio(`/sfxes/${streamerId}-popup-open.mp3`);
   audio.volume = volume;
-  if (retro) applyRetroSfxFilter(audio);
+  applyVariantSfxFilter(audio, variant);
   audio.play().catch(() => {
     // ignore autoplay/decoding failures, and a not-yet-provided file's 404
   });
@@ -165,13 +176,13 @@ export function TotyCardPopup({
   // streamer's own click sfx below, both of which stay exactly as they were.
   // eslint-disable-next-line react-hooks/exhaustive-deps -- fires once on mount, not on every sfx setting change
   useEffect(() => {
-    if (sfxEnabled) localSfxRef.current.push(playPopupOpenSfx(streamer.id, sfxVolume / 100, variant === "retro"));
+    if (sfxEnabled) localSfxRef.current.push(playPopupOpenSfx(streamer.id, sfxVolume / 100, variant));
     // eslint-disable-next-line react-hooks/exhaustive-deps -- fires once on mount; `variant` here is intentionally its just-rolled initial value, not a live dependency
   }, []);
 
   // Fired by TotyCardReveal the instant the viewer clicks "클릭해서 카드 공개".
   const handleRevealStart = () => {
-    if (sfxEnabled) localSfxRef.current.push(playRevealWhooshSfx(sfxVolume / 100, variant === "retro"));
+    if (sfxEnabled) localSfxRef.current.push(playRevealWhooshSfx(sfxVolume / 100, variant));
   };
 
   // Fired by TotyCardReveal at the reveal's impact moment (or immediately,
@@ -183,22 +194,25 @@ export function TotyCardPopup({
   // fine for them without waiting for the flip to finish.
   const [backdropShake, setBackdropShake] = useState(false);
   const handleRevealImpact = () => {
-    if (sfxEnabled) localSfxRef.current.push(playRevealSfx(sfxVolume / 100, variant === "retro"));
+    if (sfxEnabled) localSfxRef.current.push(playRevealSfx(sfxVolume / 100, variant));
     setBackdropShake(true);
   };
 
   const handleCardClick = () => {
     if (sfxEnabled && streamer.sfx) {
-      playSfx(streamer.sfx, sfxVolume / 100, variant === "retro" ? applyRetroSfxFilter : undefined);
+      playSfx(streamer.sfx, sfxVolume / 100, (audio) => applyVariantSfxFilter(audio, variant));
     }
   };
 
-  // Plays a short synthesized arcade-menu blip (see totyCardRetroSfx.ts)
-  // only when switching TO the "90년대 고전 도트" variant specifically —
-  // switching to/between the other variants stays silent.
+  // Plays a short synthesized sfx (see totyCardEasterEggSfx.ts) only when
+  // switching TO an easter-egg variant specifically — an arcade blip for
+  // "90년대 고전 도트", a crayon scratch for "조카의 스케치북" — switching to
+  // "기본" (or between the other options) stays silent.
   const handleVariantChange = (next: TotyCardVariant) => {
     setVariant(next);
-    if (sfxEnabled && next === "retro") playRetroBlip(sfxVolume / 100);
+    if (!sfxEnabled) return;
+    if (next === "retro") playRetroBlip(sfxVolume / 100);
+    else if (next === "lowq") playCrayonScratch(sfxVolume / 100);
   };
 
   // The mouse-tilt hint doesn't make sense over a face-down mystery card, so

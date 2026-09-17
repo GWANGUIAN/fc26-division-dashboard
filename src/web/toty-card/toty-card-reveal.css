@@ -82,6 +82,20 @@
   animation-timing-function: steps(4);
 }
 
+/* "조카의 스케치북" — same ring/flash elements and timing, but lopsided
+   hand-drawn blob shapes instead of perfect circles (alternating two blob
+   presets so consecutive rings don't look identically wobbly), reading as a
+   crayon-scribbled burst rather than a premium light tunnel. */
+.toty-reveal-tunnel--lowq .toty-reveal-tunnel__ring:nth-child(odd) {
+  border-radius: 42% 58% 53% 47% / 58% 42% 55% 45%;
+}
+.toty-reveal-tunnel--lowq .toty-reveal-tunnel__ring:nth-child(even) {
+  border-radius: 55% 45% 48% 52% / 45% 55% 42% 58%;
+}
+.toty-reveal-tunnel--lowq .toty-reveal-tunnel__flash {
+  border-radius: 48% 52% 45% 55% / 52% 48% 58% 42%;
+}
+
 /* Card-back -> card-front flip. .toty-reveal-flip carries the same sizing
    as .toty-card-wrap (width min(70vw,380px)) plus the aspect-ratio a plain
    .toty-card gets from its own class, since here that ratio has to live on
@@ -285,4 +299,15 @@
 .toty-reveal-burst--retro .toty-reveal-burst__spark {
   border-radius: 0;
   animation-timing-function: steps(5);
+}
+
+/* "조카의 스케치북" — sparks become small 5-point crayon-doodle stars
+   (clip-path, sized up a little from the plain dot so the star shape
+   actually reads) instead of round particles, matching the wobbly-blob
+   tunnel rings above. */
+.toty-reveal-burst--lowq .toty-reveal-burst__spark {
+  width: 11px;
+  height: 11px;
+  border-radius: 0;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
 }
