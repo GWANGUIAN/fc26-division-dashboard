@@ -3,8 +3,10 @@ import { Download, ImageDown, MousePointer2, X } from "lucide-react";
 import type { StreamerRecord } from "../../shared/model.js";
 import { useEscape } from "../Modal.js";
 import { playSfx, stopSfx } from "../sfxAudio.js";
+import { TotyCardSfxControl } from "./TotyCardSfxControl.js";
 import { TotyCardReveal } from "./TotyCardReveal.js";
 import { TotyCardVariantSelect } from "./TotyCardVariantSelect.js";
+import { TotyCardStreamerSelect } from "./TotyCardStreamerSelect.js";
 import { TotyCardDownloadMenu } from "./TotyCardDownloadMenu.js";
 import { exportTotyCardPng } from "./exportTotyCardImage.js";
 import {
@@ -26,11 +28,13 @@ import {
   getTotyCardAssetsForVariant,
   getTotyCardPreviewBaseUrl,
   getTotyCardPreviewUrl,
+  hasTotyCard,
   type TotyCardAssets,
   type TotyCardVariant,
 } from "./totyCardAssets.js";
 import { rollTotyCardVariant } from "./totyCardVariantRoll.js";
 import { markTotyCardRevealed } from "./totyCardRevealedStore.js";
+import { WOOWAKGOOD_BONUS_STREAMER, WOOWAKGOOD_ID } from "./woowakgoodBonusCard.js";
 import "./toty-card.css";
 
 const VARIANT_LABELS: Record<TotyCardVariant, string> = {
@@ -122,21 +126,64 @@ function useBodyScrollLock() {
   }, []);
 }
 
+type TotyCardPopupStreamer = Pick<
+  StreamerRecord,
+  "id" | "displayName" | "hopedPosition1" | "currentDivision" | "sfx"
+>;
+
 export function TotyCardPopup({
   streamer,
   assets,
+  allStreamers,
+  woowakgoodUnlocked,
   sfxEnabled,
   sfxVolume,
+  onToggleSfx,
+  onSfxVolumeChange,
+  onSelectStreamer,
   onClose,
 }: {
-  streamer: Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision" | "sfx">;
+  streamer: TotyCardPopupStreamer;
   assets: TotyCardAssets;
+  /** Every roster streamer (not just ones with a card yet) — filtered down
+   * to hasTotyCard(id) below to build the top-left "다른 선수 카드 보기"
+   * select's option list. Passing the full roster (rather than a
+   * pre-filtered list) keeps that filtering logic in one place. */
+  allStreamers: TotyCardPopupStreamer[];
+  /** Gates 우왁굳's hidden bonus card out of the select's options until his
+   * one-way achievement unlock (see useWoowakgoodBonusUnlock.ts) — same
+   * "no button, no listing" rule his own WoowakgoodBonusButton follows. */
+  woowakgoodUnlocked: boolean;
   sfxEnabled: boolean;
   sfxVolume: number;
+  /** Same app-wide sfx setting (useSfxSettings.ts) every other sfx-playing
+   * surface uses — this popup just exposes its own toggle/slider (see
+   * .toty-card-popup__sfx-control below) so the viewer can adjust it
+   * without leaving the popup, since every sound here (reveal stinger,
+   * whoosh, popup-open sting, click sfx, variant-switch blip) already reads
+   * sfxEnabled/sfxVolume from these same props. */
+  onToggleSfx: () => void;
+  onSfxVolumeChange: (value: number) => void;
+  /** Switches the popup to a different player's card without closing it —
+   * the caller (App.tsx) is expected to key this component on
+   * streamer.id so swapping streamers cleanly remounts it (fresh variant
+   * roll, reveal-from-mystery-back sequence, etc.) rather than trying to
+   * live-swap a pack-opening sequence already mid-flight. */
+  onSelectStreamer: (streamer: TotyCardPopupStreamer) => void;
   onClose: () => void;
 }) {
   useEscape(onClose);
   useBodyScrollLock();
+
+  // Every streamer with a full card art set, plus the hidden 우왁굳 bonus
+  // once unlocked — powers the top-left streamer select below. Recomputed
+  // on every render rather than memoized: hasTotyCard/allStreamers are both
+  // cheap (a Set lookup and a short array), and this only actually runs
+  // while the select is open.
+  const cardStreamers: TotyCardPopupStreamer[] = allStreamers.filter((s) => hasTotyCard(s.id));
+  if (woowakgoodUnlocked && hasTotyCard(WOOWAKGOOD_ID) && !cardStreamers.some((s) => s.id === WOOWAKGOOD_ID)) {
+    cardStreamers.push(WOOWAKGOOD_BONUS_STREAMER);
+  }
 
   // Easter eggs: shows a crayon-on-sketchbook, 16-bit-arcade-sprite, or
   // 하루고멤 collab version of the card instead of the real one (see
@@ -301,6 +348,24 @@ export function TotyCardPopup({
         )}
       </div>
       <div className="toty-card-popup__scrim" aria-hidden="true" />
+      {cardStreamers.length > 1 && (
+        <div className="toty-card-popup__streamer-select">
+          <TotyCardStreamerSelect
+            value={streamer.id}
+            onChange={(id) => {
+              const next = cardStreamers.find((s) => s.id === id);
+              if (next) onSelectStreamer(next);
+            }}
+            options={cardStreamers.map((s) => ({ value: s.id, label: s.displayName }))}
+          />
+        </div>
+      )}
+      <TotyCardSfxControl
+        enabled={sfxEnabled}
+        volume={sfxVolume}
+        onToggle={onToggleSfx}
+        onVolumeChange={onSfxVolumeChange}
+      />
       <button
         type="button"
         className="toty-card-popup__close"

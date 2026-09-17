@@ -291,10 +291,20 @@ export function App() {
       )}
       {totyCardStreamer && (
         <TotyCardPopup
+          // Forces a clean remount (fresh variant roll, reveal-from-mystery
+          // sequence) when the viewer switches player via the popup's own
+          // streamer select, rather than live-swapping a pack-opening
+          // sequence already mid-flight.
+          key={totyCardStreamer.id}
           streamer={totyCardStreamer}
           assets={getTotyCardAssets(totyCardStreamer.id)!}
+          allStreamers={snapshot?.streamers ?? []}
+          woowakgoodUnlocked={woowakgoodUnlocked}
           sfxEnabled={sfxEnabled}
           sfxVolume={sfxVolume}
+          onToggleSfx={toggleSfx}
+          onSfxVolumeChange={changeSfxVolume}
+          onSelectStreamer={setTotyCardStreamer}
           onClose={() => setTotyCardStreamer(undefined)}
         />
       )}

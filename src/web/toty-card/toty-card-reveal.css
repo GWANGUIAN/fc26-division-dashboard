@@ -96,6 +96,26 @@
   border-radius: 48% 52% 45% 55% / 52% 48% 58% 42%;
 }
 
+/* "하루고멤" — same ring/flash elements and timing, but a rounded-diamond
+   "gem" shape (uniform border-radius on a square, so the border still
+   traces a clean rotated-square outline, then tilted 45deg) instead of
+   plain circles, reading as a shimmering gem/sparkle scatter rather than a
+   plain light tunnel. NOTE: deliberately NOT the earlier version of this
+   rule (asymmetric border-radius: 50% 0 50% 0, rounding only two opposite
+   corners) — that reads as a lens/eye shape rather than a gem, per user
+   feedback. Uses the standalone `rotate` property (not `transform:
+   rotate()`) so it composes with — rather than getting overwritten by —
+   the `transform: scale()` the toty-tunnel-ring keyframe above already
+   animates. */
+.toty-reveal-tunnel--harugomem .toty-reveal-tunnel__ring {
+  border-radius: 18%;
+  rotate: 45deg;
+}
+.toty-reveal-tunnel--harugomem .toty-reveal-tunnel__flash {
+  border-radius: 18%;
+  rotate: 45deg;
+}
+
 /* Card-back -> card-front flip. .toty-reveal-flip carries the same sizing
    as .toty-card-wrap (width min(70vw,380px)) plus the aspect-ratio a plain
    .toty-card gets from its own class, since here that ratio has to live on
@@ -310,4 +330,16 @@
   height: 11px;
   border-radius: 0;
   clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+/* "하루고멤" — sparks become small rounded-diamond "gem" shapes (same trick
+   as the tunnel rings above — uniform border-radius on a square, tilted via
+   the standalone `rotate` property so it composes with the spark's own
+   `transform: translate()/scale()` keyframe) instead of round particles,
+   matching the gem-shaped tunnel above with a shimmering-confetti feel. */
+.toty-reveal-burst--harugomem .toty-reveal-burst__spark {
+  width: 10px;
+  height: 10px;
+  border-radius: 18%;
+  rotate: 45deg;
 }

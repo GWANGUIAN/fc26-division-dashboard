@@ -133,6 +133,123 @@ body.toty-capture-mode::after {
 .toty-card-popup__close:hover { background: rgba(0, 0, 0, .75); }
 .toty-card-popup__close svg { width: 18px; height: 18px; }
 
+/* Local shortcut for the app-wide sfx setting (see TotyCardSfxControl.tsx)
+   — lets the viewer adjust every sound this popup plays without leaving
+   it. Sits left of the close button at the same top offset, matching
+   .toty-card-popup__close/__download's plain translucent-black pill look
+   rather than SfxControls.tsx's own green-accented toolbar styling (same
+   reasoning as .toty-card-popup__variant-select above). */
+.toty-card-popup__sfx-control {
+  position: absolute;
+  z-index: 1;
+  top: 16px;
+  right: 62px;
+}
+.toty-card-popup__sfx-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(0, 0, 0, .55);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .4);
+  cursor: pointer;
+}
+.toty-card-popup__sfx-toggle:hover { background: rgba(0, 0, 0, .75); }
+.toty-card-popup__sfx-toggle svg { width: 18px; height: 18px; }
+
+/* Volume slider popover — visibility driven by the
+   .toty-card-popup__sfx-control--open class TotyCardSfxControl.tsx toggles
+   on a delay (NOT plain CSS :hover/:focus-within: this is position:
+   absolute and so sits outside the wrapper's own hoverable box entirely —
+   moving the pointer down across the gap into the popup was exiting that
+   box and closing it instantly). Opens downward (unlike SfxControls.tsx's
+   upward-opening version built for a bottom-anchored toolbar) since this
+   control sits near the very top of the viewport, where an upward popup
+   would run off-screen. */
+.toty-card-popup__sfx-popup {
+  position: absolute;
+  z-index: 1;
+  top: calc(100% + 10px);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 40px;
+  padding: 14px 0 10px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, .82);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .5);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-6px);
+  transition: opacity .15s, transform .15s;
+}
+.toty-card-popup__sfx-control--open .toty-card-popup__sfx-popup {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+/* Rotating a 84x4px range input in place leaves it occupying its original
+   *unrotated* 84x4 layout box (transforms don't affect layout/reflow), so
+   without this dedicated track reserving the actual (rotated) 24x84
+   footprint, the slider visually overflows way past this small popup panel
+   — same fix styles.css's own .sfx-control__slider-track/__slider uses. */
+.toty-card-popup__sfx-slider-track { position: relative; width: 24px; height: 84px; }
+.toty-card-popup__sfx-slider {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 84px;
+  height: 4px;
+  margin: 0;
+  appearance: none;
+  border-radius: 2px;
+  background: linear-gradient(to right, #fff var(--volume-fill, 100%), rgba(255, 255, 255, .25) var(--volume-fill, 100%));
+  outline: none;
+  cursor: pointer;
+  transform: translate(-50%, -50%) rotate(-90deg);
+}
+.toty-card-popup__sfx-slider::-webkit-slider-thumb {
+  width: 12px;
+  height: 12px;
+  appearance: none;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, .5);
+}
+.toty-card-popup__sfx-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, .5);
+}
+.toty-card-popup__sfx-slider::-moz-range-track { height: 4px; border-radius: 2px; background: transparent; }
+.toty-card-popup__sfx-slider::-moz-range-progress { height: 4px; border-radius: 2px; background: #fff; }
+.toty-card-popup__sfx-value { color: rgba(255, 255, 255, .75); font-size: 10px; font-weight: 700; }
+
+/* Top-left counterpart to the sfx-control/close cluster on the right —
+   lets the viewer jump straight to a different player's card (see
+   TotyCardStreamerSelect.tsx) without closing this popup. Reuses the
+   variant-select's trigger/content/item classes as-is (same pill look),
+   just needs its own wrapper position since that one is centered above the
+   card instead of pinned to a popup corner. */
+.toty-card-popup__streamer-select {
+  position: absolute;
+  z-index: 1;
+  top: 16px;
+  left: 16px;
+}
+
 .toty-card-popup__stage {
   position: relative;
   z-index: 1;
