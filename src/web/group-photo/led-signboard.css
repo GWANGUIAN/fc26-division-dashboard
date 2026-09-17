@@ -45,7 +45,7 @@
 .led-signboard--scroll .led-signboard__track {
   display: inline-flex;
   width: max-content;
-  animation: led-marquee 26s linear infinite;
+  animation: led-marquee 19s linear infinite;
 }
 
 .led-signboard--scroll .led-signboard__copy {
