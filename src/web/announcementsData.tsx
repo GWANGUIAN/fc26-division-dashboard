@@ -23,6 +23,17 @@ export type Announcement = {
 
 export const ANNOUNCEMENTS: Announcement[] = [
   {
+    id: "2026-09-toty-card-themes",
+    date: "2026.09.17",
+    body: (
+      <>
+        <strong>3D 카드</strong>에 숨겨진 테마 2가지가 새로 추가되었습니다.
+        카드를 공개한 뒤 위쪽에 뜨는 선택 창에서 어떤 테마인지 직접
+        확인해보세요.
+      </>
+    ),
+  },
+  {
     id: "2026-09-fortune-draw",
     date: "2026.09.14",
     body: (
