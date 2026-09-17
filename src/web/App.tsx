@@ -395,6 +395,8 @@ export function App() {
       {groupPhotoOpen && (
         <GroupPhotoOverlay
           passedStreamers={celebrationEligibleStreamers}
+          sfxEnabled={sfxEnabled}
+          sfxVolume={sfxVolume}
           onClose={() => setGroupPhotoOpen(false)}
         />
       )}

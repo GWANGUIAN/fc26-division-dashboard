@@ -3,6 +3,7 @@ import { ImageDown, X } from "lucide-react";
 import type { StreamerRecord } from "../../shared/model.js";
 import "../photo-booth/photo-booth.css";
 import "./group-photo.css";
+import { playSfx } from "../sfxAudio";
 import { PhotoBoothStreamerPicker } from "../photo-booth/PhotoBoothStreamerPicker";
 import { WOOWAKGOOD_BONUS_STREAMER } from "../toty-card/woowakgoodBonusCard.js";
 import { GROUP_PHOTO_ROSTER } from "./groupPhotoRoster";
@@ -11,6 +12,9 @@ import { getGroupPhotoBackgroundUrl } from "./groupPhotoAssets";
 import { exportGroupPhotoPng } from "./exportGroupPhotoImage.js";
 import { LedSignboard } from "./LedSignboard";
 import { loadGroupPhotoState, saveGroupPhotoState } from "./storage";
+
+// PhotoBoothOverlay.tsx와 같은 함성 효과음 — 처음 열렸을 때 + 선수 바꿀 때.
+const CHEER_SFX_URL = "/sfxes/cheer.mp3";
 
 function useEscape(onClose: () => void) {
   useEffect(() => {
@@ -52,13 +56,22 @@ const WOOWAKGOOD_CHEER_NAME = "오영택";
 
 export function GroupPhotoOverlay({
   passedStreamers,
+  sfxEnabled,
+  sfxVolume,
   onClose,
 }: {
   passedStreamers: StreamerRecord[];
+  sfxEnabled: boolean;
+  sfxVolume: number;
   onClose: () => void;
 }) {
   useEscape(onClose);
   useBodyScrollLock();
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- fires once when the overlay opens, not on every sfx setting change
+  useEffect(() => {
+    if (sfxEnabled) playSfx(CHEER_SFX_URL, sfxVolume / 100);
+  }, []);
 
   // 선수 선택 드롭다운/캐릭터 클릭 모두에서 고를 수 있는 전체 목록 — 최종
   // 합격자 + 감독 우왁굳. WOOWAKGOOD_BONUS_STREAMER엔 profileImageUrl이 없어서
@@ -92,6 +105,7 @@ export function GroupPhotoOverlay({
   function handleSelect(id: string) {
     setSelectedStreamerId(id);
     saveGroupPhotoState({ schemaVersion: 1, selectedStreamerId: id });
+    if (sfxEnabled) playSfx(CHEER_SFX_URL, sfxVolume / 100);
   }
 
   const selectedExists = pickerStreamers.some((streamer) => streamer.id === selectedStreamerId);
