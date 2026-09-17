@@ -261,17 +261,22 @@ export function getCharacterHoverUrl(streamerId: string): string | undefined {
 // characterHoverUrl swap that player has (see CHARACTER_HOVER_SUFFIX above)
 // for the whole loop — effectively a "hover" version once one exists.
 const PREVIEW_SUFFIX = "-preview.gif";
-// Checked first so a lowq preview's "<id>-lowq-preview.gif" filename (which
-// also ends in "-preview.gif") doesn't leak into previewUrls under the bogus
-// key "<id>-lowq" — same reasoning as the lowq frame/background/character
-// trio in the ASSETS scan above.
+// Checked first so a lowq/retro preview's "<id>-lowq-preview.gif" /
+// "<id>-retro-preview.gif" filename (which also ends in "-preview.gif")
+// doesn't leak into previewUrls under the bogus key "<id>-lowq"/"<id>-retro"
+// — same reasoning as the lowq/retro frame/background/character trios in
+// the ASSETS scan above.
 const LOW_QUALITY_PREVIEW_SUFFIX = "-lowq-preview.gif";
+const RETRO_PREVIEW_SUFFIX = "-retro-preview.gif";
 const previewUrls: Record<string, string> = {};
 const lowQualityPreviewUrls: Record<string, string> = {};
+const retroPreviewUrls: Record<string, string> = {};
 for (const [path, url] of Object.entries(modules)) {
   const filename = path.split("/").pop() ?? "";
   if (filename.endsWith(LOW_QUALITY_PREVIEW_SUFFIX)) {
     lowQualityPreviewUrls[filename.slice(0, -LOW_QUALITY_PREVIEW_SUFFIX.length)] = url;
+  } else if (filename.endsWith(RETRO_PREVIEW_SUFFIX)) {
+    retroPreviewUrls[filename.slice(0, -RETRO_PREVIEW_SUFFIX.length)] = url;
   } else if (filename.endsWith(PREVIEW_SUFFIX)) {
     previewUrls[filename.slice(0, -PREVIEW_SUFFIX.length)] = url;
   }
@@ -289,6 +294,13 @@ export function getTotyCardPreviewUrl(streamerId: string): string | undefined {
 // mismatched download for what's actually on screen).
 export function getLowQualityTotyCardPreviewUrl(streamerId: string): string | undefined {
   return lowQualityPreviewUrls[streamerId];
+}
+
+// Same idea, for the "90년대 고전 도트" easter-egg card (see
+// getRetroTotyCardAssets) — produced by scripts/generate-toty-preview.mjs's
+// --retro flag.
+export function getRetroTotyCardPreviewUrl(streamerId: string): string | undefined {
+  return retroPreviewUrls[streamerId];
 }
 
 // Pre-hover-effect capture of the same loop, kept around (rather than

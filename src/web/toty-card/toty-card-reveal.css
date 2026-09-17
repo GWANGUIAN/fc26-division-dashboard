@@ -70,6 +70,18 @@
   100% { opacity: .85; }
 }
 
+/* "90년대 고전 도트" — same ring/flash elements and timing, but square and
+   hard-stepped instead of smooth expanding circles, reading as a chunky
+   pixel-burst rather than a premium light tunnel. */
+.toty-reveal-tunnel--retro .toty-reveal-tunnel__ring {
+  border-radius: 0;
+  animation-timing-function: steps(6);
+}
+.toty-reveal-tunnel--retro .toty-reveal-tunnel__flash {
+  border-radius: 0;
+  animation-timing-function: steps(4);
+}
+
 /* Card-back -> card-front flip. .toty-reveal-flip carries the same sizing
    as .toty-card-wrap (width min(70vw,380px)) plus the aspect-ratio a plain
    .toty-card gets from its own class, since here that ratio has to live on
@@ -262,4 +274,15 @@
 @keyframes toty-spark-burst {
   0% { transform: translate(0, 0) scale(1); opacity: 1; }
   100% { transform: translate(var(--dx), var(--dy)) scale(.2); opacity: 0; }
+}
+
+/* "90년대 고전 도트" — same beams/sparks and timing, but square and
+   hard-stepped instead of smooth round particles, matching the pixel-art
+   card art underneath. */
+.toty-reveal-burst--retro .toty-reveal-burst__beam {
+  animation-timing-function: steps(5);
+}
+.toty-reveal-burst--retro .toty-reveal-burst__spark {
+  border-radius: 0;
+  animation-timing-function: steps(5);
 }

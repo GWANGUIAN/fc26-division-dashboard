@@ -16,14 +16,15 @@
  * Requires the Vite dev server already running (`pnpm dev`) and Playwright's
  * Chromium installed (`npx playwright install chromium` once).
  *
- * Run with: pnpm generate:toty-preview -- <streamerId> [port] [--lowq]
+ * Run with: pnpm generate:toty-preview -- <streamerId> [port] [--lowq|--retro]
  * Example:  pnpm generate:toty-preview -- hachi97
  *
- * --lowq captures the "저퀄리티" easter-egg trio (<id>-lowq-*.webp — see
- * docs/toty-card-prompts.md) instead of the real card, writing
- * <id>-lowq-preview.gif. That variant never has hover art or a glow overlay
- * (TotyCardCapturePage leaves both off under ?lowq=1), so there's no
- * separate "-lowq-preview-base.gif" the way the real card has one.
+ * --lowq/--retro capture an easter-egg trio (<id>-lowq-*.webp /
+ * <id>-retro-*.webp — see docs/toty-card-prompts.md) instead of the real
+ * card, writing <id>-lowq-preview.gif / <id>-retro-preview.gif. Neither
+ * variant has hover art or a glow overlay (TotyCardCapturePage leaves both
+ * off for any non-"normal" ?variant=), so there's no separate
+ * "-preview-base.gif" the way the real card has one.
  */
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
@@ -60,15 +61,18 @@ const NON_ROSTER_STREAMERS = {
 
 async function main() {
   const rawArgs = process.argv.slice(2);
-  const lowQuality = rawArgs.includes("--lowq");
-  const [id, port = "5184"] = rawArgs.filter((arg) => arg !== "--lowq");
+  const variant = rawArgs.includes("--retro") ? "retro" : rawArgs.includes("--lowq") ? "lowq" : "normal";
+  // Some shells/package-manager invocations of `pnpm run x -- ...` leak a
+  // literal "--" through into argv instead of pnpm swallowing it — strip it
+  // defensively alongside the flags above so it never gets misread as the id.
+  const [id, port = "5184"] = rawArgs.filter((arg) => arg !== "--" && arg !== "--lowq" && arg !== "--retro");
   if (!id) {
-    console.error("Usage: pnpm generate:toty-preview -- <streamerId> [port] [--lowq]");
+    console.error("Usage: pnpm generate:toty-preview -- <streamerId> [port] [--lowq|--retro]");
     process.exit(1);
   }
 
   const assetsDir = path.join(rootDir, "src", "web", "assets", "toty-cards");
-  const assetPrefix = lowQuality ? `${id}-lowq` : id;
+  const assetPrefix = variant === "normal" ? id : `${id}-${variant}`;
   for (const part of ["frame", "background", "character"]) {
     if (!existsSync(path.join(assetsDir, `${assetPrefix}-${part}.webp`))) {
       console.error(`Missing ${assetPrefix}-${part}.webp in src/web/assets/toty-cards/ — generate the 3 card images first.`);
@@ -93,9 +97,9 @@ async function main() {
   url.searchParams.set("name", streamer.displayName);
   if (streamer.hopedPosition1) url.searchParams.set("pos", streamer.hopedPosition1);
   url.searchParams.set("div", String(streamer.currentDivision ?? 1));
-  if (lowQuality) url.searchParams.set("lowq", "1");
+  if (variant !== "normal") url.searchParams.set("variant", variant);
 
-  console.log(`Capturing ${streamer.displayName} (${id})${lowQuality ? " [lowq]" : ""} from ${url}`);
+  console.log(`Capturing ${streamer.displayName} (${id})${variant !== "normal" ? ` [${variant}]` : ""} from ${url}`);
   const browser = await chromium.launch();
   try {
     const page = await browser.newPage({ viewport: VIEWPORT });
@@ -133,7 +137,7 @@ async function main() {
     }
     const stacked = Buffer.concat(decoded.map(({ data }) => data));
 
-    const outPath = path.join(assetsDir, `${id}${lowQuality ? "-lowq" : ""}-preview.gif`);
+    const outPath = path.join(assetsDir, `${assetPrefix}-preview.gif`);
     // pageHeight on the *input* raw options (sharp >=0.34.3) is what tells
     // it this buffer is a vertically-stacked multi-frame image, not
     // `animated`/`pages` — those only apply when reading an already-encoded

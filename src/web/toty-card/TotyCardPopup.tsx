@@ -7,6 +7,7 @@ import { TotyCardReveal } from "./TotyCardReveal.js";
 import { TotyCardVariantSelect } from "./TotyCardVariantSelect.js";
 import { TotyCardDownloadMenu } from "./TotyCardDownloadMenu.js";
 import { exportTotyCardPng } from "./exportTotyCardImage.js";
+import { applyRetroSfxFilter, playRetroBlip } from "./totyCardRetroSfx.js";
 import {
   getAvailableTotyCardVariants,
   getBackgroundGlowUrl,
@@ -15,6 +16,7 @@ import {
   getLowQualityTotyCardPreviewUrl,
   getPopupBackdropGlowUrl,
   getPopupBackdropUrl,
+  getRetroTotyCardPreviewUrl,
   getTotyCardAssetsForVariant,
   getTotyCardPreviewBaseUrl,
   getTotyCardPreviewUrl,
@@ -34,10 +36,13 @@ const VARIANT_LABELS: Record<TotyCardVariant, string> = {
 // Plays independently of the shared single-slot sfxAudio.ts player (same
 // reasoning as passAnnouncementSfx.ts) so the reveal stinger below never
 // gets cut off by a later click on the card playing the streamer's own sfx.
+// `retro` (see totyCardRetroSfx.ts) routes it through the lowpass+bitcrush
+// filter instead, for the "90년대 고전 도트" roll/select.
 const REVEAL_SFX_URL = "/sfxes/toty-reveal.mp3";
-function playRevealSfx(volume: number): HTMLAudioElement {
+function playRevealSfx(volume: number, retro: boolean): HTMLAudioElement {
   const audio = new Audio(REVEAL_SFX_URL);
   audio.volume = volume;
+  if (retro) applyRetroSfxFilter(audio);
   audio.play().catch(() => {
     // ignore autoplay/decoding failures, and a not-yet-provided file's 404
   });
@@ -49,9 +54,10 @@ function playRevealSfx(volume: number): HTMLAudioElement {
 // 공개", right as the light-tunnel effect starts, distinct from the impact
 // stinger that lands later at the flip's midpoint.
 const REVEAL_WHOOSH_SFX_URL = "/sfxes/toty-reveal-whoosh.mp3";
-function playRevealWhooshSfx(volume: number): HTMLAudioElement {
+function playRevealWhooshSfx(volume: number, retro: boolean): HTMLAudioElement {
   const audio = new Audio(REVEAL_WHOOSH_SFX_URL);
   audio.volume = volume;
+  if (retro) applyRetroSfxFilter(audio);
   audio.play().catch(() => {
     // ignore autoplay/decoding failures, and a not-yet-provided file's 404
   });
@@ -65,9 +71,10 @@ function playRevealWhooshSfx(volume: number): HTMLAudioElement {
 // totyCardAssets.ts) — a missing file just 404s and playRevealSfx-style
 // silently no-ops, same as the shared reveal stinger above, so a player
 // without one yet simply gets no sound instead of a fallback.
-function playPopupOpenSfx(streamerId: string, volume: number): HTMLAudioElement {
+function playPopupOpenSfx(streamerId: string, volume: number, retro: boolean): HTMLAudioElement {
   const audio = new Audio(`/sfxes/${streamerId}-popup-open.mp3`);
   audio.volume = volume;
+  if (retro) applyRetroSfxFilter(audio);
   audio.play().catch(() => {
     // ignore autoplay/decoding failures, and a not-yet-provided file's 404
   });
@@ -158,12 +165,13 @@ export function TotyCardPopup({
   // streamer's own click sfx below, both of which stay exactly as they were.
   // eslint-disable-next-line react-hooks/exhaustive-deps -- fires once on mount, not on every sfx setting change
   useEffect(() => {
-    if (sfxEnabled) localSfxRef.current.push(playPopupOpenSfx(streamer.id, sfxVolume / 100));
+    if (sfxEnabled) localSfxRef.current.push(playPopupOpenSfx(streamer.id, sfxVolume / 100, variant === "retro"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fires once on mount; `variant` here is intentionally its just-rolled initial value, not a live dependency
   }, []);
 
   // Fired by TotyCardReveal the instant the viewer clicks "클릭해서 카드 공개".
   const handleRevealStart = () => {
-    if (sfxEnabled) localSfxRef.current.push(playRevealWhooshSfx(sfxVolume / 100));
+    if (sfxEnabled) localSfxRef.current.push(playRevealWhooshSfx(sfxVolume / 100, variant === "retro"));
   };
 
   // Fired by TotyCardReveal at the reveal's impact moment (or immediately,
@@ -175,12 +183,22 @@ export function TotyCardPopup({
   // fine for them without waiting for the flip to finish.
   const [backdropShake, setBackdropShake] = useState(false);
   const handleRevealImpact = () => {
-    if (sfxEnabled) localSfxRef.current.push(playRevealSfx(sfxVolume / 100));
+    if (sfxEnabled) localSfxRef.current.push(playRevealSfx(sfxVolume / 100, variant === "retro"));
     setBackdropShake(true);
   };
 
   const handleCardClick = () => {
-    if (sfxEnabled && streamer.sfx) playSfx(streamer.sfx, sfxVolume / 100);
+    if (sfxEnabled && streamer.sfx) {
+      playSfx(streamer.sfx, sfxVolume / 100, variant === "retro" ? applyRetroSfxFilter : undefined);
+    }
+  };
+
+  // Plays a short synthesized arcade-menu blip (see totyCardRetroSfx.ts)
+  // only when switching TO the "90년대 고전 도트" variant specifically —
+  // switching to/between the other variants stays silent.
+  const handleVariantChange = (next: TotyCardVariant) => {
+    setVariant(next);
+    if (sfxEnabled && next === "retro") playRetroBlip(sfxVolume / 100);
   };
 
   // The mouse-tilt hint doesn't make sense over a face-down mystery card, so
@@ -209,20 +227,19 @@ export function TotyCardPopup({
   // previewUrl bakes in characterHoverUrl's swap for the whole loop (the
   // capture script's synthetic mouse never leaves the card), so it reads as
   // the "호버 이미지" option once one exists; previewBaseUrl is the older
-  // pre-hover capture, offered alongside it as "기본 이미지". Under the lowq
-  // easter egg, previewBaseUrl stays hidden (that variant never has a
-  // separate pre-hover capture) and previewUrl swaps to the crayon card's
-  // own gif (--lowq flag on the same script) instead of the real card's —
-  // still hidden if that hasn't been generated for this player yet, rather
-  // than falling back to a mismatched download of the real card. The retro
-  // variant has no gif generation flow at all yet, so it always hides both.
+  // pre-hover capture, offered alongside it as "기본 이미지". Under the
+  // lowq/retro easter eggs, previewBaseUrl stays hidden (neither variant has
+  // a separate pre-hover capture) and previewUrl swaps to that variant's own
+  // gif (--lowq/--retro flag on the same script) instead of the real card's
+  // — still hidden if that hasn't been generated for this player yet,
+  // rather than falling back to a mismatched download of the real card.
   const previewBaseUrl = variant === "normal" ? getTotyCardPreviewBaseUrl(streamer.id) : undefined;
   const previewUrl =
     variant === "lowq"
       ? getLowQualityTotyCardPreviewUrl(streamer.id)
-      : variant === "normal"
-        ? getTotyCardPreviewUrl(streamer.id)
-        : undefined;
+      : variant === "retro"
+        ? getRetroTotyCardPreviewUrl(streamer.id)
+        : getTotyCardPreviewUrl(streamer.id);
 
   return (
     <div
@@ -279,7 +296,7 @@ export function TotyCardPopup({
           >
             <TotyCardVariantSelect
               value={variant}
-              onChange={setVariant}
+              onChange={handleVariantChange}
               options={availableVariants.map((v) => ({ value: v, label: VARIANT_LABELS[v] }))}
             />
           </div>

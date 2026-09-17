@@ -69,13 +69,27 @@ export function TotyCardVisual({
 
   useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
 
+  // "90년대 고전 도트" only: the mouse-tilt/parallax state below normally
+  // updates every animation frame (~60fps) and CSS-eases smoothly between
+  // values. Here it's instead resampled only every RETRO_STEP_MS and, paired
+  // with .toty-card--retro's `transition: steps(1)` overrides in
+  // toty-card.css (which skip that easing entirely), jumps instantly between
+  // samples — reads as a choppy, low-refresh-rate arcade-cabinet display
+  // instead of a modern buttery tilt.
+  const lastRetroSampleRef = useRef(0);
+  const RETRO_STEP_MS = 90;
+
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     const rect = cardRef.current?.getBoundingClientRect();
     if (!rect) return;
     const x = (event.clientX - rect.left) / rect.width;
     const y = (event.clientY - rect.top) / rect.height;
     cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(() => {
+    rafRef.current = requestAnimationFrame((now) => {
+      if (variant === "retro") {
+        if (now - lastRetroSampleRef.current < RETRO_STEP_MS) return;
+        lastRetroSampleRef.current = now;
+      }
       setTilt({
         rx: (0.5 - y) * 22,
         ry: (x - 0.5) * 26,
@@ -170,6 +184,10 @@ export function TotyCardVisual({
           )}
           <span className="toty-card__glare" aria-hidden="true" />
           <span className="toty-card__foil" aria-hidden="true" />
+          {/* CRT scanlines — "90년대 고전 도트" only, confined to this window
+              (the "screen") rather than the ornate frame border (the
+              "bezel") outside it. See toty-card.css. */}
+          {variant === "retro" && <span className="toty-card__scanlines" aria-hidden="true" />}
         </div>
         <img className="toty-card__frame" src={assets.frame} alt="" fetchPriority="high" />
 

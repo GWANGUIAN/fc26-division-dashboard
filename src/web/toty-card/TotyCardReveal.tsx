@@ -26,15 +26,19 @@ function TunnelOverlay({
   color,
   glow,
   ringCount = 9,
+  retro = false,
 }: {
   color: string;
   glow: string;
   ringCount?: number;
+  /** "90년대 고전 도트" — square, hard-stepped rings instead of smooth
+   * expanding circles (see toty-reveal-tunnel--retro in toty-card-reveal.css). */
+  retro?: boolean;
 }) {
   const rings = Array.from({ length: ringCount }, (_, i) => i);
   return (
     <div
-      className="toty-reveal-tunnel"
+      className={`toty-reveal-tunnel ${retro ? "toty-reveal-tunnel--retro" : ""}`}
       style={{ "--toty-tunnel-color": color, "--toty-tunnel-glow": glow } as React.CSSProperties}
       aria-hidden="true"
     >
@@ -55,11 +59,16 @@ function BurstEffect({
   glow,
   particleCount = PARTICLE_COUNT,
   beamAngles = [0, 45, 90, 135],
+  retro = false,
 }: {
   color: string;
   glow: string;
   particleCount?: number;
   beamAngles?: number[];
+  /** "90년대 고전 도트" — square, hard-stepped sparks/beams instead of
+   * smooth round particles (see toty-reveal-burst--retro in
+   * toty-card-reveal.css). */
+  retro?: boolean;
 }) {
   // Computed once per mount (not on every render) — angle/distance are
   // decorative randomness, not state that should ever change mid-burst.
@@ -77,7 +86,7 @@ function BurstEffect({
 
   return (
     <div
-      className="toty-reveal-burst"
+      className={`toty-reveal-burst ${retro ? "toty-reveal-burst--retro" : ""}`}
       style={{ "--toty-tunnel-color": color, "--toty-tunnel-glow": glow } as React.CSSProperties}
       aria-hidden="true"
     >
@@ -154,6 +163,7 @@ export function TotyCardReveal({
   // reveal gets a denser tunnel/burst to match, rather than adding a whole
   // generic rarity system for a single special-cased card.
   const isSpecial = streamer.id === "hachi97";
+  const isRetro = variant === "retro";
   const [phase, setPhase] = useState<RevealPhase>("waiting");
   const [showBurst, setShowBurst] = useState(false);
   const impactFiredRef = useRef(false);
@@ -239,7 +249,7 @@ export function TotyCardReveal({
   return (
     <div className={`toty-reveal ${showBurst ? "toty-reveal--shake" : ""}`}>
       {phase === "tunnel" && (
-        <TunnelOverlay color={theme.color} glow={theme.glow} ringCount={isSpecial ? 14 : 9} />
+        <TunnelOverlay color={theme.color} glow={theme.glow} ringCount={isSpecial ? 14 : 9} retro={isRetro} />
       )}
       <div
         ref={backCardRef}
@@ -338,6 +348,7 @@ export function TotyCardReveal({
           glow={theme.glow}
           particleCount={isSpecial ? 32 : PARTICLE_COUNT}
           beamAngles={isSpecial ? [0, 30, 60, 90, 120, 150] : [0, 45, 90, 135]}
+          retro={isRetro}
         />
       )}
     </div>

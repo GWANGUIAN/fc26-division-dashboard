@@ -430,6 +430,52 @@ body.toty-capture-mode::after {
 .toty-card--active .toty-card__glare { opacity: .7; }
 .toty-card--active .toty-card__foil { opacity: .35; }
 
+/* "90년대 고전 도트" CRT scanlines — rendered by TotyCardVisual only when
+   variant === "retro", confined to .toty-card__window (which already clips
+   its children to the shield-window shape via overflow:hidden above) so it
+   only ever covers the "screen" area, never the ornate frame border. */
+.toty-card__scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, .22) 3px,
+    rgba(0, 0, 0, 0) 4px
+  );
+  mix-blend-mode: multiply;
+  animation: toty-retro-flicker 4.4s steps(1) infinite;
+}
+@keyframes toty-retro-flicker {
+  0%, 40%, 43%, 96%, 100% { opacity: .85; }
+  41% { opacity: .5; }
+  42% { opacity: 1; }
+  97% { opacity: .6; }
+  98% { opacity: 1; }
+}
+
+/* "90년대 고전 도트" — the mouse-tilt/parallax state is throttled in JS
+   (TotyCardVisual's RETRO_STEP_MS) to resample only a few times a second;
+   these overrides remove the smooth easing every other variant gets so each
+   resample jumps instantly instead of tweening toward it — together they
+   read as a choppy, low-refresh-rate arcade display. */
+.toty-card--retro,
+.toty-card--retro.toty-card--active {
+  transition: transform 0s steps(1);
+}
+.toty-card--retro .toty-card__bg,
+.toty-card--retro .toty-card__char,
+.toty-card--retro .toty-card__glow {
+  transition: transform 0s steps(1);
+}
+/* The idle breathing drift/float loops keep running (same keyframes as
+   every other variant) but step through them in chunky increments instead
+   of easing smoothly, for the same "low-refresh-rate" reason as above. */
+.toty-card--retro .toty-card__idle-bg { animation-timing-function: steps(10); }
+.toty-card--retro .toty-card__idle-char { animation-timing-function: steps(8); }
+
 .toty-card__frame {
   position: absolute;
   inset: 0;
@@ -472,6 +518,31 @@ body.toty-capture-mode::after {
     filter:
       drop-shadow(0 0 9px var(--toty-text-color, #ffdd7a))
       drop-shadow(0 0 16px var(--toty-text-glow, #fff6d2));
+  }
+}
+
+/* "90년대 고전 도트" — a smooth breathing glow reads as premium/modern, so
+   this variant swaps to a smaller, harder-edged glow that flickers in
+   chunky steps like an old arcade-marquee neon tube instead of easing. */
+.toty-card--retro .toty-card__frame-glow {
+  filter:
+    drop-shadow(0 0 2px var(--toty-text-color, #ffdd7a))
+    drop-shadow(0 0 5px var(--toty-text-glow, #fff6d2));
+  animation: toty-frame-glow-pulse-retro 1.8s steps(6) infinite;
+}
+.toty-card--retro.toty-card--active .toty-card__frame-glow {
+  animation-duration: .8s;
+}
+@keyframes toty-frame-glow-pulse-retro {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 2px var(--toty-text-color, #ffdd7a))
+      drop-shadow(0 0 4px var(--toty-text-glow, #fff6d2));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 6px var(--toty-text-color, #ffdd7a))
+      drop-shadow(0 0 10px var(--toty-text-glow, #fff6d2));
   }
 }
 
