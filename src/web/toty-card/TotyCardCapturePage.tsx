@@ -3,28 +3,30 @@ import { TotyCardVisual } from "./TotyCardVisual.js";
 import {
   getBackgroundGlowUrl,
   getCharacterHoverUrl,
-  getLowQualityTotyCardAssets,
-  getTotyCardAssets,
+  getTotyCardAssetsForVariant,
+  type TotyCardVariant,
 } from "./totyCardAssets.js";
 import "./toty-card.css";
 
 /**
  * Bare, transparent, chrome-free rendering of one player's card — reached
- * via ?totyCapture=<id>[&name=...&pos=...&div=...&lowq=1] (see main.tsx).
- * Exists only for scripts/generate-toty-preview.mjs: it opens this URL in
- * headless Chromium, drives the card with synthetic mouse moves, and
- * screenshots each frame with a transparent background to build the
- * downloadable animated GIF preview. Not linked from anywhere in the real
- * UI. &lowq=1 renders the "저퀄리티" easter-egg trio instead (see
- * getLowQualityTotyCardAssets) — that variant never has hover art or a glow
- * overlay, so those are left off entirely rather than reading them from the
- * real card's assets.
+ * via ?totyCapture=<id>[&name=...&pos=...&div=...&variant=lowq|retro] (see
+ * main.tsx). Exists only for scripts/generate-toty-preview.mjs: it opens
+ * this URL in headless Chromium, drives the card with synthetic mouse
+ * moves, and screenshots each frame with a transparent background to build
+ * the downloadable animated GIF preview. Not linked from anywhere in the
+ * real UI. &lowq=1 is kept as a legacy alias for &variant=lowq so the
+ * existing script invocation keeps working unmodified. A non-"normal"
+ * variant never has hover art or a glow overlay, so those are left off
+ * entirely rather than reading them from the real card's assets.
  */
 export function TotyCardCapturePage() {
   const params = new URLSearchParams(window.location.search);
   const id = params.get("totyCapture") ?? "";
-  const lowQuality = params.get("lowq") === "1";
-  const assets = lowQuality ? getLowQualityTotyCardAssets(id) : getTotyCardAssets(id);
+  const variantParam = params.get("variant");
+  const variant: TotyCardVariant =
+    variantParam === "retro" ? "retro" : variantParam === "lowq" || params.get("lowq") === "1" ? "lowq" : "normal";
+  const assets = getTotyCardAssetsForVariant(id, variant);
 
   // The app paints its ambient background via body::before/::after (fixed,
   // full-viewport gradients — see styles.css) rather than body's own
@@ -58,10 +60,10 @@ export function TotyCardCapturePage() {
       <TotyCardVisual
         streamer={streamer}
         assets={assets}
-        backgroundGlowUrl={lowQuality ? undefined : getBackgroundGlowUrl(id)}
-        characterHoverUrl={lowQuality ? undefined : getCharacterHoverUrl(id)}
+        backgroundGlowUrl={variant === "normal" ? getBackgroundGlowUrl(id) : undefined}
+        characterHoverUrl={variant === "normal" ? getCharacterHoverUrl(id) : undefined}
         showGlow={false}
-        lowQuality={lowQuality}
+        variant={variant}
       />
     </div>
   );

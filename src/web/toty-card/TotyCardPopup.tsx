@@ -4,23 +4,32 @@ import type { StreamerRecord } from "../../shared/model.js";
 import { useEscape } from "../Modal.js";
 import { playSfx, stopSfx } from "../sfxAudio.js";
 import { TotyCardReveal } from "./TotyCardReveal.js";
+import { TotyCardVariantSelect } from "./TotyCardVariantSelect.js";
 import { TotyCardDownloadMenu } from "./TotyCardDownloadMenu.js";
 import { exportTotyCardPng } from "./exportTotyCardImage.js";
 import {
+  getAvailableTotyCardVariants,
   getBackgroundGlowUrl,
   getCardBackUrl,
   getCharacterHoverUrl,
-  getLowQualityTotyCardAssets,
   getLowQualityTotyCardPreviewUrl,
   getPopupBackdropGlowUrl,
   getPopupBackdropUrl,
+  getTotyCardAssetsForVariant,
   getTotyCardPreviewBaseUrl,
   getTotyCardPreviewUrl,
   type TotyCardAssets,
+  type TotyCardVariant,
 } from "./totyCardAssets.js";
-import { rollTotyCardLowQuality } from "./totyCardLowQualityRoll.js";
+import { rollTotyCardVariant } from "./totyCardVariantRoll.js";
 import { markTotyCardRevealed } from "./totyCardRevealedStore.js";
 import "./toty-card.css";
+
+const VARIANT_LABELS: Record<TotyCardVariant, string> = {
+  normal: "기본",
+  lowq: "조카의 스케치북",
+  retro: "90년대 고전 도트",
+};
 
 // Plays independently of the shared single-slot sfxAudio.ts player (same
 // reasoning as passAnnouncementSfx.ts) so the reveal stinger below never
@@ -107,23 +116,28 @@ export function TotyCardPopup({
   useEscape(onClose);
   useBodyScrollLock();
 
-  // Easter egg: shows a crude crayon-on-sketchbook version of the card
-  // instead (see docs/toty-card-prompts.md) — only possible once that
-  // streamer's <id>-lowq-* trio has actually been added, so this stays a
-  // no-op (always false) for everyone else. Per streamer (see
-  // totyCardLowQualityRoll.ts): the first-ever open is 50/50 random, every
-  // open after that alternates with the previous one. Rolled once per popup
-  // open via a ref guarded against React StrictMode's dev-only double-
-  // invocation of the component body — rollTotyCardLowQuality both reads
-  // and writes localStorage, so calling it twice in a row here would
-  // silently cancel the alternation back to its prior value.
-  const lowQualityAssets = getLowQualityTotyCardAssets(streamer.id);
-  const lowQualityRolledRef = useRef<boolean | null>(null);
-  if (lowQualityRolledRef.current === null) {
-    lowQualityRolledRef.current = Boolean(lowQualityAssets) && rollTotyCardLowQuality(streamer.id);
+  // Easter eggs: shows a crayon-on-sketchbook or 16-bit-arcade-sprite
+  // version of the card instead of the real one (see
+  // docs/toty-card-prompts.md) — only possible once that streamer's
+  // <id>-lowq-*/<id>-retro-* trio has actually been added, so this stays
+  // "normal" for everyone else. Per streamer (see totyCardVariantRoll.ts):
+  // the first-ever open is a random pick among whichever variants exist,
+  // every open after that steps to the next one in a fixed cycle. Rolled
+  // once per popup open via a ref guarded against React StrictMode's
+  // dev-only double-invocation of the component body — rollTotyCardVariant
+  // both reads and writes localStorage, so calling it twice in a row here
+  // would silently skip an extra step in the cycle.
+  const availableVariants = getAvailableTotyCardVariants(streamer.id);
+  const rolledVariantRef = useRef<TotyCardVariant | null>(null);
+  if (rolledVariantRef.current === null) {
+    rolledVariantRef.current = rollTotyCardVariant(streamer.id, availableVariants);
   }
-  const useLowQuality = lowQualityRolledRef.current;
-  const cardAssets = useLowQuality && lowQualityAssets ? lowQualityAssets : assets;
+  // The viewer can override the rolled variant by hand via the select shown
+  // above a revealed card (below) — purely a local override for this popup
+  // instance, doesn't touch the roll/cycle state so the next open still
+  // continues the sequence from where the roll (not this override) left off.
+  const [variant, setVariant] = useState<TotyCardVariant>(rolledVariantRef.current);
+  const cardAssets = getTotyCardAssetsForVariant(streamer.id, variant) ?? assets;
 
   // playRevealSfx/playPopupOpenSfx each spin up their own independent Audio
   // element (see their comments above), so nothing normally holds onto them
@@ -178,7 +192,7 @@ export function TotyCardPopup({
     if (exportingPng) return;
     setExportingPng(true);
     try {
-      await exportTotyCardPng(streamer, cardAssets, characterOverrideUrl, useLowQuality);
+      await exportTotyCardPng(streamer, cardAssets, characterOverrideUrl, variant);
     } finally {
       setExportingPng(false);
     }
@@ -186,10 +200,10 @@ export function TotyCardPopup({
 
   const backdropUrl = getPopupBackdropUrl(streamer.id);
   const backdropGlowUrl = getPopupBackdropGlowUrl(streamer.id);
-  // Both undefined under the lowq easter egg — that variant is explicitly
-  // just the three crayon frame/background/character images, no hover swap
-  // and no glow overlay (see docs/toty-card-prompts.md).
-  const characterHoverUrl = useLowQuality ? undefined : getCharacterHoverUrl(streamer.id);
+  // All undefined under the lowq/retro easter eggs — those variants are
+  // explicitly just the three frame/background/character images, no hover
+  // swap and no glow overlay (see docs/toty-card-prompts.md).
+  const characterHoverUrl = variant === "normal" ? getCharacterHoverUrl(streamer.id) : undefined;
   // Pre-rendered offline (scripts/generate-toty-preview.mjs) rather than
   // encoded live in the browser — see the script's header comment for why.
   // previewUrl bakes in characterHoverUrl's swap for the whole loop (the
@@ -200,11 +214,15 @@ export function TotyCardPopup({
   // separate pre-hover capture) and previewUrl swaps to the crayon card's
   // own gif (--lowq flag on the same script) instead of the real card's —
   // still hidden if that hasn't been generated for this player yet, rather
-  // than falling back to a mismatched download of the real card.
-  const previewBaseUrl = useLowQuality ? undefined : getTotyCardPreviewBaseUrl(streamer.id);
-  const previewUrl = useLowQuality
-    ? getLowQualityTotyCardPreviewUrl(streamer.id)
-    : getTotyCardPreviewUrl(streamer.id);
+  // than falling back to a mismatched download of the real card. The retro
+  // variant has no gif generation flow at all yet, so it always hides both.
+  const previewBaseUrl = variant === "normal" ? getTotyCardPreviewBaseUrl(streamer.id) : undefined;
+  const previewUrl =
+    variant === "lowq"
+      ? getLowQualityTotyCardPreviewUrl(streamer.id)
+      : variant === "normal"
+        ? getTotyCardPreviewUrl(streamer.id)
+        : undefined;
 
   return (
     <div
@@ -249,13 +267,30 @@ export function TotyCardPopup({
       </button>
 
       <div className="toty-card-popup__stage">
+        {/* Only worth showing once there's actually something to switch
+            between, and only once the card is done revealing (same
+            reserved-space-via-visibility trick as the hint/actions below,
+            so the stage's flex column doesn't grow and recenter the card
+            once this appears). */}
+        {availableVariants.length > 1 && (
+          <div
+            className="toty-card-popup__variant-select"
+            style={{ visibility: revealed ? "visible" : "hidden" }}
+          >
+            <TotyCardVariantSelect
+              value={variant}
+              onChange={setVariant}
+              options={availableVariants.map((v) => ({ value: v, label: VARIANT_LABELS[v] }))}
+            />
+          </div>
+        )}
         <TotyCardReveal
           streamer={streamer}
           assets={cardAssets}
           cardBackUrl={getCardBackUrl(streamer.id)}
-          backgroundGlowUrl={useLowQuality ? undefined : getBackgroundGlowUrl(streamer.id)}
+          backgroundGlowUrl={variant === "normal" ? getBackgroundGlowUrl(streamer.id) : undefined}
           characterHoverUrl={characterHoverUrl}
-          lowQuality={useLowQuality}
+          variant={variant}
           onCardClick={handleCardClick}
           onRevealStart={handleRevealStart}
           onImpact={handleRevealImpact}

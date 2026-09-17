@@ -881,6 +881,789 @@ name/stat overlays.
 
 ---
 
+## 이스터에그: 90년대 고전 도트 (8-Bit Arcade Edition) 3D 카드 (선수별로 각각 생성 — 미구현)
+
+기본(실사풍) 카드, 위 저퀄리티(크레파스) 카드에 이어 세 번째 카드 비주얼 버전. 90년대 아케이드 축구 게임의 "플레이어 선택 화면"을 컨셉으로, 픽셀 아트로 그려진 캐릭터와 CRT 모니터 주사선(스캔라인) 필터가 핵심 비주얼. 팝업을 열 때 **처음 한 번은 기본/저퀄리티/고전도트 3가지 중 1/3 확률로 랜덤 선택**되고, **그다음부터는 열 때마다 직전 버전의 다음 순서로 순환**(기본 → 저퀄리티 → 고전도트 → 기본 → ...)되도록 할 예정 — 연속으로 같은 버전이 두 번 뜨지 않음, 선수별로 독립적으로 굴림(기존 `totyCardLowQualityRoll.ts`를 2-way에서 3-way 순환으로 확장). 카드가 한 번 공개된 뒤에는 팝업 좌상단에 select 드롭다운을 띄워서 세 버전 중 원하는 걸 직접 골라볼 수 있게 할 예정. **이 문서에서는 이미지 프롬프트만 먼저 정리하고, 롤링 로직·select UI 코드는 이후 별도로 구현함.**
+
+저퀄리티 버전과 동일하게 **프레임/배경/캐릭터 3장만** 따로 만들고, **캐릭터 호버 대체 이미지와 배경 반짝임(빛 효과) 오버레이는 이 버전에서도 쓰지 않음**(아케이드 게임의 캐릭터 선택 화면 스프라이트라는 컨셉상 그런 연출이 없는 게 자연스러움). 카드 뒷면(`<id>-card-back.webp`), 리빌 연출, 팝업 배경은 전부 기존 것 그대로 사용 — 뒤집었을 때 앞면 그림 3장만 픽셀 아트로 바뀌는 것.
+
+- **캔버스**: 1060×1484px (다른 3장과 동일 비율). **프레임**과 **캐릭터**는 알파 채널 있는 투명 PNG(도안 바깥은 완전 투명), **배경**은 불투명 PNG(CRT 스캔라인·비네트까지 포함해서 꽉 채움).
+- **레퍼런스**: 저퀄리티 버전과 동일한 방식 — 프레임은 그 선수의 이미 생성된 `<id>-frame.webp`를 실루엣·모티프·컬러 참고용으로 첨부("그 프레임을 픽셀 아트로 다시 그린 버전"을 만드는 것). 배경은 참고 이미지 불필요. 캐릭터는 그 선수의 이미 생성된 `<id>-character.webp`를 정체성/키트 컬러 참고용으로만 첨부(스트리머 실사진이 아님) — 포즈는 그대로 베끼지 않고 새 스프라이트 포즈로.
+- **파일명**: `<id>-retro-frame.webp`, `<id>-retro-background.webp`, `<id>-retro-character.webp`. 변환 스크립트를 그대로 재사용 가능 — PNG 3장을 `public/test/`에 `frame.png`/`background.png`/`character.png`로 받아뒀다면:
+  ```bash
+  pnpm convert:card-art -- <id>-retro
+  ```
+  (예: 다시바용이면 `pnpm convert:card-art -- tdnlamuron-retro`) — `<id>-retro`를 그대로 id처럼 넘기면 파일명 규칙이 자동으로 맞음.
+- **자동 인식**: 저퀄리티의 `getLowQualityTotyCardAssets`와 같은 방식으로 `-retro-` 트리오를 따로 스캔하는 함수를 추가할 예정 — 3장이 모두 갖춰진 선수만 이 버전 대상이 되고, 아직 없는 선수는 롤링 시 이 옵션이 빠짐(=순차 추가 가능).
+- **스탯 폰트 주의**: "레트로 게임 폰트로 표시된 스탯"은 사용자가 폰트 파일을 나중에 전달할 예정 — 그러므로 아래 프롬프트에는 읽을 수 있는 텍스트/숫자/스탯 UI를 절대 그리지 않도록 명시해뒀음. 실제 스탯 표기는 전부 코드 쪽에서 그 폰트를 적용한 CSS 오버레이로 처리할 것.
+- **공용 8비트 화풍 문구 (프레임/캐릭터용)**: 아래 12명 프레임·캐릭터 프롬프트 전부 다음 문구를 그대로 포함함 — *"in the style of a 1990s arcade soccer video game's character-select screen — chunky 16-bit-era pixel art, hard-edged square pixels with zero anti-aliasing, a strictly limited retro color palette with visible dithering instead of smooth gradients, thick solid pixel outlines, flat blocky shading in only two or three tones per color, a subtle CRT scanline filter (fine horizontal lines) and a faint warm phosphor glow laid over the whole image — looks like an actual screenshot from a real 16-bit arcade cabinet, NOT a smooth modern 'pixelated filter' illustration, NOT vector art, NOT a high-resolution digital painting."*
+- **공용 8비트 화풍 문구 (배경용)**: 아래 12명 배경 프롬프트 전부 다음 문구를 그대로 포함함 — *"in the style of a 1990s arcade soccer video game's full-screen background art — chunky 16-bit-era pixel art tile work, hard-edged square pixels with zero anti-aliasing, a strictly limited retro color palette with visible dithering instead of smooth gradients, a subtle CRT scanline filter (fine horizontal lines) running across the whole image, a faint warm phosphor glow, and a soft dark vignette fading in at the very edges like the curved glass and bezel of an old arcade cabinet monitor — looks like an actual screenshot from a real 16-bit arcade cabinet, NOT a smooth modern 'pixelated filter' illustration, NOT vector art, NOT a high-resolution digital painting."*
+- **우왁굳(보너스) 주의**: 위 저퀄리티 섹션과 동일하게, 실제 BMW 로고/라운델/워드마크를 그대로 그리게 하면 안 됨 — 아래 우왁굳 고전도트 프롬프트에도 같은 금지 문구를 넣어뒀으니 생성 결과에 실제 브랜드 마크가 비치면 반드시 다시 생성할 것.
+
+### 1. 다시바 — `tdnlamuron`
+
+**프레임** (기존 `tdnlamuron-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a 1990s arcade soccer video game's
+character-select screen — chunky 16-bit-era pixel art, hard-edged square
+pixels with zero anti-aliasing, a strictly limited retro color palette
+with visible dithering instead of smooth gradients, thick solid pixel
+outlines, flat blocky shading in only two or three tones per color, a
+subtle CRT scanline filter (fine horizontal lines) and a faint warm
+phosphor glow laid over the whole image — looks like an actual
+screenshot from a real 16-bit arcade cabinet, NOT a smooth modern
+"pixelated filter" illustration, NOT vector art, NOT a high-resolution
+digital painting. Using the attached card frame image as a full
+reference (not just a shape) — same shield-shaped outer silhouette,
+same crest bump at the top center, same inner window opening, and the
+same molten-lava/ember motif and orange-and-black color palette already
+on it — rebuild this exact frame entirely out of visible square pixel
+blocks with thick solid outlines, keeping the same corner decoration
+idea. No player, no text, no stats. Entire canvas outside the drawn
+shield's own outline (including the inner window) must be fully
+transparent. PNG with alpha channel, 1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a 1990s arcade soccer video
+game's full-screen background art — chunky 16-bit-era pixel art tile
+work, hard-edged square pixels with zero anti-aliasing, a strictly
+limited retro color palette with visible dithering instead of smooth
+gradients, a subtle CRT scanline filter (fine horizontal lines) running
+across the whole image, a faint warm phosphor glow, and a soft dark
+vignette fading in at the very edges like the curved glass and bezel of
+an old arcade cabinet monitor — looks like an actual screenshot from a
+real 16-bit arcade cabinet, NOT a smooth modern "pixelated filter"
+illustration, NOT vector art, NOT a high-resolution digital painting.
+Portrait orientation, a pixel-art volcanic rock stage backdrop with
+blocky orange-and-black lava cracks glowing across the ground and a
+chunky pixelated volcano silhouette erupting in the distance, drifting
+square-pixel embers. No characters, no people, no border/frame, no
+readable text, no UI elements, no numbers. PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `tdnlamuron-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same apricot-orange and cream soccer kit) —
+redraw it entirely in the style of a 1990s arcade soccer video game's
+character-select screen — chunky 16-bit-era pixel art, hard-edged square
+pixels with zero anti-aliasing, a strictly limited retro color palette
+with visible dithering instead of smooth gradients, thick solid pixel
+outlines, flat blocky shading in only two or three tones per color, a
+subtle CRT scanline filter (fine horizontal lines) and a faint warm
+phosphor glow laid over the whole image — looks like an actual
+screenshot from a real 16-bit arcade cabinet, NOT a smooth modern
+"pixelated filter" illustration, NOT vector art, NOT a high-resolution
+digital painting. Draw a confident running-dribble sprite pose, ball
+pixelated at the feet mid-stride, facing slightly toward the viewer like
+a character-select portrait. No frame, no text, no background — fully
+transparent PNG with alpha channel, 1060x1484, leave open space above
+the head and below the waist for name/stat overlays.
+```
+
+### 2. 쥬멩이 — `ju010228`
+
+**프레임** (기존 `ju010228-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a 1990s arcade soccer video game's
+character-select screen — chunky 16-bit-era pixel art, hard-edged square
+pixels with zero anti-aliasing, a strictly limited retro color palette
+with visible dithering instead of smooth gradients, thick solid pixel
+outlines, flat blocky shading in only two or three tones per color, a
+subtle CRT scanline filter (fine horizontal lines) and a faint warm
+phosphor glow laid over the whole image — looks like an actual
+screenshot from a real 16-bit arcade cabinet, NOT a smooth modern
+"pixelated filter" illustration, NOT vector art, NOT a high-resolution
+digital painting. Using the attached card frame image as a full
+reference (not just a shape) — same shield-shaped outer silhouette,
+same crest bump at the top center, same inner window opening, and the
+same spring-vine/budding-leaf motif and lime-green color palette already
+on it — rebuild this exact frame entirely out of visible square pixel
+blocks with thick solid outlines, keeping the same corner decoration
+idea. No player, no text, no stats. Entire canvas outside the drawn
+shield's own outline (including the inner window) must be fully
+transparent. PNG with alpha channel, 1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a 1990s arcade soccer video
+game's full-screen background art — chunky 16-bit-era pixel art tile
+work, hard-edged square pixels with zero anti-aliasing, a strictly
+limited retro color palette with visible dithering instead of smooth
+gradients, a subtle CRT scanline filter (fine horizontal lines) running
+across the whole image, a faint warm phosphor glow, and a soft dark
+vignette fading in at the very edges like the curved glass and bezel of
+an old arcade cabinet monitor — looks like an actual screenshot from a
+real 16-bit arcade cabinet, NOT a smooth modern "pixelated filter"
+illustration, NOT vector art, NOT a high-resolution digital painting.
+Portrait orientation, a pixel-art spring meadow stage backdrop with
+blocky lime-green vines and chunky leaf-shaped bushes lining the ground,
+a few square-pixel flower dots scattered around. No characters, no
+people, no border/frame, no readable text, no UI elements, no numbers.
+PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `ju010228-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same lime-green and white soccer kit) — redraw
+it entirely in the style of a 1990s arcade soccer video game's
+character-select screen — chunky 16-bit-era pixel art, hard-edged square
+pixels with zero anti-aliasing, a strictly limited retro color palette
+with visible dithering instead of smooth gradients, thick solid pixel
+outlines, flat blocky shading in only two or three tones per color, a
+subtle CRT scanline filter (fine horizontal lines) and a faint warm
+phosphor glow laid over the whole image — looks like an actual
+screenshot from a real 16-bit arcade cabinet, NOT a smooth modern
+"pixelated filter" illustration, NOT vector art, NOT a high-resolution
+digital painting. Draw a joyful victory-jump sprite pose, one pixelated
+fist raised overhead, facing slightly toward the viewer like a
+character-select portrait. No frame, no text, no background — fully
+transparent PNG with alpha channel, 1060x1484, leave open space above
+the head and below the waist for name/stat overlays.
+```
+
+### 3. 문모모 — `doormomo`
+
+**프레임** (기존 `doormomo-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a 1990s arcade soccer video game's
+character-select screen — chunky 16-bit-era pixel art, hard-edged square
+pixels with zero anti-aliasing, a strictly limited retro color palette
+with visible dithering instead of smooth gradients, thick solid pixel
+outlines, flat blocky shading in only two or three tones per color, a
+subtle CRT scanline filter (fine horizontal lines) and a faint warm
+phosphor glow laid over the whole image — looks like an actual
+screenshot from a real 16-bit arcade cabinet, NOT a smooth modern
+"pixelated filter" illustration, NOT vector art, NOT a high-resolution
+digital painting. Using the attached card frame image as a full
+reference (not just a shape) — same shield-shaped outer silhouette,
+same crest bump at the top center, same inner window opening, and the
+same magic-circle/rune motif and purple color palette already on it —
+rebuild this exact frame entirely out of visible square pixel blocks
+with thick solid outlines, keeping the same corner decoration idea. No
+player, no text, no stats. Entire canvas outside the drawn shield's own
+outline (including the inner window) must be fully transparent. PNG with
+alpha channel, 1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a 1990s arcade soccer video
+game's full-screen background art — chunky 16-bit-era pixel art tile
+work, hard-edged square pixels with zero anti-aliasing, a strictly
+limited retro color palette with visible dithering instead of smooth
+gradients, a subtle CRT scanline filter (fine horizontal lines) running
+across the whole image, a faint warm phosphor glow, and a soft dark
+vignette fading in at the very edges like the curved glass and bezel of
+an old arcade cabinet monitor — looks like an actual screenshot from a
+real 16-bit arcade cabinet, NOT a smooth modern "pixelated filter"
+illustration, NOT vector art, NOT a high-resolution digital painting.
+Portrait orientation, a pixel-art ancient stone-chamber stage backdrop
+with a blocky purple magic-circle etched into the floor and chunky
+rune-carved pillars flanking the sides, glowing pixel-block sigils. No
+characters, no people, no border/frame, no readable text, no UI
+elements, no numbers. PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `doormomo-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same purple and silver soccer kit) — redraw it
+entirely in the style of a 1990s arcade soccer video game's
+character-select screen — chunky 16-bit-era pixel art, hard-edged square
+pixels with zero anti-aliasing, a strictly limited retro color palette
+with visible dithering instead of smooth gradients, thick solid pixel
+outlines, flat blocky shading in only two or three tones per color, a
+subtle CRT scanline filter (fine horizontal lines) and a faint warm
+phosphor glow laid over the whole image — looks like an actual
+screenshot from a real 16-bit arcade cabinet, NOT a smooth modern
+"pixelated filter" illustration, NOT vector art, NOT a high-resolution
+digital painting. Draw a calm ready-stance sprite pose, arms crossed,
+ball resting pixelated under one foot, facing slightly toward the viewer
+like a character-select portrait. No frame, no text, no background —
+fully transparent PNG with alpha channel, 1060x1484, leave open space
+above the head and below the waist for name/stat overlays.
+```
+
+### 4. 뽀린걸 — `bboringirl`
+
+**프레임** (기존 `bboringirl-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a 1990s arcade soccer video game's
+character-select screen — chunky 16-bit-era pixel art, hard-edged square
+pixels with zero anti-aliasing, a strictly limited retro color palette
+with visible dithering instead of smooth gradients, thick solid pixel
+outlines, flat blocky shading in only two or three tones per color, a
+subtle CRT scanline filter (fine horizontal lines) and a faint warm
+phosphor glow laid over the whole image — looks like an actual
+screenshot from a real 16-bit arcade cabinet, NOT a smooth modern
+"pixelated filter" illustration, NOT vector art, NOT a high-resolution
+digital painting. Using the attached card frame image as a full
+reference (not just a shape) — same shield-shaped outer silhouette,
+same crest bump at the top center, same inner window opening, and the
+same robot-plate/circuit motif and gray-and-red color palette already on
+it — rebuild this exact frame entirely out of visible square pixel
+blocks with thick solid outlines, keeping the same corner decoration
+idea. No player, no text, no stats. Entire canvas outside the drawn
+shield's own outline (including the inner window) must be fully
+transparent. PNG with alpha channel, 1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a 1990s arcade soccer video
+game's full-screen background art — chunky 16-bit-era pixel art tile
+work, hard-edged square pixels with zero anti-aliasing, a strictly
+limited retro color palette with visible dithering instead of smooth
+gradients, a subtle CRT scanline filter (fine horizontal lines) running
+across the whole image, a faint warm phosphor glow, and a soft dark
+vignette fading in at the very edges like the curved glass and bezel of
+an old arcade cabinet monitor — looks like an actual screenshot from a
+real 16-bit arcade cabinet, NOT a smooth modern "pixelated filter"
+illustration, NOT vector art, NOT a high-resolution digital painting.
+Portrait orientation, a pixel-art robotic factory-floor stage backdrop
+with blocky gunmetal-gray armor panels lining the ground and chunky red
+circuit-line pixels running across them, a few glowing pixel-block
+conduit lights. No characters, no people, no border/frame, no readable
+text, no UI elements, no numbers. PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `bboringirl-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same gunmetal-gray kit with red trim) — redraw
+it entirely in the style of a 1990s arcade soccer video game's
+character-select screen — chunky 16-bit-era pixel art, hard-edged square
+pixels with zero anti-aliasing, a strictly limited retro color palette
+with visible dithering instead of smooth gradients, thick solid pixel
+outlines, flat blocky shading in only two or three tones per color, a
+subtle CRT scanline filter (fine horizontal lines) and a faint warm
+phosphor glow laid over the whole image — looks like an actual
+screenshot from a real 16-bit arcade cabinet, NOT a smooth modern
+"pixelated filter" illustration, NOT vector art, NOT a high-resolution
+digital painting. Draw a determined pointing-forward sprite pose,
+mid-stride as if directing a teammate, facing slightly toward the viewer
+like a character-select portrait. No frame, no text, no background —
+fully transparent PNG with alpha channel, 1060x1484, leave open space
+above the head and below the waist for name/stat overlays.
+```
+
+### 5. 한결 — `kaksjak0730`
+
+**프레임** (기존 `kaksjak0730-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a 1990s arcade soccer video game's
+character-select screen — chunky 16-bit-era pixel art, hard-edged square
+pixels with zero anti-aliasing, a strictly limited retro color palette
+with visible dithering instead of smooth gradients, thick solid pixel
+outlines, flat blocky shading in only two or three tones per color, a
+subtle CRT scanline filter (fine horizontal lines) and a faint warm
+phosphor glow laid over the whole image — looks like an actual
+screenshot from a real 16-bit arcade cabinet, NOT a smooth modern
+"pixelated filter" illustration, NOT vector art, NOT a high-resolution
+digital painting. Using the attached card frame image as a full
+reference (not just a shape) — same shield-shaped outer silhouette,
+same crest bump at the top center, same inner window opening, and the
+same night-sky/glass-shard motif and black-and-blue color palette
+already on it — rebuild this exact frame entirely out of visible square
+pixel blocks with thick solid outlines, keeping the same corner
+decoration idea. No player, no text, no stats. Entire canvas outside the
+drawn shield's own outline (including the inner window) must be fully
+transparent. PNG with alpha channel, 1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a 1990s arcade soccer video
+game's full-screen background art — chunky 16-bit-era pixel art tile
+work, hard-edged square pixels with zero anti-aliasing, a strictly
+limited retro color palette with visible dithering instead of smooth
+gradients, a subtle CRT scanline filter (fine horizontal lines) running
+across the whole image, a faint warm phosphor glow, and a soft dark
+vignette fading in at the very edges like the curved glass and bezel of
+an old arcade cabinet monitor — looks like an actual screenshot from a
+real 16-bit arcade cabinet, NOT a smooth modern "pixelated filter"
+illustration, NOT vector art, NOT a high-resolution digital painting.
+Portrait orientation, a pixel-art midnight stadium stage backdrop with a
+blocky dark-navy night sky full of small square-pixel stars and a few
+jagged blue glass-shard silhouettes jutting up from the ground. No
+characters, no people, no border/frame, no readable text, no UI
+elements, no numbers. PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `kaksjak0730-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same matte black kit with sapphire-blue trim) —
+redraw it entirely in the style of a 1990s arcade soccer video game's
+character-select screen — chunky 16-bit-era pixel art, hard-edged square
+pixels with zero anti-aliasing, a strictly limited retro color palette
+with visible dithering instead of smooth gradients, thick solid pixel
+outlines, flat blocky shading in only two or three tones per color, a
+subtle CRT scanline filter (fine horizontal lines) and a faint warm
+phosphor glow laid over the whole image — looks like an actual
+screenshot from a real 16-bit arcade cabinet, NOT a smooth modern
+"pixelated filter" illustration, NOT vector art, NOT a high-resolution
+digital painting. Draw a free-kick wind-up sprite pose, one leg cocked
+back mid-swing, facing slightly toward the viewer like a character-select
+portrait. No frame, no text, no background — fully transparent PNG with
+alpha channel, 1060x1484, leave open space above the head and below the
+waist for name/stat overlays.
+```
+
+### 6. 핑구 — `sjh4018`
+
+**프레임** (기존 `sjh4018-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a 1990s arcade soccer video game's
+character-select screen — chunky 16-bit-era pixel art, hard-edged square
+pixels with zero anti-aliasing, a strictly limited retro color palette
+with visible dithering instead of smooth gradients, thick solid pixel
+outlines, flat blocky shading in only two or three tones per color, a
+subtle CRT scanline filter (fine horizontal lines) and a faint warm
+phosphor glow laid over the whole image — looks like an actual
+screenshot from a real 16-bit arcade cabinet, NOT a smooth modern
+"pixelated filter" illustration, NOT vector art, NOT a high-resolution
+digital painting. Using the attached card frame image as a full
+reference (not just a shape) — same shield-shaped outer silhouette,
+same crest bump at the top center, same inner window opening, and the
+same cloud/feather motif and sky-blue-and-lavender color palette already
+on it — rebuild this exact frame entirely out of visible square pixel
+blocks with thick solid outlines, keeping the same corner decoration
+idea. No player, no text, no stats. Entire canvas outside the drawn
+shield's own outline (including the inner window) must be fully
+transparent. PNG with alpha channel, 1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a 1990s arcade soccer video
+game's full-screen background art — chunky 16-bit-era pixel art tile
+work, hard-edged square pixels with zero anti-aliasing, a strictly
+limited retro color palette with visible dithering instead of smooth
+gradients, a subtle CRT scanline filter (fine horizontal lines) running
+across the whole image, a faint warm phosphor glow, and a soft dark
+vignette fading in at the very edges like the curved glass and bezel of
+an old arcade cabinet monitor — looks like an actual screenshot from a
+real 16-bit arcade cabinet, NOT a smooth modern "pixelated filter"
+illustration, NOT vector art, NOT a high-resolution digital painting.
+Portrait orientation, a pixel-art open-sky stage backdrop with blocky
+sky-blue gradient bands and a few lumpy lavender cloud shapes drifting
+across, small pixel-block feather sprites scattered near the top. No
+characters, no people, no border/frame, no readable text, no UI
+elements, no numbers. PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `sjh4018-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same sky-blue kit with pale lavender trim) —
+redraw it entirely in the style of a 1990s arcade soccer video game's
+character-select screen — chunky 16-bit-era pixel art, hard-edged square
+pixels with zero anti-aliasing, a strictly limited retro color palette
+with visible dithering instead of smooth gradients, thick solid pixel
+outlines, flat blocky shading in only two or three tones per color, a
+subtle CRT scanline filter (fine horizontal lines) and a faint warm
+phosphor glow laid over the whole image — looks like an actual
+screenshot from a real 16-bit arcade cabinet, NOT a smooth modern
+"pixelated filter" illustration, NOT vector art, NOT a high-resolution
+digital painting. Draw a wide defensive-stance sprite pose, both arms
+held out to the sides, facing slightly toward the viewer like a
+character-select portrait. No frame, no text, no background — fully
+transparent PNG with alpha channel, 1060x1484, leave open space above
+the head and below the waist for name/stat overlays.
+```
+
+### 7. 해파린 — `haepalin`
+
+**프레임** (기존 `haepalin-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a 1990s arcade soccer video game's
+character-select screen — chunky 16-bit-era pixel art, hard-edged square
+pixels with zero anti-aliasing, a strictly limited retro color palette
+with visible dithering instead of smooth gradients, thick solid pixel
+outlines, flat blocky shading in only two or three tones per color, a
+subtle CRT scanline filter (fine horizontal lines) and a faint warm
+phosphor glow laid over the whole image — looks like an actual
+screenshot from a real 16-bit arcade cabinet, NOT a smooth modern
+"pixelated filter" illustration, NOT vector art, NOT a high-resolution
+digital painting. Using the attached card frame image as a full
+reference (not just a shape) — same shield-shaped outer silhouette,
+same crest bump at the top center, same inner window opening, and the
+same jellyfish/bioluminescent motif and lavender-and-purple color
+palette already on it — rebuild this exact frame entirely out of visible
+square pixel blocks with thick solid outlines, keeping the same corner
+decoration idea. No player, no text, no stats. Entire canvas outside the
+drawn shield's own outline (including the inner window) must be fully
+transparent. PNG with alpha channel, 1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a 1990s arcade soccer video
+game's full-screen background art — chunky 16-bit-era pixel art tile
+work, hard-edged square pixels with zero anti-aliasing, a strictly
+limited retro color palette with visible dithering instead of smooth
+gradients, a subtle CRT scanline filter (fine horizontal lines) running
+across the whole image, a faint warm phosphor glow, and a soft dark
+vignette fading in at the very edges like the curved glass and bezel of
+an old arcade cabinet monitor — looks like an actual screenshot from a
+real 16-bit arcade cabinet, NOT a smooth modern "pixelated filter"
+illustration, NOT vector art, NOT a high-resolution digital painting.
+Portrait orientation, a pixel-art deep-sea stage backdrop with a blocky
+dark-purple gradient and a couple of glowing lavender pixel-block
+jellyfish silhouettes with wavy tentacle pixels dangling down. No
+characters, no people, no border/frame, no readable text, no UI
+elements, no numbers. PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `haepalin-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same pale lavender kit with deep purple trim) —
+redraw it entirely in the style of a 1990s arcade soccer video game's
+character-select screen — chunky 16-bit-era pixel art, hard-edged square
+pixels with zero anti-aliasing, a strictly limited retro color palette
+with visible dithering instead of smooth gradients, thick solid pixel
+outlines, flat blocky shading in only two or three tones per color, a
+subtle CRT scanline filter (fine horizontal lines) and a faint warm
+phosphor glow laid over the whole image — looks like an actual
+screenshot from a real 16-bit arcade cabinet, NOT a smooth modern
+"pixelated filter" illustration, NOT vector art, NOT a high-resolution
+digital painting. Draw a jumping-header sprite pose, both arms up
+mid-air, facing slightly toward the viewer like a character-select
+portrait. No frame, no text, no background — fully transparent PNG with
+alpha channel, 1060x1484, leave open space above the head and below the
+waist for name/stat overlays.
+```
+
+### 8. 리냐 — `lina0108`
+
+**프레임** (기존 `lina0108-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a 1990s arcade soccer video game's
+character-select screen — chunky 16-bit-era pixel art, hard-edged square
+pixels with zero anti-aliasing, a strictly limited retro color palette
+with visible dithering instead of smooth gradients, thick solid pixel
+outlines, flat blocky shading in only two or three tones per color, a
+subtle CRT scanline filter (fine horizontal lines) and a faint warm
+phosphor glow laid over the whole image — looks like an actual
+screenshot from a real 16-bit arcade cabinet, NOT a smooth modern
+"pixelated filter" illustration, NOT vector art, NOT a high-resolution
+digital painting. Using the attached card frame image as a full
+reference (not just a shape) — same shield-shaped outer silhouette,
+same crest bump at the top center, same inner window opening, and the
+same cherry-blossom motif and vivid-pink color palette already on it —
+rebuild this exact frame entirely out of visible square pixel blocks
+with thick solid outlines, keeping the same corner decoration idea. No
+player, no text, no stats. Entire canvas outside the drawn shield's own
+outline (including the inner window) must be fully transparent. PNG with
+alpha channel, 1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a 1990s arcade soccer video
+game's full-screen background art — chunky 16-bit-era pixel art tile
+work, hard-edged square pixels with zero anti-aliasing, a strictly
+limited retro color palette with visible dithering instead of smooth
+gradients, a subtle CRT scanline filter (fine horizontal lines) running
+across the whole image, a faint warm phosphor glow, and a soft dark
+vignette fading in at the very edges like the curved glass and bezel of
+an old arcade cabinet monitor — looks like an actual screenshot from a
+real 16-bit arcade cabinet, NOT a smooth modern "pixelated filter"
+illustration, NOT vector art, NOT a high-resolution digital painting.
+Portrait orientation, a pixel-art cherry-blossom park stage backdrop with
+a blocky pink tree branch reaching in from one side and small square-
+pixel petal dots drifting through the air. No characters, no people, no
+border/frame, no readable text, no UI elements, no numbers. PNG,
+1060x1484.
+```
+
+**캐릭터** (기존 `lina0108-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same vivid pink kit with pale-pink trim) —
+redraw it entirely in the style of a 1990s arcade soccer video game's
+character-select screen — chunky 16-bit-era pixel art, hard-edged square
+pixels with zero anti-aliasing, a strictly limited retro color palette
+with visible dithering instead of smooth gradients, thick solid pixel
+outlines, flat blocky shading in only two or three tones per color, a
+subtle CRT scanline filter (fine horizontal lines) and a faint warm
+phosphor glow laid over the whole image — looks like an actual
+screenshot from a real 16-bit arcade cabinet, NOT a smooth modern
+"pixelated filter" illustration, NOT vector art, NOT a high-resolution
+digital painting. Draw a cheerful sprinting sprite pose, one hand waving
+toward the viewer, facing slightly toward the viewer like a
+character-select portrait. No frame, no text, no background — fully
+transparent PNG with alpha channel, 1060x1484, leave open space above
+the head and below the waist for name/stat overlays.
+```
+
+### 9. 빙밍 — `tleod1818`
+
+**프레임** (기존 `tleod1818-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a 1990s arcade soccer video game's
+character-select screen — chunky 16-bit-era pixel art, hard-edged square
+pixels with zero anti-aliasing, a strictly limited retro color palette
+with visible dithering instead of smooth gradients, thick solid pixel
+outlines, flat blocky shading in only two or three tones per color, a
+subtle CRT scanline filter (fine horizontal lines) and a faint warm
+phosphor glow laid over the whole image — looks like an actual
+screenshot from a real 16-bit arcade cabinet, NOT a smooth modern
+"pixelated filter" illustration, NOT vector art, NOT a high-resolution
+digital painting. Using the attached card frame image as a full
+reference (not just a shape) — same shield-shaped outer silhouette,
+same crest bump at the top center, same inner window opening, and the
+same storm/lightning motif and navy-and-emerald color palette already on
+it — rebuild this exact frame entirely out of visible square pixel
+blocks with thick solid outlines, keeping the same corner decoration
+idea. No player, no text, no stats. Entire canvas outside the drawn
+shield's own outline (including the inner window) must be fully
+transparent. PNG with alpha channel, 1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a 1990s arcade soccer video
+game's full-screen background art — chunky 16-bit-era pixel art tile
+work, hard-edged square pixels with zero anti-aliasing, a strictly
+limited retro color palette with visible dithering instead of smooth
+gradients, a subtle CRT scanline filter (fine horizontal lines) running
+across the whole image, a faint warm phosphor glow, and a soft dark
+vignette fading in at the very edges like the curved glass and bezel of
+an old arcade cabinet monitor — looks like an actual screenshot from a
+real 16-bit arcade cabinet, NOT a smooth modern "pixelated filter"
+illustration, NOT vector art, NOT a high-resolution digital painting.
+Portrait orientation, a pixel-art stormy pitch stage backdrop with a
+blocky dark-navy sky full of lumpy storm-cloud pixels and a jagged
+emerald-green lightning-bolt streak cutting across it. No characters, no
+people, no border/frame, no readable text, no UI elements, no numbers.
+PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `tleod1818-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same dark navy kit with emerald trim) — redraw
+it entirely in the style of a 1990s arcade soccer video game's
+character-select screen — chunky 16-bit-era pixel art, hard-edged square
+pixels with zero anti-aliasing, a strictly limited retro color palette
+with visible dithering instead of smooth gradients, thick solid pixel
+outlines, flat blocky shading in only two or three tones per color, a
+subtle CRT scanline filter (fine horizontal lines) and a faint warm
+phosphor glow laid over the whole image — looks like an actual
+screenshot from a real 16-bit arcade cabinet, NOT a smooth modern
+"pixelated filter" illustration, NOT vector art, NOT a high-resolution
+digital painting. Draw a mid-slide-tackle sprite pose, leaning sideways
+with one leg stretched out, facing slightly toward the viewer like a
+character-select portrait. No frame, no text, no background — fully
+transparent PNG with alpha channel, 1060x1484, leave open space above
+the head and below the waist for name/stat overlays.
+```
+
+### 10. 재닌 — `janine95kim`
+
+**프레임** (기존 `janine95kim-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a 1990s arcade soccer video game's
+character-select screen — chunky 16-bit-era pixel art, hard-edged square
+pixels with zero anti-aliasing, a strictly limited retro color palette
+with visible dithering instead of smooth gradients, thick solid pixel
+outlines, flat blocky shading in only two or three tones per color, a
+subtle CRT scanline filter (fine horizontal lines) and a faint warm
+phosphor glow laid over the whole image — looks like an actual
+screenshot from a real 16-bit arcade cabinet, NOT a smooth modern
+"pixelated filter" illustration, NOT vector art, NOT a high-resolution
+digital painting. Using the attached card frame image as a full
+reference (not just a shape) — same shield-shaped outer silhouette,
+same crest bump at the top center, same inner window opening, and the
+same frost/aurora motif and sky-blue-and-white color palette already on
+it — rebuild this exact frame entirely out of visible square pixel
+blocks with thick solid outlines, keeping the same corner decoration
+idea. No player, no text, no stats. Entire canvas outside the drawn
+shield's own outline (including the inner window) must be fully
+transparent. PNG with alpha channel, 1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a 1990s arcade soccer video
+game's full-screen background art — chunky 16-bit-era pixel art tile
+work, hard-edged square pixels with zero anti-aliasing, a strictly
+limited retro color palette with visible dithering instead of smooth
+gradients, a subtle CRT scanline filter (fine horizontal lines) running
+across the whole image, a faint warm phosphor glow, and a soft dark
+vignette fading in at the very edges like the curved glass and bezel of
+an old arcade cabinet monitor — looks like an actual screenshot from a
+real 16-bit arcade cabinet, NOT a smooth modern "pixelated filter"
+illustration, NOT vector art, NOT a high-resolution digital painting.
+Portrait orientation, a pixel-art frozen pitch stage backdrop with blocky
+sky-blue-and-white snowdrift mounds and a faint pixelated aurora band
+glowing across the sky, a few small snowflake-shaped pixel sprites
+drifting down. No characters, no people, no border/frame, no readable
+text, no UI elements, no numbers. PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `janine95kim-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same sky-blue goalkeeper kit) — redraw it
+entirely in the style of a 1990s arcade soccer video game's
+character-select screen — chunky 16-bit-era pixel art, hard-edged square
+pixels with zero anti-aliasing, a strictly limited retro color palette
+with visible dithering instead of smooth gradients, thick solid pixel
+outlines, flat blocky shading in only two or three tones per color, a
+subtle CRT scanline filter (fine horizontal lines) and a faint warm
+phosphor glow laid over the whole image — looks like an actual
+screenshot from a real 16-bit arcade cabinet, NOT a smooth modern
+"pixelated filter" illustration, NOT vector art, NOT a high-resolution
+digital painting. Draw a diving-save sprite pose, both arms stretched out
+sideways mid-air, facing slightly toward the viewer like a
+character-select portrait. No frame, no text, no background — fully
+transparent PNG with alpha channel, 1060x1484, leave open space above
+the head and below the waist for name/stat overlays.
+```
+
+### 11. 하치 (보너스) — `hachi97`
+
+**프레임** (기존 `hachi97-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a 1990s arcade soccer video game's
+character-select screen — chunky 16-bit-era pixel art, hard-edged square
+pixels with zero anti-aliasing, a strictly limited retro color palette
+with visible dithering instead of smooth gradients, thick solid pixel
+outlines, flat blocky shading in only two or three tones per color, a
+subtle CRT scanline filter (fine horizontal lines) and a faint warm
+phosphor glow laid over the whole image — looks like an actual
+screenshot from a real 16-bit arcade cabinet, NOT a smooth modern
+"pixelated filter" illustration, NOT vector art, NOT a high-resolution
+digital painting. Using the attached card frame image as a full
+reference (not just a shape) — same shield-shaped outer silhouette,
+same crest bump at the top center, same inner window opening, and the
+same dragon-claw/dragon-scale motif and golden-amber + amethyst-violet
+color palette already on it — rebuild this exact frame entirely out of
+visible square pixel blocks with thick solid outlines, keeping the same
+corner decoration idea. No player, no text, no stats. Entire canvas
+outside the drawn shield's own outline (including the inner window) must
+be fully transparent. PNG with alpha channel, 1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a 1990s arcade soccer video
+game's full-screen background art — chunky 16-bit-era pixel art tile
+work, hard-edged square pixels with zero anti-aliasing, a strictly
+limited retro color palette with visible dithering instead of smooth
+gradients, a subtle CRT scanline filter (fine horizontal lines) running
+across the whole image, a faint warm phosphor glow, and a soft dark
+vignette fading in at the very edges like the curved glass and bezel of
+an old arcade cabinet monitor — looks like an actual screenshot from a
+real 16-bit arcade cabinet, NOT a smooth modern "pixelated filter"
+illustration, NOT vector art, NOT a high-resolution digital painting.
+Portrait orientation, a pixel-art dragon-lair stage backdrop with blocky
+golden-amber rock formations and a couple of chunky amethyst-violet
+dragon-claw silhouettes jutting up from the ground, a few glowing
+pixel-block ember sprites. No characters, no people, no border/frame, no
+readable text, no UI elements, no numbers. PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `hachi97-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same golden-amber and amethyst-violet
+dragon-themed kit) — redraw it entirely in the style of a 1990s arcade
+soccer video game's character-select screen — chunky 16-bit-era pixel
+art, hard-edged square pixels with zero anti-aliasing, a strictly
+limited retro color palette with visible dithering instead of smooth
+gradients, thick solid pixel outlines, flat blocky shading in only two
+or three tones per color, a subtle CRT scanline filter (fine horizontal
+lines) and a faint warm phosphor glow laid over the whole image — looks
+like an actual screenshot from a real 16-bit arcade cabinet, NOT a
+smooth modern "pixelated filter" illustration, NOT vector art, NOT a
+high-resolution digital painting. Draw a big pixelated thumbs-up sprite
+pose, facing slightly toward the viewer like a character-select
+portrait. No frame, no text, no background — fully transparent PNG with
+alpha channel, 1060x1484, leave open space above the head and below the
+waist for name/stat overlays.
+```
+
+### 12. 우왁굳 (보너스) — `woowakgood`
+
+**⚠️ 상표 주의**: 위 저퀄리티 섹션과 동일 — 실제 BMW 로고(키드니 그릴, 프로펠러 라운델)나 "BMW" 워드마크가 그대로 그려지면 안 됨. 아래 프롬프트에도 금지 문구를 넣어뒀지만, 생성 결과에 실제 브랜드 마크가 비치면 반드시 다시 생성할 것.
+
+**프레임** (기존 `woowakgood-frame.webp`를 실루엣+모티프+컬러 참고용으로 첨부):
+```
+A trading-card frame in the style of a 1990s arcade soccer video game's
+character-select screen — chunky 16-bit-era pixel art, hard-edged square
+pixels with zero anti-aliasing, a strictly limited retro color palette
+with visible dithering instead of smooth gradients, thick solid pixel
+outlines, flat blocky shading in only two or three tones per color, a
+subtle CRT scanline filter (fine horizontal lines) and a faint warm
+phosphor glow laid over the whole image — looks like an actual
+screenshot from a real 16-bit arcade cabinet, NOT a smooth modern
+"pixelated filter" illustration, NOT vector art, NOT a high-resolution
+digital painting. Using the attached card frame image as a full
+reference (not just a shape) — same shield-shaped outer silhouette,
+same crest bump at the top center, same inner window opening, and the
+same motorsport speed-line motif and vivid peridot-green +
+teal-violet-crimson racing-stripe color palette already on it — rebuild
+this exact frame entirely out of visible square pixel blocks with thick
+solid outlines, keeping the same corner decoration idea. No real car
+logos, badges, roundels, or brand wordmarks of any kind — only generic
+pixelated stripes and speed-lines. No player, no text, no stats. Entire
+canvas outside the drawn shield's own outline (including the inner
+window) must be fully transparent. PNG with alpha channel, 1060x1484.
+```
+
+**배경**:
+```
+A trading-card background in the style of a 1990s arcade soccer video
+game's full-screen background art — chunky 16-bit-era pixel art tile
+work, hard-edged square pixels with zero anti-aliasing, a strictly
+limited retro color palette with visible dithering instead of smooth
+gradients, a subtle CRT scanline filter (fine horizontal lines) running
+across the whole image, a faint warm phosphor glow, and a soft dark
+vignette fading in at the very edges like the curved glass and bezel of
+an old arcade cabinet monitor — looks like an actual screenshot from a
+real 16-bit arcade cabinet, NOT a smooth modern "pixelated filter"
+illustration, NOT vector art, NOT a high-resolution digital painting.
+Portrait orientation, a pixel-art night garage stage backdrop with blocky
+peridot-green speed-line streaks racing across the ground and a
+pixelated checkered-flag pattern in one corner (no real car logos or
+brand marks of any kind). No characters, no people, no border/frame, no
+readable text, no UI elements, no numbers. PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `woowakgood-character.webp`를 정체성/키트 컬러 참고용으로만 첨부):
+```
+Using the attached character render ONLY as a loose identity/kit-color
+reference (same person, same peridot-green suit with teal-violet-crimson
+tie accent — dressed as a club manager, NOT a soccer kit) — redraw it
+entirely in the style of a 1990s arcade soccer video game's
+character-select screen — chunky 16-bit-era pixel art, hard-edged square
+pixels with zero anti-aliasing, a strictly limited retro color palette
+with visible dithering instead of smooth gradients, thick solid pixel
+outlines, flat blocky shading in only two or three tones per color, a
+subtle CRT scanline filter (fine horizontal lines) and a faint warm
+phosphor glow laid over the whole image — looks like an actual
+screenshot from a real 16-bit arcade cabinet, NOT a smooth modern
+"pixelated filter" illustration, NOT vector art, NOT a high-resolution
+digital painting. No real car logos, badges, or brand marks anywhere on
+the outfit. Draw a confident arms-crossed sprite pose with a big grin,
+facing slightly toward the viewer like a character-select portrait. No
+frame, no text, no background — fully transparent PNG with alpha
+channel, 1060x1484, leave open space above the head and below the waist
+for name/stat overlays.
+```
+
+---
+
 ## 선수별 세트 (10개)
 
 순서·컬러·모티프 확정본:

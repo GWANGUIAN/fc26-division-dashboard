@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { StreamerRecord } from "../../shared/model.js";
-import type { TotyCardAssets } from "./totyCardAssets.js";
+import type { TotyCardAssets, TotyCardVariant } from "./totyCardAssets.js";
 import { getTotyCardTextTheme } from "./totyCardTheme.js";
 
 /**
@@ -18,7 +18,7 @@ export function TotyCardVisual({
   onCardClick,
   showGlow = true,
   punch = false,
-  lowQuality = false,
+  variant = "normal",
 }: {
   streamer: Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision">;
   assets: TotyCardAssets;
@@ -44,11 +44,12 @@ export function TotyCardVisual({
    * safe to leave true forever once set (same reasoning as
    * .toty-reveal-flip--flipped / .toty-reveal--shake elsewhere). */
   punch?: boolean;
-  /** True on the 1/3-chance easter-egg roll (TotyCardPopup) — `assets` is
-   * already swapped to the crayon-on-sketchbook trio by the caller, this
-   * just adds a CSS hook (.toty-card--lowq) for text styling (e.g. a rough
-   * hand-drawn font for position/division/name) to key off. */
-  lowQuality?: boolean;
+  /** Set on an easter-egg roll or manual select (TotyCardPopup) — `assets`
+   * is already swapped to the matching trio by the caller, this just adds a
+   * CSS hook (.toty-card--lowq / .toty-card--retro) for text styling (e.g. a
+   * rough hand-drawn font, or a pixel/arcade font once provided, for
+   * position/division/name) to key off. */
+  variant?: TotyCardVariant;
 }) {
   const textTheme = getTotyCardTextTheme(streamer.id);
 
@@ -100,7 +101,7 @@ export function TotyCardVisual({
     <div className="toty-card-wrap">
       <div
         ref={cardRef}
-        className={`toty-card ${tilt.active ? "toty-card--active" : ""} ${lowQuality ? "toty-card--lowq" : ""}`}
+        className={`toty-card ${tilt.active ? "toty-card--active" : ""} ${variant === "lowq" ? "toty-card--lowq" : ""} ${variant === "retro" ? "toty-card--retro" : ""}`}
         onClick={onCardClick}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}

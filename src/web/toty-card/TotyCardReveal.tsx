@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { StreamerRecord } from "../../shared/model.js";
-import type { TotyCardAssets } from "./totyCardAssets.js";
+import type { TotyCardAssets, TotyCardVariant } from "./totyCardAssets.js";
 import { getTotyCardTextTheme } from "./totyCardTheme.js";
 import { TotyCardVisual } from "./TotyCardVisual.js";
 import "./toty-card-reveal.css";
@@ -127,7 +127,7 @@ export function TotyCardReveal({
   onRevealStart,
   onImpact,
   onRevealed,
-  lowQuality = false,
+  variant = "normal",
 }: {
   streamer: Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision">;
   assets: TotyCardAssets;
@@ -141,9 +141,12 @@ export function TotyCardReveal({
   onImpact?: () => void;
   /** Fired once the flip sequence finishes and the interactive card is showing. */
   onRevealed?: () => void;
-  /** See TotyCardVisual's `lowQuality` doc — passed straight through, the
-   * face-down back (cardBackUrl) stays the normal one either way. */
-  lowQuality?: boolean;
+  /** See TotyCardVisual's `variant` doc — passed straight through, the
+   * face-down back (cardBackUrl) stays the normal one regardless. Free to
+   * change after reveal too (TotyCardPopup's manual select) — TotyCardVisual
+   * stays mounted (see this component's own doc comment) so switching this
+   * just swaps the displayed art live, no re-flip. */
+  variant?: TotyCardVariant;
 }) {
   const theme = getTotyCardTextTheme(streamer.id);
   // hachi97 is the one deliberately "more lavish, higher-rarity" card (see
@@ -312,7 +315,7 @@ export function TotyCardReveal({
               assets={assets}
               backgroundGlowUrl={backgroundGlowUrl}
               characterHoverUrl={characterHoverUrl}
-              lowQuality={lowQuality}
+              variant={variant}
               onCardClick={onCardClick}
               // showBurst turns on at the flip's exact 90°-rotation midpoint
               // (see the FLIP_MS/2 timer below), where the card is edge-on

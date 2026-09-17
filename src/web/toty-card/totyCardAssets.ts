@@ -16,6 +16,12 @@ export type TotyCardAssets = {
   character: string;
 };
 
+// The three card art "looks" a streamer can have, beyond the always-present
+// real ("normal") one — see docs/toty-card-prompts.md's easter egg sections.
+// Rolled/cycled between by totyCardVariantRoll.ts and picked manually via the
+// select shown above the card once revealed (TotyCardPopup).
+export type TotyCardVariant = "normal" | "lowq" | "retro";
+
 const PARTS = ["frame", "background", "character"] as const;
 
 const partial: Record<string, Partial<TotyCardAssets>> = {};
@@ -26,6 +32,13 @@ const partial: Record<string, Partial<TotyCardAssets>> = {};
 // out below *before* the regular regex runs) so it never leaks into ASSETS
 // under a bogus "<id>-lowq" streamer id.
 const lowQualityPartial: Record<string, Partial<TotyCardAssets>> = {};
+// Easter-egg "90년대 고전 도트(8-Bit Arcade Edition)" set — same three parts,
+// drawn as a 16-bit arcade character-select sprite (see
+// docs/toty-card-prompts.md's easter egg section), named
+// `<id>-retro-<part>.webp` so `pnpm convert:card-art -- <id>-retro` just
+// works unmodified. Same stripped-out-before-the-regular-regex treatment as
+// lowQualityPartial above, for the same reason.
+const retroPartial: Record<string, Partial<TotyCardAssets>> = {};
 
 for (const [path, url] of Object.entries(modules)) {
   const filename = path.split("/").pop() ?? "";
@@ -33,6 +46,12 @@ for (const [path, url] of Object.entries(modules)) {
   if (lowQualityMatch) {
     const [, id, part] = lowQualityMatch;
     (lowQualityPartial[id] ??= {})[part as (typeof PARTS)[number]] = url;
+    continue;
+  }
+  const retroMatch = /^(.+)-retro-(frame|background|character)\.webp$/.exec(filename);
+  if (retroMatch) {
+    const [, id, part] = retroMatch;
+    (retroPartial[id] ??= {})[part as (typeof PARTS)[number]] = url;
     continue;
   }
   const match = /^(.+)-(frame|background|character)\.webp$/.exec(filename);
@@ -55,6 +74,13 @@ for (const [id, parts] of Object.entries(lowQualityPartial)) {
   }
 }
 
+const RETRO_ASSETS: Record<string, TotyCardAssets> = {};
+for (const [id, parts] of Object.entries(retroPartial)) {
+  if (parts.frame && parts.background && parts.character) {
+    RETRO_ASSETS[id] = parts as TotyCardAssets;
+  }
+}
+
 export function hasTotyCard(streamerId: string): boolean {
   return streamerId in ASSETS;
 }
@@ -63,11 +89,39 @@ export function getTotyCardAssets(streamerId: string): TotyCardAssets | undefine
   return ASSETS[streamerId];
 }
 
-// 1/3 "이스터에그" chance (rolled by TotyCardPopup on open) of showing this
+// 이스터에그 chance (rolled by TotyCardPopup on open) of showing this
 // crayon-drawn trio instead of the real card — only for streamers whose
 // low-quality trio has actually been added, so the rollout is per-member.
 export function getLowQualityTotyCardAssets(streamerId: string): TotyCardAssets | undefined {
   return LOW_QUALITY_ASSETS[streamerId];
+}
+
+// Same idea as getLowQualityTotyCardAssets, for the "90년대 고전 도트" 16-bit
+// arcade-sprite trio.
+export function getRetroTotyCardAssets(streamerId: string): TotyCardAssets | undefined {
+  return RETRO_ASSETS[streamerId];
+}
+
+// Every variant a streamer actually has art for, "normal" always included
+// first (every streamer with a TOTY card at all has the real trio) followed
+// by whichever easter-egg trios have been added — used by totyCardVariantRoll
+// to know what it can roll/cycle between, and by TotyCardPopup to decide
+// whether the manual variant select is even worth showing (a single-variant
+// streamer has nothing to switch between).
+export function getAvailableTotyCardVariants(streamerId: string): TotyCardVariant[] {
+  const variants: TotyCardVariant[] = ["normal"];
+  if (LOW_QUALITY_ASSETS[streamerId]) variants.push("lowq");
+  if (RETRO_ASSETS[streamerId]) variants.push("retro");
+  return variants;
+}
+
+export function getTotyCardAssetsForVariant(
+  streamerId: string,
+  variant: TotyCardVariant,
+): TotyCardAssets | undefined {
+  if (variant === "lowq") return getLowQualityTotyCardAssets(streamerId);
+  if (variant === "retro") return getRetroTotyCardAssets(streamerId);
+  return getTotyCardAssets(streamerId);
 }
 
 // Card art is a few hundred KB to ~1MB per file — fine once cached, but
@@ -84,15 +138,18 @@ export function preloadTotyCardAssets(assets: TotyCardAssets, streamerId: string
   const popupBackdropGlowUrl = getPopupBackdropGlowUrl(streamerId);
   const characterHoverUrl = getCharacterHoverUrl(streamerId);
   const lowQualityAssets = getLowQualityTotyCardAssets(streamerId);
+  const retroAssets = getRetroTotyCardAssets(streamerId);
   const urls = [assets.frame, assets.background, assets.character];
   if (cardBackUrl) urls.push(cardBackUrl);
   if (backgroundGlowUrl) urls.push(backgroundGlowUrl);
   if (popupBackdropUrl) urls.push(popupBackdropUrl);
   if (popupBackdropGlowUrl) urls.push(popupBackdropGlowUrl);
   if (characterHoverUrl) urls.push(characterHoverUrl);
-  // Preloaded unconditionally (not just on the 1/3 roll) so the easter egg
-  // never has a visible loading flash on the rare open where it lands.
+  // Preloaded unconditionally (not just on the roll that lands on them) so
+  // the easter eggs never have a visible loading flash on the rare open (or
+  // manual select-switch) where they land.
   if (lowQualityAssets) urls.push(lowQualityAssets.frame, lowQualityAssets.background, lowQualityAssets.character);
+  if (retroAssets) urls.push(retroAssets.frame, retroAssets.background, retroAssets.character);
   for (const url of urls) {
     if (preloadedUrls.has(url)) continue;
     preloadedUrls.add(url);

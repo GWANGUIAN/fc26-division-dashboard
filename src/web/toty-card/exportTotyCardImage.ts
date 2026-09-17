@@ -1,5 +1,5 @@
 import type { StreamerRecord } from "../../shared/model.js";
-import type { TotyCardAssets } from "./totyCardAssets.js";
+import type { TotyCardAssets, TotyCardVariant } from "./totyCardAssets.js";
 import { getTotyCardTextTheme } from "./totyCardTheme.js";
 
 // Matches the card art's own resolution (see docs/toty-card-prompts.md) —
@@ -84,11 +84,12 @@ export async function exportTotyCardPng(
    * 이미지" option alongside the default "기본 이미지" one, for players who
    * have an alternate hover pose. Omit for the base render. */
   characterOverrideUrl?: string,
-  /** Mirrors TotyCardVisual's `lowQuality` prop (see toty-card.css's
-   * .toty-card--lowq) — swaps position/division/name over to the crude
-   * hand-drawn font so a PNG saved during the 1/3 easter-egg roll matches
-   * what's actually on screen instead of the normal card's fonts. */
-  lowQuality = false,
+  /** Mirrors TotyCardVisual's `variant` prop (see toty-card.css's
+   * .toty-card--lowq / .toty-card--retro) — swaps position/division/name
+   * over to the matching font so a PNG saved during an easter-egg
+   * roll/manual select matches what's actually on screen instead of the
+   * normal card's fonts. */
+  variant: TotyCardVariant = "normal",
 ): Promise<void> {
   const theme = getTotyCardTextTheme(streamer.id);
   const [frame, background, character] = await Promise.all([
@@ -106,18 +107,27 @@ export async function exportTotyCardPng(
       document.fonts.load("800 60px 'Barlow Condensed'"),
       document.fonts.load("700 60px 'Barlow Condensed'"),
       document.fonts.load("800 60px 'YunChorokwoosanEoriniMinguk'"),
+      document.fonts.load("800 60px 'Galmuri11'"),
     ]).catch(() => {});
   }
 
-  const statFont = lowQuality ? "'YunChorokwoosanEoriniMinguk', 'Barlow Condensed', sans-serif" : "'Barlow Condensed', sans-serif";
-  const nameFont = lowQuality
-    ? "'YunChorokwoosanEoriniMinguk', 'Barlow Condensed', sans-serif"
-    : "'GiantsInline', 'Barlow Condensed', sans-serif";
-  // Mirrors toty-card.css's .toty-card--lowq .toty-card__name — the
-  // hand-drawn font reads smaller/thinner than GiantsInline at the same
-  // size, so the lowq name gets 1.5x the start size and a heavier weight.
-  const nameWeight = lowQuality ? 900 : 800;
-  const nameStartSize = lowQuality ? 93 : 62;
+  const statFont =
+    variant === "lowq"
+      ? "'YunChorokwoosanEoriniMinguk', 'Barlow Condensed', sans-serif"
+      : variant === "retro"
+        ? "'Galmuri11', 'Courier New', monospace"
+        : "'Barlow Condensed', sans-serif";
+  const nameFont =
+    variant === "lowq"
+      ? "'YunChorokwoosanEoriniMinguk', 'Barlow Condensed', sans-serif"
+      : variant === "retro"
+        ? "'Galmuri11', 'Courier New', monospace"
+        : "'GiantsInline', 'Barlow Condensed', sans-serif";
+  // Mirrors toty-card.css's .toty-card--lowq/.toty-card--retro .toty-card__name
+  // — both alternate fonts read smaller/thinner than GiantsInline at the same
+  // size, so they get 1.5x the start size and a heavier weight.
+  const nameWeight = variant === "normal" ? 800 : 900;
+  const nameStartSize = variant === "normal" ? 62 : 93;
 
   const canvas = document.createElement("canvas");
   canvas.width = WIDTH;
