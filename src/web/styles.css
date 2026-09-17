@@ -42,6 +42,31 @@
   font-display: swap;
 }
 
+/* 응원 유니폼 만들기 모달의 "잔디동 JANDIDONG" 캡션 텍스트용 — see .uniform-customizer__caption-brand */
+@font-face {
+  font-family: 'Gunhamimalmunteuyeot';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2607131613@gfcgunhamitalks/gfcgunhamitalks/GFCGunhamiTalks.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
+/* 응원 유니폼 만들기 모달의 캡션에 적힌 등번호·이름 텍스트용 — see .uniform-customizer__caption-detail */
+@font-face {
+  font-family: 'Escoredream';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-1Thin.woff') format('woff');
+  font-weight: 100;
+  font-display: swap;
+}
+
+/* 응원 유니폼 만들기 모달에서 유니폼 등판에 합성되는 등번호·이름 텍스트용 —
+   see exportUniformImage.ts / .uniform-customizer__preview-name/-number */
+@font-face {
+  font-family: 'Aggravo';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SBAggroB.woff') format('woff');
+  font-weight: 700;
+  font-display: swap;
+}
+
 :root {
   --bg-base: #040706;
   --bg-blob-1: #00cbb127;
@@ -238,6 +263,9 @@ body { isolation: isolate; }
 .trophy-toggle { display: grid; width: 39px; height: 39px; place-items: center; border: 1px solid var(--border-strong); border-radius: 4px; color: #f6c95e; background: var(--fill-faint); transition: .2s; }
 .trophy-toggle svg { width: 19px; height: 19px; stroke-width: 2.4; }
 .trophy-toggle:hover, .trophy-toggle:focus-visible { border-color: #f6c95e; color: #fff0b7; background: #f6c95e18; box-shadow: 0 0 0 3px #f6c95e12; outline: 0; }
+.uniform-toggle { display: grid; width: 39px; height: 39px; place-items: center; border: 1px solid var(--border-strong); border-radius: 4px; color: var(--accent-text); background: var(--fill-faint); transition: .2s; }
+.uniform-toggle svg { width: 19px; height: 19px; stroke-width: 2.4; }
+.uniform-toggle:hover, .uniform-toggle:focus-visible { border-color: var(--accent-border); color: #fff; background: #00e9ae18; box-shadow: 0 0 0 3px #00e9ae12; outline: 0; }
 .trophy-modal__title { display: flex; align-items: center; gap: 9px; font: 800 34px/1 "Barlow Condensed", "Noto Sans KR"; }
 .trophy-modal__title svg { color: #f6c95e; }
 .test-schedule-toggle { display: inline-flex; align-items: center; gap: 6px; padding: 9px 12px; border: 1px solid #00e9ae55; border-radius: 3px; color: var(--text-secondary); background: #00e9ae14; font-weight: 700; font-size: 12px; white-space: nowrap; transition: .2s; }
@@ -551,7 +579,7 @@ body { isolation: isolate; }
 .achievement-badges { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 2px; vertical-align: middle; }.achievement-badge { position: relative; z-index: 5; display: inline-grid; width: 16px; height: 16px; place-items: center; font-size: 12px; line-height: 1; cursor: help; }.achievement-badge [role="tooltip"] { position: absolute; z-index: 6; top: 20px; left: 50%; padding: 5px 7px; border: 1px solid #00e9ae67; color: var(--text-primary); background: var(--surface-elevated); box-shadow: 0 5px 14px rgba(var(--shadow-color), .56); font-size: 10px; font-weight: 500; line-height: 1.2; white-space: nowrap; opacity: 0; pointer-events: none; transform: translateX(-50%) translateY(-2px); transition: .16s; }.achievement-badge:hover [role="tooltip"] { opacity: 1; transform: translateX(-50%) translateY(0); }
 .achievement-badges--clickable { cursor: pointer; border-radius: 20px; transition: background .15s, transform .15s; }.achievement-badges--clickable .achievement-badge { cursor: pointer; }.achievement-badges--clickable:hover, .achievement-badges--clickable:focus-visible { background: #00e9ae1c; transform: scale(1.08); outline: 0; }.achievement-badges--clickable:focus-visible { box-shadow: 0 0 0 2px #00e9ae67; }
 .modal__identity .achievement-badges { margin-left: 3px; }.modal__identity .achievement-badge { width: 19px; height: 19px; font-size: 15px; }.modal__identity .achievement-badge [role="tooltip"] { top: 24px; }.modal__record-row { display: inline-flex; align-items: center; gap: 7px; margin-top: 6px; }.modal__sfx-play { display: grid; flex: 0 0 auto; place-items: center; width: 22px; height: 22px; padding: 0; border: 1px solid #00e9ae55; border-radius: 50%; color: var(--accent-text); background: #00e9ae14; line-height: 1; transition: .15s; }.modal__sfx-play:hover, .modal__sfx-play:focus-visible { background: #00e9ae2a; border-color: var(--accent-border); outline: 0; }.modal__sfx-play svg { display: block; width: 12px; height: 12px; stroke-width: 2.6; }.modal__toty-btn { display: inline-flex; align-items: center; gap: 5px; flex: 0 0 auto; padding: 4px 10px 4px 7px; border: 1px solid #ffd76a55; border-radius: 999px; color: #ffd76a; background: #ffd76a14; font: 700 11px/1 "Barlow Condensed", "Noto Sans KR"; letter-spacing: .02em; transition: .15s; }.modal__toty-btn:hover, .modal__toty-btn:focus-visible { background: #ffd76a2a; border-color: #ffd76a; outline: 0; }.modal__toty-btn svg { width: 13px; height: 13px; stroke-width: 2.6; }
-@media (max-width: 680px) { .topbar__actions { margin-left: auto; }.topbar__actions .feed-toggle, .trophy-toggle { height: 35px; }.trophy-toggle { width: 35px; }.trophy-modal__title { font-size: 30px; }.trophy-awards { column-count: 1; } }
+@media (max-width: 680px) { .topbar__actions { margin-left: auto; }.topbar__actions .feed-toggle, .trophy-toggle, .uniform-toggle { height: 35px; }.trophy-toggle, .uniform-toggle { width: 35px; }.trophy-modal__title { font-size: 30px; }.trophy-awards { column-count: 1; } }
 .image-lightbox { position: fixed; z-index: 30; display: grid; place-items: center; inset: 0; padding: 46px 24px 24px; background: var(--backdrop-strong); backdrop-filter: blur(9px); }
 .image-lightbox .close { z-index: 1; color: var(--text-primary); }
 .image-lightbox img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
@@ -1128,6 +1156,7 @@ body { isolation: isolate; }
 .announcement-icon-badge { display: inline-grid; width: 30px; height: 30px; margin: 0 2px; place-items: center; border: 1px solid var(--border-strong); border-radius: 5px; color: var(--text-primary); background: var(--fill-faint); vertical-align: middle; transform: translateY(-3px); }
 .announcement-icon-badge svg { width: 18px; height: 18px; stroke-width: 2.6; }
 .announcement-icon-badge--trophy { color: #f6c95e; }
+.announcement-icon-badge--uniform { color: var(--accent-text); }
 .announcement-card-view-btn { display: inline-flex; align-items: center; gap: 6px; margin: 0 2px; padding: 9px 12px; border: 1px solid var(--border-strong); border-radius: 3px; color: #00110b; background: #00e9ae; font-weight: 800; font-size: 12px; white-space: nowrap; vertical-align: middle; transform: translateY(-3px); }
 .announcement-card-view-btn svg { width: 14px; height: 14px; stroke-width: 2.6; }
 .announcement-squad-builder-btn { display: inline-flex; align-items: center; gap: 6px; margin: 0 2px; padding: 9px 12px; border: 1px solid #00e9ae55; border-radius: 3px; color: var(--text-secondary); background: #00e9ae1f; font-weight: 700; font-size: 12px; white-space: nowrap; vertical-align: middle; transform: translateY(-3px); }
@@ -1455,6 +1484,36 @@ body { isolation: isolate; }
 .growth-graph__empty { margin: 28px 0; color: var(--text-muted); }
 
 .growth-graph__toolbar { display: flex; justify-content: flex-end; margin-top: 18px; }
+
+/* This modal's content (kit picker + ribbon-framed preview + form) runs taller than the
+   default .modal max-height, which forces an inner scrollbar — give this one specifically
+   room to size to its own content, only capped by the viewport itself. */
+.modal:has(.uniform-customizer__title) { max-height: 95vh; max-height: 95dvh; }
+.uniform-customizer__title { display: flex; align-items: center; gap: 9px; font: 800 32px/1 "Barlow Condensed", "Noto Sans KR"; }
+.uniform-customizer__title svg { width: 24px; height: 24px; color: var(--accent-text); }
+.uniform-customizer__intro { margin: 10px 0 0; color: var(--text-muted); font-size: 12px; }
+.uniform-customizer__empty { margin: 28px 0; color: var(--text-muted); }
+.uniform-customizer__form { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 18px; }
+.uniform-customizer__field { display: flex; flex-direction: column; gap: 6px; }
+.uniform-customizer__field span { color: var(--text-secondary); font: 700 12px "Noto Sans KR"; }
+.uniform-customizer__field input { width: 160px; padding: 12px 10px; border: 1px solid var(--border-strong); border-radius: 3px; outline: none; color: #effff9; background: var(--surface-input); font-size: 14px; }
+.uniform-customizer__field input:focus { border-color: var(--accent-border); box-shadow: 0 0 0 3px #00e9ae12; }
+.uniform-customizer__field--select { margin-top: 18px; }
+.uniform-customizer__kit-dropdown.squad-dropdown__trigger { width: min(360px, 100%); justify-content: space-between; padding: 12px 12px 12px 14px; font-size: 14px; }
+.uniform-customizer__ribbon { position: relative; display: flex; flex-wrap: nowrap; overflow: hidden; width: min(640px, 100%); margin: 18px auto 0; padding: 7px 12px; gap: 22px; border: 1px solid var(--border-strong); background: #00e9ae14; white-space: nowrap; }
+.uniform-customizer__ribbon--top { border-radius: 8px 8px 0 0; border-bottom: 0; }
+.uniform-customizer__ribbon--bottom { margin-top: 0; border-radius: 0 0 8px 8px; border-top: 0; }
+.uniform-customizer__ribbon-unit { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 6px; }
+.uniform-customizer__ribbon-unit img { width: 13px; height: 13px; flex: 0 0 13px; object-fit: contain; }
+.uniform-customizer__ribbon-brand, .uniform-customizer__ribbon-detail { color: #fff; font: 100 12px "Escoredream", "Noto Sans KR"; letter-spacing: .02em; }
+.uniform-customizer__preview { position: relative; container-type: inline-size; width: min(640px, 100%); margin: 0 auto; overflow: hidden; border: 1px solid var(--border-strong); border-top: 0; border-bottom: 0; background: var(--surface-1-alt); }
+.uniform-customizer__preview > img:first-child { display: block; width: 100%; height: auto; }
+.uniform-customizer__preview-name, .uniform-customizer__preview-number { position: absolute; left: 74.5%; width: 26%; text-align: center; text-transform: uppercase; letter-spacing: .02em; -webkit-text-stroke-width: 2px; paint-order: stroke fill; pointer-events: none; }
+.uniform-customizer__preview-name { top: 29.5%; transform: translate(-50%, -50%); font: 700 clamp(11px, 3cqw, 27px) "Aggravo", "Barlow Condensed"; letter-spacing: .1em; }
+.uniform-customizer__preview-number { top: 42%; transform: translate(-50%, -50%); font: 400 clamp(28px, 8.8cqw, 112px) "Gunhamimalmunteuyeot", "Barlow Condensed"; -webkit-text-stroke-width: 3px; }
+.uniform-customizer__download { display: block; margin: 20px auto 0; padding: 12px 28px; border: 1px solid var(--accent-border); border-radius: 4px; color: var(--accent-text); background: #00e9ae1f; font: 700 14px "Noto Sans KR"; transition: .2s; }
+.uniform-customizer__download:hover:not(:disabled), .uniform-customizer__download:focus-visible:not(:disabled) { background: #00e9ae33; outline: 0; }
+.uniform-customizer__download:disabled { opacity: .5; cursor: not-allowed; }
 
 /* Multi-select streamer picker (panel is portaled to body, positioned inline as position:fixed) */
 .growth-picker { position: relative; flex: 0 0 auto; }

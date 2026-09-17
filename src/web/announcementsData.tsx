@@ -4,6 +4,7 @@ import {
   CalendarDays,
   CirclePile,
   Shield,
+  Shirt,
   Sparkles,
   Trophy,
 } from "lucide-react";
@@ -22,6 +23,19 @@ export type Announcement = {
 };
 
 export const ANNOUNCEMENTS: Announcement[] = [
+  {
+    id: "2026-09-uniform-customizer",
+    date: "2026.09.18",
+    body: (
+      <>
+        <strong>유니폼 만들기</strong> 기능이 추가되었습니다. 상단바 오른쪽{" "}
+        <span className="announcement-icon-badge announcement-icon-badge--uniform">
+          <Shirt aria-hidden="true" />
+        </span>{" "}
+        버튼을 누르면 유니폼을 만들어 볼 수 있습니다.
+      </>
+    ),
+  },
   {
     id: "2026-09-toty-card-themes",
     date: "2026.09.17",

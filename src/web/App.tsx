@@ -41,6 +41,7 @@ import { AnnouncementModal } from "./AnnouncementModal";
 import { DetailModal } from "./DetailModal";
 import { TrophyModal } from "./TrophyModal";
 import { GrowthGraphModal } from "./GrowthGraphModal";
+import { UniformCustomizerModal } from "./uniform-customizer/UniformCustomizerModal";
 import { TestScheduleModal } from "./TestScheduleModal";
 import { WakgoodNotebookModal } from "./WakgoodNotebookModal";
 import { EvaluationModal } from "./EvaluationViews";
@@ -86,6 +87,7 @@ export function App() {
     useState<OneVsOneApplicationView>();
   const [feedOpen, setFeedOpen] = useState(false);
   const [trophyOpen, setTrophyOpen] = useState(false);
+  const [uniformCustomizerOpen, setUniformCustomizerOpen] = useState(false);
   const [squadBuilderOpen, setSquadBuilderOpen] = useState(false);
   const [passAnnouncementOpen, setPassAnnouncementOpen] = useState(false);
   const [testScheduleOpen, setTestScheduleOpen] = useState(false);
@@ -195,7 +197,10 @@ export function App() {
   return (
     <main>
       <FakeAdRail />
-      <TopBar onTrophyOpen={() => setTrophyOpen(true)} />
+      <TopBar
+        onUniformOpen={() => setUniformCustomizerOpen(true)}
+        onTrophyOpen={() => setTrophyOpen(true)}
+      />
       {woowakgoodUnlocked && (
         <WoowakgoodBonusButton onOpen={() => setTotyCardStreamer(WOOWAKGOOD_BONUS_STREAMER)} />
       )}
@@ -340,6 +345,9 @@ export function App() {
           application={selectedApplication}
           onClose={() => setSelectedApplication(undefined)}
         />
+      )}
+      {uniformCustomizerOpen && (
+        <UniformCustomizerModal onClose={() => setUniformCustomizerOpen(false)} />
       )}
       {trophyOpen && (
         <TrophyModal
