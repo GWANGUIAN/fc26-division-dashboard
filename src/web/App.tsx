@@ -228,7 +228,7 @@ export function App() {
                 ...celebrationEligibleStreamers.map((streamer) => streamer.displayName),
                 "태긔",
               ]}
-              cheerText="잔디동 화이팅!!"
+              cheerText="잔디동 Let's Go!!"
             />
           </>
         )}
