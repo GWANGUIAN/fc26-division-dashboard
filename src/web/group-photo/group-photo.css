@@ -1,0 +1,76 @@
+/* 잔디동 단체사진 (Group Photo) — 그라운드 배경 위에 12명의 캐릭터 컷아웃을
+   vw 사이징으로 절대 배치. 상단바/닫기 버튼/스트리머 피커는 ../photo-booth/
+   photo-booth.css의 기존 클래스를 그대로 재사용한다(합격 인증샷 포토부스와
+   동시에 렌더링되는 일이 없으므로 충돌 없음). */
+
+.group-photo-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 82;
+  overflow: hidden;
+  background-color: #050b09;
+  background-image:
+    linear-gradient(180deg, rgba(5, 11, 9, .35) 0%, rgba(1, 16, 12, .1) 30%, transparent 55%),
+    var(--group-photo-bg-image, none);
+  background-position: center, center;
+  background-size: auto, 100% auto;
+  background-repeat: no-repeat, no-repeat;
+}
+
+/* 배경(3840x2160, 비율 .5625)이 `100% auto`로 폭 고정 + 중앙 정렬되므로,
+   배경 자체의 상단 가장자리가 컨테이너 상단에서 떨어진 거리는
+   photo-booth.css의 .photo-booth-director와 같은 공식으로 계산:
+   (100vh - 56.25vw) / 2 = 50vh - 28.125vw. 아래 두 줄의 top 오프셋은 실제
+   배경/캐릭터 아트가 나오기 전에 작성된 근사치이므로, docs/group-photo-prompts.md
+   대로 이미지가 채워지면 반드시 눈으로 보면서 다시 조정해야 함. */
+.group-photo-character {
+  position: absolute;
+  display: block;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  transform: translateX(-50%) translateY(var(--group-photo-top-adjust, 0px));
+  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, .45));
+}
+.group-photo-character img {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+.group-photo-character--back {
+  top: calc(50vh - 28.125vw + 22vw);
+  z-index: 2;
+}
+.group-photo-character--front {
+  top: calc(50vh - 28.125vw + 31vw);
+  z-index: 3;
+}
+
+.group-photo-cheer {
+  position: absolute;
+  z-index: 4;
+  top: 4vh;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.group-photo-download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px 16px;
+  border: 1px solid #00e9aeb0;
+  border-radius: 999px;
+  color: #00e9ae;
+  background: #00e9ae26;
+  font: 800 12px "Noto Sans KR";
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.group-photo-download-btn:hover { border-color: var(--accent-border); }
+.group-photo-download-btn:disabled { opacity: .5; cursor: not-allowed; }
+.group-photo-download-btn svg { width: 16px; height: 16px; }

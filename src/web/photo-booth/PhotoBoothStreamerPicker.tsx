@@ -5,12 +5,20 @@ import type { StreamerRecord } from "../../shared/model.js";
 import { searchable } from "../../shared/search.js";
 import { Avatar } from "../cardVisuals";
 
+// 최소한으로 좁힌 타입 — WOOWAKGOOD_BONUS_STREAMER처럼 roster.yaml에 없는
+// 하드코딩 게스트(cafeAliases/profileImageUrl/soopId가 없음)도 이 피커에
+// 섞어 넣을 수 있도록, 실제로 쓰는 필드만 요구한다. 기존 StreamerRecord[]도
+// 구조적으로 그대로 만족하므로 호출부 변경 없이 호환됨.
+export type StreamerPickerEntry = Pick<StreamerRecord, "id" | "displayName" | "profileImageUrl" | "soopId"> & {
+  cafeAliases?: string[];
+};
+
 export function PhotoBoothStreamerPicker({
   streamers,
   selectedId,
   onSelect,
 }: {
-  streamers: StreamerRecord[];
+  streamers: StreamerPickerEntry[];
   selectedId: string | undefined;
   onSelect: (id: string) => void;
 }) {

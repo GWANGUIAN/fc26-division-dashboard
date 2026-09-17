@@ -53,6 +53,9 @@ import { SquadBuilderOverlay } from "./squad-builder/SquadBuilderOverlay";
 import { PassAnnouncementOverlay } from "./pass-announcement/PassAnnouncementOverlay";
 import { PhotoBoothTrigger } from "./photo-booth/PhotoBoothTrigger";
 import { PhotoBoothOverlay } from "./photo-booth/PhotoBoothOverlay";
+import { GroupPhotoTrigger } from "./group-photo/GroupPhotoTrigger";
+import { GroupPhotoOverlay } from "./group-photo/GroupPhotoOverlay";
+import { LedSignboard } from "./group-photo/LedSignboard";
 import { KickupsToggle } from "./minigame/KickupsToggle";
 import { KickupsModal } from "./minigame/KickupsModal";
 import { FreekickToggle } from "./minigame/FreekickToggle";
@@ -71,6 +74,10 @@ import { WOOWAKGOOD_BONUS_STREAMER } from "./toty-card/woowakgoodBonusCard";
 // once a user actually opens this modal.
 const FreekickModal = lazy(() => import("./minigame/FreekickModal"));
 
+// "합격 인증샷" 포토부스 배너/트리거를 헤더에 다시 보이게 하려면 true로.
+// 아래 잔디동 LED 티커 + 단체샷으로 임시 교체 — 다른 코드는 삭제되지 않았음.
+const SHOW_PHOTO_BOOTH_CELEBRATION = false;
+
 export function App() {
   const { snapshot, loading: snapshotLoading } = useDashboardSnapshot();
   const { view, setView } = useView();
@@ -84,6 +91,7 @@ export function App() {
   const [testScheduleOpen, setTestScheduleOpen] = useState(false);
   const [wakgoodNotebookOpen, setWakgoodNotebookOpen] = useState(false);
   const [photoBoothOpen, setPhotoBoothOpen] = useState(false);
+  const [groupPhotoOpen, setGroupPhotoOpen] = useState(false);
   const [growthGraphOpen, setGrowthGraphOpen] = useState(false);
   const [fortuneOpen, setFortuneOpen] = useState(false);
   const [totyCardStreamer, setTotyCardStreamer] =
@@ -195,11 +203,30 @@ export function App() {
         <WoowakgoodBonusAnnounce onDone={() => setWoowakgoodAnnounceVisible(false)} />
       )}
       <div className="photo-booth-anchor">
-        <PhotoBoothTrigger
-          passedStreamers={celebrationEligibleStreamers}
-          onOpen={() => setPhotoBoothOpen(true)}
-        />
-        <FavoriteCelebration slides={celebrationSlides} round={celebrationRound} />
+        {SHOW_PHOTO_BOOTH_CELEBRATION ? (
+          <>
+            <PhotoBoothTrigger
+              passedStreamers={celebrationEligibleStreamers}
+              onOpen={() => setPhotoBoothOpen(true)}
+            />
+            <FavoriteCelebration slides={celebrationSlides} round={celebrationRound} />
+          </>
+        ) : (
+          <>
+            <GroupPhotoTrigger
+              passedStreamers={celebrationEligibleStreamers}
+              onOpen={() => setGroupPhotoOpen(true)}
+            />
+            <LedSignboard
+              mode="scroll"
+              names={[
+                ...celebrationEligibleStreamers.map((streamer) => streamer.displayName),
+                "태긔",
+              ]}
+              cheerText="잔디동 화이팅!!"
+            />
+          </>
+        )}
       </div>
       <HeroSection isDivision={isDivision} />
       <SoopLiveSection soopLive={soopLive} />
@@ -363,6 +390,12 @@ export function App() {
           sfxEnabled={sfxEnabled}
           sfxVolume={sfxVolume}
           onClose={() => setPhotoBoothOpen(false)}
+        />
+      )}
+      {groupPhotoOpen && (
+        <GroupPhotoOverlay
+          passedStreamers={celebrationEligibleStreamers}
+          onClose={() => setGroupPhotoOpen(false)}
         />
       )}
       {activeMinigame === "kickups" && (

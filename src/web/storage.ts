@@ -32,6 +32,7 @@ export const SFX_ENABLED_STORAGE_KEY = "fc26-sfx-enabled";
 export const SFX_VOLUME_STORAGE_KEY = "fc26-sfx-volume";
 const SFX_HEARD_STORAGE_KEY = "fc26-sfx-heard";
 const PHOTO_BOOTH_DISCOVERED_STORAGE_KEY = "fc26-photo-booth-discovered-v2";
+const GROUP_PHOTO_DISCOVERED_STORAGE_KEY = "fc26-group-photo-discovered-v1";
 const VIEW_MODE_STORAGE_KEY = "fc26-view-mode";
 const FIRST_ROUND_HIDDEN_COLLAPSED_STORAGE_KEY = "fc26-first-round-hidden-collapsed";
 const SECOND_ROUND_HIDDEN_COLLAPSED_STORAGE_KEY = "fc26-second-round-hidden-collapsed";
@@ -480,6 +481,24 @@ export function hasDiscoveredPhotoBooth(): boolean {
 export function markPhotoBoothDiscovered() {
   try {
     localStorage.setItem(PHOTO_BOOTH_DISCOVERED_STORAGE_KEY, "1");
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
+
+// 새 키를 써서, 기존 "합격 인증샷" 툴팁을 이미 닫은 사용자에게도 "단체샷
+// 구경하기" 콜아웃이 최초 1회 노출되게 한다 (기존 키 재사용 X).
+export function hasDiscoveredGroupPhoto(): boolean {
+  try {
+    return localStorage.getItem(GROUP_PHOTO_DISCOVERED_STORAGE_KEY) === "1";
+  } catch {
+    return true;
+  }
+}
+
+export function markGroupPhotoDiscovered() {
+  try {
+    localStorage.setItem(GROUP_PHOTO_DISCOVERED_STORAGE_KEY, "1");
   } catch {
     // ignore storage failures (e.g. private browsing)
   }
