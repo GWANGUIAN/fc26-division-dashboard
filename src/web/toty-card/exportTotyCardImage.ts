@@ -108,6 +108,7 @@ export async function exportTotyCardPng(
       document.fonts.load("700 60px 'Barlow Condensed'"),
       document.fonts.load("800 60px 'YunChorokwoosanEoriniMinguk'"),
       document.fonts.load("800 60px 'Galmuri11'"),
+      document.fonts.load("60px 'Eutman'"),
     ]).catch(() => {});
   }
 
@@ -116,18 +117,24 @@ export async function exportTotyCardPng(
       ? "'YunChorokwoosanEoriniMinguk', 'Barlow Condensed', sans-serif"
       : variant === "retro"
         ? "'Galmuri11', 'Courier New', monospace"
-        : "'Barlow Condensed', sans-serif";
+        : variant === "harugomem"
+          ? "'Eutman', 'Barlow Condensed', sans-serif"
+          : "'Barlow Condensed', sans-serif";
   const nameFont =
     variant === "lowq"
       ? "'YunChorokwoosanEoriniMinguk', 'Barlow Condensed', sans-serif"
       : variant === "retro"
         ? "'Galmuri11', 'Courier New', monospace"
-        : "'GiantsInline', 'Barlow Condensed', sans-serif";
+        : variant === "harugomem"
+          ? "'Eutman', 'Barlow Condensed', sans-serif"
+          : "'GiantsInline', 'Barlow Condensed', sans-serif";
   // Mirrors toty-card.css's .toty-card--lowq/.toty-card--retro .toty-card__name
   // — both alternate fonts read smaller/thinner than GiantsInline at the same
-  // size, so they get 1.5x the start size and a heavier weight.
-  const nameWeight = variant === "normal" ? 800 : 900;
-  const nameStartSize = variant === "normal" ? 62 : 93;
+  // size, so they get 1.5x the start size and a heavier weight. Eutman reads
+  // at a normal weight/size (like the real card's GiantsInline), so
+  // "harugomem" is grouped with "normal" here rather than lowq/retro.
+  const nameWeight = variant === "lowq" || variant === "retro" ? 900 : 800;
+  const nameStartSize = variant === "lowq" || variant === "retro" ? 93 : 62;
 
   const canvas = document.createElement("canvas");
   canvas.width = WIDTH;

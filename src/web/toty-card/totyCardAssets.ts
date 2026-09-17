@@ -16,11 +16,11 @@ export type TotyCardAssets = {
   character: string;
 };
 
-// The three card art "looks" a streamer can have, beyond the always-present
-// real ("normal") one — see docs/toty-card-prompts.md's easter egg sections.
+// The card art "looks" a streamer can have, beyond the always-present real
+// ("normal") one — see docs/toty-card-prompts.md's easter egg sections.
 // Rolled/cycled between by totyCardVariantRoll.ts and picked manually via the
 // select shown above the card once revealed (TotyCardPopup).
-export type TotyCardVariant = "normal" | "lowq" | "retro";
+export type TotyCardVariant = "normal" | "lowq" | "retro" | "harugomem";
 
 const PARTS = ["frame", "background", "character"] as const;
 
@@ -39,6 +39,13 @@ const lowQualityPartial: Record<string, Partial<TotyCardAssets>> = {};
 // works unmodified. Same stripped-out-before-the-regular-regex treatment as
 // lowQualityPartial above, for the same reason.
 const retroPartial: Record<string, Partial<TotyCardAssets>> = {};
+// Easter-egg "하루고멤 콜라보" set — same three parts, each player's own art
+// reimagined in a matched "하루고멤" member's costume/theme (see
+// docs/toty-card-prompts.md's easter egg section), named
+// `<id>-harugomem-<part>.webp` so `pnpm convert:card-art -- <id>-harugomem`
+// just works unmodified. Same stripped-out-before-the-regular-regex
+// treatment as lowQualityPartial/retroPartial above, for the same reason.
+const harugomemPartial: Record<string, Partial<TotyCardAssets>> = {};
 
 for (const [path, url] of Object.entries(modules)) {
   const filename = path.split("/").pop() ?? "";
@@ -52,6 +59,12 @@ for (const [path, url] of Object.entries(modules)) {
   if (retroMatch) {
     const [, id, part] = retroMatch;
     (retroPartial[id] ??= {})[part as (typeof PARTS)[number]] = url;
+    continue;
+  }
+  const harugomemMatch = /^(.+)-harugomem-(frame|background|character)\.webp$/.exec(filename);
+  if (harugomemMatch) {
+    const [, id, part] = harugomemMatch;
+    (harugomemPartial[id] ??= {})[part as (typeof PARTS)[number]] = url;
     continue;
   }
   const match = /^(.+)-(frame|background|character)\.webp$/.exec(filename);
@@ -81,6 +94,13 @@ for (const [id, parts] of Object.entries(retroPartial)) {
   }
 }
 
+const HARUGOMEM_ASSETS: Record<string, TotyCardAssets> = {};
+for (const [id, parts] of Object.entries(harugomemPartial)) {
+  if (parts.frame && parts.background && parts.character) {
+    HARUGOMEM_ASSETS[id] = parts as TotyCardAssets;
+  }
+}
+
 export function hasTotyCard(streamerId: string): boolean {
   return streamerId in ASSETS;
 }
@@ -102,6 +122,13 @@ export function getRetroTotyCardAssets(streamerId: string): TotyCardAssets | und
   return RETRO_ASSETS[streamerId];
 }
 
+// Same idea as getLowQualityTotyCardAssets, for the "하루고멤 콜라보" trio —
+// only present once that streamer has been matched with a 하루고멤 member and
+// the three images generated (see docs/toty-card-prompts.md).
+export function getHarugomemTotyCardAssets(streamerId: string): TotyCardAssets | undefined {
+  return HARUGOMEM_ASSETS[streamerId];
+}
+
 // Every variant a streamer actually has art for, "normal" always included
 // first (every streamer with a TOTY card at all has the real trio) followed
 // by whichever easter-egg trios have been added — used by totyCardVariantRoll
@@ -112,6 +139,7 @@ export function getAvailableTotyCardVariants(streamerId: string): TotyCardVarian
   const variants: TotyCardVariant[] = ["normal"];
   if (LOW_QUALITY_ASSETS[streamerId]) variants.push("lowq");
   if (RETRO_ASSETS[streamerId]) variants.push("retro");
+  if (HARUGOMEM_ASSETS[streamerId]) variants.push("harugomem");
   return variants;
 }
 
@@ -121,6 +149,7 @@ export function getTotyCardAssetsForVariant(
 ): TotyCardAssets | undefined {
   if (variant === "lowq") return getLowQualityTotyCardAssets(streamerId);
   if (variant === "retro") return getRetroTotyCardAssets(streamerId);
+  if (variant === "harugomem") return getHarugomemTotyCardAssets(streamerId);
   return getTotyCardAssets(streamerId);
 }
 
@@ -139,6 +168,7 @@ export function preloadTotyCardAssets(assets: TotyCardAssets, streamerId: string
   const characterHoverUrl = getCharacterHoverUrl(streamerId);
   const lowQualityAssets = getLowQualityTotyCardAssets(streamerId);
   const retroAssets = getRetroTotyCardAssets(streamerId);
+  const harugomemAssets = getHarugomemTotyCardAssets(streamerId);
   const urls = [assets.frame, assets.background, assets.character];
   if (cardBackUrl) urls.push(cardBackUrl);
   if (backgroundGlowUrl) urls.push(backgroundGlowUrl);
@@ -150,6 +180,7 @@ export function preloadTotyCardAssets(assets: TotyCardAssets, streamerId: string
   // manual select-switch) where they land.
   if (lowQualityAssets) urls.push(lowQualityAssets.frame, lowQualityAssets.background, lowQualityAssets.character);
   if (retroAssets) urls.push(retroAssets.frame, retroAssets.background, retroAssets.character);
+  if (harugomemAssets) urls.push(harugomemAssets.frame, harugomemAssets.background, harugomemAssets.character);
   for (const url of urls) {
     if (preloadedUrls.has(url)) continue;
     preloadedUrls.add(url);
@@ -261,22 +292,27 @@ export function getCharacterHoverUrl(streamerId: string): string | undefined {
 // characterHoverUrl swap that player has (see CHARACTER_HOVER_SUFFIX above)
 // for the whole loop — effectively a "hover" version once one exists.
 const PREVIEW_SUFFIX = "-preview.gif";
-// Checked first so a lowq/retro preview's "<id>-lowq-preview.gif" /
-// "<id>-retro-preview.gif" filename (which also ends in "-preview.gif")
-// doesn't leak into previewUrls under the bogus key "<id>-lowq"/"<id>-retro"
-// — same reasoning as the lowq/retro frame/background/character trios in
-// the ASSETS scan above.
+// Checked first so a lowq/retro/harugomem preview's "<id>-lowq-preview.gif" /
+// "<id>-retro-preview.gif" / "<id>-harugomem-preview.gif" filename (which
+// also ends in "-preview.gif") doesn't leak into previewUrls under the bogus
+// key "<id>-lowq"/"<id>-retro"/"<id>-harugomem" — same reasoning as the
+// lowq/retro/harugomem frame/background/character trios in the ASSETS scan
+// above.
 const LOW_QUALITY_PREVIEW_SUFFIX = "-lowq-preview.gif";
 const RETRO_PREVIEW_SUFFIX = "-retro-preview.gif";
+const HARUGOMEM_PREVIEW_SUFFIX = "-harugomem-preview.gif";
 const previewUrls: Record<string, string> = {};
 const lowQualityPreviewUrls: Record<string, string> = {};
 const retroPreviewUrls: Record<string, string> = {};
+const harugomemPreviewUrls: Record<string, string> = {};
 for (const [path, url] of Object.entries(modules)) {
   const filename = path.split("/").pop() ?? "";
   if (filename.endsWith(LOW_QUALITY_PREVIEW_SUFFIX)) {
     lowQualityPreviewUrls[filename.slice(0, -LOW_QUALITY_PREVIEW_SUFFIX.length)] = url;
   } else if (filename.endsWith(RETRO_PREVIEW_SUFFIX)) {
     retroPreviewUrls[filename.slice(0, -RETRO_PREVIEW_SUFFIX.length)] = url;
+  } else if (filename.endsWith(HARUGOMEM_PREVIEW_SUFFIX)) {
+    harugomemPreviewUrls[filename.slice(0, -HARUGOMEM_PREVIEW_SUFFIX.length)] = url;
   } else if (filename.endsWith(PREVIEW_SUFFIX)) {
     previewUrls[filename.slice(0, -PREVIEW_SUFFIX.length)] = url;
   }
@@ -301,6 +337,13 @@ export function getLowQualityTotyCardPreviewUrl(streamerId: string): string | un
 // --retro flag.
 export function getRetroTotyCardPreviewUrl(streamerId: string): string | undefined {
   return retroPreviewUrls[streamerId];
+}
+
+// Same idea, for the "하루고멤 콜라보" easter-egg card (see
+// getHarugomemTotyCardAssets) — produced by scripts/generate-toty-preview.mjs's
+// --harugomem flag.
+export function getHarugomemTotyCardPreviewUrl(streamerId: string): string | undefined {
+  return harugomemPreviewUrls[streamerId];
 }
 
 // Pre-hover-effect capture of the same loop, kept around (rather than

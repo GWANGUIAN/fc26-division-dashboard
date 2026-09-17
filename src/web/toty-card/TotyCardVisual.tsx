@@ -46,9 +46,9 @@ export function TotyCardVisual({
   punch?: boolean;
   /** Set on an easter-egg roll or manual select (TotyCardPopup) — `assets`
    * is already swapped to the matching trio by the caller, this just adds a
-   * CSS hook (.toty-card--lowq / .toty-card--retro) for text styling (e.g. a
-   * rough hand-drawn font, or a pixel/arcade font once provided, for
-   * position/division/name) to key off. */
+   * CSS hook (.toty-card--lowq / .toty-card--retro / .toty-card--harugomem)
+   * for text styling (e.g. a rough hand-drawn font, a pixel/arcade font, or
+   * an elegant serif font for position/division/name) to key off. */
   variant?: TotyCardVariant;
 }) {
   const textTheme = getTotyCardTextTheme(streamer.id);
@@ -115,7 +115,7 @@ export function TotyCardVisual({
     <div className="toty-card-wrap">
       <div
         ref={cardRef}
-        className={`toty-card ${tilt.active ? "toty-card--active" : ""} ${variant === "lowq" ? "toty-card--lowq" : ""} ${variant === "retro" ? "toty-card--retro" : ""}`}
+        className={`toty-card ${tilt.active ? "toty-card--active" : ""} ${variant === "lowq" ? "toty-card--lowq" : ""} ${variant === "retro" ? "toty-card--retro" : ""} ${variant === "harugomem" ? "toty-card--harugomem" : ""}`}
         onClick={onCardClick}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}

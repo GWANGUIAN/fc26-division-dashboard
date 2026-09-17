@@ -670,6 +670,19 @@ body.toty-capture-mode::after {
   letter-spacing: 0.02em;
 }
 
+/* .toty-card--harugomem is set on .toty-card (TotyCardVisual's `variant`
+   prop) on the "하루고멤" collab easter-egg roll/manual select — swaps
+   position/division/name over to the Eutman font (@font-face in
+   styles.css) to match this variant's theme (unlike lowq/retro, there's no
+   special art filter for the card art itself, just the matched 하루고멤
+   member's theme in the frame/background/character — see
+   docs/toty-card-prompts.md). */
+.toty-card--harugomem .toty-card__div,
+.toty-card--harugomem .toty-card__pos,
+.toty-card--harugomem .toty-card__name {
+  font-family: 'Eutman', "Barlow Condensed", sans-serif;
+}
+
 /* Name: plain outlined text (no plate) sitting around the 2/3 mark of the
    card, over the character's torso where the art is dark enough for the
    gold fill + black outline to stay readable on its own. The real text node

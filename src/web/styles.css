@@ -34,6 +34,14 @@
   font-display: swap;
 }
 
+/* TOTY 3D 카드 "하루고멤" 콜라보 이스터에그의 포지션/디비전/이름 텍스트용 — see toty-card.css's .toty-card--harugomem */
+@font-face {
+  font-family: 'Eutman';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2206-02@1.0/OKCHAN.woff2') format('woff2');
+  font-weight: normal;
+  font-display: swap;
+}
+
 :root {
   --bg-base: #040706;
   --bg-blob-1: #00cbb127;

@@ -1664,6 +1664,703 @@ for name/stat overlays.
 
 ---
 
+## 이스터에그: 하루고멤 콜라보 3D 카드 (12명 전원 매칭 + 프롬프트 작성 완료, 이미지 생성·연동 완료)
+
+기본/저퀄리티(크레파스)/고전도트(8비트)에 이어 네 번째 카드 비주얼 버전. 우왁굳이 별도로 운영하는 "하루 고멤"(멤버마다 고유한 RP 컨셉을 가진 캐릭터들) 중 한 명을 선수 한 명과 1:1로 매칭해서, 그 멤버의 컨셉(의상·소품·분위기)을 선수 카드에 녹여 합성하는 콜라보 테마. 총 12명(선수 10명 + 보너스 2명) 전원에게 하루고멤 멤버를 매칭할 예정이며, 사용자가 멤버 이미지+설명+합성 대상 선수를 하나씩 전달할 때마다 아래에 매칭 정보를 등록하고 곧바로 프레임/배경/캐릭터 프롬프트까지 작성함(순차 추가 방식).
+
+- **레퍼런스 방식**: 프레임 생성 시 기존 `<id>-frame.webp`(실루엣·모티프 참고) + 하루고멤 멤버 이미지(장식·테마 참고)를 함께 첨부. 배경은 참고 이미지 없이 프롬프트만으로 생성(필요하면 하루고멤 이미지를 무드 참고용으로 추가 첨부 가능). 캐릭터 생성 시 기존 `<id>-character.webp`(선수 정체성·얼굴 참고) + 하루고멤 멤버 이미지(의상·소품·포즈 컨셉 참고)를 함께 첨부해서 합성 — 선수는 그 하루고멤 멤버의 의상/소품을 입은 모습으로 재구성하되 원래 선수의 얼굴·정체성은 유지.
+- **화풍**: 크레파스/8비트 버전과 달리 이 테마는 별도의 화풍 필터가 없음 — 기존 기본 카드와 동일한 세미리얼리스틱 프리미엄 3D 렌더 톤 유지, 달라지는 건 프레임 장식·배경 소재·캐릭터 의상뿐.
+- **파일명**: 기존 이스터에그 명명 규칙(`-lowq-`, `-retro-`)을 따라 `<id>-harugomem-frame.webp` / `<id>-harugomem-background.webp` / `<id>-harugomem-character.webp` — 12명 전원 `src/web/assets/toty-cards/`에 저장 완료, `totyCardAssets.ts`/`totyCardVariantRoll.ts`/`TotyCardPopup.tsx`/`TotyCardVisual.tsx`에 `"harugomem"` variant로 연동 완료 (기본→저퀄리티→고전도트→하루고멤 순환 및 수동 선택 모두 지원).
+- **폰트**: 포지션/디비전/이름 텍스트는 `'Eutman'`(noonfonts OKCHAN) 적용 완료 — `styles.css`의 `@font-face`, `toty-card.css`의 `.toty-card--harugomem`.
+- **사운드**: 카드를 클릭했을 때 재생되는 선수별 클릭 효과음(기본 카드의 `streamer.sfx`)을 하루고멤 변형에서는 `public/sfxes/<id>-harugomem.mp3`로 교체 — 12명 전원 적용 완료 (`TotyCardPopup.tsx`의 `handleCardClick`). 팝업 오픈 시 앰비언트 스팅(`playPopupOpenSfx`)은 변형과 무관하게 원래 카드 것 그대로 유지.
+- **움짤(GIF)**: `pnpm generate:toty-preview -- <id> <port> --harugomem`로 12명 전원 `<id>-harugomem-preview.gif` 생성 완료 — "움짤로 저장" 메뉴에서 다운로드 가능.
+
+### 한결 × 천사 RP 멤버 — `kaksjak0730`
+
+**멤버 컨셉/RP**: 천사 RP. 싸가지 없는(불량한/새침한) 태도, 등에 새하얀 천사 날개, 입에 풍선껌을 불고 있는 모습, 손에는 과하게 핑크색으로 꾸민(참 장식이 주렁주렁 달린) 핸드폰을 들고 있음. 금발 업스타일 헤어에 체크 리본 헤어핀, 베이지 가디건 + 체크 교복 미니스커트, 오프화이트 니트 레그워머, 이마에 세이프티핀 장식.
+
+**프레임** (기존 `kaksjak0730-frame.webp` + 하루고멤 멤버 레퍼런스 이미지 첨부):
+```
+Using the first attached image (this player's existing card frame) ONLY as
+a silhouette/structure reference — same ornate shield-shaped outer
+silhouette, same scalloped border curve, same laurel-wreath crest position
+at the top center, same inner content window position — and using the
+second attached image (a "하루고멤" angel-concept character) as a theme
+reference for materials and ornamentation only: redesign the frame's
+surface material as soft pearlescent cream-white, with the corner ornaments
+reimagined as small fluffy feathered angel wings and a delicate
+black-and-white checkered ribbon-bow motif at the top crest, a thin trail
+of tiny bubblegum-pink bubbles drifting along the inner border, faint
+silver safety-pin charm details tucked into the scalloped edge. Warm soft
+pink-gold glow against the cream surface. No player, no text, no stats.
+Entire canvas outside the frame's own linework (including the inner
+content window) must be fully transparent. PNG with alpha channel,
+1060x1484.
+```
+
+**배경**:
+```
+Abstract premium trading-card background art, portrait orientation. Soft
+pastel cream-and-blush sky with faint drifting white feathers and small
+translucent bubblegum-pink bubbles floating upward, a scattering of tiny
+sparkling safety-pin and checkered ribbon-bow motifs catching a warm
+pink-gold rim light. No characters, no people, no border/frame, no text.
+High detail, dreamy but slightly bratty/mischievous mood, 4K, PNG,
+1060x1484.
+```
+
+**캐릭터** (기존 `kaksjak0730-character.webp` + 하루고멤 멤버 레퍼런스 이미지 첨부):
+```
+Using the first attached image ONLY as an identity/likeness reference (same
+player's face and build) and the second attached image (a "하루고멤"
+angel-concept character) as a costume/prop/pose reference — redraw the
+player wearing that angel concept's outfit: a beige cardigan over a school
+uniform with a black-and-white checkered ribbon tie, a black-and-white
+plaid mini skirt, off-white knit leg warmers, soft white feathered angel
+wings on the back, hair pinned up with a checkered bow and a small safety
+pin accessory near the brow. Give her a bratty, unimpressed, smug
+expression (never sweet or docile), blowing a bubblegum bubble from her
+mouth, holding an over-decorated bright bubblegum-pink phone charm case
+covered in pink beads and charms in one hand. Semi-realistic premium
+trading-card 3D render style consistent with the base card set (not chibi,
+not flat 2D). Viewed from a slight low front 3/4 angle, visible head to
+mid-thigh. Soft warm pink-gold rim lighting. No frame, no text, no
+background — fully transparent PNG with alpha channel, 1060x1484, leave
+open space above the head and below the waist for name/stat overlays.
+```
+
+---
+
+### 뽀린걸 × 라이프가드 RP 멤버 — `bboringirl`
+
+**멤버 컨셉/RP**: 라이프가드(안전요원) RP. 금발 숏컷, 레드 바이저(챙 모자), "LIFEGUARD" 문구가 적힌 레드 홀터넥 크롭탑에 호루라기 목걸이, 하트+맥박 아이콘이 그려진 레드 응급처치 파우치를 허리에 착용, 레드 크롭탑과 어울리는 랩스커트(허리에 묶은 레드 천 + 안에 블랙/레드 반바지), 플랫폼 슬리퍼 샌들.
+
+**프레임** (기존 `bboringirl-frame.webp` + 하루고멤 멤버 레퍼런스 이미지 첨부):
+```
+Using the first attached image (this player's existing card frame) ONLY as
+a silhouette/structure reference — same ornate shield-shaped outer
+silhouette, same scalloped border curve, same laurel-wreath crest position
+at the top center, same inner content window position — and using the
+second attached image (a "하루고멤" lifeguard-concept character) as a theme
+reference for materials and ornamentation only: keep the frame's existing
+gunmetal-grey mechanical armor-plate base, but reimagine the corner
+ornaments as glossy red rescue-buoy rings and a small silver whistle charm
+at the top crest, with the existing circuit-line engravings reworked into a
+pulsing red heartbeat/EKG line motif tracing the inner border. Warm red
+emergency-light glow against the grey metal. No player, no text, no stats.
+Entire canvas outside the frame's own linework (including the inner
+content window) must be fully transparent. PNG with alpha channel,
+1060x1484.
+```
+
+**배경**:
+```
+Abstract premium trading-card background art, portrait orientation. Dim
+industrial gunmetal-grey hangar texture blended with a warm poolside/beach
+patrol mood — a glossy red rescue-buoy ring and a coil of red-and-white
+striped rope resting in soft-focus at the edge of frame, faint red
+emergency-light glow and a subtle pulsing heartbeat/EKG line motif glowing
+along the lower edge. No characters, no people, no border/frame, no text.
+High detail, 4K, PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `bboringirl-character.webp` + 하루고멤 멤버 레퍼런스 이미지 첨부):
+```
+Using the first attached image ONLY as an identity/likeness reference (same
+player's face and build) and the second attached image (a "하루고멤"
+lifeguard-concept character) as a costume/prop/pose reference — redraw the
+player wearing that lifeguard concept's outfit: a red halter-neck crop top
+printed with "LIFEGUARD", a whistle on a cord necklace, a red first-aid
+pouch printed with a heart/pulse icon strapped at the waist, a red wrap
+skirt tied over black-and-red athletic shorts, platform slide sandals.
+Confident, capable, hands-on-hips lifeguard stance. Semi-realistic premium
+trading-card 3D render style consistent with the base card set (not chibi,
+not flat 2D). Viewed from a slight low front 3/4 angle, visible head to
+mid-thigh. Warm red rim lighting mixed with cool gunmetal undertones. No
+frame, no text, no background — fully transparent PNG with alpha channel,
+1060x1484, leave open space above the head and below the waist for
+name/stat overlays.
+```
+
+---
+
+### 빙밍 × 교포 컨셉 멤버 — `tleod1818`
+
+**멤버 컨셉/RP**: 교포(해외 교포) 느낌 캐릭터. 금발에 뿌리 쪽 블랙 브릿지가 보이는 하이 포니테일(반묶음), 손가락에 골드 링 여러 개를 낀 채 피스사인 포즈, 영문 그래픽("Thinking of you") 프린트가 들어간 핑크 크롭 티셔츠, 오버사이즈 핑크 카고 배기팬츠, 허리에 걸쳐 맨 핑크 미니 백팩, 화이트 슬라이드 샌들, 발목에 비즈 장식(앵클릿).
+
+**프레임** (기존 `tleod1818-frame.webp` + 하루고멤 멤버 레퍼런스 이미지 첨부):
+```
+Using the first attached image (this player's existing card frame) ONLY as
+a silhouette/structure reference — same ornate shield-shaped outer
+silhouette, same scalloped border curve, same laurel-wreath crest position
+at the top center, same inner content window position — and using the
+second attached image (a "하루고멤" streetwear-concept character) as a
+theme reference for materials and ornamentation only: keep the frame's
+existing dark navy storm-cloud base and jagged emerald lightning-bolt
+accents, but recolor the lightning bolts and corner ornaments to a hot
+bubblegum-pink neon glow, add small gold-ring charm details at the corners
+and a scattering of tiny pink bead/anklet-charm motifs along the inner
+border, like the storm has been reimagined as a glossy street-fashion
+neon-pink lightning theme. No player, no text, no stats. Entire canvas
+outside the frame's own linework (including the inner content window) must
+be fully transparent. PNG with alpha channel, 1060x1484.
+```
+
+**배경**:
+```
+Abstract premium trading-card background art, portrait orientation. Dark
+navy stormy-sky base with jagged lightning-bolt streaks recolored into a
+hot bubblegum-pink neon glow (instead of the original emerald), faint
+drifting gold ring and pink bead charm particles, a subtle urban
+streetwear mood — like neon city lights reflected in storm clouds. No
+characters, no people, no border/frame, no text. High detail, 4K, PNG,
+1060x1484.
+```
+
+**캐릭터** (기존 `tleod1818-character.webp` + 하루고멤 멤버 레퍼런스 이미지 첨부):
+```
+Using the first attached image ONLY as an identity/likeness reference (same
+player's face and build) and the second attached image (a "하루고멤"
+streetwear-concept character) as a costume/prop/pose reference — redraw
+the player wearing that concept's outfit: a pink graphic crop t-shirt
+printed with "Thinking of you", oversized pink cargo baggy pants, a small
+pink mini backpack slung low across the hip, white slide sandals, a beaded
+anklet, several gold rings on the fingers. Hair styled as a half-up high
+ponytail with visible dark roots against blonde lengths. Playful confident
+pose, both hands up near the face making peace signs. Semi-realistic
+premium trading-card 3D render style consistent with the base card set
+(not chibi, not flat 2D). Viewed from a slight low front 3/4 angle, visible
+head to mid-thigh. Cool navy undertones with hot neon-pink rim lighting.
+No frame, no text, no background — fully transparent PNG with alpha
+channel, 1060x1484, leave open space above the head and below the waist
+for name/stat overlays.
+```
+
+---
+
+### 다시바 × 쥐 수인 RP 멤버 — `tdnlamuron`
+
+**멤버 컨셉/RP**: 쥐(마우스) 수인 컨셉. 크고 둥근 회색 쥐 귀와 은발/그레이 헤어, 무표정에 가까운 새침한 얼굴, 흑백 톤의 세일러풍 고딕 아웃핏(케이프 소매 재킷 + 타이 + 크로스 브로치와 체인 장식), 서스펜더가 달린 블랙 반바지, 화이트 니삭스, 블랙 레이스업 부츠, 귀에 작은 참 귀걸이.
+
+**프레임** (기존 `tdnlamuron-frame.webp` + 하루고멤 멤버 레퍼런스 이미지 첨부):
+```
+Using the first attached image (this player's existing card frame) ONLY as
+a silhouette/structure reference — same ornate shield-shaped outer
+silhouette, same scalloped border curve, same laurel-wreath crest position
+at the top center, same inner content window position — and using the
+second attached image (a "하루고멤" mouse-kemonomimi gothic character) as a
+theme reference for materials and ornamentation only: keep the frame's
+existing warm apricot-orange volcanic-rock base and glowing ember cracks,
+but reimagine the corner ornaments as a pair of small round grey mouse-ear
+silhouettes trimmed in silver, a fine silver chain-and-cross charm draped
+along the top crest, thin monochrome gothic piping tracing the scalloped
+edge — silver-grey gothic ornamentation glowing warm from the embers
+beneath it, like moonlight over lava rock. No player, no text, no stats.
+Entire canvas outside the frame's own linework (including the inner
+content window) must be fully transparent. PNG with alpha channel,
+1060x1484.
+```
+
+**배경**:
+```
+Abstract premium trading-card background art, portrait orientation. Dim
+volcanic cavern with glowing apricot-orange ember cracks in the rock, cool
+silver-grey moonlight cutting across the scene, faint drifting motes that
+read like both floating embers and dust in equal measure, a couple of soft
+round mouse-ear-shaped rock silhouettes in the distant background. No
+characters, no people, no border/frame, no text. High detail, moody
+gothic-meets-molten mood, 4K, PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `tdnlamuron-character.webp` + 하루고멤 멤버 레퍼런스 이미지 첨부):
+```
+Using the first attached image ONLY as an identity/likeness reference (same
+player's face and build) and the second attached image (a "하루고멤"
+mouse-kemonomimi gothic character) as a costume/prop/pose reference —
+redraw the player wearing that concept's outfit: a monochrome gothic
+sailor-style outfit with short cape sleeves, a black necktie with a
+cross-shaped brooch and a fine draped chain, black shorts with suspenders,
+white knee-high socks, black lace-up boots, and a pair of large round grey
+mouse ears on top of the head. Composed, slightly aloof deadpan
+expression. Semi-realistic premium trading-card 3D render style consistent
+with the base card set (not chibi, not flat 2D). Viewed from a slight low
+front 3/4 angle, visible head to mid-thigh. Warm ember rim lighting mixed
+with cool silver-grey undertones. No frame, no text, no background — fully
+transparent PNG with alpha channel, 1060x1484, leave open space above the
+head and below the waist for name/stat overlays.
+```
+
+---
+
+### 하치 × 일본 유학생 RP 멤버 — `hachi97`
+
+**멤버 컨셉/RP**: 일본에서 유학 온 고등학생 유학생 컨셉. 긴 검은 생머리(반묶음, 흰색 리본), 차분한 미소. 라벤더 톤 교복 원피스(하얀 세일러 칼라 + 브라운 리본 타이, 퍼프 소매, 무릎 아래 A라인 스커트, 브라운 라인 밑단), 그레이 타이츠, 브라운 로퍼, 금장 버클이 달린 블랙 가죽 사첼(서류가방형 책가방)을 들고 있음.
+
+**주의**: 하치는 보너스 리메이크 규칙상 팔레트가 **금색(골드/앰버) + 자수정(바이올렛) 용의 기운으로 고정**됨(위 "보너스: 하치" 섹션 참고, `totyCardTheme.ts`의 `hachi97` 항목과 일치). 하루고멤 유학생 컨셉의 라벤더/브라운/블랙 색감은 그 골드+자수정 팔레트 위에 얹는 디테일(리본·가방·타이 색 정도)로만 반영하고, 프레임·배경의 메인 컬러는 반드시 골드-자수정을 유지할 것 — 라벤더로 전체 톤이 바뀌면 다시 생성.
+
+**프레임** (기존 `hachi97-frame.webp` + 하루고멤 멤버 레퍼런스 이미지 첨부, 골드+자수정 팔레트 유지):
+```
+Using a warm golden-amber palette with soft amethyst-violet accents (this
+card's fixed dragon-fire palette — do not substitute a different color
+scheme such as lavender or blue), and using the first attached image (this
+player's existing lavish dragon-themed card frame) ONLY as a
+silhouette/structure and color reference — same ornate shield-shaped outer
+silhouette, same scalloped border curve, same coiling dragon-claw and
+dragon-scale corner ornaments, same overall gold-amber/amethyst palette —
+add a small refined addition inspired by the second attached image (a
+"하루고멤" Japanese-exchange-student-concept character): a delicate
+white-ribbon bow motif woven into the top crest alongside the dragon
+emblem, and a fine gold-buckled black-leather satchel-strap texture traced
+along the lower inner border. Keep the dragon claws, scales, and mystical
+draconic-fire wisps as the dominant motif — the ribbon/satchel details are
+a small accent, not a theme change. No player, no text, no stats. Entire
+canvas outside the frame's own linework (including the inner content
+window) must be fully transparent. PNG with alpha channel, 1060x1484.
+```
+
+**배경** (완성된 하치 프레임 이미지를 색상 참고용으로 함께 첨부):
+```
+Abstract premium trading-card background art, portrait orientation, using
+the exact same warm golden-amber + amethyst-violet color palette as the
+attached frame image — match those colors closely, do not introduce a
+different color scheme such as lavender or blue. A dense, richly detailed
+cracked slab with glowing veins, coiling dragon claws and dragon scales
+bursting from one corner, wisps of mystical dragon-fire swirling through
+the air, a few drifting white ribbon-like light streaks and faint
+gold-buckle glints woven subtly into the sparkle/ember dust. No
+characters, no people, no border/frame, no text. High detail, 4K, PNG,
+1060x1484.
+```
+
+**캐릭터** (기존 `hachi97-character.webp` + 완성된 하치 프레임 이미지(색상 참고) + 하루고멤 멤버 레퍼런스 이미지 첨부):
+```
+Using the first attached image ONLY as an identity/likeness reference (same
+player's face and build), the frame image for its exact warm golden-amber
++ amethyst-violet palette (do not introduce a different color scheme such
+as lavender or blue), and the third attached image (a "하루고멤" Japanese
+exchange-student character) as a costume/prop reference — redraw the
+player wearing that exchange-student concept's outfit re-rendered in the
+card's fixed gold-amber/amethyst palette: a school uniform dress with a
+sailor collar and ribbon-tie bow, puffy long sleeves, a knee-length
+A-line skirt, tights, loafers, carrying a gold-buckled black leather
+satchel bag in one hand, long straight dark hair tied with a ribbon. Keep
+a subtle aura of glowing draconic energy or wisps of mystical fire curling
+around her (she stays fully human — a subtle aura/accessory effect, not a
+literal dragon transformation), matching the lavish, higher-rarity
+treatment of the rest of this card. Calm, composed, gentle smile. Viewed
+from a slight low front 3/4 angle, visible head to mid-thigh. Rich,
+dramatic rim lighting with a touch of sparkle/ember. No frame, no text, no
+background — fully transparent PNG with alpha channel, 1060x1484, leave
+open space above the head and below the waist for name/stat overlays.
+```
+
+---
+
+### 리냐 × 수녀 RP 멤버 — `lina0108`
+
+**멤버 컨셉/RP**: 고딕 수녀 RP. 금장 체인 트림이 들어간 블랙 베일/후드, 화이트 블라우스 위에 블랙 코르셋풍 보디스(붉은 보석 브로치), 목에 겹겹이 두른 크로스 펜던트 목걸이, 허리에 두른 골드 체인 벨트(펜던트 장식), 허벅지에 크로스 참이 달린 가터 스트랩, 화이트 삭스 위로 보이는 블랙 앵클스트랩 메리제인 힐, 곳곳에 세공된 자수정/십자가 자수 장식.
+
+**프레임** (기존 `lina0108-frame.webp` + 하루고멤 멤버 레퍼런스 이미지 첨부):
+```
+Using the first attached image (this player's existing card frame) ONLY as
+a silhouette/structure reference — same ornate shield-shaped outer
+silhouette, same scalloped border curve, same laurel-wreath crest position
+at the top center, same inner content window position — and using the
+second attached image (a "하루고멤" gothic-nun-concept character) as a
+theme reference for materials and ornamentation only: keep the frame's
+existing vivid-pink cherry-blossom base, but reimagine the corner
+ornaments as draped gold chain jewelry with small cross-shaped charms
+threading through drifting sakura petals, a single soft-pink gemstone set
+at the top crest like a rosary centerpiece, fine gothic filigree tracing
+the scalloped edge in place of plain metalwork. Warm gold-pink glow
+against the blossom-pink surface. No player, no text, no stats. Entire
+canvas outside the frame's own linework (including the inner content
+window) must be fully transparent. PNG with alpha channel, 1060x1484.
+```
+
+**배경**:
+```
+Abstract premium trading-card background art, portrait orientation. Soft
+dusk garden in vivid pink and pale blush cherry-blossom tones, drifting
+sakura petals catching a warm gold rim light, faint gothic stained-glass
+archway silhouettes glowing softly in the background, delicate gold-chain
+and cross-charm motifs woven subtly among the falling petals. No
+characters, no people, no border/frame, no text. High detail, romantic
+gothic-meets-sakura mood, 4K, PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `lina0108-character.webp` + 하루고멤 멤버 레퍼런스 이미지 첨부):
+```
+Using the first attached image ONLY as an identity/likeness reference (same
+player's face, hair color, and build) and the second attached image (a
+"하루고멤" gothic-nun-concept character) as a costume/prop/pose reference
+— redraw the player wearing that gothic-nun concept's outfit, recolored to
+tie into her own vivid-pink cherry-blossom palette: a black hooded veil
+trimmed with gold chain, a white blouse under a black corset-style bodice
+with a soft-pink gemstone brooch, layered cross pendant necklaces, a
+draped gold chain belt, cross-charm garter straps over white socks, black
+ankle-strap mary jane heels. Serene, composed expression. Semi-realistic
+premium trading-card 3D render style consistent with the base card set
+(not chibi, not flat 2D). Viewed from a slight low front 3/4 angle,
+visible head to mid-thigh. Warm gold-pink rim lighting. No frame, no
+text, no background — fully transparent PNG with alpha channel,
+1060x1484, leave open space above the head and below the waist for
+name/stat overlays.
+```
+
+---
+
+### 문모모 × 여왕 RP 멤버 — `doormomo`
+
+**멤버 컨셉/RP**: 고딕 여왕 RP. 큼직한 블랙 로즈 헤드피스(보석 장식), 늘어뜨린 체인 귀걸이, 보석 초커, 오프숄더 코르셋 보디스(레이스 러플 트림), 여러 겹의 블랙 튤/레이스 튜튜 스커트, 레이스 언더스커트 사이로 보이는 망사 스타킹, 블랙 레이스업 앵클부츠, 도도하고 기품 있는 표정과 우아한 손짓.
+
+**프레임** (기존 `doormomo-frame.webp` + 하루고멤 멤버 레퍼런스 이미지 첨부):
+```
+Using the first attached image (this player's existing card frame) ONLY as
+a silhouette/structure reference — same ornate shield-shaped outer
+silhouette, same scalloped border curve, same laurel-wreath crest position
+at the top center, same inner content window position — and using the
+second attached image (a "하루고멤" gothic-queen-concept character) as a
+theme reference for materials and ornamentation only: keep the frame's
+existing purple ancient-stonework base with glowing rune engravings, but
+reimagine the corner ornaments as an ornate black rose crown motif with a
+deep-amethyst gem at its center, delicate draped chain-and-gem jewelry
+tracing the scalloped edge like a queen's regalia, rune symbols worked
+subtly into the black rose petals. Rich royal-purple glow against the
+dark stone surface. No player, no text, no stats. Entire canvas outside
+the frame's own linework (including the inner content window) must be
+fully transparent. PNG with alpha channel, 1060x1484.
+```
+
+**배경**:
+```
+Abstract premium trading-card background art, portrait orientation. Vast
+dim ancient stone chamber lined with glowing purple rune engravings, a
+large ornate black rose motif carved into the stonework in one corner with
+a deep-amethyst gem glinting at its center, faint drifting petals of dark
+rose and rune-light sparks, regal purple rim lighting. No characters, no
+people, no border/frame, no text. High detail, majestic gothic-royalty
+mood, 4K, PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `doormomo-character.webp` + 하루고멤 멤버 레퍼런스 이미지 첨부):
+```
+Using the first attached image ONLY as an identity/likeness reference (same
+player's face, hair color, and build) and the second attached image (a
+"하루고멤" gothic-queen-concept character) as a costume/prop/pose
+reference — redraw the player wearing that gothic-queen concept's outfit,
+recolored to tie into her own purple rune/magic-circle palette: a large
+black rose headpiece with a deep-amethyst gem, a draped gem-chain choker
+and earrings, an off-shoulder corset bodice with lace ruffle trim, a
+layered black tulle-and-lace tutu skirt with faint glowing rune patterns
+woven into the lace, sheer fishnet stockings, black lace-up ankle boots.
+Poised, regal, commanding expression, an elegant hand gesture as if
+holding court. Semi-realistic premium trading-card 3D render style
+consistent with the base card set (not chibi, not flat 2D). Viewed from a
+slight low front 3/4 angle, visible head to mid-thigh. Rich royal-purple
+rim lighting. No frame, no text, no background — fully transparent PNG
+with alpha channel, 1060x1484, leave open space above the head and below
+the waist for name/stat overlays.
+```
+
+---
+
+### 쥬멩이 × 남자 아이돌 RP 멤버 — `ju010228`
+
+**멤버 컨셉/RP**: 남자 아이돌(래빗 모티프) RP. 화이트+옐로우 버니이어 후드/모자(안쪽 연두색 안감), 연두색 드롭 귀걸이, 화이트+옐로우 세일러풍 크롭탑(큼직한 실버 리본 보우 + 벨 폼폼 장식), 탠 컬러 벨트에 체인과 크로스 참 장식, 화이트 배기 플레어 팬츠(옐로우 패치 + 연두색 하트 패치 + 옐로우 리본 패치가 덧대어진 디스트레스드 디테일), 옐로우-화이트-연두 스트라이프 플랫폼 스니커즈.
+
+**프레임** (기존 `ju010228-frame.webp` + 하루고멤 멤버 레퍼런스 이미지 첨부):
+```
+Using the first attached image (this player's existing card frame) ONLY as
+a silhouette/structure reference — same ornate shield-shaped outer
+silhouette, same scalloped border curve, same laurel-wreath crest position
+at the top center, same inner content window position — and using the
+second attached image (a "하루고멤" male-idol bunny-concept character) as
+a theme reference for materials and ornamentation only: keep the frame's
+existing spring-vine-and-sprout base in fresh light green, but reimagine
+the corner ornaments as a pair of soft bunny-ear-shaped vine loops with
+small silver ribbon-bow charms and tiny bell pom-poms dangling among the
+sprouts, a small cross-charm pendant motif worked into the top crest,
+scattered light-green heart-shaped leaf patches along the scalloped edge.
+Bright, cheerful idol-stage golden-white glow against the fresh green
+surface. No player, no text, no stats. Entire canvas outside the frame's
+own linework (including the inner content window) must be fully
+transparent. PNG with alpha channel, 1060x1484.
+```
+
+**배경**:
+```
+Abstract premium trading-card background art, portrait orientation. Soft
+misty spring forest clearing in fresh light green, young vines and sprouts
+climbing at the edges, a pair of gentle bunny-ear-shaped leaf silhouettes
+peeking from the foliage, tiny silver ribbon-bow and bell pom-pom charms
+drifting like confetti, warm golden idol-stage spotlight glow cutting
+through the mist. No characters, no people, no border/frame, no text. High
+detail, bright cheerful mood, 4K, PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `ju010228-character.webp` + 하루고멤 멤버 레퍼런스 이미지 첨부):
+```
+Using the first attached image ONLY as an identity/likeness reference (same
+player's face, hair color, and build) and the second attached image (a
+"하루고멤" male-idol bunny-concept character) as a costume/prop/pose
+reference — redraw the player wearing that bunny-idol concept's outfit: a
+white-and-yellow bunny-ear hood with a light-green lining, light-green
+dangling drop earrings, a white-and-yellow sailor-style crop top with a
+large silver ribbon bow and bell pom-pom charms, a tan belt with a chain
+and small cross charm, white flared distressed pants patched with yellow
+panels, light-green heart patches, and yellow ribbon-bow patches, striped
+yellow-white-green platform sneakers. Playful, confident idol pose, one
+hand raised near a bunny ear like striking a stage pose. Semi-realistic
+premium trading-card 3D render style consistent with the base card set
+(not chibi, not flat 2D). Viewed from a slight low front 3/4 angle,
+visible head to mid-thigh. Bright golden-white idol-stage rim lighting. No
+frame, no text, no background — fully transparent PNG with alpha channel,
+1060x1484, leave open space above the head and below the waist for
+name/stat overlays.
+```
+
+---
+
+### 핑구 × 주작의 딸 RP 멤버 — `sjh4018`
+
+**멤버 컨셉/RP**: 주작(붉은 봉황)의 딸 RP, 화를 잘 내는 성격. 거대한 불타는 듯한 크림슨-오렌지 봉황 깃털 날개, 붉은 머리를 금색 비녀로 틀어 올림, 오프숄더 레드+블랙 한풍(hanfu) 상의(금색 트림), 블랙 가죽 암가드, 금장 디테일이 들어간 블랙 롱스커트(하카마풍), 다크 부츠, 손에 작은 불꽃 이펙트, 날카롭고 화난 표정.
+
+**프레임** (기존 `sjh4018-frame.webp` + 하루고멤 멤버 레퍼런스 이미지 첨부):
+```
+Using the first attached image (this player's existing card frame) ONLY as
+a silhouette/structure reference — same ornate shield-shaped outer
+silhouette, same scalloped border curve, same laurel-wreath crest position
+at the top center, same inner content window position — and using the
+second attached image (a "하루고멤" vermilion-bird/phoenix-concept
+character) as a theme reference for materials and ornamentation only:
+keep the frame's existing sky-blue and soft-lavender cloud base, but
+reimagine the corner ornaments as blazing crimson-orange phoenix feather
+wings bursting from the top-left and bottom-right corners, streaked with
+gold filigree, as if phoenix fire is breaking through the dusk clouds — a
+striking contrast of cool sky-blue cloud texture against hot
+crimson-orange feathered fire. Small gold hairpin-shaped accents worked
+into the top crest. No player, no text, no stats. Entire canvas outside
+the frame's own linework (including the inner content window) must be
+fully transparent. PNG with alpha channel, 1060x1484.
+```
+
+**배경**:
+```
+Abstract premium trading-card background art, portrait orientation. Soft
+dusk sky above distant layered clouds in sky-blue and pale lavender, with
+a dramatic burst of blazing crimson-orange phoenix feathers and fire
+streaking across one side of the frame like a phoenix tearing through the
+clouds, drifting embers and gold sparks mixing with the cool cloud haze.
+No characters, no people, no border/frame, no text. High detail, dramatic
+fire-meets-sky mood, 4K, PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `sjh4018-character.webp` + 하루고멤 멤버 레퍼런스 이미지 첨부):
+```
+Using the first attached image ONLY as an identity/likeness reference (same
+player's face, hair color, and build) and the second attached image (a
+"하루고멤" vermilion-bird/phoenix-concept character) as a costume/prop/pose
+reference — redraw the player wearing that phoenix concept's outfit: a
+red-and-black off-shoulder hanfu-style top with gold trim, black leather
+arm guards, a black long hakama-style skirt with gold detailing, dark
+boots, hair swept up with a gold hairpin ornament, and a pair of massive
+blazing crimson-orange phoenix feather wings spread open behind her. Sharp,
+fierce, easily-angered expression (never soft or gentle), a small flame
+effect flickering in one hand. Semi-realistic premium trading-card 3D
+render style consistent with the base card set (not chibi, not flat 2D).
+Viewed from a slight low front 3/4 angle, visible head to mid-thigh, wings
+may extend beyond the shoulders. Warm crimson-gold rim lighting mixed with
+cool sky-blue undertones. No frame, no text, no background — fully
+transparent PNG with alpha channel, 1060x1484, leave open space above the
+head and below the waist for name/stat overlays.
+```
+
+---
+
+### 해파린 × 체스왕국 문지기 병사 RP 멤버 — `haepalin`
+
+**멤버 컨셉/RP**: 체스왕국의 문지기 병사 RP. 머리 위에 링 모양 받침대로 지지된 커다란 구체(체스 폰 말을 형상화, 표면에 전기/번개 같은 질감)를 얹고 있음, 크림+골드 트림의 갑옷형 드레스(숄더 판금, 클럽 슈트(♣) 문양 장식), 허리에 파우치가 달린 벨트, 골드 버클 장식의 부츠, 은발/실버-화이트 헤어, 차분하고 무표정에 가까운 얼굴.
+
+**프레임** (기존 `haepalin-frame.webp` + 하루고멤 멤버 레퍼런스 이미지 첨부):
+```
+Using the first attached image (this player's existing card frame) ONLY as
+a silhouette/structure reference — same ornate shield-shaped outer
+silhouette, same scalloped border curve, same laurel-wreath crest position
+at the top center, same inner content window position — and using the
+second attached image (a "하루고멤" chess-kingdom gatekeeper-concept
+character) as a theme reference for materials and ornamentation only:
+keep the frame's existing pale-lavender and deep-violet deep-sea
+bioluminescent base, but reimagine the corner ornaments as ringed armor
+plating like a chess pawn's layered silhouette, with a glowing dark orb
+crackling with faint electric bioluminescent light set at the top crest
+(styled like a jellyfish's glow rather than literal lightning), small
+club-suit (♣) emblem engravings tracing the scalloped edge. Cool violet
+glow against the pale surface. No player, no text, no stats. Entire canvas
+outside the frame's own linework (including the inner content window) must
+be fully transparent. PNG with alpha channel, 1060x1484.
+```
+
+**배경**:
+```
+Abstract premium trading-card background art, portrait orientation. Deep
+dim underwater scene in pale lavender and deep violet, with a large
+glowing dark orb drifting like a jellyfish bell crackling with soft
+bioluminescent electric light, faint club-suit (♣) shaped light patterns
+pulsing along drifting jellyfish tendrils, cool violet rim lighting. No
+characters, no people, no border/frame, no text. High detail, 4K, PNG,
+1060x1484.
+```
+
+**캐릭터** (기존 `haepalin-character.webp` + 하루고멤 멤버 레퍼런스 이미지 첨부):
+```
+Using the first attached image ONLY as an identity/likeness reference (same
+player's face, hair color, and build) and the second attached image (a
+"하루고멤" chess-kingdom gatekeeper-concept character) as a
+costume/prop/pose reference — redraw the player wearing that gatekeeper
+concept's outfit, recolored to tie into her own pale-lavender and
+deep-violet deep-sea palette: a pale lavender-and-silver armored dress
+with shoulder pauldrons, club-suit (♣) emblem engravings on the chest and
+skirt panels, a belt with a small pouch, silver-buckled boots, and a large
+ringed headpiece supporting a dark glowing orb above her head (styled like
+a chess pawn fused with a bioluminescent jellyfish, crackling with soft
+violet electric light). Calm, composed, quietly watchful expression, stiff
+formal guard posture. Semi-realistic premium trading-card 3D render style
+consistent with the base card set (not chibi, not flat 2D). Viewed from a
+slight low front 3/4 angle, visible head to mid-thigh (leave extra headroom
+above for the orb headpiece). Cool violet rim lighting. No frame, no text,
+no background — fully transparent PNG with alpha channel, 1060x1484, leave
+open space above the head and below the waist for name/stat overlays.
+```
+
+---
+
+### 재닌 × 어인 RP 멤버 — `janine95kim`
+
+**멤버 컨셉/RP**: 어인(물고기 수인) RP, 개그 컨셉. 머리에 금붕어와 수초가 들어있는 둥근 유리 어항을 뒤집어쓰고 있음, 볼을 물고기처럼 빵빵하게 부풀린 표정, 네이비 블루 더블브레스티드 재킷(은색 버튼 여러 줄, 한쪽 소매에서 수초가 자라나 있음), 가슴에 작은 빨간 불가사리 브로치, 블랙 슬랙스, 블랙 드레스 슈즈. 장난스럽고 능청스러운 분위기.
+
+**프레임** (기존 `janine95kim-frame.webp` + 하루고멤 멤버 레퍼런스 이미지 첨부):
+```
+Using the first attached image (this player's existing card frame) ONLY as
+a silhouette/structure reference — same ornate shield-shaped outer
+silhouette, same scalloped border curve, same laurel-wreath crest position
+at the top center, same inner content window position — and using the
+second attached image (a "하루고멤" fish-person/fishbowl-concept character)
+as a theme reference for materials and ornamentation only: keep the
+frame's existing icy pale-blue frosted base with aurora-light streaks, but
+reimagine the corner ornaments as a round frosted-glass fishbowl shape with
+tiny frost-blue fish and delicate ice-crystal "seaweed" fronds drifting
+inside, a small red starfish-shaped ice charm set at the top crest. Crisp
+cold aurora glow against the frosted surface. No player, no text, no
+stats. Entire canvas outside the frame's own linework (including the inner
+content window) must be fully transparent. PNG with alpha channel,
+1060x1484.
+```
+
+**배경**:
+```
+Abstract premium trading-card background art, portrait orientation. Icy
+pale-blue frosted stone slab with silvery frost-vein cracks and streaks of
+faint aurora light, a large round frosted-glass fishbowl shape resting in
+soft-focus at one edge with tiny frost-blue fish and ice-crystal seaweed
+fronds inside it, a small red starfish-shaped ice charm glinting nearby.
+No characters, no people, no border/frame, no text. High detail, crisp
+cold and slightly whimsical mood, 4K, PNG, 1060x1484.
+```
+
+**캐릭터** (기존 `janine95kim-character.webp` + 하루고멤 멤버 레퍼런스 이미지 첨부):
+```
+Using the first attached image ONLY as an identity/likeness reference (same
+player's face and build, though here mostly obscured/de-emphasized by the
+fishbowl headpiece) and the second attached image (a "하루고멤"
+fish-person/fishbowl-concept character) as a costume/prop/pose reference —
+redraw the player wearing that fish-person concept: a round frosted glass
+fishbowl worn over the head like a helmet, with a couple of small
+frost-blue fish and ice-crystal seaweed fronds drifting inside it, cheeks
+comically puffed out like a fish visible through the glass, a navy-blue
+double-breasted jacket with rows of silver buttons and icy frost-crystal
+"seaweed" sprouting from one sleeve, a small red starfish-shaped ice charm
+on the chest, black slacks, black dress shoes. Playful, silly,
+deadpan-comedic mood — keep it lighthearted and a little absurd, not
+serious or dramatic. Semi-realistic premium trading-card 3D render style
+consistent with the base card set (not chibi, not flat 2D). Viewed from a
+slight low front 3/4 angle, visible head to mid-thigh (leave extra headroom
+for the fishbowl). Crisp bright cold rim lighting. No frame, no text, no
+background — fully transparent PNG with alpha channel, 1060x1484, leave
+open space above the head and below the waist for name/stat overlays.
+```
+
+---
+
+### 우왁굳 × 멀티버스 여행자 RP 멤버 — `woowakgood`
+
+**멤버 컨셉/RP**: 멀티버스를 넘나드는 컨셉. 그레이 정장에 안경, 넥타이 차림, 특징적으로 갈라진(클레프트) 턱, 드레스 슈즈 밑창에 인라인스케이트 바퀴가 달려 있음, 허공에 뜬 보라색 홀로그램 레이저 키보드/화면을 손가락으로 조작하며 기록을 남기는 포즈.
+
+**주의**: 우왁굳은 보너스 리메이크 규칙상 팔레트가 **비비드 페리도트 그린 메인 + 청록-보라-적(티일-바이올렛-크림슨) 레이싱 스트라이프 악센트로 고정**됨(위 "보너스: 우왁굳" 섹션 참고, `totyCardTheme.ts`의 `woowakgood` 항목과 일치). 마침 이 멀티버스 멤버의 보라색 홀로그램 키보드가 기존 바이올렛 악센트와 색이 겹치므로 잘 녹여 넣을 것 — 단, **실제 BMW 로고(키드니 그릴, 프로펠러 라운델)나 "BMW" 워드마크는 절대 그리지 말 것** (기존 우왁굳 프롬프트와 동일한 상표 금지 규칙 적용).
+
+**프레임** (기존 `woowakgood-frame.webp` + 하루고멤 멤버 레퍼런스 이미지 첨부, 페리도트+레이싱스트라이프 팔레트 유지):
+```
+Using a vivid peridot-green primary palette with teal-violet-crimson
+racing-stripe accents (this card's fixed motorsport palette — do not
+substitute a different color scheme), and using the first attached image
+(this player's existing lavish motorsport-themed card frame) ONLY as a
+silhouette/structure and color reference — same brushed-chrome and
+matte-black carbon-fiber frame, same speed-line streaks and racing-stripe
+accents — add a small refined addition inspired by the second attached
+image (a "하루고멤" multiverse-traveler-concept character): thin glowing
+violet holographic keyboard/interface panel motifs woven into the speed-line
+bursts at the corners, and faint circular light-trail streaks like
+inline-skate wheel tracks curving along the scalloped edge. Keep the
+brushed-chrome, carbon-fiber, and racing-stripe elements as the dominant
+motif — the hologram/wheel-trail details are a small accent, not a theme
+change. No real car logos, badges, roundels, or wordmarks of any kind. No
+player, no text, no stats. Entire canvas outside the frame's own linework
+(including the inner content window) must be fully transparent. PNG with
+alpha channel, 1060x1484.
+```
+
+**배경** (완성된 우왁굳 프레임 이미지를 색상 참고용으로 함께 첨부):
+```
+Abstract premium trading-card background art, portrait orientation, using
+the exact same vivid peridot-green primary palette as the attached frame
+image (with subtle teal-violet-crimson racing-stripe accents) — match
+those colors closely. A dense brushed-chrome and carbon-fiber slab with
+glowing green speed-line veins, motorsport-inspired chrome shards and
+racing-stripe light streaks bursting from one corner, thin glowing violet
+holographic keyboard/interface panels floating faintly in the air, soft
+circular light-trail streaks like inline-skate wheel tracks curving
+through the scene. No real car logos, badges, or brand marks of any kind.
+No characters, no people, no border/frame, no text. High detail, 4K, PNG,
+1060x1484.
+```
+
+**캐릭터** (기존 `woowakgood-character.webp` + 완성된 우왁굳 프레임 이미지(색상 참고) + 하루고멤 멤버 레퍼런스 이미지 첨부):
+```
+Using the first attached image ONLY as an identity/likeness reference (same
+person, same overall art style), the frame image for its exact vivid
+peridot-green + teal-violet-crimson racing-stripe palette (do not
+introduce a different color scheme), and the third attached image (a
+"하루고멤" multiverse-traveler character) as a costume/prop/pose
+reference — keep him dressed as the elite club manager/director (sharply
+tailored grey blazer, crisp dress shirt, slim racing-stripe silk tie in
+the teal-violet-crimson accent colors, peridot-green pocket square,
+glasses, a distinctly cleft chin) but add inline-skate wheels fitted to
+the soles of his dress shoes, and have him mid-gesture typing on a
+floating glowing violet holographic keyboard/interface panel hovering in
+the air in front of him — as if recording notes while traveling between
+realities. Confident, composed, slightly eccentric "manager who also
+happens to be a multiversal traveler" energy. A faint aura of glowing
+peridot-green energy with streaks of the racing-stripe accent colors
+curling around him. No real car logos, badges, or brand marks of any kind
+anywhere on the outfit. Viewed from a slight low front 3/4 angle, visible
+head to mid-thigh. Rich, dramatic rim lighting matching the lavish,
+higher-rarity treatment of the rest of this card. No frame, no text, no
+background — fully transparent PNG with alpha channel, 1060x1484, leave
+open space above the head and below the waist for name/stat overlays.
+```
+
+---
+
 ## 선수별 세트 (10개)
 
 순서·컬러·모티프 확정본:

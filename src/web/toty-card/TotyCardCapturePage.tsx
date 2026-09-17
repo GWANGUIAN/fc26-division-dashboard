@@ -10,7 +10,7 @@ import "./toty-card.css";
 
 /**
  * Bare, transparent, chrome-free rendering of one player's card — reached
- * via ?totyCapture=<id>[&name=...&pos=...&div=...&variant=lowq|retro] (see
+ * via ?totyCapture=<id>[&name=...&pos=...&div=...&variant=lowq|retro|harugomem] (see
  * main.tsx). Exists only for scripts/generate-toty-preview.mjs: it opens
  * this URL in headless Chromium, drives the card with synthetic mouse
  * moves, and screenshots each frame with a transparent background to build
@@ -25,7 +25,13 @@ export function TotyCardCapturePage() {
   const id = params.get("totyCapture") ?? "";
   const variantParam = params.get("variant");
   const variant: TotyCardVariant =
-    variantParam === "retro" ? "retro" : variantParam === "lowq" || params.get("lowq") === "1" ? "lowq" : "normal";
+    variantParam === "retro"
+      ? "retro"
+      : variantParam === "harugomem"
+        ? "harugomem"
+        : variantParam === "lowq" || params.get("lowq") === "1"
+          ? "lowq"
+          : "normal";
   const assets = getTotyCardAssetsForVariant(id, variant);
 
   // The app paints its ambient background via body::before/::after (fixed,

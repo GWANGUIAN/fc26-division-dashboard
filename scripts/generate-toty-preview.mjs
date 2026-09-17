@@ -16,13 +16,14 @@
  * Requires the Vite dev server already running (`pnpm dev`) and Playwright's
  * Chromium installed (`npx playwright install chromium` once).
  *
- * Run with: pnpm generate:toty-preview -- <streamerId> [port] [--lowq|--retro]
+ * Run with: pnpm generate:toty-preview -- <streamerId> [port] [--lowq|--retro|--harugomem]
  * Example:  pnpm generate:toty-preview -- hachi97
  *
- * --lowq/--retro capture an easter-egg trio (<id>-lowq-*.webp /
- * <id>-retro-*.webp — see docs/toty-card-prompts.md) instead of the real
- * card, writing <id>-lowq-preview.gif / <id>-retro-preview.gif. Neither
- * variant has hover art or a glow overlay (TotyCardCapturePage leaves both
+ * --lowq/--retro/--harugomem capture an easter-egg trio (<id>-lowq-*.webp /
+ * <id>-retro-*.webp / <id>-harugomem-*.webp — see docs/toty-card-prompts.md)
+ * instead of the real card, writing <id>-lowq-preview.gif /
+ * <id>-retro-preview.gif / <id>-harugomem-preview.gif. None of these
+ * variants has hover art or a glow overlay (TotyCardCapturePage leaves both
  * off for any non-"normal" ?variant=), so there's no separate
  * "-preview-base.gif" the way the real card has one.
  */
@@ -61,13 +62,21 @@ const NON_ROSTER_STREAMERS = {
 
 async function main() {
   const rawArgs = process.argv.slice(2);
-  const variant = rawArgs.includes("--retro") ? "retro" : rawArgs.includes("--lowq") ? "lowq" : "normal";
+  const variant = rawArgs.includes("--retro")
+    ? "retro"
+    : rawArgs.includes("--harugomem")
+      ? "harugomem"
+      : rawArgs.includes("--lowq")
+        ? "lowq"
+        : "normal";
   // Some shells/package-manager invocations of `pnpm run x -- ...` leak a
   // literal "--" through into argv instead of pnpm swallowing it — strip it
   // defensively alongside the flags above so it never gets misread as the id.
-  const [id, port = "5184"] = rawArgs.filter((arg) => arg !== "--" && arg !== "--lowq" && arg !== "--retro");
+  const [id, port = "5184"] = rawArgs.filter(
+    (arg) => arg !== "--" && arg !== "--lowq" && arg !== "--retro" && arg !== "--harugomem",
+  );
   if (!id) {
-    console.error("Usage: pnpm generate:toty-preview -- <streamerId> [port] [--lowq|--retro]");
+    console.error("Usage: pnpm generate:toty-preview -- <streamerId> [port] [--lowq|--retro|--harugomem]");
     process.exit(1);
   }
 

@@ -3,7 +3,7 @@
 // localStorage so the sequence survives across popup opens/sessions. The
 // first-ever roll for a streamer is a random pick among whichever variants
 // they actually have art for; every roll after that advances to the next
-// available variant in the fixed 기본→저퀄리티→고전도트 cycle order
+// available variant in the fixed 기본→저퀄리티→고전도트→하루고멤 cycle order
 // (wrapping around), so consecutive opens never repeat and step through the
 // whole set in order. Tracked independently per streamer id. The viewer can
 // still freely switch variants by hand afterward via the select shown above
@@ -14,7 +14,7 @@ import type { TotyCardVariant } from "./totyCardAssets.js";
 
 const STORAGE_KEY = "toty-card-variant-last";
 
-const VARIANT_ORDER: TotyCardVariant[] = ["normal", "lowq", "retro"];
+const VARIANT_ORDER: TotyCardVariant[] = ["normal", "lowq", "retro", "harugomem"];
 
 function loadLastVariants(): Record<string, TotyCardVariant> {
   try {

@@ -18,6 +18,7 @@ import {
   getBackgroundGlowUrl,
   getCardBackUrl,
   getCharacterHoverUrl,
+  getHarugomemTotyCardPreviewUrl,
   getLowQualityTotyCardPreviewUrl,
   getPopupBackdropGlowUrl,
   getPopupBackdropUrl,
@@ -36,6 +37,7 @@ const VARIANT_LABELS: Record<TotyCardVariant, string> = {
   normal: "기본",
   lowq: "조카의 스케치북",
   retro: "90년대 고전 도트",
+  harugomem: "하루고멤",
 };
 
 // Dispatches to whichever easter-egg sfx filter (see totyCardEasterEggSfx.ts)
@@ -81,7 +83,9 @@ function playRevealWhooshSfx(volume: number, variant: TotyCardVariant): HTMLAudi
 // (not src/web/assets/toty-cards/, so it isn't glob-scanned by
 // totyCardAssets.ts) — a missing file just 404s and playRevealSfx-style
 // silently no-ops, same as the shared reveal stinger above, so a player
-// without one yet simply gets no sound instead of a fallback.
+// without one yet simply gets no sound instead of a fallback. Same file
+// regardless of variant — see handleCardClick below for the "하루고멤"
+// variant's own dedicated click sfx.
 function playPopupOpenSfx(streamerId: string, volume: number, variant: TotyCardVariant): HTMLAudioElement {
   const audio = new Audio(`/sfxes/${streamerId}-popup-open.mp3`);
   audio.volume = volume;
@@ -134,11 +138,11 @@ export function TotyCardPopup({
   useEscape(onClose);
   useBodyScrollLock();
 
-  // Easter eggs: shows a crayon-on-sketchbook or 16-bit-arcade-sprite
-  // version of the card instead of the real one (see
+  // Easter eggs: shows a crayon-on-sketchbook, 16-bit-arcade-sprite, or
+  // 하루고멤 collab version of the card instead of the real one (see
   // docs/toty-card-prompts.md) — only possible once that streamer's
-  // <id>-lowq-*/<id>-retro-* trio has actually been added, so this stays
-  // "normal" for everyone else. Per streamer (see totyCardVariantRoll.ts):
+  // <id>-lowq-*/<id>-retro-*/<id>-harugomem-* trio has actually been added,
+  // so this stays "normal" for everyone else. Per streamer (see totyCardVariantRoll.ts):
   // the first-ever open is a random pick among whichever variants exist,
   // every open after that steps to the next one in a fixed cycle. Rolled
   // once per popup open via a ref guarded against React StrictMode's
@@ -198,9 +202,16 @@ export function TotyCardPopup({
     setBackdropShake(true);
   };
 
+  // On the "하루고멤" variant specifically, swaps to that player's own
+  // `<id>-harugomem.mp3` (the matched 하루고멤 member's own click sfx)
+  // instead of the real card's streamer.sfx — same "missing file just
+  // 404s/no-ops" fallback as playPopupOpenSfx/playRevealSfx above, for any
+  // player not matched with a member yet.
   const handleCardClick = () => {
-    if (sfxEnabled && streamer.sfx) {
-      playSfx(streamer.sfx, sfxVolume / 100, (audio) => applyVariantSfxFilter(audio, variant));
+    if (!sfxEnabled) return;
+    const clickSfxUrl = variant === "harugomem" ? `/sfxes/${streamer.id}-harugomem.mp3` : streamer.sfx;
+    if (clickSfxUrl) {
+      playSfx(clickSfxUrl, sfxVolume / 100, (audio) => applyVariantSfxFilter(audio, variant));
     }
   };
 
@@ -253,7 +264,9 @@ export function TotyCardPopup({
       ? getLowQualityTotyCardPreviewUrl(streamer.id)
       : variant === "retro"
         ? getRetroTotyCardPreviewUrl(streamer.id)
-        : getTotyCardPreviewUrl(streamer.id);
+        : variant === "harugomem"
+          ? getHarugomemTotyCardPreviewUrl(streamer.id)
+          : getTotyCardPreviewUrl(streamer.id);
 
   return (
     <div
