@@ -27,7 +27,7 @@ export const ANNOUNCEMENTS: Announcement[] = [
     date: "2026.09.17",
     body: (
       <>
-        <strong>3D 카드</strong>에 숨겨진 테마 2가지가 새로 추가되었습니다.
+        <strong>3D 카드</strong>에 새로운 테마 2가지가 추가되었습니다.
         카드를 공개한 뒤 위쪽에 뜨는 선택 창에서 어떤 테마인지 직접
         확인해보세요.
       </>
