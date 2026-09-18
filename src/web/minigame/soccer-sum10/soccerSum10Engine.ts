@@ -27,35 +27,76 @@ function key(row: number, column: number) {
   return `${row}-${column}`;
 }
 
-function horizontal(row: number, startColumn: number, length: number) {
-  return Array.from({ length }, (_, offset) => [row, startColumn + offset] as const);
-}
+type Coordinate = readonly [number, number];
 
-/** Every 17-cell row is partitioned into five triples and one pair.  Each group sums to ten,
- * so all 170 balls are present while every fresh board still has a full-clear solution. */
-const GROUP_COORDINATES = Array.from({ length: GRID_ROWS }, (_, row) => [
-  horizontal(row, 0, 3),
-  horizontal(row, 3, 3),
-  horizontal(row, 6, 3),
-  horizontal(row, 9, 3),
-  horizontal(row, 12, 3),
-  horizontal(row, 15, 2),
-]).flat();
+/**
+ * Builds a fresh tiling for each round instead of giving every row the same horizontal 3+3+…
+ * answer.  Squares are deliberately favored, then vertical bars, so scanning horizontally no
+ * longer reveals the solution; the backtracker still leaves a mathematically valid full-clear
+ * route in every board.
+ */
+function createGroupCoordinates(rng: () => number): Coordinate[][] {
+  const occupied = Array.from({ length: GRID_ROWS }, () => Array(GRID_COLUMNS).fill(false));
+  const groups: Coordinate[][] = [];
 
-function randomPair(rng: () => number): number[] {
-  const first = 1 + Math.floor(rng() * 9);
-  return rng() < 0.5 ? [first, 10 - first] : [10 - first, first];
-}
+  const candidatesAt = (row: number, column: number) => {
+    const candidates: { cells: Coordinate[]; bias: number }[] = [];
+    const canPlace = (height: number, width: number) =>
+      row + height <= GRID_ROWS &&
+      column + width <= GRID_COLUMNS &&
+      Array.from({ length: height }, (_, r) =>
+        Array.from({ length: width }, (_, c) => !occupied[row + r][column + c]).every(Boolean),
+      ).every(Boolean);
+    const rectangle = (height: number, width: number) =>
+      Array.from({ length: height }, (_, r) =>
+        Array.from({ length: width }, (_, c) => [row + r, column + c] as Coordinate),
+      ).flat();
 
-function randomTriple(rng: () => number): number[] {
-  const triples: number[][] = [];
-  for (let first = 1; first <= 8; first += 1) {
-    for (let second = 1; second <= 9 - first; second += 1) {
-      const third = 10 - first - second;
-      if (third >= 1 && third <= 9) triples.push([first, second, third]);
+    if (canPlace(2, 2)) candidates.push({ cells: rectangle(2, 2), bias: -0.75 });
+    if (canPlace(3, 1)) candidates.push({ cells: rectangle(3, 1), bias: -0.35 });
+    if (canPlace(2, 1)) candidates.push({ cells: rectangle(2, 1), bias: -0.15 });
+    if (canPlace(1, 3)) candidates.push({ cells: rectangle(1, 3), bias: 0.18 });
+    if (canPlace(1, 2)) candidates.push({ cells: rectangle(1, 2), bias: 0.28 });
+    return candidates.sort((a, b) => a.bias + rng() - (b.bias + rng()));
+  };
+
+  const fill = (): boolean => {
+    let start: Coordinate | null = null;
+    for (let row = 0; row < GRID_ROWS && !start; row += 1) {
+      for (let column = 0; column < GRID_COLUMNS; column += 1) {
+        if (!occupied[row][column]) {
+          start = [row, column];
+          break;
+        }
+      }
     }
+    if (!start) return true;
+    const [row, column] = start;
+    for (const candidate of candidatesAt(row, column)) {
+      candidate.cells.forEach(([r, c]) => { occupied[r][c] = true; });
+      groups.push(candidate.cells);
+      if (fill()) return true;
+      groups.pop();
+      candidate.cells.forEach(([r, c]) => { occupied[r][c] = false; });
+    }
+    return false;
+  };
+
+  if (!fill()) throw new Error("Could not tile soccer-sum10 board");
+  return groups;
+}
+
+function randomValues(groupSize: number, rng: () => number): number[] {
+  const values: number[] = [];
+  let remaining = 10;
+  for (let index = 0; index < groupSize - 1; index += 1) {
+    const slotsAfter = groupSize - index - 1;
+    const max = Math.min(9, remaining - slotsAfter);
+    const next = 1 + Math.floor(rng() * max);
+    values.push(next);
+    remaining -= next;
   }
-  const values = [...triples[Math.floor(rng() * triples.length)]];
+  values.push(remaining);
   for (let index = values.length - 1; index > 0; index -= 1) {
     const swap = Math.floor(rng() * (index + 1));
     [values[index], values[swap]] = [values[swap], values[index]];
@@ -106,8 +147,8 @@ export function createSoccerSum10Board(rng: () => number = Math.random): SoccerS
   const solutionGroups: string[][] = [];
   const used = new Set<string>();
 
-  GROUP_COORDINATES.forEach((coordinates) => {
-    const values = coordinates.length === 2 ? randomPair(rng) : randomTriple(rng);
+  createGroupCoordinates(rng).forEach((coordinates) => {
+    const values = randomValues(coordinates.length, rng);
     const group: string[] = [];
     coordinates.forEach(([row, column], index) => {
       const id = key(row, column);
