@@ -1786,7 +1786,7 @@ name/stat overlays.
 
 ### 빙밍 × 교포 컨셉 멤버 — `tleod1818`
 
-**멤버 컨셉/RP**: 교포(해외 교포) 느낌 캐릭터. 금발에 뿌리 쪽 블랙 브릿지가 보이는 하이 포니테일(반묶음), 손가락에 골드 링 여러 개를 낀 채 피스사인 포즈, 영문 그래픽("Thinking of you") 프린트가 들어간 핑크 크롭 티셔츠, 오버사이즈 핑크 카고 배기팬츠, 허리에 걸쳐 맨 핑크 미니 백팩, 화이트 슬라이드 샌들, 발목에 비즈 장식(앵클릿).
+**멤버 컨셉/RP**: 교포(해외 교포) 느낌 캐릭터. 금발에 뿌리 쪽 블랙 브릿지가 보이는 하이 포니테일(반묶음), 태닝된 피부, 손가락에 골드 링 여러 개를 낀 채 피스사인 포즈, 영문 그래픽("Thinking of you") 프린트가 들어간 핑크 크롭 티셔츠, 오버사이즈 핑크 카고 배기팬츠, 허리에 걸쳐 맨 핑크 미니 백팩, 화이트 슬라이드 샌들, 발목에 비즈 장식(앵클릿).
 
 **프레임** (기존 `tleod1818-frame.webp` + 하루고멤 멤버 레퍼런스 이미지 첨부):
 ```
@@ -1825,9 +1825,18 @@ streetwear-concept character) as a costume/prop/pose reference — redraw
 the player wearing that concept's outfit: a pink graphic crop t-shirt
 printed with "Thinking of you", oversized pink cargo baggy pants, a small
 pink mini backpack slung low across the hip, white slide sandals, a beaded
-anklet, several gold rings on the fingers. Hair styled as a half-up high
-ponytail with visible dark roots against blonde lengths. Playful confident
-pose, both hands up near the face making peace signs. Semi-realistic
+anklet, several gold rings on the fingers. Give the character a sun-tanned,
+golden-bronze skin tone (noticeably tanned, not pale) to match the
+Korean-American "gyopo" streetwear concept. Hair styled as a half-up high
+ponytail matching the silhouette of the reference, keeping the player's own
+original dark hair color from the first attached image as the base tone —
+do NOT switch the base color to the blonde shown in the second reference
+image — but since the player's base hair is dark, add a visible light
+blonde/ash-blonde bridge streak near the roots (bright enough to contrast
+clearly against the dark base), the same bridge/root-streak concept as the
+reference but with the light/dark relationship flipped to stay visible.
+Playful confident pose, both hands up near the face making peace signs.
+Semi-realistic
 premium trading-card 3D render style consistent with the base card set
 (not chibi, not flat 2D). Viewed from a slight low front 3/4 angle, visible
 head to mid-thigh. Cool navy undertones with hot neon-pink rim lighting.
