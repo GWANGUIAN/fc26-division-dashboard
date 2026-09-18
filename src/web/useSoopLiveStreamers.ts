@@ -15,6 +15,25 @@ const IDLE_THRESHOLD_MS = 5 * 60_000;
 const ACTIVITY_EVENTS = ["mousemove", "mousedown", "keydown", "touchstart", "scroll", "wheel"] as const;
 export const SOOP_LIVE_ENABLED = import.meta.env.VITE_ENABLE_SOOP_LIVE === "true";
 
+/**
+ * 잔디동 지원자는 아니지만 방송 중이면 LIVE 레일에 함께 보여줄 게스트.
+ * roster.yaml에 넣으면 SOOP 자동 업데이트/CollaBot sync에 잘못 편입되므로
+ * 여기서만 하드코딩한다.
+ */
+const GUEST_LIVE_STREAMERS: StreamerRecord[] = [
+  {
+    id: "custom-wakgood",
+    displayName: "우왁굳",
+    cafeAliases: [],
+    soopId: "ecvhao",
+    profileImageUrl: "/profiles/profile_wakgood.webp",
+    autoUpdate: false,
+    overridePolicy: "auto",
+    currentDivision: 1,
+    isMapped: true,
+  },
+];
+
 export interface SoopLiveState {
   enabled: boolean;
   loaded: boolean;
@@ -134,7 +153,10 @@ export function useSoopLiveStreamers(streamers: StreamerRecord[]): SoopLiveState
   // caused a one-render flash of the empty state between "raw feed just
   // arrived" and "matched against the roster" for every fetch.
   const entries = useMemo(
-    () => (rawStreamers ? reorder(orderRef, matchLiveStreamers(streamers, rawStreamers)) : []),
+    () =>
+      rawStreamers
+        ? reorder(orderRef, matchLiveStreamers([...streamers, ...GUEST_LIVE_STREAMERS], rawStreamers))
+        : [],
     [streamers, rawStreamers],
   );
 
