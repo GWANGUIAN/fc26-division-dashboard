@@ -16,7 +16,7 @@
  * Requires the Vite dev server already running (`pnpm dev`) and Playwright's
  * Chromium installed (`npx playwright install chromium` once).
  *
- * Run with: pnpm generate:toty-preview -- <streamerId> [port] [--lowq|--retro|--harugomem]
+ * Run with: pnpm generate:toty-preview -- <streamerId> [port] [--lowq|--retro|--harugomem|--base]
  * Example:  pnpm generate:toty-preview -- hachi97
  *
  * --lowq/--retro/--harugomem capture an easter-egg trio (<id>-lowq-*.webp /
@@ -26,6 +26,16 @@
  * variants has hover art or a glow overlay (TotyCardCapturePage leaves both
  * off for any non-"normal" ?variant=), so there's no separate
  * "-preview-base.gif" the way the real card has one.
+ *
+ * --base is normal-variant only (rejects combining with the easter-egg
+ * flags above): instead of sweeping the mouse over the card to capture the
+ * active/hovered look (tilt + parallax + the character-hover crossfade),
+ * it parks the mouse away from the card so it stays in its resting state
+ * (.toty-card--active never applies) and just lets the idle
+ * drift/float/twinkle CSS animations (toty-card.css's .toty-card__idle-bg/
+ * __idle-char/__idle-glow) run, writing <id>-preview-base.gif — the "기본"
+ * option TotyCardDownloadMenu offers next to the hover one whenever a
+ * player has a character-hover.webp.
  */
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
@@ -48,6 +58,15 @@ const FRAME_COUNT = 20;
 const FRAME_DELAY_MS = 125; // 20 * 125ms = 2.5s loop
 const STEP_SETTLE_MS = 45; // lets the .toty-card--active transition finish before each screenshot
 
+// --base only: samples the resting-state idle animations instead of driving
+// a hover sweep. 30 * 300ms = 9s, matching toty-card.css's slowest idle
+// animation (.toty-card__idle-bg's 9s toty-idle-drift) so the background
+// layer loops seamlessly; the 6.5s/5s character/glow idle cycles are out of
+// phase with a 9s window and so won't line up perfectly at the loop point,
+// but they're subtle enough that the seam doesn't read as a jump cut.
+const BASE_FRAME_COUNT = 30;
+const BASE_FRAME_DELAY_MS = 300;
+
 // snapshotFixture.json IS the live roster data the deployed app currently
 // serves (see src/web/api.ts) — never add a non-applicant "guest" card's id
 // to it just to satisfy this script, that would make them show up as a real
@@ -69,14 +88,19 @@ async function main() {
       : rawArgs.includes("--lowq")
         ? "lowq"
         : "normal";
+  const captureBase = rawArgs.includes("--base");
+  if (captureBase && variant !== "normal") {
+    console.error("--base only applies to the normal (default) card — drop --lowq/--retro/--harugomem.");
+    process.exit(1);
+  }
   // Some shells/package-manager invocations of `pnpm run x -- ...` leak a
   // literal "--" through into argv instead of pnpm swallowing it — strip it
   // defensively alongside the flags above so it never gets misread as the id.
   const [id, port = "5184"] = rawArgs.filter(
-    (arg) => arg !== "--" && arg !== "--lowq" && arg !== "--retro" && arg !== "--harugomem",
+    (arg) => arg !== "--" && arg !== "--lowq" && arg !== "--retro" && arg !== "--harugomem" && arg !== "--base",
   );
   if (!id) {
-    console.error("Usage: pnpm generate:toty-preview -- <streamerId> [port] [--lowq|--retro|--harugomem]");
+    console.error("Usage: pnpm generate:toty-preview -- <streamerId> [port] [--lowq|--retro|--harugomem|--base]");
     process.exit(1);
   }
 
@@ -108,7 +132,9 @@ async function main() {
   url.searchParams.set("div", String(streamer.currentDivision ?? 1));
   if (variant !== "normal") url.searchParams.set("variant", variant);
 
-  console.log(`Capturing ${streamer.displayName} (${id})${variant !== "normal" ? ` [${variant}]` : ""} from ${url}`);
+  console.log(
+    `Capturing ${streamer.displayName} (${id})${variant !== "normal" ? ` [${variant}]` : ""}${captureBase ? " [base/idle]" : ""} from ${url}`,
+  );
   const browser = await chromium.launch();
   try {
     const page = await browser.newPage({ viewport: VIEWPORT });
@@ -121,17 +147,28 @@ async function main() {
     const cy = box.y + box.height / 2;
 
     const frames = [];
-    for (let i = 0; i < FRAME_COUNT; i++) {
-      // A slow figure-eight sweep — periodic in i, so the loop has no jump
-      // cut, and it stays inboard of the card's own edges so every frame
-      // reads as "someone hovering and gently moving the mouse over it".
-      const t = (i / FRAME_COUNT) * Math.PI * 2;
-      const x = cx + Math.sin(t) * box.width * 0.32;
-      const y = cy + Math.sin(t * 2) * box.height * 0.24;
-      await page.mouse.move(x, y, { steps: 4 });
-      await page.waitForTimeout(STEP_SETTLE_MS);
-      frames.push(await page.screenshot({ omitBackground: true }));
-      process.stdout.write(".");
+    if (captureBase) {
+      // Never move the mouse onto the card, so .toty-card--active never
+      // applies and the idle drift/float/twinkle animations (which pause
+      // while active — see toty-card.css) keep running the whole capture.
+      for (let i = 0; i < BASE_FRAME_COUNT; i++) {
+        await page.waitForTimeout(BASE_FRAME_DELAY_MS);
+        frames.push(await page.screenshot({ omitBackground: true }));
+        process.stdout.write(".");
+      }
+    } else {
+      for (let i = 0; i < FRAME_COUNT; i++) {
+        // A slow figure-eight sweep — periodic in i, so the loop has no jump
+        // cut, and it stays inboard of the card's own edges so every frame
+        // reads as "someone hovering and gently moving the mouse over it".
+        const t = (i / FRAME_COUNT) * Math.PI * 2;
+        const x = cx + Math.sin(t) * box.width * 0.32;
+        const y = cy + Math.sin(t * 2) * box.height * 0.24;
+        await page.mouse.move(x, y, { steps: 4 });
+        await page.waitForTimeout(STEP_SETTLE_MS);
+        frames.push(await page.screenshot({ omitBackground: true }));
+        process.stdout.write(".");
+      }
     }
     console.log("");
 
@@ -146,7 +183,7 @@ async function main() {
     }
     const stacked = Buffer.concat(decoded.map(({ data }) => data));
 
-    const outPath = path.join(assetsDir, `${assetPrefix}-preview.gif`);
+    const outPath = path.join(assetsDir, captureBase ? `${id}-preview-base.gif` : `${assetPrefix}-preview.gif`);
     // pageHeight on the *input* raw options (sharp >=0.34.3) is what tells
     // it this buffer is a vertically-stacked multi-frame image, not
     // `animated`/`pages` — those only apply when reading an already-encoded
@@ -159,7 +196,11 @@ async function main() {
     await sharp(stacked, {
       raw: { width, height: height * decoded.length, channels: 4, pageHeight: height },
     })
-      .gif({ pageHeight: height, delay: Array(decoded.length).fill(FRAME_DELAY_MS), loop: 0 })
+      .gif({
+        pageHeight: height,
+        delay: Array(decoded.length).fill(captureBase ? BASE_FRAME_DELAY_MS : FRAME_DELAY_MS),
+        loop: 0,
+      })
       .toFile(outPath);
 
     console.log(`Wrote ${path.relative(rootDir, outPath)} (${decoded.length} frames)`);
