@@ -693,7 +693,7 @@ body { isolation: isolate; }
 .soop-live-card__game--fc26 { border-color: #00e9ae7a; color: #00e9ae; background: #00e9ae21; }
 .soop-live-card__game--fc27 { border-color: #ff8a3d7a; color: #ff8a3d; background: #ff8a3d21; }
 .soop-live-card__meta { display: flex; align-items: center; gap: 8px; min-height: 58px; padding: 9px 10px; }.soop-live-card__avatar { position: relative; flex: 0 0 34px; width: 34px; height: 34px; }.soop-live-card__meta .avatar { flex: 0 0 34px; width: 34px; height: 34px; }
-.soop-live-card__copy { display: grid; min-width: 0; gap: 2px; }.soop-live-card__copy strong { overflow: hidden; min-width: 0; color: var(--text-primary); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }.soop-live-card__copy small { display: -webkit-box; overflow: hidden; color: var(--text-secondary); font-size: 11px; line-height: 1.3; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
+.soop-live-card__copy { display: grid; flex: 1 1 0; min-width: 0; gap: 2px; }.soop-live-card__copy strong { overflow: hidden; min-width: 0; color: var(--text-primary); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }.soop-live-card__copy small { display: -webkit-box; overflow: hidden; color: var(--text-secondary); font-size: 11px; line-height: 1.3; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
 .soop-live__empty { display: grid; place-items: center; min-height: 120px; margin: 0; padding: 20px; border: 1px dashed var(--border-strong); color: var(--text-muted); background: var(--surface-1-alt); font-size: 13px; text-align: center; }
 .soop-live__skeleton { display: flex; gap: 10px; overflow: hidden; }
 .soop-live__skeleton .soop-live-card--skeleton { flex: 0 0 calc((100% - 10px) / 1.4); }
