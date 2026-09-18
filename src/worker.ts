@@ -1,4 +1,4 @@
-import type { SoopLiveStreamer } from "./shared/soop-live.js";
+import type { SoopLiveGame, SoopLiveStreamer } from "./shared/soop-live.js";
 
 interface Fetcher {
   fetch(request: Request): Promise<Response>;
@@ -24,13 +24,16 @@ const API_CACHE_VERSION = "v3";
 // user is active. Cache slightly under that so a visible tab never serves
 // the exact same poll cycle twice.
 const SOOP_LIVE_CACHE_SECONDS = 115;
-const SOOP_LIVE_CACHE_VERSION = "v2";
+const SOOP_LIVE_CACHE_VERSION = "v3";
 // sooplive's internal ids for the "EA Sports FC 26" and "EA Sports FC 27"
 // directory categories, found via sch.sooplive.com/api.php?m=categoryList
 // (categoryContentsList itself takes the id, not the category name). Not
 // documented anywhere public, so they can only be rediscovered the same way
 // if sooplive ever reassigns them.
-const SOOP_LIVE_CATEGORY_NOS = ["00040354", "00040425"];
+const SOOP_LIVE_CATEGORIES: { categoryNo: string; game: SoopLiveGame }[] = [
+  { categoryNo: "00040354", game: "fc26" },
+  { categoryNo: "00040425", game: "fc27" },
+];
 // Scraper now runs hourly (was every 3 minutes), so generatedAt only
 // advances once per cycle; allow one full cycle plus buffer before flagging
 // stale, or UptimeRobot would false-alarm for most of every hour.
@@ -143,7 +146,7 @@ async function serveSoopLive(request: Request, ctx: ExecutionContext): Promise<R
   if (cached) return cached;
 
   const upstreamResponses = await Promise.all(
-    SOOP_LIVE_CATEGORY_NOS.map((categoryNo) =>
+    SOOP_LIVE_CATEGORIES.map(({ categoryNo }) =>
       fetch(soopLiveCategoryUrl(categoryNo), {
         headers: { Accept: "application/json", Referer: "https://www.sooplive.com/" },
       })
@@ -158,12 +161,15 @@ async function serveSoopLive(request: Request, ctx: ExecutionContext): Promise<R
   );
   // A streamer could in principle appear in both category feeds at once
   // (e.g. a multi-game session); dedupe by broadcast id so they don't get a
-  // duplicate card.
+  // duplicate card. Tagged with `game` before flattening so the dedupe keeps
+  // whichever category it was first seen in.
   const seenBroadNos = new Set<number>();
   const streamers: SoopLiveStreamer[] = payloads
-    .flatMap((payload) => payload.data?.list ?? [])
-    .filter((entry) => (seenBroadNos.has(entry.broad_no) ? false : (seenBroadNos.add(entry.broad_no), true)))
-    .map((entry) => ({
+    .flatMap((payload, index) =>
+      (payload.data?.list ?? []).map((entry) => ({ entry, game: SOOP_LIVE_CATEGORIES[index].game }))
+    )
+    .filter(({ entry }) => (seenBroadNos.has(entry.broad_no) ? false : (seenBroadNos.add(entry.broad_no), true)))
+    .map(({ entry, game }) => ({
       broadNo: entry.broad_no,
       userId: entry.user_id,
       nickname: entry.user_nick,
@@ -171,6 +177,7 @@ async function serveSoopLive(request: Request, ctx: ExecutionContext): Promise<R
       viewerCount: entry.view_cnt,
       thumbnailUrl: entry.thumbnail,
       profileImageUrl: entry.user_profile_img,
+      game,
     }));
 
   const response = Response.json({ generatedAt: new Date().toISOString(), streamers }, {

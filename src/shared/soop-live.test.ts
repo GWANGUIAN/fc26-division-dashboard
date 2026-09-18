@@ -9,6 +9,7 @@ const live = (overrides: Partial<SoopLiveStreamer> = {}): SoopLiveStreamer => ({
   viewerCount: 102,
   thumbnailUrl: "https://liveimg.sooplive.com/m/1",
   profileImageUrl: "https://stimg.sooplive.com/LOGO/ta/tadka56/tadka56.jpg",
+  game: "fc26",
   ...overrides,
 });
 
@@ -28,6 +29,7 @@ describe("matchLiveStreamers", () => {
       viewerCount: 102,
       thumbnailUrl: "https://liveimg.sooplive.com/m/1",
       currentDivision: 9,
+      game: "fc26",
     }]);
   });
 

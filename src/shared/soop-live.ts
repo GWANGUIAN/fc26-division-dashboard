@@ -1,5 +1,7 @@
 import type { StreamerRecord } from "./model.js";
 
+export type SoopLiveGame = "fc26" | "fc27";
+
 export interface SoopLiveStreamer {
   broadNo: number;
   userId: string;
@@ -8,6 +10,7 @@ export interface SoopLiveStreamer {
   viewerCount: number;
   thumbnailUrl: string;
   profileImageUrl: string;
+  game: SoopLiveGame;
 }
 
 export interface SoopLiveSnapshot {
@@ -25,6 +28,7 @@ export interface LiveRosterEntry {
   thumbnailUrl: string;
   sfx?: string;
   currentDivision: number;
+  game: SoopLiveGame;
 }
 
 /**
@@ -54,6 +58,7 @@ export function matchLiveStreamers(
       thumbnailUrl: entry.thumbnailUrl,
       sfx: streamer.sfx,
       currentDivision: streamer.currentDivision,
+      game: entry.game,
     }];
   });
 }
