@@ -24,12 +24,13 @@ const API_CACHE_VERSION = "v3";
 // user is active. Cache slightly under that so a visible tab never serves
 // the exact same poll cycle twice.
 const SOOP_LIVE_CACHE_SECONDS = 115;
-const SOOP_LIVE_CACHE_VERSION = "v1";
-// sooplive's internal id for the "EA Sports FC 26" directory category, found
-// via the category's own directory page network calls. Not documented
-// anywhere public, so it can only be rediscovered by re-inspecting that page
-// if sooplive ever reassigns it.
-const SOOP_LIVE_CATEGORY_NO = "00040354";
+const SOOP_LIVE_CACHE_VERSION = "v2";
+// sooplive's internal ids for the "EA Sports FC 26" and "EA Sports FC 27"
+// directory categories, found via sch.sooplive.com/api.php?m=categoryList
+// (categoryContentsList itself takes the id, not the category name). Not
+// documented anywhere public, so they can only be rediscovered the same way
+// if sooplive ever reassigns them.
+const SOOP_LIVE_CATEGORY_NOS = ["00040354", "00040425"];
 // Scraper now runs hourly (was every 3 minutes), so generatedAt only
 // advances once per cycle; allow one full cycle plus buffer before flagging
 // stale, or UptimeRobot would false-alarm for most of every hour.
@@ -115,6 +116,18 @@ interface SoopLiveApiEntry {
   user_profile_img: string;
 }
 
+function soopLiveCategoryUrl(categoryNo: string): URL {
+  const upstreamUrl = new URL("https://sch.sooplive.com/api.php");
+  upstreamUrl.searchParams.set("m", "categoryContentsList");
+  upstreamUrl.searchParams.set("szType", "live");
+  upstreamUrl.searchParams.set("nPageNo", "1");
+  upstreamUrl.searchParams.set("nListCnt", "60");
+  upstreamUrl.searchParams.set("szPlatform", "pc");
+  upstreamUrl.searchParams.set("szCateNo", categoryNo);
+  upstreamUrl.searchParams.set("szOrder", "view_cnt_desc");
+  return upstreamUrl;
+}
+
 /**
  * Proxies sooplive's own (uncredentialed, CORS-less) category feed so the
  * frontend can read it same-origin. Edge-cached like serveApi so any number
@@ -129,30 +142,36 @@ async function serveSoopLive(request: Request, ctx: ExecutionContext): Promise<R
   const cached = await edgeCache.default.match(cacheKey);
   if (cached) return cached;
 
-  const upstreamUrl = new URL("https://sch.sooplive.com/api.php");
-  upstreamUrl.searchParams.set("m", "categoryContentsList");
-  upstreamUrl.searchParams.set("szType", "live");
-  upstreamUrl.searchParams.set("nPageNo", "1");
-  upstreamUrl.searchParams.set("nListCnt", "60");
-  upstreamUrl.searchParams.set("szPlatform", "pc");
-  upstreamUrl.searchParams.set("szCateNo", SOOP_LIVE_CATEGORY_NO);
-  upstreamUrl.searchParams.set("szOrder", "view_cnt_desc");
+  const upstreamResponses = await Promise.all(
+    SOOP_LIVE_CATEGORY_NOS.map((categoryNo) =>
+      fetch(soopLiveCategoryUrl(categoryNo), {
+        headers: { Accept: "application/json", Referer: "https://www.sooplive.com/" },
+      })
+    ),
+  );
+  if (upstreamResponses.some((upstream) => !upstream.ok)) {
+    return Response.json({ message: "soop live lookup failed" }, { status: 502 });
+  }
 
-  const upstream = await fetch(upstreamUrl, {
-    headers: { Accept: "application/json", Referer: "https://www.sooplive.com/" },
-  });
-  if (!upstream.ok) return Response.json({ message: "soop live lookup failed" }, { status: 502 });
-
-  const payload = await upstream.json() as { data?: { list?: SoopLiveApiEntry[] } };
-  const streamers: SoopLiveStreamer[] = (payload.data?.list ?? []).map((entry) => ({
-    broadNo: entry.broad_no,
-    userId: entry.user_id,
-    nickname: entry.user_nick,
-    title: entry.broad_title,
-    viewerCount: entry.view_cnt,
-    thumbnailUrl: entry.thumbnail,
-    profileImageUrl: entry.user_profile_img,
-  }));
+  const payloads = await Promise.all(
+    upstreamResponses.map((upstream) => upstream.json() as Promise<{ data?: { list?: SoopLiveApiEntry[] } }>),
+  );
+  // A streamer could in principle appear in both category feeds at once
+  // (e.g. a multi-game session); dedupe by broadcast id so they don't get a
+  // duplicate card.
+  const seenBroadNos = new Set<number>();
+  const streamers: SoopLiveStreamer[] = payloads
+    .flatMap((payload) => payload.data?.list ?? [])
+    .filter((entry) => (seenBroadNos.has(entry.broad_no) ? false : (seenBroadNos.add(entry.broad_no), true)))
+    .map((entry) => ({
+      broadNo: entry.broad_no,
+      userId: entry.user_id,
+      nickname: entry.user_nick,
+      title: entry.broad_title,
+      viewerCount: entry.view_cnt,
+      thumbnailUrl: entry.thumbnail,
+      profileImageUrl: entry.user_profile_img,
+    }));
 
   const response = Response.json({ generatedAt: new Date().toISOString(), streamers }, {
     headers: {

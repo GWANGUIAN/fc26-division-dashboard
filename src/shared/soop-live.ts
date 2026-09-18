@@ -28,9 +28,9 @@ export interface LiveRosterEntry {
 }
 
 /**
- * Cross-references the sooplive FC26 category feed against our tracked
- * roster (matched by soopId) so the "now streaming" rail only ever shows
- * 잔디동 신청 스트리머, never unrelated FC26 broadcasters in the category.
+ * Cross-references the sooplive FC26 & FC27 category feeds against our
+ * tracked roster (matched by soopId) so the "now streaming" rail only ever
+ * shows 잔디동 신청 스트리머, never unrelated broadcasters in those categories.
  */
 export function matchLiveStreamers(
   roster: Pick<StreamerRecord, "id" | "displayName" | "profileImageUrl" | "soopId" | "sfx" | "currentDivision">[],
