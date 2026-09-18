@@ -20,6 +20,12 @@ export const fakeAds: FakeAd[] = [
     label: "초보.빙밍",
   },
   {
+    id: "charlie",
+    image: "/fake-ads/ad-charlie.webp",
+    href: "https://vod.sooplive.com/player/207247339",
+    label: "찰신",
+  },
+  {
     id: "hachi",
     image: "/fake-ads/ad-hachi.webp",
     href: "https://vod.sooplive.com/player/207076087",
