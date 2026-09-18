@@ -26,7 +26,6 @@ const GUEST_LIVE_STREAMERS: StreamerRecord[] = [
     displayName: "우왁굳",
     cafeAliases: [],
     soopId: "ecvhao",
-    profileImageUrl: "/profiles/profile_wakgood.webp",
     autoUpdate: false,
     overridePolicy: "auto",
     currentDivision: 1,
