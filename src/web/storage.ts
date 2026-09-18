@@ -253,6 +253,97 @@ export function saveKickupsSfxEnabled(enabled: boolean) {
   }
 }
 
+const SOCCER_SUM10_HIGH_SCORE_KEY = "fc26-soccer-sum10-highscore";
+const SOCCER_SUM10_SFX_ENABLED_KEY = "fc26-soccer-sum10-sfx-enabled";
+const SOCCER_SUM10_SFX_VOLUME_KEY = "fc26-soccer-sum10-sfx-volume";
+const SOCCER_SUM10_MUSIC_ENABLED_KEY = "fc26-soccer-sum10-music-enabled";
+const SOCCER_SUM10_MUSIC_VOLUME_KEY = "fc26-soccer-sum10-music-volume";
+
+function loadStoredVolume(key: string, fallback: number) {
+  try {
+    const raw = localStorage.getItem(key);
+    const value = raw === null ? fallback : Number(raw);
+    return Number.isFinite(value) ? Math.min(100, Math.max(0, Math.floor(value))) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+export function loadSoccerSum10HighScore(): number {
+  try {
+    const value = Number(localStorage.getItem(SOCCER_SUM10_HIGH_SCORE_KEY) ?? 0);
+    return Number.isFinite(value) && value > 0 ? Math.floor(value) : 0;
+  } catch {
+    return 0;
+  }
+}
+
+export function saveSoccerSum10HighScore(score: number) {
+  try {
+    localStorage.setItem(SOCCER_SUM10_HIGH_SCORE_KEY, String(Math.max(0, Math.floor(score))));
+  } catch {
+    // ignore storage failures
+  }
+}
+
+export function loadSoccerSum10SfxEnabled(): boolean {
+  try {
+    const raw = localStorage.getItem(SOCCER_SUM10_SFX_ENABLED_KEY);
+    return raw === null ? true : raw === "1";
+  } catch {
+    return true;
+  }
+}
+
+export function saveSoccerSum10SfxEnabled(enabled: boolean) {
+  try {
+    localStorage.setItem(SOCCER_SUM10_SFX_ENABLED_KEY, enabled ? "1" : "0");
+  } catch {
+    // ignore storage failures
+  }
+}
+
+export function loadSoccerSum10SfxVolume() {
+  return loadStoredVolume(SOCCER_SUM10_SFX_VOLUME_KEY, 55);
+}
+
+export function saveSoccerSum10SfxVolume(volume: number) {
+  try {
+    localStorage.setItem(SOCCER_SUM10_SFX_VOLUME_KEY, String(Math.min(100, Math.max(0, Math.floor(volume)))));
+  } catch {
+    // ignore storage failures
+  }
+}
+
+export function loadSoccerSum10MusicEnabled(): boolean {
+  try {
+    const raw = localStorage.getItem(SOCCER_SUM10_MUSIC_ENABLED_KEY);
+    return raw === null ? true : raw === "1";
+  } catch {
+    return true;
+  }
+}
+
+export function saveSoccerSum10MusicEnabled(enabled: boolean) {
+  try {
+    localStorage.setItem(SOCCER_SUM10_MUSIC_ENABLED_KEY, enabled ? "1" : "0");
+  } catch {
+    // ignore storage failures
+  }
+}
+
+export function loadSoccerSum10MusicVolume() {
+  return loadStoredVolume(SOCCER_SUM10_MUSIC_VOLUME_KEY, 35);
+}
+
+export function saveSoccerSum10MusicVolume(volume: number) {
+  try {
+    localStorage.setItem(SOCCER_SUM10_MUSIC_VOLUME_KEY, String(Math.min(100, Math.max(0, Math.floor(volume)))));
+  } catch {
+    // ignore storage failures
+  }
+}
+
 const FREEKICK_HIGH_SCORE_KEY = "fc26-freekick-highscore";
 
 const TEST_SCHEDULE_PITCH_ASSIGNMENTS_KEY = "fc26-test-schedule-pitch-assignments";

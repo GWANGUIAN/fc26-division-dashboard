@@ -62,6 +62,8 @@ import { KickupsModal } from "./minigame/KickupsModal";
 import { FreekickToggle } from "./minigame/FreekickToggle";
 import { CardMatchToggle } from "./minigame/CardMatchToggle";
 import { CardMatchModal } from "./minigame/CardMatchModal";
+import { SoccerSum10Toggle } from "./minigame/soccer-sum10/SoccerSum10Toggle";
+import { SoccerSum10Modal } from "./minigame/soccer-sum10/SoccerSum10Modal";
 import { FortuneToggle } from "./fortune/FortuneToggle";
 import { FortunePopup } from "./fortune/FortunePopup";
 import { TotyCardPopup } from "./toty-card/TotyCardPopup";
@@ -100,7 +102,7 @@ export function App() {
     useState<Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision" | "sfx">>();
   // A single slot (rather than one boolean per minigame) makes it structurally impossible for two
   // minigame modals to be open at once.
-  const [activeMinigame, setActiveMinigame] = useState<"kickups" | "freekick" | "cardmatch" | null>(null);
+  const [activeMinigame, setActiveMinigame] = useState<"kickups" | "freekick" | "cardmatch" | "soccer-sum10" | null>(null);
 
   const { toast, showToast } = useToast();
   const [woowakgoodAnnounceVisible, setWoowakgoodAnnounceVisible] = useState(false);
@@ -431,6 +433,11 @@ export function App() {
           sfxVolume={sfxVolume}
         />
       )}
+      {activeMinigame === "soccer-sum10" && (
+        <SoccerSum10Modal
+          onClose={() => setActiveMinigame(null)}
+        />
+      )}
       {fortuneOpen && (
         <FortunePopup
           streamers={snapshot?.streamers}
@@ -449,6 +456,7 @@ export function App() {
         <KickupsToggle onClick={() => setActiveMinigame("kickups")} />
         <FreekickToggle onClick={() => setActiveMinigame("freekick")} />
         <CardMatchToggle onClick={() => setActiveMinigame("cardmatch")} />
+        <SoccerSum10Toggle onClick={() => setActiveMinigame("soccer-sum10")} />
         <FortuneToggle onClick={() => setFortuneOpen(true)} />
       </div>
       <BrightnessGag />
