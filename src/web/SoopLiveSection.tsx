@@ -66,11 +66,13 @@ function SoopLiveCard({ entry }: { entry: LiveRosterEntry }) {
           <span className="live-ring" aria-hidden="true" />
         </span>
         <span className="soop-live-card__copy">
-          <strong>{entry.displayName}</strong>
+          <span className="soop-live-card__name-row">
+            <strong>{entry.displayName}</strong>
+            <span className={`soop-live-card__game soop-live-card__game--${entry.game}`}>
+              {entry.game === "fc26" ? "FC26" : "FC27"}
+            </span>
+          </span>
           <small>{entry.title}</small>
-        </span>
-        <span className={`soop-live-card__game soop-live-card__game--${entry.game}`}>
-          {entry.game === "fc26" ? "FC26" : "FC27"}
         </span>
       </span>
     </a>
