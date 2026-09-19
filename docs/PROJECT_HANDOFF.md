@@ -23,6 +23,10 @@
 
 **재개(다시 자동 수집 켜기) 방법**: `main.tf`에서 `state = "DISABLED"` 제거 후 `terraform apply` → `src/worker.ts`의 `/api/snapshot` 라우팅·`/healthz` 신선도 체크를 원래대로 되돌림 → `src/web/api.ts`를 fetch 기반으로 되돌리고 `src/web/snapshotFixture.ts`/`snapshotFixture.json` 삭제.
 
+## 진행 중인 신규 기능: 잔디동 월드 (계획 단계)
+
+2D 도트 RPG "잔디동 월드"(좌측 상단 플로팅 버튼 → 전체 화면 캔버스 게임)를 추가할 예정이다. 현재는 **기획·에셋 프롬프트 문서만 작성된 상태(코드 없음)**이며, 구현은 여러 세션으로 나눠 진행한다. 새 세션은 [docs/world/README.md](world/README.md)의 인덱스와 핸드오프 체크리스트부터 읽는다. 구현이 시작되면 아래 "코드 지도"에 `src/web/world/` 행을 추가한다.
+
 ## 데이터 흐름
 
 ```text
