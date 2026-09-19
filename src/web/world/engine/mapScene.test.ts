@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { OVERWORLD_MAP } from "../data/maps";
 import { PROP_DEFS } from "../data/propDefs";
 import { footBox, rectsOverlap } from "./collision";
-import { getScene, terrainCodeAt, tileCenter, zoneAtPoint } from "./mapScene";
+import { getScene, terrainCodeAt, tileCenter, zoneAtPoint, buildingFronts } from "./mapScene";
 import { buildStaticOrder, isVisible } from "./render";
 
 const overworld = getScene("overworld")!;
@@ -34,12 +34,44 @@ describe("overworld scene", () => {
     const door = overworld.doors.find((d) => d.to.scene === "interior:clubhouse-lobby")!;
     const inDoorway = footBox(door.rect.x + 32, door.rect.y + door.rect.h - 10);
     expect(overworld.colliderRects.some((r) => rectsOverlap(inDoorway, r))).toBe(false);
-    const inWall = footBox(door.rect.x + 32, door.rect.y - 40);
+    const inWall = footBox(door.rect.x + 32, door.rect.y - 8);
     expect(overworld.colliderRects.some((r) => rectsOverlap(inWall, r))).toBe(true);
     expect(door.rect.h).toBe(2 * 32 - 12); // outdoor trigger keeps both door tiles, minus the front-edge trim
     // The expanded trigger begins one tile higher but stays disarmed once the player has stepped past the threshold.
     expect(rectsOverlap(footBox(door.rect.x + 32, door.rect.y + door.rect.h - 8), door.rect)).toBe(true);
     expect(rectsOverlap(footBox(door.rect.x + 32, door.rect.y + door.rect.h + 12), door.rect)).toBe(false);
+  });
+
+  it("only blocks a building's ground footprint: the roof above and the transparent corners of a round base stay walkable", () => {
+    const blocked = (x: number, y: number) => overworld.colliderRects.some((r) => rectsOverlap(footBox(x, y), r));
+    // clubhouse box is tiles 34..45 × 6..13, its footprint starts 160px below the top of the sprite
+    expect(blocked(40 * 32, 6 * 32 + 100)).toBe(false);
+    expect(blocked(40 * 32, 6 * 32 + 200)).toBe(true);
+    // stadium: the ellipse-shaped base leaves the bottom-left corner of its box open
+    expect(blocked(27 * 32 + 40, 42 * 32 - 4)).toBe(false);
+    expect(blocked(27 * 32 + 420, 42 * 32 - 40)).toBe(true);
+  });
+
+  it("sorts each column of a building where its solid ends: round-base corners and the door notch sit in front of the wall behind them", () => {
+    const stadium = overworld.buildings.find((b) => b.id === "stadium")!;
+    const top = stadium.y - stadium.h;
+    const sortAt = (px: number) => stadium.fronts.find((f) => px >= f.x && px < f.x + f.w)!.sortY - top;
+    expect(sortAt(500)).toBe(stadium.h); // under the front of the base: sorted at the sprite bottom
+    expect(sortAt(400)).toBe(stadium.h - 32); // door notch: the wall above it ends one row higher
+    expect(sortAt(60)).toBe(448); // rounded corner: the base ends well above the sprite bottom
+    expect(stadium.fronts.reduce((sum, f) => sum + f.w, 0)).toBe(stadium.w);
+    expect(stadium.fronts[0].x).toBe(0);
+  });
+
+  it("finds the sort line of a building from the solids inside its box", () => {
+    const box = { x: 100, y: 200, w: 10, h: 40 };
+    expect(buildingFronts(box, [])).toEqual([{ x: 0, w: 10, sortY: 240 }]);
+    // one wall over columns 2..7 down to y=230; the columns beside it sort at its back edge (y=210)
+    expect(buildingFronts(box, [{ x: 102, y: 210, w: 6, h: 20 }])).toEqual([
+      { x: 0, w: 2, sortY: 210 },
+      { x: 2, w: 6, sortY: 230 },
+      { x: 8, w: 2, sortY: 210 },
+    ]);
   });
 
   it("puts the stadium door on its south gate, where the art has it", () => {

@@ -722,7 +722,7 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
         if (propVisible(prop, cam)) drawProp(ctx, assets, prop, cam, restoreAt(prop.x, prop.y), prop.aboveFrom === null ? "all" : "lower");
       } else {
         const building = scene.buildings[entry.index];
-        if (isVisible(building.x - building.w / 2, building.y - building.h, building.w, building.h, cam)) drawBuilding(ctx, assets, building, cam);
+        if (isVisible(building.x - building.w / 2, building.y - building.h, building.w, building.h, cam)) drawBuilding(ctx, assets, building, cam, building.fronts[entry.strip]);
       }
     }
     flushDynamics(Infinity);

@@ -37,26 +37,30 @@ export const ZONES = [
   { id: "z-weed", name: "제초동 구역", rect: [54, 44, 78, 58], tint: "#b5b5ad", particles: "dust", bgm: "region-weed" },
 ];
 
-/** rect = sprite box (tiles, inclusive), door = [x, y, w, h], skip = empty tile rows at the top of the sprite,
+/** rect = sprite box (tiles, inclusive), door = [x, y, w, h],
+ * foot = the ground footprint traced from the sprite's opaque pixels: stacked slices [top, left, right] in sprite px (top = px below the
+ *   sprite's top edge; a slice runs down to the next one's top, the last to the sprite bottom). The roof above the first slice is not
+ *   solid (the player walks behind it, hidden by the depth sort), and the slices follow the outline so round bases leave their corners open.
+ *   With a door, the last slice is the bottom tile row and is split around the door notch.
  * doorDx = px shift of the visible entrance (mat + the notch in the collision) when the art's door is off the tile grid. */
 export const BUILDINGS = [
-  { id: "clubhouse", rect: [34, 6, 45, 13], door: [39, 12, 2, 2], interior: "clubhouse-lobby", skip: 0, doorDx: 2 },
-  { id: "stadium", rect: [27, 26, 52, 41], door: [39, 41, 2, 1], interior: "stadium", skip: 0 },
-  { id: "fountain", rect: [37, 19, 42, 23], skip: 0 },
-  { id: "house-sjh4018", rect: [8, 3, 17, 11], door: [12, 11, 2, 1], interior: "house-sjh4018", skip: 2, doorDx: -2 },
-  { id: "house-doormomo", rect: [64, 2, 70, 12], door: [66, 12, 2, 1], interior: "house-doormomo", skip: 0, doorDx: 21 },
-  { id: "house-ju010228", rect: [6, 20, 13, 25], door: [9, 25, 2, 1], interior: "house-ju010228", skip: 0, doorDx: -6 },
-  { id: "house-lina0108", rect: [14, 30, 21, 35], door: [17, 35, 2, 1], interior: "house-lina0108", skip: 0, doorDx: 13 },
-  { id: "house-hachi97", rect: [4, 34, 11, 40], door: [7, 40, 2, 1], interior: "house-hachi97", skip: 1, doorDx: -7 },
-  { id: "house-janine95kim", rect: [58, 20, 65, 26], door: [62, 26, 2, 1], interior: "house-janine95kim", skip: 2, doorDx: 19 },
-  { id: "house-kaksjak0730", rect: [68, 19, 75, 26], door: [71, 26, 2, 1], interior: "house-kaksjak0730", skip: 0 },
-  { id: "house-haepalin", rect: [72, 33, 78, 38], door: [74, 38, 2, 1], interior: "house-haepalin", skip: 0, doorDx: 5 },
-  { id: "house-bboringirl", rect: [4, 46, 11, 51], door: [7, 51, 2, 1], interior: "house-bboringirl", skip: 0 },
-  { id: "house-tleod1818", rect: [12, 46, 19, 51], door: [15, 51, 2, 1], interior: "house-tleod1818", skip: 0 },
-  { id: "house-tdnlamuron", rect: [21, 47, 27, 52], door: [24, 52, 2, 1], interior: "house-tdnlamuron", skip: 1 },
-  { id: "store", rect: [33, 46, 39, 50], door: [35, 50, 2, 1], interior: "store", skip: 0, doorDx: 8 },
-  { id: "cafe", rect: [43, 46, 49, 50], door: [46, 50, 2, 1], interior: "cafe", skip: 0, doorDx: -7 },
-  { id: "factory", rect: [62, 46, 74, 55], door: [68, 55, 2, 1], interior: "factory", skip: 1, matDx: 16 },
+  { id: "clubhouse", rect: [34, 6, 45, 13], door: [39, 12, 2, 2], interior: "clubhouse-lobby", foot: [[160, 6, 377], [224, 43, 332]], doorDx: 2 },
+  { id: "stadium", rect: [27, 26, 52, 41], door: [39, 41, 2, 1], interior: "stadium", foot: [[256, 38, 794], [272, 12, 822], [432, 42, 791], [448, 80, 771], [464, 147, 686], [480, 220, 612]] },
+  { id: "fountain", rect: [37, 19, 42, 23], foot: [[56, 17, 175], [136, 45, 148]] },
+  { id: "house-sjh4018", rect: [8, 3, 17, 11], door: [12, 11, 2, 1], interior: "house-sjh4018", foot: [[176, 5, 312], [192, 8, 314], [240, 31, 302], [256, 42, 282]], doorDx: -2 },
+  { id: "house-doormomo", rect: [64, 2, 70, 12], door: [66, 12, 2, 1], interior: "house-doormomo", foot: [[240, 7, 219], [304, 6, 208], [320, 54, 208]], doorDx: 21 },
+  { id: "house-ju010228", rect: [6, 20, 13, 25], door: [9, 25, 2, 1], interior: "house-ju010228", foot: [[112, 11, 251], [128, 7, 238], [144, 18, 236], [160, 40, 228]], doorDx: -6 },
+  { id: "house-lina0108", rect: [14, 30, 21, 35], door: [17, 35, 2, 1], interior: "house-lina0108", foot: [[112, 7, 252], [160, 8, 245]], doorDx: 13 },
+  { id: "house-hachi97", rect: [4, 34, 11, 40], door: [7, 40, 2, 1], interior: "house-hachi97", foot: [[144, 5, 250], [192, 16, 237]], doorDx: -7 },
+  { id: "house-janine95kim", rect: [58, 20, 65, 26], door: [62, 26, 2, 1], interior: "house-janine95kim", foot: [[144, 96, 250], [192, 96, 248]], doorDx: 19 },
+  { id: "house-kaksjak0730", rect: [68, 19, 75, 26], door: [71, 26, 2, 1], interior: "house-kaksjak0730", foot: [[144, 21, 234], [208, 35, 221], [224, 63, 192]] },
+  { id: "house-haepalin", rect: [72, 33, 78, 38], door: [74, 38, 2, 1], interior: "house-haepalin", foot: [[112, 5, 218], [144, 16, 212], [160, 47, 193]], doorDx: 5 },
+  { id: "house-bboringirl", rect: [4, 46, 11, 51], door: [7, 51, 2, 1], interior: "house-bboringirl", foot: [[112, 20, 248], [128, 4, 251], [160, 5, 250]] },
+  { id: "house-tleod1818", rect: [12, 46, 19, 51], door: [15, 51, 2, 1], interior: "house-tleod1818", foot: [[120, 8, 251], [160, 19, 247]] },
+  { id: "house-tdnlamuron", rect: [21, 47, 27, 52], door: [24, 52, 2, 1], interior: "house-tdnlamuron", foot: [[120, 6, 217], [160, 10, 219]] },
+  { id: "store", rect: [33, 46, 39, 50], door: [35, 50, 2, 1], interior: "store", foot: [[96, 6, 220], [128, 10, 219]], doorDx: 8 },
+  { id: "cafe", rect: [43, 46, 49, 50], door: [46, 50, 2, 1], interior: "cafe", foot: [[96, 6, 216], [128, 12, 217]], doorDx: -7 },
+  { id: "factory", rect: [62, 46, 74, 55], door: [68, 55, 2, 1], interior: "factory", foot: [[192, 83, 403], [208, 69, 403], [224, 54, 409], [240, 26, 411], [256, 5, 411], [288, 5, 403]], matDx: 16 },
 ];
 
 /** Roads: 2 wide unless noted. `kind` picks the material (main = stone, spur = dirt; each district re-skins them). */
@@ -385,17 +389,20 @@ export function buildOverworldMap() {
   const collision = [];
   const tileRect = (x, y, w, h) => [x * TILE, y * TILE, w * TILE, h * TILE];
   for (const b of BUILDINGS) {
-    const [x0, y0, x1, y1] = b.rect;
-    const top = y0 + b.skip;
-    if (!b.door) {
-      collision.push(tileRect(x0, top, x1 - x0 + 1, y1 - top + 1));
-      continue;
-    }
-    const [dx] = b.door;
-    const shift = b.doorDx ?? 0;
-    if (y1 - top > 0) collision.push(tileRect(x0, top, x1 - x0 + 1, y1 - top));
-    if (dx > x0) collision.push([x0 * TILE, y1 * TILE, (dx - x0) * TILE + shift, TILE]);
-    if (dx + 2 <= x1) collision.push([(dx + 2) * TILE + shift, y1 * TILE, (x1 - (dx + 2) + 1) * TILE - shift, TILE]);
+    const boxX = b.rect[0] * TILE;
+    const boxY = b.rect[1] * TILE;
+    const boxH = (b.rect[3] - b.rect[1] + 1) * TILE;
+    b.foot.forEach(([top, left, right], i) => {
+      const bottom = i + 1 < b.foot.length ? b.foot[i + 1][0] : boxH;
+      if (!b.door || i < b.foot.length - 1) {
+        collision.push([boxX + left, boxY + top, right - left, bottom - top]);
+        return;
+      }
+      const gapLeft = b.door[0] * TILE + (b.doorDx ?? 0);
+      const gapRight = gapLeft + b.door[2] * TILE;
+      if (gapLeft > boxX + left) collision.push([boxX + left, boxY + top, gapLeft - (boxX + left), bottom - top]);
+      if (boxX + right > gapRight) collision.push([gapRight, boxY + top, boxX + right - gapRight, bottom - top]);
+    });
   }
   // deep water except under the bridge
   collision.push(tileRect(LAKE_DEEP[0], LAKE_DEEP[1], LAKE_DEEP[2] - LAKE_DEEP[0] + 1, BRIDGE[1] - LAKE_DEEP[1]));

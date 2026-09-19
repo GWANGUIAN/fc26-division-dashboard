@@ -24,6 +24,28 @@ describe("build-world-map", () => {
     }
   });
 
+  it("traces every building's footprint inside its sprite box, ending in the door row around the door notch", () => {
+    for (const building of BUILDINGS) {
+      const boxW = (building.rect[2] - building.rect[0] + 1) * 32;
+      const boxH = (building.rect[3] - building.rect[1] + 1) * 32;
+      const { foot } = building;
+      expect(foot.length, building.id).toBeGreaterThan(0);
+      foot.forEach(([top, left, right], i) => {
+        expect(top, building.id).toBeGreaterThanOrEqual(i === 0 ? 0 : foot[i - 1][0] + 1);
+        expect(top, building.id).toBeLessThan(boxH);
+        expect(left, building.id).toBeGreaterThanOrEqual(0);
+        expect(right, building.id).toBeLessThanOrEqual(boxW);
+        expect(right - left, building.id).toBeGreaterThan(0);
+      });
+      if (!building.door) continue;
+      const [top, left, right] = foot[foot.length - 1];
+      expect(top, building.id).toBe(boxH - 32);
+      const gapLeft = (building.door[0] - building.rect[0]) * 32 + (building.doorDx ?? 0);
+      expect(gapLeft, building.id).toBeGreaterThan(left);
+      expect(gapLeft + building.door[2] * 32, building.id).toBeLessThan(right);
+    }
+  });
+
   it("emits one door trigger per building door and a collision list without the door notch", () => {
     expect(map.triggers).toHaveLength(BUILDINGS.filter((b) => b.door).length);
     expect(map.collision.length).toBeGreaterThan(BUILDINGS.length);

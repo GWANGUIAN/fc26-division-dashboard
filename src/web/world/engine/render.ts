@@ -7,7 +7,7 @@ import { footBox } from "./collision";
 import { INTERACT_REACH, interactionProbe, npcHitArea } from "./interaction";
 import { NPC_BOX, type Npc } from "./npc";
 import type { RunHud } from "./runs";
-import type { BuildingInstance, PropInstance, SceneObject, WorldScene } from "./scene";
+import type { BuildingFront, BuildingInstance, PropInstance, SceneObject, WorldScene } from "./scene";
 
 export const VIEW_WIDTH = 640;
 export const VIEW_HEIGHT = 360;
@@ -28,16 +28,18 @@ export interface StaticDrawable {
   /** 0 = prop, 1 = building. */
   kind: 0 | 1;
   index: number;
+  /** A building is drawn strip by strip: the index into its `fronts`. */
+  strip: number;
 }
 
 /** Props and buildings sorted back-to-front by their feet line (docs/world/01 §5 layer 3). Decals are excluded. */
 export function buildStaticOrder(scene: Pick<WorldScene, "props" | "buildings">): StaticDrawable[] {
   const list: StaticDrawable[] = [];
   scene.props.forEach((prop, index) => {
-    if (!prop.decal) list.push({ sortY: prop.y, kind: 0, index });
+    if (!prop.decal) list.push({ sortY: prop.y, kind: 0, index, strip: 0 });
   });
-  scene.buildings.forEach((building, index) => list.push({ sortY: building.y, kind: 1, index }));
-  return list.sort((a, b) => a.sortY - b.sortY || a.kind - b.kind || a.index - b.index);
+  scene.buildings.forEach((building, index) => building.fronts.forEach((front, strip) => list.push({ sortY: front.sortY, kind: 1, index, strip })));
+  return list.sort((a, b) => a.sortY - b.sortY || a.kind - b.kind || a.index - b.index || a.strip - b.strip);
 }
 
 export function isVisible(x: number, y: number, w: number, h: number, camera: Camera, margin = 0): boolean {
@@ -98,11 +100,18 @@ export function drawProp(ctx: CanvasRenderingContext2D, assets: WorldAssets, pro
   if (restore > 0.001) drawSpritePart(ctx, lush, prop, camera, part, restore >= 0.999 ? 1 : restore);
 }
 
-export function drawBuilding(ctx: CanvasRenderingContext2D, assets: WorldAssets, building: BuildingInstance, camera: Camera) {
+/** Draws a building, or only its vertical `strip` (an entry of `building.fronts`) so each strip can sit at its own depth. */
+export function drawBuilding(ctx: CanvasRenderingContext2D, assets: WorldAssets, building: BuildingInstance, camera: Camera, strip?: BuildingFront) {
   const image = assets.get(building.key);
   if (image) {
     // Bottom-centre anchored at the real image size (equal to the tile box for every converted building).
-    ctx.drawImage(image, Math.round(building.x - image.width / 2 - camera.x), Math.round(building.y - image.height - camera.y));
+    const left = Math.round(building.x - image.width / 2 - camera.x);
+    const top = Math.round(building.y - image.height - camera.y);
+    if (!strip) ctx.drawImage(image, left, top);
+    else if (strip.x < image.width) {
+      const w = Math.min(strip.w, image.width - strip.x);
+      ctx.drawImage(image, strip.x, 0, w, image.height, left + strip.x, top, w, image.height);
+    }
     return;
   }
   const x = Math.round(building.x - building.w / 2 - camera.x);

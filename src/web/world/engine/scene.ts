@@ -21,6 +21,13 @@ export interface PropInstance {
   withered: boolean;
 }
 
+/** A vertical strip of a building sprite with its own place in the y-sort: `x`/`w` in sprite px from the left edge, `sortY` in world px. */
+export interface BuildingFront {
+  x: number;
+  w: number;
+  sortY: number;
+}
+
 /** A building sprite, anchored at the bottom centre of its tile box. */
 export interface BuildingInstance {
   id: string;
@@ -30,6 +37,11 @@ export interface BuildingInstance {
   h: number;
   /** Asset key, e.g. "buildings/clubhouse". */
   key: string;
+  /**
+   * The sprite in vertical strips, each sorted against characters by where the solid footprint ends in front of it
+   * (a round base's corners sort higher than its middle). Together the strips cover the whole width.
+   */
+  fronts: BuildingFront[];
 }
 
 export interface DoorTrigger {

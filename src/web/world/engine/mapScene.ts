@@ -1,7 +1,7 @@
 import { INTERIOR_MAPS, OVERWORLD_MAP, hasScene, interiorIdOf } from "../data/maps";
 import { PROP_DEFS } from "../data/propDefs";
 import type { Facing, InteriorMapData, MapExamine, MapNpc, MapObject, MapSpectator, MapTrigger, OverworldMapData, PxBox, Rect, SceneId, TileBox, TileSpan } from "../types";
-import { indexColliders, type BuildingInstance, type DoorTrigger, type ExaminePoint, type NpcSpawn, type PropInstance, type SceneObject, type SceneZone, type SpectatorSpawn, type TerrainGrid, type WorldScene } from "./scene";
+import { indexColliders, type BuildingFront, type BuildingInstance, type DoorTrigger, type ExaminePoint, type NpcSpawn, type PropInstance, type SceneObject, type SceneZone, type SpectatorSpawn, type TerrainGrid, type WorldScene } from "./scene";
 
 export const TILE = 32;
 export const INTERIOR_WIDTH = 640;
@@ -16,6 +16,36 @@ export function tileCenter(tx: number, ty: number): { x: number; y: number } {
 const pxBox = ([x, y, w, h]: PxBox): Rect => ({ x, y, w, h });
 const tileBox = ([x, y, w, h]: TileBox): Rect => ({ x: x * TILE, y: y * TILE, w: w * TILE, h: h * TILE });
 const tileSpan = ([x0, y0, x1, y1]: TileSpan): Rect => ({ x: x0 * TILE, y: y0 * TILE, w: (x1 - x0 + 1) * TILE, h: (y1 - y0 + 1) * TILE });
+
+/**
+ * How a building sprite is y-sorted against characters, column by column. A column under the footprint sorts at the front
+ * edge of the solid there (so the door notch sorts at the wall above it, and a round base's corners sort where the base ends);
+ * a column beside the footprint holds no solid, so it sorts at the back of the nearest solid. `solids` are the collision
+ * rects inside `box`; without any, the whole sprite sorts at its bottom edge. Neighbouring columns with the same line merge.
+ */
+export function buildingFronts(box: Rect, solids: readonly Rect[]): BuildingFront[] {
+  if (solids.length === 0) return [{ x: 0, w: box.w, sortY: box.y + box.h }];
+  const fronts: BuildingFront[] = [];
+  for (let x = 0; x < box.w; x++) {
+    const at = box.x + x + 0.5;
+    let front = -Infinity;
+    for (const solid of solids) if (at >= solid.x && at < solid.x + solid.w) front = Math.max(front, solid.y + solid.h);
+    if (front === -Infinity) {
+      let nearest = Infinity;
+      for (const solid of solids) {
+        const gap = at < solid.x ? solid.x - at : at - (solid.x + solid.w);
+        if (gap < nearest) {
+          nearest = gap;
+          front = solid.y;
+        } else if (gap === nearest) front = Math.min(front, solid.y);
+      }
+    }
+    const last = fronts[fronts.length - 1];
+    if (last && last.sortY === front) last.w += 1;
+    else fronts.push({ x, w: 1, sortY: front });
+  }
+  return fronts;
+}
 
 /** The bottom of an outdoor door rect is trimmed so walking along the building front never counts as entering. */
 const OUTDOOR_DOOR_TRIM = 12;
@@ -126,11 +156,13 @@ export function buildOverworldScene(data: OverworldMapData): WorldScene {
       withered: def.withered ?? false,
     });
   }
+  const solids = data.collision.map(pxBox);
   const buildings: BuildingInstance[] = data.buildings.map((b) => {
     const box = tileSpan(b.rect);
-    return { id: b.id, x: box.x + box.w / 2, y: box.y + box.h, w: box.w, h: box.h, key: `buildings/${b.id}` };
+    const inside = solids.filter((s) => s.x >= box.x && s.y >= box.y && s.x + s.w <= box.x + box.w && s.y + s.h <= box.y + box.h);
+    return { id: b.id, x: box.x + box.w / 2, y: box.y + box.h, w: box.w, h: box.h, key: `buildings/${b.id}`, fronts: buildingFronts(box, inside) };
   });
-  const { colliders, colliderRects } = indexColliders(props, data.collision.map(pxBox));
+  const { colliders, colliderRects } = indexColliders(props, solids);
   const zones: SceneZone[] = data.zones.map((zone) => ({ id: zone.id, name: zone.name, rect: tileSpan(zone.rect), tint: zone.tint, ...(zone.particles ? { particles: zone.particles } : {}), ...(zone.bgm ? { bgm: zone.bgm } : {}) }));
   const spawn = tileCenter(data.spawn[0], data.spawn[1]);
   return {
