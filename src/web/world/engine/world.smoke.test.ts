@@ -67,6 +67,7 @@ describe("world engine (headless smoke run)", () => {
   let walked: number[];
   let logKeys: number;
   let sfx: string[];
+  let voices: string[];
   let pickups: string[];
   let runEvents: RunEvent[];
   let store: { save: ReturnType<typeof createNewGameSave> };
@@ -96,6 +97,7 @@ describe("world engine (headless smoke run)", () => {
     walked = [];
     logKeys = 0;
     sfx = [];
+    voices = [];
     pickups = [];
     runEvents = [];
     const on = (type: string, listener: Listener) => void (listeners[type] ??= []).push(listener);
@@ -135,7 +137,7 @@ describe("world engine (headless smoke run)", () => {
       store,
       debug: true,
       getEvents: () => events,
-      audio: { playBgm() {}, playSfx: (id) => void sfx.push(id) },
+      audio: { playBgm() {}, playSfx: (id) => void sfx.push(id), playVoice: (url) => void voices.push(url) },
     });
     engine.start();
   });
@@ -196,6 +198,26 @@ describe("world engine (headless smoke run)", () => {
     await run(30);
     dispatch("keyup", "ArrowLeft");
     expect(engine.getState().x).toBeLessThan(before.x);
+  });
+
+  it("plays a member's own card-click clip when talking to them, but nothing for an original character", async () => {
+    const talkTo = async (spawn: [number, number]) => {
+      engine.teleport("overworld", spawn);
+      await run(60);
+      dispatch("keydown", "ArrowUp");
+      await run(40);
+      dispatch("keyup", "ArrowUp");
+      dispatch("keydown", "KeyE");
+      await run(3);
+      dispatch("keyup", "KeyE");
+      engine.closeInteraction();
+    };
+    await talkTo([36, 23]); // the elder
+    expect(interactions.at(-1)).toMatchObject({ kind: "npc", cast: "elder" });
+    expect(voices).toEqual([]);
+    await talkTo([12, 14]); // 핑구
+    expect(interactions.at(-1)).toMatchObject({ kind: "npc", cast: "sjh4018" });
+    expect(voices).toEqual(["/sfxes/pinggu.mp3"]);
   });
 
   it("reports the J key", async () => {

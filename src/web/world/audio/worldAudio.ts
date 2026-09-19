@@ -116,6 +116,8 @@ export interface WorldAudioLike {
   /** A track, or a preference list (the first file that exists plays); null fades to silence. */
   playBgm(ids: BgmId | readonly BgmId[] | null): void;
   playSfx(id: SfxId): void;
+  /** A member's own card-click clip (`CastDef.voiceSfx`). Optional so a stand-in can leave it out. */
+  playVoice?(url: string): void;
   /** The looping background of a place (null = none). Optional so a stand-in can leave it out. */
   playAmbience?(id: AmbienceId | null): void;
 }
@@ -181,6 +183,7 @@ export class WorldAudio implements WorldAudioLike {
   private fading: BgmChannel | null = null;
   private fadeElapsed = 0;
   private wanted = "";
+  private voice: AudioLike | null = null;
   private ambience: { audio: AudioLike | null; id: AmbienceId | null } = { audio: null, id: null };
   private ambienceWanted: AmbienceId | null = null;
   private timer: ReturnType<typeof setInterval> | null = null;
@@ -216,6 +219,10 @@ export class WorldAudio implements WorldAudioLike {
   }
 
   private applyVolumes() {
+    if (this.voice) {
+      if (this.settings.sfx) this.voice.volume = clamp01(this.settings.sfxVolume / 100);
+      else this.stopVoice();
+    }
     if (this.ambience.audio) this.ambience.audio.volume = this.ambienceVolume();
     if (this.current.audio) this.current.audio.volume = clamp01(this.bgmVolume(this.current));
     if (this.fading?.audio) this.fading.audio.volume = clamp01(this.bgmVolume(this.fading));
@@ -356,6 +363,29 @@ export class WorldAudio implements WorldAudioLike {
     }
   }
 
+  /**
+   * Plays a member's card-click clip (the same file the 3D card plays). One voice at a time — a new one cuts
+   * the previous — and it follows the sound-effect setting. Not probed: a missing file just fails to play.
+   */
+  playVoice(url: string) {
+    if (this.disposed || !this.settings.sfx || !url) return;
+    this.stopVoice();
+    const audio = this.deps.createAudio(url);
+    audio.volume = clamp01(this.settings.sfxVolume / 100);
+    this.voice = audio;
+    try {
+      const played = audio.play();
+      if (played && typeof played.catch === "function") played.catch(() => {});
+    } catch {
+      /* ignore */
+    }
+  }
+
+  private stopVoice() {
+    this.voice?.pause();
+    this.voice = null;
+  }
+
   /** Undoes `dispose()` (React StrictMode mounts, unmounts and remounts an overlay in development). */
   reset() {
     this.disposed = false;
@@ -369,6 +399,7 @@ export class WorldAudio implements WorldAudioLike {
     this.ambience.audio?.pause();
     this.ambience = { audio: null, id: null };
     this.ambienceWanted = null;
+    this.stopVoice();
     for (const pool of this.pools.values()) pool.items.forEach((audio) => audio.pause());
     this.pools.clear();
     this.current = { audio: null, id: null, gain: 1 };

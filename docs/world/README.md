@@ -18,6 +18,7 @@
 | [08-implementation-roadmap.md](08-implementation-roadmap.md) | 세션 S1~S6 계획, 아트 트랙 A1~A7, 변환 스크립트 사양, 테스트, 미해결 항목 | 세션 계획·진행 |
 | [09-asset-checklist.md](09-asset-checklist.md) | 전 에셋 마스터 체크리스트(진행 추적) | 에셋 작업 후 체크 |
 | [10-image-generation-runbook.md](10-image-generation-runbook.md) | **이미지 151장 실행 순서표**: #001부터 저장 이름·스레드·레퍼런스·독립형 프롬프트(스타일 문구 인라인). `tools/build-image-runbook.mjs`로 04~06에서 생성 | **이미지 생성할 때 이 문서만 보면 됨** |
+| [12-turn-regeneration-briefs.md](12-turn-regeneration-briefs.md) | turn 시트 18장을 walk 비율로 재생성: 캐릭터별 독립 프롬프트·저장 파일명·첨부 레퍼런스·비율 합격선 | turn(idle)이 walk보다 길쭉할 때 |
 
 ## 한눈에 보는 수치
 

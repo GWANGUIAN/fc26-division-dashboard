@@ -542,6 +542,8 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
       if (npc) {
         if (npc.cast === "cat-jandi") audio.playSfx("cat-meow");
         if (npc.cast === "dog-ball") audio.playSfx("dog-bark");
+        const voice = getCast(npc.cast).voiceSfx;
+        if (voice) audio.playVoice?.(voice);
         startTalk(npc, player);
         talking = npc;
       }

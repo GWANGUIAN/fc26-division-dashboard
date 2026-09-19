@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { PLAYABLE_CAST, WORLD_CAST } from "../data/worldCast";
 import { DEFAULT_WORLD_SETTINGS } from "../storage";
 import { AMBIENCE_FILES, BGM_FADE_SECONDS, BGM_FILES, SFX_FILES, WorldAudio, crossfadeGains, type AudioDeps, type AudioLike } from "./worldAudio";
 
@@ -65,6 +66,12 @@ describe("file names", () => {
     for (const url of Object.values(SFX_FILES)) expect(existsSync(publicFile(url)), url).toBe(true);
     for (const url of Object.values(AMBIENCE_FILES)) expect(existsSync(publicFile(url)), url).toBe(true);
     expect(existsSync(publicFile("/world-amb-water.mp3"))).toBe(true);
+  });
+
+  it("ships every member's voice clip", () => {
+    const voices = WORLD_CAST.filter((cast) => cast.voiceSfx);
+    expect(voices.map((cast) => cast.id)).toEqual(expect.arrayContaining(PLAYABLE_CAST.map((cast) => cast.id)));
+    for (const cast of voices) expect(existsSync(join(process.cwd(), "public", cast.voiceSfx!.slice(1))), cast.voiceSfx).toBe(true);
   });
 });
 
@@ -169,6 +176,39 @@ describe("WorldAudio SFX", () => {
     await flush();
     b.playSfx("door-open");
     expect(off.created.every((audio) => audio.plays === 0)).toBe(true);
+  });
+});
+
+describe("WorldAudio voice", () => {
+  it("plays one member clip at a time at the sound-effect volume, cutting the previous one", () => {
+    const { deps, created } = makeDeps([]);
+    const audio = new WorldAudio(DEFAULT_WORLD_SETTINGS, deps, false);
+    audio.playVoice("/sfxes/pinggu.mp3");
+    audio.playVoice("/sfxes/hachi.mp3");
+    expect(created.map((a) => a.src)).toEqual(["/sfxes/pinggu.mp3", "/sfxes/hachi.mp3"]);
+    expect(created.map((a) => a.playing)).toEqual([false, true]);
+    expect(created[1].volume).toBeCloseTo(DEFAULT_WORLD_SETTINGS.sfxVolume / 100);
+  });
+
+  it("follows the sound-effect setting, including turning it off mid-clip, and stops on dispose", () => {
+    const off = makeDeps([]);
+    new WorldAudio({ ...DEFAULT_WORLD_SETTINGS, sfx: false }, off.deps, false).playVoice("/sfxes/pinggu.mp3");
+    expect(off.created).toHaveLength(0);
+
+    const { deps, created } = makeDeps([]);
+    const audio = new WorldAudio(DEFAULT_WORLD_SETTINGS, deps, false);
+    audio.playVoice("/sfxes/pinggu.mp3");
+    audio.setSettings({ ...DEFAULT_WORLD_SETTINGS, sfxVolume: 20 });
+    expect(created[0].volume).toBeCloseTo(0.2);
+    audio.setSettings({ ...DEFAULT_WORLD_SETTINGS, sfx: false });
+    expect(created[0].playing).toBe(false);
+
+    audio.setSettings(DEFAULT_WORLD_SETTINGS);
+    audio.playVoice("/sfxes/hachi.mp3");
+    audio.dispose();
+    expect(created[1].playing).toBe(false);
+    audio.playVoice("/sfxes/hachi.mp3");
+    expect(created).toHaveLength(2);
   });
 });
 

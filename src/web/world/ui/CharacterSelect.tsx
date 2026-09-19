@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { WorldAudioLike } from "../audio/worldAudio";
 import { CAST_PROFILES } from "../data/castProfiles";
 import { PLAYABLE_CAST } from "../data/worldCast";
-import type { CastId } from "../types";
+import type { CastDef, CastId } from "../types";
 import { moveSelection } from "../state/selection";
 import { getWorldAssetUrl } from "../worldAssets";
 import { buttonProps } from "./buttonProps";
@@ -11,6 +11,11 @@ interface CharacterSelectProps {
   audio: WorldAudioLike;
   onConfirm: (id: CastId) => void;
   onBack: () => void;
+}
+
+/** The member's own card-click clip (same file as the 3D card); the audio outlives this screen, so it keeps playing into the prologue. */
+function playCastVoice(audio: WorldAudioLike, cast: CastDef) {
+  if (cast.voiceSfx) audio.playVoice?.(cast.voiceSfx);
 }
 
 /**
@@ -24,6 +29,7 @@ export function CharacterSelect({ audio, onConfirm, onBack }: CharacterSelectPro
   const audioRef = useRef(audio);
   audioRef.current = audio;
   const [hover, setHover] = useState<number | null>(null);
+  const playVoice = (cast: CastDef) => playCastVoice(audioRef.current, cast);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -43,6 +49,7 @@ export function CharacterSelect({ audio, onConfirm, onBack }: CharacterSelectPro
         event.stopPropagation();
         if (event.repeat) return;
         audioRef.current.playSfx("ui-select");
+        playCastVoice(audioRef.current, PLAYABLE_CAST[indexRef.current]);
         onConfirm(PLAYABLE_CAST[indexRef.current].id);
       }
     };
@@ -98,6 +105,7 @@ export function CharacterSelect({ audio, onConfirm, onBack }: CharacterSelectPro
                   audioRef.current.playSfx("ui-move");
                   setIndex(i);
                 }
+                playVoice(cast);
               }}
               tabIndex={-1}
             >
@@ -111,7 +119,7 @@ export function CharacterSelect({ audio, onConfirm, onBack }: CharacterSelectPro
 
       <div className="world-select__actions">
         <button type="button" {...buttonProps("secondary")} onClick={onBack}>돌아가기</button>
-        <button type="button" {...buttonProps("primary")} onClick={() => onConfirm(focused.id)}>선택</button>
+        <button type="button" {...buttonProps("primary")} onClick={() => { playVoice(focused); onConfirm(focused.id); }}>선택</button>
       </div>
       <p className="world-select__hint">방향키 이동 · Enter 선택 · Esc 타이틀로</p>
     </div>
