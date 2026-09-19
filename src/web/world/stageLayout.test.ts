@@ -86,11 +86,21 @@ describe("computeStageLayout frame", () => {
   });
 
   it("shrinks to the letterbox when it is narrower than the frame wants", () => {
-    // 1920×1080 at 2x would have the frame at 0.83, but a 1300-tall window leaves 20px above and below the 1280×720 stage
-    const layout = computeStageLayout(1300, 760);
+    // At 2x the stage is 1280×720 and the frame wants 2 / 2.4 = 0.83 CSS px per art px. A 1340×760 window leaves 30px at the sides
+    // but only 20px above and below, and the bottom band (26 art px) is the thickest: 20 / 26 fits it exactly.
+    const layout = computeStageLayout(1340, 760);
+    expect(layout.left).toBe(30);
     expect(layout.top).toBe(20);
-    expect(layout.frame!.scale).toBeCloseTo(1); // 20 px / 20 art px of band
-    expect(layout.frame!.top).toBe(0);
+    expect(layout.frame!.scale).toBeCloseTo(20 / 26);
+    expect(layout.frame!.top + layout.frame!.height).toBeCloseTo(760); // the bottom band ends on the window's edge
+  });
+
+  it("shrinks to the side room when the window is barely wider than the stage", () => {
+    // 1300 wide leaves 10px each side of the 1280×720 stage; the left band (21 art px) is the tightest there
+    const layout = computeStageLayout(1300, 760);
+    expect(layout.left).toBe(10);
+    expect(layout.frame!.scale).toBeCloseTo(10 / 21);
+    expect(layout.frame!.left).toBe(0);
   });
 
   it("lies over the stage's rim, never outside the window, when the stage fills the window", () => {
