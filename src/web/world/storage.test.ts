@@ -1,11 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   DEFAULT_WORLD_SETTINGS,
+  PROLOGUE_DONE_FLAG,
   WORLD_DISCOVERED_KEY,
   WORLD_SAVE_KEY,
   WORLD_SETTINGS_KEY,
   clearWorldSave,
   createDefaultSave,
+  createNewGameSave,
+  isContinuableSave,
   isWorldDiscovered,
   loadWorldSave,
   loadWorldSettings,
@@ -170,5 +173,27 @@ describe("without localStorage", () => {
     expect(() => saveWorldSave(playing())).not.toThrow();
     expect(() => markWorldDiscovered()).not.toThrow();
     expect(() => clearWorldSave()).not.toThrow();
+  });
+});
+
+describe("new game and continue (S2)", () => {
+  it("starts a chosen member inside their own house, at the doorway, facing the room", () => {
+    const save = createNewGameSave("doormomo");
+    expect(save).toMatchObject({ player: "doormomo", scene: "interior:house-doormomo", x: 336, y: 336, facing: "up", coachDone: false, shards: 0 });
+    expect(save.flags).toEqual({});
+    expect(parseWorldSave(JSON.parse(JSON.stringify(save))).status).toBe("ok");
+  });
+
+  it("offers Continue only for saves that finished the prologue", () => {
+    expect(isContinuableSave(null)).toBe(false);
+    expect(isContinuableSave(createDefaultSave())).toBe(false);
+    // An S1 sandbox save: a player and coordinates, but no prologue flag.
+    expect(isContinuableSave({ ...playing() })).toBe(false);
+    expect(isContinuableSave({ ...playing(), flags: { [PROLOGUE_DONE_FLAG]: true } })).toBe(true);
+    expect(isContinuableSave({ ...createNewGameSave("hachi97"), flags: { [PROLOGUE_DONE_FLAG]: true } })).toBe(true);
+  });
+
+  it("falls back to the road below the clubhouse when a save has no player", () => {
+    expect(createDefaultSave()).toMatchObject({ scene: "overworld", x: 1296, y: 560 });
   });
 });

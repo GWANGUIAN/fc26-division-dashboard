@@ -86,6 +86,22 @@ Elements in order (left to right, top to bottom):
 | 11 | `tooltip-frame` | 96×32 | 10 | 상호작용 "E" 프롬프트·조사 툴팁 |
 | 12 | `loading-bar-frame` | 320×32 | 8 | 로딩 진행률바 홈(채움은 CSS 민트 스트라이프) |
 
+**S2에서 확인한 변환본 실제 크기와 9-slice 값** (변환은 원본 비율을 유지하므로 위 표의 최종 px와 다르다. 코너 장식 크기를 확대해서 눈으로 재고 슬라이스를 정했다):
+
+| ID | 변환본 크기 | 쓰는 slice | 쓰임 |
+| --- | --- | --- | --- |
+| `dialog-frame` | 96×43 | 11 | 대사창 600×92. 가로 가운데 금 보석이 늘어나 긴 금색 막대처럼 보인다(아래 참고) |
+| `nameplate` | 96×28 | 위아래 8 · 좌우 17 | 화자 이름표, 높이 28 고정 |
+| `portrait-frame` | 160×152 | 27 (테두리는 12px로 줄여 그림) | 초상 76×76 |
+| `choice-normal` / `choice-selected` | 126×32 / 114×32 | 9·17 / 10·19 (위아래·좌우) | 선택지 190×32 |
+| `toast-frame` | 165×48 | 위아래 9 · 좌우 28 (리본 꼬리) | 지구 진입·안내 토스트 |
+| `coach-frame` | 113×64 | 14 | 코치마크 330폭 |
+| `tooltip-frame` | 52×32 | 좌우 10 · 위아래 9 | 캔버스에 직접 그리는 `E` 프롬프트 24×20 |
+| `card-normal` / `card-hover` / `card-selected` / `card-dim` | 72×91 / 72×89 / 72×79 / 72×91 | 9-slice 아님 | 캐릭터 카드. **높이가 서로 달라 모두 72×91 상자에 `background-size: 100% 100%`로 늘려** 그린다 |
+
+- 프레임 가장자리 한가운데의 **금 보석**은 프레임을 가로로 늘리면 같이 늘어난다(대사창 600px에서 약 10배). 거슬리면 `dialog-frame`·`choice-*`를 가장자리 보석 없이 다시 생성하거나(원본 재생성 → `pnpm convert:world-art -- ui frames-dialog`) 스트레치 대신 `round`로 바꿀 수 있다.
+- `btn-*`(62×28)는 slice 8, 프레임 시트 B 계열(`hud-tracker`, `panel-*` 등)의 slice는 S3에서 UI를 붙일 때 같은 방식으로 확인한다.
+
 ## 4. 프레임 시트 B — 패널·HUD·게시판 (`ui-frames-panel`)
 
 원본 이름 `ui-frames-panel.png`, **1536×1024, 4×3**. 프롬프트는 시트 A와 같은 머리말 + 아래 목록.

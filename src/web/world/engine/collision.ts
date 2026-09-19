@@ -12,8 +12,23 @@ export function footBox(x: number, y: number, w = 20, h = 10): Rect {
   return { x: x - w / 2, y: y - h, w, h };
 }
 
+/** Anything that can list the obstacles near a region (a spatial hash, or a hash plus moving entities). */
+export interface ObstacleSource {
+  query(region: Rect): readonly Rect[];
+}
+
+/** Adds loose rects (other characters) to an obstacle source, testing only those near the queried region. */
+export function composeObstacles(base: ObstacleSource, extras: readonly Rect[]): ObstacleSource {
+  return {
+    query(region) {
+      const near = extras.filter((rect) => rectsOverlap(rect, region));
+      return near.length === 0 ? base.query(region) : [...base.query(region), ...near];
+    },
+  };
+}
+
 /** Uniform-grid spatial hash so a move only tests the few obstacles near it. */
-export class SpatialHash {
+export class SpatialHash implements ObstacleSource {
   private cells = new Map<number, number[]>();
   private rects: Rect[] = [];
 
@@ -91,8 +106,8 @@ export interface MoveResult {
  * pulls the box backwards, which lets a box that starts embedded walk out. `bounds` (optional)
  * keeps the whole box inside the walkable area.
  */
-export function moveAndSlide(box: Rect, dx: number, dy: number, obstacles: SpatialHash | readonly Rect[], bounds?: Rect): MoveResult {
-  const near = (region: Rect): readonly Rect[] => (obstacles instanceof SpatialHash ? obstacles.query(region) : obstacles);
+export function moveAndSlide(box: Rect, dx: number, dy: number, obstacles: ObstacleSource | readonly Rect[], bounds?: Rect): MoveResult {
+  const near = (region: Rect): readonly Rect[] => (Array.isArray(obstacles) ? (obstacles as readonly Rect[]) : (obstacles as ObstacleSource).query(region));
 
   let x = box.x;
   let y = box.y;

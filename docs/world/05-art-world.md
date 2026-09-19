@@ -79,6 +79,8 @@ Objects in order (left to right, top to bottom):
 
 최종 `src/web/assets/world/props/<id>.webp`. 표의 **크기(px)** 는 최종 스프라이트 크기, **충돌(px)** 은 발끝(하단 중앙) 기준 충돌 사각형 `w×h`(`—`은 충돌 없음, `above`는 상단을 플레이어 위 레이어로 그림). 원본 이름 `props-<시트>.png`. 식물류(`*`)는 `-withered` 자동 파생.
 
+> **S2 구현 메모**: 변환 파일 크기는 이 표의 px와 같지만 그림이 그보다 작게 그려진 소품이 많아, 코드(`data/propDefs.ts`)는 이 표의 충돌 값을 **보이는 그림 크기로 줄여** 쓴다([09 §11](09-asset-checklist.md#11-s2-소품-충돌-크기-대조-2026-09-19)). `above`는 표에 높이가 없어 소품별 px(`aboveFrom`)로 정했다: 나무 40(큰 참나무 48) = 줄기 높이, 아치 48–64 = 기둥 높이([01 §5](01-concept-and-architecture.md#5-렌더링-설계), [03 §11](03-map-design.md#11-충돌정렬-규칙-요약)).
+
 ### 2-1. `props-trees` — 나무
 `THEME`: `trees for a top-down RPG village: leafy canopy and trunk clearly separated, canopy is bold and readable`
 `LIST`: `1) round green oak tree, 2) big old oak tree, 3) tall green pine, 4) white birch tree, 5) pink cherry-blossom tree in full bloom, 6) fluffy pale-blue-and-white cloud tree, 7) snow-covered pine, 8) dark blue-purple night tree with glowing fruit, 9) bare dead tree with no leaves, 10) charred tree with glowing embers, 11) golden-leaf tree, 12) small tree stump with rings`

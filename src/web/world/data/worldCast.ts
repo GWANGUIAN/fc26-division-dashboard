@@ -44,7 +44,7 @@ export const WORLD_CAST: CastDef[] = [
     role: "host",
     themeColor: "#7fdca4",
     voiceSfx: "/sfxes/woowakgood.mp3",
-    spawn: { scene: "interior:clubhouse-office", x: 10 * TILE + 16, y: 4 * TILE + 16, ai: "stay" },
+    spawn: { scene: "interior:clubhouse-office", ...at(10, 7), ai: "stay" },
   },
   {
     id: "elder",
@@ -60,7 +60,7 @@ export const WORLD_CAST: CastDef[] = [
     playable: false,
     role: "original",
     themeColor: "#7fe8c8",
-    spawn: { scene: "interior:store", x: 14 * TILE + 16, y: 4 * TILE + 16, ai: "stay" },
+    spawn: { scene: "interior:store", ...at(12, 6), ai: "stay" },
   },
   {
     id: "kid",
@@ -68,7 +68,7 @@ export const WORLD_CAST: CastDef[] = [
     playable: false,
     role: "original",
     themeColor: "#ff9a8a",
-    spawn: { scene: "overworld", ...at(40, 21), ai: "wander", wanderRect: { x: 33 * TILE, y: 18 * TILE, w: 15 * TILE, h: 8 * TILE } },
+    spawn: { scene: "overworld", ...at(44, 22), ai: "wander", wanderRect: { x: 33 * TILE, y: 18 * TILE, w: 15 * TILE, h: 8 * TILE } },
   },
   {
     id: "referee",
@@ -76,7 +76,7 @@ export const WORLD_CAST: CastDef[] = [
     playable: false,
     role: "original",
     themeColor: "#ffe14a",
-    spawn: { scene: "interior:stadium", x: 10 * TILE + 16, y: 5 * TILE + 16, ai: "stay" },
+    spawn: { scene: "interior:stadium", ...at(7, 6), ai: "stay" },
   },
   {
     id: "weedking",
@@ -85,7 +85,7 @@ export const WORLD_CAST: CastDef[] = [
     role: "original",
     themeColor: "#b98a6a",
     // Before the ending he waits inside the factory; the story moves him to the stadium later.
-    spawn: { scene: "interior:factory", x: 10 * TILE + 16, y: 5 * TILE + 16, ai: "stay" },
+    spawn: { scene: "interior:factory", ...at(10, 7), ai: "stay" },
   },
   {
     id: "weeder-grunt",

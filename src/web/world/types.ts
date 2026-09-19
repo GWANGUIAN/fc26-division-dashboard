@@ -66,6 +66,99 @@ export interface WorldSettings {
   sfxVolume: number;
 }
 
+/** Tile span with inclusive corners: [x0, y0, x1, y1] (docs/world/03 §10). */
+export type TileSpan = [number, number, number, number];
+/** Box in tiles as [x, y, w, h] (door and trigger rects). */
+export type TileBox = [number, number, number, number];
+/** Box in pixels as [x, y, w, h] (collision rects). */
+export type PxBox = [number, number, number, number];
+
+export type NpcAi = "stay" | "idle" | "wander";
+
+export interface MapZone {
+  id: string;
+  name: string;
+  rect: TileSpan;
+  /** Colour grade for the zone (applied by S4). */
+  tint: string;
+  particles?: string;
+  bgm?: string;
+}
+
+export interface MapBuilding {
+  id: string;
+  /** Sprite box in tiles; the sprite is anchored to its bottom edge. */
+  rect: TileSpan;
+  /** Door in tiles [x, y, w, h]; the doorstep row is the last row of `rect`. */
+  door?: TileBox;
+  interior?: string;
+}
+
+export interface MapProp {
+  prop: string;
+  /** Feet position in pixels (bottom centre of the sprite). */
+  x: number;
+  y: number;
+}
+
+export interface MapNpc {
+  cast: CastId;
+  tile: [number, number];
+  ai: NpcAi;
+  /** Wander area in tiles [x, y, w, h]. */
+  wander?: TileBox;
+  /** Spawn condition (mission/flag expression, evaluated from S3). NPCs with a condition are not spawned in S2. */
+  when?: string;
+}
+
+export type MapTrigger = {
+  type: "door";
+  rect: TileBox;
+  to: { scene: SceneId; tile: [number, number]; facing?: Facing };
+};
+
+export interface MapExamine {
+  id?: string;
+  /** Centre of the examine area in tiles. */
+  tile: [number, number];
+  text: string;
+  /** Examine area in pixels [w, h] around the tile centre (default 64×48). */
+  size?: [number, number];
+}
+
+export interface OverworldMapData {
+  id: "overworld";
+  size: [number, number];
+  tile: number;
+  /** Walkable region in tiles [x, y, w, h]; the rest is the forest/cliff band. */
+  walkable: TileBox;
+  /** Default entry tile (debug teleport, broken-save fallback). */
+  spawn: [number, number];
+  legend: Record<string, string>;
+  terrainRows: string[];
+  zones: MapZone[];
+  props: MapProp[];
+  buildings: MapBuilding[];
+  collision: PxBox[];
+  npcs: MapNpc[];
+  triggers: MapTrigger[];
+  examine: MapExamine[];
+}
+
+export interface InteriorMapData {
+  id: string;
+  /** Asset key of the room image, e.g. "interiors/int-house-doormomo". */
+  image: string;
+  size: [number, number];
+  spawn: [number, number];
+  /** Where the bottom door leads back to. */
+  exitTo: { scene: SceneId; tile: [number, number] };
+  collision: PxBox[];
+  examine: MapExamine[];
+  npcs: MapNpc[];
+  triggers: MapTrigger[];
+}
+
 export interface MinigameRoundResult {
   game: "soccer-sum10" | "kickups" | "freekick" | "cardmatch";
   /** cardmatch reports the number of turns (lower is better). */

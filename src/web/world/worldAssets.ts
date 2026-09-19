@@ -1,4 +1,8 @@
-import type { CastId } from "./types";
+import { OVERWORLD_MAP } from "./data/maps";
+import { PROP_DEFS, propAssetKey } from "./data/propDefs";
+import { TERRAIN_SHEETS, terrainAssetKey } from "./data/terrainDefs";
+import { PLAYABLE_CAST, WORLD_CAST } from "./data/worldCast";
+import type { CastId, SceneId } from "./types";
 
 // Every converted image is picked up automatically (import.meta.glob), so dropping new files into
 // src/web/assets/world/<category>/ needs no code change. Missing files are never an error: callers
@@ -33,14 +37,44 @@ const BOOT_KEYS = [
   "ui/btn-secondary-normal",
   "ui/btn-secondary-hover",
   "ui/btn-secondary-pressed",
+  "ui/select-bg",
+  "ui/card-normal",
+  "ui/card-hover",
+  "ui/card-selected",
+  "ui/card-dim",
+  "ui/ball-marker",
+  ...PLAYABLE_CAST.flatMap((cast) => [`characters/${cast.id}-stand`, `portraits/${cast.id}-neutral`]),
 ];
 
-/** Props used by the S1 sandbox map (replaced by the real map's prop list in S2). */
-const SANDBOX_PROP_KEYS = ["props/tree-oak", "props/rock-large", "props/boulder-mossy", "props/bench-h", "props/fence-wood-h", "props/log"];
+/** Frames the in-world DOM UI (dialogue, toasts, coach marks) and the canvas prompt use. */
+const WORLD_UI_KEYS = [
+  "ui/dialog-frame", "ui/nameplate", "ui/portrait-frame", "ui/choice-normal", "ui/choice-selected", "ui/cursor",
+  "ui/next-1", "ui/next-2", "ui/toast-frame", "ui/coach-frame", "ui/tooltip-frame",
+];
 
-export function assetKeysForGroup(group: AssetGroup, player: CastId | null): string[] {
+/** Everything the overworld draws: terrain sheets (lush + withered), and the props and buildings the map uses. */
+function overworldKeys(): string[] {
+  const keys: string[] = [];
+  for (const sheet of TERRAIN_SHEETS) keys.push(terrainAssetKey(sheet, false), terrainAssetKey(sheet, true));
+  for (const id of new Set(OVERWORLD_MAP.props.map((prop) => prop.prop))) {
+    keys.push(propAssetKey(id));
+    if (PROP_DEFS[id]?.withered) keys.push(propAssetKey(id, true));
+  }
+  for (const building of OVERWORLD_MAP.buildings) keys.push(`buildings/${building.id}`);
+  return keys;
+}
+
+/**
+ * boot: everything up to the character select. core: what the world itself draws — terrain, props,
+ * buildings, every cast atlas, the in-world UI frames and the room the game starts in (the other rooms
+ * load lazily behind the door fade, docs/world/01 §8).
+ */
+export function assetKeysForGroup(group: AssetGroup, player: CastId | null, startScene: SceneId | null = null): string[] {
   if (group === "boot") return BOOT_KEYS;
-  return ["terrain/core", ...(player ? [`characters/${player}-atlas`] : []), ...SANDBOX_PROP_KEYS];
+  const keys = [...overworldKeys(), ...WORLD_UI_KEYS, ...WORLD_CAST.map((cast) => `characters/${cast.id}-atlas`)];
+  if (player) keys.push(`characters/${player}-atlas`);
+  if (startScene?.startsWith("interior:")) keys.push(`interiors/int-${startScene.slice("interior:".length)}`);
+  return keys;
 }
 
 export interface LoadReport {

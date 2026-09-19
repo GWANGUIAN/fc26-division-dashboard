@@ -1,5 +1,5 @@
-import { isPlayableCastId } from "./data/worldCast";
-import type { Facing, MissionProgress, MissionStatus, SceneId, WorldSave, WorldSettings } from "./types";
+import { getCast, isPlayableCastId } from "./data/worldCast";
+import type { CastId, Facing, MissionProgress, MissionStatus, SceneId, WorldSave, WorldSettings } from "./types";
 
 // Three separate keys (docs/world/01 §7): the save can be wiped by "새로 시작" without touching the
 // sound settings or the first-visit flag. Every access is wrapped: storage may be missing or full
@@ -17,8 +17,14 @@ const MAX_SHARDS = 10;
 
 export const DEFAULT_WORLD_SETTINGS: WorldSettings = { bgm: true, bgmVolume: 35, sfx: true, sfxVolume: 55 };
 
-/** Where a brand-new game starts until S2 adds the character select and the real map. */
-export const DEFAULT_SPAWN = { scene: "overworld" as SceneId, x: 640, y: 480, facing: "down" as Facing };
+/** Fallback position (the road below the clubhouse, docs/world/03) for a save with no player yet. */
+export const DEFAULT_SPAWN = { scene: "overworld" as SceneId, x: 40 * 32 + 16, y: 17 * 32 + 16, facing: "down" as Facing };
+
+/** Set once the prologue cut is over. Only such saves are offered as "이어하기" (S1 sandbox saves lack it). */
+export const PROLOGUE_DONE_FLAG = "prologue-done";
+
+/** Every member starts in the doorway of their own house: interior spawn tile (10, 10), facing the room. */
+export const HOME_SPAWN_TILE = { x: 10, y: 10 };
 
 export function createDefaultSave(): WorldSave {
   return {
@@ -37,6 +43,24 @@ export function createDefaultSave(): WorldSave {
     daily: { date: "", picks: [], done: [], stamps: [] },
     coachDone: false,
   };
+}
+
+/** A fresh game for the chosen member: inside their own house, prologue not yet marked done. */
+export function createNewGameSave(player: CastId): WorldSave {
+  const home = getCast(player).home ?? "interior:house-janine95kim";
+  return {
+    ...createDefaultSave(),
+    player,
+    scene: home as SceneId,
+    x: HOME_SPAWN_TILE.x * 32 + 16,
+    y: HOME_SPAWN_TILE.y * 32 + 16,
+    facing: "up",
+  };
+}
+
+/** True when the save belongs to a finished-prologue game (S1 saves never do, so they count as a new game). */
+export function isContinuableSave(save: WorldSave | null): save is WorldSave {
+  return save !== null && save.player !== null && save.flags[PROLOGUE_DONE_FLAG] === true;
 }
 
 type Migration = (raw: Record<string, unknown>) => Record<string, unknown>;

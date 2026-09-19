@@ -40,12 +40,12 @@
 | ← ↑ → ↓ / W A S D | 이동 |
 | Shift(누르는 동안) | 달리기 |
 | E / Space / Enter | 상호작용, 대사 넘기기, 선택 확정 |
-| Esc | 메뉴(일시정지). 대사/모달이 열려 있으면 그것부터 닫기 |
+| Esc | 열려 있는 UI를 **위에서부터 하나씩** 닫는다: 대사 → 코치마크(가이드 건너뛰기) → 프롤로그(건너뛰기) → 캐릭터 선택(타이틀로). 아무것도 없을 때만 월드를 나간다(일시정지 메뉴는 S3). 판정은 `state/escape.ts`의 `resolveEscape` |
 | J | 미션 로그 |
 | M | 전체 지도 |
 | ↑ ↓ (선택지/메뉴) | 항목 이동 |
 
-첫 진입 시 가이드(코치마크)를 띄운다 → [02 §튜토리얼](02-story-and-missions.md#4-튜토리얼-가이드).
+대사·프롤로그·캐릭터 선택이 열려 있는 동안 이동·E는 멈춘다. 코치마크는 걷기(C1)를 요구하므로 **이동을 막지 않는 말풍선**이다. 첫 진입 시 가이드(코치마크)를 띄운다 → [02 §튜토리얼](02-story-and-missions.md#4-튜토리얼-가이드).
 
 ## 3. 화면 흐름
 
@@ -77,43 +77,54 @@ src/web/world/
   WorldToggle.tsx            좌상단 플로팅 이미지 버튼 (+ 발견 플래그 글로우)
   WorldOverlay.tsx           lazy, fixed inset:0, z-index 90, useBodyScrollLock/useEscape
   WorldCanvas.tsx            <canvas> + 게임 루프 마운트, ResizeObserver, DPR
-  world.css / world-toggle.css
+  world.css / world-ui.css(S2 화면들) / world-toggle.css
   storage.ts                 fc26-world-* (schemaVersion + validator, group-photo/storage.ts 패턴)
   worldAssets.ts             import.meta.glob(`?url&no-inline`) 매니페스트 + 프리로더(우선순위 그룹, 진행률)
   stageLayout.ts             640×360 스테이지의 정수 배율/레터박스 계산(순수, test)
   debug.ts                   `?worldDebug` 플래그
   engine/
     loop.ts                  고정 스텝 루프
-    input.ts                 키 상태, 포커스 스택(대사/모달 우선)
+    input.ts                 키 상태(UI가 잡고 있는 동안 비활성)
     camera.ts                추적 + 맵 경계 클램프 + 실내 고정
-    collision.ts             AABB 슬라이드, 공간 해시 (순수, *.test.ts)
-    scene.ts                 씬 데이터(props/충돌 인덱스) + `SceneTransition`(문 전환·페이드)
-    world.ts                 엔진 본체(루프 조립·플레이어 이동·카메라·렌더 호출·자동 저장)
-    render.ts                레이어 그리기, 지면 청크 캐시, y-sort
-    particles.ts             꽃잎/눈/불씨/반딧불 (코드 생성)
-    npcAi.ts                 idle/wander/face-player
-    ball.ts                  월드 킥 볼 물리(마찰·벽 반사)
+    collision.ts             AABB 슬라이드, 공간 해시, `composeObstacles`(NPC를 장애물로) (순수, *.test.ts)
+    scene.ts                 씬 타입 + `SceneTransition`(문 전환·페이드, 실내 이미지 로딩 동안 검게 유지)
+    mapScene.ts              맵 JSON → `WorldScene`(충돌·문·조사·NPC 스폰·지구), 씬 캐시
+    terrain.ts               지면 청크 캐시(512px, lush/withered 2벌) + 지구 경계 디더 블렌딩 + 복원 크로스페이드
+    npc.ts                   NPC 엔티티(stay/idle/wander/대화 시 플레이어 보기)
+    interaction.ts           전방 28px 프로브로 상호작용 대상 고르기
+    world.ts                 엔진 본체(루프·이동·문 전환·상호작용·카메라·렌더 호출·자동 저장·디버그 훅)
+    render.ts                y-sort 정적 순서, 소품/건물/캐릭터/`above`, 프롬프트, 9-slice, 디버그 오버레이
+    particles.ts             꽃잎/눈/불씨/반딧불 (코드 생성) — S4
+    ball.ts                  월드 킥 볼 물리(마찰·벽 반사) — S3
   state/
     worldState.ts            리듀서(순수) + 이벤트
     missions.ts              미션 상태기계 (locked→available→active→ready→completed)
-    dialogue.ts              대사 선택기(상태별 노드 선택, 순환 대사)
+    dialogue.ts              (S2) 대사 러너: 타자기·줄 넘김·선택지 순수 함수. 상태별 노드 선택기는 S4에서 별도 파일
+    coach.ts                 (S2) 코치마크 C1~C3 진행 조건
+    escape.ts                (S2) Esc 우선순위
+    selection.ts             (S2) 캐릭터 선택 4열 격자 이동
     daily.ts                 날짜 시드 일일 미션
     progress.ts              잔디 조각 진행도 → 색 복원 단계(0~10)
   data/
     worldCast.ts             캐스트 20명 (하드코딩, roster.yaml 미사용)
-    sandboxMap.ts            S1 임시 빈 평지(S2에서 maps/overworld.json으로 교체)
+    castProfiles.ts          캐릭터 선택 카드 문구(포지션·별명·집)
+    propDefs.ts              소품 정의(스프라이트 크기·보이는 크기·발자국·`aboveFrom`·decal·withered)
+    terrainDefs.ts           지면 시트 슬롯 목록·시든 변형 유무·경계 블렌딩 대상·발소리 재질
+    placeholderDialogue.ts   S2 임시 대사·프롤로그 문구 (S4에서 dialogueData.ts로 교체)
     missionDefs.ts           미션 정의 + 임계값
     dialogueData.ts          NPC별 대사 노드
-    maps/overworld.json      맵 데이터 (03 스키마)
-    maps/interiors/*.json
+    maps/overworld.json      맵 데이터 (03 스키마, `scripts/build-world-map.mjs`로 첫 생성)
+    maps/index.ts            JSON 로더(`OVERWORLD_MAP`, `INTERIOR_MAPS`)
+    maps/mapIntegrity.test.ts 맵 무결성·도달성 테스트
+    maps/interiors/*.json    실내 19곳
   ui/
-    LoadingScreen.tsx  TitleScreen.tsx  CharacterSelect.tsx  DialogueBox.tsx
-    ChoiceMenu.tsx  MissionLog.tsx  PauseMenu.tsx  WorldMap.tsx  CoachMarks.tsx
-    Hud.tsx  Toast.tsx  DailyBoard.tsx
+    LoadingScreen.tsx  TitleScreen.tsx  CharacterSelect.tsx  Prologue.tsx  DialogueBox.tsx(선택지 포함)
+    CoachMarks.tsx  Toast.tsx  DebugPanel.tsx  buttonProps.ts
+    MissionLog.tsx  PauseMenu.tsx  WorldMap.tsx  Hud.tsx  DailyBoard.tsx   (S3 이후)
   arcade/
     GrassRushModal.tsx  GrassRushCanvas.tsx  grassRushEngine.ts(+test)  useGrassRush*.ts
   audio/
-    worldAudio.ts            BGM 크로스페이드, SFX 풀
+    worldAudio.ts            BGM 크로스페이드(선호 목록 → 처음 존재하는 파일), SFX 풀. 파일이 없으면 무음
 ```
 
 에셋: `src/web/assets/world/{characters,portraits,terrain,props,buildings,interiors,ui,fx,rush}/`(glob 자동 스캔, 파일명은 [09](09-asset-checklist.md)). 사운드: `public/sfxes/world-*.mp3`, `public/world-bgm-*.mp3`([07](07-audio.md)). 원본 PNG: `tmp/world-src/<카테고리>/`(커밋 제외).
@@ -129,6 +140,13 @@ src/web/world/
 6. **light/tint**: 지구별 비네트·색조(코드). 실내는 별도 톤.
 7. **markers**: NPC 머리 위 `?`/`!` 마커(위아래 바운스), 상호작용 말풍선 "E".
 8. DOM 레이어(React): 대사창, HUD, 미션 로그, 메뉴, 토스트, 코치마크 — 캔버스 위 절대 배치.
+
+### S2에서 정한 구현 규칙
+- **ground**: 512px 청크를 처음 보일 때 굽고(lush/withered 각 1벌) 타일 단위로 지구 복원값에 따라 크로스페이드한다. 복원값은 `restoreOfZone(zoneIndex)` 훅 하나로 들어오며, S2에서는 `save.shards / 10`(항상 0 → 시든 상태)이고 `?worldDebug` 슬라이더로 0~100%를 미리 볼 수 있다. S3가 지구별 값(`progress.ts`)을 꽂는다. 지구 경계는 서로 다른 시트의 *기본 지면*끼리만 12px 폭 4×4 순서 디더로 섞고, 길·광장·물·얼음·피치는 선명하게 둔다.
+- **entities**: 건물·소품은 씬 로드 때 한 번 정렬한 정적 목록, NPC·플레이어는 프레임마다 정렬해 두 목록을 병합해 그린다(`sortY` = 발 y). 그림자는 코드가 그린다(캐릭터 발밑 타원).
+- **above**: `propDefs.aboveFrom` 위쪽 부분만 모든 엔티티 위에 다시 그린다. 나머지(줄기)는 y-sort.
+- 소품 lush/withered도 같은 복원값으로 크로스페이드한다(시든 이미지가 있는 15종).
+- 물 애니메이션·지구별 파티클·앰비언스·색조는 S4/S6.
 
 ### 성능 예산
 - 목표 60fps, 1프레임 update+render ≤ 6ms(중급 노트북).
@@ -146,9 +164,10 @@ src/web/world/
 
 - **이동**: 입력 벡터 정규화 후 속도 곱. 축 분리 충돌(x 먼저, y 다음)로 벽 슬라이드.
 - **충돌 데이터**: 맵 JSON의 충돌 사각형(px) + 소품 정의의 footprint. 공간 해시(64px 셀)로 근처만 검사. 물(deep water)·낭떠러지는 사각형/terrain 플래그로 막는다. 실내는 이미지 위 손으로 튜닝한 사각형 배열(`?worldDebug`로 오버레이해 확인).
-- **상호작용**: 바라보는 방향 앞 28px 반경 안 상호작용 대상(NPC·표지판·조사 포인트·기계) 중 가장 가까운 것. 대상이 있으면 머리 위/하단에 `E` 프롬프트.
+- **상호작용**: 바라보는 방향으로 발 상자 앞 **28px 프로브**(폭 24, 옆 방향은 높이 18)가 닿는 대상 중 가장 가까운 것. NPC는 몸 크기(24×40, 동물 28×26) 상자, 조사 포인트는 영역(기본 64×48)으로 맞고 같은 거리면 NPC가 우선. 대상이 있으면 머리 위에 `E` 프롬프트(캔버스에 `tooltip-frame`으로 그림). `E`/Space/Enter로 대화·조사가 열리면 그 사이 이동·E는 멈추고, NPC는 플레이어를 바라본다.
 - **트리거 종류**: `door`(씬 전환), `zone`(진입 시 이벤트: 지구 진입 토스트·BGM 전환), `examine`(텍스트 조사), `npc`, `machine`(오락실), `board`(일일 게시판), `pickup`(수집품), `goal`(킥 미션 골대), `checkpoint`.
-- **NPC AI**: `idle`(제자리+가끔 방향 전환), `wander`(지정 사각형 안 랜덤 이동), `stay`(고정). 대화 시작 시 플레이어를 향해 돌아보고, 종료 후 복귀. 미션 대상 NPC는 `stay` 고정 권장(위치 예측 가능).
+- **NPC AI**(`engine/npc.ts`): `idle`(제자리+가끔 방향 전환), `wander`(지정 사각형 안 랜덤 이동, 34px/s·동물 52px/s, 0.6초 막히면 목적지를 다시 고름), `stay`(고정). 대화 시작 시 플레이어를 향해 돌아보고 멈추며, 종료 후 원래 방향으로 복귀(걷는 NPC는 그대로 진행). NPC는 16×8px 충돌 상자로 플레이어를 막는다. 미션 대상 NPC는 `stay` 고정 권장(위치 예측 가능).
+- **문**: 발 상자가 문 트리거에 닿으면 페이드(0.25초) → 씬 교체 → 페이드. 도착 직후 0.35초와 문 위에 서 있는 동안은 다시 발동하지 않는다(왔다갔다 방지). 실외 문 트리거는 아래 12px을 깎아 건물 앞을 따라 걷는 것만으로는 들어가지 않는다.
 - **월드 킥(쥬멩이 미션·훈련장 상시)**: E로 공 방향 킥, 마찰 감속, 벽 반사. 골대 트리거에 들어가면 득점.
 
 ## 7. 데이터 스키마 (TypeScript 초안)
@@ -211,6 +230,7 @@ interface MinigameRoundResult {
 }
 ```
 
+- **이어하기 조건(S2)**: `flags["prologue-done"]`가 있는 세이브만 "이어하기"로 노출한다. S1 샌드박스 세이브는 이 플래그가 없어 새 게임으로 취급한다. "새로 시작"은 캐릭터를 고르고 프롤로그를 마칠 때까지 기존 세이브를 지우지 않는다(중간에 나가도 이어하기가 남는다). 새 게임은 고른 멤버의 **집 실내 `(10, 10)`, 위를 보는 방향**에서 시작한다.
 - 저장 키: `fc26-world-save-v1`(전체), `fc26-world-discovered-v1`(첫 방문 글로우 해제), `fc26-world-settings-v1`(사운드). 모두 try/catch로 감싸고 검증 실패 시 새 게임. **사운드 설정은 `WorldSave`에 넣지 않고 자기 키에만 둔다**("새로 시작"이 사운드 설정을 지우지 않도록). 세이브 검증은 구조 오류(버전·씬·좌표·미션·일일)면 통째로 거부하고, `bests`·`talked`·`flags`의 잘못된 항목만 버린다.
 - 일일 미션 날짜 기준: KST(`Asia/Seoul`) `YYYY-MM-DD`, 시드로 `daily.picks`를 결정론적으로 뽑는다.
 
@@ -227,7 +247,7 @@ interface MinigameRoundResult {
 
 - 진행률 = 완료 개수 / 전체(구현: 파일이 실제로 있는 키만 분모에 넣어, 아트가 덜 채워져도 100%에 도달). 로딩 화면은 진행률바(코드) + 팁 문구 순환 + 키아트. 최소 표시 시간 0.6초(깜빡임 방지). 이미지는 `fetch → createImageBitmap`으로 디코드하고 오버레이가 닫힐 때 `close()`한다.
 - 에셋 URL은 `?url&no-inline`으로 가져온다: 4KB 미만 이미지가 base64로 JS 청크에 인라인되면 월드 청크가 530KB로 부풀기 때문(끄면 56KB). 월드 이미지 파일은 모두 `dist/`에 복사된다.
-- S1의 `boot` 그룹은 로딩·타이틀 화면 UI(배경, 로고, 로딩바 프레임, 버튼 판)만이고, 선택용 초상·스탠딩은 캐릭터 선택 화면이 생기는 S2에서 추가한다. `core`는 `terrain/core` + 선택 캐릭터 아틀라스 + 샌드박스 소품 몇 개.
+- **S2 그룹**: `boot` = 로딩·타이틀 UI + 캐릭터 선택 화면(배경·카드·화살표·리본, 11명의 스탠딩과 중립 초상). `core` = 지면 시트 8(+시든 5) + **맵이 쓰는 소품(시든 포함)·건물 17** + 캐스트 20명 아틀라스 + 대사·토스트·코치마크 프레임 + **시작하는 집의 실내 이미지**. 나머지 실내는 문을 지날 때 페이드 동안 지연 로드하고 캐시한다(로드가 끝날 때까지 화면은 검게 유지).
 - 이미지 로드 실패 시 **플레이스홀더로 폴백**(색 사각형/이니셜) — 에셋이 아직 없어도 게임이 돈다. 이것이 코딩과 아트 제작을 병렬로 진행하는 핵심 규칙이다.
 - 오디오 자동재생 정책: 플로팅 버튼 클릭이 사용자 제스처이므로 로딩 중 BGM 컨텍스트를 준비하고, 타이틀에서 재생 시작. `.catch(() => {})` 처리.
 
@@ -237,6 +257,7 @@ interface MinigameRoundResult {
 - SFX: 동시 재생이 필요하므로 기존 `playSfx()`(단일 슬롯, `sfxAudio.ts`) 대신 월드 전용 풀(`worldAudio.ts`, 이름별 3~4개 Audio 인스턴스 재사용).
 - 설정: BGM/효과음 on-off·볼륨을 `fc26-world-settings-v1`에 저장, 기본 BGM 35 / SFX 55(기존 게임 기본값과 동일). 기존 `SoundControl.tsx`(`minigame/`) UI 재사용 검토.
 - **사이트 전역 `MusicPlayer`(YouTube iframe)**는 독립 재생이라 월드 진입 시 겹친다 → **결정(S1)**: 월드가 열리면 재생 중이던 전역 음악을 일시정지하고, 닫을 때 월드가 멈춘 경우에만 재개한다(`src/web/musicControl.ts`, [08 §5 #1](08-implementation-roadmap.md#5-미해결-항목)).
+- **S2 구현 상태**(`audio/worldAudio.ts`): 파일은 전부 선택 사항이다. `public/world-bgm-*.mp3`·`public/sfxes/world-*.mp3`를 이름으로 찾아(HEAD 요청, 오디오 타입이 아니면 없는 파일) 있으면 재생하고 없으면 조용히 무음이다. BGM은 선호 목록(`[지구 BGM, 필드 BGM]`)에서 처음 존재하는 파일을 1초 크로스페이드로 튼다. 연결된 효과음은 UI 이동/선택, 대사 틱/넘김/시작, 발소리(잔디·돌·나무·흙·눈·금속·물), 문 열림/닫힘, 상호작용 핑, 조사(07의 S1–S5·S7–S12·S18–S19·S21–S22 중 해당분). BGM 13곡과 SFX 53개는 2026-09-19에 `public/`에 들어왔다(`world-bgm-region-weed.mp3`만 없어 제초동 구역은 필드 BGM으로 대체).
 - 기존 효과음 재사용 목록과 신규 목록은 [07-audio.md](07-audio.md).
 
 ## 10. 기존 코드 통합 지점

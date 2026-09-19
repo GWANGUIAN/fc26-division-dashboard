@@ -104,8 +104,10 @@ export function createInput(target: Window = window): InputController {
     move: () => (enabled ? moveVector(held) : { x: 0, y: 0 }),
     reset,
     setEnabled(next) {
+      if (next === enabled) return;
       enabled = next;
-      if (!next) reset();
+      // Keys pressed while a dialogue owned the keyboard must not leak into the world when it comes back.
+      reset();
     },
   };
 }

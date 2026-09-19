@@ -167,14 +167,14 @@
 | 카드 열람 연출 | `/sfxes/card-reveal.mp3` | 카드 미션 팝업은 기존 것 그대로 |
 | 골 성공(킥 미션) | `/sfxes/goal.mp3` | S34와 겹치면 한쪽만 |
 | 관중 환호 | `/sfxes/cheer.mp3` | S37 대체 가능 |
-| 승리 | `/sfxes/victory.mp3` | 결전 승리 |
+| 승리 | `/sfxes/card-match-victory..mp3` | 결전 승리 |
 | 게임 오버 | `/sfxes/game-over.mp3` | |
 | 공 튀김 | `/sfxes/ball-bounce.mp3` | 월드 볼 반사 |
 | 킥오프 휘슬 | `/sfxes/soccer-sum10-start.mp3` | S35 대체 가능 |
 | 종료 휘슬 | `/sfxes/soccer-sum10-timeup.mp3` | S36 대체 가능 |
 | 성공 스윕 | `/sfxes/soccer-sum10-clear.mp3` | 체크포인트 대체 가능 |
 | 실패 삑 | `/sfxes/soccer-sum10-invalid.mp3` | S6 대체 가능 |
-| 전광판/네온 | `/sfxes/light-on.mp3`, `/sfxes/light-off.mp3`, `/sfxes/turn-on.mp3` | 오락실 전원/네온 |
+| 전광판/네온 | `/sfxes/neon-sign-on.mp3`, `/sfxes/neon-sign-off.mp3`, `/sfxes/turn-on.mp3` | 오락실 전원/네온 |
 | 미니게임 BGM | `/soccer-sum10-bgm.mp3`, `/background-mini-game.mp3`, `/fortune-bgm.mp3` | 각 게임 모달은 자체 BGM 유지(월드 BGM은 모달 열림 중 일시정지) |
 
 ### 멤버 음성 (첫 만남 인사 재생)

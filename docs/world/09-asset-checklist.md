@@ -176,14 +176,17 @@
 번호는 [07-audio.md](07-audio.md)의 표 번호와 동일. 세부 파일명·키워드는 07, 여기서는 진행만 체크한다.
 
 ### BGM (14)
-- [ ] B1 title (P0) · [ ] B2 field-lush (P0) · [ ] B3 field-withered (P0) · [ ] B4 interior (P0) · [ ] B5 arcade (P0)
-- [ ] B6 stadium (P1) · [ ] B7 boss (P1) · [ ] B8 ending (P1) · [ ] B9 rush (P1)
-- [ ] B10 region-sky (P2) · [ ] B11 region-spring (P2) · [ ] B12 region-frost (P2) · [ ] B13 region-forge (P2) · [ ] B14 region-weed (P2)
+- [x] B1 title (P0) · [x] B2 field-lush (P0) · [x] B3 field-withered (P0) · [x] B4 interior (P0) · [x] B5 arcade (P0)
+- [x] B6 stadium (P1) · [x] B7 boss (P1) · [x] B8 ending (P1) · [x] B9 rush (P1)
+- [x] B10 region-sky (P2) · [x] B11 region-spring (P2) · [x] B12 region-frost (P2) · [x] B13 region-forge (P2) · [ ] B14 region-weed (P2)
 
 ### 신규 SFX (53)
-- **P0 (19)**: [ ] S1 [ ] S2 [ ] S3 [ ] S4 [ ] S5 [ ] S7 [ ] S8 [ ] S10 [ ] S11 [ ] S12 [ ] S18 [ ] S19 [ ] S23 [ ] S25 [ ] S26 [ ] S27 [ ] S28 [ ] S32 [ ] S34
-- **P1 (26)**: [ ] S6 [ ] S9 [ ] S13 [ ] S14 [ ] S15 [ ] S20 [ ] S21 [ ] S22 [ ] S24 [ ] S29 [ ] S30 [ ] S33 [ ] S35 [ ] S36 [ ] S37 [ ] S38 [ ] S39 [ ] S40 [ ] S41 [ ] S42 [ ] S45 [ ] S47 [ ] S48 [ ] S49 [ ] S50 [ ] S51
-- **P2 (8)**: [ ] S16 [ ] S17 [ ] S31 [ ] S43 [ ] S44 [ ] S46 [ ] S52 [ ] S53
+
+> 2026-09-19 수집 완료: BGM 13곡(B14 `region-weed`만 남음)과 SFX 53개를 `public/`·`public/sfxes/`에 넣었다(합계 약 25MB). 받은 파일명 오타 2개(`region-forg`→`region-forge`, `step-meta`→`step-metal`)는 복사하며 고쳤다. **출처/라이선스는 아직 07 표에 기록 전** — CC-BY 표기가 필요한 파일이 있는지 S6 크레딧 전에 확인.
+
+- **P0 (19)**: [x] S1 [x] S2 [x] S3 [x] S4 [x] S5 [x] S7 [x] S8 [x] S10 [x] S11 [x] S12 [x] S18 [x] S19 [x] S23 [x] S25 [x] S26 [x] S27 [x] S28 [x] S32 [x] S34
+- **P1 (26)**: [x] S6 [x] S9 [x] S13 [x] S14 [x] S15 [x] S20 [x] S21 [x] S22 [x] S24 [x] S29 [x] S30 [x] S33 [x] S35 [x] S36 [x] S37 [x] S38 [x] S39 [x] S40 [x] S41 [x] S42 [x] S45 [x] S47 [x] S48 [x] S49 [x] S50 [x] S51
+- **P2 (8)**: [x] S16 [x] S17 [x] S31 [x] S43 [x] S44 [x] S46 [x] S52 [x] S53
 
 ### 앰비언스 (9, 옵션)
 - [ ] A1 field-day (P1) · [ ] A2 sky-wind · [ ] A3 spring · [ ] A4 frost-night · [ ] A5 forge · [ ] A6 weed · [ ] A7 water · [ ] A8 crowd · [ ] A9 arcade (모두 P2)
@@ -229,10 +232,58 @@ turn(서 있는 자세) 시트의 발끝 편차는 전원 허용 이내였다.
 ### 기타 경고
 - **셀/시트 가장자리 접촉 2건**: `portraits/kaksjak0730-happy`, `kaksjak0730-worried`(초상이 시트 가장자리에 닿아 잘렸을 수 있음). 반신상이라 하단 접촉은 무시하고 좌·우·상단만 검사한 결과다. 육안 확인 후 필요하면 재생성.
 - **타일 이음매 1건**: `terrain/industrial`의 `caution-stripe` 타일(오차 0.251, 사선 줄무늬라 이음매가 보이기 쉬움). 필요하면 `pnpm convert:world-art -- terrain industrial --seamless`.
-- **종횡비 차이 25% 초과 59건**: AI가 문서의 비율과 다르게 그려서, 비율을 유지하고 남는 쪽을 투명 여백으로 채웠다(왜곡 없음). 결과적으로 스프라이트가 문서 크기(px)보다 작게 보인다. 특히 세로로 길어야 하는 것(`fence-wood-v`, `flagpole`, `dock-post`, `rink-board-v`, `star-lamp`, `wind-vane`, `pier-lantern`, `banner-blue`, `fence-barbed-v`, `stone-wall-v`, `chimney-tall`)은 실제 그려진 크기가 눈에 띄게 작다. S2 `propDefs.ts`는 **문서 표의 px가 아니라 변환된 실제 이미지 크기**(`img.width/height`)를 기준으로 충돌 사각형을 잡는다.
+- **종횡비 차이 25% 초과 59건**: AI가 문서의 비율과 다르게 그려서, 비율을 유지하고 남는 쪽을 투명 여백으로 채웠다(왜곡 없음). 결과적으로 스프라이트가 문서 크기(px)보다 작게 보인다. 특히 세로로 길어야 하는 것(`fence-wood-v`, `flagpole`, `dock-post`, `rink-board-v`, `star-lamp`, `wind-vane`, `pier-lantern`, `banner-blue`, `fence-barbed-v`, `stone-wall-v`, `chimney-tall`)은 실제 그려진 크기가 눈에 띄게 작다. S2에서 파일 크기를 재 보니 **변환 파일의 가로×세로는 05 표의 px와 정확히 같고**(종횡비가 다른 만큼 위쪽/옆이 투명), 줄어든 것은 *보이는 그림*뿐이다. 그래서 스프라이트는 파일 전체를 아래 중앙 앵커로 그리고, 충돌은 05 표 값을 **보이는 그림 크기로 줄여** 쓴다([§11](#11-s2-소품-충돌-크기-대조-2026-09-19)).
   > tree-oak-big, tree-sakura, tree-cloud, tree-night, tree-dead, log, fence-wood-v, fence-wood-corner, stone-wall-v, cliff-face, lamp-post, signpost-arrow, flagpole, goal-west, corner-flag, ad-board, vine-trellis, lantern-pink, dragon-egg, scarecrow, windchime, ice-crystal-a, snowman, telescope, scrap-pile, pipe-v, pipe-corner, chimney-small, boat-small, rink-board-v, star-lamp, dock-post, pier-lantern, cloud-pillar, rune-stone-a, rune-stone-b, crystal-purple, wind-vane, banner-blue, cloud-stairs, fence-barbed-v, barricade, floodlight, chimney-tall, house-janine95kim, house-sjh4018, house-tdnlamuron, cursor, next-1, ball-marker, sparkle-ring, mark-complete, mark-progress, splash-1, tackler-stand, puddle, sprinkler, goldball, magnet
 
 ### 문서와 달라진 규격 (원본이 문서 캔버스와 다르게 나옴)
 - 원본 캔버스 크기가 문서(1024/1536)와 다른 파일이 많다: 캐릭터 stand·portrait 1254², 지면 시트 1254², UI 배경 1672×941, `fab-normal` 2086×754, `fab-hover` 2032×774, `logo-emblem` 1230×1278, `bld-fountain`·`house-kaksjak0730` 1254², `house-doormomo` 1024×1536. 변환 스크립트는 해상도에 의존하지 않도록 비례로 처리한다.
 - 9‑slice 프레임과 버튼·카드는 **원본 비율을 유지**하므로 최종 크기가 06의 표와 다르다(늘려 쓰는 프레임이라 문제 없음). 예: `dialog-frame` 96×43(표 96×96), `btn-*` 약 62×28(표 96×28), `tooltip-frame` 52×32, `loading-bar-frame` 210×32, `shard-gauge` 120×28, `card-*` 72×79~91(표 72×104, 카드 4종의 높이가 서로 다름). `border-image-slice`가 크기의 절반을 넘지 않는지만 확인하면 된다(스크립트가 검사).
 - `fab-normal`/`fab-hover`는 264×72로 변환됐다(비율 3.67로 일치). 플로팅 버튼은 CSS로 220×60에 맞춰 표시한다.
+
+## 11. S2 소품 충돌 크기 대조 (2026-09-19)
+
+`data/propDefs.ts`는 05 §2 표의 충돌 값을 옮기되, **표의 충돌이 실제로 보이는 그림보다 크면 그림 크기로 줄였다**(보이지 않는 벽으로 막히지 않도록). 각 소품의 `content`는 투명 여백을 뺀 그림 크기(알파 40 초과)이며 propDefs에 함께 들어 있다. 줄인 29개:
+
+| 소품 | 파일 크기(=05 표의 px) | 05 표의 충돌 | 실제로 보이는 그림 | S2에서 쓴 충돌 |
+| --- | --- | --- | --- | --- |
+| `rock-large` | 64×48 | 56×20 | 52×48 | 52×20 |
+| `log` | 48×24 | 44×12 | 34×24 | 34×12 |
+| `fence-wood-h` | 64×32 | 64×10 | 52×32 | 52×10 |
+| `fence-wood-v` | 16×48 | 12×44 | 16×20 | 12×20 |
+| `stone-wall-v` | 24×64 | 20×60 | 24×35 | 20×35 |
+| `cliff-face` | 96×64 | 96×24 | 66×64 | 66×24 |
+| `planter` | 40×32 | 36×14 | 34×32 | 34×14 |
+| `bike-rack` | 56×32 | 48×12 | 44×32 | 44×12 |
+| `goal-west` | 64×96 | 64×96 | 64×71 | 64×71 |
+| `goal-front` | 96×64 | 96×64 | 96×60 | 96×60 |
+| `ad-board` | 96×32 | 96×10 | 51×32 | 51×10 |
+| `bleacher` | 128×96 | 120×40 | 118×96 | 118×40 |
+| `dugout` | 96×64 | 90×24 | 75×64 | 75×24 |
+| `dummy-wall` | 72×56 | 68×14 | 56×56 | 56×14 |
+| `ball-bag` | 32×28 | 28×10 | 24×28 | 24×10 |
+| `pond-small` | 96×64 | 84×40 | 78×64 | 78×40 |
+| `rink-board-h` | 64×32 | 64×10 | 52×32 | 52×10 |
+| `rink-board-v` | 16×48 | 12×44 | 16×21 | 12×21 |
+| `boat-small` | 72×40 | 64×18 | 42×40 | 42×18 |
+| `pipe-h` | 64×24 | 64×10 | 53×24 | 53×10 |
+| `pipe-v` | 24×64 | 12×56 | 24×45 | 12×45 |
+| `pipe-corner` | 32×32 | 28×28 | 32×25 | 28×25 |
+| `tool-rack` | 56×40 | 52×10 | 49×40 | 49×10 |
+| `scrap-pile` | 56×36 | 48×14 | 41×36 | 41×14 |
+| `cloud-bench` | 56×32 | 50×12 | 43×32 | 43×12 |
+| `cloud-fountain` | 80×64 | 72×28 | 62×64 | 62×28 |
+| `mower-ride-on` | 80×64 | 72×24 | 69×64 | 69×24 |
+| `fence-barbed-v` | 16×56 | 12×52 | 16×29 | 12×29 |
+| `barricade` | 72×32 | 72×12 | 36×32 | 36×12 |
+
+- 조정한 소품의 원래 표 값은 `propDefs.ts` 각 줄 끝 주석에 남겼다. 나머지 소품은 표 그대로다.
+- **어긋남 0건**: 소품 130종·건물 17·실내 19·아틀라스·지면 시트의 파일 크기가 표/`propDefs`와 모두 일치한다(`data/maps/assetSizes.test.ts`가 webp 헤더를 읽어 검사하므로, 다시 변환했는데 크기가 달라지면 테스트가 알려 준다). 렌더링은 디코드된 이미지의 실제 크기를 기준으로 하단 중앙에 앵커한다.
+- 특히 세로로 길어야 할 **`fence-wood-v`(16×20), `stone-wall-v`(24×35), `rink-board-v`(16×21), `fence-barbed-v`(16×29), `pipe-v`(24×45)** 등은 표가 가정한 높이의 절반도 안 되게 그려졌다. 세로 울타리로 긴 벽을 만들려면 더 많이 이어 붙여야 한다. 마음에 안 들면 [10 runbook](10-image-generation-runbook.md)의 해당 스텝만 재생성.
+- `ad-board`(보이는 폭 51 / 파일 96)·`barricade`(36 / 72)·`boat-small`(42 / 72)는 표 폭의 절반 남짓만 그려졌다. 제초동 게이트는 바리케이드를 세 개 나란히 세운다.
+- `goal-west`/`goal-front`의 발자국은 S3 킥 미션에서 골 입구를 열어야 하므로 S2 맵에는 놓지 않았다.
+
+### S2에서 코드로 대신한 것 (에셋 없음)
+- 내 집 이름표 `sign-home`(03 §4): 문 위에 캔버스로 그린 작은 판.
+- `E` 상호작용 프롬프트: `tooltip-frame` 9-slice + 글자 `E`(캔버스), 튜토리얼 화살표(황금 삼각형)와 화면 밖 방향 표시.
+- 캐릭터·집 그림자 타원, 프롤로그 배경(`title-bg` 위에 어두운 막).
+- 사용 중인 신규 UI: `select-bg`, `card-*`, `ball-marker`(선택 카드 위 공), `dialog-frame`·`nameplate`·`portrait-frame`·`choice-*`·`cursor`·`next-1/2`·`toast-frame`·`coach-frame`·`tooltip-frame`. `arrow-*`·`name-ribbon`·`sparkle-ring`·`check-badge`(카드 격자·이름 글자·CSS로 대체해 S2에서는 미사용), 마커(`mark-*`)·이모트·러시 에셋은 S3 이후.

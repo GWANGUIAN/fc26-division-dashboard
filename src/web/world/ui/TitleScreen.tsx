@@ -1,5 +1,6 @@
-import { useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
+import { useRef, useState, type KeyboardEvent } from "react";
 import { getWorldAssetUrl } from "../worldAssets";
+import { buttonProps } from "./buttonProps";
 
 interface TitleScreenProps {
   hasSave: boolean;
@@ -7,22 +8,6 @@ interface TitleScreenProps {
   onNew: () => void;
   onExit: () => void;
   debug: boolean;
-}
-
-/**
- * Button art is optional: with the images, `--btn-*` custom properties feed a 9-slice border-image
- * (class `world-btn--art`); without them plain CSS draws the plate.
- */
-function buttonProps(kind: "primary" | "secondary"): { className: string; style?: CSSProperties } {
-  const base = `world-btn world-btn--${kind}`;
-  const normal = getWorldAssetUrl(`ui/btn-${kind}-normal`);
-  if (!normal) return { className: base };
-  const hover = getWorldAssetUrl(`ui/btn-${kind}-hover`) ?? normal;
-  const pressed = getWorldAssetUrl(`ui/btn-${kind}-pressed`) ?? normal;
-  return {
-    className: `${base} world-btn--art`,
-    style: { "--btn-normal": `url(${normal})`, "--btn-hover": `url(${hover})`, "--btn-pressed": `url(${pressed})` } as CSSProperties,
-  };
 }
 
 export function TitleScreen({ hasSave, onContinue, onNew, onExit, debug }: TitleScreenProps) {
@@ -74,7 +59,7 @@ export function TitleScreen({ hasSave, onContinue, onNew, onExit, debug }: Title
           </button>
         </div>
         <p className="world-title__hint">↑↓ 선택 · Enter 확인 · Esc 나가기</p>
-        {debug && <p className="world-title__debug">worldDebug · S1 임시 캐릭터로 시작(캐릭터 선택은 S2)</p>}
+        {debug && <p className="world-title__debug">worldDebug · 새로 시작하면 캐릭터 선택 → 프롤로그 → 집에서 시작</p>}
       </div>
     </div>
   );

@@ -1,59 +1,30 @@
 import { describe, expect, it, vi } from "vitest";
-import { SANDBOX_SCENE } from "../data/sandboxMap";
-import { moveAndSlide, rectsOverlap, footBox } from "./collision";
-import { SceneTransition, buildScene, propCollider } from "./scene";
+import { SceneTransition, footRect, indexColliders, propColliders, type PropInstance } from "./scene";
 
-describe("propCollider / buildScene", () => {
-  it("centres the footprint on the prop's feet", () => {
-    expect(propCollider({ key: "k", x: 100, y: 200, w: 96, h: 128, collider: { w: 16, h: 12 } })).toEqual({ x: 92, y: 188, w: 16, h: 12 });
-    expect(propCollider({ key: "k", x: 100, y: 200, w: 96, h: 128 })).toBeNull();
+const prop = (over: Partial<PropInstance> = {}): PropInstance => ({
+  id: "tree-oak", x: 100, y: 200, w: 96, h: 128, foot: [{ dx: 0, w: 16, h: 12 }], aboveFrom: 40, decal: false, withered: true, ...over,
+});
+
+describe("footRect / propColliders", () => {
+  it("centres the footprint on the prop's feet and ends at the feet line", () => {
+    expect(footRect({ x: 100, y: 200 }, { dx: 0, w: 16, h: 12 })).toEqual({ x: 92, y: 188, w: 16, h: 12 });
   });
 
-  it("indexes prop colliders and extra rects together", () => {
-    const scene = buildScene(
-      {
-        id: "overworld",
-        size: { w: 200, h: 200 },
-        walkable: { x: 0, y: 0, w: 200, h: 200 },
-        props: [
-          { key: "a", x: 50, y: 50, w: 10, h: 10, collider: { w: 10, h: 10 } },
-          { key: "b", x: 150, y: 150, w: 10, h: 10 },
-        ],
-        spawn: { x: 10, y: 10 },
-        fixedCamera: false,
-      },
-      [{ x: 0, y: 190, w: 200, h: 10 }],
-    );
-    expect(scene.colliderRects).toHaveLength(2);
-    expect(scene.colliders.query({ x: 0, y: 0, w: 200, h: 200 })).toHaveLength(2);
+  it("offsets each footprint by dx (arch pillars)", () => {
+    const rects = propColliders(prop({ foot: [{ dx: -48, w: 12, h: 10 }, { dx: 48, w: 12, h: 10 }] }));
+    expect(rects).toEqual([{ x: 46, y: 190, w: 12, h: 10 }, { x: 142, y: 190, w: 12, h: 10 }]);
+  });
+
+  it("gives walk-through props no collider", () => {
+    expect(propColliders(prop({ foot: [] }))).toEqual([]);
   });
 });
 
-describe("SANDBOX_SCENE", () => {
-  it("spawns the player on open ground, inside the walkable area", () => {
-    const box = footBox(SANDBOX_SCENE.spawn.x, SANDBOX_SCENE.spawn.y);
-    expect(SANDBOX_SCENE.colliderRects.some((rect) => rectsOverlap(box, rect))).toBe(false);
-    const w = SANDBOX_SCENE.walkable;
-    expect(box.x).toBeGreaterThanOrEqual(w.x);
-    expect(box.x + box.w).toBeLessThanOrEqual(w.x + w.w);
-    expect(box.y).toBeGreaterThanOrEqual(w.y);
-    expect(box.y + box.h).toBeLessThanOrEqual(w.y + w.h);
-  });
-
-  it("blocks a walk into the fence and keeps the player inside the map", () => {
-    let box = footBox(SANDBOX_SCENE.spawn.x, SANDBOX_SCENE.spawn.y);
-    // Walk hard in every direction for a long time: the player must never end up overlapping an obstacle or leaving the map.
-    for (const [dx, dy] of [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]]) {
-      for (let i = 0; i < 1500; i++) {
-        const next = moveAndSlide(box, dx * 2.5, dy * 2.5, SANDBOX_SCENE.colliders, SANDBOX_SCENE.walkable);
-        box = { ...box, x: next.x, y: next.y };
-        expect(SANDBOX_SCENE.colliderRects.some((rect) => rectsOverlap(box, rect))).toBe(false);
-      }
-      expect(box.x).toBeGreaterThanOrEqual(SANDBOX_SCENE.walkable.x);
-      expect(box.x + box.w).toBeLessThanOrEqual(SANDBOX_SCENE.walkable.x + SANDBOX_SCENE.walkable.w);
-      expect(box.y).toBeGreaterThanOrEqual(SANDBOX_SCENE.walkable.y);
-      expect(box.y + box.h).toBeLessThanOrEqual(SANDBOX_SCENE.walkable.y + SANDBOX_SCENE.walkable.h);
-    }
+describe("indexColliders", () => {
+  it("indexes prop footprints and extra rects together", () => {
+    const { colliders, colliderRects } = indexColliders([prop(), prop({ x: 300, foot: [] })], [{ x: 0, y: 500, w: 200, h: 10 }]);
+    expect(colliderRects).toHaveLength(2);
+    expect(colliders.query({ x: 0, y: 0, w: 1000, h: 1000 })).toHaveLength(2);
   });
 });
 
@@ -87,5 +58,44 @@ describe("SceneTransition", () => {
     t.update(0.3);
     expect(first).toHaveBeenCalled();
     expect(second).not.toHaveBeenCalled();
+  });
+
+  it("stays black while an async swap (the room image loading) is pending, then fades in", async () => {
+    let finish: () => void = () => {};
+    const swap = vi.fn(() => new Promise<void>((resolve) => (finish = resolve)));
+    const t = new SceneTransition(0.25);
+    t.start(swap);
+    t.update(0.25);
+    expect(swap).toHaveBeenCalledTimes(1);
+    for (let i = 0; i < 10; i++) t.update(0.25);
+    expect(t.active).toBe(true);
+    expect(t.alpha).toBe(1);
+    finish();
+    await Promise.resolve();
+    await Promise.resolve();
+    t.update(0.125);
+    expect(t.alpha).toBeCloseTo(0.5);
+    t.update(0.125);
+    expect(t.active).toBe(false);
+  });
+
+  it("recovers when the swap rejects", async () => {
+    const t = new SceneTransition(0.25);
+    t.start(() => Promise.reject(new Error("load failed")));
+    t.update(0.25);
+    await Promise.resolve();
+    await Promise.resolve();
+    t.update(0.25);
+    expect(t.active).toBe(false);
+  });
+
+  it("recovers when the swap throws", () => {
+    const t = new SceneTransition(0.25);
+    t.start(() => {
+      throw new Error("boom");
+    });
+    t.update(0.25);
+    t.update(0.25);
+    expect(t.active).toBe(false);
   });
 });

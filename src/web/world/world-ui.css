@@ -1,0 +1,380 @@
+/* 잔디동 월드 — in-world UI added in S2: character select, prologue, dialogue, toasts, coach marks and the
+   ?worldDebug panel. Everything inside .world-stage is laid out in logical 640×360 pixels (see world.css). */
+
+.world-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@keyframes world-bob {
+  from { transform: translateY(0); }
+  to { transform: translateY(-3px); }
+}
+
+/* ── Character select ─────────────────────────────────────── */
+.world-select {
+  position: absolute;
+  inset: 0;
+  background: #071a12 center / cover no-repeat;
+  image-rendering: auto;
+}
+.world-select__title {
+  position: absolute;
+  top: 12px;
+  left: 0;
+  right: 0;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 400;
+  text-align: center;
+  text-shadow: 0 2px 0 #0b1614, 0 0 8px #00e9aa99;
+}
+.world-select__detail {
+  position: absolute;
+  left: 22px;
+  top: 40px;
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 0;
+  border-radius: 6px;
+  background: rgba(2, 10, 7, 0.5);
+}
+.world-select__stand {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 220px;
+  height: 196px;
+}
+.world-select__stand img { max-width: 100%; max-height: 100%; image-rendering: auto; }
+.world-select__stand-fallback { display: grid; place-items: center; width: 90px; height: 150px; border-radius: 6px; color: #0b1614; font-size: 40px; }
+.world-select__name { font-size: 20px; text-shadow: 0 2px 0 #0b1614; }
+.world-select__meta { font-size: 11px; color: #e8fff6; text-align: center; }
+.world-select__pos {
+  display: inline-block;
+  margin-right: 4px;
+  padding: 0 5px;
+  border: 1px solid #00e9ae;
+  border-radius: 3px;
+  color: #00e9ae;
+  font-size: 10px;
+}
+.world-select__home { font-size: 10px; color: #ffe9b0; }
+.world-select__grid {
+  position: absolute;
+  left: 292px;
+  top: 40px;
+  display: grid;
+  grid-template-columns: repeat(4, 72px);
+  gap: 6px;
+}
+.world-card {
+  position: relative;
+  width: 72px;
+  height: 91px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: #0b1614 center / 100% 100% no-repeat;
+  color: #e8fff6;
+  font: inherit;
+  cursor: pointer;
+  image-rendering: pixelated;
+}
+.world-card:not(.is-focused) { filter: brightness(0.85); }
+.world-card__face {
+  position: absolute;
+  left: 4px;
+  top: 9px;
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 3px;
+  image-rendering: auto;
+}
+.world-card__face--fallback { display: grid; place-items: center; color: #0b1614; font-size: 24px; }
+.world-card__name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  text-align: center;
+  font-size: 10px;
+  text-shadow: 0 1px 0 #0b1614;
+}
+.world-card__ball {
+  position: absolute;
+  left: 28px;
+  top: -13px;
+  width: 16px;
+  height: 16px;
+  animation: world-bob 0.6s ease-in-out infinite alternate;
+}
+.world-select__actions { position: absolute; left: 22px; top: 292px; width: 250px; display: flex; justify-content: center; gap: 8px; }
+.world-select__actions .world-btn { width: 110px; }
+.world-select__hint { position: absolute; left: 292px; top: 338px; margin: 0; color: #b8ffe8; font-size: 10px; }
+
+/* ── Prologue ─────────────────────────────────────────────── */
+.world-prologue {
+  position: absolute;
+  inset: 0;
+  background: #020504 center / cover no-repeat;
+  image-rendering: auto;
+  cursor: pointer;
+}
+.world-prologue__veil { position: absolute; inset: 0; background: rgba(2, 5, 4, 0.78); }
+.world-prologue__text {
+  position: absolute;
+  left: 56px;
+  right: 56px;
+  top: 50%;
+  margin: 0;
+  transform: translateY(-50%);
+  font-size: 16px;
+  line-height: 1.7;
+  text-align: center;
+  text-shadow: 0 2px 0 #0b1614;
+}
+.world-prologue__hint { position: absolute; left: 0; right: 0; bottom: 14px; margin: 0; color: #b8ffe8; font-size: 10px; text-align: center; }
+.world-prologue__draft { position: absolute; top: 8px; left: 8px; margin: 0; color: #ffd54a; font-size: 10px; }
+
+/* ── Dialogue ─────────────────────────────────────────────── */
+.world-dialogue {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 8px;
+  height: 92px;
+  z-index: 12;
+  color: #e8fff6;
+  cursor: pointer;
+}
+.world-dialogue__box {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  padding: 10px 22px 8px 20px;
+  border: 2px solid #00e9ae;
+  border-radius: 4px;
+  background: rgba(6, 18, 15, 0.94);
+}
+.world-dialogue__box--art {
+  border: 11px solid transparent;
+  border-image: var(--frame-dialog) 11 fill / 11px stretch;
+  border-radius: 0;
+  background: none;
+  padding: 0 6px;
+  image-rendering: pixelated;
+}
+.world-dialogue__text {
+  margin: 0;
+  font-size: 12px;
+  line-height: 17px;
+  white-space: pre-wrap;
+  word-break: keep-all;
+}
+.world-dialogue__sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); }
+.world-dialogue__name {
+  position: absolute;
+  left: 96px;
+  bottom: 82px;
+  min-width: 70px;
+  box-sizing: border-box;
+  padding: 3px 12px;
+  border: 1px solid #00e9ae;
+  background: #0b1614;
+  color: #ffd54a;
+  font-size: 11px;
+  text-align: center;
+}
+.world-dialogue__name--flush { left: 14px; }
+.world-dialogue__name--art {
+  height: 28px;
+  padding: 0;
+  border: 0 solid transparent;
+  border-width: 8px 17px;
+  border-image: var(--frame-name) 8 17 fill / 8px 17px stretch;
+  background: none;
+  line-height: 12px;
+  white-space: nowrap;
+  image-rendering: pixelated;
+}
+.world-dialogue__portrait {
+  position: absolute;
+  left: 10px;
+  bottom: 76px;
+  width: 76px;
+  height: 76px;
+  box-sizing: border-box;
+  border: 2px solid #00e9ae;
+  background: #0b1614;
+}
+.world-dialogue__portrait--art {
+  border: 12px solid transparent;
+  border-image: var(--frame-portrait) 27 fill / 12px stretch;
+  background: none;
+  image-rendering: pixelated;
+}
+.world-dialogue__portrait img { display: block; width: 100%; height: 100%; object-fit: cover; image-rendering: auto; }
+.world-dialogue__next { position: absolute; right: 12px; bottom: 6px; width: 16px; height: 16px; }
+.world-dialogue__next img { position: absolute; inset: 0; width: 16px; height: 16px; image-rendering: pixelated; }
+.world-dialogue__next img:nth-child(1) { animation: world-blink-a 0.8s steps(1) infinite; }
+.world-dialogue__next img:nth-child(2) { animation: world-blink-b 0.8s steps(1) infinite; }
+@keyframes world-blink-a { 0%, 49.9% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes world-blink-b { 0%, 49.9% { opacity: 0; } 50%, 100% { opacity: 1; } }
+.world-dialogue__hint { position: absolute; right: 32px; bottom: 6px; color: #8fbfae; font-size: 9px; }
+.world-dialogue__choices {
+  position: absolute;
+  right: 6px;
+  bottom: 100px;
+  width: 190px;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  list-style: none;
+}
+.world-dialogue__choice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 26px;
+  padding: 3px 12px;
+  border: 1px solid #00e9ae66;
+  background: rgba(6, 18, 15, 0.94);
+  font-size: 11px;
+  cursor: pointer;
+}
+.world-dialogue__choice.is-on { border-color: #ffd54a; color: #ffd54a; }
+.world-dialogue__choice--art,
+.world-dialogue__choice--art.is-on {
+  height: 32px;
+  padding: 0;
+  border: 0 solid transparent;
+  border-width: 10px 19px;
+  border-image: var(--frame-choice) 9 17 fill / 10px 19px stretch;
+  background: none;
+  line-height: 12px;
+  image-rendering: pixelated;
+}
+.world-dialogue__choice--art.is-on { border-image: var(--frame-choice-on) 10 19 fill / 10px 19px stretch; }
+.world-dialogue__cursor { position: absolute; left: -22px; top: 50%; width: 14px; height: 14px; transform: translateY(-50%); }
+
+/* ── Toasts & coach marks ─────────────────────────────────── */
+.world-toasts {
+  position: absolute;
+  left: 50%;
+  bottom: 44px;
+  z-index: 13;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.world-toast {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-sizing: border-box;
+  min-width: 120px;
+  padding: 6px 16px;
+  border: 1px solid #00e9ae;
+  border-radius: 4px;
+  background: rgba(6, 18, 15, 0.92);
+  color: #e8fff6;
+  font-size: 12px;
+  text-align: center;
+}
+.world-toast--art {
+  height: 48px;
+  padding: 0;
+  border: 0 solid transparent;
+  border-width: 10px 28px;
+  border-image: var(--frame-toast) 9 28 fill / 10px 28px stretch;
+  border-radius: 0;
+  background: none;
+  image-rendering: pixelated;
+}
+.world-toast__chip { width: 8px; height: 8px; border: 1px solid #0b1614; border-radius: 2px; }
+
+.world-coach {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  z-index: 11;
+  box-sizing: border-box;
+  width: 330px;
+  padding: 8px 14px;
+  border: 2px solid #ffd54a;
+  border-radius: 6px;
+  background: rgba(6, 18, 15, 0.92);
+  color: #e8fff6;
+  text-align: center;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.world-coach--art {
+  border: 14px solid transparent;
+  border-image: var(--frame-coach) 14 fill / 14px stretch;
+  border-radius: 0;
+  background: none;
+  padding: 0 2px;
+  image-rendering: pixelated;
+}
+.world-coach__step { position: absolute; top: -6px; right: 10px; padding: 0 5px; border-radius: 3px; background: #ffd54a; color: #0b1614; font-size: 9px; }
+.world-coach__text { margin: 0; font-size: 11px; line-height: 15px; word-break: keep-all; }
+.world-coach__hint { margin: 2px 0 0; color: #ffe9b0; font-size: 10px; }
+.world-coach__keys { display: flex; align-items: center; justify-content: center; gap: 2px; margin: 4px 0 0; }
+.world-coach__skip { margin-left: 8px; color: #8fbfae; font-size: 9px; }
+.world-key {
+  display: inline-block;
+  min-width: 14px;
+  padding: 1px 4px;
+  border: 1px solid #00e9ae;
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  background: #0b1614;
+  color: #ffd54a;
+  font: inherit;
+  font-size: 9px;
+  text-align: center;
+}
+
+/* ── ?worldDebug panel (real pixels, outside the scaled stage) ── */
+.world-debug {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  z-index: 5;
+  display: flex;
+  width: 250px;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid #ffd54a80;
+  border-radius: 6px;
+  background: rgba(4, 18, 12, 0.88);
+  color: #e8fff6;
+  font: 12px/1.4 "Galmuri11", "Noto Sans KR", monospace;
+}
+.world-debug__title { color: #ffd54a; }
+.world-debug__row { display: flex; align-items: center; gap: 6px; }
+.world-debug__row select { flex: 1; min-width: 0; }
+.world-debug__row input[inputmode] { width: 56px; }
+.world-debug button { padding: 3px 6px; border: 1px solid #00e9ae; border-radius: 3px; background: #0b1614; color: #e8fff6; font: inherit; cursor: pointer; }
+.world-debug button:hover { background: #12302a; }
+.world-debug code { color: #b8ffe8; }
+.world-debug__pick { display: flex; flex-direction: column; gap: 2px; padding-top: 6px; border-top: 1px solid #ffffff22; }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Rect } from "../types";
-import { SpatialHash, footBox, moveAndSlide, rectsOverlap } from "./collision";
+import { SpatialHash, composeObstacles, footBox, moveAndSlide, rectsOverlap } from "./collision";
 
 const box = (x: number, y: number, w = 20, h = 10): Rect => ({ x, y, w, h });
 
@@ -132,5 +132,22 @@ describe("moveAndSlide", () => {
       current = box(next.x, next.y);
       expect(obstacles.some((o) => rectsOverlap(current, o))).toBe(false);
     }
+  });
+});
+
+describe("composeObstacles", () => {
+  it("adds loose rects near the query to the hash results and leaves far ones out", () => {
+    const hash = new SpatialHash(64);
+    hash.insert({ x: 0, y: 0, w: 10, h: 10 });
+    const source = composeObstacles(hash, [{ x: 100, y: 100, w: 10, h: 10 }, { x: 500, y: 500, w: 10, h: 10 }]);
+    expect(source.query({ x: 90, y: 90, w: 30, h: 30 })).toHaveLength(1);
+    expect(source.query({ x: 0, y: 0, w: 200, h: 200 })).toHaveLength(2);
+  });
+
+  it("stops a move against an NPC-style extra obstacle", () => {
+    const source = composeObstacles(new SpatialHash(64), [{ x: 60, y: 0, w: 10, h: 10 }]);
+    const result = moveAndSlide(box(20, 0), 100, 0, source);
+    expect(result.x).toBe(40);
+    expect(result.hitX).toBe(true);
   });
 });
