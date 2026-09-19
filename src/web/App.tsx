@@ -227,7 +227,9 @@ export function App() {
             <LedSignboard
               mode="scroll"
               names={[
-                ...celebrationEligibleStreamers.map((streamer) => streamer.displayName),
+                ...celebrationEligibleStreamers.map((streamer) =>
+                  streamer.displayName === "하치_HACHI" ? "하치쿤" : streamer.displayName,
+                ),
                 "태긔",
               ]}
               cheerText="잔디동 Let's Go!!"
