@@ -3,7 +3,7 @@
   "image": "interiors/int-factory",
   "size": [20,12],
   "spawn": [10,10],
-  "exitTo": {"scene":"overworld","tile":[68,56]},
+  "exitTo": {"scene":"overworld","tile":[69,56]},
   "collision": [
     [0,0,640,120],
     [0,120,46,264],

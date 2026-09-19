@@ -669,7 +669,7 @@
     {"prop":"flower-red","x":1257,"y":1807},
     {"prop":"tree-birch","x":1458,"y":1809},
     {"prop":"cut-grass-pile","x":2483,"y":1814},
-    {"prop":"mat-door","x":2176,"y":1820},
+    {"prop":"mat-door","x":2224,"y":1820},
     {"prop":"floodlight","x":2448,"y":1820},
     {"prop":"flower-yellow","x":1614,"y":1821},
     {"prop":"fence-barbed-v","x":1744,"y":1822},
@@ -762,7 +762,7 @@
     {"id":"house-tdnlamuron","rect":[21,47,27,52],"door":[24,52,2,1],"interior":"house-tdnlamuron"},
     {"id":"store","rect":[33,46,39,50],"door":[35,50,2,1],"interior":"store"},
     {"id":"cafe","rect":[43,46,49,50],"door":[46,50,2,1],"interior":"cafe"},
-    {"id":"factory","rect":[62,46,74,55],"door":[67,55,2,1],"interior":"factory"}
+    {"id":"factory","rect":[62,46,74,55],"door":[68,55,2,1],"interior":"factory"}
   ],
   "collision": [
     [1088,192,384,224],
@@ -812,8 +812,8 @@
     [1376,1600,96,32],
     [1536,1600,64,32],
     [1984,1504,416,256],
-    [1984,1760,160,32],
-    [2208,1760,192,32],
+    [1984,1760,192,32],
+    [2240,1760,160,32],
     [1920,992,416,96],
     [1920,1152,416,64],
     [1728,1408,64,160],
@@ -856,7 +856,7 @@
     {"type":"door","rect":[24,52,2,1],"to":{"scene":"interior:house-tdnlamuron","tile":[10,10],"facing":"up"}},
     {"type":"door","rect":[35,50,2,1],"to":{"scene":"interior:store","tile":[10,10],"facing":"up"}},
     {"type":"door","rect":[46,50,2,1],"to":{"scene":"interior:cafe","tile":[10,10],"facing":"up"}},
-    {"type":"door","rect":[67,55,2,1],"to":{"scene":"interior:factory","tile":[10,10],"facing":"up"}}
+    {"type":"door","rect":[68,55,2,1],"to":{"scene":"interior:factory","tile":[10,10],"facing":"up"}}
   ],
   "examine": [
     {"id":"daily-board","tile":[44,25],"text":"오늘의 훈련 게시판","size":[48,40],"action":"daily"},

@@ -319,7 +319,7 @@ describe("world engine (headless smoke run)", () => {
 
   it("kicks the ball at the goal for the kick challenge: the first kick starts the minute and a goal counts", async () => {
     playing("m-ju010228-kickgoals");
-    await stand([28, 10], "left");
+    await stand([28, 11.375], "left");
     dispatch("keydown", "KeyE");
     await run(2);
     dispatch("keyup", "KeyE");
@@ -332,7 +332,7 @@ describe("world engine (headless smoke run)", () => {
 
   it("does not start a kick run when no kick mission is active (free practice)", async () => {
     store.save = debugSkipTutorial(store.save);
-    await stand([28, 10], "left");
+    await stand([28, 11.375], "left");
     dispatch("keydown", "KeyE");
     await run(2);
     dispatch("keyup", "KeyE");

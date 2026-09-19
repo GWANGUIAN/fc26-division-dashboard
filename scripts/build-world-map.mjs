@@ -55,7 +55,7 @@ export const BUILDINGS = [
   { id: "house-tdnlamuron", rect: [21, 47, 27, 52], door: [24, 52, 2, 1], interior: "house-tdnlamuron", skip: 1 },
   { id: "store", rect: [33, 46, 39, 50], door: [35, 50, 2, 1], interior: "store", skip: 0 },
   { id: "cafe", rect: [43, 46, 49, 50], door: [46, 50, 2, 1], interior: "cafe", skip: 0 },
-  { id: "factory", rect: [62, 46, 74, 55], door: [67, 55, 2, 1], interior: "factory", skip: 1 },
+  { id: "factory", rect: [62, 46, 74, 55], door: [68, 55, 2, 1], interior: "factory", skip: 1, matDx: 16 },
 ];
 
 /** Roads: 2 wide unless noted. `kind` picks the material (main = stone, spur = dirt; each district re-skins them). */
@@ -476,7 +476,7 @@ export function buildOverworldMap() {
 
   // set pieces ------------------------------------------------------------------------------
   const decal = (id, tx, ty, dx = 0, dy = 24) => props.push({ prop: id, x: tx * TILE + dx, y: ty * TILE + dy });
-  for (const b of doors) decal("mat-door", b.door[0] + 1, b.door[1] + b.door[3], 0, 28); // 2×2 door mat, centred below the door's bottom row
+  for (const b of doors) decal("mat-door", b.door[0] + 1, b.door[1] + b.door[3], b.matDx ?? 0, 28); // 2×2 door mat, centred below the door's bottom row (`matDx`: px nudge when the art's door is off the tile grid)
   const forced = [
     ["lamp-post", ...at(33, 18)], ["lamp-post", ...at(47, 18)], ["lamp-post", ...at(33, 25)], ["lamp-post", ...at(47, 25)],
     ["bench-h", ...at(34, 23)], ["bench-h", ...at(46, 20)],
