@@ -7,6 +7,8 @@ import { SILENT_AUDIO } from "../audio/worldAudio";
 import { debugSkipTutorial } from "../state/debugTools";
 import { acceptMission, applyMissionEvent, defaultTracked, missionViews } from "../state/missions";
 import { createNewGameSave, DEFAULT_WORLD_SETTINGS } from "../storage";
+import { countGoldenBalls } from "../data/goldenBalls";
+import { GoldBallCounter } from "./GoldBallCounter";
 import { Hud } from "./Hud";
 import { MissionLog } from "./MissionLog";
 import { PauseMenu } from "./PauseMenu";
@@ -51,6 +53,24 @@ describe("Hud", () => {
     const tracker = element.props.children[1] as { props: { onClick?: () => void } };
     tracker.props.onClick?.();
     expect(opened).toBe(1);
+  });
+});
+
+describe("GoldBallCounter", () => {
+  it("stays hidden until the first golden ball is found", () => {
+    expect(renderToString(<GoldBallCounter count={0} />)).toBe("");
+  });
+
+  it("shows how many golden balls were found", () => {
+    const html = renderToString(<GoldBallCounter count={7} />);
+    expect(html).toContain(">7</span>");
+    expect(html).not.toContain("×");
+    expect(html).toContain("황금 축구공 7개");
+  });
+
+  it("counts only golden balls out of everything the save collected", () => {
+    expect(countGoldenBalls([])).toBe(0);
+    expect(countGoldenBalls(["gb-01", "gb-20", "jelly-lantern-a", "water-1", "gb-99"])).toBe(2);
   });
 });
 

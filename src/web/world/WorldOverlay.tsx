@@ -13,6 +13,7 @@ import { WorldCanvas } from "./WorldCanvas";
 import { isWorldDebug } from "./debug";
 import { FINALE_SCRIPT } from "./data/dialogueData";
 import { MINIGAME_INFO, getMissionDef, missionDefsFor, totalShardsFor } from "./data/missionDefs";
+import { countGoldenBalls } from "./data/goldenBalls";
 import { getCast } from "./data/worldCast";
 import type { DebugPick, SaveStore, WorldEngine, WorldEvents } from "./engine/world";
 import type { RunEvent } from "./engine/runs";
@@ -39,6 +40,7 @@ import { CoachMarks } from "./ui/CoachMarks";
 import { DebugPanel } from "./ui/DebugPanel";
 import { DialogueBox } from "./ui/DialogueBox";
 import { EndingOverlay } from "./ui/EndingOverlay";
+import { GoldBallCounter } from "./ui/GoldBallCounter";
 import { Hud } from "./ui/Hud";
 import { LoadingScreen } from "./ui/LoadingScreen";
 import { MissionLog } from "./ui/MissionLog";
@@ -814,6 +816,7 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
               setLogOpen(true);
               advanceCoach({ type: "log" });
             }} />
+            <GoldBallCounter count={countGoldenBalls(session.store.save.collected)} />
             {!dialogue && !logOpen && pauseView === "closed" && <p className="world-hint">방향키/WASD 이동 · Shift 달리기 · E 상호작용 · J 미션 로그 · Esc 메뉴</p>}
             <CoachMarks step={coachStep} />
             <ToastLayer toasts={toasts} />
