@@ -139,6 +139,25 @@ export interface CharacterView {
 const WALK_ROW: Record<Facing, number> = { down: 1, right: 2, left: 2, up: 3 };
 const IDLE_COL: Record<Facing, number> = { down: 0, right: 1, up: 2, left: 1 };
 
+export interface FrameCell {
+  col: number;
+  row: number;
+}
+
+/**
+ * Atlas cell to draw for a character: the idle row while standing, otherwise the walk row. The members'
+ * side-walk passing frames (2 and 4) never alternate the leading foot, so between the two strides the
+ * feet-together standing profile (idle row, right-facing) is shown instead. Left-facing is mirrored by the caller.
+ */
+export function characterFrameCell(role: CastDef["role"], view: CharacterView, animal = false): FrameCell {
+  if (!view.moving) return { col: IDLE_COL[view.facing], row: 0 };
+  const fps = animal ? 8 : view.running ? 12 : 8;
+  const step = Math.floor(view.animTime * fps) % 4;
+  const side = view.facing === "left" || view.facing === "right";
+  if (role === "member" && side && step % 2 === 1) return { col: IDLE_COL.right, row: 0 };
+  return { col: step, row: WALK_ROW[view.facing] };
+}
+
 export function drawShadow(ctx: CanvasRenderingContext2D, x: number, y: number, w = 16, h = 6) {
   ctx.fillStyle = "rgba(0, 0, 0, 0.22)";
   ctx.beginPath();
@@ -170,16 +189,9 @@ export function drawCharacter(ctx: CanvasRenderingContext2D, assets: WorldAssets
   const frameW = animal ? ANIMAL_FRAME : CHAR_FRAME_W;
   const frameH = animal ? ANIMAL_FRAME : CHAR_FRAME_H;
   const inset = animal ? ANIMAL_FOOT_INSET : CHAR_FOOT_INSET;
-  let sx: number;
-  let sy: number;
-  if (view.moving) {
-    const fps = animal ? 8 : view.running ? 12 : 8;
-    sx = (Math.floor(view.animTime * fps) % 4) * frameW;
-    sy = WALK_ROW[view.facing] * frameH;
-  } else {
-    sx = IDLE_COL[view.facing] * frameW;
-    sy = 0;
-  }
+  const cell = characterFrameCell(cast.role, view, animal);
+  const sx = cell.col * frameW;
+  const sy = cell.row * frameH;
   const dy = screenY - (frameH - inset);
   if (view.facing === "left") {
     ctx.save();
