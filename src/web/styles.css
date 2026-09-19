@@ -67,6 +67,14 @@
   font-display: swap;
 }
 
+/* 잔디동 월드 시작 화면의 "잔디동 월드" 제목 텍스트용 — see .world-title__logo in world/world.css */
+@font-face {
+  font-family: 'Cafe24ProUp';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2507-1@1.0/Cafe24PROUP.woff2') format('woff2');
+  font-weight: normal;
+  font-display: swap;
+}
+
 :root {
   --bg-base: #040706;
   --bg-blob-1: #00cbb127;

@@ -1,4 +1,4 @@
-import { useRef, useState, type KeyboardEvent } from "react";
+import { useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { getWorldAssetUrl } from "../worldAssets";
 import { buttonProps } from "./buttonProps";
 
@@ -14,6 +14,8 @@ interface TitleScreenProps {
 export function TitleScreen({ hasSave, ended, onContinue, onNew, onExit, debug }: TitleScreenProps) {
   const art = getWorldAssetUrl("ui/title-bg");
   const emblem = getWorldAssetUrl("ui/logo-emblem");
+  // The panel frame is optional art: without it the panel stays the plain translucent box.
+  const frame = getWorldAssetUrl("ui/title-frame");
   const listRef = useRef<HTMLDivElement>(null);
   // "새로 시작" wipes the save, so with an existing save it asks once more before doing it.
   const [confirmNew, setConfirmNew] = useState(false);
@@ -37,7 +39,7 @@ export function TitleScreen({ hasSave, ended, onContinue, onNew, onExit, debug }
 
   return (
     <div className={`world-title${ended ? " world-title--restored" : ""}`} style={art ? { backgroundImage: `url(${art})` } : undefined}>
-      <div className="world-title__panel">
+      <div className={`world-title__panel${frame ? " world-title__panel--art" : ""}`} style={frame ? ({ "--frame-title": `url(${frame})` } as CSSProperties) : undefined}>
         {emblem ? <img className="world-title__emblem" src={emblem} alt="" draggable={false} /> : <div className="world-title__emblem world-title__emblem--fallback" aria-hidden="true">🌱</div>}
         <h1 className="world-title__logo">잔디동 월드</h1>
         <div className="world-title__menu" ref={listRef} onKeyDown={moveFocus}>

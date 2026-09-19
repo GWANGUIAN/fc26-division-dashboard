@@ -43,6 +43,10 @@ describe("converted image sizes match the definitions", () => {
     expect(await size("ui/game-outer-frame")).toEqual([1672, 941]);
   });
 
+  it("keeps the title panel frame at the size its 24px 9-slice border was cut for", async () => {
+    expect(await size("ui/title-frame")).toEqual([192, 192]);
+  });
+
   it("keeps the independently regenerated ten-slot shard gauge at its HUD size", async () => {
     expect(await size("ui/shard-gauge")).toEqual([120, 28]);
   });
