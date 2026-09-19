@@ -155,7 +155,7 @@
   ],
   "zones": [
     {"id":"z-center","name":"잔디동 중앙","rect":[20,2,55,43],"tint":"#ffe9a8","particles":"leaves","bgm":"field"},
-    {"id":"z-cloud","name":"구름 언덕","rect":[2,2,24,17],"tint":"#9fd4ff","particles":"cloud-shadows","bgm":"region-sky"},
+    {"id":"z-cloud","name":"구름 언덕","rect":[2,2,24,17],"tint":"#9fd4ff","bgm":"region-sky"},
     {"id":"z-rune","name":"룬 언덕","rect":[56,2,78,17],"tint":"#c9a6ff","particles":"rune-dust","bgm":"region-sky"},
     {"id":"z-spring","name":"봄 정원","rect":[2,18,24,43],"tint":"#ffb3d6","particles":"petals","bgm":"region-spring"},
     {"id":"z-frost","name":"달빛·서리 호수","rect":[56,18,78,43],"tint":"#8fa8ff","particles":"snow-fireflies","bgm":"region-frost"},

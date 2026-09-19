@@ -1,16 +1,15 @@
 // District atmosphere (docs/world/03 §3): a colour grade over the map and a few drifting particles per zone —
-// leaves, cloud shadows, rune dust, petals, snow and fireflies, embers, mower dust. Purely cosmetic and cheap
+// leaves, rune dust, petals, snow and fireflies, embers, mower dust. Purely cosmetic and cheap
 // (at most a few dozen 1–3px rects per frame). Screen space: particles live in the 640×360 view, not the map.
 
 import type { AmbienceId } from "../audio/worldAudio";
 import type { SceneId } from "../types";
 
-export type ParticleKind = "leaves" | "cloud-shadows" | "rune-dust" | "petals" | "snow" | "fireflies" | "embers" | "dust";
+export type ParticleKind = "leaves" | "rune-dust" | "petals" | "snow" | "fireflies" | "embers" | "dust";
 
 /** The JSON `zones[].particles` names → what is spawned (snow-fireflies is both). */
 const KINDS_OF: Record<string, readonly ParticleKind[]> = {
   leaves: ["leaves"],
-  "cloud-shadows": ["cloud-shadows"],
   "rune-dust": ["rune-dust"],
   petals: ["petals"],
   "snow-fireflies": ["snow", "fireflies"],
@@ -19,7 +18,7 @@ const KINDS_OF: Record<string, readonly ParticleKind[]> = {
 };
 
 /** How many of each kind are alive at once (before the reduced-motion factor). */
-const COUNT: Record<ParticleKind, number> = { leaves: 10, "cloud-shadows": 3, "rune-dust": 22, petals: 16, snow: 20, fireflies: 6, embers: 16, dust: 12 };
+const COUNT: Record<ParticleKind, number> = { leaves: 10, "rune-dust": 22, petals: 16, snow: 20, fireflies: 6, embers: 16, dust: 12 };
 
 /** Strength of the colour grade per district (0 = none). The zone's own `tint` is the colour. Frost is the darkest (docs/world/03 §3). */
 const GRADE: Record<string, { alpha: number; dark: number }> = {
@@ -109,8 +108,6 @@ export function spawnParticle(kind: ParticleKind, view: { w: number; h: number }
       return { ...base, vx: -4 + rand() * 8, vy: -4 + rand() * 8, life: 5 + rand() * 4 };
     case "dust":
       return { ...base, x: anywhere ? base.x : -4, vx: 18 + rand() * 14, vy: -2 + rand() * 4 };
-    case "cloud-shadows":
-      return { ...base, x: anywhere ? base.x : -140, y: rand() * view.h, vx: 9 + rand() * 6, vy: 0, life: 40 };
   }
 }
 
@@ -125,8 +122,7 @@ export function stepParticle(p: Particle, dt: number, view: { w: number; h: numb
     p.vy += (Math.sin(p.age * 1.1 + p.seed * 7) * 8 - p.vy * 0.5) * dt;
   }
   if (p.age >= p.life) return false;
-  const margin = p.kind === "cloud-shadows" ? 160 : 8;
-  return p.x > -margin && p.x < view.w + margin && p.y > -margin && p.y < view.h + margin;
+  return p.x > -8 && p.x < view.w + 8 && p.y > -8 && p.y < view.h + 8;
 }
 
 export interface AmbienceOptions {
@@ -247,12 +243,6 @@ function drawParticle(ctx: CanvasRenderingContext2D, p: Particle) {
     case "dust":
       ctx.fillStyle = `rgba(150, 140, 120, ${(0.5 * a).toFixed(2)})`;
       ctx.fillRect(x, y, 2, 1);
-      return;
-    case "cloud-shadows":
-      ctx.fillStyle = "rgba(30, 60, 110, 0.07)";
-      ctx.beginPath();
-      ctx.ellipse(x, y, 90 + p.seed * 50, 30 + p.seed * 14, 0, 0, Math.PI * 2);
-      ctx.fill();
       return;
   }
 }
