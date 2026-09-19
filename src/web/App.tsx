@@ -457,7 +457,17 @@ export function App() {
       )}
       {worldOpen && (
         <Suspense fallback={null}>
-          <WorldOverlay onClose={() => setWorldOpen(false)} />
+          <WorldOverlay
+            onClose={() => setWorldOpen(false)}
+            dashboard={{
+              streamers: snapshot?.streamers,
+              woowakgoodUnlocked,
+              sfxEnabled,
+              sfxVolume,
+              onToggleSfx: toggleSfx,
+              onSfxVolumeChange: changeSfxVolume,
+            }}
+          />
         </Suspense>
       )}
       <LatestFeedDrawer

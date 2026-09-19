@@ -10,7 +10,17 @@ export const INTERACT_REACH = 28;
 
 export type InteractTarget =
   | { kind: "npc"; key: string; cast: CastId; center: { x: number; y: number } }
-  | { kind: "examine"; id?: string; text: string; center: { x: number; y: number } };
+  | { kind: "examine"; id?: string; text: string; action?: string; center: { x: number; y: number } }
+  /** A mission pickup (lantern, dry patch of grass): E takes it, no dialogue. */
+  | { kind: "object"; id: string; prompt: string; center: { x: number; y: number } }
+  /** The kick ball of the training ground: E kicks it the way the player faces. */
+  | { kind: "ball"; id: string; center: { x: number; y: number } };
+
+/** Something else that can be interacted with (pickups, the ball), already positioned by the engine. */
+export interface ExtraTarget {
+  target: InteractTarget;
+  area: Rect;
+}
 
 const HALF_BOX_W = 10;
 const HALF_BOX_H = 10;
@@ -45,6 +55,7 @@ export function findInteractTarget(
   facing: Facing,
   npcs: readonly Npc[],
   examine: readonly ExaminePoint[],
+  extras: readonly ExtraTarget[] = [],
 ): InteractTarget | null {
   const probe = interactionProbe(feet, facing);
   const probeCenter = centerOf(probe);
@@ -54,8 +65,10 @@ export function findInteractTarget(
     candidates.push({ target: { kind: "npc", key: npc.key, cast: npc.cast, center: centerOf(area) }, area, bias: 0 });
   }
   for (const point of examine) {
-    candidates.push({ target: { kind: "examine", id: point.id, text: point.text, center: centerOf(point.area) }, area: point.area, bias: 4 });
+    candidates.push({ target: { kind: "examine", id: point.id, text: point.text, ...(point.action ? { action: point.action } : {}), center: centerOf(point.area) }, area: point.area, bias: 4 });
   }
+  // Things you pick up or kick sit between people (bias 0) and signs (bias 4): they are the point of walking up to them.
+  for (const extra of extras) candidates.push({ target: extra.target, area: extra.area, bias: 2 });
   let best: InteractTarget | null = null;
   let bestDistance = Infinity;
   for (const { target, area, bias } of candidates) {

@@ -107,7 +107,7 @@ export interface MapNpc {
   ai: NpcAi;
   /** Wander area in tiles [x, y, w, h]. */
   wander?: TileBox;
-  /** Spawn condition (mission/flag expression, evaluated from S3). NPCs with a condition are not spawned in S2. */
+  /** Spawn condition (`state/conditions.ts`): the NPC stands there only while it holds. */
   when?: string;
 }
 
@@ -124,7 +124,27 @@ export interface MapExamine {
   text: string;
   /** Examine area in pixels [w, h] around the tile centre (default 64×48). */
   size?: [number, number];
+  /**
+   * What E does besides showing `text` (see `state/actions.ts`): `minigame:<game>` opens an arcade
+   * machine, `cards` the card cabinet, `mailbox:<id>` hands over a parcel.
+   */
+  action?: string;
 }
+
+/**
+ * World objects the missions use (docs/world/03 §7, §8). Positions are tiles (a pickup/hazard stands on the
+ * tile centre, feet at its bottom edge), rects are `[x, y, w, h]` tiles.
+ * - `pickup`: a sprite you take with E; it is gone once its id is in `save.collected`. Shown only while `when` holds.
+ * - `ball`: the kick ball of the training ground; `bounds` is the pitch it may roll in.
+ * - `goal`: touching it with the ball scores; `gate`: an ordered time-trial checkpoint;
+ * - `hazard`: a cone — touching it costs a time-trial penalty.
+ */
+export type MapObject =
+  | { id: string; type: "pickup"; tile: [number, number]; prop: string; /** "withered": draw the withered twin of the prop (a dry patch of grass). */ look?: "withered"; prompt?: string; when?: string }
+  | { id: string; type: "ball"; tile: [number, number]; bounds: TileBox }
+  | { id: string; type: "goal"; rect: TileBox }
+  | { id: string; type: "gate"; rect: TileBox }
+  | { id: string; type: "hazard"; tile: [number, number]; prop?: string; size?: [number, number] };
 
 export interface OverworldMapData {
   id: "overworld";
@@ -143,6 +163,7 @@ export interface OverworldMapData {
   npcs: MapNpc[];
   triggers: MapTrigger[];
   examine: MapExamine[];
+  objects: MapObject[];
 }
 
 export interface InteriorMapData {
@@ -157,6 +178,7 @@ export interface InteriorMapData {
   examine: MapExamine[];
   npcs: MapNpc[];
   triggers: MapTrigger[];
+  objects?: MapObject[];
 }
 
 export interface MinigameRoundResult {

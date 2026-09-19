@@ -1,7 +1,7 @@
 import { INTERIOR_MAPS, OVERWORLD_MAP, hasScene, interiorIdOf } from "../data/maps";
 import { PROP_DEFS } from "../data/propDefs";
-import type { Facing, InteriorMapData, MapExamine, MapNpc, MapTrigger, OverworldMapData, PxBox, Rect, SceneId, TileBox, TileSpan } from "../types";
-import { indexColliders, type BuildingInstance, type DoorTrigger, type ExaminePoint, type NpcSpawn, type PropInstance, type SceneZone, type TerrainGrid, type WorldScene } from "./scene";
+import type { Facing, InteriorMapData, MapExamine, MapNpc, MapObject, MapTrigger, OverworldMapData, PxBox, Rect, SceneId, TileBox, TileSpan } from "../types";
+import { indexColliders, type BuildingInstance, type DoorTrigger, type ExaminePoint, type NpcSpawn, type PropInstance, type SceneObject, type SceneZone, type TerrainGrid, type WorldScene } from "./scene";
 
 export const TILE = 32;
 export const INTERIOR_WIDTH = 640;
@@ -35,7 +35,31 @@ function buildExamine(entries: readonly MapExamine[]): ExaminePoint[] {
   return entries.map((entry) => {
     const [w, h] = entry.size ?? DEFAULT_EXAMINE_SIZE;
     const c = tileCenter(entry.tile[0], entry.tile[1]);
-    return { id: entry.id, text: entry.text, area: { x: c.x - w / 2, y: c.y - h / 2, w, h } };
+    return { id: entry.id, text: entry.text, area: { x: c.x - w / 2, y: c.y - h / 2, w, h }, ...(entry.action ? { action: entry.action } : {}) };
+  });
+}
+
+function buildObjects(entries: readonly MapObject[] | undefined): SceneObject[] {
+  return (entries ?? []).map((entry): SceneObject => {
+    switch (entry.type) {
+      case "pickup": {
+        const at = tileCenter(entry.tile[0], entry.tile[1]);
+        return { id: entry.id, type: "pickup", x: at.x, y: at.y, prop: entry.prop, ...(entry.look ? { look: entry.look } : {}), ...(entry.prompt ? { prompt: entry.prompt } : {}), ...(entry.when ? { when: entry.when } : {}) };
+      }
+      case "hazard": {
+        const at = tileCenter(entry.tile[0], entry.tile[1]);
+        return { id: entry.id, type: "hazard", x: at.x, y: at.y, ...(entry.prop ? { prop: entry.prop } : {}) };
+      }
+      case "ball": {
+        const at = tileCenter(entry.tile[0], entry.tile[1]);
+        return { id: entry.id, type: "ball", x: at.x, y: at.y, rect: tileBox(entry.bounds) };
+      }
+      case "goal":
+      case "gate": {
+        const rect = tileBox(entry.rect);
+        return { id: entry.id, type: entry.type, x: rect.x + rect.w / 2, y: rect.y + rect.h, rect };
+      }
+    }
   });
 }
 
@@ -103,6 +127,7 @@ export function buildOverworldScene(data: OverworldMapData): WorldScene {
     npcSpawns: buildNpcs(data.npcs),
     doors: buildDoors(data.triggers, true),
     examine: buildExamine(data.examine),
+    objects: buildObjects(data.objects),
     spawn,
     fixedCamera: false,
     terrain: decodeTerrain(data),
@@ -125,6 +150,7 @@ export function buildInteriorScene(data: InteriorMapData): WorldScene {
     npcSpawns: buildNpcs(data.npcs),
     doors: buildDoors(data.triggers, false),
     examine: buildExamine(data.examine),
+    objects: buildObjects(data.objects),
     spawn: tileCenter(data.spawn[0], data.spawn[1]),
     fixedCamera: true,
     zones: [],

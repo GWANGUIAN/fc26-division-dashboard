@@ -1,7 +1,10 @@
 import { useState, type KeyboardEvent } from "react";
 import { allSceneIds } from "../data/maps";
+import { MISSION_DEFS, missionDefsFor } from "../data/missionDefs";
 import type { DebugPick, WorldEngine } from "../engine/world";
-import type { SceneId } from "../types";
+import { debugCompleteAll, debugResetProgress, debugSetFlag, debugSetMission, debugSetShards, debugSkipTutorial } from "../state/debugTools";
+import { missionStatusById } from "../state/missions";
+import type { MissionStatus, SceneId, WorldSave } from "../types";
 
 interface DebugPanelProps {
   engine: WorldEngine | null;
@@ -9,6 +12,10 @@ interface DebugPanelProps {
   scene: SceneId;
   /** Last canvas click, in world pixels/tiles. */
   pick: DebugPick | null;
+  /** The save being played (null before the world starts). */
+  save: WorldSave | null;
+  /** Replaces the save through the overlay (it persists and refreshes HUD/markers). */
+  onSave: (update: (save: WorldSave) => WorldSave) => void;
 }
 
 /** Typing in the tile boxes owns the keyboard (the world ignores WASD in fields); Enter hands it back. */
@@ -16,12 +23,20 @@ const blurOnEnter = (event: KeyboardEvent<HTMLInputElement>) => {
   if (event.key === "Enter") event.currentTarget.blur();
 };
 
+const STATUS_CHOICES: { value: MissionStatus; label: string }[] = [
+  { value: "available", label: "초기화(받기 전)" },
+  { value: "active", label: "진행 중" },
+  { value: "ready", label: "보고 가능(!)" },
+  { value: "completed", label: "완료(보상 지급)" },
+];
+
 /**
  * `?worldDebug` control panel (real, unscaled DOM next to the stage): jump between the overworld and the
- * 19 interiors, place the player on a tile, preview the colour restoration, walk through walls, and read
- * the coordinates of a canvas click so map JSON can be corrected by hand (docs/world/08 §0 #4).
+ * 19 interiors, place the player on a tile, preview the colour restoration, walk through walls, read the
+ * coordinates of a canvas click so map JSON can be corrected by hand (docs/world/08 §0 #4) — and, from S3,
+ * set shards, flags and mission states to check every mission without playing through the story.
  */
-export function DebugPanel({ engine, scene, pick }: DebugPanelProps) {
+export function DebugPanel({ engine, scene, pick, save, onSave }: DebugPanelProps) {
   const [target, setTarget] = useState<SceneId>("overworld");
   const [tx, setTx] = useState("");
   const [ty, setTy] = useState("");
@@ -29,6 +44,9 @@ export function DebugPanel({ engine, scene, pick }: DebugPanelProps) {
   const [restore, setRestore] = useState(0);
   const [noclip, setNoclip] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [flagName, setFlagName] = useState("");
+  const [missionId, setMissionId] = useState<string>(MISSION_DEFS[0].id);
+  const [missionStatus, setMissionStatus] = useState<MissionStatus>("active");
 
   const scenes = allSceneIds();
   const tile = tx.trim() !== "" && ty.trim() !== "" && Number.isFinite(Number(tx)) && Number.isFinite(Number(ty)) ? ([Math.floor(Number(tx)), Math.floor(Number(ty))] as [number, number]) : undefined;
@@ -40,6 +58,9 @@ export function DebugPanel({ engine, scene, pick }: DebugPanelProps) {
       window.setTimeout(() => setCopied(false), 1200);
     }, () => {});
   }
+
+  const enabled = save ? missionDefsFor(save.player) : [];
+  const flags = save ? Object.keys(save.flags).filter((key) => key !== "prologue-done") : [];
 
   return (
     <aside className="world-debug" aria-label="월드 디버그">
@@ -97,6 +118,75 @@ export function DebugPanel({ engine, scene, pick }: DebugPanelProps) {
         }} />
         벽 통과 (noclip)
       </label>
+
+      {save && (
+        <section className="world-debug__section" aria-label="미션·진행 도구">
+          <strong>미션·진행</strong>
+          <div className="world-debug__row">
+            잔디 조각
+            <button type="button" onClick={() => onSave((s) => debugSetShards(s, s.shards - 1))}>−</button>
+            <code>{save.shards}/10</code>
+            <button type="button" onClick={() => onSave((s) => debugSetShards(s, s.shards + 1))}>＋</button>
+          </div>
+          <div className="world-debug__row">
+            <button type="button" onClick={() => onSave(debugSkipTutorial)}>튜토리얼 건너뛰기</button>
+            <button type="button" onClick={() => onSave(debugCompleteAll)}>메인 전부 완료</button>
+          </div>
+          <div className="world-debug__row">
+            <button
+              type="button"
+              onClick={() => {
+                engine?.cancelRuns();
+                onSave(debugResetProgress);
+              }}
+            >
+              진행 초기화
+            </button>
+            <button type="button" onClick={() => engine?.cancelRuns()}>타이머 취소</button>
+            <button type="button" onClick={() => engine?.resetBall()}>공 리셋</button>
+          </div>
+
+          <label className="world-debug__row">
+            미션
+            <select value={missionId} onChange={(event) => { setMissionId(event.target.value); event.target.blur(); }}>
+              {MISSION_DEFS.map((def) => (
+                <option key={def.id} value={def.id}>{def.id}{def.giver === save.player ? " (본인 · 제외)" : ""}</option>
+              ))}
+            </select>
+          </label>
+          <div className="world-debug__row">
+            <select value={missionStatus} onChange={(event) => { setMissionStatus(event.target.value as MissionStatus); event.target.blur(); }}>
+              {STATUS_CHOICES.map((choice) => (
+                <option key={choice.value} value={choice.value}>{choice.label}</option>
+              ))}
+            </select>
+            <button type="button" onClick={() => onSave((s) => debugSetMission(s, missionId, missionStatus))}>적용</button>
+          </div>
+
+          <div className="world-debug__row">
+            플래그
+            <input placeholder="main-open" value={flagName} onChange={(event) => setFlagName(event.target.value)} onKeyDown={blurOnEnter} />
+          </div>
+          <div className="world-debug__row">
+            <button type="button" onClick={() => onSave((s) => debugSetFlag(s, flagName, true))}>설정</button>
+            <button type="button" onClick={() => onSave((s) => debugSetFlag(s, flagName, false))}>해제</button>
+          </div>
+          <div className="world-debug__note">플래그: {flags.length > 0 ? flags.join(", ") : "없음"}</div>
+          <div className="world-debug__note">수집: {save.collected.length > 0 ? save.collected.join(", ") : "없음"}</div>
+
+          <ul className="world-debug__missions">
+            {enabled.map((def) => {
+              const status = missionStatusById(save, def.id);
+              return (
+                <li key={def.id} className={`is-${status}`}>
+                  <span>{def.id}</span>
+                  <em>{status}</em>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
 
       <div className="world-debug__pick">
         {pick ? (

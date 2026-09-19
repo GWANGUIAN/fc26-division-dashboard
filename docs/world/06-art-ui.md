@@ -196,10 +196,10 @@ Elements in order (left to right, top to bottom):
 | 로딩 | `loading-bg`(cover) + 하단 `loading-bar-frame`(320×32, 중앙) + CSS 채움 + 팁 문구 + 로고 소형 |
 | 타이틀 | `title-bg`(엔딩 후 `loading-bg`) + `logo-emblem` + CSS 글자 "잔디동 월드" + `btn-primary`("새로 시작"/"이어하기") + `btn-secondary`("나가기") |
 | 캐릭터 선택 | `select-bg` + 카드 11장 + 좌우 `arrow-*` + `name-ribbon` + 확정 `btn-primary` + 안내 텍스트(코드) |
-| 월드 HUD | 좌상단 `hud-tracker`(현재 미션 아이콘+제목), 우상단 `minimap-frame`(코드 미니맵) + `shard-gauge`(10칸), 하단 대사창 시 숨김 |
+| 월드 HUD | **S3 구현: 좌상단에 `shard-gauge`(10칸, 그 아래 `hud-tracker` 132×40 원본 크기로)** — 트래커에는 현재 목표(기본: 보고 가능 > 진행 중 메인 > 새 미션, 미션 로그에서 E로 바꿀 수 있음)의 제목과 진행 문구. 게이지 칸 위치는 `world-mission.css`의 `--gauge-x/--gauge-pitch/--gauge-pip`로 맞춘다(프레임 그림에 칸이 그려져 있고 `shard-filled`를 그 위에 얹음). `minimap-frame`(우상단)은 지도(M)와 함께 S5 이후 |
 | 대사 | `dialog-frame`(하단) + `nameplate` + `portrait-frame`(초상 128×128) + `next-1/2` 깜빡임 + 선택지 `choice-*` + `cursor` |
-| 미션 로그(J) | `panel-parchment` + 탭 `tab-*` + `mi-*` 아이콘 + 진행률 텍스트 |
-| 메뉴(Esc) | `panel-frame` + `btn-secondary` 목록 + `mn-*` 아이콘 |
+| 미션 로그(J) | `panel-parchment`(slice 24, 테두리 24px) + 탭 `tab-*`(진행/완료) + `mi-*` 아이콘 + 오른쪽 상세(목표·의뢰인·장소·진행·보상). 종이 위라 글자색은 짙은 갈색 |
+| 메뉴(Esc) | `panel-frame`(slice 24, 테두리 24px) + `btn-secondary` 목록 + `mn-*` 아이콘. 페이지: 메인 / 설정(음악·효과음 켜기와 볼륨 ←→) / 새로 시작 확인 |
 | 일일 게시판 | `board-paper` + `stamp-card` + `stamp-mark` + `bd-*` |
 | 토스트 | `toast-frame` + `shard-filled`/`bd-*` 아이콘 + 텍스트 |
 | 코치마크 | `coach-frame` + CSS 꼬리 + 키캡(CSS) |

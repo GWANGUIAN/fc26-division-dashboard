@@ -1,29 +1,47 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from "react";
 import { X } from "lucide-react";
 import "./world.css";
 import "./world-ui.css";
+import "./world-mission.css";
 import { resumeGlobalMusic, suspendGlobalMusic } from "../musicControl";
+import { hasTotyCard } from "../toty-card/totyCardAssets";
 import { WorldAudio, type BgmId } from "./audio/worldAudio";
 import { WorldCanvas } from "./WorldCanvas";
 import { isWorldDebug } from "./debug";
+import { getMissionDef, missionDefsFor, totalShardsFor } from "./data/missionDefs";
 import { getCast } from "./data/worldCast";
-import { buildExamineDialogue, buildNpcDialogue } from "./data/placeholderDialogue";
+import { buildExamineDialogue } from "./data/placeholderDialogue";
 import type { DebugPick, SaveStore, WorldEngine, WorldEvents } from "./engine/world";
+import type { RunEvent } from "./engine/runs";
+import { parseAction } from "./state/actions";
 import { COACH_DONE, nextCoachStep, type CoachEvent } from "./state/coach";
-import type { DialogueNode } from "./state/dialogue";
-import { resolveEscape, type OverlayPhase } from "./state/escape";
-import { PROLOGUE_DONE_FLAG, createNewGameSave, isContinuableSave, loadWorldSave, loadWorldSettings, saveWorldSave } from "./storage";
+import type { DialogueEffect, DialogueNode } from "./state/dialogue";
+import { resolveEscape, type OverlayPhase, type PauseView } from "./state/escape";
+import {
+  acceptMission, applyMissionEvent, completeMission, completeTalk, defaultTracked, missionViews, restartMission, type RewardResult,
+} from "./state/missions";
+import { describeProgress, type MissionEvent } from "./state/missionEval";
+import { buildConversation } from "./state/npcDialogue";
+import {
+  PROLOGUE_DONE_FLAG, createNewGameSave, isContinuableSave, loadWorldSave, loadWorldSettings, saveWorldSave, saveWorldSettings,
+} from "./storage";
 import { STAGE_HEIGHT, STAGE_WIDTH, computeStageLayout, type StageLayout } from "./stageLayout";
-import type { CastId, SceneId } from "./types";
+import type { CastId, MinigameRoundResult, SceneId, WorldSave, WorldSettings } from "./types";
 import { CharacterSelect } from "./ui/CharacterSelect";
 import { CoachMarks } from "./ui/CoachMarks";
 import { DebugPanel } from "./ui/DebugPanel";
 import { DialogueBox } from "./ui/DialogueBox";
+import { Hud } from "./ui/Hud";
 import { LoadingScreen } from "./ui/LoadingScreen";
+import { MissionLog } from "./ui/MissionLog";
+import { PauseMenu } from "./ui/PauseMenu";
 import { Prologue } from "./ui/Prologue";
 import { TitleScreen } from "./ui/TitleScreen";
 import { ToastLayer, useToasts } from "./ui/Toast";
+import { WorldModals, type DashboardBridge, type WorldModal } from "./ui/WorldModals";
 import { WorldAssets, assetKeysForGroup } from "./worldAssets";
+
+export type { DashboardBridge } from "./ui/WorldModals";
 
 /** Shown for a moment even when everything is cached, so the loading screen never just flashes. */
 const MIN_LOADING_MS = 600;
@@ -31,6 +49,8 @@ const MIN_LOADING_MS = 600;
 const HINT_CONVERSATIONS = 3;
 /** Shards needed for the brighter field music (docs/world/07 §1). */
 const LUSH_MUSIC_SHARDS = 5;
+/** Toasts of one reward (mission done → shard → badge) are staggered so each can be read. */
+const REWARD_TOAST_GAP_MS = 900;
 
 interface Session {
   playerId: CastId;
@@ -41,6 +61,8 @@ interface ActiveDialogue {
   node: DialogueNode;
   /** Cast member the conversation is with (null for a read-only object). */
   cast: CastId | null;
+  /** Mission effects applied when the conversation ends (a report is paid out here). */
+  endEffects: DialogueEffect[];
 }
 
 /** Locks the page behind the overlay from scrolling while it's open (same pattern as FortunePopup). */
@@ -71,7 +93,7 @@ function useBodyScrollLock() {
 
 /**
  * Esc goes to the topmost open piece of UI only (`resolveEscape`); it listens in the capture phase and
- * stops the event so page-level Esc handlers underneath never also fire.
+ * stops the event so page-level Esc handlers underneath (the minigame modals' own `useEscape`) never also fire.
  */
 function useEscapeKey(handlerRef: { current: () => void }) {
   useEffect(() => {
@@ -106,28 +128,41 @@ function bgmFor(scene: SceneId, zoneBgm: string | undefined, shards: number): Bg
   return zoneBgm && zoneBgm.startsWith("region-") ? [zoneBgm as BgmId, field] : [field];
 }
 
-export default function WorldOverlay({ onClose }: { onClose: () => void }) {
+/** The save with its player set: mission logic needs it (a session save always has one). */
+const withPlayer = (save: WorldSave, player: CastId): WorldSave => (save.player === player ? save : { ...save, player });
+
+export default function WorldOverlay({ onClose, dashboard }: { onClose: () => void; dashboard: DashboardBridge }) {
   const debug = useMemo(() => isWorldDebug(), []);
   const assets = useMemo(() => new WorldAssets(), []);
-  const audio = useMemo(() => new WorldAudio(loadWorldSettings()), []);
+  const [settings, setSettings] = useState<WorldSettings>(() => loadWorldSettings());
+  const audio = useMemo(() => new WorldAudio(settings), []); // eslint-disable-line react-hooks/exhaustive-deps -- the settings are pushed with setSettings below
   const rootRef = useRef<HTMLDivElement>(null);
   const layout = useStageLayout();
   const [phase, setPhase] = useState<OverlayPhase>("boot");
   const [progress, setProgress] = useState(0);
   const [session, setSession] = useState<Session | null>(null);
   const [pendingPlayer, setPendingPlayer] = useState<CastId | null>(null);
-  const [savedGame] = useState(() => {
+  const readContinuable = () => {
     const saved = loadWorldSave();
     return isContinuableSave(saved) ? saved : null;
-  });
+  };
+  const [savedGame, setSavedGame] = useState(readContinuable);
 
   const [dialogue, setDialogue] = useState<ActiveDialogue | null>(null);
   const [coachStep, setCoachStep] = useState(0);
+  const [modal, setModal] = useState<WorldModal | null>(null);
+  const [pauseView, setPauseView] = useState<PauseView>("closed");
+  const [logOpen, setLogOpen] = useState(false);
+  const [trackedId, setTrackedId] = useState<string | null>(null);
+  /** Bumped whenever the save changes, so the HUD, log and menu re-render (the save itself lives in `store`). */
+  const [, bump] = useReducer((n: number) => n + 1, 0);
   const { toasts, push: pushToast } = useToasts();
   const engineRef = useRef<WorldEngine | null>(null);
   const [engine, setEngine] = useState<WorldEngine | null>(null);
   const [currentScene, setCurrentScene] = useState<SceneId>("overworld");
   const [debugPick, setDebugPick] = useState<DebugPick | null>(null);
+  const bgmRef = useRef<BgmId[]>(["title"]);
+  const rewardTimers = useRef<number[]>([]);
 
   useBodyScrollLock();
 
@@ -144,16 +179,26 @@ export default function WorldOverlay({ onClose }: { onClose: () => void }) {
 
   useEffect(() => {
     audio.reset();
+    const timers = rewardTimers.current;
     return () => {
+      timers.forEach((timer) => window.clearTimeout(timer));
       audio.dispose();
       assets.dispose();
     };
   }, [assets, audio]);
 
+  const playBgm = useCallback(
+    (ids: BgmId[]) => {
+      bgmRef.current = ids;
+      audio.playBgm(ids);
+    },
+    [audio],
+  );
+
   // Menu music until the world takes over (the engine reports the scene once it starts).
   useEffect(() => {
-    if (phase === "title" || phase === "select" || phase === "prologue") audio.playBgm(["title"]);
-  }, [phase, audio]);
+    if (phase === "title" || phase === "select" || phase === "prologue") playBgm(["title"]);
+  }, [phase, playBgm]);
 
   // boot group -> title
   useEffect(() => {
@@ -179,7 +224,10 @@ export default function WorldOverlay({ onClose }: { onClose: () => void }) {
     let cancelled = false;
     setProgress(0);
     const keys = assetKeysForGroup("core", session.playerId, session.store.save.scene);
-    audio.preloadSfx(["ui-move", "ui-select", "dialog-tick", "dialog-next", "dialog-open", "door-open", "door-close", "step-grass", "step-stone", "step-wood", "examine", "interact-ping"]);
+    audio.preloadSfx([
+      "ui-move", "ui-select", "dialog-tick", "dialog-next", "dialog-open", "door-open", "door-close", "step-grass", "step-stone", "step-wood", "examine", "interact-ping",
+      "mission-accept", "mission-ready", "mission-complete", "shard-get", "pickup", "parcel-get", "checkpoint", "ball-kick", "ball-net",
+    ]);
     void assets.load(keys, (done, total) => setProgress(total === 0 ? 1 : done / total), controller.signal).then(async () => {
       const remaining = MIN_LOADING_MS - (performance.now() - startedAt);
       if (remaining > 0) await new Promise((resolve) => setTimeout(resolve, remaining));
@@ -193,9 +241,18 @@ export default function WorldOverlay({ onClose }: { onClose: () => void }) {
 
   // ── flow ────────────────────────────────────────────────────────────────────────────────
 
+  function resetPlayUi() {
+    setDialogue(null);
+    setModal(null);
+    setLogOpen(false);
+    setPauseView("closed");
+    setTrackedId(null);
+  }
+
   function startContinue() {
     if (!savedGame || !savedGame.player) return;
     setCoachStep(savedGame.coachDone ? COACH_DONE : 0);
+    resetPlayUi();
     setSession({ playerId: savedGame.player, store: { save: savedGame } });
     setPhase("core");
   }
@@ -218,14 +275,180 @@ export default function WorldOverlay({ onClose }: { onClose: () => void }) {
     const save = { ...createNewGameSave(pendingPlayer), flags: { [PROLOGUE_DONE_FLAG]: true as const } };
     saveWorldSave(save);
     setCoachStep(0);
-    setDialogue(null);
+    resetPlayUi();
     setSession({ playerId: pendingPlayer, store: { save } });
     setPhase("core");
   }
 
-  // ── in-world events (called by the engine) ───────────────────────────────────────────────
+  /** Pause menu → 새로 시작: back to the character select; the current save stays until a new prologue ends. */
+  function startNewFromMenu() {
+    engineRef.current?.cancelRuns();
+    persist();
+    setSavedGame(readContinuable());
+    resetPlayUi();
+    setPhase("select");
+  }
+
+  // ── save helpers ────────────────────────────────────────────────────────────────────────
 
   const store = session?.store;
+  const playerId = session?.playerId ?? null;
+  const save = store && playerId ? withPlayer(store.save, playerId) : null;
+
+  /** Writes the save (with the current position) to storage right away. */
+  const persist = useCallback(() => {
+    if (!store) return;
+    const where = engineRef.current?.getState();
+    saveWorldSave(where ? { ...store.save, ...where } : store.save);
+  }, [store]);
+
+  /** Replaces the save through a pure update, persists it and re-renders. The engine notices the new reference on its next frame. */
+  const commit = useCallback(
+    (update: (current: WorldSave) => WorldSave) => {
+      if (!store || !playerId) return;
+      const next = update(withPlayer(store.save, playerId));
+      if (next === store.save) return;
+      store.save = next;
+      persist();
+      bump();
+    },
+    [store, playerId, persist],
+  );
+
+  // ── missions ────────────────────────────────────────────────────────────────────────────
+
+  /** Toasts spaced out so a mission, its shard and a badge each get read. */
+  const pushSequence = useCallback(
+    (items: { text: string; accent?: string; sfx?: Parameters<WorldAudio["playSfx"]>[0] }[]) => {
+      items.forEach((item, index) => {
+        const run = () => {
+          pushToast(item.text, item.accent);
+          if (item.sfx) audio.playSfx(item.sfx);
+        };
+        if (index === 0) run();
+        else rewardTimers.current.push(window.setTimeout(run, index * REWARD_TOAST_GAP_MS));
+      });
+    },
+    [audio, pushToast],
+  );
+
+  const announceReward = useCallback(
+    (reward: RewardResult) => {
+      const total = totalShardsFor(store?.save.player ?? null);
+      const items: { text: string; accent?: string; sfx?: Parameters<WorldAudio["playSfx"]>[0] }[] = [
+        { text: `미션 완료: ${reward.mission.title}`, accent: "#ffd54a", sfx: "mission-complete" },
+      ];
+      if (reward.shard) items.push({ text: `잔디 조각 획득! (${reward.shardsAfter}/${total})`, accent: "#00e9ae", sfx: "shard-get" });
+      for (const badge of reward.badges) items.push({ text: `뱃지 획득: 「${badge.label}」`, accent: "#ffb454", sfx: "badge-get" });
+      if (reward.shard && reward.shardsAfter >= total) items.push({ text: "잔디 조각을 모두 모았어요!", accent: "#00e9ae", sfx: "shard-restore" });
+      pushSequence(items);
+    },
+    [pushSequence, store],
+  );
+
+  /** Feeds a world event to the missions, announcing every mission whose goal it just met. */
+  const dispatch = useCallback(
+    (event: MissionEvent) => {
+      if (!store || !playerId) return;
+      const result = applyMissionEvent(withPlayer(store.save, playerId), event);
+      if (result.save === store.save) return;
+      commit(() => result.save);
+      for (const change of result.changes) {
+        const def = getMissionDef(change.id);
+        if (!def) continue;
+        pushSequence([{ text: `목표 달성! ${getCast(def.giver).displayName}에게 보고하세요 (${def.title})`, accent: "#ffd54a", sfx: "mission-ready" }]);
+      }
+    },
+    [commit, playerId, pushSequence, store],
+  );
+
+  const applyEffect = useCallback(
+    (effect: DialogueEffect) => {
+      const def = getMissionDef(effect.mission);
+      if (!def || !store || !playerId) return;
+      switch (effect.type) {
+        case "accept": {
+          const next = acceptMission(withPlayer(store.save, playerId), effect.mission);
+          if (next === store.save) return;
+          commit(() => next);
+          pushSequence([{ text: `미션 수락: ${def.title}`, accent: "#5aa8ff", sfx: "mission-accept" }]);
+          if (def.kind === "delivery" && def.seconds !== undefined) engineRef.current?.startDelivery(def.id);
+          break;
+        }
+        case "retry":
+          // Every round starts from zero: parcels handed over in an earlier, timed-out round do not count.
+          commit((current) => restartMission(current, effect.mission));
+          engineRef.current?.startDelivery(effect.mission);
+          break;
+        case "finish-talk": {
+          const done = completeTalk(withPlayer(store.save, playerId), effect.mission);
+          commit(() => done.save);
+          if (done.reward) announceReward(done.reward);
+          break;
+        }
+        case "complete": {
+          const done = completeMission(withPlayer(store.save, playerId), effect.mission);
+          commit(() => done.save);
+          if (done.reward) announceReward(done.reward);
+          break;
+        }
+      }
+    },
+    [announceReward, commit, playerId, pushSequence, store],
+  );
+
+  /** A minigame round of a modal the world itself opened — the only plays that count. */
+  const handleRoundEnd = useCallback((result: MinigameRoundResult) => dispatch({ type: "minigame", result }), [dispatch]);
+  const handleCardView = useCallback((id: string, variant: string) => dispatch({ type: "card-view", cardId: id, variant }), [dispatch]);
+
+  const handleRunEvent = useCallback(
+    (event: RunEvent) => {
+      switch (event.type) {
+        case "delivery-start":
+          pushSequence([{ text: `택배 ${event.items.length}개를 받았어요! ${event.seconds}초 안에 우편함에 배달하세요`, accent: "#5aa8ff", sfx: "parcel-get" }]);
+          break;
+        case "delivered": {
+          dispatch({ type: "delivered", item: event.item, to: { mailbox: event.mailbox } });
+          const def = store ? missionDefsFor(store.save.player).find((entry) => entry.id === event.mission) : undefined;
+          const text = def && store ? describeProgress(def, store.save.missions[def.id]?.progress, store.save.collected) : "";
+          pushSequence([{ text: `배달 완료! ${text.split(" ·")[0]}`, accent: "#5aa8ff" }]);
+          break;
+        }
+        case "delivery-timeup":
+          commit((current) => restartMission(current, event.mission));
+          pushSequence([{ text: "시간 초과! 택배를 돌려줬어요. 빙밍에게 다시 말을 걸어 도전하세요", accent: "#ff6a5a", sfx: "timeup" }]);
+          break;
+        case "trial-start":
+          pushSequence([{ text: `출발! ${event.seconds}초 안에 콘 사이를 위·아래로 번갈아 지나가세요`, accent: "#ffb454" }]);
+          break;
+        case "trial-cone":
+          pushSequence([{ text: `콘 접촉! +${event.penalty}초`, accent: "#ff6a5a" }]);
+          break;
+        case "trial-finished":
+          dispatch({ type: "trial-finished", mission: event.mission, seconds: event.seconds });
+          if (!event.passed) pushSequence([{ text: `${event.seconds.toFixed(1)}초 — 아쉬워요! 시작 게이트를 다시 지나 재도전`, accent: "#ff6a5a", sfx: "timeup" }]);
+          break;
+        case "trial-timeup":
+          pushSequence([{ text: "시간 초과! 시작 게이트를 다시 지나 재도전", accent: "#ff6a5a", sfx: "timeup" }]);
+          break;
+        case "kick-start": {
+          const def = getMissionDef(event.mission);
+          pushSequence([{ text: def?.kind === "kick_goals" ? `${event.seconds}초 안에 ${def.goals}골!` : "킥 챌린지 시작!", accent: "#d9f27a", sfx: "whistle-short" }]);
+          break;
+        }
+        case "kick-goal":
+          pushSequence([{ text: `골! ${event.goals}/${event.need}`, accent: "#d9f27a" }]);
+          break;
+        case "kick-finished":
+          dispatch({ type: "kick-finished", mission: event.mission, goals: event.goals });
+          if (!event.passed) pushSequence([{ text: `시간 종료 — ${event.goals}골. 공을 차서 다시 도전!`, accent: "#ff6a5a", sfx: "timeup" }]);
+          break;
+      }
+    },
+    [dispatch, pushSequence, store],
+  );
+
+  // ── in-world events (called by the engine) ───────────────────────────────────────────────
 
   // Handlers read the latest step/dialogue from refs so no side effect runs inside a state updater.
   const coachRef = useRef(coachStep);
@@ -250,37 +473,90 @@ export default function WorldOverlay({ onClose }: { onClose: () => void }) {
     if (!current) return;
     dialogueRef.current = null;
     setDialogue(null);
+    for (const effect of current.endEffects) applyEffect(effect);
+    if (current.cast) dispatch({ type: "talk", cast: current.cast });
     engineRef.current?.closeInteraction();
     if (current.cast) advanceCoach({ type: "talked", cast: current.cast });
-  }, [advanceCoach]);
+  }, [advanceCoach, applyEffect, dispatch]);
+
+  const closeModal = useCallback(() => {
+    setModal(null);
+    engineRef.current?.closeInteraction();
+    audio.playBgm(bgmRef.current);
+  }, [audio]);
+
+  const openModal = useCallback(
+    (next: WorldModal) => {
+      setModal(next);
+      audio.playBgm(null); // the minigames bring their own music
+    },
+    [audio],
+  );
 
   const eventsRef = useRef<WorldEvents>({});
   eventsRef.current = {
     onInteract(target) {
-      if (!store) return;
+      if (!store || !playerId) return;
       if (target.kind === "npc") {
         const cast = getCast(target.cast);
         const talked = store.save.talked[cast.id] ?? 0;
-        store.save = { ...store.save, talked: { ...store.save.talked, [cast.id]: talked + 1 } };
-        setDialogue({ node: buildNpcDialogue(cast, talked), cast: cast.id });
-      } else {
-        setDialogue({ node: buildExamineDialogue(target.text), cast: null });
+        const conversation = buildConversation({
+          cast,
+          save: withPlayer(store.save, playerId),
+          talked,
+          deliveryRunning: engineRef.current?.isDeliveryRunning() ?? false,
+        });
+        commit((current) => ({ ...current, talked: { ...current.talked, [cast.id]: talked + 1 } }));
+        setDialogue({ node: conversation.node, cast: cast.id, endEffects: conversation.endEffects });
+        return;
+      }
+      if (target.kind === "examine") {
+        const action = parseAction(target.action);
+        if (action?.type === "minigame") {
+          openModal({ type: "minigame", game: action.game });
+          return;
+        }
+        if (action?.type === "cards") {
+          // The member's own card first (the tutorial asks for it); the popup itself lets the viewer switch to any other card.
+          const streamers = (dashboard.streamers ?? []).filter((entry) => hasTotyCard(entry.id));
+          const first = streamers.find((entry) => entry.id === playerId) ?? streamers[0];
+          if (first) {
+            openModal({ type: "cards", streamerId: first.id });
+            return;
+          }
+          setDialogue({ node: buildExamineDialogue("서랍이 잠겨 있다. 카드 정보를 아직 불러오는 중이다."), cast: null, endEffects: [] });
+          return;
+        }
+        setDialogue({ node: buildExamineDialogue(target.text), cast: null, endEffects: [] });
+        return;
+      }
+      // Pickups and the ball never reach here (the engine handles them without a dialogue); hand the keyboard back just in case.
+      engineRef.current?.closeInteraction();
+    },
+    onPickup(id) {
+      if (!store || !playerId) return;
+      dispatch({ type: "pickup", id });
+      const def = missionDefsFor(playerId).find((entry) => entry.kind === "collect" && entry.items.includes(id));
+      if (def) {
+        const progressText = describeProgress(def, undefined, store.save.collected);
+        pushSequence([{ text: `${progressText}`, accent: "#5ad1ff" }]);
       }
     },
+    onRunEvent: handleRunEvent,
     onZoneEnter(zone) {
       pushToast(zone.name, zone.tint);
-      if (store) audio.playBgm(bgmFor("overworld", zone.bgm, store.save.shards));
+      if (store) playBgm(bgmFor("overworld", zone.bgm, store.save.shards));
     },
     onSceneChange(scene) {
       setCurrentScene(scene);
-      if (store && scene !== "overworld") audio.playBgm(bgmFor(scene, undefined, store.save.shards));
+      if (store && scene !== "overworld") playBgm(bgmFor(scene, undefined, store.save.shards));
     },
     onWalked(tiles) {
       advanceCoach({ type: "walked", tiles });
     },
     onLogKey() {
-      // The mission log itself is S3; the key already counts for the tutorial.
-      pushToast("미션 로그는 곧 열려요");
+      audio.playSfx("ui-open");
+      setLogOpen(true);
       advanceCoach({ type: "log" });
     },
     onDebugPick: setDebugPick,
@@ -296,12 +572,33 @@ export default function WorldOverlay({ onClose }: { onClose: () => void }) {
     engine?.setHighlight(phase === "play" && coachStep === 1 ? "elder" : null);
   }, [engine, phase, coachStep]);
 
+  // One place decides whether the world may move: any panel that owns the keyboard blocks it.
+  const uiOpen = dialogue !== null || modal !== null || logOpen || pauseView !== "closed";
+  useEffect(() => {
+    engine?.setUiBlocked(uiOpen);
+  }, [engine, uiOpen]);
+
   // ── Esc ─────────────────────────────────────────────────────────────────────────────────
 
   const coachActive = phase === "play" && coachStep < COACH_DONE;
   const escapeRef = useRef<() => void>(() => {});
   escapeRef.current = () => {
-    switch (resolveEscape({ phase, dialogueOpen: dialogue !== null, coachActive })) {
+    switch (resolveEscape({ phase, dialogueOpen: dialogue !== null, coachActive, modalOpen: modal !== null, pauseView, logOpen })) {
+      case "close-modal":
+        closeModal();
+        break;
+      case "pause-back":
+        audio.playSfx("ui-cancel");
+        setPauseView("main");
+        break;
+      case "close-pause":
+        audio.playSfx("ui-close");
+        setPauseView("closed");
+        break;
+      case "close-log":
+        audio.playSfx("ui-close");
+        setLogOpen(false);
+        break;
       case "close-dialogue":
         closeDialogue();
         break;
@@ -309,6 +606,10 @@ export default function WorldOverlay({ onClose }: { onClose: () => void }) {
         coachRef.current = COACH_DONE;
         setCoachStep(COACH_DONE);
         if (store) store.save = { ...store.save, coachDone: true };
+        break;
+      case "open-pause":
+        audio.playSfx("ui-open");
+        setPauseView("main");
         break;
       case "back-to-title":
         setPhase("title");
@@ -323,8 +624,23 @@ export default function WorldOverlay({ onClose }: { onClose: () => void }) {
   };
   useEscapeKey(escapeRef);
 
-  const playerCast = session ? getCast(session.playerId) : null;
+  const changeSettings = (next: WorldSettings) => {
+    setSettings(next);
+    audio.setSettings(next);
+    saveWorldSettings(next);
+  };
+
+  const restartGuide = () => {
+    setPauseView("closed");
+    coachRef.current = 0;
+    setCoachStep(0);
+    commit((current) => ({ ...current, coachDone: false }));
+  };
+
+  const playerCast = playerId ? getCast(playerId) : null;
   const talkedTotal = store ? Object.values(store.save.talked).reduce((sum, n) => sum + n, 0) : 0;
+  const views = save ? missionViews(save) : [];
+  const tracked = views.find((view) => view.def.id === trackedId && view.status !== "completed") ?? defaultTracked(views);
 
   return (
     <div ref={rootRef} className="world-overlay" role="dialog" aria-modal="true" aria-label="잔디동 월드" tabIndex={-1}>
@@ -357,7 +673,8 @@ export default function WorldOverlay({ onClose }: { onClose: () => void }) {
               onEngine={handleEngine}
               scaleLabel={`${layout.deviceScale}x device px (css ${layout.cssScale.toFixed(2)})`}
             />
-            {!dialogue && <p className="world-hint">방향키/WASD 이동 · Shift 달리기 · E 상호작용 · Esc 나가기</p>}
+            <Hud shards={session.store.save.shards} tracked={tracked} />
+            {!dialogue && !logOpen && pauseView === "closed" && <p className="world-hint">방향키/WASD 이동 · Shift 달리기 · E 상호작용 · J 미션 로그 · Esc 메뉴</p>}
             <CoachMarks step={coachStep} />
             <ToastLayer toasts={toasts} />
             {dialogue && (
@@ -367,16 +684,69 @@ export default function WorldOverlay({ onClose }: { onClose: () => void }) {
                 playerName={playerCast.displayName}
                 audio={audio}
                 showHint={talkedTotal <= HINT_CONVERSATIONS}
+                onEffect={applyEffect}
                 onClose={closeDialogue}
+              />
+            )}
+            {logOpen && (
+              <MissionLog
+                views={views}
+                trackedId={tracked?.def.id ?? null}
+                audio={audio}
+                onTrack={(id) => {
+                  setTrackedId(id);
+                  pushToast("트래커에 표시했어요");
+                }}
+                onClose={() => setLogOpen(false)}
+              />
+            )}
+            {pauseView !== "closed" && (
+              <PauseMenu
+                key={pauseView}
+                view={pauseView}
+                onView={setPauseView}
+                settings={settings}
+                onSettings={changeSettings}
+                audio={audio}
+                onResume={() => setPauseView("closed")}
+                onLog={() => {
+                  setPauseView("closed");
+                  setLogOpen(true);
+                }}
+                onGuide={restartGuide}
+                onNewGame={startNewFromMenu}
+                onExit={onClose}
               />
             )}
           </>
         )}
       </div>
-      <button type="button" className="world-overlay__close" onClick={onClose} aria-label="월드 나가기 (Esc)">
+      {/* The minigames and the card popup keep their own fixed layers; outside the scaled stage they use real pixels. */}
+      {phase === "play" && (
+        <WorldModals
+          modal={modal}
+          dashboard={dashboard}
+          onClose={closeModal}
+          onRoundEnd={handleRoundEnd}
+          onCardView={handleCardView}
+          onSelectCard={(streamerId) => setModal({ type: "cards", streamerId })}
+        />
+      )}
+      <button type="button" className="world-overlay__close" onClick={onClose} aria-label="월드 나가기">
         <X aria-hidden="true" />
       </button>
-      {debug && phase === "play" && <DebugPanel engine={engine} scene={currentScene} pick={debugPick} />}
+      {debug && phase === "play" && (
+        <DebugPanel
+          engine={engine}
+          scene={currentScene}
+          pick={debugPick}
+          save={save}
+          onSave={(update) => {
+            commit(update);
+            engineRef.current?.cancelRuns();
+          }}
+        />
+      )}
     </div>
   );
 }

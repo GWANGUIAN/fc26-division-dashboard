@@ -64,6 +64,17 @@ function overworldKeys(): string[] {
   return keys;
 }
 
+/** Canvas art of the missions: the markers over the givers, sparkles, pickups, cones and the kick ball (docs/world/03 §7). */
+function missionKeys(): string[] {
+  const keys = ["fx/mark-new", "fx/mark-progress", "fx/mark-complete", "fx/sparkle-1", "fx/sparkle-2", "fx/sparkle-3", "fx/sparkle-4", "props/ball-standard"];
+  for (const object of OVERWORLD_MAP.objects) {
+    if (object.type !== "pickup" && object.type !== "hazard") continue;
+    if (object.prop) keys.push(propAssetKey(object.prop));
+    if (object.type === "pickup" && object.look === "withered") keys.push(propAssetKey(object.prop, true));
+  }
+  return keys;
+}
+
 /**
  * boot: everything up to the character select. core: what the world itself draws — terrain, props,
  * buildings, every cast atlas, the in-world UI frames and the room the game starts in (the other rooms
@@ -71,7 +82,7 @@ function overworldKeys(): string[] {
  */
 export function assetKeysForGroup(group: AssetGroup, player: CastId | null, startScene: SceneId | null = null): string[] {
   if (group === "boot") return BOOT_KEYS;
-  const keys = [...overworldKeys(), ...WORLD_UI_KEYS, ...WORLD_CAST.map((cast) => `characters/${cast.id}-atlas`)];
+  const keys = [...overworldKeys(), ...missionKeys(), ...WORLD_UI_KEYS, ...WORLD_CAST.map((cast) => `characters/${cast.id}-atlas`)];
   if (player) keys.push(`characters/${player}-atlas`);
   if (startScene?.startsWith("interior:")) keys.push(`interiors/int-${startScene.slice("interior:".length)}`);
   return keys;

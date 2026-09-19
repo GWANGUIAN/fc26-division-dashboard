@@ -1,19 +1,34 @@
 import { describe, expect, it } from "vitest";
-import { resolveEscape } from "./escape";
+import { resolveEscape, type EscapeContext } from "./escape";
 
-describe("resolveEscape", () => {
-  it("closes only the dialogue when one is open, even with the coach marks up", () => {
-    expect(resolveEscape({ phase: "play", dialogueOpen: true, coachActive: true })).toBe("close-dialogue");
+const play = (over: Partial<EscapeContext> = {}): EscapeContext => ({ phase: "play", dialogueOpen: false, coachActive: false, ...over });
+
+describe("resolveEscape while playing", () => {
+  it("closes a minigame or card modal before anything else", () => {
+    expect(resolveEscape(play({ modalOpen: true, pauseView: "main", logOpen: true, dialogueOpen: true, coachActive: true }))).toBe("close-modal");
   });
 
-  it("skips the coach marks next, without leaving the world", () => {
-    expect(resolveEscape({ phase: "play", dialogueOpen: false, coachActive: true })).toBe("skip-coach");
+  it("steps back out of the pause menu, sub-page first", () => {
+    expect(resolveEscape(play({ pauseView: "settings", logOpen: true }))).toBe("pause-back");
+    expect(resolveEscape(play({ pauseView: "confirm-new" }))).toBe("pause-back");
+    expect(resolveEscape(play({ pauseView: "main", logOpen: true }))).toBe("close-pause");
   });
 
-  it("leaves the world only when nothing is open", () => {
-    expect(resolveEscape({ phase: "play", dialogueOpen: false, coachActive: false })).toBe("close-world");
+  it("then closes the mission log, then the dialogue", () => {
+    expect(resolveEscape(play({ logOpen: true, dialogueOpen: true }))).toBe("close-log");
+    expect(resolveEscape(play({ dialogueOpen: true, coachActive: true }))).toBe("close-dialogue");
   });
 
+  it("skips the coach marks next, without opening the menu", () => {
+    expect(resolveEscape(play({ coachActive: true }))).toBe("skip-coach");
+  });
+
+  it("opens the pause menu when nothing else is open (it never leaves the world by itself)", () => {
+    expect(resolveEscape(play())).toBe("open-pause");
+  });
+});
+
+describe("resolveEscape outside the world", () => {
   it("sends the character select back to the title and skips the prologue", () => {
     expect(resolveEscape({ phase: "select", dialogueOpen: false, coachActive: false })).toBe("back-to-title");
     expect(resolveEscape({ phase: "prologue", dialogueOpen: false, coachActive: false })).toBe("skip-prologue");

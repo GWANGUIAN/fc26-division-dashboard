@@ -1,10 +1,13 @@
 import type { CastDef, Facing, Rect } from "../types";
 import type { WorldAssets } from "../worldAssets";
+import type { MarkerKind } from "../state/missions";
+import { BALL_SIZE, ballBox, type Ball } from "./ball";
 import type { Camera } from "./camera";
 import { footBox } from "./collision";
 import { INTERACT_REACH, interactionProbe, npcHitArea } from "./interaction";
 import { NPC_BOX, type Npc } from "./npc";
-import type { BuildingInstance, PropInstance, WorldScene } from "./scene";
+import type { RunHud } from "./runs";
+import type { BuildingInstance, PropInstance, SceneObject, WorldScene } from "./scene";
 
 export const VIEW_WIDTH = 640;
 export const VIEW_HEIGHT = 360;
@@ -303,6 +306,101 @@ export function drawHomeSign(ctx: CanvasRenderingContext2D, camera: Camera, door
   ctx.fillText(text, x + w / 2, y + 7.5);
 }
 
+// ── mission markers, objects, ball ────────────────────────────────────────────────────────
+
+const MARKER_ASSET: Record<MarkerKind, string> = { new: "fx/mark-new", progress: "fx/mark-progress", ready: "fx/mark-complete" };
+const MARKER_FALLBACK: Record<MarkerKind, { glyph: string; fill: string }> = {
+  new: { glyph: "?", fill: "#5aa8ff" },
+  progress: { glyph: "…", fill: "#b8c4c0" },
+  ready: { glyph: "!", fill: "#ffd54a" },
+};
+
+/**
+ * The marker over a mission giver's head (docs/world/02 §5): blue `?` = new mission, grey `…` = in progress,
+ * gold `!` (with a little sparkle) = goal met, report back. (sx, sy) is the screen point just above the head.
+ */
+export function drawMarker(ctx: CanvasRenderingContext2D, assets: WorldAssets, kind: MarkerKind, sx: number, sy: number, time: number, still = false) {
+  const bob = still ? 0 : Math.round(Math.sin(time * 4 + sx * 0.05) * 2);
+  const image = assets.get(MARKER_ASSET[kind]);
+  const x = Math.round(sx);
+  const y = Math.round(sy + bob);
+  if (image) {
+    ctx.drawImage(image, Math.round(x - image.width / 2), y - image.height);
+    if (kind === "ready" && !still) {
+      const sparkle = assets.get(`fx/sparkle-${1 + (Math.floor(time * 8) % 4)}`);
+      if (sparkle) ctx.drawImage(sparkle, x + 6, y - image.height - 2);
+    }
+    return;
+  }
+  const { glyph, fill } = MARKER_FALLBACK[kind];
+  ctx.fillStyle = "rgba(11, 22, 20, 0.9)";
+  ctx.fillRect(x - 8, y - 18, 16, 18);
+  ctx.strokeStyle = fill;
+  ctx.strokeRect(x - 7.5, y - 17.5, 15, 17);
+  ctx.fillStyle = fill;
+  ctx.font = `bold 13px ${FONT}`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(glyph, x, y - 8);
+}
+
+/** A pickup, cone or other prop-like mission object standing on its feet position. Lanterns float a little. */
+export function drawSceneObject(ctx: CanvasRenderingContext2D, assets: WorldAssets, object: SceneObject, camera: Camera, time: number) {
+  if (!object.prop) return;
+  const image = assets.get(object.look === "withered" ? `props/${object.prop}-withered` : `props/${object.prop}`) ?? assets.get(`props/${object.prop}`);
+  const float = object.type === "pickup" && object.look !== "withered" ? Math.round(Math.sin(time * 3 + object.x * 0.1) * 2) - 3 : 0;
+  const x = Math.round(object.x - camera.x);
+  const y = Math.round(object.y - camera.y);
+  drawShadow(ctx, x, y + 2, 14, 5);
+  if (image) {
+    ctx.drawImage(image, Math.round(x - image.width / 2), y - image.height + float);
+    return;
+  }
+  ctx.fillStyle = object.type === "hazard" ? "#ff8a2e" : "#5ad1ff";
+  ctx.fillRect(x - 6, y - 14 + float, 12, 14);
+}
+
+export function drawBall(ctx: CanvasRenderingContext2D, assets: WorldAssets, ball: Ball, camera: Camera) {
+  const x = Math.round(ball.x - camera.x);
+  const y = Math.round(ball.y - camera.y);
+  drawShadow(ctx, x, y + BALL_SIZE / 2, 10, 4);
+  const image = assets.get("props/ball-standard");
+  if (image) {
+    ctx.drawImage(image, Math.round(x - image.width / 2), Math.round(y - image.height / 2 - 2));
+    return;
+  }
+  ctx.fillStyle = "#f4f4ee";
+  ctx.beginPath();
+  ctx.arc(x, y - 2, BALL_SIZE / 2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "#1c2422";
+  ctx.stroke();
+}
+
+/** The timer box of a running delivery / trial / kick challenge, top centre of the stage. */
+export function drawRunHud(ctx: CanvasRenderingContext2D, hud: RunHud) {
+  const w = 180;
+  const h = 40;
+  const x = Math.round((VIEW_WIDTH - w) / 2);
+  const y = 8;
+  ctx.fillStyle = "rgba(6, 18, 15, 0.86)";
+  ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = hud.urgent ? "#ff6a5a" : "#ffd54a";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "#b8ffe8";
+  ctx.font = `10px ${FONT}`;
+  ctx.fillText(hud.title, x + w / 2, y + 9);
+  ctx.fillStyle = hud.urgent ? "#ff8a7a" : "#ffe9b0";
+  ctx.font = `bold 15px ${FONT}`;
+  ctx.fillText(hud.clock, x + w / 2, y + 22);
+  ctx.fillStyle = "#e8fff6";
+  ctx.font = `10px ${FONT}`;
+  ctx.fillText(hud.detail, x + w / 2, y + 34);
+}
+
 // ── interiors ─────────────────────────────────────────────────────────────────────────────
 
 export function drawInterior(ctx: CanvasRenderingContext2D, assets: WorldAssets, scene: WorldScene, camera: Camera) {
@@ -340,6 +438,7 @@ export interface DebugStats {
   zone: string;
   restore: string;
   pick: { x: number; y: number } | null;
+  ball?: Ball | null;
 }
 
 /**
@@ -396,6 +495,16 @@ export function drawDebug(
     outline(footBox(npc.x, npc.y, NPC_BOX.w, NPC_BOX.h), "#ff4d4d");
     if (npc.wander) outline(npc.wander, "rgba(255, 157, 46, 0.6)");
   }
+  for (const object of scene.objects) {
+    if (object.rect) outline(object.rect, object.type === "goal" ? "#ffd54a" : object.type === "gate" ? "#5affb0" : "#5ad1ff", "rgba(255, 255, 255, 0.06)");
+    else outline({ x: object.x - 8, y: object.y - 8, w: 16, h: 8 }, object.type === "hazard" ? "#ff8a2e" : "#5ad1ff");
+    ctx.fillStyle = "#ffffff";
+    ctx.font = `8px ${FONT}`;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    ctx.fillText(object.id, Math.round((object.rect ? object.rect.x : object.x - 8) - camera.x) + 2, Math.round((object.rect ? object.rect.y : object.y - 8) - camera.y) + 2);
+  }
+  if (stats.ball) outline(ballBox(stats.ball), "#ffffff");
   outline(interactionProbe(player, player.facing, INTERACT_REACH), "#b8ff5c");
   outline(footBox(player.x, player.y), "#4dff88");
 

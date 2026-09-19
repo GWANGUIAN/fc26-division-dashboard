@@ -11,6 +11,9 @@ import { PROP_DEFS, propAssetKey } from "../propDefs";
 import { parseTerrainCode } from "../terrainDefs";
 import { PLAYABLE_CAST, WORLD_CAST, getCast, isCastId } from "../worldCast";
 import { getWorldAssetUrl } from "../../worldAssets";
+import { parseAction } from "../../state/actions";
+import { KNOWN_CONDITION_HEADS, conditionRefs } from "../../state/conditions";
+import { MISSION_DEFS, getMissionDef, missionDefsFor } from "../missionDefs";
 
 // Map integrity (docs/world/03 §10): door targets exist, arrival spots are open ground, NPC ids belong
 // to the cast, every referenced asset exists, and — beyond the doc's list — every door and resident can
@@ -260,6 +263,166 @@ describe("reachability on foot", () => {
   it("puts each house's owner within reach of the player who is not that owner", () => {
     // The chosen member's own NPC is skipped at spawn time; everyone else must be talkable.
     for (const cast of PLAYABLE_CAST) expect(getCast(cast.id).spawn.scene).toBe("overworld");
+  });
+});
+
+describe("mission objects (S3)", () => {
+  const objects = overworld.objects;
+  const byId = new Map(objects.map((object) => [object.id, object]));
+  const mailboxes = OVERWORLD_MAP.examine.filter((entry) => parseAction(entry.action)?.type === "mailbox");
+  const walk = reachable(overworld, overworld.spawn, npcRects(overworld));
+
+  it("has unique object ids that do not clash with examine ids", () => {
+    expect(byId.size).toBe(objects.length);
+    const examineIds = new Set(OVERWORLD_MAP.examine.map((entry) => entry.id));
+    for (const object of objects) expect(examineIds.has(object.id), object.id).toBe(false);
+  });
+
+  it("puts every pickup, cone and the ball on open ground the player can walk to", () => {
+    for (const object of objects) {
+      if (object.type !== "pickup" && object.type !== "hazard" && object.type !== "ball") continue;
+      expect(walk.near(object, 34), `${object.id} cannot be reached on foot`).toBe(true);
+    }
+    for (const object of objects) {
+      if (object.type !== "pickup" && object.type !== "ball") continue;
+      expect(isUsableSpot(overworld, object.x, object.y), `${object.id} sits inside a wall`).toBe(true);
+    }
+  });
+
+  it("can walk to every gate and to the goal's face", () => {
+    for (const object of objects) if (object.type === "gate" || object.type === "goal") expect(walk.near(object.rect!, 24), object.id).toBe(true);
+  });
+
+  it("keeps the ball's pitch inside the walkable map and the goal inside the pitch", () => {
+    const ball = objects.find((object) => object.type === "ball")!;
+    const goal = objects.find((object) => object.type === "goal")!;
+    expect(ball.rect!.x).toBeGreaterThanOrEqual(overworld.walkable.x);
+    expect(goal.rect!.x).toBeGreaterThanOrEqual(ball.rect!.x);
+    expect(goal.rect!.y).toBeGreaterThanOrEqual(ball.rect!.y);
+    expect(goal.rect!.y + goal.rect!.h).toBeLessThanOrEqual(ball.rect!.y + ball.rect!.h);
+    expect(ball.x).toBeGreaterThan(ball.rect!.x);
+    expect(ball.x).toBeLessThan(ball.rect!.x + ball.rect!.w);
+  });
+
+  it("gives the goal a solid prop: the ball scores at its face, it cannot roll through", () => {
+    const goal = objects.find((object) => object.type === "goal")!;
+    const solid = overworld.colliderRects.filter((rect) => rectsOverlap(rect, goal.rect!));
+    expect(solid.length).toBeGreaterThan(0);
+  });
+
+  it("makes the cone course a real slalom: no single lane satisfies every checkpoint", () => {
+    const def = getMissionDef("m-tdnlamuron-conerun");
+    if (def?.kind !== "time_trial") throw new Error("mission");
+    const lanes = def.gates.slice(1, -1).map((id) => byId.get(id)!.rect!);
+    const upper = lanes.filter((_, i) => i % 2 === 0);
+    const lower = lanes.filter((_, i) => i % 2 === 1);
+    const upperBottom = Math.max(...upper.map((rect) => rect.y + rect.h));
+    const lowerTop = Math.min(...lower.map((rect) => rect.y));
+    // A foot box is 10px tall: it can touch both a lane above and a lane below only if they are closer than that.
+    expect(lowerTop - upperBottom).toBeGreaterThan(10);
+    // Each cone sits between the two lanes of its column, so a runner keeping to one lane never touches it.
+    for (const id of def.hazards) {
+      const cone = byId.get(id)!;
+      expect(cone.y - 10).toBeGreaterThanOrEqual(upperBottom);
+      expect(cone.y).toBeLessThanOrEqual(lowerTop);
+    }
+  });
+
+  it("has every world object a mission names, with the right kind", () => {
+    for (const def of MISSION_DEFS) {
+      if (def.kind === "collect") for (const id of def.items) expect(byId.get(id)?.type, `${def.id}: ${id}`).toBe("pickup");
+      if (def.kind === "time_trial") {
+        for (const id of def.gates) expect(byId.get(id)?.type, `${def.id}: ${id}`).toBe("gate");
+        for (const id of def.hazards) expect(byId.get(id)?.type, `${def.id}: ${id}`).toBe("hazard");
+      }
+      if (def.kind === "kick_goals") {
+        expect(byId.get(def.goal)?.type).toBe("goal");
+        expect(byId.get(def.ball)?.type).toBe("ball");
+      }
+      if (def.kind === "delivery") {
+        for (const item of def.items) {
+          if ("mailbox" in item.to) {
+            const box = item.to.mailbox;
+            expect(mailboxes.some((entry) => entry.id === box), `${def.id}: ${box}`).toBe(true);
+          } else expect(isCastId(item.to.cast), item.id).toBe(true);
+        }
+      }
+    }
+  });
+
+  it("shows a pickup only while the mission that needs it is active", () => {
+    for (const object of objects) {
+      if (object.type !== "pickup") continue;
+      const owners = MISSION_DEFS.filter((def) => def.kind === "collect" && def.items.includes(object.id));
+      expect(owners, object.id).toHaveLength(1);
+      expect(object.when, object.id).toBe(`mission-active:${owners[0].id}`);
+    }
+  });
+
+  it("can walk up to every delivery mailbox", () => {
+    for (const box of mailboxes) {
+      const at = tileCenter(box.tile[0], box.tile[1]);
+      expect(walk.near(at, 40), box.id).toBe(true);
+    }
+  });
+
+  it("uses only conditions the game understands, naming missions that exist", () => {
+    const expressions: string[] = [];
+    for (const scene of scenes) {
+      for (const spawn of scene.npcSpawns) if (spawn.when) expressions.push(spawn.when);
+      for (const object of scene.objects) if (object.when) expressions.push(object.when);
+    }
+    expect(expressions.length).toBeGreaterThan(0);
+    for (const expr of expressions) {
+      const { heads, ids } = conditionRefs(expr);
+      heads.forEach((head, index) => {
+        expect(KNOWN_CONDITION_HEADS, expr).toContain(head);
+        if (head.startsWith("mission-")) expect(getMissionDef(ids[index]), expr).toBeDefined();
+      });
+    }
+  });
+
+  it("only uses examine actions the game understands", () => {
+    for (const scene of scenes) {
+      for (const point of scene.examine) if (point.action) expect(parseAction(point.action), `${scene.id}: ${point.action}`).not.toBeNull();
+    }
+  });
+
+  it("connects the four minigames to arcade machines and the card cabinet to the director's office", () => {
+    const arcade = getScene("interior:arcade")!;
+    const games = arcade.examine.map((point) => parseAction(point.action)).filter((action) => action?.type === "minigame").map((action) => (action as { game: string }).game);
+    expect([...games].sort()).toEqual(["cardmatch", "freekick", "kickups", "soccer-sum10"]);
+    const office = getScene("interior:clubhouse-office")!;
+    expect(office.examine.some((point) => parseAction(point.action)?.type === "cards")).toBe(true);
+  });
+});
+
+describe("mission definitions", () => {
+  it("has unique ids, real givers and prerequisites, and a hint for every mission", () => {
+    const ids = MISSION_DEFS.map((def) => def.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const def of MISSION_DEFS) {
+      expect(isCastId(def.giver), def.id).toBe(true);
+      expect(def.objective.length, def.id).toBeGreaterThan(0);
+      expect(def.hint.length, def.id).toBeGreaterThan(0);
+      for (const id of def.requires ?? []) expect(getMissionDef(id), `${def.id} requires ${id}`).toBeDefined();
+    }
+  });
+
+  it("has a giver standing somewhere the player can find them, for every mission", () => {
+    const placed = new Set(scenes.flatMap((scene) => scene.npcSpawns.map((spawn) => spawn.cast)));
+    for (const def of MISSION_DEFS) expect(placed.has(def.giver), def.id).toBe(true);
+    for (const def of MISSION_DEFS) {
+      if (def.kind === "talk_chain") for (const cast of def.targets) expect(placed.has(cast), `${def.id}: ${cast}`).toBe(true);
+    }
+  });
+
+  it("makes every main mission one shard, ten for any player", () => {
+    for (const cast of PLAYABLE_CAST) {
+      const mains = missionDefsFor(cast.id).filter((def) => def.main);
+      expect(mains, cast.id).toHaveLength(10);
+      expect(mains.reduce((sum, def) => sum + (def.reward.shard ?? 0), 0), cast.id).toBe(10);
+    }
   });
 });
 

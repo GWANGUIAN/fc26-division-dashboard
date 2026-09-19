@@ -3,7 +3,7 @@ import { Modal, useEscape } from "../../Modal.js";
 import { SoundControl } from "../SoundControl.js";
 import { SoccerSum10Canvas } from "./SoccerSum10Canvas.js";
 import { SoccerSum10Toggle } from "./SoccerSum10Toggle.js";
-import { useSoccerSum10Game } from "./useSoccerSum10Game.js";
+import { useSoccerSum10Game, type SoccerSum10RoundResult } from "./useSoccerSum10Game.js";
 import { useSoccerSum10Music } from "./useSoccerSum10Music.js";
 import { useSoccerSum10Sfx } from "./useSoccerSum10Sfx.js";
 import "./soccer-sum10.css";
@@ -12,13 +12,23 @@ export { SoccerSum10Toggle };
 
 export function SoccerSum10Modal({
   onClose,
+  onRoundEnd,
 }: {
   onClose: () => void;
+  /** Reports each finished round (the world missions listen to this; the dashboard does not need it). */
+  onRoundEnd?: (result: SoccerSum10RoundResult) => void;
 }) {
   useEscape(onClose);
   const { sfxOn, sfxVolume, toggleSfx, changeSfxVolume } = useSoccerSum10Sfx();
   const { musicOn, musicVolume, toggleMusic, changeMusicVolume, startMusic, stopMusic } = useSoccerSum10Music();
-  const { state, startGame, resolveSelection } = useSoccerSum10Game({ sfxOn, sfxVolume, onRoundEnd: stopMusic });
+  const { state, startGame, resolveSelection } = useSoccerSum10Game({
+    sfxOn,
+    sfxVolume,
+    onRoundEnd: (result) => {
+      stopMusic();
+      onRoundEnd?.(result);
+    },
+  });
 
   const startRound = () => {
     startGame();

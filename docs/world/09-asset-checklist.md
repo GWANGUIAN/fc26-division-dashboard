@@ -280,10 +280,25 @@ turn(서 있는 자세) 시트의 발끝 편차는 전원 허용 이내였다.
 - **어긋남 0건**: 소품 130종·건물 17·실내 19·아틀라스·지면 시트의 파일 크기가 표/`propDefs`와 모두 일치한다(`data/maps/assetSizes.test.ts`가 webp 헤더를 읽어 검사하므로, 다시 변환했는데 크기가 달라지면 테스트가 알려 준다). 렌더링은 디코드된 이미지의 실제 크기를 기준으로 하단 중앙에 앵커한다.
 - 특히 세로로 길어야 할 **`fence-wood-v`(16×20), `stone-wall-v`(24×35), `rink-board-v`(16×21), `fence-barbed-v`(16×29), `pipe-v`(24×45)** 등은 표가 가정한 높이의 절반도 안 되게 그려졌다. 세로 울타리로 긴 벽을 만들려면 더 많이 이어 붙여야 한다. 마음에 안 들면 [10 runbook](10-image-generation-runbook.md)의 해당 스텝만 재생성.
 - `ad-board`(보이는 폭 51 / 파일 96)·`barricade`(36 / 72)·`boat-small`(42 / 72)는 표 폭의 절반 남짓만 그려졌다. 제초동 게이트는 바리케이드를 세 개 나란히 세운다.
-- `goal-west`/`goal-front`의 발자국은 S3 킥 미션에서 골 입구를 열어야 하므로 S2 맵에는 놓지 않았다.
+- `goal-west`/`goal-front`의 발자국은 S2 맵에는 놓지 않았고, **S3에서 `goal-west`를 훈련장 서쪽에 세웠다**(발자국 64×71 전체가 단단함. 공은 골대 면에 닿으면 득점, [03 §7](03-map-design.md#7-미션용-월드-오브젝트)). `goal-front`는 아직 안 쓴다.
 
 ### S2에서 코드로 대신한 것 (에셋 없음)
 - 내 집 이름표 `sign-home`(03 §4): 문 위에 캔버스로 그린 작은 판.
 - `E` 상호작용 프롬프트: `tooltip-frame` 9-slice + 글자 `E`(캔버스), 튜토리얼 화살표(황금 삼각형)와 화면 밖 방향 표시.
 - 캐릭터·집 그림자 타원, 프롤로그 배경(`title-bg` 위에 어두운 막).
 - 사용 중인 신규 UI: `select-bg`, `card-*`, `ball-marker`(선택 카드 위 공), `dialog-frame`·`nameplate`·`portrait-frame`·`choice-*`·`cursor`·`next-1/2`·`toast-frame`·`coach-frame`·`tooltip-frame`. `arrow-*`·`name-ribbon`·`sparkle-ring`·`check-badge`(카드 격자·이름 글자·CSS로 대체해 S2에서는 미사용), 마커(`mark-*`)·이모트·러시 에셋은 S3 이후.
+
+## 12. S3에서 코드에 연결된 에셋 (2026-09-19)
+
+| 종류 | 키 | 쓰임 |
+| --- | --- | --- |
+| FX(캔버스) | `fx/mark-new`(?), `fx/mark-progress`(…), `fx/mark-complete`(!), `fx/sparkle-1..4` | NPC 머리 위 미션 마커. `!`에는 반짝임 4프레임을 옆에 돌린다. 그림이 없으면 글자 상자로 대신 그린다 |
+| 소품(캔버스) | `props/jelly-lantern-a/b/c`, `props/grass-tuft-prop(-withered)`, `props/cone-orange`, `props/ball-standard` | 랜턴 줍기(위아래로 둥실), 광장 잔디 자리(시든 이미지), 콘 코스 콘, 킥 볼 |
+| 소품(맵) | `goal-west`, `mailbox`, `fence-wood-h/v`, `corner-flag` | 훈련장 골대·펜스, 배달 우편함, 콘 코스 시작/도착 깃발 |
+| UI(DOM) | `ui/shard-gauge`, `ui/shard-filled`, `ui/hud-tracker` | HUD 조각 게이지·트래커 |
+| UI(DOM) | `ui/panel-parchment`, `ui/tab-active`, `ui/tab-normal`, `ui/mi-*` | 미션 로그(종이·탭·아이콘) |
+| UI(DOM) | `ui/panel-frame`, `ui/mn-*`, `ui/btn-secondary-*` | 일시정지 메뉴 |
+
+- **아직 안 쓴 것**: `props/parcel-a/b/c`(택배 그림 — S3의 택배는 화면에 그리지 않고 가방/HUD 문구로만 다룬다), `props/goldball-*`·`shard-*`(황금 공 수집·획득 연출은 S5/S4), `fx/emote-*`·`grow-*`·`ripple-*`·`splash-*`·`dust-*`·`target-ring`, `ui/minimap-frame`(지도 M), `ui/board-paper`·`stamp-*`(일일 게시판, S5), `ui/bd-*`(뱃지 아이콘은 뱃지 화면이 생기는 S5에서 — 지금은 토스트 글자만), `ui/check-badge`.
+- **HUD 게이지 칸 위치**는 프레임 그림에 맞춘 눈대중이다. 어긋나면 `world-mission.css`의 `--gauge-x`·`--gauge-pitch`·`--gauge-pip` 세 값만 고친다.
+- 뱃지 「배달 왕초보」에는 `bd-*` 아이콘이 없다(06의 12종에 없음). 필요하면 06 §5에 슬롯을 추가한다.

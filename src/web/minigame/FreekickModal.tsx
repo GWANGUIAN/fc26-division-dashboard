@@ -3,7 +3,7 @@ import { Modal, useEscape } from "../Modal";
 import { FreekickScene } from "./FreekickScene";
 import { SoundControl } from "./SoundControl";
 import { STARTING_LIVES } from "./freekickEngine";
-import { useFreekickGame } from "./useFreekickGame";
+import { useFreekickGame, type FreekickRoundResult } from "./useFreekickGame";
 import { useFreekickMusic } from "./useFreekickMusic";
 import { useFreekickSfx } from "./useFreekickSfx";
 import "./freekick.css";
@@ -34,10 +34,13 @@ function FreekickModal({
   onClose,
   sfxVolume,
   onSfxVolumeChange,
+  onRoundEnd,
 }: {
   onClose: () => void;
   sfxVolume: number;
   onSfxVolumeChange: (value: number) => void;
+  /** Reports each finished game (the world missions listen to this). */
+  onRoundEnd?: (result: FreekickRoundResult) => void;
 }) {
   useEscape(onClose);
   const { sfxOn, toggleSfx } = useFreekickSfx();
@@ -45,6 +48,7 @@ function FreekickModal({
   const { state, liveStateRef, handleShoot, handleNextAttempt, handleNewRound } = useFreekickGame({
     sfxOn,
     sfxVolume,
+    onRoundEnd,
   });
 
   return (

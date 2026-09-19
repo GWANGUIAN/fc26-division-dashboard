@@ -17,6 +17,13 @@ const INVALID_SFX = "/sfxes/soccer-sum10-invalid.mp3";
 const TIME_UP_SFX = "/sfxes/soccer-sum10-timeup.mp3";
 const COMPLETE_SFX = "/sfxes/soccer-sum10-complete.mp3";
 
+/** What the world (docs/world/01 §10) hears when a round is over: the points of that round and whether the board was cleared. */
+export interface SoccerSum10RoundResult {
+  game: "soccer-sum10";
+  score: number;
+  cleared: boolean;
+}
+
 export type SoccerSum10Phase = "ready" | "playing" | "timeup" | "cleared";
 export type SelectionResult = "cleared" | "invalid" | "ignored";
 
@@ -36,7 +43,7 @@ export function useSoccerSum10Game({
 }: {
   sfxOn: boolean;
   sfxVolume: number;
-  onRoundEnd: () => void;
+  onRoundEnd: (result: SoccerSum10RoundResult) => void;
 }) {
   const [state, setState] = useState<SoccerSum10GameState>(() => ({
     phase: "ready",
@@ -48,6 +55,9 @@ export function useSoccerSum10Game({
   }));
   const endAtRef = useRef<number | null>(null);
   const finishedRef = useRef(false);
+  // The time-up tick runs from an animation frame: it reads the score of the latest render from here.
+  const scoreRef = useRef(state.score);
+  scoreRef.current = state.score;
 
   useEffect(() => {
     if (state.phase !== "playing") return;
@@ -59,7 +69,7 @@ export function useSoccerSum10Game({
         if (!finishedRef.current) {
           finishedRef.current = true;
           if (sfxOn) playSfx(TIME_UP_SFX, sfxVolume / 100);
-          onRoundEnd();
+          onRoundEnd({ game: "soccer-sum10", score: scoreRef.current, cleared: false });
           setState((current) => (current.phase === "playing" ? { ...current, phase: "timeup", timeLeft: 0 } : current));
         }
         return;
@@ -102,7 +112,7 @@ export function useSoccerSum10Game({
     const nextScore = state.score + clearedCount;
     const complete = isBoardCleared(nextBoard);
     if (sfxOn) playSfx(complete ? COMPLETE_SFX : CLEAR_SFX, sfxVolume / 100);
-    if (complete) onRoundEnd();
+    if (complete) onRoundEnd({ game: "soccer-sum10", score: nextScore, cleared: true });
     setState((current) => ({
       ...current,
       board: nextBoard,

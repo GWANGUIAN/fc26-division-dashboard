@@ -13,10 +13,22 @@ export interface DialogueLine {
   mood?: PortraitMood;
 }
 
+/**
+ * Something a conversation makes happen in the mission system. The runner stays pure: a choice carries the
+ * effect, the overlay applies it (state/npcDialogue.ts builds them, WorldOverlay executes them).
+ */
+export type DialogueEffect =
+  | { type: "accept"; mission: string }
+  | { type: "retry"; mission: string }
+  | { type: "finish-talk"; mission: string }
+  | { type: "complete"; mission: string };
+
 export interface DialogueChoice {
   label: string;
   /** What follows; null ends the conversation. */
   next: DialogueNode | null;
+  /** Applied the moment the choice is picked. */
+  effect?: DialogueEffect;
 }
 
 export interface DialogueNode {

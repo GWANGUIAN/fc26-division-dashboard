@@ -19,11 +19,11 @@
     [545,262,90,80]
   ],
   "examine": [
-    {"tile":[6,4],"text":"오락실 기계 1번. (미니게임 연결은 S3에서)"},
-    {"tile":[8,4],"text":"오락실 기계 2번. (미니게임 연결은 S3에서)"},
-    {"tile":[9,4],"text":"오락실 기계 3번. (미니게임 연결은 S3에서)"},
-    {"tile":[11,4],"text":"오락실 기계 4번. (미니게임 연결은 S3에서)"},
-    {"tile":[13,4],"text":"오락실 기계 5번. (미니게임 연결은 S3에서)"},
+    {"id":"machine-1","tile":[6,4],"text":"오락실 기계 1번 — 축구공 합 10.","action":"minigame:soccer-sum10"},
+    {"id":"machine-2","tile":[8,4],"text":"오락실 기계 2번 — 축구공 튀기기.","action":"minigame:kickups"},
+    {"id":"machine-3","tile":[9,4],"text":"오락실 기계 3번 — 3D 프리킥.","action":"minigame:freekick"},
+    {"id":"machine-4","tile":[11,4],"text":"오락실 기계 4번 — 카드 짝 맞추기.","action":"minigame:cardmatch"},
+    {"id":"machine-5","tile":[13,4],"text":"오락실 기계 5번 — 잔디 러시. 아직 점검 중이다."},
     {"tile":[3,4],"text":"경품 진열장. 인형이 빼곡하다."},
     {"tile":[3,6],"text":"테이블 축구대. 손잡이가 닳아 있다."}
   ],

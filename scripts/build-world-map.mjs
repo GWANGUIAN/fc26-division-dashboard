@@ -121,6 +121,35 @@ const EXAMINE = [
   { id: "clubhouse-plate", tile: [39, 15], text: "클럽하우스 입구. 문 옆 돌판은 비어 있다.", size: [64, 40] },
   { id: "stadium-plate", tile: [37, 43], text: "잔디동 스타디움 정문. 굳게 닫힌 것은 아니지만 아직은 조용하다.", size: [64, 40] },
   { id: "weed-warning", tile: [53, 47], text: "경고판 — 빨간 줄이 그어진 새싹 그림. 이 앞은 제초동 구역이다.", size: [48, 48] },
+  // delivery mailboxes (S3, docs/world/03 §7): `action` hands over the parcel that belongs to this box
+  { id: "mb-west", tile: [14, 38], text: "우편함이다. 지금은 넣을 것이 없다.", size: [48, 48], action: "mailbox:mb-west" },
+  { id: "mb-east", tile: [69, 27], text: "우편함이다. 지금은 넣을 것이 없다.", size: [48, 48], action: "mailbox:mb-east" },
+  { id: "mb-north", tile: [68, 13], text: "우편함이다. 지금은 넣을 것이 없다.", size: [48, 48], action: "mailbox:mb-north" },
+];
+
+/**
+ * World objects the missions use (S3, docs/world/03 §7–§8). Tiles unless noted; `rect` is [x, y, w, h] tiles.
+ * The lanterns and the plaza grass spots only show while their mission is active.
+ */
+const OBJECTS = [
+  // 해파리 랜턴 (호수 일대)
+  { id: "jelly-lantern-a", type: "pickup", tile: [57, 36], prop: "jelly-lantern-a", prompt: "줍기", when: "mission-active:m-haepalin-lanterns" },
+  { id: "jelly-lantern-b", type: "pickup", tile: [66, 41], prop: "jelly-lantern-b", prompt: "줍기", when: "mission-active:m-haepalin-lanterns" },
+  { id: "jelly-lantern-c", type: "pickup", tile: [74, 31], prop: "jelly-lantern-c", prompt: "줍기", when: "mission-active:m-haepalin-lanterns" },
+  // 광장의 시든 잔디 자리 (잔디 할아버지 서브)
+  ...[[34, 19], [36, 24], [43, 19], [45, 23], [40, 25]].map(([x, y], i) => ({ id: `water-${i + 1}`, type: "pickup", tile: [x, y], prop: "grass-tuft-prop", look: "withered", prompt: "물 주기", when: "mission-active:s-elder-water" })),
+  // 쥬멩이 킥: 훈련장의 공과 서쪽 골대
+  { id: "ball-kick", type: "ball", tile: [27, 10], bounds: [20, 6, 12, 10] },
+  { id: "goal-west", type: "goal", rect: [20, 10, 2, 3] },
+  // 다시바 콘 코스: 시작/도착 게이트 사이를 콘 사이로 번갈아 위·아래로 지난다 (콘은 가운데 줄 y=56)
+  { id: "tt-start", type: "gate", rect: [5, 54, 1, 5] },
+  { id: "tt-1", type: "gate", rect: [7, 54, 1, 2] },
+  { id: "tt-2", type: "gate", rect: [9, 57, 1, 2] },
+  { id: "tt-3", type: "gate", rect: [11, 54, 1, 2] },
+  { id: "tt-4", type: "gate", rect: [13, 57, 1, 2] },
+  { id: "tt-5", type: "gate", rect: [15, 54, 1, 2] },
+  { id: "tt-goal", type: "gate", rect: [17, 54, 1, 5] },
+  ...[7, 9, 11, 13, 15].map((x, i) => ({ id: `cone-${i + 1}`, type: "hazard", tile: [x, 56], prop: "cone-orange" })),
 ];
 
 // ── terrain legend ────────────────────────────────────────────────────────────────────────
@@ -437,6 +466,11 @@ export function buildOverworldMap() {
     ["bike-rack", ...at(44, 52)],
     ["dragon-statue", ...at(3, 36, 28)],
     ["pond-small", ...at(19, 24, 28)],
+    // S3 mission props: delivery mailboxes and the training-ground goal (docs/world/03 §7)
+    ["mailbox", ...at(14, 38)], ["mailbox", ...at(69, 27, 14)], ["mailbox", ...at(68, 13)],
+    ["goal-west", 21 * TILE, 13 * TILE],
+    // start and finish flags of the cone course
+    ["corner-flag", ...at(5, 54)], ["corner-flag", ...at(5, 58)], ["corner-flag", ...at(17, 54)], ["corner-flag", ...at(17, 58)],
   ];
   for (const [id, x, y] of forced) place(id, x, y, true);
   // barbed fences along the weed zone's west and north edge, and the barricade in the gate
@@ -444,6 +478,21 @@ export function buildOverworldMap() {
   for (let ty = 52; ty <= 57; ty++) place("fence-barbed-v", 54 * TILE + 16, ty * TILE + 30, true);
   for (let tx = 56; tx <= 77; tx += 2) place("fence-barbed-h", tx * TILE + 32, 44 * TILE + 30, true);
   for (let ty = 49; ty <= 51; ty++) place("barricade", 55 * TILE, ty * TILE + 30, true);
+  // training-ground fence, just outside the pitch (the ball bounces off the pitch rect itself): gaps on the south side and the east side
+  {
+    const px0 = TRAINING[0] * TILE;
+    const py0 = TRAINING[1] * TILE;
+    const px1 = (TRAINING[2] + 1) * TILE;
+    const py1 = (TRAINING[3] + 1) * TILE;
+    for (let x = px0 + 24; x < px1; x += 48) {
+      place("fence-wood-h", x, py0, true);
+      if (x < 780 || x > 880) place("fence-wood-h", x, py1 + 10, true);
+    }
+    for (let y = py0 + 20; y <= py1; y += 20) {
+      if (y < 340 || y > 416) place("fence-wood-v", px0 - 6, y, true); // west side: the goal fills rows 10–12
+      if (y < 388 || y > 452) place("fence-wood-v", px1 + 6, y, true); // east side: gap in rows 12–13
+    }
+  }
   // reeds along the lake shore
   for (let tx = 57; tx <= 75; tx += 3) place("reeds", ...at(tx, 30, 20), true);
   // flower beds beside the plaza
@@ -509,6 +558,7 @@ export function buildOverworldMap() {
     npcs,
     triggers,
     examine: EXAMINE,
+    objects: OBJECTS,
   };
 }
 
@@ -537,6 +587,7 @@ function formatMap(map) {
     `  "npcs": ${list(map.npcs)}`,
     `  "triggers": ${list(map.triggers)}`,
     `  "examine": ${list(map.examine)}`,
+    `  "objects": ${list(map.objects)}`,
   ];
   return `{\n${parts.join(",\n")}\n}\n`;
 }

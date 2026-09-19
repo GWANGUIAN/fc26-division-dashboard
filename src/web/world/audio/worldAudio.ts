@@ -25,12 +25,15 @@ export const BGM_FILES: Record<BgmId, string> = {
   "region-weed": "/world-bgm-region-weed.mp3",
 };
 
-/** The S2 subset of docs/world/07 §2 (UI, dialogue, footsteps, doors, interaction). */
+/** The subset of docs/world/07 §2 in use: S2 (UI, dialogue, footsteps, doors, interaction) and S3 (missions, pickups, runs, ball). */
 export type SfxId =
-  | "ui-move" | "ui-select" | "ui-cancel" | "ui-open" | "ui-close"
+  | "ui-move" | "ui-select" | "ui-cancel" | "ui-open" | "ui-close" | "ui-error"
   | "dialog-tick" | "dialog-next" | "dialog-open"
   | "step-grass" | "step-stone" | "step-wood" | "step-dirt" | "step-snow" | "step-metal" | "step-water"
-  | "door-open" | "door-close" | "interact-ping" | "examine";
+  | "door-open" | "door-close" | "interact-ping" | "examine"
+  | "mission-accept" | "mission-ready" | "mission-complete" | "shard-get" | "shard-restore" | "badge-get"
+  | "pickup" | "parcel-get" | "checkpoint" | "cone-hit" | "ball-kick" | "ball-net" | "ball-post"
+  | "count-tick" | "count-go" | "timeup" | "whistle-short";
 
 export const SFX_FILES: Record<SfxId, string> = {
   "ui-move": "/sfxes/world-ui-move.mp3",
@@ -52,6 +55,24 @@ export const SFX_FILES: Record<SfxId, string> = {
   "door-close": "/sfxes/world-door-close.mp3",
   "interact-ping": "/sfxes/world-interact-ping.mp3",
   examine: "/sfxes/world-examine.mp3",
+  "ui-error": "/sfxes/world-ui-error.mp3",
+  "mission-accept": "/sfxes/world-mission-accept.mp3",
+  "mission-ready": "/sfxes/world-mission-ready.mp3",
+  "mission-complete": "/sfxes/world-mission-complete.mp3",
+  "shard-get": "/sfxes/world-shard-get.mp3",
+  "shard-restore": "/sfxes/world-shard-restore.mp3",
+  "badge-get": "/sfxes/world-badge-get.mp3",
+  pickup: "/sfxes/world-pickup.mp3",
+  "parcel-get": "/sfxes/world-parcel-get.mp3",
+  checkpoint: "/sfxes/world-checkpoint.mp3",
+  "cone-hit": "/sfxes/world-cone-hit.mp3",
+  "ball-kick": "/sfxes/world-ball-kick.mp3",
+  "ball-net": "/sfxes/world-ball-net.mp3",
+  "ball-post": "/sfxes/world-ball-post.mp3",
+  "count-tick": "/sfxes/world-count-tick.mp3",
+  "count-go": "/sfxes/world-count-go.mp3",
+  timeup: "/sfxes/world-timeup.mp3",
+  "whistle-short": "/sfxes/world-whistle-short.mp3",
 };
 
 /** What the engine and UI need from the audio system (lets tests and the title screen use a stand-in). */

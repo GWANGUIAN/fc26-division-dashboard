@@ -3,7 +3,7 @@ import type { WorldAudioLike } from "../audio/worldAudio";
 import { getCast } from "../data/worldCast";
 import {
   TYPE_SPEED, advance, confirmChoice, currentLine, fillPlaceholders, moveChoice, startDialogue, tickTyping, visibleText,
-  type DialogueNode, type DialogueState,
+  type DialogueEffect, type DialogueNode, type DialogueState,
 } from "../state/dialogue";
 import { getWorldAssetUrl } from "../worldAssets";
 
@@ -13,6 +13,8 @@ interface DialogueBoxProps {
   audio: WorldAudioLike;
   /** Show the "E 다음 · Esc 닫기" hint (the first few conversations, docs/world/02 §4). */
   showHint: boolean;
+  /** A picked choice carried a mission effect (accept the mission, take the parcels again…). */
+  onEffect?: (effect: DialogueEffect) => void;
   onClose: () => void;
 }
 
@@ -30,11 +32,13 @@ function frameVar(name: string, key: string): CSSProperties {
  * The conversation box: typewriter text, portrait, name plate and choices, drawn as DOM over the canvas in the
  * 640×360 logical stage. E/Space/Enter confirm, ↑↓ pick a choice; Esc is handled by the overlay.
  */
-export function DialogueBox({ node, playerName, audio, showHint, onClose }: DialogueBoxProps) {
+export function DialogueBox({ node, playerName, audio, showHint, onEffect, onClose }: DialogueBoxProps) {
   const [state, setState] = useState<DialogueState>(() => startDialogue(node));
   const closedRef = useRef(false);
   const audioRef = useRef(audio);
   audioRef.current = audio;
+  const effectRef = useRef(onEffect);
+  effectRef.current = onEffect;
   // The key/typing handlers read the latest state from here so sound effects stay out of state updaters.
   const stateRef = useRef(state);
   stateRef.current = state;
@@ -44,6 +48,13 @@ export function DialogueBox({ node, playerName, audio, showHint, onClose }: Dial
     closedRef.current = false;
     setState(startDialogue(node));
   }, [node]);
+
+  /** Confirms a choice: its effect fires here (an event, not a state updater) and the runner moves on. */
+  const pick = (current: DialogueState, index = current.choice): DialogueState => {
+    const chosen = current.node.choices?.[index];
+    if (current.phase === "choosing" && chosen?.effect) effectRef.current?.(chosen.effect);
+    return confirmChoice({ ...current, choice: index });
+  };
 
   const typing = state.phase === "typing";
   useEffect(() => {
@@ -73,7 +84,7 @@ export function DialogueBox({ node, playerName, audio, showHint, onClose }: Dial
         if (event.repeat) return;
         const current = stateRef.current;
         audioRef.current.playSfx(current.phase === "choosing" ? "ui-select" : "dialog-next");
-        setState(current.phase === "choosing" ? confirmChoice(current) : advance(current));
+        setState(current.phase === "choosing" ? pick(current) : advance(current));
       } else if (UP_CODES.has(event.code) || DOWN_CODES.has(event.code)) {
         event.preventDefault();
         event.stopPropagation();
@@ -130,7 +141,7 @@ export function DialogueBox({ node, playerName, audio, showHint, onClose }: Dial
               onMouseEnter={() => setState((current) => ({ ...current, choice: index }))}
               onClick={(event) => {
                 event.stopPropagation();
-                setState((current) => confirmChoice({ ...current, choice: index }));
+                setState(pick(stateRef.current, index));
               }}
             >
               {index === state.choice && cursor && <img className="world-dialogue__cursor" src={cursor} alt="" draggable={false} />}

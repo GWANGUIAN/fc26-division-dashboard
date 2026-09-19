@@ -7,10 +7,13 @@ import type { CastDef } from "../types";
 
 const TEMP = "(임시 대사)";
 
-const ELDER_FIRST: DialogueNode = {
+/** The elder's first meeting: also the conversation that completes the tutorial mission `m-00-hello`. */
+export const ELDER_FIRST: DialogueNode = {
   lines: [
     { speaker: "elder", text: "허허, 새 얼굴이구나. 잔디동은 처음인가?", mood: "happy" },
     { speaker: "elder", text: `방향키로 걷고, 누군가에게 다가가서 E를 누르면 말을 걸 수 있단다. ${TEMP}` },
+    { speaker: "elder", text: "머리 위에 파란 물음표가 뜨면 도와줄 일이 있다는 뜻, 금색 느낌표는 일을 마쳤으니 보고하라는 뜻이란다. (임시 대사)" },
+    { speaker: "elder", text: "북쪽 큰 건물 클럽하우스에서 감독님이 기다리신다. J를 눌러 미션 로그도 확인해 보렴. (임시 대사)" },
   ],
   choices: [
     {
@@ -30,6 +33,17 @@ const ELDER_REPEAT: DialogueNode[] = [
   { lines: [{ speaker: "elder", text: "오늘도 잔디가 조금 힘이 없어 보이는구나." }] },
   { lines: [{ speaker: "elder", text: "궁금한 게 있으면 언제든 물어보렴. (임시 대사)" }] },
 ];
+
+/** First-meeting greeting of a member or host (mission dialogue puts it before the offer). */
+export function greetingLine(cast: CastDef) {
+  const text =
+    cast.role === "member"
+      ? `어서 와, {player}! 나는 ${cast.displayName}이야. ${TEMP}`
+      : cast.role === "host"
+        ? `왔구나, {player}. 잔디동에 온 걸 환영한다. ${TEMP}`
+        : `처음 보는 얼굴이네요. 반갑습니다, {player}. ${TEMP}`;
+  return { speaker: cast.id, text, mood: "happy" as const };
+}
 
 /** Conversation with an NPC. `talked` is how many times the player has already spoken with them. */
 export function buildNpcDialogue(cast: CastDef, talked: number): DialogueNode {

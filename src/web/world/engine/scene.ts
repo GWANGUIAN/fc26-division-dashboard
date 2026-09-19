@@ -41,6 +41,23 @@ export interface ExaminePoint {
   id?: string;
   area: Rect;
   text: string;
+  /** What E does besides showing the text (see MapExamine.action). */
+  action?: string;
+}
+
+/** A world object of the missions (docs/world/03 §7): positions are in pixels, rects in px too. */
+export interface SceneObject {
+  id: string;
+  type: "pickup" | "ball" | "goal" | "gate" | "hazard";
+  /** Feet position of a pickup / hazard / the ball's start (centre). */
+  x: number;
+  y: number;
+  /** Goal and gate areas; the ball's pitch bounds. */
+  rect?: Rect;
+  prop?: string;
+  look?: "withered";
+  prompt?: string;
+  when?: string;
 }
 
 export interface NpcSpawn {
@@ -87,6 +104,7 @@ export interface WorldScene {
   npcSpawns: NpcSpawn[];
   doors: DoorTrigger[];
   examine: ExaminePoint[];
+  objects: SceneObject[];
   /** Default entry point (feet) — where the debug teleport and a broken save land. */
   spawn: { x: number; y: number };
   /** Interiors use a fixed camera; overworld scenes follow the player. */

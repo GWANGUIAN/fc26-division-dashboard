@@ -118,7 +118,7 @@ NPC마다 아래 노드를 가진다(`dialogueData.ts`). 상태 → 노드 선�
 ## 7. 메인 미션 상세 (2막)
 
 공통: 조각 1개 + NPC 머리 위 `!` 보고 → `complete` 대사 → 조각 획득 연출(반짝임 + 맵 색 복원 스텝 +1).
-훅 요약: **카드 공개**는 `totyCardRevealedStore` 조회로 충분, **카드 변형 열람**과 **미니게임 점수**는 신규 optional prop(`onView`, `onRoundEnd`)([01 §10](01-concept-and-architecture.md#10-기존-코드-통합-지점)). "점수"는 **이번 판 점수**이며 월드에서 연 모달의 콜백만 인정한다. 임계값 표기 `기본 / 쉬움 / 어려움`은 튜닝 참고치.
+훅 요약: **카드 공개·카드 변형 열람**은 `TotyCardPopup`의 optional `onView`, **미니게임 점수**는 각 모달의 optional `onRoundEnd`([01 §10](01-concept-and-architecture.md#10-기존-코드-통합-지점)). 모두 **미션이 `active`일 때 받은 이벤트만** 인정한다(수락 전에 카드를 열어 둬도 진행되지 않는다). "점수"는 **이번 판 점수**이며 월드에서 연 모달의 콜백만 인정한다. 임계값 표기 `기본 / 쉬움 / 어려움`은 튜닝 참고치.
 
 ### M-문모모 — 「천리안 셈법」 (`m-doormomo-sum10`)
 - 장소: 북동 룬 탑 앞 → 룬 탑 실내
@@ -243,7 +243,14 @@ NPC마다 아래 노드를 가진다(`dialogueData.ts`). 상태 → 노드 선�
 - `idle`: ["용암이 식기 전에 다음 훈련이다.", "돌직구가 편하지. 돌아가는 건 못 참아."]
 - `post`: ["잔디가 살아나니 용암 옆에서도 풀 냄새가 나네."]
 
-> 미션 정의는 11개, 플레이어 본인 것은 제외. 예: 재닌을 고르면 `m-janine95kim-cardmatch`는 비활성이고 미션은 10개, 조각도 10개로 완결.
+> **S3 구현 참고**
+> - 미션 정의·임계값·시간은 전부 `data/missionDefs.ts`다. 대사는 S3에서 미션 정보로 만든 **임시 대사**(`state/npcDialogue.ts`, "(임시 대사)" 표기)이고, 위 `first/offer/active/complete/idle/post` 초안은 검수 뒤 S4에서 들어간다.
+> - **콘 코스(다시바)** 25초는 실제 코스(15타일)를 깨끗이 달리면 약 5초라 **매우 후하다**. 쉬움/어려움 표기값이 아니라 플레이해 본 뒤 `seconds`를 줄이면 된다(08 §5 #7). 콘은 코스 가운데 줄(y=56)에 5개, 체크포인트는 콘의 위/아래 레인을 번갈아 지나야 하는 게이트다([03 §7](03-map-design.md#7-미션용-월드-오브젝트)).
+> - **택배(빙밍)**: 수락하면 택배 3개를 받고 90초가 시작된다. 시간이 지나면 택배가 회수되고, 빙밍에게 다시 말을 걸면 "다시 받는다"로 재도전한다.
+> - **쥬멩이 킥**: 첫 킥이 60초를 시작한다. 시간 종료면 다시 차면 재도전.
+> - **서브 미션은 S3 메커닉으로 되는 2개만** 구현했다(`s-shop-milk`, `s-elder-water`). 나머지 `s-kid-hide`(황금 공 20개)·`s-arcade-rank`(랭크)·`s-rush-daily`(일일)는 수집·랭크·일일 시스템과 함께 S5에서 정의한다.
+> - 뱃지는 `flags["badge:<id>"]`로 저장한다(`data/missionDefs.ts`의 `BADGES`). 조각 5/10개 뱃지는 자동 지급.
+> - 미션 정의는 11개, 플레이어 본인 것은 제외. 예: 재닌을 고르면 `m-janine95kim-cardmatch`는 비활성이고 미션은 10개, 조각도 10개로 완결.
 
 ## 8. 호스트 우왁굳 — 튜토리얼과 스토리 미션
 
@@ -328,9 +335,9 @@ NPC마다 아래 노드를 가진다(`dialogueData.ts`). 상태 → 노드 선�
 
 | 유형 | 판정 소스 | 신규 코드 필요 |
 | --- | --- | --- |
-| `card_reveal` | `isTotyCardRevealed(id)` / `subscribeTotyCardRevealed` | 없음(구독만) |
-| `card_variant` | `TotyCardPopup` `onView(id, variant)` | optional prop 추가 |
-| `minigame_best` | 각 모달 `onRoundEnd(result)` | optional prop 추가 4곳 |
+| `card_reveal` | 월드 카드 팝업의 `onView(id, variant)` — 카드가 공개될 때(그 판정은 `TotyCardPopup` 콜백뿐, `totyCardRevealedStore`는 쓰지 않는다: [01 §10](01-concept-and-architecture.md#10-기존-코드-통합-지점)) | optional prop 추가(S3 완료) |
+| `card_variant` | `TotyCardPopup` `onView(id, variant)` — 공개 때의 테마와 테마를 바꿀 때마다 | optional prop 추가(S3 완료) |
+| `minigame_best` | 각 모달 `onRoundEnd(result)` | optional prop 추가 4곳(S3 완료) |
 | `collect` | 월드 `pickup` 트리거 + `collected[]` | 월드 내부 |
 | `delivery` | 택배 아이템 + 대상 NPC 대화 + 타이머 | 월드 내부 |
 | `time_trial` | 체크포인트 트리거 + 타이머 + 패널티 | 월드 내부 |

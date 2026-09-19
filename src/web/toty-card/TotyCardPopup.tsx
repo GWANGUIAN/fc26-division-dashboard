@@ -153,6 +153,7 @@ export function TotyCardPopup({
   onSfxVolumeChange,
   onSelectStreamer,
   onClose,
+  onView,
 }: {
   streamer: TotyCardPopupStreamer;
   assets: TotyCardAssets;
@@ -182,6 +183,9 @@ export function TotyCardPopup({
    * live-swap a pack-opening sequence already mid-flight. */
   onSelectStreamer: (streamer: TotyCardPopupStreamer) => void;
   onClose: () => void;
+  /** Reports which card is showing in which theme: once the card is revealed and again whenever the viewer
+   * switches theme (the world card missions listen to this; the dashboard does not need it). */
+  onView?: (id: string, variant: TotyCardVariant) => void;
 }) {
   useEscape(onClose);
   useBodyScrollLock();
@@ -279,6 +283,7 @@ export function TotyCardPopup({
   // "기본" (or between the other options) stays silent.
   const handleVariantChange = (next: TotyCardVariant) => {
     setVariant(next);
+    onView?.(streamer.id, next);
     if (!sfxEnabled) return;
     if (next === "retro") playRetroBlip(sfxVolume / 100);
     else if (next === "lowq") playCrayonScratch(sfxVolume / 100);
@@ -417,6 +422,7 @@ export function TotyCardPopup({
           onRevealed={() => {
             setRevealed(true);
             markTotyCardRevealed(streamer.id);
+            onView?.(streamer.id, variant);
           }}
         />
 

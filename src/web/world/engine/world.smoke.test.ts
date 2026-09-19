@@ -1,9 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { allSceneIds } from "../data/maps";
+import { acceptMission } from "../state/missions";
+import { debugSkipTutorial } from "../state/debugTools";
 import { createNewGameSave } from "../storage";
 import type { SceneId } from "../types";
 import { WorldAssets } from "../worldAssets";
 import type { InteractTarget } from "./interaction";
+import type { RunEvent } from "./runs";
 import { createWorldEngine, type WorldEngine, type WorldEvents } from "./world";
 
 // A headless run of the real engine: a recording fake canvas, fake image bitmaps and a hand-cranked
@@ -64,6 +67,8 @@ describe("world engine (headless smoke run)", () => {
   let walked: number[];
   let logKeys: number;
   let sfx: string[];
+  let pickups: string[];
+  let runEvents: RunEvent[];
   let store: { save: ReturnType<typeof createNewGameSave> };
 
   const dispatch = (type: string, code: string) => {
@@ -91,6 +96,8 @@ describe("world engine (headless smoke run)", () => {
     walked = [];
     logKeys = 0;
     sfx = [];
+    pickups = [];
+    runEvents = [];
     const on = (type: string, listener: Listener) => void (listeners[type] ??= []).push(listener);
     const off = (type: string, listener: Listener) => void (listeners[type] = (listeners[type] ?? []).filter((l) => l !== listener));
     vi.stubGlobal("window", { addEventListener: on, removeEventListener: off });
@@ -116,6 +123,8 @@ describe("world engine (headless smoke run)", () => {
       onInteract: (target) => interactions.push(target),
       onWalked: (tiles) => walked.push(tiles),
       onLogKey: () => void logKeys++,
+      onPickup: (id) => void pickups.push(id),
+      onRunEvent: (event) => void runEvents.push(event),
     };
     const { ctx } = makeFakeContext();
     const canvas = { width: 640, height: 360, getContext: () => ctx } as unknown as HTMLCanvasElement;
@@ -214,6 +223,181 @@ describe("world engine (headless smoke run)", () => {
     engine.setRestoreOverride(null);
     engine.setNoclip(false);
     await run(3);
+  });
+
+  /** Holds a key until the player satisfies `done` (or gives up), then releases it. */
+  async function hold(code: string, done: (state: ReturnType<WorldEngine["getState"]>) => boolean, maxFrames = 400) {
+    dispatch("keydown", code);
+    for (let i = 0; i < maxFrames && !done(engine.getState()); i++) await run(1);
+    dispatch("keyup", code);
+    await run(1);
+  }
+
+  /** A save past the tutorial with one mission already accepted. */
+  function playing(missionId: string) {
+    store.save = acceptMission(debugSkipTutorial(store.save), missionId);
+  }
+
+  async function stand(tile: [number, number], facing?: "up" | "down" | "left" | "right") {
+    engine.teleport("overworld", tile);
+    await run(60);
+    if (facing) {
+      // a one-frame tap turns the character without moving it far (walls are not in the way at these spots)
+      const key = { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight" }[facing];
+      dispatch("keydown", key);
+      await run(1);
+      dispatch("keyup", key);
+      await run(1);
+    }
+  }
+
+  it("lets conditional residents appear once their mission is completed", async () => {
+    engine.teleport("interior:house-doormomo");
+    await run(60);
+    expect(engine.getNpcCasts()).not.toContain("doormomo");
+    store.save = { ...store.save, missions: { ...store.save.missions, "m-doormomo-sum10": { status: "completed" } } };
+    await run(3);
+    expect(engine.getNpcCasts()).toContain("doormomo");
+  });
+
+  it("never spawns the player's own member in the overworld", async () => {
+    engine.teleport("overworld");
+    await run(60);
+    expect(engine.getNpcCasts()).toContain("elder");
+    expect(engine.getNpcCasts()).not.toContain("janine95kim");
+  });
+
+  it("only offers a lantern while its mission is active, and takes it with E without opening a dialogue", async () => {
+    await stand([57, 35], "down");
+    dispatch("keydown", "KeyE");
+    await run(3);
+    dispatch("keyup", "KeyE");
+    expect(pickups).toEqual([]); // the lantern is not there yet
+
+    playing("m-haepalin-lanterns");
+    await run(3);
+    dispatch("keydown", "KeyE");
+    await run(3);
+    dispatch("keyup", "KeyE");
+    expect(pickups).toEqual(["jelly-lantern-a"]);
+    expect(interactions).toEqual([]); // no dialogue, movement stays free
+    expect(sfx).toContain("pickup");
+    const before = engine.getState();
+    dispatch("keydown", "ArrowRight");
+    await run(20);
+    dispatch("keyup", "ArrowRight");
+    expect(engine.getState().x).toBeGreaterThan(before.x);
+  });
+
+  it("stops offering a lantern once it is collected", async () => {
+    playing("m-haepalin-lanterns");
+    store.save = { ...store.save, collected: ["jelly-lantern-a"] };
+    await stand([57, 35], "down");
+    dispatch("keydown", "KeyE");
+    await run(3);
+    dispatch("keyup", "KeyE");
+    expect(pickups).toEqual([]);
+  });
+
+  it("kicks the ball at the goal for the kick challenge: the first kick starts the minute and a goal counts", async () => {
+    playing("m-ju010228-kickgoals");
+    await stand([28, 10], "left");
+    dispatch("keydown", "KeyE");
+    await run(2);
+    dispatch("keyup", "KeyE");
+    expect(sfx).toContain("ball-kick");
+    expect(runEvents[0]).toMatchObject({ type: "kick-start", mission: "m-ju010228-kickgoals" });
+    await run(240); // the ball rolls west into the goal
+    expect(runEvents.some((event) => event.type === "kick-goal" && event.goals === 1)).toBe(true);
+    expect(sfx).toContain("ball-net");
+  });
+
+  it("does not start a kick run when no kick mission is active (free practice)", async () => {
+    store.save = debugSkipTutorial(store.save);
+    await stand([28, 10], "left");
+    dispatch("keydown", "KeyE");
+    await run(2);
+    dispatch("keyup", "KeyE");
+    await run(240);
+    expect(sfx).toContain("ball-kick");
+    expect(runEvents).toEqual([]);
+  });
+
+  it("runs the cone course: the start gate starts the clock, a lane change between cones passes every checkpoint", async () => {
+    playing("m-tdnlamuron-conerun");
+    await stand([4, 55]);
+    const at = (tx: number) => tx * 32 + 16;
+    const lowerLane = 57 * 32 + 12;
+    const upperLane = 55 * 32 + 16;
+    await hold("ArrowRight", (s) => s.x >= at(8)); // start gate, checkpoint 1 in the upper lane
+    for (const [column, lane] of [[10, lowerLane], [12, upperLane], [14, lowerLane], [16, upperLane]] as const) {
+      // Between two cones (their columns are odd) the runner changes lane, then carries on to the next cone column.
+      await hold(lane > engine.getState().y ? "ArrowDown" : "ArrowUp", (s) => (lane > s.y ? s.y >= lane : s.y <= lane));
+      await hold("ArrowRight", (s) => s.x >= at(column));
+    }
+    await hold("ArrowRight", (s) => s.x >= at(18));
+    const kinds = runEvents.map((event) => event.type);
+    expect(kinds[0]).toBe("trial-start");
+    expect(kinds.filter((kind) => kind === "trial-gate")).toHaveLength(5);
+    expect(kinds).not.toContain("trial-cone");
+    const finished = runEvents.find((event) => event.type === "trial-finished");
+    expect(finished).toMatchObject({ type: "trial-finished", mission: "m-tdnlamuron-conerun", passed: true });
+  });
+
+  it("fails to pass a checkpoint by running straight through the cones (they cost time and the gates stay shut)", async () => {
+    playing("m-tdnlamuron-conerun");
+    await stand([4, 56]);
+    await hold("ArrowRight", (s) => s.x >= 18 * 32);
+    const kinds = runEvents.map((event) => event.type);
+    expect(kinds).toContain("trial-start");
+    expect(kinds).toContain("trial-cone");
+    expect(kinds).not.toContain("trial-finished");
+  });
+
+  it("delivers a parcel at its own mailbox during a delivery round", async () => {
+    playing("m-tleod1818-delivery");
+    engine.startDelivery("m-tleod1818-delivery");
+    expect(runEvents[0]).toMatchObject({ type: "delivery-start", seconds: 90 });
+    expect(engine.isDeliveryRunning()).toBe(true);
+
+    await stand([14, 39], "up"); // the west mailbox stands at tile (14, 38)
+    dispatch("keydown", "KeyE");
+    await run(2);
+    dispatch("keyup", "KeyE");
+    expect(runEvents.some((event) => event.type === "delivered" && event.item === "parcel-a" && event.mailbox === "mb-west")).toBe(true);
+    expect(interactions).toEqual([]); // handed over without a dialogue
+    expect(engine.isDeliveryRunning()).toBe(true); // two parcels left
+  });
+
+  it("shows the mailbox text when there is nothing to deliver", async () => {
+    await stand([14, 39], "up");
+    dispatch("keydown", "KeyE");
+    await run(2);
+    dispatch("keyup", "KeyE");
+    expect(interactions[0]).toMatchObject({ kind: "examine", id: "mb-west", action: "mailbox:mb-west" });
+    engine.closeInteraction();
+  });
+
+  it("opens the arcade machines and the card cabinet as actions of the interaction", async () => {
+    engine.teleport("interior:arcade", [6, 5]);
+    await run(60);
+    dispatch("keydown", "ArrowUp");
+    await run(2);
+    dispatch("keyup", "ArrowUp");
+    dispatch("keydown", "KeyE");
+    await run(2);
+    dispatch("keyup", "KeyE");
+    expect(interactions[0]).toMatchObject({ kind: "examine", action: "minigame:soccer-sum10" });
+  });
+
+  it("follows a save that changes while playing (restore targets, markers) without errors", async () => {
+    engine.teleport("overworld");
+    await run(60);
+    store.save = { ...store.save, shards: 4, missions: { ...store.save.missions, "m-sjh4018-kickups": { status: "completed" } } };
+    await run(30);
+    store.save = { ...store.save, missions: { ...store.save.missions, "m-doormomo-sum10": { status: "ready" } } };
+    await run(30);
+    expect(scenes.at(-1)).toBe("overworld");
   });
 
   it("saves the position when it is torn down", async () => {
