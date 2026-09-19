@@ -2,6 +2,7 @@ import { OVERWORLD_MAP } from "../data/maps";
 import { missionDefsFor, type MissionDef } from "../data/missionDefs";
 import { surfaceOf } from "../data/terrainDefs";
 import { getCast } from "../data/worldCast";
+import { isBackwalk, oppositeFacing } from "../state/backwalk";
 import { evalCondition } from "../state/conditions";
 import { markerFor, missionStatus, type MarkerKind } from "../state/missions";
 import { restoreForZones } from "../state/progress";
@@ -685,7 +686,9 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
 
   function drawWorld(cam: Camera) {
     const dynamics: Dynamic[] = npcs.map((npc) => ({ y: npc.y, draw: (c) => drawCharacter(ctx, assets, getCast(npc.cast), npc, c, npc.animal) }));
-    dynamics.push({ y: player.y, draw: (c) => drawCharacter(ctx, assets, playerCast, player, c) });
+    // The statue's blessing (state/backwalk.ts) only changes the picture: the player still moves, collides and interacts by the real facing.
+    const playerView = isBackwalk(store.save) ? { ...player, facing: oppositeFacing(player.facing) } : player;
+    dynamics.push({ y: player.y, draw: (c) => drawCharacter(ctx, assets, playerCast, playerView, c) });
     for (const object of pickups) dynamics.push({ y: object.y, draw: (c) => drawSceneObject(ctx, assets, object, c, time) });
     for (const object of scene.objects) if (object.type === "hazard") dynamics.push({ y: object.y, draw: (c) => drawSceneObject(ctx, assets, object, c, time) });
     for (const object of decors) dynamics.push({ y: object.y, draw: (c) => drawSceneObject(ctx, assets, object, c, time) });

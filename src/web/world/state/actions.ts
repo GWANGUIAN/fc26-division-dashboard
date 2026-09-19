@@ -11,14 +11,17 @@ export type WorldAction =
   | { type: "mailbox"; id: string }
   /** The framed group photo of the trophy room: opens the photo overlay. */
   | { type: "group-photo" }
+  /** The statue on the rune hill that offers the backwards-walking "blessing". */
+  | { type: "backwalk-statue" }
   /** A member in the stands during the showdown shouts their line. */
   | { type: "cheer"; cast: CastId };
 
 const GAMES: readonly MinigameRoundResult["game"][] = ["soccer-sum10", "kickups", "freekick", "cardmatch", "rush"];
 
-/** `minigame:<game>` / `cards` / `mailbox:<id>` / `group-photo` / `cheer:<cast>`; anything else (including a game that does not exist yet) is null. */
+/** `minigame:<game>` / `cards` / `mailbox:<id>` / `group-photo` / `backwalk-statue` / `cheer:<cast>`; anything else (including a game that does not exist yet) is null. */
 export function parseAction(action: string | undefined): WorldAction | null {
   if (!action) return null;
+  if (action === "backwalk-statue") return { type: "backwalk-statue" };
   if (action === "daily" || action === "collection" || action === "rush-factory") return { type: action };
   if (action === "cards") return { type: "cards" };
   if (action === "group-photo") return { type: "group-photo" };

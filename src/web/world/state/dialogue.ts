@@ -27,7 +27,9 @@ export type DialogueEffect =
   /** Story flags heard-and-done (a progress talk, the finale offer). */
   | { type: "flags"; flags: string[] }
   /** The ending cut's last line is over: the group photo comes next. */
-  | { type: "ending-photo" };
+  | { type: "ending-photo" }
+  /** The backwards-walking statue gives (`on`) or takes back its blessing (state/backwalk.ts). */
+  | { type: "backwalk"; on: boolean };
 
 export interface DialogueChoice {
   label: string;

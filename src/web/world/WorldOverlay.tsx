@@ -17,6 +17,7 @@ import { getCast } from "./data/worldCast";
 import type { DebugPick, SaveStore, WorldEngine, WorldEvents } from "./engine/world";
 import type { RunEvent } from "./engine/runs";
 import { parseAction } from "./state/actions";
+import { buildBackwalkDialogue, withBackwalk } from "./state/backwalk";
 import { COACH_DONE, nextCoachStep, type CoachEvent } from "./state/coach";
 import type { DialogueEffect, DialogueNode } from "./state/dialogue";
 import { resolveEscape, type EndingStage, type OverlayPhase, type PauseView } from "./state/escape";
@@ -398,6 +399,11 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
         setEnding("photo");
         return;
       }
+      if (effect.type === "backwalk") {
+        commit((current) => ({ ...current, flags: withBackwalk(current.flags, effect.on) }));
+        audio.playSfx(effect.on ? "shard-restore" : "checkpoint");
+        return;
+      }
       const def = getMissionDef(effect.mission);
       if (!def) return;
       switch (effect.type) {
@@ -435,7 +441,7 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
         }
       }
     },
-    [announceReward, commit, playerId, pushSequence, store],
+    [announceReward, audio, commit, playerId, pushSequence, store],
   );
 
   /** A minigame round of a modal the world itself opened — the only plays that count. */
@@ -590,6 +596,10 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
         }
         if (action?.type === "group-photo") {
           setFramePhoto(true);
+          return;
+        }
+        if (action?.type === "backwalk-statue") {
+          setDialogue({ node: buildBackwalkDialogue(store.save), cast: null, endEffects: [] });
           return;
         }
         if (action?.type === "cheer") {
