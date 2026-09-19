@@ -611,6 +611,16 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
           setFramePhoto(true);
           return;
         }
+        // The plaza board (daily training) and the collection book (records, badges, ball guide) are panels, not dialogue.
+        if (action?.type === "daily" || action?.type === "collection") {
+          openModal({ type: action.type });
+          return;
+        }
+        // The factory's converted conveyor: the same Grass Rush machine on a factory course.
+        if (action?.type === "rush-factory") {
+          openModal({ type: "minigame", game: "rush", factory: true });
+          return;
+        }
         if (action?.type === "backwalk-statue") {
           setDialogue({ node: buildBackwalkDialogue(store.save), cast: null, endEffects: [] });
           return;

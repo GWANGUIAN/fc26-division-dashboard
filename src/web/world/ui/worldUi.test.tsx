@@ -169,8 +169,13 @@ describe("S5 panels", () => {
   it("renders saved ranks, twenty ball hints, badges and the hidden card guide", () => {
     const save = createNewGameSave("janine95kim"); save.bests.rush = 1000; save.collected = ["gb-20"];
     const html = renderToString(<CollectionBook save={save} hiddenUnlocked onClose={noop} />);
-    expect(html).toContain("에이스급"); expect(html).toContain("gb-20");
-    expect(html).toContain("공장 실내 금고 앞"); expect(html).toContain("히든 카드가 해금");
+    expect(html).toContain("에이스급"); expect(html).toContain("히든 카드가 해금");
+    // Each ball shows its status and hint only: no internal id (gb-20) and no tile coordinates.
+    const plain = html.replaceAll("<!-- -->", ""); // the server renderer marks the text-node borders
+    expect(plain).toContain("획득<br/>공장 실내 금고 앞 · 엔딩 후");
+    expect(plain).toContain("미발견<br/>분수 뒤편");
+    expect(plain).not.toMatch(/gb-\d\d/);
+    expect(plain).not.toMatch(/\(\d+, ?\d+\)/);
   });
   it("renders today's completed claim and all thirty stamp slots", () => {
     const save = refreshDaily(createNewGameSave("janine95kim"), Date.now());

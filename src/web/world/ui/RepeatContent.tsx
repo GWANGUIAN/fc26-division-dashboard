@@ -29,12 +29,12 @@ export function CollectionBook({ save, hiddenUnlocked, onClose }: { save: WorldS
     <h3>오락실 최고 기록 · 랭크 도전</h3>
     <ul className="world-repeat-grid">{(Object.keys(MINIGAME_INFO) as MinigameRoundResult["game"][]).map(game => <li key={game}>{MINIGAME_INFO[game].name}<br />{save.bests[bestKey(game)] ?? "—"}{MINIGAME_INFO[game].unit} · {arcadeRank(game, save.bests[bestKey(game)])}</li>)}</ul>
     <h3>황금 축구공 보유 {heldGoldenBalls(save)}개 · 발견 {GOLDEN_BALLS.filter(b => save.collected.includes(b.id)).length}/20</h3>
-    <ul className="world-repeat-grid">{GOLDEN_BALLS.map(b => <li key={b.id}>{spentGoldenBalls(save.missions).includes(b.id) ? "사용" : save.collected.includes(b.id) ? "획득" : "미발견"} · {b.id}<br />{b.hint} ({b.tile.join(", ")}){b.ending ? " · 엔딩 후" : ""}</li>)}</ul>
+    <ul className="world-repeat-grid">{GOLDEN_BALLS.map(b => { const spent = spentGoldenBalls(save.missions).includes(b.id); const found = save.collected.includes(b.id); return <li key={b.id} className={spent ? "is-spent" : found ? "is-earned" : "is-locked"}>{spent ? "사용" : found ? "획득" : "미발견"}<br />{b.hint}{b.ending ? " · 엔딩 후" : ""}</li>; })}</ul>
     <h3>카드 도감 {PLAYABLE_CAST.filter(c => save.flags[`card:${c.id}`]).length}/11</h3>
     <p>감독실의 월드 카드 팝업에서 공개하면 기록됩니다. 11명을 공개한 뒤 우왁굳에게 보고하세요.</p>
     <p>{hiddenUnlocked ? "우왁굳 히든 카드가 해금됐어요! 카드 팝업에서 우왁굳을 선택하세요." : "기존 카드 공개 수집으로 우왁굳 히든 카드가 해금됩니다. 월드 미션은 월드 안에서 공개한 카드만 판정합니다."}</p>
-    <ul className="world-repeat-grid">{PLAYABLE_CAST.map(c => <li key={c.id}>{c.displayName} · {save.flags[`card:${c.id}`] ? "공개" : "미공개"}</li>)}</ul>
-    <h3>뱃지</h3><ul className="world-repeat-grid">{Object.values(BADGES).map(b => <li key={b.id}>{b.label} · {save.flags[`badge:${b.id}`] ? "획득" : "미획득"}</li>)}</ul>
+    <ul className="world-repeat-grid">{PLAYABLE_CAST.map(c => <li key={c.id} className={save.flags[`card:${c.id}`] ? "is-earned" : "is-locked"}>{c.displayName} · {save.flags[`card:${c.id}`] ? "공개" : "미공개"}</li>)}</ul>
+    <h3>뱃지</h3><ul className="world-repeat-grid">{Object.values(BADGES).map(b => <li key={b.id} className={save.flags[`badge:${b.id}`] ? "is-earned" : "is-locked"}>{b.label} · {save.flags[`badge:${b.id}`] ? "획득" : "미획득"}</li>)}</ul>
     <h3>획득한 게임 칭호</h3><p>{Object.keys(save.flags).filter(id => id.startsWith("title:")).map(id => { const [, game, rank] = id.split(":"); return `${MINIGAME_INFO[game as MinigameRoundResult["game"]]?.name ?? game} · ${rank}`; }).join(" / ") || "오락실에서 한 판 도전하세요."}</p>
   </RepeatPanel>;
 }

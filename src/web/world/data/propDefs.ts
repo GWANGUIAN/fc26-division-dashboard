@@ -165,6 +165,8 @@ export const PROP_DEFS: Record<string, PropDef> = {
   "king-statue": { w: 56, h: 88, content: [56, 82], foot: [{ dx: 0, w: 36, h: 14 }] },
   // secret (single image, not on a sheet): the backwards-walking statue of the rune hill
   "mystery-statue": { w: 56, h: 88, content: [40, 88], foot: [{ dx: 0, w: 36, h: 14 }] },
+  // the plaza's collection book stand (single image), next to the daily board
+  "collection-stand": { w: 32, h: 48, content: [26, 48], foot: [{ dx: 0, w: 22, h: 10 }] },
 };
 
 /** Asset key of a prop's image (lush, or its withered twin). */
