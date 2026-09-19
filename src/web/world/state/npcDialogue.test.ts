@@ -217,11 +217,11 @@ describe("the director's story talks", () => {
     expect(beat.endEffects).toEqual([{ type: "flags", flags: [beatFlag(3), beatFlag(6)] }]);
   });
 
-  it("offers the finale once every shard is in and opens the stadium when it is told", () => {
+  it("turns the last shard into a report mission that opens the stadium when it is told", () => {
     const offer = talkTo("woowakgood", allShards());
     expect(text(offer)).toContain("결전");
     expect(text(offer)).toContain("{player}");
-    expect(offer.endEffects).toEqual([{ type: "flags", flags: ["stadium-open", "beat-3", "beat-6", "beat-9"] }]);
+    expect(offer.endEffects).toEqual([{ type: "finish-talk", mission: "m-89-director-report" }]);
     // Told: the director falls back to his idle lines.
     const told = withFlags(allShards(), "stadium-open", "beat-3", "beat-6", "beat-9");
     expect(talkTo("woowakgood", told).endEffects).toEqual([]);
@@ -253,7 +253,7 @@ describe("the showdown", () => {
     expect(start.lines.map((line) => line.text)).toEqual([FINALE_SCRIPT.rounds[0].taunt, roundCall(finale, 0)]);
     expect(start.choices?.[0]).toMatchObject({ label: "1라운드 도전!", effect: { type: "start-round", mission: "m-90-finale" } });
     expect(roundCall(finale, 0)).toBe("1라운드! 축구공 합 10, 80점 이상이면 통과!");
-    expect(roundCall(finale, 1)).toBe("2라운드! 축구공 튀기기, 35회 이상이면 통과!");
+    expect(roundCall(finale, 1)).toBe("2라운드! 축구공 튀기기, 20회 이상이면 통과!");
     expect(roundCall(finale, 2)).toBe("3라운드! 3D 프리킥, 5골 이상이면 통과!");
   });
 

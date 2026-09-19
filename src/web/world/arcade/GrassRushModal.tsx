@@ -7,6 +7,9 @@ import { createRush, RUSH_DT, rushScore, stepRush, type RushInput } from "./Gras
 import { RepeatPanel } from "../ui/RepeatPanel";
 import type { WorldAudioLike } from "../audio/worldAudio";
 
+/** y where sprite soles sit: the front edge of the `ground` lawn (its top ~20px are transparent, grass starts at ~285). */
+const FLOOR_Y = 312;
+
 export function GrassRushModal({ player, factory = false, best, onClose, onRoundEnd, audio }: {
   player: CastId; factory?: boolean; best?: number; onClose: () => void; onRoundEnd?: (result: MinigameRoundResult) => void; audio?: WorldAudioLike;
 }) {
@@ -56,12 +59,12 @@ export function GrassRushModal({ player, factory = false, best, onClose, onRound
       ctx!.fillStyle = factory ? "#313b39" : "#9dcde0"; ctx!.fillRect(0, 0, 640, 360);
       for (const [key, speed] of [[factory ? "bg-factory" : "bg-far", 0.5], ["bg-mid", 1.5], ["ground", 8]] as const) {
         const offset = s.distance * speed % 640;
-        for (const x of [-offset, 640 - offset]) draw(key, x, key === "ground" ? 280 : 0, 640, key === "ground" ? 80 : 280);
+        for (const x of [-offset, 640 - offset]) draw(key, x, key === "ground" ? 264 : 0, 640, key === "ground" ? 96 : 360);
       }
-      for (const o of s.objects) draw(o.kind, o.x, o.kind === "banner-low" ? 198 : 246, 40, 40);
+      for (const o of s.objects) { const image = images.get(o.kind); if (image?.complete && image.naturalWidth) ctx!.drawImage(image, o.x + 20 - image.naturalWidth / 2, o.kind === "banner-low" ? FLOOR_Y - 74 : FLOOR_Y - image.naturalHeight); }
       const atlas = images.get("player");
       const sliding = s.slide > 0;
-      if (atlas?.complete && atlas.naturalWidth) ctx!.drawImage(atlas, (Math.floor(s.distance / 2) % 4) * 48, 128, 48, 64, 78, 284 - s.height - (sliding ? 32 : 64), 48, sliding ? 32 : 64);
+      if (atlas?.complete && atlas.naturalWidth) ctx!.drawImage(atlas, (Math.floor(s.distance / 2) % 4) * 48, 128, 48, 64, 78, FLOOR_Y + (sliding ? 2 : 4) - s.height - (sliding ? 32 : 64), 48, sliding ? 32 : 64);
       ctx!.fillStyle = "#10241d"; ctx!.font = "bold 18px sans-serif";
       ctx!.fillText(`${Math.floor(s.distance)}m · 씨앗 ${s.seeds} · ${rushScore(s)}점`, 20, 30);
       if (running && s.over && !reported) {

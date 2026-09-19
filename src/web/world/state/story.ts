@@ -1,4 +1,3 @@
-import { totalShardsFor } from "../data/missionDefs";
 import type { CastId, WorldSave } from "../types";
 import type { MarkerKind } from "./missions";
 import { WEED_RESTORED_FLAG } from "./progress";
@@ -22,25 +21,19 @@ export const beatFlag = (shards: number) => `beat-${shards}`;
 
 export const STORY_HOST: CastId = "woowakgood";
 
-export type StoryBeat =
-  | { kind: "beat"; shards: number; /** Flags set when the talk is over: this beat and every earlier one. */ flags: string[] }
-  | { kind: "finale-offer"; flags: string[] };
+export type StoryBeat = { kind: "beat"; shards: number; /** Flags set when the talk is over: this beat and every earlier one. */ flags: string[] };
 
 const flagSet = (save: Pick<WorldSave, "flags">, flag: string) => save.flags[flag] === true;
 
 /**
- * What the director has to tell the player next, or null. The finale offer (every shard won, stadium still shut)
- * beats a progress talk; a progress talk is the highest beat reached that has not been heard — earlier ones are
- * marked as heard with it, so someone who collected two shards between visits is not lectured twice.
+ * What the director has to tell the player next, or null. A progress talk is the highest beat reached that has
+ * not been heard — earlier ones are marked as heard with it, so someone who collected two shards between visits
+ * is not lectured twice. The all-shards report is an actual mission (`m-89-director-report`), not a story beat.
  */
 export function pendingStoryBeat(save: Pick<WorldSave, "player" | "shards" | "flags">): StoryBeat | null {
   // The epilogue replaces every unfinished progress reminder.  A player may have skipped a director visit at
   // three, six, or nine shards, but those old beats must never leak into the town's post-ending dialogue.
   if (flagSet(save, ENDING_SEEN_FLAG)) return null;
-  const total = totalShardsFor(save.player);
-  if (total > 0 && save.shards >= total && !flagSet(save, STADIUM_OPEN_FLAG)) {
-    return { kind: "finale-offer", flags: [STADIUM_OPEN_FLAG, ...BEAT_SHARDS.map(beatFlag)] };
-  }
   for (const shards of [...BEAT_SHARDS].reverse()) {
     if (save.shards >= shards && !flagSet(save, beatFlag(shards))) {
       return { kind: "beat", shards, flags: BEAT_SHARDS.filter((n) => n <= shards).map(beatFlag) };

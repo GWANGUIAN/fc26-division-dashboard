@@ -83,6 +83,9 @@ export const MISSION_SCRIPTS: Readonly<Record<string, MissionScript>> = {
     active: ["클럽하우스 로비 안쪽 계단 아래야. 기계 앞에서 E를 누르면 시작이야."],
     complete: [["잘하네! 앞으로 미션에서 점수 도전이 많을 거야. 연습은 여기서 마음껏!", "happy"]],
   },
+  "m-89-director-report": {
+    complete: ["모두 모였구나. 스타디움으로 가자. 결전이다, {player}."],
+  },
 
   // members (02 §7)
   "m-doormomo-sum10": {
@@ -92,7 +95,7 @@ export const MISSION_SCRIPTS: Readonly<Record<string, MissionScript>> = {
     complete: [["…인정. 빠르네, {player}. 자, 잔디 조각이야. 나머지도 잘 부탁해.", "happy"]],
   },
   "m-sjh4018-kickups": {
-    offer: ["수비는 발끝 감각이 생명이지. 공을 20번 안 떨어뜨리고 튀길 수 있어?"],
+    offer: ["수비는 발끝 감각이 생명이지. 공을 15번 안 떨어뜨리고 튀길 수 있어?"],
     accept: "좋아, 오락실 2번 기계야. 힘 빼고 리듬을 타.",
     active: ["떨어뜨려도 괜찮아. 다시 하면 되니까. 리듬을 타 봐."],
     complete: [["오, 진짜 해냈네! 든든한데? 조각은 네 거야.", "happy"]],
@@ -220,8 +223,6 @@ export const STORY_SCRIPT = {
     6: ["절반이 넘었다. 제초동 쪽에서 이상한 소리가 나. 서둘러야겠어."],
     9: ["하나만 더. 제초왕이 곧 나타날 거야. 마음의 준비를 해 둬."],
   } as Readonly<Record<number, readonly Line[]>>,
-  /** All the shards are in: the stadium opens. */
-  finaleOffer: ["모두 모였구나. 스타디움으로 가자. 결전이다, {player}."] as readonly Line[],
 };
 
 // ── people ───────────────────────────────────────────────────────────────────────────────────

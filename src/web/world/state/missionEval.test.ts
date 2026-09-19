@@ -15,8 +15,8 @@ describe("minigame_best", () => {
   it("needs the score at or above the minimum", () => {
     expect(run("m-doormomo-sum10", round("soccer-sum10", 59))?.ready).toBe(false);
     expect(run("m-doormomo-sum10", round("soccer-sum10", 60))?.ready).toBe(true);
-    expect(run("m-sjh4018-kickups", round("kickups", 19))?.ready).toBe(false);
-    expect(run("m-sjh4018-kickups", round("kickups", 20))?.ready).toBe(true);
+    expect(run("m-sjh4018-kickups", round("kickups", 14))?.ready).toBe(false);
+    expect(run("m-sjh4018-kickups", round("kickups", 15))?.ready).toBe(true);
     expect(run("m-kaksjak0730-freekick", round("freekick", 3))?.ready).toBe(false);
     expect(run("m-kaksjak0730-freekick", round("freekick", 4))?.ready).toBe(true);
   });

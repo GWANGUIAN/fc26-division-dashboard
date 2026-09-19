@@ -11,13 +11,15 @@ interface HudProps {
   shards: number;
   /** The mission shown in the tracker, if any. */
   tracked: MissionView | null;
+  /** Opens the journal from the visible tracker as well as from J. */
+  onOpenLog?: () => void;
 }
 
 /**
  * Always-on HUD (docs/world/06 §8): the grass-shard gauge and the tracker with the current goal, top-left.
  * The timers of a running delivery / trial / kick challenge are drawn on the canvas, not here.
  */
-export function Hud({ shards, tracked }: HudProps) {
+export function Hud({ shards, tracked, onOpenLog }: HudProps) {
   const gauge = getWorldAssetUrl("ui/shard-gauge");
   const tracker = getWorldAssetUrl("ui/hud-tracker");
   const filled = getWorldAssetUrl("ui/shard-filled");
@@ -33,7 +35,7 @@ export function Hud({ shards, tracked }: HudProps) {
       : tracked.status === "available"
         ? `${getCast(tracked.def.giver).displayName}에게 말을 걸어 보세요`
         : tracked.progressText || tracked.def.objective
-    : "";
+    : "미션 로그에서 다음 목표를 확인하세요";
 
   return (
     <div className="world-hud" style={style}>
@@ -45,15 +47,18 @@ export function Hud({ shards, tracked }: HudProps) {
         ))}
         <span className="world-gauge__count" aria-hidden="true">{shards}/{SLOTS}</span>
       </div>
-      {tracked && (
-        <div className={`world-tracker${tracker ? " world-tracker--art" : ""}${tracked.status === "ready" ? " is-ready" : ""}`}>
+      <button
+        type="button"
+        className={`world-tracker${tracker ? " world-tracker--art" : ""}${tracked?.status === "ready" ? " is-ready" : ""}`}
+        onClick={onOpenLog}
+        aria-label="미션 로그 열기"
+      >
           {icon && <img className="world-tracker__icon" src={icon} alt="" draggable={false} />}
           <div className="world-tracker__text">
-            <strong>{tracked.def.title}</strong>
+            <strong>{tracked?.def.title ?? "미션 트래커"}</strong>
             <span>{detail}</span>
           </div>
-        </div>
-      )}
+      </button>
     </div>
   );
 }

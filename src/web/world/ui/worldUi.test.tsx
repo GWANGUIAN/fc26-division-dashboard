@@ -10,6 +10,7 @@ import { createNewGameSave, DEFAULT_WORLD_SETTINGS } from "../storage";
 import { Hud } from "./Hud";
 import { MissionLog } from "./MissionLog";
 import { PauseMenu } from "./PauseMenu";
+import { nextToasts } from "./Toast";
 import { WorldCredits } from "./WorldCredits";
 import { STATUS_LABEL, missionIconKey, rewardText } from "./missionIcons";
 import { getMissionDef } from "../data/missionDefs";
@@ -38,7 +39,18 @@ describe("Hud", () => {
     let save = midGame();
     for (const id of ["jelly-lantern-b", "jelly-lantern-c"]) save = applyMissionEvent(save, { type: "pickup", id }).save;
     expect(renderToString(<Hud shards={3} tracked={defaultTracked(missionViews(save))} />)).toContain("해파린에게 보고하세요");
-    expect(renderToString(<Hud shards={0} tracked={null} />)).toContain("잔디 조각 0/10");
+    const html = renderToString(<Hud shards={0} tracked={null} />);
+    expect(html).toContain("잔디 조각 0/10");
+    expect(html).toContain("미션 트래커");
+    expect(html).toContain("미션 로그에서 다음 목표를 확인하세요");
+  });
+
+  it("opens the same mission log action when the visible tracker is clicked", () => {
+    let opened = 0;
+    const element = Hud({ shards: 0, tracked: null, onOpenLog: () => { opened++; } }) as unknown as { props: { children: readonly unknown[] } };
+    const tracker = element.props.children[1] as { props: { onClick?: () => void } };
+    tracker.props.onClick?.();
+    expect(opened).toBe(1);
   });
 });
 
@@ -81,18 +93,36 @@ describe("PauseMenu", () => {
     for (const label of ["이어하기", "미션 로그", "설정", "크레딧", "가이드 다시 보기", "새로 시작", "월드 나가기"]) expect(html).toContain(label);
   });
 
-  it("renders the release credit and attribution gate without inventing a licence", () => {
+  it("renders the release credit without a deployment gate", () => {
     const html = renderToString(<WorldCredits />);
+    expect(html).toContain("기획·구현");
+    expect(html).toContain("뉴팬치");
+    expect(html).toContain("월드 전용 변환 에셋 447개");
+    expect(html).not.toContain("상세 목록은 에셋 체크리스트");
     expect(html).toContain("BGM 13/14, SFX 53/53, 앰비언스 9/9");
-    expect(html).toContain("배포 전 확인 필요");
-    expect(renderToString(menu("credits"))).toContain("배포 전 확인 필요");
+    expect(html).not.toContain("배포 전 확인 필요");
+    expect(html).toContain('aria-label="크레딧 내용"');
+    expect(html).toContain('tabindex="0"');
+    expect(renderToString(menu("credits"))).toContain("잔디동 월드");
   });
 
   it("shows the sound settings and asks before a new game", () => {
     const settings = renderToString(menu("settings"));
     expect(settings).toContain("배경음악 켜짐");
     expect(settings).toContain("효과음 볼륨");
+    expect(settings).toContain('aria-label="음악 볼륨 낮추기"');
+    expect(settings).toContain('aria-label="음악 볼륨 높이기"');
     expect(renderToString(menu("confirm-new"))).toContain("계속할까요");
+  });
+});
+
+describe("Toast queue", () => {
+  it("replaces only a previous region notice while preserving reward order", () => {
+    const reward = { id: 1, text: "보상", channel: "default" as const };
+    const firstRegion = { id: 2, text: "광장", channel: "region" as const };
+    const nextRegion = { id: 3, text: "호수", channel: "region" as const };
+    expect(nextToasts([reward, firstRegion], nextRegion)).toEqual([reward, nextRegion]);
+    expect(nextToasts([reward], { id: 4, text: "조각", channel: "default" })).toEqual([reward, { id: 4, text: "조각", channel: "default" }]);
   });
 });
 

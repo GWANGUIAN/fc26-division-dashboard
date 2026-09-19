@@ -30,15 +30,16 @@ describe("overworld scene", () => {
     expect(stadium).toMatchObject({ w: 832, h: 512 });
   });
 
-  it("blocks the visible building but leaves the door notch open, and the door trigger is trimmed", () => {
+  it("blocks the visible building but leaves the clubhouse's two-tile door trigger open at its threshold", () => {
     const door = overworld.doors.find((d) => d.to.scene === "interior:clubhouse-lobby")!;
-    const inDoorway = footBox(door.rect.x + 32, door.rect.y + 20);
+    const inDoorway = footBox(door.rect.x + 32, door.rect.y + door.rect.h - 10);
     expect(overworld.colliderRects.some((r) => rectsOverlap(inDoorway, r))).toBe(false);
     const inWall = footBox(door.rect.x + 32, door.rect.y - 40);
     expect(overworld.colliderRects.some((r) => rectsOverlap(inWall, r))).toBe(true);
-    // Trimmed so walking along the building front (feet at the sprite base) does not enter.
-    expect(rectsOverlap(footBox(door.rect.x + 32, (13 + 1) * 32 + 2), door.rect)).toBe(false);
-    expect(rectsOverlap(footBox(door.rect.x + 32, (13 + 1) * 32 - 8), door.rect)).toBe(true);
+    expect(door.rect.h).toBe(2 * 32 - 12); // outdoor trigger keeps both door tiles, minus the front-edge trim
+    // The expanded trigger begins one tile higher but stays disarmed once the player has stepped past the threshold.
+    expect(rectsOverlap(footBox(door.rect.x + 32, door.rect.y + door.rect.h - 8), door.rect)).toBe(true);
+    expect(rectsOverlap(footBox(door.rect.x + 32, door.rect.y + door.rect.h + 12), door.rect)).toBe(false);
   });
 
   it("puts the stadium door on its south gate, where the art has it", () => {
@@ -78,6 +79,15 @@ describe("interior scene", () => {
     const exit = room.doors.find((d) => d.to.scene === "overworld")!;
     expect(exit.rect).toEqual({ x: 288, y: 352, w: 64, h: 32 });
     expect({ x: exit.to.x, y: exit.to.y }).toEqual(tileCenter(67, 13));
+  });
+
+  it("keeps the clubhouse office door open through its lower approach area", () => {
+    const lobby = getScene("interior:clubhouse-lobby")!;
+    const office = lobby.doors.find((door) => door.to.scene === "interior:clubhouse-office")!;
+    expect(office.rect).toEqual({ x: 18 * 32, y: 4 * 32, w: 32, h: 4 * 32 });
+    const lowerApproach = footBox(18 * 32 + 16, 8 * 32 + 4);
+    expect(lobby.colliderRects.some((rect) => rectsOverlap(lowerApproach, rect))).toBe(false);
+    expect(rectsOverlap(lowerApproach, office.rect)).toBe(true);
   });
 });
 

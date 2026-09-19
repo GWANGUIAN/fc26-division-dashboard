@@ -7,7 +7,7 @@ import { markerFor, missionStatus, type MarkerKind } from "../state/missions";
 import { restoreForZones } from "../state/progress";
 import { ENDING_SEEN_FLAG, storyMarker } from "../state/story";
 import { saveWorldSave } from "../storage";
-import type { CastId, Facing, Rect, SceneId, WorldSave } from "../types";
+import type { CastId, Facing, NavigationTarget, Rect, SceneId, WorldSave } from "../types";
 import type { WorldAudioLike, SfxId } from "../audio/worldAudio";
 import { SILENT_AUDIO } from "../audio/worldAudio";
 import type { WorldAssets } from "../worldAssets";
@@ -28,8 +28,8 @@ import {
 import { SceneTransition, zoneIndexAt, type DoorTrigger, type ExaminePoint, type SceneObject, type SpectatorSpawn, type WorldScene } from "./scene";
 import { TerrainRenderer } from "./terrain";
 
-export const WALK_SPEED = 90;
-export const RUN_SPEED = 150;
+export const WALK_SPEED = 150;
+export const RUN_SPEED = 225;
 const AUTOSAVE_SECONDS = 5;
 const DOOR_GRACE_SECONDS = 0.35;
 /** How fast a district's colours follow a new restore target (per second, exponential). */
@@ -101,8 +101,8 @@ export interface WorldEngine {
   setUiBlocked(blocked: boolean): void;
   /** Ends the conversation with the NPC being talked to (they turn back) and gives the keyboard back. */
   closeInteraction(): void;
-  /** Coach step C2: bounce an arrow over this cast member (null = off). */
-  setHighlight(cast: CastId | null): void;
+  /** Bounce an arrow over a mission NPC, object, examine point, or door (null = off). */
+  setNavigationTarget(target: NavigationTarget | null): void;
   /** Debug: logical stage coordinates (640×360) → world position. */
   pick(logicalX: number, logicalY: number): DebugPick;
   /** Debug: fade to another scene (default spawn unless a tile is given). */
@@ -116,6 +116,8 @@ export interface WorldEngine {
   cancelRuns(): void;
   /** The parcels are in the player's bag and the delivery clock is running. */
   isDeliveryRunning(): boolean;
+  /** Transient timed-attempt state used to point the tracker at its immediate next step. */
+  getNavigationRuntime(): { delivery?: { mission: string; carrying: readonly string[] }; trial?: { mission: string; nextGate: string }; kickMission?: string };
   /** Debug: put the kick ball back on its spot. */
   resetBall(): void;
   /** The ending cut: the golden grass of the stadium blooms (sound, glow, flash); `onBloomDone` fires when it is over. */
@@ -182,7 +184,7 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
   let doorArmed = false;
   let doorGrace = 0;
   let lastZoneId: string | null = null;
-  let highlight: CastId | null = null;
+  let navigationTarget: NavigationTarget | null = null;
   let restoreOverride: number | null = null;
   let noclip = false;
   let lastPick: DebugPick | null = null;
@@ -730,18 +732,18 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
   }
 
   function drawOverlays(cam: Camera) {
-    if (highlight && scene.kind === "overworld" && !uiBlocked) {
-      const npc = npcs.find((n) => n.cast === highlight);
-      if (npc) {
-        const sx = npc.x - cam.x;
-        const sy = npc.y - spriteHeight(npc) - 12 - cam.y;
-        if (sx > 8 && sx < VIEW_WIDTH - 8 && sy > 8 && sy < VIEW_HEIGHT - 8) drawTargetArrow(ctx, sx, sy, time);
-        else drawEdgePointer(ctx, player, npc, cam, time);
-      }
+    const guide = navigationTarget;
+    if (guide && guide.scene === scene.id && !uiBlocked) {
+      const npc = guide.npc ? npcs.find((entry) => entry.cast === guide.npc) : undefined;
+      const point = npc ?? guide;
+      const sx = point.x - cam.x;
+      const sy = point.y - (npc ? spriteHeight(npc) + 12 : 18) - cam.y;
+      if (sx > 8 && sx < VIEW_WIDTH - 8 && sy > 8 && sy < VIEW_HEIGHT - 8) drawTargetArrow(ctx, sx, sy, time);
+      else drawEdgePointer(ctx, player, point, cam, time);
     }
     // Mission markers over the givers' heads (docs/world/02 §5); the E bubble and the coach arrow take their place.
     for (const npc of npcs) {
-      if (npc.talking || highlight === npc.cast || (target?.kind === "npc" && target.key === npc.key)) continue;
+      if (npc.talking || (navigationTarget?.npc === npc.cast && navigationTarget.scene === scene.id) || (target?.kind === "npc" && target.key === npc.key)) continue;
       const marker = markerOf(npc.cast);
       if (!marker) continue;
       const sx = npc.x - cam.x;
@@ -813,8 +815,8 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
       uiBlocked = false;
       syncInput();
     },
-    setHighlight(cast) {
-      highlight = cast;
+    setNavigationTarget(target) {
+      navigationTarget = target;
     },
     pick(logicalX, logicalY) {
       const cam = snapCamera(camera);
@@ -850,6 +852,14 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
     },
     isDeliveryRunning() {
       return runs.delivery !== null;
+    },
+    getNavigationRuntime() {
+      const nextGate = runs.nextGate();
+      return {
+        ...(runs.delivery ? { delivery: { mission: runs.delivery.mission, carrying: runs.carrying() } } : {}),
+        ...(nextGate ? { trial: { mission: nextGate.mission, nextGate: nextGate.gate } } : {}),
+        ...(runs.kick ? { kickMission: runs.kick.mission } : {}),
+      };
     },
     playBloom() {
       bloomAt = 0;

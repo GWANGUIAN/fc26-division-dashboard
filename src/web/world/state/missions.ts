@@ -16,7 +16,9 @@ export function requirementsMet(def: MissionDef, save: MissionSave): boolean {
     const prereq = getMissionDef(id);
     return prereq !== undefined && missionStatus(save, prereq) === "completed";
   });
-  return donePrereqs && (def.requiresFlags ?? []).every((flag) => save.flags[flag] === true);
+  const hasAllShards = !def.requiresAllShards || (totalShardsFor(save.player) > 0 && save.shards >= totalShardsFor(save.player));
+  const blocked = (def.unlessFlags ?? []).some((flag) => save.flags[flag] === true);
+  return donePrereqs && hasAllShards && !blocked && (def.requiresFlags ?? []).every((flag) => save.flags[flag] === true);
 }
 
 export function missionStatus(save: MissionSave, def: MissionDef): MissionStatus {
@@ -156,7 +158,7 @@ export function missionViews(save: MissionSave): MissionView[] {
 /** The mission shown in the tracker unless the player picked another: ready first, then active (main before side), then new. */
 export function defaultTracked(views: readonly MissionView[]): MissionView | null {
   const pick = (status: MissionStatus, main?: boolean) => views.find((view) => view.status === status && (main === undefined || view.def.main === main));
-  return pick("ready") ?? pick("active", true) ?? pick("active") ?? pick("available", true) ?? pick("available") ?? null;
+  return pick("ready") ?? views.find((view) => view.status === "available" && view.def.requiresAllShards) ?? pick("active", true) ?? pick("active") ?? pick("available", true) ?? pick("available") ?? null;
 }
 
 /** Main missions still to do / done, for the shard gauge and tests. */

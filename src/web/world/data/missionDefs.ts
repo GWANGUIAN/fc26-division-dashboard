@@ -60,6 +60,10 @@ interface MissionBase {
   hint: string;
   /** `flag:` conditions that must hold before the mission is offered (state/conditions.ts atoms). */
   requiresFlags?: string[];
+  /** The player's entire personal shard quota must be collected before this mission is offered. */
+  requiresAllShards?: boolean;
+  /** Never offered once any of these flags is set (saves whose stadium was opened before this mission existed). */
+  unlessFlags?: string[];
   /** Missions that must be completed first. */
   requires?: string[];
   reward: MissionReward;
@@ -120,8 +124,8 @@ export const MISSION_DEFS: readonly MissionDef[] = [
     requiresFlags: ["main-open"], reward: MAIN_REWARD,
   },
   {
-    id: "m-sjh4018-kickups", giver: "sjh4018", title: "공중 요새 수비 훈련", kind: "minigame_best", game: "kickups", min: 20, main: true,
-    objective: "오락실 공 튀기기 기계에서 20회 이상", hint: "북서 구름 요새 · 오락실 2번 기계",
+    id: "m-sjh4018-kickups", giver: "sjh4018", title: "공중 요새 수비 훈련", kind: "minigame_best", game: "kickups", min: 15, main: true,
+    objective: "오락실 공 튀기기 기계에서 15회 이상", hint: "북서 구름 요새 · 오락실 2번 기계",
     requiresFlags: ["main-open"], reward: MAIN_REWARD,
   },
   {
@@ -179,10 +183,16 @@ export const MISSION_DEFS: readonly MissionDef[] = [
 
   // ── act 3 ────────────────────────────────────────────────────────────────────────────────
   {
+    id: "m-89-director-report", giver: "woowakgood", title: "결전 준비", kind: "talk", main: false,
+    objective: "우왁굳 감독에게 잔디 조각을 모두 모았다고 보고하기", hint: "클럽하우스 감독실 · 우왁굳 감독",
+    requiresAllShards: true, requiresFlags: ["main-open"], unlessFlags: ["stadium-open"],
+    reward: { flags: ["stadium-open", "beat-3", "beat-6", "beat-9"] },
+  },
+  {
     id: "m-90-finale", giver: "referee", title: "제초동 결전", kind: "finale", main: false,
     rounds: [
       { game: "soccer-sum10", min: 80 },
-      { game: "kickups", min: 35 },
+      { game: "kickups", min: 20 },
       { game: "freekick", min: 5 },
     ],
     objective: "스타디움 결전 3연전에서 모두 승리", hint: "잔디동 스타디움 · 심판에게 말 걸기",

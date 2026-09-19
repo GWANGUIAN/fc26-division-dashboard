@@ -8,6 +8,15 @@ export type CastId =
 
 export type SceneId = "overworld" | `interior:${string}`;
 
+/** A point the world arrow can guide the player toward. NPC targets retain their cast id so a wandering
+ * resident is followed at their live position rather than at their map spawn. */
+export interface NavigationTarget {
+  scene: SceneId;
+  x: number;
+  y: number;
+  npc?: CastId;
+}
+
 export type Facing = "down" | "up" | "left" | "right";
 
 export type MissionStatus = "locked" | "available" | "active" | "ready" | "completed";

@@ -17,10 +17,10 @@ describe("build-world-map", () => {
     }
   });
 
-  it("keeps every building door on the last row of its sprite box", () => {
+  it("keeps every building door ending on the last row of its sprite box", () => {
     for (const building of BUILDINGS) {
       if (!building.door) continue;
-      expect(building.door[1]).toBe(building.rect[3]);
+      expect(building.door[1] + building.door[3] - 1).toBe(building.rect[3]);
     }
   });
 
@@ -38,8 +38,8 @@ describe("build-world-map", () => {
     const solidProps = map.props.filter((prop) => (PROP_DEFS[prop.prop].foot ?? []).length > 0);
     for (const building of BUILDINGS) {
       if (!building.door) continue;
-      const [x, y] = building.door;
-      const step = { x0: x * 32 - 16, x1: (x + 2) * 32 + 16, y0: (y + 1) * 32, y1: (y + 3) * 32 };
+      const [x, y, , h] = building.door;
+      const step = { x0: x * 32 - 16, x1: (x + 2) * 32 + 16, y0: (y + h) * 32, y1: (y + h + 2) * 32 };
       const blocking = solidProps.filter((prop) => prop.x > step.x0 && prop.x < step.x1 && prop.y > step.y0 && prop.y < step.y1);
       expect(blocking, building.id).toEqual([]);
     }

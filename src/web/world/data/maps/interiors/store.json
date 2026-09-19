@@ -3,7 +3,7 @@
   "image": "interiors/int-store",
   "size": [20,12],
   "spawn": [10,10],
-  "exitTo": {"scene":"overworld","tile":[37,51]},
+  "exitTo": {"scene":"overworld","tile":[36,51]},
   "collision": [
     [0,0,640,108],
     [0,108,46,276],
@@ -32,6 +32,6 @@
     {"cast":"shopkeeper","tile":[12,6],"ai":"stay"}
   ],
   "triggers": [
-    {"type":"door","rect":[9,11,2,1],"to":{"scene":"overworld","tile":[37,51],"facing":"down"}}
+    {"type":"door","rect":[9,11,2,1],"to":{"scene":"overworld","tile":[36,51],"facing":"down"}}
   ]
 }

@@ -49,9 +49,9 @@ export function PauseMenu({ view, onView, settings, onSettings, audio, onResume,
   ];
   const settingsItems: Item[] = [
     { id: "bgm", label: `배경음악 ${settings.bgm ? "켜짐" : "꺼짐"}`, icon: settings.bgm ? "ui/mn-sound-on" : "ui/mn-sound-off", run: () => onSettings({ ...settings, bgm: !settings.bgm }) },
-    { id: "bgmVolume", label: `음악 볼륨 ◀ ${settings.bgmVolume} ▶`, run: () => {} },
+    { id: "bgmVolume", label: "음악 볼륨", run: () => {} },
     { id: "sfx", label: `효과음 ${settings.sfx ? "켜짐" : "꺼짐"}`, icon: settings.sfx ? "ui/mn-sound-on" : "ui/mn-sound-off", run: () => onSettings({ ...settings, sfx: !settings.sfx }) },
-    { id: "sfxVolume", label: `효과음 볼륨 ◀ ${settings.sfxVolume} ▶`, run: () => {} },
+    { id: "sfxVolume", label: "효과음 볼륨", run: () => {} },
     { id: "back", label: "뒤로", icon: "ui/mn-back", run: () => go("main") },
   ];
   const confirmItems: Item[] = [
@@ -106,6 +106,32 @@ export function PauseMenu({ view, onView, settings, onSettings, audio, onResume,
           {items.map((item, position) => {
             const icon = item.icon ? getWorldAssetUrl(item.icon) : undefined;
             const isVolume = item.id === "bgmVolume" || item.id === "sfxVolume";
+            const volume = item.id === "bgmVolume" ? settings.bgmVolume : item.id === "sfxVolume" ? settings.sfxVolume : null;
+            if (isVolume) return (
+              <li key={item.id}>
+                <div
+                  className={`world-pause__volume${position === at ? " is-on" : ""}`}
+                  onMouseEnter={() => setCursor(position)}
+                >
+                  <span className="world-pause__volume-label">{item.label}</span>
+                  <button
+                    type="button"
+                    {...buttonProps("secondary")}
+                    className={`${buttonProps("secondary").className} world-pause__arrow`}
+                    aria-label={`${item.label} 낮추기`}
+                    onClick={() => nudge(item.id, -1)}
+                  >◀</button>
+                  <output aria-label={`${item.label} ${volume}`}>{volume}</output>
+                  <button
+                    type="button"
+                    {...buttonProps("secondary")}
+                    className={`${buttonProps("secondary").className} world-pause__arrow`}
+                    aria-label={`${item.label} 높이기`}
+                    onClick={() => nudge(item.id, 1)}
+                  >▶</button>
+                </div>
+              </li>
+            );
             return (
               <li key={item.id}>
                 <button
@@ -113,13 +139,7 @@ export function PauseMenu({ view, onView, settings, onSettings, audio, onResume,
                   {...buttonProps("secondary")}
                   className={`${buttonProps("secondary").className} world-pause__item${position === at ? " is-on" : ""}`}
                   onMouseEnter={() => setCursor(position)}
-                  onClick={(event) => {
-                    if (isVolume) {
-                      // click the left half to lower, the right half to raise
-                      const box = event.currentTarget.getBoundingClientRect();
-                      nudge(item.id, event.clientX < box.left + box.width / 2 ? -1 : 1);
-                    } else item.run();
-                  }}
+                  onClick={item.run}
                 >
                   {icon && <img src={icon} alt="" draggable={false} />}
                   {item.label}

@@ -28,7 +28,7 @@ export interface DashboardBridge {
 
 export type WorldModal =
   | { type: "minigame"; game: MinigameRoundResult["game"]; /** Opened from the stadium showdown: its result counts for the showdown, not for arcade missions. */ context?: "finale"; factory?: boolean }
-  | { type: "cards"; streamerId: string }
+  | { type: "cards"; streamerId: string; /** The tutorial's first view must show the normal 3D theme. */ initialVariant?: TotyCardVariant }
   | { type: "daily" | "collection" };
 
 type CardStreamer = Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision" | "sfx">;
@@ -77,6 +77,7 @@ export function WorldModals({ modal, save, onClaimDaily, dashboard, onClose, onR
         onSelectStreamer={(next: CardStreamer) => onSelectCard(next.id)}
         onClose={onClose}
         onView={onCardView}
+        initialVariant={modal.initialVariant}
       />
     );
   }

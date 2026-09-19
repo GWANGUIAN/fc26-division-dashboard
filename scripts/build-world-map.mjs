@@ -39,7 +39,7 @@ export const ZONES = [
 
 /** rect = sprite box (tiles, inclusive), door = [x, y, w, h], skip = empty tile rows at the top of the sprite. */
 export const BUILDINGS = [
-  { id: "clubhouse", rect: [34, 6, 45, 13], door: [39, 13, 2, 1], interior: "clubhouse-lobby", skip: 0 },
+  { id: "clubhouse", rect: [34, 6, 45, 13], door: [39, 12, 2, 2], interior: "clubhouse-lobby", skip: 0 },
   { id: "stadium", rect: [27, 26, 52, 41], door: [39, 41, 2, 1], interior: "stadium", skip: 0 },
   { id: "fountain", rect: [37, 19, 42, 23], skip: 0 },
   { id: "house-sjh4018", rect: [8, 3, 17, 11], door: [12, 11, 2, 1], interior: "house-sjh4018", skip: 2 },
@@ -53,7 +53,7 @@ export const BUILDINGS = [
   { id: "house-bboringirl", rect: [4, 46, 11, 51], door: [7, 51, 2, 1], interior: "house-bboringirl", skip: 0 },
   { id: "house-tleod1818", rect: [12, 46, 19, 51], door: [15, 51, 2, 1], interior: "house-tleod1818", skip: 0 },
   { id: "house-tdnlamuron", rect: [21, 47, 27, 52], door: [24, 52, 2, 1], interior: "house-tdnlamuron", skip: 1 },
-  { id: "store", rect: [33, 46, 39, 50], door: [36, 50, 2, 1], interior: "store", skip: 0 },
+  { id: "store", rect: [33, 46, 39, 50], door: [35, 50, 2, 1], interior: "store", skip: 0 },
   { id: "cafe", rect: [43, 46, 49, 50], door: [46, 50, 2, 1], interior: "cafe", skip: 0 },
   { id: "factory", rect: [62, 46, 74, 55], door: [67, 55, 2, 1], interior: "factory", skip: 1 },
 ];
@@ -171,8 +171,8 @@ const OBJECTS = [
   { id: "weed-gate", type: "barrier", rect: [55, 49, 1, 3], when: "not:flag:area-weed-open" },
   ...[49, 50, 51].map((ty, i) => ({ id: `barricade-${i + 1}`, type: "decor", prop: "barricade", at: [55 * 32, ty * 32 + 30], when: "not:flag:area-weed-open" })),
   // 쥬멩이 킥: 훈련장의 공과 서쪽 골대
-  { id: "ball-kick", type: "ball", tile: [27, 10], bounds: [20, 6, 12, 10] },
-  { id: "goal-west", type: "goal", rect: [20, 10, 2, 3] },
+  { id: "ball-kick", type: "ball", tile: [27, 11.375], bounds: [20, 6, 12, 10] },
+  { id: "goal-west", type: "goal", rect: [20, 10.78125, 2, 2.21875] },
   // 다시바 콘 코스: 시작/도착 게이트 사이를 콘 사이로 번갈아 위·아래로 지난다 (콘은 가운데 줄 y=56)
   { id: "tt-start", type: "gate", rect: [5, 54, 1, 5] },
   { id: "tt-1", type: "gate", rect: [7, 54, 1, 2] },
@@ -476,7 +476,7 @@ export function buildOverworldMap() {
 
   // set pieces ------------------------------------------------------------------------------
   const decal = (id, tx, ty, dx = 0, dy = 24) => props.push({ prop: id, x: tx * TILE + dx, y: ty * TILE + dy });
-  for (const b of doors) decal("mat-door", b.door[0] + 1, b.door[1] + 1, 0, 28); // 2×2 door mat, centred between the door tiles
+  for (const b of doors) decal("mat-door", b.door[0] + 1, b.door[1] + b.door[3], 0, 28); // 2×2 door mat, centred below the door's bottom row
   const forced = [
     ["lamp-post", ...at(33, 18)], ["lamp-post", ...at(47, 18)], ["lamp-post", ...at(33, 25)], ["lamp-post", ...at(47, 25)],
     ["bench-h", ...at(34, 23)], ["bench-h", ...at(46, 20)],

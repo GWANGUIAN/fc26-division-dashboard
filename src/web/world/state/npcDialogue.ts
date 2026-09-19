@@ -173,7 +173,7 @@ function storyPart(ctx: ConversationContext): Part | null {
   if (ctx.cast.role !== "host") return null;
   const beat = pendingStoryBeat({ player: ctx.save.player, shards: ctx.save.shards, flags: ctx.save.flags });
   if (!beat) return null;
-  const script = beat.kind === "finale-offer" ? STORY_SCRIPT.finaleOffer : STORY_SCRIPT.beats[beat.shards];
+  const script = STORY_SCRIPT.beats[beat.shards];
   if (!script) return null;
   return { lines: lines(ctx.cast.id, script), end: [{ type: "flags", flags: beat.flags }] };
 }

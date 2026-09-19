@@ -6,6 +6,7 @@
  *
  * Run with: pnpm convert:world-art -- <category> [name] [flags]
  *   pnpm convert:world-art -- characters janine95kim   one character (stand/turn/walk/portrait as available)
+ *   pnpm convert:world-art -- characters janine95kim --stand-only  only that character's standing sprite
  *   pnpm convert:world-art -- characters               every character
  *   pnpm convert:world-art -- terrain core             one terrain sheet
  *   pnpm convert:world-art -- props trees              one prop sheet
@@ -17,6 +18,7 @@
  *   pnpm convert:world-art -- --all                    everything that has an original
  * Flags: --tolerance N (chroma-key distance, default 40) · --palette [N] (quantize sprites, default 48)
  *        --seamless (cross-fade terrain tile edges) · --quality N (lossy WebP quality, default 92)
+ *        --stand-only (characters: regenerate only a human character's stand WebP)
  *
  * Every run prints QA warnings (clipped cells, foot-line drift, symmetry, leftover magenta, ...) and
  * writes tmp/world-src/qa-report.json with the same list plus originals that were not found.
@@ -46,11 +48,12 @@ const FAINT_ALPHA = 16;
 // ---------------------------------------------------------------------------------------------
 // Args
 const rawArgs = process.argv.slice(2).filter((arg) => arg !== "--");
-const flags = { all: false, tolerance: 40, palette: 0, seamless: false, quality: 92 };
+const flags = { all: false, tolerance: 40, palette: 0, seamless: false, quality: 92, standOnly: false };
 const positional = [];
 for (let i = 0; i < rawArgs.length; i++) {
   const arg = rawArgs[i];
   if (arg === "--all") flags.all = true;
+  else if (arg === "--stand-only") flags.standOnly = true;
   else if (arg === "--seamless") flags.seamless = true;
   else if (arg === "--tolerance") flags.tolerance = Number(rawArgs[++i]);
   else if (arg === "--quality") flags.quality = Number(rawArgs[++i]);
@@ -253,6 +256,7 @@ async function convertSprites({ sourceName, srcCategory, grid, slots, outCategor
       pad: !frame,
       soft: opts.soft,
     });
+    if (opts.opaqueInterior) M.sealInteriorAlpha(sprite, opts.slice, opts.interiorFill);
     if (scale > 1.001) warn(target, `원본(${bbox.w}×${bbox.h})이 목표(${w}×${h})보다 작아 확대됨(x${scale.toFixed(2)})`, "scale");
     if (!frame && !opts.anim) warnAspect(target, bbox, w, h);
     if (frame) {
@@ -303,8 +307,8 @@ async function convertCharacter(id) {
     return normalizeAlpha(await loadRaster(file), `char-${id}-${kind}`).raster;
   };
 
-  const walkRaster = await load("walk");
-  const turnRaster = animal ? null : await load("turn");
+  const walkRaster = flags.standOnly ? null : await load("walk");
+  const turnRaster = flags.standOnly || animal ? null : await load("turn");
   const frame = animal ? cfg.animalFrame : cfg.frame;
   const target = `characters/${id}`;
 
@@ -397,6 +401,8 @@ async function convertCharacter(id) {
     }
   }
 
+  if (flags.standOnly) return;
+
   const portraitRaster = await load("portrait");
   if (portraitRaster) {
     const size = cfg.portrait;
@@ -474,11 +480,12 @@ async function convertInterior(id) {
   console.log(`interiors/int-${id}`);
   const raster = await loadRaster(file);
   const [w, h] = manifest.interiors.size;
+  if (manifest.interiors.sourceWidth && raster.width !== manifest.interiors.sourceWidth) warn(`interiors/int-${id}`, `원본 폭 ${raster.width}px (S7 기준 ${manifest.interiors.sourceWidth}px)`, "source-size");
   const crop = M.cropRaster(raster, M.coverCropRect(raster.width, raster.height, w, h));
   const out = M.boxDownscale(crop, w, h);
   for (let i = 3; i < out.data.length; i += 4) out.data[i] = 255;
   warnMagenta(`interiors/int-${id}`, out, true);
-  await saveRaster(out, "interiors", `int-${id}`, { lossless: false });
+  await saveRaster(out, "interiors", `int-${id}`, { lossless: manifest.interiors.lossless === true });
 }
 
 async function convertSingle(category, id, cfg) {
@@ -494,7 +501,7 @@ async function convertSingle(category, id, cfg) {
     out = M.boxDownscale(crop, cfg.w, cfg.h);
     for (let i = 3; i < out.data.length; i += 4) out.data[i] = 255;
     warnMagenta(target, out, true);
-    lossless = false;
+    lossless = cfg.lossless === true;
   } else {
     raster = normalizeAlpha(raster, cfg.src).raster;
     const sprite = extractOne(raster, cfg.soft ? SOFT : HARD);

@@ -6,10 +6,18 @@ export interface ToastMessage {
   text: string;
   /** Small colour chip before the text (a district's tint) — a code-drawn icon instead of an emoji. */
   accent?: string;
+  /** Region notices replace only earlier region notices; rewards remain independently queued. */
+  channel?: "region" | "default";
 }
 
 const TOAST_MS = 2600;
 const MAX_TOASTS = 2;
+
+/** Region notices are replaceable context, unlike rewards, which retain their queue order. */
+export function nextToasts(current: readonly ToastMessage[], next: ToastMessage, max = MAX_TOASTS): ToastMessage[] {
+  const withoutPriorRegion = next.channel === "region" ? current.filter((toast) => toast.channel !== "region") : current;
+  return [...withoutPriorRegion.slice(-(max - 1)), next];
+}
 
 /** Toast queue: `push` shows a banner for a couple of seconds; the newest MAX_TOASTS stay on screen. */
 export function useToasts() {
@@ -17,9 +25,11 @@ export function useToasts() {
   const nextId = useRef(1);
   const timers = useRef(new Set<number>());
 
-  const push = useCallback((text: string, accent?: string) => {
+  const push = useCallback((text: string, accent?: string, channel: ToastMessage["channel"] = "default") => {
     const id = nextId.current++;
-    setToasts((current) => [...current.slice(-(MAX_TOASTS - 1)), { id, text, accent }]);
+    setToasts((current) => {
+      return nextToasts(current, { id, text, accent, channel });
+    });
     const timer = window.setTimeout(() => {
       timers.current.delete(timer);
       setToasts((current) => current.filter((toast) => toast.id !== id));

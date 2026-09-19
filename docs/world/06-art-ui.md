@@ -24,8 +24,7 @@
 
 | ID | 원본 이름 | 캔버스 | 최종 px | 용도 |
 | --- | --- | --- | --- | --- |
-| `fab-normal` | `ui-fab-normal.png` | 1536×1024 | 264×72 | 기본 상태 |
-| `fab-hover` | `ui-fab-hover.png` | 1536×1024 | 264×72 | 호버/포커스(같은 구도, 더 밝고 글로우) |
+| `fab-normal` | `ui-fab-normal.png` | 원본 비율 | 264×72 | 기본 상태와 모든 상호작용 상태의 단일 판 |
 | `fab-icon` | `ui-fab-icon.png` | 1024×1024 | 64×64 | 원형 아이콘 단독(로딩 스피너/알림 등 재사용) |
 
 ```text
@@ -34,18 +33,17 @@ Design: the left end has a round medallion showing a tiny bright pixel village w
 No cast shadow, no text anywhere, no watermark.
 ```
 
-- **fab-hover**: 위 이미지를 첨부하고 `Keep exactly the same layout, size and design as the attached image, but make it brighter with a soft mint glow around the plate, tiny gold sparkles near the medallion, and the plate looking lifted slightly. Keep the text area empty.`
 - **fab-icon**: `Draw only the round medallion from the attached plate as a standalone icon, 1024x1024, centred, transparent background, same style.`
 - **(실험, 선택)** 글자 포함 버전: 프롬프트 끝에 `Write the Korean text "잔디동 월드 구경하기" in the empty panel in a clean pixel font, exactly these characters.`를 덧붙여 시도하되, **글자가 한 글자라도 틀리면 텍스트 없는 버전 + CSS 글자를 사용**한다.
 - CSS 글자(구현): Galmuri11 11px, 흰색 + 1px 짙은 청록 외곽선(`text-shadow`), 판의 빈 패널 중앙(가로 62%)에 배치. 첫 방문 시 `fc26-world-discovered-v1` 미설정이면 `fancy-border`/attention glow(기존 `fortune-toggle.css` 패턴)와 말풍선("잔디동 마을이 열렸어요!") 표시.
-- 배치(구현): `position: fixed; z-index: 75; top: 12px; left: 12px;`, 표시 크기 **220×60**(변환본 264×72를 축소). `.topbar` 브랜드와 sticky 검색바를 가리지 않도록 `world-toggle.css`가 좌측 패딩을 예약하고, 스크롤 80px 이상이면 `fab-icon`(48px 원형)으로 축소한다([08 §5 #2](08-implementation-roadmap.md#5-미해결-항목)). 이미지가 없거나 로드 실패하면 CSS 폴백 판(나무 테두리 + 초록 패널 + 민트 메달리온)이 대신 보이고, hover 이미지는 같은 자리에 겹쳐 페이드한다.
+- 배치(구현): `position: fixed; z-index: 75; top: 12px; left: 12px;`, 표시 크기 **220×60**(변환본 264×72를 축소). `.topbar` 브랜드와 sticky 검색바를 가리지 않도록 `world-toggle.css`가 좌측 패딩을 예약한다. 스크롤 위치와 관계없이 항상 전체 판을 보이며, hover·focus·active는 별도 이미지가 아닌 CSS의 밝기·그림자·1px 이동으로 표현한다. 이미지가 없거나 로드 실패하면 CSS 폴백 판(나무 테두리 + 초록 패널 + 민트 메달리온)이 대신 보인다.
 
 ## 2. 로딩·타이틀·로고 키아트
 
 | ID | 원본 이름 | 캔버스 | 최종 px | 용도 |
 | --- | --- | --- | --- | --- |
-| `loading-bg` | `ui-loading-bg.png` | 1536×1024 | 960×540 | 로딩 화면 배경(활기찬 잔디동 전경). **엔딩 후 타이틀 배경으로도 재사용** |
-| `title-bg` | `ui-title-bg.png` | 1536×1024 | 960×540 | 엔딩 전 타이틀 배경(같은 구도, 시든 버전) |
+| `loading-bg` | `ui-loading-bg.png` | 1672×941 | 1672×940 무손실 WebP | 로딩 화면 배경(활기찬 잔디동 전경). **엔딩 후 타이틀 배경으로도 재사용** |
+| `title-bg` | `ui-title-bg.png` | 1672×941 | 1672×940 무손실 WebP | 엔딩 전 타이틀 배경(같은 구도, 시든 버전) |
 | `logo-emblem` | `ui-logo-emblem.png` | 1024×1024 | 192×192 | 타이틀 로고 엠블럼(글자 없음, 글자는 CSS) |
 
 **`loading-bg`**
@@ -120,12 +118,14 @@ Elements in order (left to right, top to bottom):
 | 4 | `tab-active` | 64×24 | 8 | 활성 탭 |
 | 5 | `hud-tracker` | 168×40 | 12 | 좌상단 현재 목표 트래커 |
 | 6 | `minimap-frame` | 104×72 | 12 | 미니맵 테두리 |
-| 7 | `shard-gauge` | 188×28 | 8 | 잔디 조각 10칸 게이지(칸 위치는 CSS) |
+| 7 | `shard-gauge-legacy` | 188×28 | 8 | 기존 시트의 게이지(런타임에는 S7 독립 원본을 사용) |
 | 8 | `shard-empty` | 16×16 | — | 빈 칸 |
 | 9 | `shard-filled` | 16×16 | — | 채워진 칸 |
 | 10 | `board-paper` | 128×96 | 12 | 일일 미션 게시판 종이 |
 | 11 | `stamp-card` | 192×160 | 16 | 출석 스탬프 카드 |
 | 12 | `stamp-mark` | 24×24 | — | 도장 |
+
+S7부터 런타임 게이지는 시트의 7번 칸을 재사용하지 않는다. 독립 원본 `ui-shard-gauge.png`을 `ui/shard-gauge.webp`(120×28)로 변환하며, 프레임 안에는 **빈 원형 슬롯이 정확히 10개** 있어야 한다. `shard-filled`는 별도 오버레이로 유지하고, 10개 중심은 CSS의 `--gauge-x`·`--gauge-pitch`·`--gauge-pip`으로 같은 간격에 맞춘다.
 
 ## 5. 버튼 시트 (`ui-buttons`)
 
@@ -147,7 +147,7 @@ Each button is perfectly symmetrical left-right so it can be stretched as a 9-sl
 
 | ID | 원본 이름 | 캔버스 | 최종 px | 용도 |
 | --- | --- | --- | --- | --- |
-| `select-bg` | `ui-select-bg.png` | 1536×1024 | 960×540 | 배경(사람 없음) |
+| `select-bg` | `ui-select-bg.png` | 1672×941 | 1672×940 무손실 WebP | 배경(사람 없음) |
 | `select-cards` (시트) | `ui-select-cards.png` | 1536×1024 (4×3) | (아래) | 카드·화살표·장식 |
 
 **`select-bg`**
@@ -217,3 +217,16 @@ Elements in order (left to right, top to bottom):
 | **합계** | **14장** (슬라이스 후 최종 에셋 약 100개) |
 
 우선순위: **P0** = 플로팅 버튼 3, 로딩/타이틀/로고 3, 프레임 시트 A·B, 버튼 시트, 캐릭터 선택 2, 미션·메뉴 아이콘. **P1** = 뱃지 시트.
+
+## 10. S7 선택적 게임 외곽 프레임
+
+- **원본 이름**: `tmp/world-src/ui/ui-game-outer-frame.png`
+- **최종 이름**: `ui/game-outer-frame.webp`
+- **캔버스**: 1920×1080 PNG, 16:9. 중앙 게임 창은 완전 투명 알파이며, 프레임 외곽만 그림이 있어야 한다.
+- **사용 방식**: 월드 오버레이의 선택적·비상호작용 레이어(`pointer-events: none`)로 그린다. 자산이 없으면 현재 화면을 그대로 쓰며, 월드 입력/포커스/Esc를 절대 가로채지 않는다.
+
+**프롬프트**
+
+```text
+Create a single transparent PNG overlay for a 16:9 pixel-art RPG game viewport, exactly 1920x1080. The entire central 16:9 play aperture must be fully transparent; draw only a decorative outer bezel around the extreme edges. Style: high-detail modern 32-bit pixel art, crisp dark teal outlines (#16302e), deep teal panels (#0b1614), mint trim (#00e9ae), small leaf-shaped ornaments and restrained warm-gold corner jewels (#ffd54a), matching a cheerful Korean football-club fantasy game. Keep the border symmetrical and thin enough that it never covers HUD text. No characters, no scenery, no text, no letters, no logos, no watermark, no opaque background, and no shadows inside the transparent play aperture.
+```

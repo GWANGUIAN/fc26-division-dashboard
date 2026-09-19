@@ -226,6 +226,24 @@ export function snapAlpha(img, threshold = SNAP_ALPHA) {
   return img;
 }
 
+/**
+ * Makes the stretchable middle of a 9-slice panel fully opaque. Generated frame sheets sometimes
+ * contain accidental transparent specks in this area; leave the outer ornament untouched while
+ * compositing those pixels over the intended panel fill.
+ */
+export function sealInteriorAlpha(img, inset, fill = [6, 18, 15]) {
+  for (let y = inset; y < img.height - inset; y++) {
+    for (let x = inset; x < img.width - inset; x++) {
+      const i = (y * img.width + x) * 4;
+      const alpha = img.data[i + 3] / 255;
+      if (alpha === 1) continue;
+      for (let c = 0; c < 3; c++) img.data[i + c] = Math.round(img.data[i + c] * alpha + fill[c] * (1 - alpha));
+      img.data[i + 3] = 255;
+    }
+  }
+  return img;
+}
+
 /** Removes pixels within `tolerance` (euclidean RGB) of `key`; returns how many were cleared. */
 export function chromaKey(img, key = [255, 0, 255], tolerance = 40) {
   let removed = 0;

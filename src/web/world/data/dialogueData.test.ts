@@ -22,7 +22,6 @@ function everyText(): string[] {
   for (const group of [FINALE_SCRIPT.intro, FINALE_SCRIPT.victory, FINALE_SCRIPT.ending]) out.push(...group.map((line) => line.text));
   out.push(...FINALE_SCRIPT.rounds.flatMap((round) => [round.taunt, round.cleared]).filter(Boolean), ...FINALE_SCRIPT.credits);
   for (const beat of Object.values(STORY_SCRIPT.beats)) out.push(...beat.map(textOf));
-  out.push(...STORY_SCRIPT.finaleOffer.map(textOf));
   return out;
 }
 
@@ -34,7 +33,7 @@ describe("dialogue data", () => {
       expect(script, def.id).toBeDefined();
       expect(script.complete.length, def.id).toBeGreaterThan(0);
       if (def.kind === "talk") {
-        expect(script.topics?.length, def.id).toBeGreaterThan(0);
+        if (def.tutorial) expect(script.topics?.length, def.id).toBeGreaterThan(0);
         continue;
       }
       expect(script.offer?.length, `${def.id} offer`).toBeGreaterThan(0);

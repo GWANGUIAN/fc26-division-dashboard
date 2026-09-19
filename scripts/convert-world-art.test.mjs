@@ -23,6 +23,7 @@ import {
   median,
   placeInFrame,
   seamError,
+  sealInteriorAlpha,
   snapAlpha,
   swapToGardener,
   symmetryError,
@@ -167,6 +168,17 @@ describe("snapAlpha / chromaKey / countMagenta", () => {
   });
 });
 
+describe("sealInteriorAlpha", () => {
+  it("fills accidental transparency only inside a 9-slice panel's stretch area", () => {
+    const img = solid(5, 5, [0, 0, 0, 0]);
+    setPixel(img, 2, 2, [100, 50, 0, 128]);
+    sealInteriorAlpha(img, 1, [6, 18, 15]);
+    expect(pixel(img, 0, 0)).toEqual([0, 0, 0, 0]);
+    expect(pixel(img, 1, 1)).toEqual([6, 18, 15, 255]);
+    expect(pixel(img, 2, 2)).toEqual([53, 34, 7, 255]);
+  });
+});
+
 describe("symmetryError / seamError / makeSeamless", () => {
   it("is zero for a symmetric image and positive otherwise", () => {
     const sym = createRaster(4, 4);
@@ -296,6 +308,11 @@ describe("world-art-manifest.json", () => {
     expect(Object.values(manifest.props).flat().filter((slot) => slot[3]?.withered)).toHaveLength(15);
     expect(Object.keys(manifest.buildings)).toHaveLength(17);
     expect(manifest.interiors.ids).toHaveLength(19);
+    expect(manifest.interiors).toMatchObject({ size: [640, 384], sourceWidth: 1536, lossless: true });
+    for (const id of ["loading-bg", "title-bg", "select-bg"]) expect(manifest.ui.singles[id]).toMatchObject({ w: 1672, h: 940, lossless: true });
+    expect(manifest.ui.singles["shard-gauge"]).toMatchObject({ src: "ui-shard-gauge", w: 120, h: 28, mode: "trim" });
+    expect(manifest.ui.sheets["frames-panel"].slots[0][3]).toMatchObject({ opaqueInterior: true, interiorFill: [5, 39, 32] });
+    expect(manifest.ui.sheets["frames-panel"].slots[6][0]).toBe("shard-gauge-legacy");
     expect(Object.entries(manifest.terrain).filter(([, sheet]) => sheet.withered).map(([name]) => name).sort()).toEqual(["cloud", "core", "frost", "pitch", "spring"]);
     expect(manifest.characters.humans).toHaveLength(18);
   });

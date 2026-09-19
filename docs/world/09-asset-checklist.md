@@ -117,6 +117,8 @@
 
 ## 5. 실내 (05 §4) — 19 (모두 640×384)
 
+S7부터는 `tmp/world-src/interiors/int-*.png`의 1536px 폭 원본을 현재 5:3 화면비로 먼저 크롭한 뒤, 최종 논리 화면 크기 640×384로 다운스케일한 **무손실 WebP**를 사용한다.
+
 | id | 이름 | P | 원본 `int-<id>.png` | 변환 |
 | --- | --- | --- | --- | --- |
 | `house-janine95kim` | 재닌 | P0 (A1) | [x] | [x] |
@@ -150,7 +152,8 @@
 | `ui-title-bg.png` | `ui/title-bg.webp` | P0 | [x] | [x] |
 | `ui-logo-emblem.png` | `ui/logo-emblem.webp` | P0 | [x] | [x] |
 | `ui-frames-dialog.png` (12) | `ui/dialog-frame, nameplate, portrait-frame, choice-normal, choice-selected, cursor, next-1, next-2, toast-frame, coach-frame, tooltip-frame, loading-bar-frame` | P0 (A1) | [x] | [x] |
-| `ui-frames-panel.png` (12) | `ui/panel-frame, panel-parchment, tab-normal, tab-active, hud-tracker, minimap-frame, shard-gauge, shard-empty, shard-filled, board-paper, stamp-card, stamp-mark` | P0 | [x] | [x] |
+| `ui-frames-panel.png` (12) | `ui/panel-frame, panel-parchment, tab-normal, tab-active, hud-tracker, minimap-frame, shard-gauge-legacy, shard-empty, shard-filled, board-paper, stamp-card, stamp-mark` | P0 | [x] | [x] |
+| `ui-shard-gauge.png` | `ui/shard-gauge` | P0 (S7) | [x] | [x] |
 | `ui-buttons.png` (8) | `ui/btn-{primary,secondary}-{normal,hover,pressed,disabled}` | P0 | [x] | [x] |
 | `ui-select-bg.png` | `ui/select-bg.webp` | P0 | [x] | [x] |
 | `ui-select-cards.png` (12) | `ui/card-normal, card-hover, card-selected, card-dim, arrow-left, arrow-right, name-ribbon, spotlight, shadow-ellipse, ball-marker, sparkle-ring, check-badge` | P0 | [x] | [x] |
@@ -329,3 +332,15 @@ turn(서 있는 자세) 시트의 발끝 편차는 전원 허용 이내였다.
 - 오디오: `world-bgm-rush.mp3`와 `sfxes/world-stamp.mp3` 연결. 러시 개별 동작 SFX 추가 폴리시는 S6. 앰비언스 9개 배치와 8개 선택 지점 유지, `world-amb-water.mp3`는 미사용 유지.
 - 데이터/액션: `pickup.autoCollect`(황금 공), `daily`/`collection`/`minigame:rush`/`rush-factory`의 연결은 types·맵 무결성 테스트에 반영. 기존 엔딩 플래그와 추가 `factory-garden` 조건으로 표시, 새 호수 존 없음.
 - 시각 QA는 README S5 `?worldDebug` 목록으로 사용자 확인. 자동 검증은 도달성·에셋 경로·서버 렌더 패널·헤드리스 접촉 수집을 포함한 670개 테스트 통과.
+
+## 14. S7 아트 교정 대기 목록 (2026-09-19)
+
+- [ ] **walk 20장 교체**: `char-{bboringirl,cat-jandi,dog-ball,doormomo,elder,hachi97,haepalin,janine95kim,ju010228,kaksjak0730,kid,lina0108,referee,shopkeeper,sjh4018,tdnlamuron,tleod1818,weeder-grunt,weedking,woowakgood}-walk.png`. [04 §9](04-art-characters.md#9-s7-보행스탠딩-교정)의 발 교대 QA를 통과한 뒤 캐릭터별 변환을 실행한다.
+- [x] **S7 부분 반영 (2026-09-19)**: 사용자 제공 재생성본 중 `bboringirl`, `janine95kim`, `kaksjak0730`, `sjh4018`의 walk를 변환해 `characters/<id>-atlas.webp`에 반영했다. 원본은 모두 알파 포함 `1536×1024`였다.
+- [ ] **재생성 필요 — `haepalin` walk**: 오른쪽 보행 행의 두 번째 칸에 유효한 스프라이트 성분이 없어 변환 QA가 `r2c2` 빈 프레임을 보고했다. 기존 아틀라스는 유지하며, [11의 해당 캐릭터 프롬프트](11-s7-image-generation-briefs.md)와 옆모습 실패 재생성 요청을 사용해 고친 뒤 이 파일만 다시 변환한다.
+- [ ] **stand 18장 교체**: 위 목록에서 `cat-jandi`, `dog-ball`을 뺀 `char-<id>-stand.png`. 새 walk 시트를 레퍼런스로 사용해 비율을 맞춘다.
+- [x] **S7 stand 부분 반영 (2026-09-19)**: 사용자 제공 `bboringirl`, `doormomo`, `hachi97`, `haepalin`, `janine95kim`, `ju010228`, `kaksjak0730`, `lina0108`, `sjh4018`, `tdnlamuron`, `tleod1818`, `woowakgood` 12장을 `--stand-only`로 변환했다. 원본이 규격 문서의 1024px가 아닌 `1254×1254`이지만, 변환기는 비율을 보존해 게임용 stand 높이로 맞춘다.
+- [ ] **외곽 프레임 1장**: `ui-game-outer-frame.png` → `ui/game-outer-frame.webp`. 중앙 투명·비상호작용 레이어 규격은 [06 §10](06-art-ui.md#10-s7-선택적-게임-외곽-프레임)을 따른다.
+- [x] **고해상도 재변환**: `ui-{loading,title,select}-bg.png` 3장은 1672×940 무손실 WebP, `int-*.png` 19장은 1536px 원본 크롭 후 640×384 무손실 WebP로 재변환했다. `assetSizes.test.ts`가 두 규격을 검사한다.
+- 생성 요청은 [11-s7-image-generation-briefs.md](11-s7-image-generation-briefs.md)에 별도 정리했다. 파일마다 레퍼런스·세션 유지 여부·저장 이름·프롬프트를 분리한다.
+- 자동 검증: S7 변환 후 `assetSizes.test.ts`가 실내 19장의 640×384 논리 크기와 UI 배경 3장의 1672×940 크기를 확인한다. 전체 `pnpm typecheck && pnpm test`는 2026-09-19에 679개 테스트를 통과했다.

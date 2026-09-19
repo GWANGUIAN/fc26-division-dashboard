@@ -92,7 +92,7 @@ describe("mission state machine", () => {
     const short = applyMissionEvent(save, { type: "minigame", result: { game: "kickups", score: 12 } });
     expect(short.changes).toEqual([]);
     expect(status(short.save, "m-sjh4018-kickups")).toBe("active");
-    const long = applyMissionEvent(short.save, { type: "minigame", result: { game: "kickups", score: 21 } });
+    const long = applyMissionEvent(short.save, { type: "minigame", result: { game: "kickups", score: 15 } });
     expect(long.changes).toEqual([{ id: "m-sjh4018-kickups", from: "active", to: "ready" }]);
   });
 

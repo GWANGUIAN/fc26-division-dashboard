@@ -20,10 +20,10 @@
   ],
   "examine": [
     {"id":"machine-1","tile":[6,4],"text":"오락실 기계 1번 — 축구공 합 10.","action":"minigame:soccer-sum10"},
-    {"id":"machine-2","tile":[8,4],"text":"오락실 기계 2번 — 축구공 튀기기.","action":"minigame:kickups"},
-    {"id":"machine-3","tile":[9,4],"text":"오락실 기계 3번 — 3D 프리킥.","action":"minigame:freekick"},
-    {"id":"machine-4","tile":[11,4],"text":"오락실 기계 4번 — 카드 짝 맞추기.","action":"minigame:cardmatch"},
-    {"id":"machine-5","tile":[13,4],"text":"오락실 기계 5번 — 잔디 러시.","action":"minigame:rush"},
+    {"id":"machine-2","tile":[7.59375,4],"text":"오락실 기계 2번 — 축구공 튀기기.","action":"minigame:kickups"},
+    {"id":"machine-3","tile":[9.21875,4],"text":"오락실 기계 3번 — 3D 프리킥.","action":"minigame:freekick"},
+    {"id":"machine-4","tile":[10.90625,4],"text":"오락실 기계 4번 — 카드 짝 맞추기.","action":"minigame:cardmatch"},
+    {"id":"machine-5","tile":[12.5625,4],"text":"오락실 기계 5번 — 잔디 러시.","action":"minigame:rush"},
     {"tile":[3,4],"text":"경품 진열장. 인형이 빼곡하다."},
     {"tile":[3,6],"text":"테이블 축구대. 손잡이가 닳아 있다."},
     {"id":"arcade-records","tile":[10,8],"text":"개인 최고 기록과 랭크","action":"collection"}

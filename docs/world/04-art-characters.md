@@ -105,6 +105,7 @@ Row 1 (top): walking toward the camera (front view), 4 frames.
 Row 2 (middle): walking to the right (side view), 4 frames.
 Row 3 (bottom): walking away from the camera (back view), 4 frames.
 Frame order in every row: (1) left foot forward contact, (2) passing pose with the body slightly higher, (3) right foot forward contact, (4) passing pose with the body slightly higher. Arms swing opposite to the legs. Hair, ribbons and accessories move by at most one or two pixels.
+NON-NEGOTIABLE SIDE-VIEW CHECK (middle row, moving right): frame 1's LEFT boot is the frontmost/rightmost boot and frame 3's RIGHT boot is the frontmost/rightmost boot. In those two contact frames, show two fully visible, separate boots with a clear horizontal gap; the front boot must swap sides between frame 1 and frame 3. Do not draw the same stride twice, put one boot directly behind the other, hide either boot behind hair/clothes/a prop, or use only arm motion to imply walking. Frames 2 and 4 must be visibly different passing poses, not duplicated contact poses. Before returning the image, inspect only the middle row and verify that covering the upper body still makes the alternating leading boot obvious.
 Rules: identical design, palette, proportions and pixel size in all 12 cells; no motion blur; no shadows; no cell borders or grid lines; leave at least 10% empty margin inside every cell; no text.
 ```
 
@@ -197,7 +198,7 @@ Glasses reflections are just two white pixels.
 Create a pixel-art walk-cycle sprite sheet of a small cute mascot cat on one 1536x1024 canvas: a strict grid of 4 columns x 3 rows, each cell the same size, one pose per cell, centred, paws on the same baseline row in every cell.
 Design: a chubby cream-white cat with mint-green patches and a tiny green leaf on its head, a small bell collar, big simple eyes.
 Row 1: walking toward the camera (front view), 4 frames. Row 2: walking to the right (side view), 4 frames. Row 3: walking away (back view), 4 frames.
-Frame order: left paw forward, passing, right paw forward, passing. Same scale in all cells, no shadows, no cell borders, at least 10% margin in each cell, no text.
+Frame order: left paw forward, passing, right paw forward, passing. In the middle/right-facing row, frame 1's left front paw must be the visibly frontmost/rightmost paw and frame 3's right front paw must be visibly frontmost/rightmost; show a clear horizontal gap and never stack or hide the paws. Same scale in all cells, no shadows, no cell borders, at least 10% margin in each cell, no text.
 ```
 
 ### `dog-ball` 공돌이 (`char-dog-ball-walk.png`)
@@ -206,7 +207,7 @@ Frame order: left paw forward, passing, right paw forward, passing. Same scale i
 Create a pixel-art walk-cycle sprite sheet of a small playful puppy on one 1536x1024 canvas: a strict grid of 4 columns x 3 rows, each cell the same size, one pose per cell, centred, paws on the same baseline row in every cell.
 Design: a brown-and-white puppy with floppy ears carrying a tiny mint-and-white football in its mouth, wagging tail, big simple eyes.
 Row 1: walking toward the camera (front view), 4 frames. Row 2: walking to the right (side view), 4 frames. Row 3: walking away (back view), 4 frames.
-Frame order: left paw forward, passing, right paw forward, passing. Same scale in all cells, no shadows, no cell borders, at least 10% margin in each cell, no text.
+Frame order: left paw forward, passing, right paw forward, passing. In the middle/right-facing row, frame 1's left front paw must be the visibly frontmost/rightmost paw and frame 3's right front paw must be visibly frontmost/rightmost; show a clear horizontal gap and never stack or hide the paws. Same scale in all cells, no shadows, no cell borders, at least 10% margin in each cell, no text.
 ```
 
 동물 idle 프레임은 walk의 2번째(passing) 프레임을 재사용한다(변환 스크립트 규칙).
@@ -246,3 +247,36 @@ Frame order: left paw forward, passing, right paw forward, passing. Same scale i
 | **합계** | **20** | | **74장** |
 
 우선순위: **P0 = 멤버 11명 전원의 stand/turn/walk/portrait**(선택 가능해야 하므로 필수) + 우왁굳 + `elder`; P1 = `shopkeeper`, `kid`, `referee`, `weedking`, `weeder-grunt`, 동물 2종.
+
+## 9. S7 보행·스탠딩 교정 (2026-09-19)
+
+기존 원본의 팔 동작과 별개로 전방/측면 보행에서 앞발이 고정돼 보이는 사례가 확인됐다. S7에서는 **20명 전원의 walk**를 교체하고, 동물 2종을 제외한 **18명의 stand**를 walk와 같은 비율로 다시 만든다. `turn`과 `portrait`는 이 작업 범위에 포함하지 않는다.
+
+| 대상 | 새 원본 | 반드시 첨부할 레퍼런스 | 생성 후 확인 |
+| --- | --- | --- | --- |
+| `bboringirl`, `doormomo`, `elder`, `hachi97`, `haepalin`, `janine95kim`, `ju010228`, `kaksjak0730`, `kid`, `lina0108`, `referee`, `shopkeeper`, `sjh4018`, `tdnlamuron`, `tleod1818`, `weeder-grunt`, `weedking`, `woowakgood` | `char-<id>-walk.png`, `char-<id>-stand.png` | 현재 `char-<id>-turn.png`와 현재/새 `char-<id>-walk.png` | stand의 전체 키·머리/몸통/다리 비율이 walk 12칸과 같음 |
+| `cat-jandi`, `dog-ball` | `char-<id>-walk.png` | 현재 `char-<id>-walk.png` | 동물 32×32 보행 12칸의 앞발/뒷발이 교대로 움직임 |
+
+**walk 재생성 프롬프트** — 기존 ③ 템플릿 뒤에 아래를 반드시 덧붙인다.
+
+```text
+This is a strict animation correction, not four cosmetic poses. In every row, frame 1 must show the character's left foot clearly leading and frame 3 the right foot clearly leading. The middle row is the acceptance gate: it is a right-facing side profile, so frame 1's LEFT boot must be the frontmost/rightmost boot and frame 3's RIGHT boot must be the frontmost/rightmost boot. In both contact frames, draw two complete, non-overlapping boots separated horizontally by a visible gap; do not merely change the knee, arm, toe highlight, or leg angle. Frames 2 and 4 are distinct passing poses with the body 1–2 final-pixel equivalents higher, never duplicated contact poses. Covering the upper body must still make frame 1 vs frame 3 read as opposite strides. Keep the foot baseline identical in all 12 cells and do not let hair, arms, clothing, or a prop hide either foot.
+```
+
+**옆모습 실패 재생성 프롬프트** — 첨부한 결과에서 가운데 행의 발이 고정·중첩·복제돼 보일 때, **같은 캐릭터 생성 대화**를 유지하고 실패한 walk 시트와 `turn` 시트를 모두 다시 첨부한 뒤 아래만 보낸다. 결과물은 파이프라인용 전체 4×3 시트여야 한다.
+
+```text
+The attached walk sheet failed side-view walk-cycle QA. Keep this exact character, palette, clothing, pixel size, grid, and the front/back rows, but regenerate the COMPLETE 4x3 sheet and correct the middle row only as a literal right-facing side-profile walk cycle. This is not a cosmetic variation request.
+
+Middle row acceptance criteria: frame 1 is LEFT-foot contact, with the left boot fully visible as the frontmost/rightmost boot; frame 3 is RIGHT-foot contact, with the right boot fully visible as the frontmost/rightmost boot. The two contact frames must have opposite leading boots, two separate non-overlapping boots, and a clearly visible horizontal stride gap. Do not reuse the same leg silhouette, place one boot directly behind the other, hide a boot behind hair/clothes/props, or signal movement only with arms. Frames 2 and 4 must be distinct passing poses, not copies of the contact frames. Before delivering, inspect the middle row with the upper body mentally covered: the alternating leading boot must still be unambiguous.
+
+Return a full transparent 1536x1024 4-column by 3-row sprite sheet, no background, no shadow, no text, no grid lines.
+```
+
+**stand 재생성 프롬프트** — 현재/새 walk 시트를 필수 첨부하고 기존 ① 템플릿 대신 아래 비율 규칙을 덧붙인다.
+
+```text
+Match the attached walk sheet exactly: use the same head-to-foot height, head/body/leg proportions, line thickness, boot size and pixel-block scale as its front-row contact frames. This is an idle pose, not a taller character: feet together on the same baseline, full-body height within two final-pixel equivalents of the walk sprite, no elongated legs or torso.
+```
+
+수령 위치는 기존대로 `tmp/world-src/characters/`이며, 변환은 `pnpm convert:world-art -- characters <id>`를 쓴다. 변환 QA는 각 행에서 frame 1↔3의 발 실루엣 차이와 12개 셀의 발끝 기준선 편차(3px 이하)를 모두 검사한다. 특히 가운데 행은 **frame 1의 좌측 발이 화면상 오른쪽 선두, frame 3의 우측 발이 화면상 오른쪽 선두, 두 부츠가 수평으로 분리**됐는지 확인한다.

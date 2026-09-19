@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { facingFor } from "./world";
+import { facingFor, RUN_SPEED, WALK_SPEED } from "./world";
 
 describe("facingFor", () => {
   it("faces the axis being moved along", () => {
@@ -19,5 +19,13 @@ describe("facingFor", () => {
     expect(facingFor(-1, -1, "up")).toBe("up");
     expect(facingFor(1, -1, "left")).toBe("right");
     expect(facingFor(-1, 1, "up")).toBe("left");
+  });
+});
+
+describe("movement speeds", () => {
+  it("uses S7 walk and run speeds without changing the run multiplier", () => {
+    expect(WALK_SPEED).toBe(150);
+    expect(RUN_SPEED).toBe(225);
+    expect(RUN_SPEED / WALK_SPEED).toBe(1.5);
   });
 });

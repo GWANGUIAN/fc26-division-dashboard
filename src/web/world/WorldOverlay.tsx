@@ -23,7 +23,9 @@ import { resolveEscape, type EndingStage, type OverlayPhase, type PauseView } fr
 import {
   acceptMission, applyMissionEvent, completeMission, completeTalk, defaultTracked, missionViews, restartMission, type RewardResult,
 } from "./state/missions";
+import { initialWorldCardVariant } from "./state/cardTheme";
 import { asProgress, describeProgress, finaleRoundOutcome, type MissionEvent } from "./state/missionEval";
+import { missionObjectiveTarget, navigationNpcTarget, routeMissionTarget } from "./state/missionNavigation";
 import { buildCheerDialogue, buildConversation, buildEndingDialogue, buildExamineDialogue } from "./state/npcDialogue";
 import { ENDING_SEEN_FLAG, STADIUM_OPEN_FLAG, endingPending, withEndingFlags } from "./state/story";
 import {
@@ -45,6 +47,7 @@ import { TitleScreen } from "./ui/TitleScreen";
 import { ToastLayer, useToasts } from "./ui/Toast";
 import { WorldModals, type DashboardBridge, type WorldModal } from "./ui/WorldModals";
 import { WorldAssets, assetKeysForGroup } from "./worldAssets";
+import { GameFrame } from "./ui/GameFrame";
 
 export type { DashboardBridge } from "./ui/WorldModals";
 
@@ -168,6 +171,8 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
   const engineRef = useRef<WorldEngine | null>(null);
   const [engine, setEngine] = useState<WorldEngine | null>(null);
   const [currentScene, setCurrentScene] = useState<SceneId>("overworld");
+  /** Timed attempts change their immediate target without necessarily changing the saved mission state. */
+  const [navigationRevision, refreshNavigation] = useReducer((n: number) => n + 1, 0);
   const [debugPick, setDebugPick] = useState<DebugPick | null>(null);
   const bgmRef = useRef<BgmId[]>(["title"]);
   const rewardTimers = useRef<number[]>([]);
@@ -309,6 +314,8 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
   const store = session?.store;
   const playerId = session?.playerId ?? null;
   const save = store && playerId ? withPlayer(store.save, playerId) : null;
+  const views = save ? missionViews(save) : [];
+  const tracked = views.find((view) => view.def.id === trackedId && view.status !== "completed") ?? defaultTracked(views);
 
   /** Writes the save (with the current position) to storage right away. */
   const persist = useCallback(() => {
@@ -355,7 +362,9 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
       ];
       if (reward.shard) items.push({ text: `잔디 조각 획득! (${reward.shardsAfter}/${total})`, accent: "#00e9ae", sfx: "shard-get" });
       for (const badge of reward.badges) items.push({ text: `뱃지 획득: 「${badge.label}」`, accent: "#ffb454", sfx: "badge-get" });
-      if (reward.shard && reward.shardsAfter >= total) items.push({ text: "잔디 조각을 모두 모았어요!", accent: "#00e9ae", sfx: "shard-restore" });
+      if (reward.shard && reward.shardsAfter >= total) setTrackedId("m-89-director-report");
+      if (reward.shard && reward.shardsAfter >= total) items.push({ text: "최종 미션 생성: 우왁굳 감독에게 보고하세요", accent: "#00e9ae", sfx: "shard-restore" });
+      if (reward.flags.includes(STADIUM_OPEN_FLAG)) items.push({ text: "스타디움 문이 열렸어요! 결전이 기다립니다", accent: "#ffd54a", sfx: "mission-ready" });
       pushSequence(items);
     },
     [pushSequence, store],
@@ -459,6 +468,7 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
 
   const handleRunEvent = useCallback(
     (event: RunEvent) => {
+      refreshNavigation();
       switch (event.type) {
         case "delivery-start":
           pushSequence([{ text: `택배 ${event.items.length}개를 받았어요! ${event.seconds}초 안에 우편함에 배달하세요`, accent: "#5aa8ff", sfx: "parcel-get" }]);
@@ -591,7 +601,8 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
           const streamers = (dashboard.streamers ?? []).filter((entry) => hasTotyCard(entry.id));
           const first = streamers.find((entry) => entry.id === playerId) ?? streamers[0];
           if (first) {
-            openModal({ type: "cards", streamerId: first.id });
+            // Only the active first-card tutorial is pinned to the normal 3D theme. Dashboard and later world opens keep their existing cycle.
+            openModal({ type: "cards", streamerId: first.id, initialVariant: initialWorldCardVariant(store.save) });
             return;
           }
           setDialogue({ node: buildExamineDialogue("서랍이 잠겨 있다. 카드 정보를 아직 불러오는 중이다."), cast: null, endEffects: [] });
@@ -614,7 +625,7 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
     },
     onRunEvent: handleRunEvent,
     onZoneEnter(zone) {
-      pushToast(zone.name, zone.tint);
+      pushToast(zone.name, zone.tint, "region");
       if (store) playBgm(bgmFor("overworld", zone.bgm, store.save));
     },
     onSceneChange(scene) {
@@ -646,10 +657,18 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
     setEngine(next);
   }, []);
 
-  // Coach step C2 points at the elder.
+  // The coach owns its step-two arrow; otherwise keep an on-screen/edge arrow on the tracked mission's real next objective.
   useEffect(() => {
-    engine?.setHighlight(phase === "play" && coachStep === 1 ? "elder" : null);
-  }, [engine, phase, coachStep]);
+    if (!engine || phase !== "play" || !save) {
+      engine?.setNavigationTarget(null);
+      return;
+    }
+    const position = engine.getState();
+    const target = coachStep === 1
+      ? navigationNpcTarget(save, "elder")
+      : routeMissionTarget(missionObjectiveTarget(tracked, save, position, engine.getNavigationRuntime()), currentScene, save);
+    engine.setNavigationTarget(target);
+  }, [engine, phase, coachStep, tracked, save, currentScene, navigationRevision]);
 
   // One place decides whether the world may move: any panel that owns the keyboard blocks it.
   const photoOpen = ending === "photo" || framePhoto;
@@ -749,9 +768,6 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
 
   const playerCast = playerId ? getCast(playerId) : null;
   const talkedTotal = store ? Object.values(store.save.talked).reduce((sum, n) => sum + n, 0) : 0;
-  const views = save ? missionViews(save) : [];
-  const tracked = views.find((view) => view.def.id === trackedId && view.status !== "completed") ?? defaultTracked(views);
-
   return (
     <div ref={rootRef} className="world-overlay" role="dialog" aria-modal="true" aria-label="잔디동 월드" tabIndex={-1}>
       <div
@@ -783,7 +799,11 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
               onEngine={handleEngine}
               scaleLabel={`${layout.deviceScale}x device px (css ${layout.cssScale.toFixed(2)})`}
             />
-            <Hud shards={session.store.save.shards} tracked={tracked} />
+            <Hud shards={session.store.save.shards} tracked={tracked} onOpenLog={() => {
+              audio.playSfx("ui-open");
+              setLogOpen(true);
+              advanceCoach({ type: "log" });
+            }} />
             {!dialogue && !logOpen && pauseView === "closed" && <p className="world-hint">방향키/WASD 이동 · Shift 달리기 · E 상호작용 · J 미션 로그 · Esc 메뉴</p>}
             <CoachMarks step={coachStep} />
             <ToastLayer toasts={toasts} />
@@ -832,6 +852,7 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
           </>
         )}
       </div>
+      {layout.frame && <GameFrame frame={layout.frame} />}
       {/* The minigames and the card popup keep their own fixed layers; outside the scaled stage they use real pixels. */}
       {phase === "play" && save && (
         <WorldModals

@@ -90,17 +90,19 @@
   },
   "interiors": {
     "size": [640, 384],
+    "sourceWidth": 1536,
+    "lossless": true,
     "ids": ["house-janine95kim", "house-bboringirl", "house-sjh4018", "house-doormomo", "house-hachi97", "house-kaksjak0730", "house-ju010228", "house-haepalin", "house-tleod1818", "house-tdnlamuron", "house-lina0108", "clubhouse-lobby", "clubhouse-office", "clubhouse-trophy", "arcade", "stadium", "store", "cafe", "factory"]
   },
   "ui": {
     "singles": {
       "fab-normal": { "src": "ui-fab-normal", "w": 264, "h": 72, "mode": "trim" },
-      "fab-hover": { "src": "ui-fab-hover", "w": 264, "h": 72, "mode": "trim", "soft": true },
       "fab-icon": { "src": "ui-fab-icon", "w": 64, "h": 64, "mode": "trim" },
-      "loading-bg": { "src": "ui-loading-bg", "w": 960, "h": 540, "mode": "cover" },
-      "title-bg": { "src": "ui-title-bg", "w": 960, "h": 540, "mode": "cover" },
-      "select-bg": { "src": "ui-select-bg", "w": 960, "h": 540, "mode": "cover" },
-      "logo-emblem": { "src": "ui-logo-emblem", "w": 192, "h": 192, "mode": "trim" }
+      "loading-bg": { "src": "ui-loading-bg", "w": 1672, "h": 940, "mode": "cover", "lossless": true },
+      "title-bg": { "src": "ui-title-bg", "w": 1672, "h": 940, "mode": "cover", "lossless": true },
+      "select-bg": { "src": "ui-select-bg", "w": 1672, "h": 940, "mode": "cover", "lossless": true },
+      "logo-emblem": { "src": "ui-logo-emblem", "w": 192, "h": 192, "mode": "trim" },
+      "shard-gauge": { "src": "ui-shard-gauge", "w": 120, "h": 28, "mode": "trim" }
     },
     "sheets": {
       "frames-dialog": {
@@ -114,8 +116,8 @@
       "frames-panel": {
         "grid": [4, 3],
         "slots": [
-          ["panel-frame", 128, 128, { "slice": 24 }], ["panel-parchment", 192, 128, { "slice": 24 }], ["tab-normal", 64, 24, { "slice": 8, "symmetry": "lr" }], ["tab-active", 64, 24, { "slice": 8, "symmetry": "lr" }],
-          ["hud-tracker", 168, 40, { "slice": 12 }], ["minimap-frame", 104, 72, { "slice": 12 }], ["shard-gauge", 188, 28, { "slice": 8 }], ["shard-empty", 16, 16],
+          ["panel-frame", 128, 128, { "slice": 24, "opaqueInterior": true, "interiorFill": [5, 39, 32] }], ["panel-parchment", 192, 128, { "slice": 24 }], ["tab-normal", 64, 24, { "slice": 8, "symmetry": "lr" }], ["tab-active", 64, 24, { "slice": 8, "symmetry": "lr" }],
+          ["hud-tracker", 168, 40, { "slice": 12 }], ["minimap-frame", 104, 72, { "slice": 12 }], ["shard-gauge-legacy", 188, 28, { "slice": 8 }], ["shard-empty", 16, 16],
           ["shard-filled", 16, 16], ["board-paper", 128, 96, { "slice": 12 }], ["stamp-card", 192, 160, { "slice": 16 }], ["stamp-mark", 24, 24]
         ]
       },

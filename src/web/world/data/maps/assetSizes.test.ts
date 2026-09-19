@@ -35,6 +35,18 @@ describe("converted image sizes match the definitions", () => {
     for (const id of INTERIOR_IDS) expect(await size(INTERIOR_MAPS[id].image), id).toEqual([640, 384]);
   });
 
+  it("keeps the three S7 UI backdrops at their lossless source-derived size", async () => {
+    for (const key of ["ui/loading-bg", "ui/title-bg", "ui/select-bg"]) expect(await size(key), key).toEqual([1672, 940]);
+  });
+
+  it("keeps the game frame at the size stageLayout.ts measured its see-through middle on", async () => {
+    expect(await size("ui/game-outer-frame")).toEqual([1672, 941]);
+  });
+
+  it("keeps the independently regenerated ten-slot shard gauge at its HUD size", async () => {
+    expect(await size("ui/shard-gauge")).toEqual([120, 28]);
+  });
+
   it("character atlases: 192×256 for people, 128×128 for animals", async () => {
     for (const id of ["janine95kim", "elder", "woowakgood", "weeder-grunt", "kid"]) expect(await size(`characters/${id}-atlas`), id).toEqual([192, 256]);
     for (const id of ["cat-jandi", "dog-ball"]) expect(await size(`characters/${id}-atlas`), id).toEqual([128, 128]);

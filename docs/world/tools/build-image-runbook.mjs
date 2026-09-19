@@ -101,11 +101,12 @@ const T_TURN = `Using the attached standing sprite as the exact reference, draw 
 1) front view (facing the camera), 2) right-side view (facing right, profile), 3) back view (facing away).
 Rules: identical character design, palette, proportions and pixel size in all three; same scale; all feet on the exact same baseline; standing idle with arms relaxed; no motion; no shadows; keep at least 10% empty margin around each pose; do not add any text or guide lines.
 {{EXTRA}}`;
-const T_WALK = `Using the attached turnaround sheet as the exact reference, draw the SAME character's walk cycle as a sprite sheet on one 1536x1024 canvas: a strict grid of 4 columns x 3 rows, each cell the same size, one pose per cell, centred, feet on the same baseline row in every cell.
+const T_WALK = `Using the attached turnaround sheet as the exact reference, draw the SAME character's walk cycle as a sprite sheet on one 1536x1024 canvas: a strict grid of 4 columns x 3 rows, one pose per cell, centred, feet on the same baseline row in every cell. The three row strips are 341px, 342px, and 341px high; do not require equal integer cell heights.
 Row 1 (top): walking toward the camera (front view), 4 frames.
 Row 2 (middle): walking to the right (side view), 4 frames.
 Row 3 (bottom): walking away from the camera (back view), 4 frames.
 Frame order in every row: (1) left foot forward contact, (2) passing pose with the body slightly higher, (3) right foot forward contact, (4) passing pose with the body slightly higher. Arms swing opposite to the legs. Hair, ribbons and accessories move by at most one or two pixels.
+NON-NEGOTIABLE MIDDLE-ROW CONSTRUCTION (right-facing): draw one coherent four-phase walk, not four pose variations. Treat the legs as two complete, distinct hip-to-boot limbs on visibly separate near/lower and far/upper depth tracks. Frame 1: LEFT-foot contact, LEFT boot is frontmost/rightmost and RIGHT boot trails at screen-left. Frame 2: RIGHT-foot passing, RIGHT boot lifted beneath the torso and LEFT leg supports behind. Frame 3: RIGHT-foot contact, RIGHT boot is frontmost/rightmost and LEFT boot trails at screen-left. Frame 4: LEFT-foot passing, LEFT boot lifted beneath the torso and RIGHT leg supports behind. In frames 1 and 3 the leading limb must swap identity, depth track, and hip-to-boot diagonal; changing only a toe, knee, highlight, arm, or boot is a failure. Contact frames show two fully visible, non-overlapping boots with a wide horizontal stride gap. Passing frames are distinct and the body is one or two final-pixel equivalents higher. Do not stack, hide, or reuse a leg silhouette. Cropping the middle row below the waist must read left-contact → right-pass → right-contact → left-pass without arms or upper body.
 Rules: identical design, palette, proportions and pixel size in all 12 cells; no motion blur; no shadows; no cell borders or grid lines; leave at least 10% empty margin inside every cell; no text.
 {{EXTRA}}`;
 const T_PORTRAIT = `Using the attached standing sprite as the exact reference, draw a dialogue portrait sheet of the SAME character on one 1024x1024 canvas: a 2x2 grid of head-and-shoulders portraits (bust, facing the camera, slightly angled), each cell the same size, same pixel style as the sprite but more detailed.
@@ -168,7 +169,7 @@ function addChar(id, pri, { first = false, kind }) {
     id: `char-${id}-walk`, title: `${nm} — ③ walk (걷기 4프레임×3방향)`, thread, cat: "characters", canvas: "1536×1024", pri,
     refs: [REF("② 결과", out(`characters/char-${id}-turn.png`))],
     prompt: [HEAD_SPRITE, BG, "", fill(T_WALK, { EXTRA: extra })].join("\n").trim(),
-    qa: "4×3 그리드 12칸 모두 같은 크기·같은 캐릭터, 발끝 행 동일, 칸 경계선 없음, 인접 칸으로 삐져나온 부분 없음",
+    qa: "4×3 그리드 12칸 모두 같은 크기·같은 캐릭터, 발끝 행 동일, 가운데 행 1번 왼발/3번 오른발이 화면상 오른쪽 선두이고 두 부츠가 수평 분리됨, 칸 경계선 없음, 인접 칸으로 삐져나온 부분 없음",
     convert: `characters ${id}`,
   });
   step({
@@ -187,7 +188,7 @@ function addAnimals(pri) {
       id: `char-${id}-walk`, title: `${id === "cat-jandi" ? "잔디냥" : "공돌이"} — walk 시트`, thread, cat: "characters", canvas: "1536×1024", pri,
       refs: [sampleRef(out("characters/char-janine95kim-walk.png"), "(선택) 픽셀 크기·외곽선 톤 통일용 승인 결과 1장")],
       prompt: [SPRITE_STYLE, CAM, BG, SAMPLE, "", animalPrompt(id)].join("\n"),
-      qa: "4×3 그리드 12칸, 발(paw) 행 동일, 같은 크기, 칸 경계선 없음",
+      qa: "4×3 그리드 12칸, 발(paw) 행 동일, 가운데 행의 앞발이 1번↔3번에서 화면상 오른쪽 선두로 명확히 교대, 같은 크기, 칸 경계선 없음",
       convert: `characters ${id}`,
     });
   }
@@ -253,12 +254,6 @@ const P1 = items.length;
 step({
   id: "ui-fab-normal", title: "플로팅 버튼 — 기본", thread: "T-FAB", cat: "ui", canvas: "1536×1024", pri: "P0", refs: [],
   prompt: [SPRITE_STYLE, "", uiFab].join("\n"), qa: "판 중앙-오른쪽이 완전히 비어 있음(글자는 CSS), 배경 투명/마젠타, 그림자 없음", convert: "ui fab-normal",
-});
-step({
-  id: "ui-fab-hover", title: "플로팅 버튼 — 호버", thread: "T-FAB", cat: "ui", canvas: "1536×1024", pri: "P0",
-  refs: [REF("직전 결과 ui-fab-normal", out("ui/ui-fab-normal.png"))],
-  prompt: [SPRITE_STYLE, "", "Keep exactly the same layout, size and design as the attached image (a horizontal pixel-art floating-button plate for a football club's pixel RPG world), but make it brighter with a soft mint glow around the plate, tiny gold sparkles near the medallion, and the plate looking lifted slightly. Keep the text area empty. Transparent background (or flat #FF00FF), no cast shadow, no text anywhere, no watermark. Canvas 1536x1024."].join("\n"),
-  qa: "기본 버전과 구도·크기 동일(겹쳤을 때 위치 일치), 글자 영역 비어 있음", convert: "ui fab-hover",
 });
 step({
   id: "ui-fab-icon", title: "플로팅 버튼 — 원형 아이콘 단독", thread: "T-FAB", cat: "ui", canvas: "1024×1024", pri: "P0",
@@ -521,5 +516,6 @@ for (const [a, b, title, note] of phases) {
     L.push(`- [ ] #${pad(it.n)} 생성·저장 완료\n`);
   }
 }
+L.push(`---\n\n# S7 보행 재생성\n\nS7 walk/stand 재생성은 파일별 레퍼런스·세션·실패 수정 프롬프트를 분리한 [11-s7-image-generation-briefs.md](11-s7-image-generation-briefs.md)를 사용한다. 특히 옆모습의 발이 고정·중첩돼 보이면 04 §9의 **옆모습 실패 재생성 프롬프트**를 같은 캐릭터 대화에서 사용한다.\n`);
 fs.writeFileSync(path.join(docsDir, "10-image-generation-runbook.md"), L.join("\n"), "utf8");
 console.log(`wrote 10-image-generation-runbook.md: ${items.length} steps`);

@@ -132,6 +132,20 @@ describe("doors", () => {
     }
   });
 
+  it("keeps the store trigger on the illustrated left door and gives the clubhouse entrance a two-tile-high trigger", () => {
+    const store = OVERWORLD_MAP.buildings.find((building) => building.id === "store")!;
+    expect(store.door).toEqual([35, 50, 2, 1]);
+    const storeDoor = overworld.doors.find((door) => door.to.scene === "interior:store")!;
+    expect(reachable(overworld, overworld.spawn).touches(storeDoor.rect)).toBe(true);
+    const clubhouse = OVERWORLD_MAP.buildings.find((building) => building.id === "clubhouse")!;
+    expect(clubhouse.door).toEqual([39, 12, 2, 2]);
+    // Overworld entrances trim their bottom 12px so walking along the facade does not trigger them.
+    expect(overworld.doors.find((door) => door.to.scene === "interior:clubhouse-lobby")?.rect).toMatchObject({ x: 39 * 32, y: 12 * 32, w: 2 * 32, h: 2 * 32 - 12 });
+    const lobby = INTERIOR_MAPS["clubhouse-lobby"];
+    expect(lobby.triggers.find((trigger) => trigger.rect.join() === "1,4,1,2")?.to.scene).toBe("interior:clubhouse-trophy");
+    expect(lobby.triggers.find((trigger) => trigger.rect.join() === "18,4,1,4")?.to.scene).toBe("interior:clubhouse-office");
+  });
+
   it("returns from each building's interior to the tile in front of its door", () => {
     for (const building of OVERWORLD_MAP.buildings) {
       if (!building.interior || !building.door) continue;
