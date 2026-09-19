@@ -68,7 +68,10 @@ function overworldKeys(): string[] {
 function missionKeys(): string[] {
   const keys = ["fx/mark-new", "fx/mark-progress", "fx/mark-complete", "fx/sparkle-1", "fx/sparkle-2", "fx/sparkle-3", "fx/sparkle-4", "props/ball-standard"];
   for (const object of OVERWORLD_MAP.objects) {
-    if (object.type !== "pickup" && object.type !== "hazard") continue;
+    // Map decorations can be conditionally visible too (for example the Weed Town
+    // entrance barricades), so preload them with the mission props rather than
+    // allowing the renderer to fall back to its cyan placeholder.
+    if (object.type !== "pickup" && object.type !== "hazard" && object.type !== "decor") continue;
     if (object.prop) keys.push(propAssetKey(object.prop));
     if (object.type === "pickup" && object.look === "withered") keys.push(propAssetKey(object.prop, true));
   }
