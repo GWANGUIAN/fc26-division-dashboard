@@ -94,7 +94,7 @@ export function CharacterSelect({ audio, onConfirm, onBack }: CharacterSelectPro
               role="option"
               aria-selected={isFocused}
               className={`world-card${isFocused ? " is-focused" : ""}`}
-              style={frame ? { backgroundImage: `url(${frame})` } : undefined}
+              style={frame ? ({ "--card-frame": `url(${frame})` } as CSSProperties) : undefined}
               onMouseEnter={() => setHover(i)}
               onMouseLeave={() => setHover((current) => (current === i ? null : current))}
               onClick={() => {

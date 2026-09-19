@@ -83,13 +83,21 @@
   padding: 0;
   border: 0;
   border-radius: 4px;
-  background: #0b1614 center / 100% 100% no-repeat;
+  background: #0b1614;
   color: #e8fff6;
   font: inherit;
   cursor: pointer;
   image-rendering: pixelated;
 }
 .world-card:not(.is-focused) { filter: brightness(0.85); }
+/* Only the frame art is drawn on ::before, so the selected frame can be wider than the dark card behind it. */
+.world-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--card-frame, none) center / 100% 100% no-repeat;
+}
+.world-card.is-focused::before { left: -3px; right: -3px; }
 .world-card__face {
   position: absolute;
   left: 6px;
