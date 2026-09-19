@@ -1,4 +1,5 @@
-import type { MinigameRoundResult } from "../types";
+import { isCastId } from "../data/worldCast";
+import type { CastId, MinigameRoundResult } from "../types";
 
 // What an interactable can do besides showing text (`examine[].action` in the map JSON, docs/world/03 §7).
 // Kept as a plain string in the data so a map edit needs no code; this is the one place that reads it.
@@ -6,14 +7,19 @@ import type { MinigameRoundResult } from "../types";
 export type WorldAction =
   | { type: "minigame"; game: MinigameRoundResult["game"] }
   | { type: "cards" }
-  | { type: "mailbox"; id: string };
+  | { type: "mailbox"; id: string }
+  /** The framed group photo of the trophy room: opens the photo overlay. */
+  | { type: "group-photo" }
+  /** A member in the stands during the showdown shouts their line. */
+  | { type: "cheer"; cast: CastId };
 
 const GAMES: readonly MinigameRoundResult["game"][] = ["soccer-sum10", "kickups", "freekick", "cardmatch"];
 
-/** `minigame:<game>` / `cards` / `mailbox:<id>`; anything else (including a game that does not exist yet) is null. */
+/** `minigame:<game>` / `cards` / `mailbox:<id>` / `group-photo` / `cheer:<cast>`; anything else (including a game that does not exist yet) is null. */
 export function parseAction(action: string | undefined): WorldAction | null {
   if (!action) return null;
   if (action === "cards") return { type: "cards" };
+  if (action === "group-photo") return { type: "group-photo" };
   const colon = action.indexOf(":");
   if (colon < 0) return null;
   const head = action.slice(0, colon);
@@ -23,5 +29,6 @@ export function parseAction(action: string | undefined): WorldAction | null {
     return game ? { type: "minigame", game } : null;
   }
   if (head === "mailbox" && arg) return { type: "mailbox", id: arg };
+  if (head === "cheer" && isCastId(arg)) return { type: "cheer", cast: arg };
   return null;
 }

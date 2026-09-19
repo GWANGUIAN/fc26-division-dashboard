@@ -1,7 +1,7 @@
 import { INTERIOR_MAPS, OVERWORLD_MAP, hasScene, interiorIdOf } from "../data/maps";
 import { PROP_DEFS } from "../data/propDefs";
-import type { Facing, InteriorMapData, MapExamine, MapNpc, MapObject, MapTrigger, OverworldMapData, PxBox, Rect, SceneId, TileBox, TileSpan } from "../types";
-import { indexColliders, type BuildingInstance, type DoorTrigger, type ExaminePoint, type NpcSpawn, type PropInstance, type SceneObject, type SceneZone, type TerrainGrid, type WorldScene } from "./scene";
+import type { Facing, InteriorMapData, MapExamine, MapNpc, MapObject, MapSpectator, MapTrigger, OverworldMapData, PxBox, Rect, SceneId, TileBox, TileSpan } from "../types";
+import { indexColliders, type BuildingInstance, type DoorTrigger, type ExaminePoint, type NpcSpawn, type PropInstance, type SceneObject, type SceneZone, type SpectatorSpawn, type TerrainGrid, type WorldScene } from "./scene";
 
 export const TILE = 32;
 export const INTERIOR_WIDTH = 640;
@@ -27,7 +27,12 @@ function buildDoors(triggers: readonly MapTrigger[], outdoor: boolean): DoorTrig
       const at = tileCenter(trigger.to.tile[0], trigger.to.tile[1]);
       const rect = tileBox(trigger.rect);
       if (outdoor) rect.h -= OUTDOOR_DOOR_TRIM;
-      return { rect, to: { scene: trigger.to.scene, x: at.x, y: at.y, facing: (trigger.to.facing ?? "up") as Facing } };
+      return {
+        rect,
+        to: { scene: trigger.to.scene, x: at.x, y: at.y, facing: (trigger.to.facing ?? "up") as Facing },
+        ...(trigger.when ? { when: trigger.when } : {}),
+        ...(trigger.locked ? { locked: trigger.locked } : {}),
+      };
     });
 }
 
@@ -35,7 +40,7 @@ function buildExamine(entries: readonly MapExamine[]): ExaminePoint[] {
   return entries.map((entry) => {
     const [w, h] = entry.size ?? DEFAULT_EXAMINE_SIZE;
     const c = tileCenter(entry.tile[0], entry.tile[1]);
-    return { id: entry.id, text: entry.text, area: { x: c.x - w / 2, y: c.y - h / 2, w, h }, ...(entry.action ? { action: entry.action } : {}) };
+    return { id: entry.id, text: entry.text, area: { x: c.x - w / 2, y: c.y - h / 2, w, h }, ...(entry.action ? { action: entry.action } : {}), ...(entry.when ? { when: entry.when } : {}) };
   });
 }
 
@@ -54,12 +59,25 @@ function buildObjects(entries: readonly MapObject[] | undefined): SceneObject[] 
         const at = tileCenter(entry.tile[0], entry.tile[1]);
         return { id: entry.id, type: "ball", x: at.x, y: at.y, rect: tileBox(entry.bounds) };
       }
+      case "decor":
+        return { id: entry.id, type: "decor", x: entry.at[0], y: entry.at[1], prop: entry.prop, when: entry.when };
+      case "barrier": {
+        const rect = tileBox(entry.rect);
+        return { id: entry.id, type: "barrier", x: rect.x + rect.w / 2, y: rect.y + rect.h, rect, when: entry.when };
+      }
       case "goal":
       case "gate": {
         const rect = tileBox(entry.rect);
         return { id: entry.id, type: entry.type, x: rect.x + rect.w / 2, y: rect.y + rect.h, rect };
       }
     }
+  });
+}
+
+function buildSpectators(entries: readonly MapSpectator[] | undefined): SpectatorSpawn[] {
+  return (entries ?? []).map((entry) => {
+    const at = tileCenter(entry.tile[0], entry.tile[1]);
+    return { cast: entry.cast, x: at.x, y: at.y, ...(entry.when ? { when: entry.when } : {}) };
   });
 }
 
@@ -113,7 +131,7 @@ export function buildOverworldScene(data: OverworldMapData): WorldScene {
     return { id: b.id, x: box.x + box.w / 2, y: box.y + box.h, w: box.w, h: box.h, key: `buildings/${b.id}` };
   });
   const { colliders, colliderRects } = indexColliders(props, data.collision.map(pxBox));
-  const zones: SceneZone[] = data.zones.map((zone) => ({ id: zone.id, name: zone.name, rect: tileSpan(zone.rect), tint: zone.tint, ...(zone.bgm ? { bgm: zone.bgm } : {}) }));
+  const zones: SceneZone[] = data.zones.map((zone) => ({ id: zone.id, name: zone.name, rect: tileSpan(zone.rect), tint: zone.tint, ...(zone.particles ? { particles: zone.particles } : {}), ...(zone.bgm ? { bgm: zone.bgm } : {}) }));
   const spawn = tileCenter(data.spawn[0], data.spawn[1]);
   return {
     id: "overworld",
@@ -128,6 +146,7 @@ export function buildOverworldScene(data: OverworldMapData): WorldScene {
     doors: buildDoors(data.triggers, true),
     examine: buildExamine(data.examine),
     objects: buildObjects(data.objects),
+    spectators: [],
     spawn,
     fixedCamera: false,
     terrain: decodeTerrain(data),
@@ -151,6 +170,7 @@ export function buildInteriorScene(data: InteriorMapData): WorldScene {
     doors: buildDoors(data.triggers, false),
     examine: buildExamine(data.examine),
     objects: buildObjects(data.objects),
+    spectators: buildSpectators(data.spectators),
     spawn: tileCenter(data.spawn[0], data.spawn[1]),
     fixedCamera: true,
     zones: [],

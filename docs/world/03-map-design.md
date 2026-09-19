@@ -232,8 +232,8 @@
 - 오락실 5번 기계(잔디 러시)는 엔딩 전에도 사용 가능(잠금 없음). 랭크 도전 안내는 편의점 사장님.
 - 스타디움 실내 결전 중에는 관중석 멤버 스프라이트를 **정적 소형 스프라이트**로 배치(캐릭터 아틀라스의 idle-down을 0.6배로 재사용, 추가 아트 불필요).
 - **실내 사이 문(S2)**: 로비의 왼쪽 벽 문(타일 `1, 4–5`) → `clubhouse-office`, 오른쪽 벽 문(`18, 4–6`) → `clubhouse-trophy`, 뒤쪽 계단(`13–15, 4`) → `arcade`. 셋 다 도착은 대상 방의 스폰 `(10, 10)`이고, 그 방의 아래 문으로 나오면 로비 `(10, 8)`로 돌아온다. 실외 문과 달리 트리거 사각형을 깎지 않는다.
-- 실내 조사 포인트 텍스트는 S2 임시 초안이다. S4에서 `examineData`로 확정한다(오락실 기계·카드 수납장은 S3에서 각각 미니게임 모달/`TotyCardPopup`에 연결).
-- S3: 오락실 기계 4대는 `action: "minigame:<게임>"`, 감독실 카드 수납장은 `action: "cards"`로 연결됐다(문구는 기계 이름·수납장 설명으로 바뀜). `clubhouse-trophy`의 단체사진 액자는 엔딩(S4)에서 `GroupPhotoOverlay`로 연결할 자리라 S3에서는 손대지 않았다.
+- 실내 조사 포인트 텍스트는 S4에서 JSON에 확정했다. 오락실 기계·카드 수납장은 각각 미니게임 모달/`TotyCardPopup`에 연결된다.
+- 오락실 기계 4대는 `action: "minigame:<게임>"`, 감독실 카드 수납장은 `action: "cards"`다. `clubhouse-trophy`의 단체사진 액자는 `ending-seen` 뒤 `action: "group-photo"`로 기존 `GroupPhotoOverlay`를 연다. 스타디움은 `stadium-open` 중 관중석 응원 지점 `action: "cheer:<cast>"`와 소형 관중 스프라이트를 보인다.
 - 조사 영역은 타일 중앙 기준 기본 64×48px(`size`로 조절). 플레이어가 바라보는 방향 28px 앞 상자가 영역에 닿으면 `E` 프롬프트가 뜬다.
 
 ## 10. 맵 데이터 스키마
@@ -277,8 +277,8 @@
 ```
 
 - `props`는 `data/propDefs.ts`(스프라이트 크기 `w×h`, 실제로 보이는 크기 `content`, 발자국 `foot[]`, `aboveFrom`, `decal`, `withered`)를 참조한다. 소품 id는 [05 §소품 시트](05-art-world.md#2-소품-시트-11장)의 파일명과 같다. 스프라이트는 **하단 중앙이 앵커**(발끝)다.
-- **`when`(S3 구현)**: `npcs[].when`과 `objects[].when`은 `state/conditions.ts`가 평가한다. 원자 `flag:<이름>`, `mission-available|active|ready|completed:<id>`, `shards>=<n>`를 `&`로 잇고 앞에 `not:`을 붙일 수 있다. 모르는 원자는 거짓이라 오타가 나면 숨겨진다(맵 무결성 테스트가 머리·미션 id를 검사). 조건이 바뀌면 엔진이 NPC를 넣고 뺀다(대화 중이면 끝난 뒤).
-- **`objects[]`(S3)**: `pickup`(`prop`·`prompt`·`when`, `look: "withered"`면 시든 이미지), `ball`(`bounds` 구르는 구역), `goal`/`gate`(`rect` 타일 상자), `hazard`(콘, `prop`). `examine[]`에는 `action`이 붙는다(`minigame:<game>`·`cards`·`mailbox:<id>`, `state/actions.ts`). 문 트리거는 그대로 `type: "door"`만이다(지구 토스트는 `zones`).
+- **`when`(S3~S4 구현)**: `npcs[]`·`objects[]`·`examine[]`·`spectators[]`·문 `triggers[]`는 `state/conditions.ts`가 평가한다. 원자 `flag:<이름>`, `mission-available|active|ready|completed:<id>`, `shards>=<n>`를 `&`로 잇고 앞에 `not:`을 붙일 수 있다. 모르는 원자는 거짓이라 오타가 나면 숨겨진다(맵 무결성 테스트가 머리·미션 id를 검사). 조건이 바뀌면 엔진이 NPC를 넣고 뺀다(대화 중이면 끝난 뒤).
+- **`objects[]`(S3~S4)**: `pickup`(`prop`·`prompt`·`when`, `look: "withered"`면 시든 이미지), `ball`(`bounds` 구르는 구역), `goal`/`gate`(`rect` 타일 상자), `hazard`(콘, `prop`), 조건부 충돌벽 `barrier`, 조건부 그림 `decor`. `examine[]`에는 `action`이 붙는다(`minigame:<game>`·`cards`·`mailbox:<id>`·`group-photo`·`cheer:<cast>`, `state/actions.ts`). 문에는 `when`과 닫혔을 때 `locked` 문구를 붙일 수 있다.
 - **무결성 테스트(`data/maps/mapIntegrity.test.ts`)**(S3에서 미션 오브젝트 검사 추가: 오브젝트 id 고유, 줍는 것·콘·공이 걸어서 닿는 열린 땅, 게이트·골대·우편함 도달, 미션이 부르는 오브젝트 존재·종류, 랜턴/잔디 자리는 자기 미션이 `active`일 때만 보임, `when`·`action` 문법, 콘 코스가 진짜 슬랄롬인지, 기계 4대·카드 수납장 연결): 모든 `door.to.scene` 존재 + 도착 지점이 충돌 밖, 건물 문이 스프라이트의 마지막 줄에 있고 실내 `exitTo`가 문 앞 칸과 일치, 모든 실내에 아래 문·열린 스폰, `npcs.cast` ∈ 캐스트·서 있는 자리가 열려 있음·`worldCast.spawn`과 일치, `props.prop` ∈ propDefs, 참조 이미지(소품·건물·실내·아틀라스·지면 시트) 존재, 모든 걷기 가능 타일이 지구에 속함, 그리고 **스폰에서 걸어서 모든 문 앞과 NPC까지 닿을 수 있는지(도달성)**. 봉쇄된 제초동 구역과 공장 문은 "닿지 않아야 한다"를 검사한다.
 
 ## 11. 충돌·정렬 규칙 요약

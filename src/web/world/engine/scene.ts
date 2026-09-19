@@ -35,12 +35,17 @@ export interface BuildingInstance {
 export interface DoorTrigger {
   rect: Rect;
   to: { scene: SceneId; x: number; y: number; facing: Facing };
+  /** The door works only while this holds (state/conditions.ts); `locked` is what the player reads otherwise. */
+  when?: string;
+  locked?: string;
 }
 
 export interface ExaminePoint {
   id?: string;
   area: Rect;
   text: string;
+  /** Present only while this holds. */
+  when?: string;
   /** What E does besides showing the text (see MapExamine.action). */
   action?: string;
 }
@@ -48,15 +53,23 @@ export interface ExaminePoint {
 /** A world object of the missions (docs/world/03 §7): positions are in pixels, rects in px too. */
 export interface SceneObject {
   id: string;
-  type: "pickup" | "ball" | "goal" | "gate" | "hazard";
+  type: "pickup" | "ball" | "goal" | "gate" | "hazard" | "barrier" | "decor";
   /** Feet position of a pickup / hazard / the ball's start (centre). */
   x: number;
   y: number;
-  /** Goal and gate areas; the ball's pitch bounds. */
+  /** Goal and gate areas; the ball's pitch bounds; a barrier's wall. */
   rect?: Rect;
   prop?: string;
   look?: "withered";
   prompt?: string;
+  when?: string;
+}
+
+/** A member in the stands: a small static sprite, drawn while `when` holds. */
+export interface SpectatorSpawn {
+  cast: CastId;
+  x: number;
+  y: number;
   when?: string;
 }
 
@@ -77,6 +90,8 @@ export interface SceneZone {
   /** Pixel rect. */
   rect: Rect;
   tint: string;
+  /** Particle set of the district (engine/ambience.ts). */
+  particles?: string;
   bgm?: string;
 }
 
@@ -105,6 +120,7 @@ export interface WorldScene {
   doors: DoorTrigger[];
   examine: ExaminePoint[];
   objects: SceneObject[];
+  spectators: SpectatorSpawn[];
   /** Default entry point (feet) — where the debug teleport and a broken save land. */
   spawn: { x: number; y: number };
   /** Interiors use a fixed camera; overworld scenes follow the player. */

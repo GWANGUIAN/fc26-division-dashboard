@@ -461,6 +461,7 @@ export function App() {
             onClose={() => setWorldOpen(false)}
             dashboard={{
               streamers: snapshot?.streamers,
+              groupPhotoStreamers: celebrationEligibleStreamers,
               woowakgoodUnlocked,
               sfxEnabled,
               sfxVolume,

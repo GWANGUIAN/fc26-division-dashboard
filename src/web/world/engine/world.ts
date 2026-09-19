@@ -5,6 +5,7 @@ import { getCast } from "../data/worldCast";
 import { evalCondition } from "../state/conditions";
 import { markerFor, missionStatus, type MarkerKind } from "../state/missions";
 import { restoreForZones } from "../state/progress";
+import { ENDING_SEEN_FLAG, storyMarker } from "../state/story";
 import { saveWorldSave } from "../storage";
 import type { CastId, Facing, Rect, SceneId, WorldSave } from "../types";
 import type { WorldAudioLike, SfxId } from "../audio/worldAudio";
@@ -13,6 +14,7 @@ import type { WorldAssets } from "../worldAssets";
 import { BALL_SIZE, ballBox, createBall, inGoal, kickBall, stepBall, type Ball } from "./ball";
 import { followCamera, interiorCamera, snapCamera, type Camera } from "./camera";
 import { composeObstacles, footBox, moveAndSlide, rectsOverlap } from "./collision";
+import { Ambience, BLOOM_SECONDS, ambienceIdFor, drawBloom } from "./ambience";
 import { findInteractTarget, type ExtraTarget, type InteractTarget } from "./interaction";
 import { createInput } from "./input";
 import { createLoop } from "./loop";
@@ -21,9 +23,9 @@ import { createNpc, endTalk, npcBox, startTalk, stepNpc, type Npc } from "./npc"
 import { RunManager, type RunEvent } from "./runs";
 import {
   VIEW_HEIGHT, VIEW_WIDTH, TILE, buildStaticOrder, drawBall, drawBuilding, drawCharacter, drawDebug, drawEdgePointer, drawHomeSign, drawInterior,
-  drawMarker, drawProp, drawPrompt, drawRunHud, drawSceneObject, drawTargetArrow, isVisible, propVisible, spriteHeight, type StaticDrawable,
+  drawMarker, drawProp, drawPrompt, drawRunHud, drawSceneObject, drawSpectator, drawTargetArrow, isVisible, propVisible, spriteHeight, type StaticDrawable,
 } from "./render";
-import { SceneTransition, zoneIndexAt, type DoorTrigger, type SceneObject, type WorldScene } from "./scene";
+import { SceneTransition, zoneIndexAt, type DoorTrigger, type ExaminePoint, type SceneObject, type SpectatorSpawn, type WorldScene } from "./scene";
 import { TerrainRenderer } from "./terrain";
 
 export const WALK_SPEED = 90;
@@ -35,6 +37,15 @@ const RESTORE_FOLLOW = 1.5;
 /** After a goal the ball is gone this long before it is back on the spot. */
 const BALL_RESPAWN_SECONDS = 0.7;
 const HAZARD_BOX = { w: 16, h: 10 };
+/** Where the golden grass sits in the stadium picture (px, docs/world/03 §9): the bloom is drawn around it. */
+const STADIUM_SCENE: SceneId = "interior:stadium";
+const GOLDEN_GRASS = { x: 320, y: 182 };
+/** Sound cues of the bloom cut, in seconds from its start. */
+const BLOOM_CUES: readonly { at: number; sfx: SfxId }[] = [
+  { at: 0, sfx: "core-stop" },
+  { at: 2.2, sfx: "grow" },
+  { at: 3.2, sfx: "crowd-roar" },
+];
 
 /** The save the engine and the overlay share: the engine writes the position, the overlay flags/counters. */
 export interface SaveStore {
@@ -62,6 +73,10 @@ export interface WorldEvents {
   onPickup?(id: string): void;
   /** Something happened in a timed run (clock started, parcel delivered, goal scored, time out…). */
   onRunEvent?(event: RunEvent): void;
+  /** The player walked into a door that is still shut (`text` says why). */
+  onDoorLocked?(text: string): void;
+  /** The golden grass finished blooming (`playBloom()`). */
+  onBloomDone?(): void;
   onDebugPick?(pick: DebugPick): void;
 }
 
@@ -103,6 +118,8 @@ export interface WorldEngine {
   isDeliveryRunning(): boolean;
   /** Debug: put the kick ball back on its spot. */
   resetBall(): void;
+  /** The ending cut: the golden grass of the stadium blooms (sound, glow, flash); `onBloomDone` fires when it is over. */
+  playBloom(): void;
   /** Where the player is right now (debug panel, tests). */
   getState(): { scene: SceneId; x: number; y: number; facing: Facing };
   /** Who stands in the current scene right now (conditional residents included). */
@@ -196,6 +213,17 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
   let startGateArmed = true;
   /** The save changed while a conversation was open: the residents are re-checked once it ends. */
   let npcsStale = false;
+  // story-dependent parts of the scene (barriers, decor, examine points, spectators), rebuilt with the save
+  let blockers: Rect[] = [];
+  let decors: SceneObject[] = [];
+  let examineNow: readonly ExaminePoint[] = [];
+  let spectatorsNow: SpectatorSpawn[] = [];
+  const ambience = new Ambience({ view, reduced: reducedMotion });
+  let ambienceZone: string | null = null;
+  // the bloom cut (seconds since it began, null = not running) and whether the stadium keeps its golden glow afterwards
+  let bloomAt: number | null = null;
+  let bloomCue = 0;
+  let bloomDone = false;
 
   // ── scenes ───────────────────────────────────────────────────────────────────────────────
   /** The save as the mission logic sees it (the engine's player is authoritative for "whose missions are excluded"). */
@@ -229,6 +257,11 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
     activeTrials = defs.filter((def): def is Extract<MissionDef, { kind: "time_trial" }> => def.kind === "time_trial");
     activeKicks = defs.filter((def): def is Extract<MissionDef, { kind: "kick_goals" }> => def.kind === "kick_goals");
     pickups = scene.objects.filter((object) => object.type === "pickup" && !save.collected.includes(object.id) && evalCondition(object.when, save));
+    blockers = scene.objects.filter((object) => object.type === "barrier" && object.rect && evalCondition(object.when, save)).map((object) => object.rect!);
+    decors = scene.objects.filter((object) => object.type === "decor" && evalCondition(object.when, save));
+    // A cheer point of the player's own seat has nobody in it.
+    examineNow = scene.examine.filter((point) => evalCondition(point.when, save) && point.action !== `cheer:${playerId}`);
+    spectatorsNow = scene.spectators.filter((spot) => spot.cast !== playerId && evalCondition(spot.when, save));
     if (talking) npcsStale = true;
     else npcs = npcsFor(scene);
     restoreTarget = restoreForZones(zoneIds(scene), save);
@@ -238,7 +271,7 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
   function markerOf(cast: CastId): MarkerKind | null {
     let marker = markerCache.get(cast);
     if (marker === undefined) {
-      marker = markerFor(missionSave(), cast);
+      marker = markerFor(missionSave(), cast) ?? storyMarker(missionSave(), cast);
       markerCache.set(cast, marker);
     }
     return marker;
@@ -267,6 +300,9 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
     doorArmed = false;
     doorGrace = DOOR_GRACE_SECONDS;
     lastZoneId = null;
+    ambienceZone = null;
+    ambience.setZone(null);
+    audio.playAmbience?.(ambienceIdFor(id, null));
     target = null;
     input.reset();
     refreshFromSave(true);
@@ -323,7 +359,7 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
     const boxes = npcs.map((npc) => ({ npc, box: npcBox(npc) }));
     for (const { npc } of boxes) {
       const others = [playerRect, ...boxes.filter((entry) => entry.npc !== npc).map((entry) => entry.box)];
-      stepNpc(npc, dt, composeObstacles(scene.colliders, others));
+      stepNpc(npc, dt, composeObstacles(scene.colliders, [...others, ...blockers]));
     }
   }
 
@@ -337,7 +373,7 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
     }
     const speed = (player.running ? RUN_SPEED : WALK_SPEED) * dt;
     const box = footBox(player.x, player.y);
-    const obstacles = noclip ? [] : composeObstacles(scene.colliders, npcs.map(npcBox));
+    const obstacles = noclip ? [] : composeObstacles(scene.colliders, [...npcs.map(npcBox), ...blockers]);
     const result = moveAndSlide(box, move.x * speed, move.y * speed, obstacles, scene.walkable);
     // Blocked outright (walking straight into a wall) reads as standing still, not as a walk cycle.
     const moved = Math.hypot(result.x - box.x, result.y - box.y);
@@ -371,7 +407,39 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
       return;
     }
     // Arriving on top of a door (or holding the direction through it) must not bounce straight back.
-    if (doorArmed && doorGrace === 0) useDoor(hit);
+    if (!doorArmed || doorGrace > 0) return;
+    if (hit.when && !evalCondition(hit.when, missionSave())) {
+      // A shut door tells the player once per approach: they have to step out of the doorway before it speaks again.
+      doorArmed = false;
+      audio.playSfx("ui-error");
+      events().onDoorLocked?.(hit.locked ?? "문이 잠겨 있다.");
+      return;
+    }
+    useDoor(hit);
+  }
+
+  /** The district's grade, particles and ambience follow the player even while a panel is open. */
+  function updateAmbience(dt: number) {
+    if (scene.kind !== "overworld") return;
+    const zone = zoneAtPoint(scene, player.x, player.y);
+    const id = zone?.id ?? null;
+    if (id !== ambienceZone) {
+      ambienceZone = id;
+      ambience.setZone(zone ? { id: zone.id, tint: zone.tint, ...(zone.particles ? { particles: zone.particles } : {}) } : null);
+      audio.playAmbience?.(ambienceIdFor(scene.id, id));
+    }
+    ambience.update(dt);
+  }
+
+  function updateBloom(dt: number) {
+    if (bloomAt === null) return;
+    bloomAt += dt;
+    while (bloomCue < BLOOM_CUES.length && bloomAt >= BLOOM_CUES[bloomCue].at) audio.playSfx(BLOOM_CUES[bloomCue++].sfx);
+    if (bloomAt >= BLOOM_SECONDS) {
+      bloomAt = null;
+      bloomDone = true;
+      events().onBloomDone?.();
+    }
   }
 
   function checkZone() {
@@ -398,7 +466,7 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
   }
 
   function updateTarget() {
-    const next = findInteractTarget(player, player.facing, npcs, scene.examine, extraTargets());
+    const next = findInteractTarget(player, player.facing, npcs, examineNow, extraTargets());
     if (next && (!target || targetId(next) !== targetId(target))) audio.playSfx("interact-ping");
     target = next;
     if (!next) {
@@ -557,6 +625,8 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
       npcs = npcsFor(scene);
     }
     updateRestore(dt);
+    updateAmbience(dt);
+    updateBloom(dt);
     stepNpcs(dt);
 
     if (!blocked) {
@@ -595,6 +665,7 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
     dynamics.push({ y: player.y, draw: (c) => drawCharacter(ctx, assets, playerCast, player, c) });
     for (const object of pickups) dynamics.push({ y: object.y, draw: (c) => drawSceneObject(ctx, assets, object, c, time) });
     for (const object of scene.objects) if (object.type === "hazard") dynamics.push({ y: object.y, draw: (c) => drawSceneObject(ctx, assets, object, c, time) });
+    for (const object of decors) dynamics.push({ y: object.y, draw: (c) => drawSceneObject(ctx, assets, object, c, time) });
     if (ball) {
       const shown = ball;
       dynamics.push({ y: shown.y + BALL_SIZE / 2, draw: (c) => drawBall(ctx, assets, shown, c) });
@@ -603,7 +674,12 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
 
     if (scene.kind === "interior") {
       drawInterior(ctx, assets, scene, cam);
+      for (const spot of spectatorsNow) drawSpectator(ctx, assets, getCast(spot.cast), spot.x, spot.y, cam, time);
       for (const item of dynamics) item.draw(cam);
+      // The golden grass of the stadium: it blooms during the ending cut and keeps a soft glow after the ending.
+      if (scene.id === STADIUM_SCENE && (bloomAt !== null || bloomDone || store.save.flags[ENDING_SEEN_FLAG] === true)) {
+        drawBloom(ctx, view, { x: GOLDEN_GRASS.x - cam.x, y: GOLDEN_GRASS.y - cam.y }, time, bloomAt ?? -1);
+      }
       return;
     }
 
@@ -667,6 +743,7 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
     ctx.fillStyle = "#04120c";
     ctx.fillRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
     drawWorld(cam);
+    if (scene.kind === "overworld") ambience.draw(ctx);
     drawOverlays(cam);
 
     if (transition.alpha > 0) {
@@ -754,6 +831,11 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
     },
     isDeliveryRunning() {
       return runs.delivery !== null;
+    },
+    playBloom() {
+      bloomAt = 0;
+      bloomCue = 0;
+      bloomDone = false;
     },
     resetBall() {
       const spot = scene.objects.find((object) => object.type === "ball");

@@ -1,14 +1,20 @@
 // Esc priority (docs/world/08 §5 #3): the topmost open UI takes the key and nothing else reacts. From the top:
-//   minigame / card modal → pause menu (a sub-page goes back to the menu first) → mission log → dialogue →
-//   coach marks (skip the guide) → otherwise Esc opens the pause menu. Leaving the world is a menu item
-//   (or the X button); Esc alone never closes it while playing.
+//   group photo → ending cards (credits skip, the bloom banner ignores it) → minigame / card modal → pause menu
+//   (a sub-page goes back to the menu first) → mission log → dialogue → coach marks (skip the guide) → otherwise
+//   Esc opens the pause menu. Leaving the world is a menu item (or the X button); Esc alone never closes it while playing.
 
 export type OverlayPhase = "boot" | "title" | "select" | "prologue" | "core" | "play";
 
 /** Which page of the pause menu is showing (closed = no menu). */
 export type PauseView = "closed" | "main" | "settings" | "confirm-new";
 
+/** The ending cut (docs/world/02 §9): the golden grass blooms, the last words, the photo, the credits card. */
+export type EndingStage = "bloom" | "dialogue" | "photo" | "credits";
+
 export type EscapeAction =
+  | "close-photo"
+  | "skip-credits"
+  | "ignore"
   | "close-modal"
   | "pause-back"
   | "close-pause"
@@ -29,10 +35,17 @@ export interface EscapeContext {
   modalOpen?: boolean;
   pauseView?: PauseView;
   logOpen?: boolean;
+  /** The group photo (the ending's, or the trophy room's frame) is open. */
+  photoOpen?: boolean;
+  /** Where the ending cut is (null = not running). */
+  ending?: EndingStage | null;
 }
 
-export function resolveEscape({ phase, dialogueOpen, coachActive, modalOpen = false, pauseView = "closed", logOpen = false }: EscapeContext): EscapeAction {
+export function resolveEscape({ phase, dialogueOpen, coachActive, modalOpen = false, pauseView = "closed", logOpen = false, photoOpen = false, ending = null }: EscapeContext): EscapeAction {
   if (phase === "play") {
+    if (photoOpen) return "close-photo";
+    if (ending === "credits") return "skip-credits";
+    if (ending === "bloom") return "ignore";
     if (modalOpen) return "close-modal";
     if (pauseView === "settings" || pauseView === "confirm-new") return "pause-back";
     if (pauseView === "main") return "close-pause";

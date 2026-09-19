@@ -14,6 +14,7 @@ import { getWorldAssetUrl } from "../../worldAssets";
 import { parseAction } from "../../state/actions";
 import { KNOWN_CONDITION_HEADS, conditionRefs } from "../../state/conditions";
 import { MISSION_DEFS, getMissionDef, missionDefsFor } from "../missionDefs";
+import { ENDING_FLAGS, FINALE_WON_FLAG, STADIUM_OPEN_FLAG } from "../../state/story";
 
 // Map integrity (docs/world/03 §10): door targets exist, arrival spots are open ground, NPC ids belong
 // to the cast, every referenced asset exists, and — beyond the doc's list — every door and resident can
@@ -236,9 +237,12 @@ describe("assets", () => {
   });
 });
 
+/** The walls of the story: barriers that are up while their condition holds (the Weeder gate before the ending). */
+const barriers = overworld.objects.filter((object) => object.type === "barrier" && object.rect).map((object) => object.rect!);
+
 describe("reachability on foot", () => {
-  it("connects the overworld spawn to every door front and every resident", () => {
-    const walk = reachable(overworld, overworld.spawn, npcRects(overworld));
+  it("connects the overworld spawn to every door front and every resident (Weeder gate still shut)", () => {
+    const walk = reachable(overworld, overworld.spawn, [...npcRects(overworld), ...barriers]);
     const unreachable: string[] = [];
     for (const door of overworld.doors) if (!walk.touches(door.rect)) unreachable.push(`door ${door.rect.x / 32},${door.rect.y / 32} -> ${door.to.scene}`);
     // The weed zone stays sealed until the ending (S4): its gate NPCs and the factory door are not expected to be reachable.
@@ -249,6 +253,19 @@ describe("reachability on foot", () => {
     const sealed = overworld.doors.filter((door) => door.to.scene === "interior:factory");
     expect(unreachable.filter((label) => !sealed.some((door) => label.startsWith(`door ${door.rect.x / 32},${door.rect.y / 32}`)))).toEqual([]);
     for (const door of sealed) expect(walk.touches(door.rect), "factory door must stay sealed until the ending").toBe(false);
+  });
+
+  it("opens the Weeder district, its gate guards and the factory door once the gate barrier is gone (after the ending)", () => {
+    const walk = reachable(overworld, overworld.spawn, npcRects(overworld));
+    for (const door of overworld.doors) expect(walk.touches(door.rect), `door ${door.rect.x / 32},${door.rect.y / 32} -> ${door.to.scene}`).toBe(true);
+    for (const spawn of residents(overworld)) expect(walk.near(spawn, 30), `npc ${spawn.key}`).toBe(true);
+    // ...and the coach's spot beside the stadium (a resident only after the ending) is on the walkway.
+    for (const spawn of overworld.npcSpawns.filter((entry) => entry.when)) expect(walk.near(spawn, 30), `npc ${spawn.key} (${spawn.when})`).toBe(true);
+  });
+
+  it("reaches every readable sign and mailbox of the overworld on foot", () => {
+    const walk = reachable(overworld, overworld.spawn, npcRects(overworld));
+    for (const point of overworld.examine) expect(walk.near({ x: point.area.x + point.area.w / 2, y: point.area.y + point.area.h / 2 }, 44), point.id ?? point.text).toBe(true);
   });
 
   it("connects each interior's spawn to its doors and residents", () => {
@@ -371,15 +388,51 @@ describe("mission objects (S3)", () => {
     for (const scene of scenes) {
       for (const spawn of scene.npcSpawns) if (spawn.when) expressions.push(spawn.when);
       for (const object of scene.objects) if (object.when) expressions.push(object.when);
+      for (const door of scene.doors) if (door.when) expressions.push(door.when);
+      for (const point of scene.examine) if (point.when) expressions.push(point.when);
+      for (const spot of scene.spectators) if (spot.when) expressions.push(spot.when);
     }
     expect(expressions.length).toBeGreaterThan(0);
+    // Flags only ever appear because something sets them: a mission reward, the story, or the tutorial gate.
+    const knownFlags = new Set<string>(["main-open", "plaza-restored", STADIUM_OPEN_FLAG, FINALE_WON_FLAG, ...ENDING_FLAGS, ...MISSION_DEFS.flatMap((def) => def.reward.flags ?? [])]);
     for (const expr of expressions) {
       const { heads, ids } = conditionRefs(expr);
       heads.forEach((head, index) => {
         expect(KNOWN_CONDITION_HEADS, expr).toContain(head);
         if (head.startsWith("mission-")) expect(getMissionDef(ids[index]), expr).toBeDefined();
+        if (head === "flag") expect(knownFlags.has(ids[index]), `${expr}: nobody sets flag ${ids[index]}`).toBe(true);
       });
     }
+  });
+
+  it("keeps every conditional door shut with a reason, and opens the stadium with the flag the director sets", () => {
+    for (const scene of scenes) for (const door of scene.doors) expect(Boolean(door.when), `${scene.id}: door needs both when and locked`).toBe(Boolean(door.locked));
+    const stadiumDoor = overworld.doors.find((door) => door.to.scene === "interior:stadium")!;
+    expect(stadiumDoor.when).toBe(`flag:${STADIUM_OPEN_FLAG}`);
+    expect(stadiumDoor.locked).toBeTruthy();
+    expect(getMissionDef("m-90-finale")?.requiresFlags).toEqual([STADIUM_OPEN_FLAG]);
+  });
+
+  it("seats the ten members who are not the player in the stands, each with a cheer, while the showdown is on", () => {
+    const stadium = getScene("interior:stadium")!;
+    const casts = stadium.spectators.map((spot) => spot.cast);
+    expect(new Set(casts).size).toBe(casts.length);
+    expect([...casts].sort()).toEqual(PLAYABLE_CAST.map((cast) => cast.id).sort());
+    for (const spot of stadium.spectators) {
+      expect(spot.when, spot.cast).toBe(`flag:${STADIUM_OPEN_FLAG}&not:flag:ending-seen`);
+      const cheer = stadium.examine.find((point) => point.action === `cheer:${spot.cast}`);
+      expect(cheer, `no cheer point for ${spot.cast}`).toBeDefined();
+      expect(Math.abs(cheer!.area.x + cheer!.area.w / 2 - spot.x), spot.cast).toBeLessThan(20);
+    }
+    const residentsNow = stadium.npcSpawns.map((spawn) => spawn.cast).sort();
+    expect(residentsNow).toEqual(["referee", "weedking"]);
+  });
+
+  it("frames the group photo in the trophy room only once the ending is seen", () => {
+    const room = getScene("interior:clubhouse-trophy")!;
+    const frame = room.examine.find((point) => point.action === "group-photo")!;
+    expect(frame.when).toBe("flag:ending-seen");
+    expect(room.examine.some((point) => !point.action && point.when === "not:flag:ending-seen" && Math.abs(point.area.x - frame.area.x) < 1)).toBe(true);
   });
 
   it("only uses examine actions the game understands", () => {

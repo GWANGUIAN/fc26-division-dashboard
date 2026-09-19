@@ -2,12 +2,14 @@ import { getMissionDef, missionDefsFor } from "../data/missionDefs";
 import type { MissionStatus, WorldSave } from "../types";
 import { acceptMission, completeMission, completeTalk } from "./missions";
 import { initialProgress } from "./missionEval";
+import { BEAT_SHARDS, ENDING_FLAGS, FINALE_WON_FLAG, STADIUM_OPEN_FLAG, beatFlag } from "./story";
 
 // Save editing for the `?worldDebug` panel (docs/world/08 §0 #4): set shards and flags, put a mission in any
 // state, skip the tutorial, finish every main mission, reset the progress. Pure like the rest of the state layer.
 // "completed" goes through the real completion (so the shard, badge and flags are paid out once).
 
 export const MAX_SHARDS = 10;
+const FINALE_MISSION_ID = "m-90-finale";
 
 export function debugSetShards<T extends WorldSave>(save: T, shards: number): T {
   return { ...save, shards: Math.min(MAX_SHARDS, Math.max(0, Math.round(shards))) };
@@ -65,3 +67,19 @@ export function debugResetProgress<T extends WorldSave>(save: T): T {
 
 /** Accepts a mission the same way a conversation would (for the panel's quick buttons). */
 export const debugAccept = acceptMission;
+
+// ── story (S4) ─────────────────────────────────────────────────────────────────────────────
+
+const STORY_FLAGS = [STADIUM_OPEN_FLAG, FINALE_WON_FLAG, ...ENDING_FLAGS, ...BEAT_SHARDS.map(beatFlag)];
+
+/** Everything done except the showdown: all main missions complete and the stadium open — walk in and play the three rounds. */
+export function debugPrepareFinale<T extends WorldSave>(save: T): T {
+  return debugSetFlag(debugCompleteAll(save), STADIUM_OPEN_FLAG, true);
+}
+
+/** Forget the story beats, the showdown and the ending (missions and shards stay): the director talks again, the stadium is shut, the Weeder district closes. */
+export function debugResetStory<T extends WorldSave>(save: T): T {
+  const flags = Object.fromEntries(Object.entries(save.flags).filter(([key]) => !STORY_FLAGS.includes(key)));
+  const { [FINALE_MISSION_ID]: _finale, ...missions } = save.missions;
+  return { ...save, flags, missions };
+}

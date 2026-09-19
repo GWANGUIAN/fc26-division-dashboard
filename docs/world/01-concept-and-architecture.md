@@ -88,7 +88,7 @@ src/web/world/
     camera.ts                추적 + 맵 경계 클램프 + 실내 고정
     collision.ts             AABB 슬라이드, 공간 해시, `composeObstacles`(NPC를 장애물로) (순수, *.test.ts)
     scene.ts                 씬 타입 + `SceneTransition`(문 전환·페이드, 실내 이미지 로딩 동안 검게 유지)
-    mapScene.ts              맵 JSON → `WorldScene`(충돌·문·조사·NPC 스폰·지구), 씬 캐시
+    mapScene.ts              맵 JSON → `WorldScene`(충돌·조건부 문/조사·NPC/관중 스폰·지구), 씬 캐시
     terrain.ts               지면 청크 캐시(512px, lush/withered 2벌) + 지구 경계 디더 블렌딩 + 복원 크로스페이드
     npc.ts                   NPC 엔티티(stay/idle/wander/대화 시 플레이어 보기)
     interaction.ts           전방 28px 프로브로 상호작용 대상 고르기
@@ -101,9 +101,10 @@ src/web/world/
     missions.ts              (S3) 미션 상태기계 locked→available→active→ready→completed, 보상 1회, 마커·로그 뷰(순수, test)
     missionEval.ts           (S3) 종류별 판정(`evaluateEvent`)과 진행 문구(순수, test)
     conditions.ts            (S3) 맵 JSON `when` 조건식 (`flag:`, `mission-active:` …, test)
-    npcDialogue.ts           (S3) 미션 상태 → NPC 대화 조립(임시 대사, S4에서 dialogueData.ts로 교체, test)
-    actions.ts               (S3) `examine[].action` 해석(`minigame:`·`cards`·`mailbox:`, test)
-    debugTools.ts            (S3) `?worldDebug`용 세이브 편집(조각·플래그·미션 상태, test)
+    npcDialogue.ts           (S4) 미션·스토리 상태 → `dialogueData.ts` 대사 노드 선택(test)
+    story.ts                 (S4) 우왁굳 진행도·스타디움·엔딩 플래그(순수, test)
+    actions.ts               (S4) `examine[].action` 해석(`minigame:`·`cards`·`mailbox:`·`group-photo`·`cheer:`, test)
+    debugTools.ts            (S4) `?worldDebug`용 세이브 편집(조각·플래그·미션·결전, test)
     dialogue.ts              (S2) 대사 러너: 타자기·줄 넘김·선택지 순수 함수(S3: 선택지에 `effect`)
     coach.ts                 (S2) 코치마크 C1~C3 진행 조건
     escape.ts                (S2→S3) Esc 우선순위(모달·메뉴·로그 포함)
@@ -115,9 +116,8 @@ src/web/world/
     castProfiles.ts          캐릭터 선택 카드 문구(포지션·별명·집)
     propDefs.ts              소품 정의(스프라이트 크기·보이는 크기·발자국·`aboveFrom`·decal·withered)
     terrainDefs.ts           지면 시트 슬롯 목록·시든 변형 유무·경계 블렌딩 대상·발소리 재질
-    placeholderDialogue.ts   S2 임시 대사·프롤로그 문구 (S4에서 dialogueData.ts로 교체)
     missionDefs.ts           미션 정의 + 임계값
-    dialogueData.ts          NPC별 대사 노드
+    dialogueData.ts          (S4) NPC·미션·결전·프롤로그 대사 기준본
     maps/overworld.json      맵 데이터 (03 스키마, `scripts/build-world-map.mjs`로 첫 생성)
     maps/index.ts            JSON 로더(`OVERWORLD_MAP`, `INTERIOR_MAPS`)
     maps/mapIntegrity.test.ts 맵 무결성·도달성 테스트
@@ -152,7 +152,7 @@ src/web/world/
 - **entities**: 건물·소품은 씬 로드 때 한 번 정렬한 정적 목록, NPC·플레이어는 프레임마다 정렬해 두 목록을 병합해 그린다(`sortY` = 발 y). 그림자는 코드가 그린다(캐릭터 발밑 타원).
 - **above**: `propDefs.aboveFrom` 위쪽 부분만 모든 엔티티 위에 다시 그린다. 나머지(줄기)는 y-sort.
 - 소품 lush/withered도 **소품이 서 있는 지구의** 복원값으로 크로스페이드한다(시든 이미지가 있는 15종).
-- 물 애니메이션·지구별 파티클·앰비언스·색조는 S4/S6.
+- 지구별 색조·파티클과 선택적 앰비언스는 S4에서 구현했다. 물 애니메이션은 S6 이후 검토한다.
 
 ### 성능 예산
 - 목표 60fps, 1프레임 update+render ≤ 6ms(중급 노트북).
@@ -171,7 +171,7 @@ src/web/world/
 - **이동**: 입력 벡터 정규화 후 속도 곱. 축 분리 충돌(x 먼저, y 다음)로 벽 슬라이드.
 - **충돌 데이터**: 맵 JSON의 충돌 사각형(px) + 소품 정의의 footprint. 공간 해시(64px 셀)로 근처만 검사. 물(deep water)·낭떠러지는 사각형/terrain 플래그로 막는다. 실내는 이미지 위 손으로 튜닝한 사각형 배열(`?worldDebug`로 오버레이해 확인).
 - **상호작용**: 바라보는 방향으로 발 상자 앞 **28px 프로브**(폭 24, 옆 방향은 높이 18)가 닿는 대상 중 가장 가까운 것. NPC는 몸 크기(24×40, 동물 28×26) 상자, 조사 포인트는 영역(기본 64×48)으로 맞고 같은 거리면 NPC가 우선. 대상이 있으면 머리 위에 `E` 프롬프트(캔버스에 `tooltip-frame`으로 그림). `E`/Space/Enter로 대화·조사가 열리면 그 사이 이동·E는 멈추고, NPC는 플레이어를 바라본다.
-- **트리거 종류**: `door`(씬 전환), `examine`(텍스트 조사, S3부터 `action`으로 오락실 기계·카드 수납장·우편함), `npc`, 지구 진입은 `zones`(토스트·BGM). **S3의 월드 오브젝트**는 맵 JSON `objects[]`: `pickup`(E로 줍는 랜턴·시든 잔디 자리), `ball`(킥 볼), `goal`(골대 판정 사각형), `gate`(콘 코스 체크포인트), `hazard`(콘). `board`(일일 게시판)는 S5.
+- **트리거 종류**: `door`(씬 전환, 조건/잠김 문구 가능), `examine`(텍스트 조사와 `action`: 오락실·카드 수납장·우편함·단체샷·관중 응원), `npc`, 지구 진입은 `zones`(토스트·BGM·색조/파티클). 맵 JSON `objects[]`는 `pickup`(E로 줍는 랜턴·시든 잔디 자리), `ball`(킥 볼), `goal`(골대 판정 사각형), `gate`(콘 코스 체크포인트), `hazard`(콘), S4의 조건부 `barrier`/`decor`를 담는다. `board`(일일 게시판)는 S5.
 - **NPC AI**(`engine/npc.ts`): `idle`(제자리+가끔 방향 전환), `wander`(지정 사각형 안 랜덤 이동, 34px/s·동물 52px/s, 0.6초 막히면 목적지를 다시 고름), `stay`(고정). 대화 시작 시 플레이어를 향해 돌아보고 멈추며, 종료 후 원래 방향으로 복귀(걷는 NPC는 그대로 진행). NPC는 16×8px 충돌 상자로 플레이어를 막는다. 미션 대상 NPC는 `stay` 고정 권장(위치 예측 가능).
 - **문**: 발 상자가 문 트리거에 닿으면 페이드(0.25초) → 씬 교체 → 페이드. 도착 직후 0.35초와 문 위에 서 있는 동안은 다시 발동하지 않는다(왔다갔다 방지). 실외 문 트리거는 아래 12px을 깎아 건물 앞을 따라 걷는 것만으로는 들어가지 않는다.
 - **월드 킥(쥬멩이 미션·훈련장 상시)**(`engine/ball.ts`): 공 앞에서 E = **바라보는 방향으로** 380px/s 킥(약 340px 굴러감), 210px/s² 마찰, 벽·소품·훈련장 사각형에 0.72 반발. 공은 NPC(공돌이)에 걸리지 않는다. 골대 소품은 단단하고, 공이 **골 사각형(골대 면 +4px)**에 닿으면 득점 → 0.7초 뒤 제자리에 재스폰. 챌린지가 `active`일 때 첫 킥이 60초를 시작하고, 아닐 때는 그냥 연습(득점 집계 없음).
@@ -270,7 +270,7 @@ interface MinigameRoundResult {
 - SFX: 동시 재생이 필요하므로 기존 `playSfx()`(단일 슬롯, `sfxAudio.ts`) 대신 월드 전용 풀(`worldAudio.ts`, 이름별 3~4개 Audio 인스턴스 재사용).
 - 설정: BGM/효과음 on-off·볼륨을 `fc26-world-settings-v1`에 저장, 기본 BGM 35 / SFX 55(기존 게임 기본값과 동일). 기존 `SoundControl.tsx`(`minigame/`) UI 재사용 검토.
 - **사이트 전역 `MusicPlayer`(YouTube iframe)**는 독립 재생이라 월드 진입 시 겹친다 → **결정(S1)**: 월드가 열리면 재생 중이던 전역 음악을 일시정지하고, 닫을 때 월드가 멈춘 경우에만 재개한다(`src/web/musicControl.ts`, [08 §5 #1](08-implementation-roadmap.md#5-미해결-항목)).
-- **S2 구현 상태**(`audio/worldAudio.ts`): 파일은 전부 선택 사항이다. `public/world-bgm-*.mp3`·`public/sfxes/world-*.mp3`를 이름으로 찾아(HEAD 요청, 오디오 타입이 아니면 없는 파일) 있으면 재생하고 없으면 조용히 무음이다. BGM은 선호 목록(`[지구 BGM, 필드 BGM]`)에서 처음 존재하는 파일을 1초 크로스페이드로 튼다. 연결된 효과음은 UI 이동/선택, 대사 틱/넘김/시작, 발소리(잔디·돌·나무·흙·눈·금속·물), 문 열림/닫힘, 상호작용 핑, 조사(07의 S1–S5·S7–S12·S18–S19·S21–S22 중 해당분). **S3에서 추가**: 미션 수락/목표 달성/완료(S25–S27), 잔디 조각·뱃지 획득(S28, badge-get), 줍기(S23), 택배 수령(S24), 체크포인트(S40)·콘 접촉·카운트, 킥/골/포스트, 시간 초과, 짧은 휘슬, 조각 10개(S29), UI 오류음(파일명은 `SFX_FILES`). BGM 13곡과 SFX 53개는 2026-09-19에 `public/`에 들어왔다(`world-bgm-region-weed.mp3`만 없어 제초동 구역은 필드 BGM으로 대체).
+- **S4 구현 상태**(`audio/worldAudio.ts`): 파일은 전부 선택 사항이다. `public/world-bgm-*.mp3`·`public/sfxes/world-*.mp3`를 이름으로 찾아(HEAD 요청, 오디오 타입이 아니면 없는 파일) 있으면 재생하고 없으면 조용히 무음이다. BGM은 선호 목록에서 처음 존재하는 파일을 1초 크로스페이드로 튼다. S3 미션·월드 효과음에 더해 S4는 보스/엔딩 BGM, 코어 정지·성장·관중 함성, 지구·스타디움·오락실 앰비언스를 연결했다. 앰비언스는 BGM 설정 음량의 40%이며 `prefers-reduced-motion`에서는 파티클도 줄어든다. BGM 13곡과 SFX 53개는 2026-09-19에 `public/`에 들어왔다(`world-bgm-region-weed.mp3`만 없어 제초동 구역은 필드 BGM으로 대체).
 - 기존 효과음 재사용 목록과 신규 목록은 [07-audio.md](07-audio.md).
 
 ## 10. 기존 코드 통합 지점

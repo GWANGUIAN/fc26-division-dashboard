@@ -3,8 +3,8 @@ import type { CastId, MinigameRoundResult } from "../types";
 // Mission definitions (docs/world/02 §7–§10). Everything tunable lives here — thresholds, times, counts,
 // which world objects a mission uses — so balancing never touches code (docs/world/08 §0 #5).
 //
-// The dialogue for these missions is generated from the fields below in `state/npcDialogue.ts` and is
-// temporary on purpose (like `placeholderDialogue.ts`): the reviewed lines of docs/world/02 arrive with S4.
+// What the NPCs say about these missions lives in `dialogueData.ts` (keyed by mission id); the rules that pick a
+// line are in `state/npcDialogue.ts`.
 //
 // Plain data with type-only imports so a script or a test can import it without pulling in the engine.
 
@@ -12,7 +12,22 @@ export type MinigameGame = MinigameRoundResult["game"];
 
 export type MissionKind =
   | "talk" | "card_reveal" | "card_variant" | "minigame_best"
-  | "collect" | "delivery" | "time_trial" | "kick_goals" | "talk_chain";
+  | "collect" | "delivery" | "time_trial" | "kick_goals" | "talk_chain" | "finale";
+
+/** How each minigame is called and counted ("축구공 합 10", "점"), for round prompts and progress text. */
+export const MINIGAME_INFO: Record<MinigameGame, { name: string; unit: string }> = {
+  "soccer-sum10": { name: "축구공 합 10", unit: "점" },
+  kickups: { name: "축구공 튀기기", unit: "회" },
+  freekick: { name: "3D 프리킥", unit: "골" },
+  cardmatch: { name: "카드 짝 맞추기", unit: "턴" },
+};
+
+/** One round of the final showdown: the round's game must be played in the stadium and reach `min`. */
+export interface FinaleRound {
+  game: MinigameGame;
+  /** score ≥ min */
+  min: number;
+}
 
 /** What a delivery item has to reach: a mailbox (world object id) or a person (cast id). */
 export type DeliveryTarget = { mailbox: string } | { cast: CastId };
@@ -62,7 +77,8 @@ export type MissionSpec =
   | { kind: "delivery"; items: DeliveryItem[]; /** Timed run when set (the parcels come from the giver). */ seconds?: number }
   | { kind: "time_trial"; /** Ordered gate ids: start, checkpoints…, goal. */ gates: string[]; hazards: string[]; seconds: number; penalty: number }
   | { kind: "kick_goals"; goal: string; ball: string; goals: number; seconds: number }
-  | { kind: "talk_chain"; targets: CastId[] };
+  | { kind: "talk_chain"; targets: CastId[] }
+  | { kind: "finale"; /** Played in order; a cleared round stays cleared. */ rounds: FinaleRound[] };
 
 export type MissionDef = MissionBase & MissionSpec;
 
@@ -152,6 +168,18 @@ export const MISSION_DEFS: readonly MissionDef[] = [
     requiresFlags: ["main-open"], reward: MAIN_REWARD,
   },
 
+  // ── act 3 ────────────────────────────────────────────────────────────────────────────────
+  {
+    id: "m-90-finale", giver: "referee", title: "제초동 결전", kind: "finale", main: false,
+    rounds: [
+      { game: "soccer-sum10", min: 80 },
+      { game: "kickups", min: 35 },
+      { game: "freekick", min: 5 },
+    ],
+    objective: "스타디움 결전 3연전에서 모두 승리", hint: "잔디동 스타디움 · 심판에게 말 걸기",
+    requiresFlags: ["stadium-open"], reward: { badge: "weed-buster", flags: ["finale-won"] },
+  },
+
   // ── side missions that only need act-2 mechanics (the rest come with S5) ─────────────────
   {
     id: "s-shop-milk", giver: "shopkeeper", title: "잔디 우유 배달", kind: "delivery", main: false,
@@ -201,6 +229,7 @@ export const BADGES: Record<string, BadgeDef> = {
   "first-game": { id: "first-game", label: "첫 한 판", icon: "ui/bd-first-game" },
   "delivery-rookie": { id: "delivery-rookie", label: "배달 왕초보" },
   "green-thumb": { id: "green-thumb", label: "초록 손", icon: "ui/bd-green-thumb" },
+  "weed-buster": { id: "weed-buster", label: "제초동 격파" },
   "shard-5": { id: "shard-5", label: "잔디 조각 5개", icon: "ui/bd-shard-5" },
   "shard-10": { id: "shard-10", label: "잔디 조각 10개", icon: "ui/bd-shard-10" },
 };

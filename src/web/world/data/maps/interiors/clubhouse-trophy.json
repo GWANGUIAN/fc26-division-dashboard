@@ -21,9 +21,11 @@
     [286,118,80,42]
   ],
   "examine": [
-    {"tile":[10,4],"text":"단체사진 액자. 아직 걸리지 않았다."},
+    {"id":"frame-empty","tile":[10,4],"text":"단체사진 액자. 아직 걸리지 않았다.","when":"not:flag:ending-seen"},
+    {"id":"frame-photo","tile":[10,4],"text":"잔디동 단체사진 액자. 모두가 활짝 웃고 있다.","action":"group-photo","when":"flag:ending-seen"},
     {"tile":[5,6],"text":"우승컵 진열장. 유리에 손자국이 몇 개 남아 있다."},
-    {"tile":[14,6],"text":"진열장 속 메달. 이름표는 비어 있다."}
+    {"id":"medal-empty","tile":[14,6],"text":"진열장 속 메달. 이름표는 비어 있다.","when":"not:flag:ending-seen"},
+    {"id":"medal-named","tile":[14,6],"text":"진열장 속 메달. 이름표에 새 글씨가 적혔다. '잔디동 Let's Go!!'","when":"flag:ending-seen"}
   ],
   "npcs": [],
   "triggers": [

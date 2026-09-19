@@ -21,7 +21,13 @@ export type DialogueEffect =
   | { type: "accept"; mission: string }
   | { type: "retry"; mission: string }
   | { type: "finish-talk"; mission: string }
-  | { type: "complete"; mission: string };
+  | { type: "complete"; mission: string }
+  /** The next round of the stadium showdown starts: the minigame opens once the conversation is over. */
+  | { type: "start-round"; mission: string }
+  /** Story flags heard-and-done (a progress talk, the finale offer). */
+  | { type: "flags"; flags: string[] }
+  /** The ending cut's last line is over: the group photo comes next. */
+  | { type: "ending-photo" };
 
 export interface DialogueChoice {
   label: string;

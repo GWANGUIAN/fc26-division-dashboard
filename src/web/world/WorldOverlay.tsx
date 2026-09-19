@@ -4,24 +4,26 @@ import "./world.css";
 import "./world-ui.css";
 import "./world-mission.css";
 import { resumeGlobalMusic, suspendGlobalMusic } from "../musicControl";
+import { GroupPhotoOverlay } from "../group-photo/GroupPhotoOverlay";
 import { hasTotyCard } from "../toty-card/totyCardAssets";
 import { WorldAudio, type BgmId } from "./audio/worldAudio";
 import { WorldCanvas } from "./WorldCanvas";
 import { isWorldDebug } from "./debug";
-import { getMissionDef, missionDefsFor, totalShardsFor } from "./data/missionDefs";
+import { FINALE_SCRIPT } from "./data/dialogueData";
+import { MINIGAME_INFO, getMissionDef, missionDefsFor, totalShardsFor } from "./data/missionDefs";
 import { getCast } from "./data/worldCast";
-import { buildExamineDialogue } from "./data/placeholderDialogue";
 import type { DebugPick, SaveStore, WorldEngine, WorldEvents } from "./engine/world";
 import type { RunEvent } from "./engine/runs";
 import { parseAction } from "./state/actions";
 import { COACH_DONE, nextCoachStep, type CoachEvent } from "./state/coach";
 import type { DialogueEffect, DialogueNode } from "./state/dialogue";
-import { resolveEscape, type OverlayPhase, type PauseView } from "./state/escape";
+import { resolveEscape, type EndingStage, type OverlayPhase, type PauseView } from "./state/escape";
 import {
   acceptMission, applyMissionEvent, completeMission, completeTalk, defaultTracked, missionViews, restartMission, type RewardResult,
 } from "./state/missions";
-import { describeProgress, type MissionEvent } from "./state/missionEval";
-import { buildConversation } from "./state/npcDialogue";
+import { asProgress, describeProgress, finaleRoundOutcome, type MissionEvent } from "./state/missionEval";
+import { buildCheerDialogue, buildConversation, buildEndingDialogue, buildExamineDialogue } from "./state/npcDialogue";
+import { ENDING_SEEN_FLAG, STADIUM_OPEN_FLAG, endingPending, withEndingFlags } from "./state/story";
 import {
   PROLOGUE_DONE_FLAG, createNewGameSave, isContinuableSave, loadWorldSave, loadWorldSettings, saveWorldSave, saveWorldSettings,
 } from "./storage";
@@ -31,6 +33,7 @@ import { CharacterSelect } from "./ui/CharacterSelect";
 import { CoachMarks } from "./ui/CoachMarks";
 import { DebugPanel } from "./ui/DebugPanel";
 import { DialogueBox } from "./ui/DialogueBox";
+import { EndingOverlay } from "./ui/EndingOverlay";
 import { Hud } from "./ui/Hud";
 import { LoadingScreen } from "./ui/LoadingScreen";
 import { MissionLog } from "./ui/MissionLog";
@@ -119,12 +122,12 @@ function useStageLayout(): StageLayout {
   return layout;
 }
 
-/** Music for a place: an interior's own track, or the field music (by progress) with the district's track first. */
-function bgmFor(scene: SceneId, zoneBgm: string | undefined, shards: number): BgmId[] {
+/** Music for a place: an interior's own track (the showdown has its boss theme), or the field music (by progress) with the district's track first. */
+function bgmFor(scene: SceneId, zoneBgm: string | undefined, save: Pick<WorldSave, "shards" | "flags">): BgmId[] {
   if (scene === "interior:arcade") return ["arcade", "interior"];
-  if (scene === "interior:stadium") return ["stadium", "interior"];
+  if (scene === "interior:stadium") return save.flags[STADIUM_OPEN_FLAG] && !save.flags[ENDING_SEEN_FLAG] ? ["boss", "stadium", "interior"] : ["stadium", "interior"];
   if (scene !== "overworld") return ["interior"];
-  const field: BgmId = shards >= LUSH_MUSIC_SHARDS ? "field-lush" : "field-withered";
+  const field: BgmId = save.shards >= LUSH_MUSIC_SHARDS ? "field-lush" : "field-withered";
   return zoneBgm && zoneBgm.startsWith("region-") ? [zoneBgm as BgmId, field] : [field];
 }
 
@@ -154,6 +157,9 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
   const [pauseView, setPauseView] = useState<PauseView>("closed");
   const [logOpen, setLogOpen] = useState(false);
   const [trackedId, setTrackedId] = useState<string | null>(null);
+  /** The ending cut (docs/world/02 §9) and the trophy room's framed photo. */
+  const [ending, setEnding] = useState<EndingStage | null>(null);
+  const [framePhoto, setFramePhoto] = useState(false);
   /** Bumped whenever the save changes, so the HUD, log and menu re-render (the save itself lives in `store`). */
   const [, bump] = useReducer((n: number) => n + 1, 0);
   const { toasts, push: pushToast } = useToasts();
@@ -163,6 +169,9 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
   const [debugPick, setDebugPick] = useState<DebugPick | null>(null);
   const bgmRef = useRef<BgmId[]>(["title"]);
   const rewardTimers = useRef<number[]>([]);
+  /** The minigame of a showdown round the player just chose; it opens once the conversation is closed. */
+  const pendingRound = useRef<MinigameRoundResult["game"] | null>(null);
+  const modalRef = useRef<WorldModal | null>(null);
 
   useBodyScrollLock();
 
@@ -247,6 +256,9 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
     setLogOpen(false);
     setPauseView("closed");
     setTrackedId(null);
+    setEnding(null);
+    setFramePhoto(false);
+    pendingRound.current = null;
   }
 
   function startContinue() {
@@ -364,8 +376,18 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
 
   const applyEffect = useCallback(
     (effect: DialogueEffect) => {
+      if (!store || !playerId) return;
+      if (effect.type === "flags") {
+        commit((current) => ({ ...current, flags: { ...current.flags, ...Object.fromEntries(effect.flags.map((flag) => [flag, true as const])) } }));
+        if (effect.flags.includes(STADIUM_OPEN_FLAG)) pushSequence([{ text: "스타디움 문이 열렸어요! 결전이 기다립니다", accent: "#ffd54a", sfx: "mission-ready" }]);
+        return;
+      }
+      if (effect.type === "ending-photo") {
+        setEnding("photo");
+        return;
+      }
       const def = getMissionDef(effect.mission);
-      if (!def || !store || !playerId) return;
+      if (!def) return;
       switch (effect.type) {
         case "accept": {
           const next = acceptMission(withPlayer(store.save, playerId), effect.mission);
@@ -392,13 +414,43 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
           if (done.reward) announceReward(done.reward);
           break;
         }
+        case "start-round": {
+          // The round's minigame opens when the conversation closes (the dialogue owns the keyboard until then).
+          if (def.kind !== "finale") break;
+          const round = def.rounds[asProgress(store.save.missions[def.id]?.progress).round ?? 0];
+          if (round) pendingRound.current = round.game;
+          break;
+        }
       }
     },
     [announceReward, commit, playerId, pushSequence, store],
   );
 
   /** A minigame round of a modal the world itself opened — the only plays that count. */
-  const handleRoundEnd = useCallback((result: MinigameRoundResult) => dispatch({ type: "minigame", result }), [dispatch]);
+  const handleRoundEnd = useCallback(
+    (result: MinigameRoundResult) => {
+      if (modalRef.current?.type !== "minigame" || modalRef.current.context !== "finale") {
+        dispatch({ type: "minigame", result });
+        return;
+      }
+      // A stadium round: only the round on the card counts, and only from here (an arcade play never moves the showdown).
+      const finale = playerId ? missionDefsFor(playerId).find((def) => def.kind === "finale") : undefined;
+      if (!finale || finale.kind !== "finale" || !store) return;
+      const before = store.save.missions[finale.id]?.progress;
+      const outcome = finaleRoundOutcome(finale, before, result);
+      if (outcome === "ignored") return;
+      const round = asProgress(before).round ?? 0;
+      const spec = finale.rounds[round];
+      const info = MINIGAME_INFO[spec.game];
+      if (outcome === "failed") {
+        pushSequence([{ text: `${result.score}${info.unit} — ${spec.min}${info.unit} 이상이 필요해요. 심판에게 다시 말을 걸어 도전하세요`, accent: "#ff6a5a", sfx: "timeup" }]);
+        return;
+      }
+      if (round + 1 < finale.rounds.length) pushSequence([{ text: `${round + 1}라운드 통과! (${round + 1}/${finale.rounds.length})`, accent: "#ffd54a", sfx: "checkpoint" }]);
+      dispatch({ type: "finale-round", result });
+    },
+    [dispatch, playerId, pushSequence, store],
+  );
   const handleCardView = useCallback((id: string, variant: string) => dispatch({ type: "card-view", cardId: id, variant }), [dispatch]);
 
   const handleRunEvent = useCallback(
@@ -468,6 +520,22 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
     [store],
   );
 
+  const closeModal = useCallback(() => {
+    setModal(null);
+    modalRef.current = null;
+    engineRef.current?.closeInteraction();
+    audio.playBgm(bgmRef.current);
+  }, [audio]);
+
+  const openModal = useCallback(
+    (next: WorldModal) => {
+      setModal(next);
+      modalRef.current = next;
+      audio.playBgm(null); // the minigames bring their own music
+    },
+    [audio],
+  );
+
   const closeDialogue = useCallback(() => {
     const current = dialogueRef.current;
     if (!current) return;
@@ -477,21 +545,10 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
     if (current.cast) dispatch({ type: "talk", cast: current.cast });
     engineRef.current?.closeInteraction();
     if (current.cast) advanceCoach({ type: "talked", cast: current.cast });
-  }, [advanceCoach, applyEffect, dispatch]);
-
-  const closeModal = useCallback(() => {
-    setModal(null);
-    engineRef.current?.closeInteraction();
-    audio.playBgm(bgmRef.current);
-  }, [audio]);
-
-  const openModal = useCallback(
-    (next: WorldModal) => {
-      setModal(next);
-      audio.playBgm(null); // the minigames bring their own music
-    },
-    [audio],
-  );
+    const round = pendingRound.current;
+    pendingRound.current = null;
+    if (round) openModal({ type: "minigame", game: round, context: "finale" });
+  }, [advanceCoach, applyEffect, dispatch, openModal]);
 
   const eventsRef = useRef<WorldEvents>({});
   eventsRef.current = {
@@ -505,6 +562,7 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
           save: withPlayer(store.save, playerId),
           talked,
           deliveryRunning: engineRef.current?.isDeliveryRunning() ?? false,
+          scene: engineRef.current?.getState().scene,
         });
         commit((current) => ({ ...current, talked: { ...current.talked, [cast.id]: talked + 1 } }));
         setDialogue({ node: conversation.node, cast: cast.id, endEffects: conversation.endEffects });
@@ -514,6 +572,14 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
         const action = parseAction(target.action);
         if (action?.type === "minigame") {
           openModal({ type: "minigame", game: action.game });
+          return;
+        }
+        if (action?.type === "group-photo") {
+          setFramePhoto(true);
+          return;
+        }
+        if (action?.type === "cheer") {
+          setDialogue({ node: buildCheerDialogue(action.cast), cast: null, endEffects: [] });
           return;
         }
         if (action?.type === "cards") {
@@ -545,11 +611,20 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
     onRunEvent: handleRunEvent,
     onZoneEnter(zone) {
       pushToast(zone.name, zone.tint);
-      if (store) playBgm(bgmFor("overworld", zone.bgm, store.save.shards));
+      if (store) playBgm(bgmFor("overworld", zone.bgm, store.save));
     },
     onSceneChange(scene) {
       setCurrentScene(scene);
-      if (store && scene !== "overworld") playBgm(bgmFor(scene, undefined, store.save.shards));
+      if (store && scene !== "overworld") playBgm(bgmFor(scene, undefined, store.save));
+    },
+    onDoorLocked(text) {
+      pushToast(text, "#ff9a5a");
+    },
+    onBloomDone() {
+      // The glow has settled: the King's change of heart and the call for the photo (cut 2 and 3).
+      const cut = buildEndingDialogue();
+      setEnding("dialogue");
+      setDialogue({ node: cut.node, cast: null, endEffects: cut.endEffects });
     },
     onWalked(tiles) {
       advanceCoach({ type: "walked", tiles });
@@ -573,17 +648,48 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
   }, [engine, phase, coachStep]);
 
   // One place decides whether the world may move: any panel that owns the keyboard blocks it.
-  const uiOpen = dialogue !== null || modal !== null || logOpen || pauseView !== "closed";
+  const photoOpen = ending === "photo" || framePhoto;
+  const uiOpen = dialogue !== null || modal !== null || logOpen || pauseView !== "closed" || ending !== null || framePhoto;
   useEffect(() => {
     engine?.setUiBlocked(uiOpen);
   }, [engine, uiOpen]);
+
+  // ── the ending (docs/world/02 §9) ────────────────────────────────────────────────────────
+  // The showdown's completion sets `finale-won`; the cut then runs bloom → last words → photo → credits and only
+  // its very end sets `ending-seen` (and opens the Weeder district). A world closed halfway through starts over from the bloom.
+  const endingDue = phase === "play" && save !== null && endingPending(save);
+  const busy = dialogue !== null || modal !== null || logOpen || pauseView !== "closed";
+  useEffect(() => {
+    if (!endingDue || ending !== null || busy || !engine) return;
+    setEnding("bloom");
+    playBgm(["ending", "stadium", "interior"]);
+    engine.playBloom();
+  }, [endingDue, ending, busy, engine, playBgm]);
+
+  function finishEnding() {
+    commit((current) => withEndingFlags(current));
+    setEnding(null);
+    if (store) playBgm(bgmFor(engineRef.current?.getState().scene ?? "overworld", undefined, { shards: store.save.shards, flags: { ...store.save.flags, [ENDING_SEEN_FLAG]: true } }));
+    pushSequence([
+      { text: "제초동 구역의 문이 열렸어요! 남동쪽 게이트로 가 보세요", accent: "#00e9ae", sfx: "shard-restore" },
+    ]);
+  }
 
   // ── Esc ─────────────────────────────────────────────────────────────────────────────────
 
   const coachActive = phase === "play" && coachStep < COACH_DONE;
   const escapeRef = useRef<() => void>(() => {});
   escapeRef.current = () => {
-    switch (resolveEscape({ phase, dialogueOpen: dialogue !== null, coachActive, modalOpen: modal !== null, pauseView, logOpen })) {
+    switch (resolveEscape({ phase, dialogueOpen: dialogue !== null, coachActive, modalOpen: modal !== null, pauseView, logOpen, photoOpen, ending })) {
+      case "ignore":
+        break;
+      case "close-photo":
+        if (ending === "photo") setEnding("credits");
+        else setFramePhoto(false);
+        break;
+      case "skip-credits":
+        finishEnding();
+        break;
       case "close-modal":
         closeModal();
         break;
@@ -658,7 +764,7 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
         )}
         {phase === "select" && <CharacterSelect audio={audio} onConfirm={confirmCharacter} onBack={() => setPhase("title")} />}
         {phase === "prologue" && pendingPlayer && (
-          <Prologue playerName={getCast(pendingPlayer).displayName} audio={audio} debug={debug} onDone={finishPrologue} />
+          <Prologue playerName={getCast(pendingPlayer).displayName} audio={audio} onDone={finishPrologue} />
         )}
         {phase === "play" && session && playerCast && (
           <>
@@ -677,6 +783,7 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
             {!dialogue && !logOpen && pauseView === "closed" && <p className="world-hint">방향키/WASD 이동 · Shift 달리기 · E 상호작용 · J 미션 로그 · Esc 메뉴</p>}
             <CoachMarks step={coachStep} />
             <ToastLayer toasts={toasts} />
+            {(ending === "bloom" || ending === "credits") && <EndingOverlay stage={ending} lines={FINALE_SCRIPT.credits} onDone={finishEnding} />}
             {dialogue && (
               <DialogueBox
                 key={`${dialogue.cast ?? "object"}-${talkedTotal}`}
@@ -735,6 +842,14 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
       <button type="button" className="world-overlay__close" onClick={onClose} aria-label="월드 나가기">
         <X aria-hidden="true" />
       </button>
+      {phase === "play" && photoOpen && (
+        <GroupPhotoOverlay
+          passedStreamers={dashboard.groupPhotoStreamers}
+          sfxEnabled={dashboard.sfxEnabled}
+          sfxVolume={dashboard.sfxVolume}
+          onClose={() => (ending === "photo" ? setEnding("credits") : setFramePhoto(false))}
+        />
+      )}
       {debug && phase === "play" && (
         <DebugPanel
           engine={engine}

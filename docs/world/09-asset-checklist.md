@@ -189,7 +189,10 @@
 - **P2 (8)**: [x] S16 [x] S17 [x] S31 [x] S43 [x] S44 [x] S46 [x] S52 [x] S53
 
 ### 앰비언스 (9, 옵션)
-- [ ] A1 field-day (P1) · [ ] A2 sky-wind · [ ] A3 spring · [ ] A4 frost-night · [ ] A5 forge · [ ] A6 weed · [ ] A7 water · [ ] A8 crowd · [ ] A9 arcade (모두 P2)
+
+> 2026-09-19 수집·배치 완료: `C:\Users\bbaa3\Downloads\ambes`의 9개 MP3를 모두 `public/world-amb-*.mp3`로 복사했다(합계 약 2.2MB). 런타임은 중앙/상점·구름/룬·봄·서리·공업·제초동·스타디움·오락실의 8개를 즉시 선택하며, `water`는 호수 전용 존/상호작용 앰비언스가 추가될 때 같은 이름으로 쓸 수 있다.
+
+- [x] A1 field-day (P1) · [x] A2 sky-wind · [x] A3 spring · [x] A4 frost-night · [x] A5 forge · [x] A6 weed · [x] A7 water · [x] A8 crowd · [x] A9 arcade (모두 P2)
 
 ## 9. 파일명 규칙 요약
 
@@ -288,7 +291,7 @@ turn(서 있는 자세) 시트의 발끝 편차는 전원 허용 이내였다.
 - 캐릭터·집 그림자 타원, 프롤로그 배경(`title-bg` 위에 어두운 막).
 - 사용 중인 신규 UI: `select-bg`, `card-*`, `ball-marker`(선택 카드 위 공), `dialog-frame`·`nameplate`·`portrait-frame`·`choice-*`·`cursor`·`next-1/2`·`toast-frame`·`coach-frame`·`tooltip-frame`. `arrow-*`·`name-ribbon`·`sparkle-ring`·`check-badge`(카드 격자·이름 글자·CSS로 대체해 S2에서는 미사용), 마커(`mark-*`)·이모트·러시 에셋은 S3 이후.
 
-## 12. S3에서 코드에 연결된 에셋 (2026-09-19)
+## 12. S3~S4에서 코드에 연결된 에셋 (2026-09-19)
 
 | 종류 | 키 | 쓰임 |
 | --- | --- | --- |
@@ -299,6 +302,15 @@ turn(서 있는 자세) 시트의 발끝 편차는 전원 허용 이내였다.
 | UI(DOM) | `ui/panel-parchment`, `ui/tab-active`, `ui/tab-normal`, `ui/mi-*` | 미션 로그(종이·탭·아이콘) |
 | UI(DOM) | `ui/panel-frame`, `ui/mn-*`, `ui/btn-secondary-*` | 일시정지 메뉴 |
 
-- **아직 안 쓴 것**: `props/parcel-a/b/c`(택배 그림 — S3의 택배는 화면에 그리지 않고 가방/HUD 문구로만 다룬다), `props/goldball-*`·`shard-*`(황금 공 수집·획득 연출은 S5/S4), `fx/emote-*`·`grow-*`·`ripple-*`·`splash-*`·`dust-*`·`target-ring`, `ui/minimap-frame`(지도 M), `ui/board-paper`·`stamp-*`(일일 게시판, S5), `ui/bd-*`(뱃지 아이콘은 뱃지 화면이 생기는 S5에서 — 지금은 토스트 글자만), `ui/check-badge`.
+### S4 추가 연결
+
+| 종류 | 키/파일 | 쓰임 |
+| --- | --- | --- |
+| 소품(캔버스) | `props/grass-tuft-prop`, `props/barricade` | `plaza-restored` 뒤 광장 새싹, 엔딩 전 제초동 바리케이드 3개 |
+| 캐릭터(캔버스) | 멤버 `characters/<id>-atlas` idle-down | 스타디움 결전 관중석 0.6배 정적 스프라이트(플레이어 본인 제외) |
+| 기존 UI(DOM) | `group-photo/*` | 엔딩 및 트로피룸 액자에서 `GroupPhotoOverlay` 재사용(신규 이미지 없음) |
+| 오디오(선택) | `world-bgm-boss/ending.mp3`, `world-amb-*.mp3`, `world-core-stop/grow/crowd-roar.mp3` | 결전·개화·엔딩·지구 앰비언스. 파일이 없어도 런타임은 무음으로 안전하게 폴백 |
+
+- **아직 안 쓴 것**: `props/parcel-a/b/c`(택배 그림 — 가방/HUD 문구로만 다룬다), `props/goldball-*`·`shard-*`(황금 공 수집·획득 연출은 S5), `fx/emote-*`·`grow-*`·`ripple-*`·`splash-*`·`dust-*`·`target-ring`, `ui/minimap-frame`(지도 M), `ui/board-paper`·`stamp-*`(일일 게시판, S5), `ui/bd-*`(뱃지 아이콘은 뱃지 화면이 생기는 S5에서 — 지금은 토스트 글자만), `ui/check-badge`.
 - **HUD 게이지 칸 위치**는 프레임 그림에 맞춘 눈대중이다. 어긋나면 `world-mission.css`의 `--gauge-x`·`--gauge-pitch`·`--gauge-pip` 세 값만 고친다.
 - 뱃지 「배달 왕초보」에는 `bd-*` 아이콘이 없다(06의 12종에 없음). 필요하면 06 §5에 슬롯을 추가한다.

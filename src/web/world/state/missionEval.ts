@@ -13,7 +13,9 @@ export type MissionEvent =
   | { type: "delivered"; item: string; to: DeliveryTarget }
   | { type: "talk"; cast: CastId }
   | { type: "trial-finished"; mission: string; seconds: number }
-  | { type: "kick-finished"; mission: string; goals: number };
+  | { type: "kick-finished"; mission: string; goals: number }
+  /** A round of a minigame opened from the stadium's showdown (an arcade play never counts for it). */
+  | { type: "finale-round"; result: MinigameRoundResult };
 
 /** What a mission remembers between events (`WorldSave.missions[id].progress`). */
 export interface MissionProgressData {
@@ -25,6 +27,8 @@ export interface MissionProgressData {
   delivered?: string[];
   /** untimed delivery: item ids the player is carrying. */
   carrying?: string[];
+  /** finale: rounds cleared so far. */
+  round?: number;
 }
 
 export interface EvalContext {
@@ -53,11 +57,21 @@ export function meetsMinigameGoal(def: Extract<MissionDef, { kind: "minigame_bes
 const better = (def: MissionDef, best: number | undefined, value: number) =>
   best === undefined ? value : lowerIsBetter(def) || def.kind === "time_trial" ? Math.min(best, value) : Math.max(best, value);
 
+export type FinaleOutcome = "cleared" | "failed" | "ignored";
+
+/** What a finished stadium round means for the showdown: the next round cleared, tried and missed, or a game that is not on the card. */
+export function finaleRoundOutcome(def: Extract<MissionDef, { kind: "finale" }>, raw: unknown, result: MinigameRoundResult): FinaleOutcome {
+  const round = def.rounds[asProgress(raw).round ?? 0];
+  if (!round || round.game !== result.game) return "ignored";
+  return result.score >= round.min ? "cleared" : "failed";
+}
+
 /** Untimed deliveries are picked up on accept; the item id list to carry. */
 export function initialProgress(def: MissionDef): MissionProgressData {
   if (def.kind === "delivery" && def.seconds === undefined) return { carrying: def.items.map((item) => item.id), delivered: [] };
   if (def.kind === "delivery") return { delivered: [] };
   if (def.kind === "talk_chain") return { asked: [] };
+  if (def.kind === "finale") return { round: 0 };
   return {};
 }
 
@@ -123,6 +137,12 @@ export function evaluateEvent(def: MissionDef, raw: unknown, event: MissionEvent
       return { progress: { ...progress, best: better(def, progress.best, event.goals) }, ready: event.goals >= def.goals };
     }
 
+    case "finale": {
+      if (event.type !== "finale-round" || finaleRoundOutcome(def, progress, event.result) !== "cleared") return null;
+      const round = (progress.round ?? 0) + 1;
+      return { progress: { ...progress, round }, ready: round >= def.rounds.length };
+    }
+
     case "talk_chain": {
       if (event.type !== "talk" || !def.targets.includes(event.cast)) return null;
       const asked = progress.asked ?? [];
@@ -157,6 +177,8 @@ export function describeProgress(def: MissionDef, raw: unknown, collected: reado
       return progress.best === undefined ? `제한 ${def.seconds}초` : `최고 ${progress.best.toFixed(1)}초`;
     case "kick_goals":
       return progress.best === undefined ? `${def.goals}골 · ${def.seconds}초` : `최고 ${progress.best}골`;
+    case "finale":
+      return `${Math.min(def.rounds.length, progress.round ?? 0)}/${def.rounds.length} 라운드`;
     default:
       return "";
   }

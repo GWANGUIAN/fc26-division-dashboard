@@ -1,21 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import type { WorldAudioLike } from "../audio/worldAudio";
-import { PROLOGUE_LINES } from "../data/placeholderDialogue";
+import { PROLOGUE_LINES } from "../data/dialogueData";
 import { TYPE_SPEED, countChars, fillPlaceholders } from "../state/dialogue";
 import { getWorldAssetUrl } from "../worldAssets";
 
 interface PrologueProps {
   playerName: string;
   audio: WorldAudioLike;
-  /** Marks the placeholder wording while debugging (the text needs the 검수 pass, docs/world/02). */
-  debug: boolean;
   onDone: () => void;
 }
 
 const CONFIRM_CODES = new Set(["KeyE", "Space", "Enter", "NumpadEnter"]);
 
-/** The short opening cut before the player wakes up at home (docs/world/01 §3). Placeholder wording. */
-export function Prologue({ playerName, audio, debug, onDone }: PrologueProps) {
+/** The short opening cut before the player wakes up at home (docs/world/01 §3, wording in data/dialogueData.ts). */
+export function Prologue({ playerName, audio, onDone }: PrologueProps) {
   const [line, setLine] = useState(0);
   const [chars, setChars] = useState(0);
   const lineRef = useRef(0);
@@ -70,7 +68,6 @@ export function Prologue({ playerName, audio, debug, onDone }: PrologueProps) {
       <p className="world-prologue__text" aria-hidden="true">{Array.from(text).slice(0, Math.floor(chars)).join("")}</p>
       <p className="world-sr-only" aria-live="polite">{text}</p>
       <p className="world-prologue__hint">E · Enter 다음 · Esc 건너뛰기</p>
-      {debug && <p className="world-prologue__draft">임시 문구 · 검수 필요</p>}
     </div>
   );
 }

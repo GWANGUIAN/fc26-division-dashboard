@@ -21,6 +21,7 @@ export function missionIconKey(def: MissionDef, status: MissionStatus): string {
     case "kick_goals":
       return "ui/mi-kickups";
     case "time_trial":
+    case "finale":
       return "ui/mi-progress";
   }
 }

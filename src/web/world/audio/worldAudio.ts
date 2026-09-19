@@ -25,7 +25,24 @@ export const BGM_FILES: Record<BgmId, string> = {
   "region-weed": "/world-bgm-region-weed.mp3",
 };
 
-/** The subset of docs/world/07 §2 in use: S2 (UI, dialogue, footsteps, doors, interaction) and S3 (missions, pickups, runs, ball). */
+/** Loops under the BGM at a low volume (docs/world/07 §2-9). Files are `public/world-amb-<name>.mp3` and all optional. */
+export type AmbienceId = "field-day" | "sky-wind" | "spring" | "frost-night" | "forge" | "weed" | "crowd" | "arcade";
+
+export const AMBIENCE_FILES: Record<AmbienceId, string> = {
+  "field-day": "/world-amb-field-day.mp3",
+  "sky-wind": "/world-amb-sky-wind.mp3",
+  spring: "/world-amb-spring.mp3",
+  "frost-night": "/world-amb-frost-night.mp3",
+  forge: "/world-amb-forge.mp3",
+  weed: "/world-amb-weed.mp3",
+  crowd: "/world-amb-crowd.mp3",
+  arcade: "/world-amb-arcade.mp3",
+};
+
+/** Ambience sits at this share of the BGM volume setting (docs/world/07 §1). */
+export const AMBIENCE_SHARE = 0.4;
+
+/** The subset of docs/world/07 §2 in use: S2 (UI, dialogue, footsteps, doors, interaction), S3 (missions, pickups, runs, ball) and S4 (showdown, ending). */
 export type SfxId =
   | "ui-move" | "ui-select" | "ui-cancel" | "ui-open" | "ui-close" | "ui-error"
   | "dialog-tick" | "dialog-next" | "dialog-open"
@@ -33,7 +50,7 @@ export type SfxId =
   | "door-open" | "door-close" | "interact-ping" | "examine"
   | "mission-accept" | "mission-ready" | "mission-complete" | "shard-get" | "shard-restore" | "badge-get"
   | "pickup" | "parcel-get" | "checkpoint" | "cone-hit" | "ball-kick" | "ball-net" | "ball-post"
-  | "count-tick" | "count-go" | "timeup" | "whistle-short";
+  | "count-tick" | "count-go" | "timeup" | "whistle-short" | "whistle-long" | "core-stop" | "grow" | "crowd-roar";
 
 export const SFX_FILES: Record<SfxId, string> = {
   "ui-move": "/sfxes/world-ui-move.mp3",
@@ -73,6 +90,10 @@ export const SFX_FILES: Record<SfxId, string> = {
   "count-go": "/sfxes/world-count-go.mp3",
   timeup: "/sfxes/world-timeup.mp3",
   "whistle-short": "/sfxes/world-whistle-short.mp3",
+  "whistle-long": "/sfxes/world-whistle-long.mp3",
+  "core-stop": "/sfxes/world-core-stop.mp3",
+  grow: "/sfxes/world-grow.mp3",
+  "crowd-roar": "/sfxes/world-crowd-roar.mp3",
 };
 
 /** What the engine and UI need from the audio system (lets tests and the title screen use a stand-in). */
@@ -80,6 +101,8 @@ export interface WorldAudioLike {
   /** A track, or a preference list (the first file that exists plays); null fades to silence. */
   playBgm(ids: BgmId | readonly BgmId[] | null): void;
   playSfx(id: SfxId): void;
+  /** The looping background of a place (null = none). Optional so a stand-in can leave it out. */
+  playAmbience?(id: AmbienceId | null): void;
 }
 
 export const SILENT_AUDIO: WorldAudioLike = { playBgm() {}, playSfx() {} };
@@ -143,6 +166,8 @@ export class WorldAudio implements WorldAudioLike {
   private fading: BgmChannel | null = null;
   private fadeElapsed = 0;
   private wanted = "";
+  private ambience: { audio: AudioLike | null; id: AmbienceId | null } = { audio: null, id: null };
+  private ambienceWanted: AmbienceId | null = null;
   private timer: ReturnType<typeof setInterval> | null = null;
   private disposed = false;
   private readonly autoTick: boolean;
@@ -171,7 +196,12 @@ export class WorldAudio implements WorldAudioLike {
     return this.settings.bgm ? (this.settings.bgmVolume / 100) * channel.gain : 0;
   }
 
+  private ambienceVolume() {
+    return this.settings.bgm ? clamp01((this.settings.bgmVolume / 100) * AMBIENCE_SHARE) : 0;
+  }
+
   private applyVolumes() {
+    if (this.ambience.audio) this.ambience.audio.volume = this.ambienceVolume();
     if (this.current.audio) this.current.audio.volume = clamp01(this.bgmVolume(this.current));
     if (this.fading?.audio) this.fading.audio.volume = clamp01(this.bgmVolume(this.fading));
   }
@@ -250,6 +280,34 @@ export class WorldAudio implements WorldAudioLike {
     if (this.fadeElapsed >= BGM_FADE_SECONDS) this.finishFade();
   }
 
+  /** Switches the ambience loop (null = silence). Asking again for the current one does nothing; a missing file is silence. */
+  playAmbience(id: AmbienceId | null) {
+    if (this.disposed || id === this.ambienceWanted) return;
+    this.ambienceWanted = id;
+    void this.switchAmbience(id);
+  }
+
+  private async switchAmbience(id: AmbienceId | null) {
+    const ok = id !== null && (await this.exists(AMBIENCE_FILES[id]));
+    if (this.ambienceWanted !== id || this.disposed) return; // the request changed while probing
+    const chosen = ok ? id : null;
+    if (chosen === this.ambience.id) return;
+    this.ambience.audio?.pause();
+    let next: AudioLike | null = null;
+    if (chosen) {
+      next = this.deps.createAudio(AMBIENCE_FILES[chosen]);
+      next.loop = true;
+      next.volume = this.ambienceVolume();
+      try {
+        const played = next.play();
+        if (played && typeof played.catch === "function") played.catch(() => {});
+      } catch {
+        /* autoplay blocked: stay silent */
+      }
+    }
+    this.ambience = { audio: next, id: chosen };
+  }
+
   /** Looks the sound effects up ahead of time so the first play is not dropped while the probe runs. */
   preloadSfx(ids: readonly SfxId[]) {
     for (const id of ids) void this.ensurePool(id);
@@ -293,6 +351,9 @@ export class WorldAudio implements WorldAudioLike {
     if (this.timer) clearInterval(this.timer);
     this.timer = null;
     for (const channel of [this.current, this.fading]) channel?.audio?.pause();
+    this.ambience.audio?.pause();
+    this.ambience = { audio: null, id: null };
+    this.ambienceWanted = null;
     for (const pool of this.pools.values()) pool.items.forEach((audio) => audio.pause());
     this.pools.clear();
     this.current = { audio: null, id: null, gain: 1 };

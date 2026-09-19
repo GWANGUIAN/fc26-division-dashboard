@@ -344,20 +344,40 @@ export function drawMarker(ctx: CanvasRenderingContext2D, assets: WorldAssets, k
   ctx.fillText(glyph, x, y - 8);
 }
 
-/** A pickup, cone or other prop-like mission object standing on its feet position. Lanterns float a little. */
+/** A pickup, cone or other prop-like object standing on its feet position (a decor sprite is just the picture). Lanterns float a little. */
 export function drawSceneObject(ctx: CanvasRenderingContext2D, assets: WorldAssets, object: SceneObject, camera: Camera, time: number) {
   if (!object.prop) return;
   const image = assets.get(object.look === "withered" ? `props/${object.prop}-withered` : `props/${object.prop}`) ?? assets.get(`props/${object.prop}`);
   const float = object.type === "pickup" && object.look !== "withered" ? Math.round(Math.sin(time * 3 + object.x * 0.1) * 2) - 3 : 0;
   const x = Math.round(object.x - camera.x);
   const y = Math.round(object.y - camera.y);
-  drawShadow(ctx, x, y + 2, 14, 5);
+  if (object.type !== "decor") drawShadow(ctx, x, y + 2, 14, 5);
   if (image) {
     ctx.drawImage(image, Math.round(x - image.width / 2), y - image.height + float);
     return;
   }
   ctx.fillStyle = object.type === "hazard" ? "#ff8a2e" : "#5ad1ff";
   ctx.fillRect(x - 6, y - 14 + float, 12, 14);
+}
+
+/** Scale of a member watching from the stands next to the full-size cast (docs/world/03 §9). */
+export const SPECTATOR_SCALE = 0.6;
+
+/** A member in the stands: the idle-down frame of their atlas, small, with a tiny cheering hop. */
+export function drawSpectator(ctx: CanvasRenderingContext2D, assets: WorldAssets, cast: CastDef, x: number, y: number, camera: Camera, time: number) {
+  const atlas = assets.get(`characters/${cast.id}-atlas`);
+  const w = Math.round(CHAR_FRAME_W * SPECTATOR_SCALE);
+  const h = Math.round(CHAR_FRAME_H * SPECTATOR_SCALE);
+  const hop = Math.sin(time * 5 + x * 0.37) > 0.82 ? -2 : 0;
+  const sx = Math.round(x - camera.x);
+  const sy = Math.round(y - camera.y) + hop;
+  if (!atlas) {
+    ctx.fillStyle = cast.themeColor;
+    ctx.fillRect(sx - 6, sy - 24, 12, 24);
+    return;
+  }
+  const dy = sy - Math.round((CHAR_FRAME_H - CHAR_FOOT_INSET) * SPECTATOR_SCALE);
+  ctx.drawImage(atlas, 0, 0, CHAR_FRAME_W, CHAR_FRAME_H, sx - Math.round(w / 2), dy, w, h);
 }
 
 export function drawBall(ctx: CanvasRenderingContext2D, assets: WorldAssets, ball: Ball, camera: Camera) {

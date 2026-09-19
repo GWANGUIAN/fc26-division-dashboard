@@ -115,13 +115,27 @@ export type MapTrigger = {
   type: "door";
   rect: TileBox;
   to: { scene: SceneId; tile: [number, number]; facing?: Facing };
+  /** The door opens only while this condition holds (`state/conditions.ts`); otherwise `locked` is shown when the player walks into it. */
+  when?: string;
+  /** What the player is told at a closed door. */
+  locked?: string;
 };
+
+/** A member watching from the stands: a small static sprite that cheers when spoken to (docs/world/03 §9). */
+export interface MapSpectator {
+  cast: CastId;
+  /** Tile the feet stand on (centre of the tile). */
+  tile: [number, number];
+  when?: string;
+}
 
 export interface MapExamine {
   id?: string;
   /** Centre of the examine area in tiles. */
   tile: [number, number];
   text: string;
+  /** The point exists only while this condition holds, so one spot can read differently as the story moves on. */
+  when?: string;
   /** Examine area in pixels [w, h] around the tile centre (default 64×48). */
   size?: [number, number];
   /**
@@ -138,13 +152,17 @@ export interface MapExamine {
  * - `ball`: the kick ball of the training ground; `bounds` is the pitch it may roll in.
  * - `goal`: touching it with the ball scores; `gate`: an ordered time-trial checkpoint;
  * - `hazard`: a cone — touching it costs a time-trial penalty.
+ * - `barrier`: a wall (tile rect) that blocks the player and NPCs only while `when` holds (the Weeder gate before the ending).
+ * - `decor`: a sprite drawn only while `when` holds (the barricade, the restored plaza grass); `at` is its feet position in pixels.
  */
 export type MapObject =
   | { id: string; type: "pickup"; tile: [number, number]; prop: string; /** "withered": draw the withered twin of the prop (a dry patch of grass). */ look?: "withered"; prompt?: string; when?: string }
   | { id: string; type: "ball"; tile: [number, number]; bounds: TileBox }
   | { id: string; type: "goal"; rect: TileBox }
   | { id: string; type: "gate"; rect: TileBox }
-  | { id: string; type: "hazard"; tile: [number, number]; prop?: string; size?: [number, number] };
+  | { id: string; type: "hazard"; tile: [number, number]; prop?: string; size?: [number, number] }
+  | { id: string; type: "barrier"; rect: TileBox; when: string }
+  | { id: string; type: "decor"; /** Feet position in pixels. */ at: [number, number]; prop: string; when: string };
 
 export interface OverworldMapData {
   id: "overworld";
@@ -179,6 +197,8 @@ export interface InteriorMapData {
   npcs: MapNpc[];
   triggers: MapTrigger[];
   objects?: MapObject[];
+  /** Members in the stands (the stadium during the finale). */
+  spectators?: MapSpectator[];
 }
 
 export interface MinigameRoundResult {

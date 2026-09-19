@@ -12,6 +12,8 @@ const FreekickModal = lazy(() => import("../../minigame/FreekickModal"));
 /** What the world needs from the dashboard around it: the roster the card game and card popup read, and the site-wide sound setting. */
 export interface DashboardBridge {
   streamers: StreamerRecord[] | undefined;
+  /** Who stands in the group photo (the celebration roster the dashboard's own group photo uses). */
+  groupPhotoStreamers: StreamerRecord[];
   woowakgoodUnlocked: boolean;
   sfxEnabled: boolean;
   sfxVolume: number;
@@ -20,7 +22,7 @@ export interface DashboardBridge {
 }
 
 export type WorldModal =
-  | { type: "minigame"; game: MinigameRoundResult["game"] }
+  | { type: "minigame"; game: MinigameRoundResult["game"]; /** Opened from the stadium showdown: its result counts for the showdown, not for arcade missions. */ context?: "finale" }
   | { type: "cards"; streamerId: string };
 
 type CardStreamer = Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision" | "sfx">;

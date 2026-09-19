@@ -92,7 +92,7 @@ const LAKE = [56, 29, 76, 39];
 const LAKE_DEEP = [60, 31, 72, 37];
 const BRIDGE = [58, 34, 72, 35];
 
-/** [cast, tile, ai, wander tiles [x, y, w, h]] — docs/world/03 §6 (interior residents live in the interior JSON). */
+/** [cast, tile, ai, wander tiles [x, y, w, h] | null, when] — docs/world/03 §6 (interior residents live in the interior JSON). */
 const NPCS = [
   ["elder", [36, 21], "stay"],
   ["kid", [44, 22], "wander", [33, 18, 15, 8]],
@@ -100,6 +100,8 @@ const NPCS = [
   ["dog-ball", [26, 10], "wander", [22, 7, 9, 8]],
   ["weeder-grunt", [54, 49], "stay"],
   ["weeder-grunt", [56, 51], "stay"],
+  // after the ending (S4): the Weeder King coaches next to the stadium
+  ["weedking", [55, 30], "stay", null, "flag:ending-seen"],
   ["doormomo", [66, 13], "stay"],
   ["sjh4018", [12, 12], "stay"],
   ["kaksjak0730", [71, 27], "stay"],
@@ -113,14 +115,34 @@ const NPCS = [
   ["tdnlamuron", [24, 53], "stay"],
 ];
 
-/** Plaza signs and a few other read-only objects (docs/world/03 §6 lists ~25 in total; the rest come with S4). */
+/** Doors that are shut until a condition holds (S4): what the player is told while it does not. */
+const LOCKED_DOORS = {
+  stadium: { when: "flag:stadium-open", locked: "스타디움 문이 굳게 닫혀 있다. 잔디 조각을 모두 모으면 열릴 것 같다." },
+};
+
+/** Plaza signs, district signs and the gate plates (docs/world/03 §6). Texts follow the story: a point with `when` exists only
+ * while it holds, so the stadium plate and the Weeder warning read differently before and after the story moves on.
+ */
 const EXAMINE = [
   { id: "sign-plaza", tile: [35, 25], text: "잔디동 광장. 표지판에는 화살표만 그려져 있다.", size: [48, 40] },
   { id: "bench-plaza", tile: [34, 23], text: "햇볕에 데워진 벤치. 앉아서 쉬고 싶어진다.", size: [64, 40] },
   { id: "fountain-statue", tile: [40, 24], text: "축구공을 든 잔디 요정 동상이다. 물줄기가 리듬을 타고 솟는다.", size: [96, 40] },
   { id: "clubhouse-plate", tile: [39, 15], text: "클럽하우스 입구. 문 옆 돌판은 비어 있다.", size: [64, 40] },
-  { id: "stadium-plate", tile: [37, 43], text: "잔디동 스타디움 정문. 굳게 닫힌 것은 아니지만 아직은 조용하다.", size: [64, 40] },
-  { id: "weed-warning", tile: [53, 47], text: "경고판 — 빨간 줄이 그어진 새싹 그림. 이 앞은 제초동 구역이다.", size: [48, 48] },
+  { id: "stadium-plate", tile: [37, 43], text: "잔디동 스타디움 정문. 굳게 닫혀 있다. 잔디 조각을 모두 모으면 열린다고 한다.", size: [64, 40], when: "not:flag:stadium-open" },
+  { id: "stadium-plate-open", tile: [37, 43], text: "잔디동 스타디움 정문. 문이 활짝 열려 있다. 안에서 결전이 기다린다.", size: [64, 40], when: "flag:stadium-open&not:flag:ending-seen" },
+  { id: "stadium-plate-after", tile: [37, 43], text: "잔디동 스타디움 정문. 안쪽에서 응원의 여운이 아직 들리는 듯하다.", size: [64, 40], when: "flag:ending-seen" },
+  { id: "weed-warning", tile: [53, 47], text: "경고판 — 빨간 줄이 그어진 새싹 그림. 이 앞은 제초동 구역이다.", size: [48, 48], when: "not:flag:area-weed-open" },
+  { id: "weed-warning-after", tile: [53, 47], text: "경고판 — 새싹 그림 위에 누군가 초록 스티커를 붙여 놓았다. 이제 이 앞도 지나갈 수 있다.", size: [48, 48], when: "flag:area-weed-open" },
+  { id: "store-sign", tile: [35, 51], text: "잔디 편의점. 간판에 우유병 그림이 그려져 있다.", size: [64, 40] },
+  { id: "cafe-sign", tile: [45, 51], text: "왁물원 카페. 창가에 종이가 잔뜩 붙어 있다.", size: [64, 40] },
+  { id: "training-sign", tile: [19, 9], text: "훈련장. '골대 정면으로 자신 있게!'라고 적혀 있다.", size: [48, 48] },
+  { id: "cloud-sign", tile: [19, 16], text: "구름 요새 가는 길. 바람이 세니 모자를 조심하세요.", size: [48, 48] },
+  { id: "rune-sign", tile: [60, 15], text: "룬 언덕. 돌에 새겨진 글자가 희미하게 빛난다.", size: [48, 48] },
+  { id: "spring-sign", tile: [15, 22], text: "봄 정원 가는 길. 길 끝에서 벚꽃 냄새가 난다.", size: [48, 48] },
+  { id: "dragon-sign", tile: [8, 42], text: "용의 언덕. 언덕 위 황금 용 조각이 햇빛에 반짝인다.", size: [48, 48] },
+  { id: "forge-sign", tile: [10, 53], text: "공업지구. 어디선가 망치 소리와 번개 치는 소리가 들린다.", size: [48, 48] },
+  { id: "frost-sign", tile: [58, 27], text: "서리 호수 마을. 링크 옆에 스케이트 자국이 남아 있다.", size: [48, 48] },
+  { id: "lake-sign", tile: [57, 29], text: "호수 안내판. '깊은 곳은 들어가지 마세요. 랜턴 친구들이 놀고 있어요.'", size: [48, 48] },
   // delivery mailboxes (S3, docs/world/03 §7): `action` hands over the parcel that belongs to this box
   { id: "mb-west", tile: [14, 38], text: "우편함이다. 지금은 넣을 것이 없다.", size: [48, 48], action: "mailbox:mb-west" },
   { id: "mb-east", tile: [69, 27], text: "우편함이다. 지금은 넣을 것이 없다.", size: [48, 48], action: "mailbox:mb-east" },
@@ -138,6 +160,11 @@ const OBJECTS = [
   { id: "jelly-lantern-c", type: "pickup", tile: [74, 31], prop: "jelly-lantern-c", prompt: "줍기", when: "mission-active:m-haepalin-lanterns" },
   // 광장의 시든 잔디 자리 (잔디 할아버지 서브)
   ...[[34, 19], [36, 24], [43, 19], [45, 23], [40, 25]].map(([x, y], i) => ({ id: `water-${i + 1}`, type: "pickup", tile: [x, y], prop: "grass-tuft-prop", look: "withered", prompt: "물 주기", when: "mission-active:s-elder-water" })),
+  // 광장 잔디 영구 복원 (S4): 물 주기를 끝내면 그 자리에 싱싱한 잔디가 난다
+  ...[[34, 19], [36, 24], [43, 19], [45, 23], [40, 25]].map(([x, y], i) => ({ id: `plaza-grass-${i + 1}`, type: "decor", prop: "grass-tuft-prop", at: [x * 32 + 16, y * 32 + 16], when: "flag:plaza-restored" })),
+  // 제초동 게이트 (S4): 엔딩 전에는 바리케이드가 막고, 엔딩이 끝나면 열린다
+  { id: "weed-gate", type: "barrier", rect: [55, 49, 1, 3], when: "not:flag:area-weed-open" },
+  ...[49, 50, 51].map((ty, i) => ({ id: `barricade-${i + 1}`, type: "decor", prop: "barricade", at: [55 * 32, ty * 32 + 30], when: "not:flag:area-weed-open" })),
   // 쥬멩이 킥: 훈련장의 공과 서쪽 골대
   { id: "ball-kick", type: "ball", tile: [27, 10], bounds: [20, 6, 12, 10] },
   { id: "goal-west", type: "goal", rect: [20, 10, 2, 3] },
@@ -366,11 +393,10 @@ export function buildOverworldMap() {
   // deep water except under the bridge
   collision.push(tileRect(LAKE_DEEP[0], LAKE_DEEP[1], LAKE_DEEP[2] - LAKE_DEEP[0] + 1, BRIDGE[1] - LAKE_DEEP[1]));
   collision.push(tileRect(LAKE_DEEP[0], BRIDGE[3] + 1, LAKE_DEEP[2] - LAKE_DEEP[0] + 1, LAKE_DEEP[3] - BRIDGE[3]));
-  // weed zone: fence line on the north and west edges, gate barricade (opened by the ending in S4)
+  // weed zone: fence line on the north and west edges. The barricade in the gate is the `weed-gate` object (opened by the ending).
   collision.push(tileRect(54, 44, 2, 5)); // west wall, north of the gate
   collision.push(tileRect(54, 52, 2, 7)); // west wall, south of the gate
   collision.push(tileRect(56, 44, 22, 1)); // north wall
-  collision.push(tileRect(55, 49, 1, 3)); // barricade in the gate
 
   // ── prop placement bookkeeping ─────────────────────────────────────────────────────────
   const hard = Array.from({ length: H }, () => new Uint8Array(W)); // props never go here
@@ -473,11 +499,10 @@ export function buildOverworldMap() {
     ["corner-flag", ...at(5, 54)], ["corner-flag", ...at(5, 58)], ["corner-flag", ...at(17, 54)], ["corner-flag", ...at(17, 58)],
   ];
   for (const [id, x, y] of forced) place(id, x, y, true);
-  // barbed fences along the weed zone's west and north edge, and the barricade in the gate
+  // barbed fences along the weed zone's west and north edge (the barricade in the gate is a conditional `decor` object)
   for (let ty = 44; ty <= 48; ty++) place("fence-barbed-v", 54 * TILE + 16, ty * TILE + 30, true);
   for (let ty = 52; ty <= 57; ty++) place("fence-barbed-v", 54 * TILE + 16, ty * TILE + 30, true);
   for (let tx = 56; tx <= 77; tx += 2) place("fence-barbed-h", tx * TILE + 32, 44 * TILE + 30, true);
-  for (let ty = 49; ty <= 51; ty++) place("barricade", 55 * TILE, ty * TILE + 30, true);
   // training-ground fence, just outside the pitch (the ball bounces off the pitch rect itself): gaps on the south side and the east side
   {
     const px0 = TRAINING[0] * TILE;
@@ -535,11 +560,12 @@ export function buildOverworldMap() {
   props.sort((a, b) => a.y - b.y || a.x - b.x);
 
   // ── npcs, triggers, buildings ──────────────────────────────────────────────────────────
-  const npcs = NPCS.map(([cast, tile, ai, wander]) => ({ cast, tile, ai, ...(wander ? { wander } : {}) }));
+  const npcs = NPCS.map(([cast, tile, ai, wander, when]) => ({ cast, tile, ai, ...(wander ? { wander } : {}), ...(when ? { when } : {}) }));
   const triggers = doors.map((b) => ({
     type: "door",
     rect: b.door,
     to: { scene: `interior:${b.interior}`, tile: [10, 10], facing: "up" },
+    ...(LOCKED_DOORS[b.id] ?? {}),
   }));
   const buildings = BUILDINGS.map(({ id, rect, door, interior }) => ({ id, rect, ...(door ? { door } : {}), ...(interior ? { interior } : {}) }));
 
