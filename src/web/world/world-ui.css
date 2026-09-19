@@ -377,3 +377,5 @@
 .world-debug button:hover { background: #12302a; }
 .world-debug code { color: #b8ffe8; }
 .world-debug__pick { display: flex; flex-direction: column; gap: 2px; padding-top: 6px; border-top: 1px solid #ffffff22; }
+
+.world-title--restored { background-color: #467c42; background-blend-mode: soft-light; }

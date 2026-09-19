@@ -1,3 +1,5 @@
+import { repeatEvent } from "./state/repeatContent";
+import { claimDaily } from "./state/daily";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from "react";
 import { X } from "lucide-react";
 import "./world.css";
@@ -362,7 +364,7 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
   const dispatch = useCallback(
     (event: MissionEvent) => {
       if (!store || !playerId) return;
-      const result = applyMissionEvent(withPlayer(store.save, playerId), event);
+      const result = applyMissionEvent(repeatEvent(withPlayer(store.save, playerId), event, Date.now()), event);
       if (result.save === store.save) return;
       commit(() => result.save);
       for (const change of result.changes) {
@@ -429,7 +431,8 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
   /** A minigame round of a modal the world itself opened — the only plays that count. */
   const handleRoundEnd = useCallback(
     (result: MinigameRoundResult) => {
-      if (modalRef.current?.type !== "minigame" || modalRef.current.context !== "finale") {
+      if (modalRef.current?.type !== "minigame" || modalRef.current.game !== result.game) return;
+      if (modalRef.current.context !== "finale") {
         dispatch({ type: "minigame", result });
         return;
       }
@@ -451,7 +454,7 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
     },
     [dispatch, playerId, pushSequence, store],
   );
-  const handleCardView = useCallback((id: string, variant: string) => dispatch({ type: "card-view", cardId: id, variant }), [dispatch]);
+  const handleCardView = useCallback((id: string, variant: string) => { if (modalRef.current?.type === "cards" && modalRef.current.streamerId === id) dispatch({ type: "card-view", cardId: id, variant }); }, [dispatch]);
 
   const handleRunEvent = useCallback(
     (event: RunEvent) => {
@@ -531,7 +534,7 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
     (next: WorldModal) => {
       setModal(next);
       modalRef.current = next;
-      audio.playBgm(null); // the minigames bring their own music
+      audio.playBgm(next.type === "minigame" && next.game === "rush" ? ["rush"] : null); // Existing games bring their own music.
     },
     [audio],
   );
@@ -760,7 +763,7 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
       >
         {(phase === "boot" || phase === "core") && <LoadingScreen progress={progress} />}
         {phase === "title" && (
-          <TitleScreen hasSave={savedGame !== null} onContinue={startContinue} onNew={startNew} onExit={onClose} debug={debug} />
+          <TitleScreen ended={Boolean(savedGame?.flags["ending-seen"])} hasSave={savedGame !== null} onContinue={startContinue} onNew={startNew} onExit={onClose} debug={debug} />
         )}
         {phase === "select" && <CharacterSelect audio={audio} onConfirm={confirmCharacter} onBack={() => setPhase("title")} />}
         {phase === "prologue" && pendingPlayer && (
@@ -829,14 +832,24 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
         )}
       </div>
       {/* The minigames and the card popup keep their own fixed layers; outside the scaled stage they use real pixels. */}
-      {phase === "play" && (
+      {phase === "play" && save && (
         <WorldModals
           modal={modal}
+          save={save}
+          onClaimDaily={(date) => {
+            if (!store) return;
+            const before = store.save.daily.stamps.length;
+            commit(current => claimDaily(current, date, Date.now()));
+            if (store.save.daily.stamps.length > before) {
+              dispatch({ type: "daily-claimed" });
+              pushSequence([{ text: "오늘의 스탬프를 받았어요!", sfx: "stamp" }]);
+            }
+          }}
           dashboard={dashboard}
           onClose={closeModal}
           onRoundEnd={handleRoundEnd}
           onCardView={handleCardView}
-          onSelectCard={(streamerId) => setModal({ type: "cards", streamerId })}
+          onSelectCard={(streamerId) => openModal({ type: "cards", streamerId })}
         />
       )}
       <button type="button" className="world-overlay__close" onClick={onClose} aria-label="월드 나가기">

@@ -11,10 +11,14 @@ describe("parseAction", () => {
     expect(parseAction("mailbox:mb-west")).toEqual({ type: "mailbox", id: "mb-west" });
   });
 
-  it("returns null for nothing, unknown games (the grass rush machine comes with S5) and junk", () => {
+  it("returns null for nothing, unknown games and junk", () => {
     expect(parseAction(undefined)).toBeNull();
     expect(parseAction("")).toBeNull();
-    expect(parseAction("minigame:rush")).toBeNull();
+    expect(parseAction("minigame:unknown")).toBeNull();
+    expect(parseAction("minigame:rush")).toEqual({ type: "minigame", game: "rush" });
+    expect(parseAction("daily")).toEqual({ type: "daily" });
+    expect(parseAction("collection")).toEqual({ type: "collection" });
+    expect(parseAction("rush-factory")).toEqual({ type: "rush-factory" });
     expect(parseAction("mailbox:")).toBeNull();
     expect(parseAction("bogus")).toBeNull();
   });

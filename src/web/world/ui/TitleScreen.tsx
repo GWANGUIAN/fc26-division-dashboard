@@ -4,13 +4,14 @@ import { buttonProps } from "./buttonProps";
 
 interface TitleScreenProps {
   hasSave: boolean;
+  ended?: boolean;
   onContinue: () => void;
   onNew: () => void;
   onExit: () => void;
   debug: boolean;
 }
 
-export function TitleScreen({ hasSave, onContinue, onNew, onExit, debug }: TitleScreenProps) {
+export function TitleScreen({ hasSave, ended, onContinue, onNew, onExit, debug }: TitleScreenProps) {
   const art = getWorldAssetUrl("ui/title-bg");
   const emblem = getWorldAssetUrl("ui/logo-emblem");
   const listRef = useRef<HTMLDivElement>(null);
@@ -35,7 +36,7 @@ export function TitleScreen({ hasSave, onContinue, onNew, onExit, debug }: Title
   }
 
   return (
-    <div className="world-title" style={art ? { backgroundImage: `url(${art})` } : undefined}>
+    <div className={`world-title${ended ? " world-title--restored" : ""}`} style={art ? { backgroundImage: `url(${art})` } : undefined}>
       <div className="world-title__panel">
         {emblem ? <img className="world-title__emblem" src={emblem} alt="" draggable={false} /> : <div className="world-title__emblem world-title__emblem--fallback" aria-hidden="true">🌱</div>}
         <h1 className="world-title__logo">잔디동 월드</h1>

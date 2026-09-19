@@ -62,6 +62,7 @@ export interface SceneObject {
   prop?: string;
   look?: "withered";
   prompt?: string;
+  autoCollect?: boolean;
   when?: string;
 }
 

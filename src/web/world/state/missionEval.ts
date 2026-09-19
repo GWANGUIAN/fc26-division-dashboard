@@ -1,3 +1,4 @@
+import { PLAYABLE_CAST } from "../data/worldCast";
 import type { DeliveryTarget, MissionDef } from "../data/missionDefs";
 import type { CastId, MinigameRoundResult } from "../types";
 
@@ -9,6 +10,7 @@ import type { CastId, MinigameRoundResult } from "../types";
 export type MissionEvent =
   | { type: "minigame"; result: MinigameRoundResult }
   | { type: "card-view"; cardId: string; variant: string }
+  | { type: "daily-claimed" }
   | { type: "pickup"; id: string }
   | { type: "delivered"; item: string; to: DeliveryTarget }
   | { type: "talk"; cast: CastId }
@@ -33,6 +35,7 @@ export interface MissionProgressData {
 
 export interface EvalContext {
   player: CastId | null;
+  flags?: Record<string, true>;
   /** Everything picked up so far, including the pickup this event reports. */
   collected: readonly string[];
 }
@@ -50,7 +53,7 @@ const lowerIsBetter = (def: MissionDef) => def.kind === "minigame_best" && def.g
 export function meetsMinigameGoal(def: Extract<MissionDef, { kind: "minigame_best" }>, result: MinigameRoundResult): boolean {
   if (def.game !== "any" && def.game !== result.game) return false;
   if (def.max !== undefined && !(result.score <= def.max)) return false;
-  if (def.min !== undefined && !(result.score >= def.min)) return false;
+  if (def.min !== undefined && !((result.game === "rush" ? result.distance ?? result.score : result.score) >= def.min)) return false;
   return true;
 }
 
@@ -82,6 +85,12 @@ export function initialProgress(def: MissionDef): MissionProgressData {
 export function evaluateEvent(def: MissionDef, raw: unknown, event: MissionEvent, ctx: EvalContext): EvalResult | null {
   const progress = asProgress(raw);
   switch (def.kind) {
+    case "collection_count":
+      return { progress, ready: ctx.collected.filter(id => /^gb-\d{2}$/.test(id)).length >= def.count };
+    case "card_collection":
+      return { progress, ready: PLAYABLE_CAST.every(c => ctx.flags?.[`card:${c.id}`]) };
+    case "daily_stamp":
+      return event.type === "daily-claimed" || ctx.flags?.["daily-stamp-earned"] ? { progress, ready: true } : null;
     case "talk":
       return null; // finished by the conversation itself (missions.completeTalk)
 
@@ -98,7 +107,7 @@ export function evaluateEvent(def: MissionDef, raw: unknown, event: MissionEvent
     case "minigame_best": {
       if (event.type !== "minigame") return null;
       if (def.game !== "any" && def.game !== event.result.game) return null;
-      const next = { ...progress, best: better(def, progress.best, event.result.score) };
+      const next = { ...progress, best: better(def, progress.best, (event.result.game === "rush" ? event.result.distance ?? event.result.score : event.result.score)) };
       return { progress: next, ready: meetsMinigameGoal(def, event.result) };
     }
 
@@ -163,6 +172,8 @@ function sameTarget(a: DeliveryTarget, b: DeliveryTarget): boolean {
 export function describeProgress(def: MissionDef, raw: unknown, collected: readonly string[]): string {
   const progress = asProgress(raw);
   switch (def.kind) {
+    case "collection_count":
+      return `${collected.filter(id => /^gb-\d{2}$/.test(id)).length}/${def.count} 황금 공`;
     case "collect":
       return `${def.items.filter((id) => collected.includes(id)).length}/${def.items.length} ${def.noun}`;
     case "delivery":
@@ -171,7 +182,7 @@ export function describeProgress(def: MissionDef, raw: unknown, collected: reado
       return `${(progress.asked ?? []).length}/${def.targets.length} 명`;
     case "minigame_best": {
       if (progress.best === undefined) return "";
-      return def.game === "cardmatch" ? `최고 ${progress.best}턴` : `최고 ${progress.best}${def.game === "kickups" ? "회" : def.game === "freekick" ? "골" : "점"}`;
+      return def.game === "cardmatch" ? `최고 ${progress.best}턴` : `최고 ${progress.best}${def.game === "kickups" ? "회" : def.game === "freekick" ? "골" : def.game === "rush" ? "m" : "점"}`;
     }
     case "time_trial":
       return progress.best === undefined ? `제한 ${def.seconds}초` : `최고 ${progress.best.toFixed(1)}초`;

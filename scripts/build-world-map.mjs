@@ -1,3 +1,4 @@
+import { GOLDEN_BALLS } from "../src/web/world/data/goldenBalls.ts";
 // Generates the first draft of the overworld map (docs/world/03) — `src/web/world/data/maps/overworld.json`.
 //
 //   node scripts/build-world-map.mjs                 write the whole file (overwrites hand edits!)
@@ -124,6 +125,8 @@ const LOCKED_DOORS = {
  * while it holds, so the stadium plate and the Weeder warning read differently before and after the story moves on.
  */
 const EXAMINE = [
+  { id: "daily-board", tile: [44,25], text: "오늘의 훈련 게시판", size: [48,40], action: "daily" },
+  { id: "collection-book", tile: [46,25], text: "잔디동 도감", size: [48,40], action: "collection" },
   { id: "sign-plaza", tile: [35, 25], text: "잔디동 광장. 표지판에는 화살표만 그려져 있다.", size: [48, 40] },
   { id: "bench-plaza", tile: [34, 23], text: "햇볕에 데워진 벤치. 앉아서 쉬고 싶어진다.", size: [64, 40] },
   { id: "fountain-statue", tile: [40, 24], text: "축구공을 든 잔디 요정 동상이다. 물줄기가 리듬을 타고 솟는다.", size: [96, 40] },
@@ -154,6 +157,8 @@ const EXAMINE = [
  * The lanterns and the plaza grass spots only show while their mission is active.
  */
 const OBJECTS = [
+  { id: "daily-board-art", type: "decor", at: [1424,816], prop: "board-daily", when: "" },
+  ...GOLDEN_BALLS.filter(b => b.scene === "overworld").map(b => ({ id: b.id, type: "pickup", tile: b.tile, prop: "goldball-1", autoCollect: true, prompt: "황금 축구공", ...(b.ending ? { when: "flag:ending-seen" } : {}) })),
   // 해파리 랜턴 (호수 일대)
   { id: "jelly-lantern-a", type: "pickup", tile: [57, 36], prop: "jelly-lantern-a", prompt: "줍기", when: "mission-active:m-haepalin-lanterns" },
   { id: "jelly-lantern-b", type: "pickup", tile: [66, 41], prop: "jelly-lantern-b", prompt: "줍기", when: "mission-active:m-haepalin-lanterns" },

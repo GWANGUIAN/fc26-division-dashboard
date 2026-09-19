@@ -9,17 +9,20 @@ export function missionIconKey(def: MissionDef, status: MissionStatus): string {
     case "talk":
     case "talk_chain":
       return "ui/mi-talk";
+    case "card_collection":
     case "card_reveal":
     case "card_variant":
       return "ui/mi-card";
     case "minigame_best":
       return def.game === "kickups" ? "ui/mi-kickups" : def.game === "freekick" ? "ui/mi-freekick" : def.game === "cardmatch" ? "ui/mi-cardmatch" : "ui/mi-sum10";
+    case "collection_count":
     case "collect":
       return "ui/mi-collect";
     case "delivery":
       return "ui/mi-delivery";
     case "kick_goals":
       return "ui/mi-kickups";
+    case "daily_stamp":
     case "time_trial":
     case "finale":
       return "ui/mi-progress";

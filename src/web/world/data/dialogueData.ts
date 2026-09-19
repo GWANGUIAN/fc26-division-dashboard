@@ -47,6 +47,11 @@ export interface MissionScript {
 }
 
 export const MISSION_SCRIPTS: Readonly<Record<string, MissionScript>> = {
+  "s-kid-hide": { offer: ["황금 축구공 아무 5개 찾기. 함께 해 볼까?"], accept: "기다리고 있을게.", active: ["마을 곳곳 · 도감에서 위치 확인"], complete: ["고마워! 황금 공 숨바꼭질, 멋지게 해냈구나."] },
+  "s-arcade-rank": { offer: ["잔디 러시 1000m 달성. 함께 해 볼까?"], accept: "기다리고 있을게.", active: ["오락실 5번 기계 · 모든 기계의 최고 랭크는 도감에 누적"], complete: ["고마워! 오락실 랭크 도전, 멋지게 해냈구나."] },
+  "m-91-cards": { offer: ["멤버 11명의 카드 공개. 함께 해 볼까?"], accept: "기다리고 있을게.", active: ["감독실 카드 수납장 · 도감에서 미공개 멤버 확인"], complete: ["고마워! 열한 명의 카드 도감, 멋지게 해냈구나."] },
+  "s-rush-daily": { offer: ["일일 미션 3개 완료 후 스탬프 받기. 함께 해 볼까?"], accept: "기다리고 있을게.", active: ["광장 게시판 · KST 자정에 새 과제"], complete: ["고마워! 잔디 코치의 매일 훈련, 멋지게 해냈구나."] },
+  "s-factory-garden": { offer: ["할아버지와 잔디 코치에게 정원 조언 듣기. 함께 해 볼까?"], accept: "기다리고 있을게.", active: ["공장 정원사 → 광장 할아버지 → 스타디움 옆 제초왕"], complete: ["고마워! 공장을 정원으로, 멋지게 해냈구나."] },
   // tutorial (02 §8)
   "m-00-hello": {
     complete: [

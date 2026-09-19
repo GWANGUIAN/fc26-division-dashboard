@@ -11,7 +11,7 @@ import type { CastId, MinigameRoundResult } from "../types";
 export type MinigameGame = MinigameRoundResult["game"];
 
 export type MissionKind =
-  | "talk" | "card_reveal" | "card_variant" | "minigame_best"
+  | "collection_count" | "card_collection" | "daily_stamp" | "talk" | "card_reveal" | "card_variant" | "minigame_best"
   | "collect" | "delivery" | "time_trial" | "kick_goals" | "talk_chain" | "finale";
 
 /** How each minigame is called and counted ("축구공 합 10", "점"), for round prompts and progress text. */
@@ -19,6 +19,7 @@ export const MINIGAME_INFO: Record<MinigameGame, { name: string; unit: string }>
   "soccer-sum10": { name: "축구공 합 10", unit: "점" },
   kickups: { name: "축구공 튀기기", unit: "회" },
   freekick: { name: "3D 프리킥", unit: "골" },
+  rush: { name: "잔디 러시", unit: "m" },
   cardmatch: { name: "카드 짝 맞추기", unit: "턴" },
 };
 
@@ -69,6 +70,9 @@ interface MissionBase {
 }
 
 export type MissionSpec =
+  | { kind: "collection_count"; count: number }
+  | { kind: "card_collection" }
+  | { kind: "daily_stamp" }
   | { kind: "talk" }
   | { kind: "card_reveal"; /** "@player" = the chosen member's own card. */ cardId: string }
   | { kind: "card_variant"; cardId: string; variant: string }
@@ -85,6 +89,11 @@ export type MissionDef = MissionBase & MissionSpec;
 const MAIN_REWARD: MissionReward = { shard: 1 };
 
 export const MISSION_DEFS: readonly MissionDef[] = [
+  { id: "s-kid-hide", giver: "kid", title: "황금 공 숨바꼭질", kind: "collection_count", count: 5, main: false, objective: "황금 축구공 아무 5개 찾기", hint: "마을 곳곳 · 도감에서 위치 확인", requiresFlags: ["ending-seen"], reward: { badge: "ball-hunter" } },
+  { id: "s-arcade-rank", giver: "shopkeeper", title: "오락실 랭크 도전", kind: "minigame_best", game: "rush", min: 1000, main: false, objective: "잔디 러시 1000m 달성", hint: "오락실 5번 기계 · 모든 기계의 최고 랭크는 도감에 누적", requiresFlags: ["ending-seen"], reward: { badge: "rush-1000" } },
+  { id: "m-91-cards", giver: "woowakgood", title: "열한 명의 카드 도감", kind: "card_collection",  main: false, objective: "멤버 11명의 카드 공개", hint: "감독실 카드 수납장 · 도감에서 미공개 멤버 확인", requiresFlags: ["ending-seen"], reward: { badge: "card-collector" } },
+  { id: "s-rush-daily", giver: "weedking", title: "잔디 코치의 매일 훈련", kind: "daily_stamp",  main: false, objective: "일일 미션 3개 완료 후 스탬프 받기", hint: "광장 게시판 · KST 자정에 새 과제", requiresFlags: ["ending-seen"], reward: { badge: "daily-first" } },
+  { id: "s-factory-garden", giver: "weeder-grunt", title: "공장을 정원으로", kind: "talk_chain", targets: ["elder", "weedking"], main: false, objective: "할아버지와 잔디 코치에게 정원 조언 듣기", hint: "공장 정원사 → 광장 할아버지 → 스타디움 옆 제초왕", requiresFlags: ["ending-seen"], reward: { badge: "factory-gardener", flags: ["factory-garden"] } },
   // ── tutorial (act 1) ────────────────────────────────────────────────────────────────────
   {
     id: "m-00-hello", giver: "elder", title: "마을 인사", kind: "talk", main: false, tutorial: true,
@@ -226,6 +235,17 @@ export interface BadgeDef {
 }
 
 export const BADGES: Record<string, BadgeDef> = {
+  "ball-hunter": { id: "ball-hunter", label: "공 사냥꾼" },
+  "ball-collector": { id: "ball-collector", label: "공 수집가" },
+  "ball-master": { id: "ball-master", label: "공 마스터" },
+  "card-collector": { id: "card-collector", label: "카드 수집가" },
+  "rush-1000": { id: "rush-1000", label: "러시 1000m" },
+  "daily-first": { id: "daily-first", label: "첫 일일 훈련" },
+  "daily-7": { id: "daily-7", label: "일일 스탬프 7" },
+  "daily-14": { id: "daily-14", label: "일일 스탬프 14" },
+  "daily-30": { id: "daily-30", label: "일일 스탬프 30" },
+  "factory-gardener": { id: "factory-gardener", label: "공장 정원사" },
+
   "first-game": { id: "first-game", label: "첫 한 판", icon: "ui/bd-first-game" },
   "delivery-rookie": { id: "delivery-rookie", label: "배달 왕초보" },
   "green-thumb": { id: "green-thumb", label: "초록 손", icon: "ui/bd-green-thumb" },

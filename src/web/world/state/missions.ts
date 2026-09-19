@@ -37,7 +37,9 @@ const withMission = <T extends MissionSave>(save: T, id: string, entry: WorldSav
 export function acceptMission<T extends MissionSave>(save: T, id: string, now = Date.now()): T {
   const def = getMissionDef(id);
   if (!def || missionStatus(save, def) !== "available") return save;
-  return withMission(save, id, { status: "active", startedAt: now, progress: initialProgress(def) });
+  const progress = initialProgress(def);
+  const evaluated = evaluateEvent(def, progress, { type: "pickup", id: "" }, { player: save.player, collected: save.collected, flags: save.flags });
+  return withMission(save, id, { status: evaluated?.ready ? "ready" : "active", startedAt: now, progress: evaluated?.progress ?? progress });
 }
 
 /** A talk mission is a single conversation: it completes as soon as that conversation ends. */
@@ -64,7 +66,7 @@ export function applyMissionEvent<T extends MissionSave>(save: T, event: Mission
   for (const def of missionDefsFor(save.player)) {
     const entry = next.missions[def.id];
     if (missionStatus(next, def) !== "active") continue;
-    const result = evaluateEvent(def, entry?.progress, event, { player: next.player, collected: next.collected });
+    const result = evaluateEvent(def, entry?.progress, event, { player: next.player, collected: next.collected, flags: next.flags });
     if (!result) continue;
     const status: MissionStatus = result.ready ? "ready" : "active";
     next = withMission(next, def.id, { ...entry, status, progress: result.progress });

@@ -49,7 +49,7 @@ function buildObjects(entries: readonly MapObject[] | undefined): SceneObject[] 
     switch (entry.type) {
       case "pickup": {
         const at = tileCenter(entry.tile[0], entry.tile[1]);
-        return { id: entry.id, type: "pickup", x: at.x, y: at.y, prop: entry.prop, ...(entry.look ? { look: entry.look } : {}), ...(entry.prompt ? { prompt: entry.prompt } : {}), ...(entry.when ? { when: entry.when } : {}) };
+        return { id: entry.id, type: "pickup", x: at.x, y: at.y, prop: entry.prop, autoCollect: entry.autoCollect, ...(entry.look ? { look: entry.look } : {}), ...(entry.prompt ? { prompt: entry.prompt } : {}), ...(entry.when ? { when: entry.when } : {}) };
       }
       case "hazard": {
         const at = tileCenter(entry.tile[0], entry.tile[1]);

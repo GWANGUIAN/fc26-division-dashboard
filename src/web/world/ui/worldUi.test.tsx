@@ -1,3 +1,6 @@
+import { DailyBoard, CollectionBook } from "./RepeatContent";
+import { GrassRushModal } from "../arcade/GrassRushModal";
+import { refreshDaily } from "../state/daily";
 import { renderToString } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { SILENT_AUDIO } from "../audio/worldAudio";
@@ -99,5 +102,25 @@ describe("mission icons and labels", () => {
     expect(rewardText(getMissionDef("m-doormomo-sum10")!)).toBe("잔디 조각 +1");
     expect(rewardText(getMissionDef("m-02-arcade")!)).toContain("첫 한 판");
     expect(rewardText(getMissionDef("m-00-hello")!)).toBe("—");
+  });
+});
+
+
+describe("S5 panels", () => {
+  it("renders saved ranks, twenty ball hints, badges and the hidden card guide", () => {
+    const save = createNewGameSave("janine95kim"); save.bests.rush = 1000; save.collected = ["gb-20"];
+    const html = renderToString(<CollectionBook save={save} hiddenUnlocked onClose={noop} />);
+    expect(html).toContain("에이스급"); expect(html).toContain("gb-20");
+    expect(html).toContain("공장 실내 금고 앞"); expect(html).toContain("히든 카드가 해금");
+  });
+  it("renders today's completed claim and all thirty stamp slots", () => {
+    const save = refreshDaily(createNewGameSave("janine95kim"), Date.now());
+    save.flags["ending-seen"] = true; save.daily.stamps = [save.daily.date];
+    const html = renderToString(<DailyBoard save={save} onClaim={noop} onClose={noop} />);
+    expect(html).toContain("오늘 수령 완료"); expect(html).toContain("disabled"); expect(html).toContain("30일 스탬프 카드");
+  });
+  it("renders the factory runner controls and saved best", () => {
+    const html = renderToString(<GrassRushModal player="janine95kim" factory best={600} onClose={noop} />);
+    expect(html).toContain("제초 공장 코스"); expect(html).toContain("슬라이드"); expect(html).toContain("상현급");
   });
 });

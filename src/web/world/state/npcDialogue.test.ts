@@ -172,6 +172,8 @@ describe("filler lines", () => {
     let save = withFlags(mainOpen(), ...ENDING_FLAGS);
     save = { ...save, missions: { ...save.missions, "m-doormomo-sum10": { status: "completed" } } };
     expect(talkTo("doormomo", save, { talked: 1 }).node.lines[0].text).toBe(CAST_SCRIPTS.doormomo!.post![0]);
+    save.missions["s-kid-hide"] = { status: "completed" };
+    save.missions["s-factory-garden"] = { status: "completed" };
     expect(talkTo("kid", save, { talked: 1 }).node.lines[0].text).toBe(CAST_SCRIPTS.kid!.post![0]);
     expect(talkTo("weeder-grunt", save, { talked: 1 }).node.lines[0].text).toBe(CAST_SCRIPTS["weeder-grunt"]!.post![0]);
   });
@@ -227,6 +229,7 @@ describe("the director's story talks", () => {
 
   it("uses the after-ending lines for the director once the ending is seen", () => {
     const save = withFlags(allShards(), "stadium-open", ...ENDING_FLAGS);
+    save.missions["m-91-cards"] = { status: "completed" };
     expect(talkTo("woowakgood", save, { talked: 1 }).node.lines[0].text).toBe(CAST_SCRIPTS.woowakgood!.post![0]);
   });
 });

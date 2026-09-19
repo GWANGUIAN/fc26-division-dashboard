@@ -44,6 +44,7 @@ export const AMBIENCE_SHARE = 0.4;
 
 /** The subset of docs/world/07 §2 in use: S2 (UI, dialogue, footsteps, doors, interaction), S3 (missions, pickups, runs, ball) and S4 (showdown, ending). */
 export type SfxId =
+  | "stamp"
   | "ui-move" | "ui-select" | "ui-cancel" | "ui-open" | "ui-close" | "ui-error"
   | "dialog-tick" | "dialog-next" | "dialog-open"
   | "step-grass" | "step-stone" | "step-wood" | "step-dirt" | "step-snow" | "step-metal" | "step-water"
@@ -53,6 +54,7 @@ export type SfxId =
   | "count-tick" | "count-go" | "timeup" | "whistle-short" | "whistle-long" | "core-stop" | "grow" | "crowd-roar";
 
 export const SFX_FILES: Record<SfxId, string> = {
+  stamp: "/sfxes/world-stamp.mp3",
   "ui-move": "/sfxes/world-ui-move.mp3",
   "ui-select": "/sfxes/world-ui-select.mp3",
   "ui-cancel": "/sfxes/world-ui-cancel.mp3",

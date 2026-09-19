@@ -634,6 +634,12 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
       checkDoors(dt);
       checkZone();
       checkCourse();
+      for (const object of pickups) {
+        if (object.autoCollect && Math.hypot(player.x - object.x, player.y - object.y) < 24 && !store.save.collected.includes(object.id)) {
+          audio.playSfx("pickup"); events().onPickup?.(object.id);
+        }
+      }
+      if (store.save !== lastSave) refreshFromSave();
       updateTarget();
       handleInteract();
       updateBall(dt);

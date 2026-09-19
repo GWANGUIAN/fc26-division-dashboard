@@ -123,7 +123,7 @@ describe("world engine (headless smoke run)", () => {
       onInteract: (target) => interactions.push(target),
       onWalked: (tiles) => walked.push(tiles),
       onLogKey: () => void logKeys++,
-      onPickup: (id) => void pickups.push(id),
+      onPickup: (id) => { pickups.push(id); store.save = { ...store.save, collected: [...store.save.collected, id] }; },
       onRunEvent: (event) => void runEvents.push(event),
     };
     const { ctx } = makeFakeContext();
@@ -287,6 +287,24 @@ describe("world engine (headless smoke run)", () => {
     await run(20);
     dispatch("keyup", "ArrowRight");
     expect(engine.getState().x).toBeGreaterThan(before.x);
+  });
+
+  it("collects golden balls by contact once, but never while a modal owns input", async () => {
+    engine.setUiBlocked(true);
+    engine.teleport("overworld", [36,19]);
+    await run(60);
+    expect(pickups).toEqual([]);
+    engine.setUiBlocked(false);
+    await run(5);
+    expect(pickups).toEqual(["gb-01"]);
+    await run(60);
+    expect(pickups).toEqual(["gb-01"]);
+    engine.teleport("interior:factory", [14,6]);
+    await run(60);
+    expect(pickups).not.toContain("gb-20");
+    store.save = { ...store.save, flags: { ...store.save.flags, "ending-seen": true } };
+    await run(5);
+    expect(pickups).toContain("gb-20");
   });
 
   it("stops offering a lantern once it is collected", async () => {

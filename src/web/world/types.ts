@@ -142,7 +142,7 @@ export interface MapExamine {
    * What E does besides showing `text` (see `state/actions.ts`): `minigame:<game>` opens an arcade
    * machine, `cards` the card cabinet, `mailbox:<id>` hands over a parcel.
    */
-  action?: string;
+  action?: string; // Also daily, collection, minigame:rush, rush-factory.
 }
 
 /**
@@ -156,7 +156,7 @@ export interface MapExamine {
  * - `decor`: a sprite drawn only while `when` holds (the barricade, the restored plaza grass); `at` is its feet position in pixels.
  */
 export type MapObject =
-  | { id: string; type: "pickup"; tile: [number, number]; prop: string; /** "withered": draw the withered twin of the prop (a dry patch of grass). */ look?: "withered"; prompt?: string; when?: string }
+  | { id: string; type: "pickup"; tile: [number, number]; prop: string; autoCollect?: boolean; /** "withered": draw the withered twin of the prop (a dry patch of grass). */ look?: "withered"; prompt?: string; when?: string }
   | { id: string; type: "ball"; tile: [number, number]; bounds: TileBox }
   | { id: string; type: "goal"; rect: TileBox }
   | { id: string; type: "gate"; rect: TileBox }
@@ -202,7 +202,9 @@ export interface InteriorMapData {
 }
 
 export interface MinigameRoundResult {
-  game: "soccer-sum10" | "kickups" | "freekick" | "cardmatch";
+  game: "soccer-sum10" | "kickups" | "freekick" | "cardmatch" | "rush";
+  /** Rush rank uses distance; score includes seed bonuses. */
+  distance?: number;
   /** cardmatch reports the number of turns (lower is better). */
   score: number;
   cleared?: boolean;

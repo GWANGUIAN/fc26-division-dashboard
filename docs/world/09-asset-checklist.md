@@ -314,3 +314,12 @@ turn(서 있는 자세) 시트의 발끝 편차는 전원 허용 이내였다.
 - **아직 안 쓴 것**: `props/parcel-a/b/c`(택배 그림 — 가방/HUD 문구로만 다룬다), `props/goldball-*`·`shard-*`(황금 공 수집·획득 연출은 S5), `fx/emote-*`·`grow-*`·`ripple-*`·`splash-*`·`dust-*`·`target-ring`, `ui/minimap-frame`(지도 M), `ui/board-paper`·`stamp-*`(일일 게시판, S5), `ui/bd-*`(뱃지 아이콘은 뱃지 화면이 생기는 S5에서 — 지금은 토스트 글자만), `ui/check-badge`.
 - **HUD 게이지 칸 위치**는 프레임 그림에 맞춘 눈대중이다. 어긋나면 `world-mission.css`의 `--gauge-x`·`--gauge-pitch`·`--gauge-pip` 세 값만 고친다.
 - 뱃지 「배달 왕초보」에는 `bd-*` 아이콘이 없다(06의 12종에 없음). 필요하면 06 §5에 슬롯을 추가한다.
+
+
+## 13. S5 연결 결과 (2026-09-19)
+- 러시: `rush/bg-far`, `bg-mid`, `ground` 3겹 스크롤, 공장 테마 `bg-factory`, 장애물 `cone`, `mower`, `banner-low`, `tackler-stand`, 수집 `seed`. 선택 캐릭터 `characters/<id>-atlas` 오른쪽 걷기 4프레임 재사용, 점프/슬라이드 코드 변형. 신규 이미지 생성 없음.
+- 월드 수집: `props/goldball-1`을 20개 접촉 수집품에 사용. `props/board-daily`를 광장 게시판 장식에 연결. 실내 공장 gb-20도 같은 사전 로딩 에셋 사용.
+- 패널: 일일 게시판·30칸 스탬프·도감/뱃지는 기존 월드 색을 쓰는 DOM/CSS와 글자 상태 표시. `ui/board-paper`, `stamp-*`, 추가 `bd-*` 그림 적용은 S6 시각 폴리시로 남긴다.
+- 오디오: `world-bgm-rush.mp3`와 `sfxes/world-stamp.mp3` 연결. 러시 개별 동작 SFX 추가 폴리시는 S6. 앰비언스 9개 배치와 8개 선택 지점 유지, `world-amb-water.mp3`는 미사용 유지.
+- 데이터/액션: `pickup.autoCollect`(황금 공), `daily`/`collection`/`minigame:rush`/`rush-factory`의 연결은 types·맵 무결성 테스트에 반영. 기존 엔딩 플래그와 추가 `factory-garden` 조건으로 표시, 새 호수 존 없음.
+- 시각 QA는 README S5 `?worldDebug` 목록으로 사용자 확인. 자동 검증은 도달성·에셋 경로·서버 렌더 패널·헤드리스 접촉 수집을 포함한 670개 테스트 통과.

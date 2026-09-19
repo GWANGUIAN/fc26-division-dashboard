@@ -1,3 +1,7 @@
+import { WOOWAKGOOD_BONUS_STREAMER, WOOWAKGOOD_ID } from "../../toty-card/woowakgoodBonusCard";
+import { GrassRushModal } from "../arcade/GrassRushModal";
+import { DailyBoard, CollectionBook } from "./RepeatContent";
+import type { WorldSave } from "../types";
 import { Suspense, lazy } from "react";
 import type { StreamerRecord } from "../../../shared/model";
 import { CardMatchModal } from "../../minigame/CardMatchModal";
@@ -22,13 +26,16 @@ export interface DashboardBridge {
 }
 
 export type WorldModal =
-  | { type: "minigame"; game: MinigameRoundResult["game"]; /** Opened from the stadium showdown: its result counts for the showdown, not for arcade missions. */ context?: "finale" }
-  | { type: "cards"; streamerId: string };
+  | { type: "minigame"; game: MinigameRoundResult["game"]; /** Opened from the stadium showdown: its result counts for the showdown, not for arcade missions. */ context?: "finale"; factory?: boolean }
+  | { type: "cards"; streamerId: string }
+  | { type: "daily" | "collection" };
 
 type CardStreamer = Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision" | "sfx">;
 
 interface WorldModalsProps {
   modal: WorldModal | null;
+  save: WorldSave;
+  onClaimDaily: (date: string) => void;
   dashboard: DashboardBridge;
   onClose: () => void;
   /** A minigame round finished — the world judges its missions from this, never from a dashboard play. */
@@ -44,11 +51,13 @@ interface WorldModalsProps {
  * They keep their own fixed-position layers (z-index 20 / 90), which sit inside the overlay's stacking
  * context and therefore above the HUD; the overlay routes Esc, so their own Esc listeners never fire.
  */
-export function WorldModals({ modal, dashboard, onClose, onRoundEnd, onCardView, onSelectCard }: WorldModalsProps) {
+export function WorldModals({ modal, save, onClaimDaily, dashboard, onClose, onRoundEnd, onCardView, onSelectCard }: WorldModalsProps) {
   if (!modal) return null;
+  if (modal.type === "daily") return <DailyBoard save={save} onClaim={onClaimDaily} onClose={onClose} />;
+  if (modal.type === "collection") return <CollectionBook save={save} hiddenUnlocked={dashboard.woowakgoodUnlocked} onClose={onClose} />;
 
   if (modal.type === "cards") {
-    const streamer = dashboard.streamers?.find((entry) => entry.id === modal.streamerId);
+    const streamer = dashboard.streamers?.find((entry) => entry.id === modal.streamerId) ?? (dashboard.woowakgoodUnlocked && modal.streamerId === WOOWAKGOOD_ID ? WOOWAKGOOD_BONUS_STREAMER : undefined);
     const assets = streamer ? getTotyCardAssets(streamer.id) : undefined;
     if (!streamer || !assets) return null;
     return (
@@ -70,7 +79,10 @@ export function WorldModals({ modal, dashboard, onClose, onRoundEnd, onCardView,
     );
   }
 
+  if (modal.type !== "minigame") return null;
   switch (modal.game) {
+    case "rush":
+      return <GrassRushModal player={save.player ?? "janine95kim"} factory={modal.factory} best={save.bests.rush} onClose={onClose} onRoundEnd={onRoundEnd} />;
     case "soccer-sum10":
       return <SoccerSum10Modal onClose={onClose} onRoundEnd={onRoundEnd} />;
     case "kickups":

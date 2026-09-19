@@ -1,3 +1,4 @@
+import { GOLDEN_BALLS } from "../goldenBalls";
 import { describe, expect, it } from "vitest";
 import { INTERIOR_IDS, INTERIOR_MAPS, OVERWORLD_MAP, allSceneIds, hasScene, interiorIdOf } from "./index";
 import { composeObstacles, footBox, rectsOverlap } from "../../engine/collision";
@@ -369,7 +370,7 @@ describe("mission objects (S3)", () => {
 
   it("shows a pickup only while the mission that needs it is active", () => {
     for (const object of objects) {
-      if (object.type !== "pickup") continue;
+      if (object.type !== "pickup" || object.id.startsWith("gb-")) continue;
       const owners = MISSION_DEFS.filter((def) => def.kind === "collect" && def.items.includes(object.id));
       expect(owners, object.id).toHaveLength(1);
       expect(object.when, object.id).toBe(`mission-active:${owners[0].id}`);
@@ -444,7 +445,7 @@ describe("mission objects (S3)", () => {
   it("connects the four minigames to arcade machines and the card cabinet to the director's office", () => {
     const arcade = getScene("interior:arcade")!;
     const games = arcade.examine.map((point) => parseAction(point.action)).filter((action) => action?.type === "minigame").map((action) => (action as { game: string }).game);
-    expect([...games].sort()).toEqual(["cardmatch", "freekick", "kickups", "soccer-sum10"]);
+    expect([...games].sort()).toEqual(["cardmatch", "freekick", "kickups", "rush", "soccer-sum10"]);
     const office = getScene("interior:clubhouse-office")!;
     expect(office.examine.some((point) => parseAction(point.action)?.type === "cards")).toBe(true);
   });
@@ -482,5 +483,28 @@ describe("mission definitions", () => {
 describe("sanity of tileCenter", () => {
   it("puts feet in the middle of a tile", () => {
     expect(tileCenter(10, 10)).toEqual({ x: 336, y: 336 });
+  });
+});
+
+
+describe("S5 repeat content", () => {
+  it("has exactly twenty unique contact pickups including three ending-only balls", () => {
+    const balls = scenes.flatMap(scene => scene.objects.filter(o => o.id.startsWith("gb-")).map(o => ({ scene, o })));
+    expect(balls).toHaveLength(20);
+    expect(new Set(balls.map(b => b.o.id)).size).toBe(20);
+    expect(balls.filter(b => b.o.when === "flag:ending-seen")).toHaveLength(3);
+    for (const { scene, o } of balls) {
+      const spec = GOLDEN_BALLS.find(b => b.id === o.id)!;
+      expect(scene.id).toBe(spec.scene);
+      expect(o.autoCollect).toBe(true);
+      expect(o.prop).toBe("goldball-1");
+      expect.soft(isUsableSpot(scene, o.x, o.y), o.id).toBe(true);
+      expect.soft(reachable(scene, scene.spawn, npcRects(scene)).near(o, 23), o.id).toBe(true);
+    }
+  });
+  it("connects the board, collection guide and factory course", () => {
+    expect(overworld.examine.some(p => p.action === "daily")).toBe(true);
+    expect(overworld.examine.some(p => p.action === "collection")).toBe(true);
+    expect(getScene("interior:factory")!.examine.some(p => p.action === "rush-factory" && p.when === "flag:ending-seen")).toBe(true);
   });
 });
