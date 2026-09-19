@@ -5,7 +5,8 @@ import { MINIGAME_INFO, missionDefsFor, type MissionDef } from "../data/missionD
 import type { CastDef, CastId, SceneId } from "../types";
 import type { DialogueChoice, DialogueEffect, DialogueLine, DialogueNode } from "./dialogue";
 import { missionStatus, type MissionSave } from "./missions";
-import { asProgress, describeProgress } from "./missionEval";
+import { availableGoldenBalls, spentGoldenBalls } from "./finaleBalls";
+import { asProgress, canSpendBalls, describeProgress } from "./missionEval";
 import { ENDING_SEEN_FLAG, pendingStoryBeat } from "./story";
 
 // Turns the mission state and the story flags into what an NPC says (docs/world/02 §6). The wording is all in
@@ -84,7 +85,7 @@ function offerPart(cast: CastDef, def: MissionDef): Part {
 
 function activePart(cast: CastDef, def: MissionDef, save: MissionSave, running: boolean): Part {
   const script = scriptOf(def);
-  const progress = describeProgress(def, save.missions[def.id]?.progress, save.collected);
+  const progress = describeProgress(def, save.missions[def.id]?.progress, save.collected, spentGoldenBalls(save.missions));
   const detail = progress ? [narration(`진행 ${progress}`)] : [];
   if (def.kind === "delivery" && def.seconds !== undefined && !running) {
     // The round ran out: the parcels went back and the giver hands them over again on request.
@@ -114,21 +115,53 @@ export function roundCall(def: Extract<MissionDef, { kind: "finale" }>, round: n
   return `${round + 1}라운드! ${info.name}, ${spec.min}${info.unit} 이상이면 통과!`;
 }
 
-/** The prompt of one round: the King's reaction to the last round, his taunt and the referee's call, then "start / later". */
-function roundNode(def: Extract<MissionDef, { kind: "finale" }>, round: number): DialogueNode {
+/** The golden-ball way out of one round: asked about, sure-check, and the scene once the balls are spent. */
+function ballChoice(def: Extract<MissionDef, { kind: "finale" }>, round: number, cost: number, menu: DialogueNode, enough: boolean): DialogueChoice {
+  const last = round + 1 >= def.rounds.length;
+  const spent: DialogueNode = {
+    lines: [
+      { speaker: null, text: `황금 공 ${cost}개가 눈부시게 빛나더니, ${round + 1}라운드의 승부를 대신 결정지었다!` },
+      { speaker: "weedking", text: "뭐, 뭐야 그 황금빛은?! 심판, 저건 반칙 아니냐!", mood: "surprised" },
+      { speaker: "referee", text: `규칙에 있는 거야. 황금 공은 한 번 쓰면 사라져. ${round + 1}라운드는 통과!` },
+      { speaker: "referee", text: last ? "이걸로 모든 라운드 통과야! 나한테 다시 말을 걸어 줘." : `다음은 ${round + 2}라운드야. 준비되면 다시 말을 걸어 줘.` },
+    ],
+  };
+  const sure: DialogueNode = {
+    lines: [
+      { speaker: "referee", text: `황금 공 ${cost}개를 쓰면 ${round + 1}라운드를 바로 통과할 수 있어. 하지만 결전 중 딱 한 라운드에만 쓸 수 있고, 쓴 공은 돌려받지 못해.` },
+      { speaker: "referee", text: "정말 사용할래?" },
+    ],
+    choices: [
+      { label: "사용한다", next: spent, effect: { type: "finale-balls", mission: def.id } },
+      { label: "다시 생각할게", next: menu },
+    ],
+  };
+  return { label: `황금 공 ${cost}개로 승리`, next: sure, disabled: !enough };
+}
+
+/**
+ * The prompt of one round: the King's reaction to the last round, his taunt and the referee's call, then
+ * "start / spend golden balls / later". The ball choice is there until it has been used, greyed out while the player holds too few.
+ */
+function roundNode(def: Extract<MissionDef, { kind: "finale" }>, round: number, save: MissionSave): DialogueNode {
   const script = FINALE_SCRIPT.rounds[round];
   const out: DialogueLine[] = [];
   const reaction = round > 0 ? FINALE_SCRIPT.rounds[round - 1].cleared : "";
   if (reaction) out.push({ speaker: "weedking", text: reaction, mood: "surprised" });
   if (script) out.push({ speaker: "weedking", text: script.taunt });
   out.push({ speaker: "referee", text: roundCall(def, round) });
-  return {
-    lines: out,
-    choices: [
-      { label: `${round + 1}라운드 도전!`, next: null, effect: { type: "start-round", mission: def.id } },
-      { label: "잠깐 준비할게", next: null },
-    ],
-  };
+
+  const choices: DialogueChoice[] = [{ label: `${round + 1}라운드 도전!`, next: null, effect: { type: "start-round", mission: def.id } }];
+  const progress = save.missions[def.id]?.progress;
+  if (def.ballSkip !== undefined && !asProgress(progress).balls?.length) {
+    const held = availableGoldenBalls(save.collected).length;
+    out.push({ speaker: "referee", text: `황금 공이 ${def.ballSkip}개 이상 있으면 한 라운드는 공으로 통과할 수 있어. (지금 ${held}개)` });
+    // Backing out of the sure-check comes back to the same three choices.
+    const menu: DialogueNode = { lines: [{ speaker: "referee", text: "어떻게 할래?" }], choices };
+    choices.push(ballChoice(def, round, def.ballSkip, menu, canSpendBalls(def, progress, save.collected)));
+  }
+  choices.push({ label: "잠깐 준비할게", next: null });
+  return { lines: out, choices };
 }
 
 function finalePart(def: Extract<MissionDef, { kind: "finale" }>, status: "available" | "active" | "ready", save: MissionSave): Part {
@@ -136,7 +169,7 @@ function finalePart(def: Extract<MissionDef, { kind: "finale" }>, status: "avail
     return { lines: cutLines(FINALE_SCRIPT.victory), end: [{ type: "complete", mission: def.id }] };
   }
   if (status === "available") {
-    const first = roundNode(def, 0);
+    const first = roundNode(def, 0, save);
     return {
       lines: cutLines(FINALE_SCRIPT.intro),
       choices: [
@@ -146,7 +179,7 @@ function finalePart(def: Extract<MissionDef, { kind: "finale" }>, status: "avail
     };
   }
   const cleared = Math.min(def.rounds.length - 1, asProgress(save.missions[def.id]?.progress).round ?? 0);
-  const node = roundNode(def, cleared);
+  const node = roundNode(def, cleared, save);
   return { lines: node.lines, choices: node.choices };
 }
 

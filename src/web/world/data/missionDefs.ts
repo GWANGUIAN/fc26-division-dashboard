@@ -86,7 +86,7 @@ export type MissionSpec =
   | { kind: "time_trial"; /** Ordered gate ids: start, checkpoints…, goal. */ gates: string[]; hazards: string[]; seconds: number; penalty: number }
   | { kind: "kick_goals"; goal: string; ball: string; goals: number; seconds: number }
   | { kind: "talk_chain"; targets: CastId[] }
-  | { kind: "finale"; /** Played in order; a cleared round stays cleared. */ rounds: FinaleRound[] };
+  | { kind: "finale"; /** Played in order; a cleared round stays cleared. */ rounds: FinaleRound[]; /** Golden balls that clear one round without playing it. Usable once per showdown; unset = not offered. */ ballSkip?: number };
 
 export type MissionDef = MissionBase & MissionSpec;
 
@@ -195,6 +195,9 @@ export const MISSION_DEFS: readonly MissionDef[] = [
       { game: "kickups", min: 20 },
       { game: "freekick", min: 5 },
     ],
+    // 17 balls lie outside the sealed weed zone (the other three come after the ending), so 12 asks for most of the map and
+    // leaves 5 of all 20 for the kid's "any 5 balls" mission after the ending (it counts held balls, spent ones do not).
+    ballSkip: 12,
     objective: "스타디움 결전 3연전에서 모두 승리", hint: "잔디동 스타디움 · 심판에게 말 걸기",
     requiresFlags: ["stadium-open"], reward: { badge: "weed-buster", flags: ["finale-won"] },
   },

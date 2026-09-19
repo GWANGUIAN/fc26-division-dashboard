@@ -2,6 +2,7 @@ import {
   BADGES, badgeFlag, getMissionDef, isMissionEnabled, missionDefsFor, totalShardsFor, type BadgeDef, type MissionDef,
 } from "../data/missionDefs";
 import type { CastId, MissionStatus, WorldSave } from "../types";
+import { spentGoldenBalls } from "./finaleBalls";
 import { asProgress, describeProgress, evaluateEvent, initialProgress, type MissionEvent } from "./missionEval";
 
 // Mission state machine (docs/world/01 §7, 02 §5): locked → available → active → ready → completed.
@@ -40,7 +41,7 @@ export function acceptMission<T extends MissionSave>(save: T, id: string, now = 
   const def = getMissionDef(id);
   if (!def || missionStatus(save, def) !== "available") return save;
   const progress = initialProgress(def);
-  const evaluated = evaluateEvent(def, progress, { type: "pickup", id: "" }, { player: save.player, collected: save.collected, flags: save.flags });
+  const evaluated = evaluateEvent(def, progress, { type: "pickup", id: "" }, { player: save.player, collected: save.collected, flags: save.flags, spentBalls: spentGoldenBalls(save.missions) });
   return withMission(save, id, { status: evaluated?.ready ? "ready" : "active", startedAt: now, progress: evaluated?.progress ?? progress });
 }
 
@@ -68,7 +69,7 @@ export function applyMissionEvent<T extends MissionSave>(save: T, event: Mission
   for (const def of missionDefsFor(save.player)) {
     const entry = next.missions[def.id];
     if (missionStatus(next, def) !== "active") continue;
-    const result = evaluateEvent(def, entry?.progress, event, { player: next.player, collected: next.collected, flags: next.flags });
+    const result = evaluateEvent(def, entry?.progress, event, { player: next.player, collected: next.collected, flags: next.flags, spentBalls: spentGoldenBalls(next.missions) });
     if (!result) continue;
     const status: MissionStatus = result.ready ? "ready" : "active";
     next = withMission(next, def.id, { ...entry, status, progress: result.progress });
@@ -151,7 +152,7 @@ export interface MissionView {
 /** Every mission the player has met (anything but `locked`), in the order of missionDefs. */
 export function missionViews(save: MissionSave): MissionView[] {
   return missionDefsFor(save.player)
-    .map((def) => ({ def, status: missionStatus(save, def), progressText: describeProgress(def, save.missions[def.id]?.progress, save.collected) }))
+    .map((def) => ({ def, status: missionStatus(save, def), progressText: describeProgress(def, save.missions[def.id]?.progress, save.collected, spentGoldenBalls(save.missions)) }))
     .filter((view) => view.status !== "locked");
 }
 

@@ -7,7 +7,7 @@ import { SILENT_AUDIO } from "../audio/worldAudio";
 import { debugSkipTutorial } from "../state/debugTools";
 import { acceptMission, applyMissionEvent, defaultTracked, missionViews } from "../state/missions";
 import { createNewGameSave, DEFAULT_WORLD_SETTINGS } from "../storage";
-import { countGoldenBalls } from "../data/goldenBalls";
+import { availableGoldenBalls } from "../state/finaleBalls";
 import { GoldBallCounter } from "./GoldBallCounter";
 import { Hud } from "./Hud";
 import { MissionLog } from "./MissionLog";
@@ -69,8 +69,9 @@ describe("GoldBallCounter", () => {
   });
 
   it("counts only golden balls out of everything the save collected", () => {
-    expect(countGoldenBalls([])).toBe(0);
-    expect(countGoldenBalls(["gb-01", "gb-20", "jelly-lantern-a", "water-1", "gb-99"])).toBe(2);
+    expect(availableGoldenBalls([])).toEqual([]);
+    expect(availableGoldenBalls(["gb-01", "gb-20", "jelly-lantern-a", "water-1", "gb-99"])).toEqual(["gb-01", "gb-20"]);
+    expect(availableGoldenBalls(["gb-01", "gb-02", "gb-03"], ["gb-01", "gb-03"])).toEqual(["gb-02"]);
   });
 });
 

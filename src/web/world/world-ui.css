@@ -275,6 +275,13 @@
   image-rendering: pixelated;
 }
 .world-dialogue__choice--art.is-on { border-image: var(--frame-choice-on) 10 19 fill / 10px 19px stretch; }
+/* A choice that cannot be picked yet (the showdown's golden-ball win): dimmed, no pointer, never highlighted. */
+.world-dialogue__choice.is-disabled,
+.world-dialogue__choice--art.is-disabled {
+  color: #7d948c;
+  cursor: not-allowed;
+  filter: grayscale(0.85) brightness(0.65);
+}
 .world-dialogue__cursor { position: absolute; left: -22px; top: 50%; width: 14px; height: 14px; transform: translateY(-50%); }
 
 /* ── Toasts & coach marks ─────────────────────────────────── */

@@ -29,7 +29,9 @@ export type DialogueEffect =
   /** The ending cut's last line is over: the group photo comes next. */
   | { type: "ending-photo" }
   /** The backwards-walking statue gives (`on`) or takes back its blessing (state/backwalk.ts). */
-  | { type: "backwalk"; on: boolean };
+  | { type: "backwalk"; on: boolean }
+  /** The showdown's golden balls clear the current round (state/finaleBalls.ts); the overlay feeds it to the mission as an event. */
+  | { type: "finale-balls"; mission: string };
 
 export interface DialogueChoice {
   label: string;
@@ -37,6 +39,8 @@ export interface DialogueChoice {
   next: DialogueNode | null;
   /** Applied the moment the choice is picked. */
   effect?: DialogueEffect;
+  /** Shown greyed out and cannot be picked (the cursor skips it), so the player can see what a choice needs. */
+  disabled?: boolean;
 }
 
 export interface DialogueNode {
@@ -60,9 +64,12 @@ export const TYPE_SPEED = 42;
 
 export const countChars = (text: string) => Array.from(text).length;
 
+/** The choice the cursor starts on: the first one that can be picked. */
+const firstEnabled = (node: DialogueNode): number => Math.max(0, (node.choices ?? []).findIndex((choice) => !choice.disabled));
+
 export function startDialogue(node: DialogueNode): DialogueState {
-  if (node.lines.length === 0) return { node, line: 0, chars: 0, phase: node.choices?.length ? "choosing" : "done", choice: 0 };
-  return { node, line: 0, chars: 0, phase: "typing", choice: 0 };
+  if (node.lines.length === 0) return { node, line: 0, chars: 0, phase: node.choices?.length ? "choosing" : "done", choice: firstEnabled(node) };
+  return { node, line: 0, chars: 0, phase: "typing", choice: firstEnabled(node) };
 }
 
 export function currentLine(state: DialogueState): DialogueLine | null {
@@ -92,19 +99,27 @@ export function advance(state: DialogueState): DialogueState {
   }
   if (state.phase !== "waiting") return state;
   if (state.line + 1 < state.node.lines.length) return { ...state, line: state.line + 1, chars: 0, phase: "typing" };
-  return { ...state, phase: state.node.choices?.length ? "choosing" : "done", choice: 0 };
+  return { ...state, phase: state.node.choices?.length ? "choosing" : "done", choice: firstEnabled(state.node) };
 }
 
+/** Moves the cursor one choice up or down (wrapping), skipping the ones that cannot be picked. */
 export function moveChoice(state: DialogueState, delta: number): DialogueState {
-  const count = state.node.choices?.length ?? 0;
+  const choices = state.node.choices ?? [];
+  const count = choices.length;
   if (state.phase !== "choosing" || count === 0) return state;
-  return { ...state, choice: (state.choice + delta + count) % count };
+  const step = delta < 0 ? -1 : 1;
+  for (let tried = 1; tried <= count; tried++) {
+    const index = (state.choice + step * tried + count * tried) % count;
+    if (!choices[index].disabled) return { ...state, choice: index };
+  }
+  return state;
 }
 
 /** Picks the highlighted choice: continues with its branch or ends the conversation. */
 export function confirmChoice(state: DialogueState): DialogueState {
   if (state.phase !== "choosing") return state;
   const pick = state.node.choices?.[state.choice];
+  if (pick?.disabled) return state;
   if (!pick?.next) return { ...state, phase: "done" };
   return startDialogue(pick.next);
 }

@@ -1,6 +1,7 @@
 import { PLAYABLE_CAST } from "../data/worldCast";
 import type { DeliveryTarget, MissionDef } from "../data/missionDefs";
 import type { CastId, MinigameRoundResult } from "../types";
+import { availableGoldenBalls } from "./finaleBalls";
 
 // Mission judging (docs/world/02 §12): given a mission, what it has recorded so far and one thing that just
 // happened in the world, decide the new progress and whether the goal is met. Pure — `missions.ts` applies
@@ -17,7 +18,9 @@ export type MissionEvent =
   | { type: "trial-finished"; mission: string; seconds: number }
   | { type: "kick-finished"; mission: string; goals: number }
   /** A round of a minigame opened from the stadium's showdown (an arcade play never counts for it). */
-  | { type: "finale-round"; result: MinigameRoundResult };
+  | { type: "finale-round"; result: MinigameRoundResult }
+  /** The showdown's golden balls are spent to clear the current round instead of playing it. */
+  | { type: "finale-balls" };
 
 /** What a mission remembers between events (`WorldSave.missions[id].progress`). */
 export interface MissionProgressData {
@@ -31,6 +34,14 @@ export interface MissionProgressData {
   carrying?: string[];
   /** finale: rounds cleared so far. */
   round?: number;
+  /** finale: golden ball ids spent to clear a round (at most one round per showdown; the balls stay in `collected`). */
+  balls?: string[];
+}
+
+/** Can the showdown's golden balls clear a round now? (offered by the mission, not used yet, enough balls held) */
+export function canSpendBalls(def: Extract<MissionDef, { kind: "finale" }>, raw: unknown, collected: readonly string[]): boolean {
+  const progress = asProgress(raw);
+  return def.ballSkip !== undefined && !progress.balls?.length && availableGoldenBalls(collected, progress.balls).length >= def.ballSkip;
 }
 
 export interface EvalContext {
@@ -38,6 +49,8 @@ export interface EvalContext {
   flags?: Record<string, true>;
   /** Everything picked up so far, including the pickup this event reports. */
   collected: readonly string[];
+  /** Golden balls the showdown has spent: they no longer count as held. */
+  spentBalls?: readonly string[];
 }
 
 export interface EvalResult {
@@ -86,7 +99,7 @@ export function evaluateEvent(def: MissionDef, raw: unknown, event: MissionEvent
   const progress = asProgress(raw);
   switch (def.kind) {
     case "collection_count":
-      return { progress, ready: ctx.collected.filter(id => /^gb-\d{2}$/.test(id)).length >= def.count };
+      return { progress, ready: availableGoldenBalls(ctx.collected, ctx.spentBalls).length >= def.count };
     case "card_collection":
       return { progress, ready: PLAYABLE_CAST.every(c => ctx.flags?.[`card:${c.id}`]) };
     case "daily_stamp":
@@ -147,6 +160,11 @@ export function evaluateEvent(def: MissionDef, raw: unknown, event: MissionEvent
     }
 
     case "finale": {
+      if (event.type === "finale-balls") {
+        if (!canSpendBalls(def, progress, ctx.collected)) return null;
+        const round = (progress.round ?? 0) + 1;
+        return { progress: { ...progress, round, balls: availableGoldenBalls(ctx.collected, progress.balls).slice(0, def.ballSkip) }, ready: round >= def.rounds.length };
+      }
       if (event.type !== "finale-round" || finaleRoundOutcome(def, progress, event.result) !== "cleared") return null;
       const round = (progress.round ?? 0) + 1;
       return { progress: { ...progress, round }, ready: round >= def.rounds.length };
@@ -169,11 +187,11 @@ function sameTarget(a: DeliveryTarget, b: DeliveryTarget): boolean {
 }
 
 /** Short progress text for the tracker and the mission log ("2/3", "최고 42점"). Empty when there is nothing to show. */
-export function describeProgress(def: MissionDef, raw: unknown, collected: readonly string[]): string {
+export function describeProgress(def: MissionDef, raw: unknown, collected: readonly string[], spentBalls: readonly string[] = []): string {
   const progress = asProgress(raw);
   switch (def.kind) {
     case "collection_count":
-      return `${collected.filter(id => /^gb-\d{2}$/.test(id)).length}/${def.count} 황금 공`;
+      return `${availableGoldenBalls(collected, spentBalls).length}/${def.count} 황금 공`;
     case "collect":
       return `${def.items.filter((id) => collected.includes(id)).length}/${def.items.length} ${def.noun}`;
     case "delivery":

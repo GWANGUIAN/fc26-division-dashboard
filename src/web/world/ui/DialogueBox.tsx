@@ -52,6 +52,7 @@ export function DialogueBox({ node, playerName, audio, showHint, onEffect, onClo
   /** Confirms a choice: its effect fires here (an event, not a state updater) and the runner moves on. */
   const pick = (current: DialogueState, index = current.choice): DialogueState => {
     const chosen = current.node.choices?.[index];
+    if (chosen?.disabled) return current;
     if (current.phase === "choosing" && chosen?.effect) effectRef.current?.(chosen.effect);
     return confirmChoice({ ...current, choice: index });
   };
@@ -137,10 +138,17 @@ export function DialogueBox({ node, playerName, audio, showHint, onEffect, onClo
               key={choice.label}
               role="option"
               aria-selected={index === state.choice}
-              className={`world-dialogue__choice${art.choice ? " world-dialogue__choice--art" : ""}${index === state.choice ? " is-on" : ""}`}
-              onMouseEnter={() => setState((current) => ({ ...current, choice: index }))}
+              aria-disabled={choice.disabled || undefined}
+              className={`world-dialogue__choice${art.choice ? " world-dialogue__choice--art" : ""}${index === state.choice ? " is-on" : ""}${choice.disabled ? " is-disabled" : ""}`}
+              onMouseEnter={() => {
+                if (!choice.disabled) setState((current) => ({ ...current, choice: index }));
+              }}
               onClick={(event) => {
                 event.stopPropagation();
+                if (choice.disabled) {
+                  audioRef.current.playSfx("ui-error");
+                  return;
+                }
                 setState(pick(stateRef.current, index));
               }}
             >

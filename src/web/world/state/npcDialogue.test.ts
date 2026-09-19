@@ -3,7 +3,10 @@ import { CAST_SCRIPTS, FINALE_SCRIPT, MISSION_SCRIPTS } from "../data/dialogueDa
 import { getCast } from "../data/worldCast";
 import { createNewGameSave } from "../storage";
 import type { CastId, SceneId, WorldSave } from "../types";
-import { acceptMission, applyMissionEvent, completeMission, completeTalk } from "./missions";
+import { GOLDEN_BALLS } from "../data/goldenBalls";
+import { heldGoldenBalls } from "./finaleBalls";
+import { describeProgress, evaluateEvent } from "./missionEval";
+import { acceptMission, applyMissionEvent, completeMission, completeTalk, missionStatus } from "./missions";
 import { buildCheerDialogue, buildConversation, buildEndingDialogue, buildExamineDialogue, roundCall, type Conversation } from "./npcDialogue";
 import { ENDING_FLAGS, beatFlag } from "./story";
 import { getMissionDef } from "../data/missionDefs";
@@ -250,7 +253,7 @@ describe("the showdown", () => {
 
   it("goes from accepting straight to the first round's call, taunt and start button", () => {
     const start = talkTo("referee", open()).node.choices![0].next!;
-    expect(start.lines.map((line) => line.text)).toEqual([FINALE_SCRIPT.rounds[0].taunt, roundCall(finale, 0)]);
+    expect(start.lines.map((line) => line.text).slice(0, 2)).toEqual([FINALE_SCRIPT.rounds[0].taunt, roundCall(finale, 0)]);
     expect(start.choices?.[0]).toMatchObject({ label: "1라운드 도전!", effect: { type: "start-round", mission: "m-90-finale" } });
     expect(roundCall(finale, 0)).toBe("1라운드! 축구공 합 10, 80점 이상이면 통과!");
     expect(roundCall(finale, 1)).toBe("2라운드! 축구공 튀기기, 20회 이상이면 통과!");
@@ -262,7 +265,7 @@ describe("the showdown", () => {
     expect(text(talkTo("referee", save))).toContain("1라운드!");
     save = applyMissionEvent(save, { type: "finale-round", result: { game: "soccer-sum10", score: 90 } }).save;
     const second = talkTo("referee", save);
-    expect(second.node.lines.map((line) => line.text)).toEqual([FINALE_SCRIPT.rounds[0].cleared, FINALE_SCRIPT.rounds[1].taunt, roundCall(finale, 1)]);
+    expect(second.node.lines.map((line) => line.text).slice(0, 3)).toEqual([FINALE_SCRIPT.rounds[0].cleared, FINALE_SCRIPT.rounds[1].taunt, roundCall(finale, 1)]);
     expect(second.node.choices?.[0].label).toBe("2라운드 도전!");
   });
 
@@ -297,5 +300,85 @@ describe("read-only and cheering dialogue", () => {
     const cheer = buildCheerDialogue("hachi97");
     expect(cheer.lines).toHaveLength(1);
     expect(cheer.lines[0]).toMatchObject({ speaker: "hachi97", text: CAST_SCRIPTS.hachi97!.cheer });
+  });
+});
+
+describe("the showdown golden-ball round", () => {
+  const finale = getMissionDef("m-90-finale");
+  if (finale?.kind !== "finale" || finale.ballSkip === undefined) throw new Error("finale mission with a ball rule");
+  const cost = finale.ballSkip;
+  const balls = (count: number) => GOLDEN_BALLS.slice(0, count).map((ball) => ball.id);
+  const started = (held: number): WorldSave => ({ ...acceptMission(withFlags(allShards(), "stadium-open"), "m-90-finale"), collected: balls(held) });
+  const ask = (save: WorldSave) => talkTo("referee", save).node;
+
+  it("costs twelve of the seventeen balls found before the ending, so the kid mission for any five stays possible", () => {
+    expect(cost).toBe(12);
+    expect(GOLDEN_BALLS.filter((ball) => !ball.ending)).toHaveLength(17);
+    expect(getMissionDef("s-kid-hide")).toMatchObject({ kind: "collection_count", count: 5 });
+  });
+
+  it("shows the ball choice between the challenge and later, and says how many balls are held", () => {
+    const node = ask(started(3));
+    expect(node.choices?.map((choice) => choice.label)).toEqual(["1라운드 도전!", `황금 공 ${cost}개로 승리`, "잠깐 준비할게"]);
+    expect(node.lines.at(-1)?.text).toContain(`${cost}개 이상`);
+    expect(node.lines.at(-1)?.text).toContain("(지금 3개)");
+  });
+
+  it("greys the choice out below the price and lets it through at the price", () => {
+    expect(ask(started(cost - 1)).choices?.[1].disabled).toBe(true);
+    expect(ask(started(0)).choices?.[1].disabled).toBe(true);
+    expect(ask(started(cost)).choices?.[1].disabled).toBe(false);
+    expect(ask(started(cost + 3)).choices?.[1].disabled).toBe(false);
+  });
+
+  it("asks again before spending: one round only, nothing back, and backing out returns to the same choices", () => {
+    const node = ask(started(cost));
+    const sure = node.choices![1].next!;
+    expect(sure.lines.map((line) => line.text).join(" ")).toMatch(/한 라운드에만.*돌려받지 못해/);
+    expect(sure.lines.at(-1)?.text).toBe("정말 사용할래?");
+    expect(sure.choices?.map((choice) => choice.label)).toEqual(["사용한다", "다시 생각할게"]);
+    expect(sure.choices?.[0].effect).toEqual({ type: "finale-balls", mission: "m-90-finale" });
+    expect(sure.choices?.[1].effect).toBeUndefined();
+    expect(sure.choices?.[1].next?.choices).toBe(node.choices);
+  });
+
+  it("clears the round with the balls and keeps them collected, but held no more", () => {
+    let save = started(cost + 2);
+    save = applyMissionEvent(save, { type: "finale-balls" }).save;
+    const progress = save.missions["m-90-finale"].progress as { round: number; balls: string[] };
+    expect(progress.round).toBe(1);
+    expect(progress.balls).toEqual(balls(cost));
+    expect(save.collected).toEqual(balls(cost + 2));
+    expect(heldGoldenBalls(save)).toBe(2);
+    expect(text(talkTo("referee", save))).toContain("2라운드!");
+  });
+
+  it("can be used once per showdown: the choice is gone afterwards and a second use does nothing", () => {
+    let save = applyMissionEvent(started(GOLDEN_BALLS.length), { type: "finale-balls" }).save;
+    expect(ask(save).choices?.map((choice) => choice.label)).toEqual(["2라운드 도전!", "잠깐 준비할게"]);
+    expect(applyMissionEvent(save, { type: "finale-balls" }).save).toBe(save);
+    save = applyMissionEvent(save, { type: "finale-round", result: { game: "kickups", score: 30 } }).save;
+    expect(ask(save).choices).toHaveLength(2);
+  });
+
+  it("takes the spent balls off everything that counts balls: the kid mission needs five held ones", () => {
+    const kid = getMissionDef("s-kid-hide")!;
+    const held = (spent: number, found: number) => ({ player: "janine95kim" as const, collected: balls(found), spentBalls: balls(spent) });
+    expect(describeProgress(kid, undefined, balls(cost + 2))).toBe(`${cost + 2}/5 황금 공`);
+    expect(describeProgress(kid, undefined, balls(cost + 2), balls(cost))).toBe("2/5 황금 공");
+    expect(evaluateEvent(kid, {}, { type: "pickup", id: "gb-20" }, held(cost, cost + 4))?.ready).toBe(false);
+    expect(evaluateEvent(kid, {}, { type: "pickup", id: "gb-20" }, held(cost, cost + 5))?.ready).toBe(true);
+    expect(evaluateEvent(kid, {}, { type: "pickup", id: "gb-20" }, held(0, 5))?.ready).toBe(true);
+  });
+
+  it("does nothing without enough balls, and can clear the last round into the report", () => {
+    const poor = started(cost - 1);
+    expect(applyMissionEvent(poor, { type: "finale-balls" }).save).toBe(poor);
+    let save = started(cost);
+    for (const game of ["soccer-sum10", "kickups"] as const) save = applyMissionEvent(save, { type: "finale-round", result: { game, score: 99 } }).save;
+    expect(ask(save).choices?.[1].label).toBe(`황금 공 ${cost}개로 승리`);
+    const { save: won, changes } = applyMissionEvent(save, { type: "finale-balls" });
+    expect(missionStatus(won, finale)).toBe("ready");
+    expect(changes).toEqual([{ id: "m-90-finale", from: "active", to: "ready" }]);
   });
 });

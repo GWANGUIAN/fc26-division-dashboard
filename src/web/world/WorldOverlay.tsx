@@ -13,12 +13,12 @@ import { WorldCanvas } from "./WorldCanvas";
 import { isWorldDebug } from "./debug";
 import { FINALE_SCRIPT } from "./data/dialogueData";
 import { MINIGAME_INFO, getMissionDef, missionDefsFor, totalShardsFor } from "./data/missionDefs";
-import { countGoldenBalls } from "./data/goldenBalls";
 import { getCast } from "./data/worldCast";
 import type { DebugPick, SaveStore, WorldEngine, WorldEvents } from "./engine/world";
 import type { RunEvent } from "./engine/runs";
 import { parseAction } from "./state/actions";
 import { buildBackwalkDialogue, withBackwalk } from "./state/backwalk";
+import { heldGoldenBalls } from "./state/finaleBalls";
 import { COACH_DONE, nextCoachStep, type CoachEvent } from "./state/coach";
 import type { DialogueEffect, DialogueNode } from "./state/dialogue";
 import { resolveEscape, type EndingStage, type OverlayPhase, type PauseView } from "./state/escape";
@@ -434,6 +434,17 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
           if (done.reward) announceReward(done.reward);
           break;
         }
+        case "finale-balls": {
+          // The balls clear the round the referee just asked about; the mission checks it can (enough held, not used yet).
+          if (def.kind !== "finale" || def.ballSkip === undefined) break;
+          const before = asProgress(store.save.missions[def.id]?.progress);
+          dispatch({ type: "finale-balls" });
+          const after = asProgress(store.save.missions[def.id]?.progress);
+          if (!after.balls?.length || after.balls === before.balls) break;
+          audio.playSfx("shard-restore");
+          pushSequence([{ text: `${after.round ?? 0}라운드 통과! 황금 공 ${def.ballSkip}개 사용 (${after.round ?? 0}/${def.rounds.length})`, accent: "#ffd54a", sfx: "checkpoint" }]);
+          break;
+        }
         case "start-round": {
           // The round's minigame opens when the conversation closes (the dialogue owns the keyboard until then).
           if (def.kind !== "finale") break;
@@ -443,7 +454,7 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
         }
       }
     },
-    [announceReward, audio, commit, playerId, pushSequence, store],
+    [announceReward, audio, commit, dispatch, playerId, pushSequence, store],
   );
 
   /** A minigame round of a modal the world itself opened — the only plays that count. */
@@ -816,7 +827,7 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
               setLogOpen(true);
               advanceCoach({ type: "log" });
             }} />
-            <GoldBallCounter count={countGoldenBalls(session.store.save.collected)} />
+            <GoldBallCounter count={heldGoldenBalls(session.store.save)} />
             {!dialogue && !logOpen && pauseView === "closed" && <p className="world-hint">방향키/WASD 이동 · Shift 달리기 · E 상호작용 · J 미션 로그 · Esc 메뉴</p>}
             <CoachMarks step={coachStep} />
             <ToastLayer toasts={toasts} />

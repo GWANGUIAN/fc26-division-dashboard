@@ -21,8 +21,3 @@ export const GOLDEN_BALLS: { id: string; scene: "overworld" | "interior:factory"
   { id: "gb-19", scene: "overworld", tile: [76,56], hint: "폐 제초기 사이", ending: true },
   { id: "gb-20", scene: "interior:factory", tile: [14,6], hint: "공장 실내 금고 앞", ending: true },
 ];
-
-/** How many golden balls the save has collected (`save.collected` also holds lanterns, water and other items). */
-export function countGoldenBalls(collected: readonly string[]): number {
-  return GOLDEN_BALLS.filter((ball) => collected.includes(ball.id)).length;
-}

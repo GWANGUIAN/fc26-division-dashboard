@@ -45,6 +45,41 @@ describe("advance", () => {
   });
 });
 
+describe("choices that cannot be picked", () => {
+  const menu: DialogueNode = {
+    lines: [{ speaker: "referee", text: "어떻게 할래?" }],
+    choices: [
+      { label: "도전", next: null },
+      { label: "황금 공으로 승리", next: { lines: [{ speaker: "referee", text: "좋아." }] }, disabled: true },
+      { label: "준비", next: null },
+    ],
+  };
+
+  it("starts on the first choice that can be picked", () => {
+    const first = advance(advance(startDialogue({ ...menu, choices: [{ ...menu.choices![1] }, menu.choices![2]] })));
+    expect(first.phase).toBe("choosing");
+    expect(first.choice).toBe(1);
+  });
+
+  it("skips them when the cursor moves, in both directions and around the ends", () => {
+    let state = advance(advance(startDialogue(menu)));
+    expect(state.choice).toBe(0);
+    state = moveChoice(state, 1);
+    expect(state.choice).toBe(2);
+    state = moveChoice(state, 1);
+    expect(state.choice).toBe(0);
+    state = moveChoice(state, -1);
+    expect(state.choice).toBe(2);
+    state = moveChoice(state, -1);
+    expect(state.choice).toBe(0);
+  });
+
+  it("does not follow one even if the cursor is put on it", () => {
+    const state = { ...advance(advance(startDialogue(menu))), choice: 1 };
+    expect(confirmChoice(state)).toBe(state);
+  });
+});
+
 describe("choices", () => {
   const withChoices: DialogueNode = {
     lines: [{ speaker: "elder", text: "어떻게 할래?" }],
