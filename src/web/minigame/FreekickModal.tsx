@@ -66,6 +66,9 @@ function FreekickModal({
             공을 클릭한 채 원하는 방향으로 드래그해서 놓으면 슛! 공의 중심에서 벗어난 위치를 잡을수록 공이
             휘어집니다. 3번 실패하면 게임 오버!
           </p>
+          <p className="freekick__intro freekick__intro--tip">
+            <strong>게임 화면 안에서 빠르게 드래그 해보세요</strong>
+          </p>
         </div>
       }
     >

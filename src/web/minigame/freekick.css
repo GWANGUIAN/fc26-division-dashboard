@@ -1,6 +1,7 @@
 .freekick__title { display: flex; align-items: center; gap: 9px; font: 800 32px/1 "Barlow Condensed", "Noto Sans KR"; }
 .freekick__title-icon { width: 34px; height: 34px; object-fit: contain; }
 .freekick__intro { margin: 10px 0 0; color: var(--text-secondary); font-size: 13px; }
+.freekick__intro--tip { margin-top: 4px; color: var(--text-primary); }
 
 .freekick-play-area { position: relative; width: 100%; max-width: 720px; margin: 20px auto 0; aspect-ratio: 4 / 3; overflow: hidden; border: 1px solid var(--border-default); border-radius: 8px; background: #0d3d24 url(/backgroud-freekick.webp) center / cover no-repeat; }
 .freekick-scene { position: relative; z-index: 2; display: block; width: 100%; height: 100%; touch-action: none; cursor: pointer; }
