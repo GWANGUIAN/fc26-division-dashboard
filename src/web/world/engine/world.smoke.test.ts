@@ -215,7 +215,7 @@ describe("world engine (headless smoke run)", () => {
     await talkTo([36, 23]); // the elder
     expect(interactions.at(-1)).toMatchObject({ kind: "npc", cast: "elder" });
     expect(voices).toEqual([]);
-    await talkTo([12, 14]); // 핑구
+    await talkTo([14, 14]); // 핑구
     expect(interactions.at(-1)).toMatchObject({ kind: "npc", cast: "sjh4018" });
     expect(voices).toEqual(["/sfxes/pinggu.mp3"]);
   });

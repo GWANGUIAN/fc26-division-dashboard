@@ -26,17 +26,17 @@ const member = (
 });
 
 export const WORLD_CAST: CastDef[] = [
-  member("janine95kim", "재닌", "#a6dcff", "/sfxes/jaenin.mp3", [61, 27]),
-  member("bboringirl", "뽀린걸", "#ff5c5c", "/sfxes/bboringirl.mp3", [7, 52]),
-  member("sjh4018", "핑구", "#ffe9b0", "/sfxes/pinggu.mp3", [12, 12]),
+  member("janine95kim", "재닌", "#a6dcff", "/sfxes/jaenin.mp3", [62, 27]),
+  member("bboringirl", "뽀린걸", "#ff5c5c", "/sfxes/bboringirl.mp3", [6, 52]),
+  member("sjh4018", "핑구", "#ffe9b0", "/sfxes/pinggu.mp3", [14, 12]),
   member("doormomo", "문모모", "#c9a6ff", "/sfxes/doormomo.mp3", [66, 13]),
-  member("hachi97", "하치", "#ffe29e", "/sfxes/hachi.mp3", [7, 41]),
-  member("kaksjak0730", "한결", "#7ec8ff", "/sfxes/hangyeul.mp3", [71, 27]),
-  member("ju010228", "쥬멩이", "#d9f27a", "/sfxes/jyumenge.mp3", [9, 26]),
-  member("haepalin", "해파린", "#e0a6ff", "/sfxes/haeparin.mp3", [74, 39]),
-  member("tleod1818", "빙밍", "#5cffb8", "/sfxes/bingming.mp3", [15, 52]),
-  member("tdnlamuron", "다시바", "#ffb454", "/sfxes/dashiba.mp3", [24, 53]),
-  member("lina0108", "리냐", "#ff8fc0", "/sfxes/linya.mp3", [17, 36]),
+  member("hachi97", "하치", "#ffe29e", "/sfxes/hachi.mp3", [6, 41]),
+  member("kaksjak0730", "한결", "#7ec8ff", "/sfxes/hangyeul.mp3", [73, 27]),
+  member("ju010228", "쥬멩이", "#d9f27a", "/sfxes/jyumenge.mp3", [8, 26]),
+  member("haepalin", "해파린", "#e0a6ff", "/sfxes/haeparin.mp3", [73, 39]),
+  member("tleod1818", "빙밍", "#5cffb8", "/sfxes/bingming.mp3", [17, 52]),
+  member("tdnlamuron", "다시바", "#ffb454", "/sfxes/dashiba.mp3", [26, 53]),
+  member("lina0108", "리냐", "#ff8fc0", "/sfxes/linya.mp3", [19, 36]),
   {
     id: "woowakgood",
     displayName: "우왁굳",

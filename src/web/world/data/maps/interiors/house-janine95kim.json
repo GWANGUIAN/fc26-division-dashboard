@@ -3,7 +3,7 @@
   "image": "interiors/int-house-janine95kim",
   "size": [20,12],
   "spawn": [10,10],
-  "exitTo": {"scene":"overworld","tile":[62,27]},
+  "exitTo": {"scene":"overworld","tile":[63,27]},
   "collision": [
     [0,0,640,122],
     [0,122,52,262],
@@ -33,6 +33,6 @@
     {"cast":"janine95kim","tile":[10,7],"ai":"stay","when":"mission-completed:m-janine95kim-cardmatch"}
   ],
   "triggers": [
-    {"type":"door","rect":[9,11,2,1],"to":{"scene":"overworld","tile":[62,27],"facing":"down"}}
+    {"type":"door","rect":[9,11,2,1],"to":{"scene":"overworld","tile":[63,27],"facing":"down"}}
   ]
 }

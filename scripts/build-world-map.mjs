@@ -37,24 +37,25 @@ export const ZONES = [
   { id: "z-weed", name: "제초동 구역", rect: [54, 44, 78, 58], tint: "#b5b5ad", particles: "dust", bgm: "region-weed" },
 ];
 
-/** rect = sprite box (tiles, inclusive), door = [x, y, w, h], skip = empty tile rows at the top of the sprite. */
+/** rect = sprite box (tiles, inclusive), door = [x, y, w, h], skip = empty tile rows at the top of the sprite,
+ * doorDx = px shift of the visible entrance (mat + the notch in the collision) when the art's door is off the tile grid. */
 export const BUILDINGS = [
-  { id: "clubhouse", rect: [34, 6, 45, 13], door: [39, 12, 2, 2], interior: "clubhouse-lobby", skip: 0 },
+  { id: "clubhouse", rect: [34, 6, 45, 13], door: [39, 12, 2, 2], interior: "clubhouse-lobby", skip: 0, doorDx: 2 },
   { id: "stadium", rect: [27, 26, 52, 41], door: [39, 41, 2, 1], interior: "stadium", skip: 0 },
   { id: "fountain", rect: [37, 19, 42, 23], skip: 0 },
-  { id: "house-sjh4018", rect: [8, 3, 17, 11], door: [12, 11, 2, 1], interior: "house-sjh4018", skip: 2 },
-  { id: "house-doormomo", rect: [64, 2, 70, 12], door: [66, 12, 2, 1], interior: "house-doormomo", skip: 0 },
-  { id: "house-ju010228", rect: [6, 20, 13, 25], door: [9, 25, 2, 1], interior: "house-ju010228", skip: 0 },
-  { id: "house-lina0108", rect: [14, 30, 21, 35], door: [17, 35, 2, 1], interior: "house-lina0108", skip: 0 },
-  { id: "house-hachi97", rect: [4, 34, 11, 40], door: [7, 40, 2, 1], interior: "house-hachi97", skip: 1 },
-  { id: "house-janine95kim", rect: [58, 20, 65, 26], door: [61, 26, 2, 1], interior: "house-janine95kim", skip: 2 },
+  { id: "house-sjh4018", rect: [8, 3, 17, 11], door: [12, 11, 2, 1], interior: "house-sjh4018", skip: 2, doorDx: -2 },
+  { id: "house-doormomo", rect: [64, 2, 70, 12], door: [66, 12, 2, 1], interior: "house-doormomo", skip: 0, doorDx: 21 },
+  { id: "house-ju010228", rect: [6, 20, 13, 25], door: [9, 25, 2, 1], interior: "house-ju010228", skip: 0, doorDx: -6 },
+  { id: "house-lina0108", rect: [14, 30, 21, 35], door: [17, 35, 2, 1], interior: "house-lina0108", skip: 0, doorDx: 13 },
+  { id: "house-hachi97", rect: [4, 34, 11, 40], door: [7, 40, 2, 1], interior: "house-hachi97", skip: 1, doorDx: -7 },
+  { id: "house-janine95kim", rect: [58, 20, 65, 26], door: [62, 26, 2, 1], interior: "house-janine95kim", skip: 2, doorDx: 19 },
   { id: "house-kaksjak0730", rect: [68, 19, 75, 26], door: [71, 26, 2, 1], interior: "house-kaksjak0730", skip: 0 },
-  { id: "house-haepalin", rect: [72, 33, 78, 38], door: [74, 38, 2, 1], interior: "house-haepalin", skip: 0 },
+  { id: "house-haepalin", rect: [72, 33, 78, 38], door: [74, 38, 2, 1], interior: "house-haepalin", skip: 0, doorDx: 5 },
   { id: "house-bboringirl", rect: [4, 46, 11, 51], door: [7, 51, 2, 1], interior: "house-bboringirl", skip: 0 },
   { id: "house-tleod1818", rect: [12, 46, 19, 51], door: [15, 51, 2, 1], interior: "house-tleod1818", skip: 0 },
   { id: "house-tdnlamuron", rect: [21, 47, 27, 52], door: [24, 52, 2, 1], interior: "house-tdnlamuron", skip: 1 },
-  { id: "store", rect: [33, 46, 39, 50], door: [35, 50, 2, 1], interior: "store", skip: 0 },
-  { id: "cafe", rect: [43, 46, 49, 50], door: [46, 50, 2, 1], interior: "cafe", skip: 0 },
+  { id: "store", rect: [33, 46, 39, 50], door: [35, 50, 2, 1], interior: "store", skip: 0, doorDx: 8 },
+  { id: "cafe", rect: [43, 46, 49, 50], door: [46, 50, 2, 1], interior: "cafe", skip: 0, doorDx: -7 },
   { id: "factory", rect: [62, 46, 74, 55], door: [68, 55, 2, 1], interior: "factory", skip: 1, matDx: 16 },
 ];
 
@@ -104,16 +105,16 @@ const NPCS = [
   // after the ending (S4): the Weeder King coaches next to the stadium
   ["weedking", [55, 30], "stay", null, "flag:ending-seen"],
   ["doormomo", [66, 13], "stay"],
-  ["sjh4018", [12, 12], "stay"],
-  ["kaksjak0730", [71, 27], "stay"],
-  ["janine95kim", [61, 27], "stay"],
-  ["haepalin", [74, 39], "stay"],
-  ["ju010228", [9, 26], "stay"],
-  ["lina0108", [17, 36], "stay"],
-  ["hachi97", [7, 41], "stay"],
-  ["bboringirl", [7, 52], "stay"],
-  ["tleod1818", [15, 52], "stay"],
-  ["tdnlamuron", [24, 53], "stay"],
+  ["sjh4018", [14, 12], "stay"],
+  ["kaksjak0730", [73, 27], "stay"],
+  ["janine95kim", [62, 27], "stay"],
+  ["haepalin", [73, 39], "stay"],
+  ["ju010228", [8, 26], "stay"],
+  ["lina0108", [19, 36], "stay"],
+  ["hachi97", [6, 41], "stay"],
+  ["bboringirl", [6, 52], "stay"],
+  ["tleod1818", [17, 52], "stay"],
+  ["tdnlamuron", [26, 53], "stay"],
 ];
 
 /** Doors that are shut until a condition holds (S4): what the player is told while it does not. */
@@ -149,7 +150,7 @@ const EXAMINE = [
   // delivery mailboxes (S3, docs/world/03 §7): `action` hands over the parcel that belongs to this box
   { id: "mb-west", tile: [14, 38], text: "우편함이다. 지금은 넣을 것이 없다.", size: [48, 48], action: "mailbox:mb-west" },
   { id: "mb-east", tile: [69, 27], text: "우편함이다. 지금은 넣을 것이 없다.", size: [48, 48], action: "mailbox:mb-east" },
-  { id: "mb-north", tile: [68, 13], text: "우편함이다. 지금은 넣을 것이 없다.", size: [48, 48], action: "mailbox:mb-north" },
+  { id: "mb-north", tile: [68, 13], text: "우편함이다. 지금은 넣을 것이 없다.", size: [64, 48], action: "mailbox:mb-north" },
 ];
 
 /**
@@ -391,9 +392,10 @@ export function buildOverworldMap() {
       continue;
     }
     const [dx] = b.door;
+    const shift = b.doorDx ?? 0;
     if (y1 - top > 0) collision.push(tileRect(x0, top, x1 - x0 + 1, y1 - top));
-    if (dx > x0) collision.push(tileRect(x0, y1, dx - x0, 1));
-    if (dx + 2 <= x1) collision.push(tileRect(dx + 2, y1, x1 - (dx + 2) + 1, 1));
+    if (dx > x0) collision.push([x0 * TILE, y1 * TILE, (dx - x0) * TILE + shift, TILE]);
+    if (dx + 2 <= x1) collision.push([(dx + 2) * TILE + shift, y1 * TILE, (x1 - (dx + 2) + 1) * TILE - shift, TILE]);
   }
   // deep water except under the bridge
   collision.push(tileRect(LAKE_DEEP[0], LAKE_DEEP[1], LAKE_DEEP[2] - LAKE_DEEP[0] + 1, BRIDGE[1] - LAKE_DEEP[1]));
@@ -476,7 +478,7 @@ export function buildOverworldMap() {
 
   // set pieces ------------------------------------------------------------------------------
   const decal = (id, tx, ty, dx = 0, dy = 24) => props.push({ prop: id, x: tx * TILE + dx, y: ty * TILE + dy });
-  for (const b of doors) decal("mat-door", b.door[0] + 1, b.door[1] + b.door[3], b.matDx ?? 0, 28); // 2×2 door mat, centred below the door's bottom row (`matDx`: px nudge when the art's door is off the tile grid)
+  for (const b of doors) decal("mat-door", b.door[0] + 1, b.door[1] + b.door[3], (b.matDx ?? 0) + (b.doorDx ?? 0), 28); // 2×2 door mat, centred below the door's bottom row (`matDx` / `doorDx`: px nudge when the art's door is off the tile grid)
   const forced = [
     ["lamp-post", ...at(33, 18)], ["lamp-post", ...at(47, 18)], ["lamp-post", ...at(33, 25)], ["lamp-post", ...at(47, 25)],
     ["bench-h", ...at(34, 23)], ["bench-h", ...at(46, 20)],
@@ -498,7 +500,7 @@ export function buildOverworldMap() {
     ["dragon-statue", ...at(3, 36, 28)],
     ["pond-small", ...at(19, 24, 28)],
     // S3 mission props: delivery mailboxes and the training-ground goal (docs/world/03 §7)
-    ["mailbox", ...at(14, 38)], ["mailbox", ...at(69, 27, 14)], ["mailbox", ...at(68, 13)],
+    ["mailbox", ...at(14, 38)], ["mailbox", ...at(69, 27, 14)], ["mailbox", at(68, 13)[0] + 21, at(68, 13)[1]],
     ["goal-west", 21 * TILE, 13 * TILE],
     // start and finish flags of the cone course
     ["corner-flag", ...at(5, 54)], ["corner-flag", ...at(5, 58)], ["corner-flag", ...at(17, 54)], ["corner-flag", ...at(17, 58)],
