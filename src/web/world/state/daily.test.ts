@@ -19,6 +19,16 @@ describe("KST dailies", () => {
     }
     expect(draws.size).toBeGreaterThan(10);
   });
+  it("never draws two tasks of the same group and reaches every task over time", () => {
+    const seen = new Set<string>();
+    for (let day = 0; day < 400; day++) {
+      const picks = dailyPicks(kstDate(before + day * 86400000));
+      const groups = picks.map(id => DAILY_TASKS.find(t => t.id === id)!.group);
+      expect(new Set(groups).size).toBe(3);
+      picks.forEach(id => seen.add(id));
+    }
+    expect([...seen].sort()).toEqual(DAILY_TASKS.map(t => t.id).sort());
+  });
   it("rejects incomplete claims, duplicates, stale open panels and clock rollback", () => {
     const fresh = refreshDaily(ended(), before);
     expect(claimDaily(fresh, fresh.daily.date, before).daily.stamps).toHaveLength(0);
@@ -46,6 +56,40 @@ describe("KST dailies", () => {
     expect(s.daily.done).toContain("rush");
     expect(refreshDaily(s, after).daily.done).toEqual([]);
     expect(dailyEvent(createNewGameSave("janine95kim"), { type: "talk", cast: "elder" }, before).daily.done).toEqual([]);
+  });
+  it("judges the card match by turns and counts distinct games, cards and residents", () => {
+    let s = refreshDaily(ended(), before); s.daily.picks = ["cardmatch", "plays", "cards"];
+    s = dailyEvent(s, { type: "minigame", result: { game: "cardmatch", score: 10, cleared: false } }, before);
+    expect(s.daily.done).toEqual([]);
+    s = dailyEvent(s, { type: "minigame", result: { game: "cardmatch", score: 25, cleared: true } }, before);
+    expect(s.daily.done).not.toContain("cardmatch");
+    s = dailyEvent(s, { type: "minigame", result: { game: "cardmatch", score: 24, cleared: true } }, before);
+    expect(s.daily.done).toContain("cardmatch");
+    for (const game of ["kickups", "kickups"] as const) s = dailyEvent(s, { type: "minigame", result: { game, score: 0 } }, before);
+    expect(s.daily.done).not.toContain("plays");
+    s = dailyEvent(s, { type: "minigame", result: { game: "freekick", score: 0 } }, before);
+    expect(s.daily.done).toContain("plays");
+    s = dailyEvent(s, { type: "card-view", cardId: "janine95kim", variant: "base" }, before);
+    s = dailyEvent(s, { type: "card-view", cardId: "janine95kim", variant: "gold" }, before);
+    s = dailyEvent(s, { type: "card-view", cardId: "not-a-member", variant: "base" }, before);
+    expect(s.daily.done).not.toContain("cards");
+    s = dailyEvent(s, { type: "card-view", cardId: "weedking", variant: "base" }, before);
+    expect(s.daily.done).not.toContain("cards"); // the NPC-only hidden card is not a playable member
+    s = dailyEvent(s, { type: "card-view", cardId: "sjh4018", variant: "base" }, before);
+    expect(s.daily.done).toContain("cards");
+  });
+  it("scales the harder tiers: 70 for sum 10, 600m for rush, six residents", () => {
+    let s = refreshDaily(ended(), before); s.daily.picks = ["sum10-hard", "rush-hard", "talk-many"];
+    s = dailyEvent(s, { type: "minigame", result: { game: "soccer-sum10", score: 69 } }, before);
+    s = dailyEvent(s, { type: "minigame", result: { game: "rush", score: 900, distance: 599 } }, before);
+    expect(s.daily.done).not.toContain("sum10-hard"); expect(s.daily.done).not.toContain("rush-hard");
+    s = dailyEvent(s, { type: "minigame", result: { game: "soccer-sum10", score: 70 } }, before);
+    s = dailyEvent(s, { type: "minigame", result: { game: "rush", score: 900, distance: 600 } }, before);
+    expect(s.daily.done).toEqual(expect.arrayContaining(["sum10-hard", "rush-hard"]));
+    for (const cast of ["elder", "kid", "weedking", "janine95kim", "sjh4018"] as const) s = dailyEvent(s, { type: "talk", cast }, before);
+    expect(s.daily.done).not.toContain("talk-many");
+    s = dailyEvent(s, { type: "talk", cast: "doormomo" }, before);
+    expect(s.daily.done).toContain("talk-many");
   });
   it("grants cumulative 7/14/30 badges atomically with one stamp", () => {
     for (const count of [7,14,30]) {
