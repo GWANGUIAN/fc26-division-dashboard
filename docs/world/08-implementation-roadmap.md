@@ -23,7 +23,7 @@
 | **S5** | 엔딩 후 | 잔디 러시·랭크·일일 미션·수집·카드 도감·제초동 구역 | 러시 에셋, 오리지널 NPC |
 | **S6** | 폴리시·릴리스 | 오디오 통합·성능·접근성·크레딧·공지·핸드오프 | 오디오 P0/P1, 나머지 |
 
-### S1 — 기반 (Foundation)
+### S1 — 기반 (Foundation) — ✅ 구현 완료 (2026-09-19, 아래 "구현 결과" 참고)
 **범위**
 - 저장소 준비: `.gitignore`에 `tmp/world-src/` 추가, `package.json`에 `convert:world-art` 스크립트, `scripts/convert-world-art.mjs` 뼈대(캐릭터·지면 우선, [§3](#3-변환-스크립트-사양)).
 - `src/web/world/` 폴더 생성, `WorldToggle`(좌상단, 이미지 없을 때 CSS 폴백 판+글자), `WorldOverlay`(lazy, z90, `useBodyScrollLock`/`useEscape`, 포커스 이동), `WorldCanvas`(논리 640×360 + 정수 배율 + `pixelated`).
@@ -37,6 +37,13 @@
 - 버튼 클릭 → 로딩(진행률) → 타이틀 → 빈 평지에서 플레이스홀더 캐릭터가 이동·충돌·정수 배율로 선명하게 렌더, Esc/닫기 버튼으로 종료, 재진입 정상.
 - 세이브 검증 테스트, 충돌 테스트 통과. 기존 앱 동작 불변.
 **수정 기존 파일**: `App.tsx`, `package.json`, `.gitignore`(+ 신규 파일들)
+
+**구현 결과 (S1)**
+- 범위 밖이던 **변환 스크립트를 카테고리 전부로 완성**하고 원본 151장을 변환했다(447 webp). 결과·QA는 [09 §10](09-asset-checklist.md#10-변환-결과와-qa-s1-2026-09-19).
+- 추가로 바뀐 기존 파일: `MusicPlayer.tsx`(전역 음악 일시정지/복귀 훅, 결정 #1), `.gitignore`에 `tmp/world-src/` 추가 + 이미 커밋돼 있던 원본 PNG 151장을 `git rm --cached`로 추적 해제(디스크 파일은 유지). `styles.css`는 수정하지 않았다(결정 #2의 여백 예약은 `world-toggle.css`의 `:has()` 규칙).
+- 신규: `src/web/world/`(`WorldToggle`·`WorldOverlay`·`WorldCanvas`·`storage`·`worldAssets`·`stageLayout`·`debug`, `engine/{loop,input,camera,collision,scene,render,world}`, `data/{worldCast,sandboxMap}`, `ui/{LoadingScreen,TitleScreen}`), `src/web/musicControl.ts`, `scripts/{convert-world-art.mjs,lib/world-art-math.mjs,world-art-manifest.json}`.
+- **S1 한정 임시 요소**(S2에서 교체): 캐릭터 선택이 없어 새 게임은 항상 재닌으로 시작, 맵은 `data/sandboxMap.ts`의 40×30타일 빈 평지(소품 몇 개로 충돌 확인), 지면은 `terrain/core`의 잔디 4종을 해시로 깐 1장짜리 캔버스, Esc는 어느 화면에서든 곧바로 월드를 닫는다(대사/모달 우선 처리는 S3 스택, #3).
+- 테스트: 충돌·카메라·입력·루프·씬 전환·세이브 검증/마이그레이션·스테이지 배율·음악 일시정지·변환 수학·매니페스트 무결성.
 
 ### S2 — 월드 뼈대
 **범위**
@@ -87,7 +94,7 @@
 
 ## 3. 변환 스크립트 사양
 
-`scripts/convert-world-art.mjs` (S1 뼈대, 이후 카테고리별 확장). 기존 `convert-group-photo-art.mjs`처럼 **sharp**를 쓰되, 원본을 지우지 않는다(사용자가 재작업할 수 있도록).
+`scripts/convert-world-art.mjs` (S1에서 전 카테고리 완성). 기존 `convert-group-photo-art.mjs`처럼 **sharp**를 쓰되, 원본을 지우지 않는다(사용자가 재작업할 수 있도록).
 
 ### CLI
 ```bash
@@ -100,35 +107,37 @@ pnpm convert:world-art -- ui frames-dialog            # UI 시트/단일
 pnpm convert:world-art -- fx markers | rush obstacles # FX/러시
 pnpm convert:world-art -- --all                       # 원본 폴더의 전부
 ```
-입력: `tmp/world-src/<카테고리>/<원본이름>.png`, 출력: `src/web/assets/world/<카테고리>/…webp`(webp q92, lossless가 유리한 UI 프레임은 `lossless`).
+입력: `tmp/world-src/<카테고리>/<원본이름>.png`, 출력: `src/web/assets/world/<카테고리>/…webp`. 캐릭터·지면·소품·FX·UI·러시 스프라이트는 **lossless**, 건물·실내·큰 배경(loading/title/select, `rush/bg-far`)은 **q92 lossy**(`--quality`).
 
 ### 공통 처리 파이프라인
-1. **배경 제거**: PNG에 알파가 있으면 그대로, 없으면 `#FF00FF` 크로마키(허용오차 기본 40, `--tolerance`) → 알파. 가장자리 마젠타 번짐 제거(디스필).
-2. **트림**: 알파 bbox로 자르고 여백 0~2px.
-3. **최근접 다운스케일**: 목표 최종 크기로 축소. **박스(area) 필터로 1차 축소 후 최근접 정수 스냅**해 픽셀 블록이 또렷하게 유지되게 한다. 종횡비 유지(왜곡 없음).
-4. **팔레트 정리(옵션 `--palette N`)**: 색 수를 N(기본 48)으로 양자화해 번짐 제거.
+1. **알파 정리**: 알파가 있으면 그대로 쓰되 알파 16 미만을 지운다. 알파가 없고 네 모서리가 `#FF00FF`면 크로마키(허용오차 40, `--tolerance`) + 가장자리 디스필. **알파 240 미만은 지운다(하드닝)**: 생성기가 스프라이트 둘레에 알파 128~250의 넓은 발광(후광)을 구워 넣어 트림·경계 판정을 망치기 때문이다. 발광이 의도인 슬롯(매니페스트 `soft`: 스포트라이트·반짝임·먼지·잔물결·조각/공 펄스·`fab-hover` 등)은 하드닝하지 않고 알파를 유지한다.
+2. **스프라이트 추출**: 시트는 고정 격자로 자르지 않는다. 생성 시트의 오브젝트가 격자에 정확히 맞지 않고 칸 경계를 넘나들기 때문이다. 알파 마스크의 **연결 성분(8방향)**을 구해 각 성분을 **무게중심이 속한 칸**에 배정하고, 칸마다 가장 큰 성분 + 가까운(24px 이내) 또는 충분히 큰(2% 이상) 성분만 남긴다(떨어진 잡티 제외). 이 결과가 곧 **트림**이다(여백 0).
+3. **다운스케일**: 박스(area) 평균을 **프리멀티플라이드 알파**로 계산해 목표 크기로 줄이고, 소프트가 아니면 알파를 128 기준 **하드 엣지**로 스냅한다(문서 초안의 "최근접 정수 스냅" 대신). 종횡비는 유지하고 남는 쪽은 투명 여백(아래 정렬 또는 중앙, 매니페스트 `align`). 원본이 목표보다 작으면 확대 경고.
+4. **팔레트 정리(옵션 `--palette N`)**: N색(기본 48) 양자화. 기본은 꺼짐.
 5. **webp 출력**.
 
 ### 카테고리별 규칙
 
 | 카테고리 | 입력 | 처리 | 출력 |
 | --- | --- | --- | --- |
-| characters `walk` | 1536×1024, 4열×3행 | 셀 균등 분할(384×341) → 셀별 알파 bbox → **공통 스케일**(turn 시트 정면 서기 bbox 높이를 64px 기준으로 산출) → 발끝(bbox 하단)을 셀 하단 4px에 정렬, 가로는 bbox 무게중심 기준 중앙 → 48×64 셀 | 아틀라스 `characters/<id>-atlas.webp`(192×256) |
-| characters `turn` | 1536×1024, 3컷 | 3등분 → 위와 동일 정렬 → 아틀라스 0행(idle 하·우·상) | (아틀라스에 병합) |
-| characters `stand` | 1024×1024 | 트림 → 높이 256px 최근접 | `characters/<id>-stand.webp` |
-| characters `portrait` | 1024×1024, 2×2 | 4분할 → 트림 후 128×128(중앙) | `portraits/<id>-<neutral,happy,surprised,worried>.webp` |
-| animals | 1536×1024 4×3 | 셀 32×32, idle=passing 프레임 | `characters/<id>-atlas.webp`(128×128) |
-| terrain | 1024×1024 4×4 | 16분할 → 256→32px 다운스케일 → **심리스 보정**(가장자리 오프셋 블렌딩 옵션 `--seamless`) → 128×128 시트 | `terrain/<시트>.webp` + 파생 `-withered` |
-| props | 1536×1024 4×3 | 12분할 → 트림 → **표의 최종 px에 맞춰 리사이즈**(스프라이트별 목표 크기는 `scripts/world-art-manifest.json`) | `props/<id>.webp` (+ 식물 `-withered`) |
-| buildings | 단일 | 트림 → 최종 px | `buildings/<id>.webp` |
-| interiors | 1536×1024 | 중앙 크롭(1536×922) → 640×384로 다운스케일 | `interiors/int-<id>.webp` |
-| ui frames/icons | 4×3 시트 | 12분할 → 트림 → 최종 px(9‑slice 프레임은 정중앙 대칭 확인 로그) | `ui/<id>.webp` |
-| fx | 4×3 | 12분할 → 트림 → 최종 px | `fx/<id>.webp` |
-| rush | 단일/시트 | 배경 3장은 가로 심리스 보정 후 최종 크기, 시트는 소품 규칙 | `rush/<id>.webp` |
+| characters `walk` | 4열×3행 | 프레임 12개 추출 → 시트 자체의 스케일 산출(앞모습 걷기 4프레임 높이의 중앙값 → **`standHeight` 58px**, 어떤 프레임이 48×60 안에 안 들어가면 그만큼만 축소) → **발끝을 셀 하단 4px에 정렬, 가로는 알파 무게중심을 셀 중앙에** → 48×64 셀 | 아틀라스 `characters/<id>-atlas.webp`(192×256) |
+| characters `turn` | 3컷(3열×1행) | 위와 동일하되 **turn 시트의 서 있는 정면 높이 → 58px**(turn과 walk는 원본 스케일이 서로 달라 각자 스케일) → 아틀라스 0행(idle 하·우·상) | (아틀라스에 병합) |
+| characters `stand` | 단일 | 트림 → 높이 256px(최대) | `characters/<id>-stand.webp` |
+| characters `portrait` | 2×2 | 4칸 추출 → **4장 공통 스케일**(최소 맞춤) → 128×128에 아래 정렬 | `portraits/<id>-<neutral,happy,surprised,worried>.webp` |
+| animals | 4×3 | 프레임 32×32(발끝 여백 2px), 시트 전체에 공통 스케일, idle=passing(2번째) 프레임 | `characters/<id>-atlas.webp`(128×128) |
+| terrain | 4×4 | 16분할 → 32px 박스 다운스케일 → 128×128 시트. `--seamless`는 가장자리 교차 블렌딩 | `terrain/<시트>.webp` + 파생 `-withered` |
+| props | 4×3 | 12개 추출 → **표의 최종 px**(`world-art-manifest.json`)에 종횡비 유지로 맞춤. `anim` 그룹(조각·공 펄스, 반짝임·먼지, 잔물결, 성장)은 **한 스케일을 공유**해 프레임 간 크기 변화를 보존 | `props/<id>.webp` (+ 식물 `-withered`) |
+| buildings | 단일 | 추출 → 최종 px, 아래 정렬(문이 하단 중앙) | `buildings/<id>.webp` |
+| interiors | 단일(알파 없음) | 중앙 크롭(원본 비율 → 5:3) → 640×384 다운스케일 | `interiors/int-<id>.webp` |
+| ui frames/icons | 4×3 등 | 추출 → 최종 px. **9‑slice 프레임(`slice`)은 원본 비율을 유지**하고 여백을 채우지 않는다(크기가 표와 달라짐, 스크립트가 slice 가능 여부와 대칭 오차를 검사). 탭은 좌우 대칭만 검사 | `ui/<id>.webp` |
+| ui 단일 | 단일 | `fab-*`·`fab-icon`·`logo-emblem`: 추출 후 중앙 정렬, `*-bg`: 중앙 크롭 960×540 | `ui/<id>.webp` |
+| fx | 4×3 | props와 동일(이모트 24×24, 마커, 성장·잔물결 그룹) | `fx/<id>.webp` |
+| rush | 단일/시트 | 배경 `bg-far`·`bg-factory`는 중앙 크롭 640×360, `bg-mid`·`ground`는 **가로 640에 맞춰 아래 정렬**(알파 배경), 셋 다 가로 이음매 블렌딩. 시트는 props 규칙 | `rush/<id>.webp` |
 
-- **매니페스트**: 슬롯→ID→최종 px는 `scripts/world-art-manifest.json`에 05/06 문서의 표를 그대로 옮겨 둔다(S1에서 작성, 문서가 원천).
-- **QA 출력**: 각 실행이 (a) 셀별 bbox 크기, (b) 발끝 y 편차, (c) 대칭도(9‑slice), (d) 남은 마젠타 픽셀 수를 콘솔에 표시. 임계 초과 시 경고.
-- **테스트**: 슬라이스/정렬 수학(순수 함수)만 `scripts/convert-world-art.test.mjs`로 검증(기존 `scripts/*.test.mjs` 관례).
+- **매니페스트**: 슬롯→ID→최종 px는 `scripts/world-art-manifest.json`에 05/06 문서의 표를 그대로 옮겨 두었다(문서가 원천, 옵션 키는 파일 첫 `_comment` 참고). `characters`(프레임 규격·파생 정의), `withered`(채도 0.35·명도 0.95·색조 −12 + `#b9a86a` 25%)도 여기 있다.
+- **QA 출력**: 각 실행이 콘솔에 종류별(`foot` 발끝 편차 · `magenta` 마젠타 잔여 · `symmetry` 9‑slice 대칭 · `aspect` 종횡비 · `edge` 시트 가장자리 접촉 · `seam` 타일 이음매 · `scale` 확대 · `empty` 빈 칸) 경고를 낸다. 임계: 발끝 편차 3px, 대칭 0.08, 이음매 0.25, 종횡비 25%, 마젠타 스프라이트 3px/불투명 50px. `--all`은 종류별 요약과 함께 `tmp/world-src/qa-report.json`(누락된 원본 목록 포함)을 쓴다.
+- **테스트**: 슬라이스·성분 추출·정렬·다운스케일·시임 수학(순수 함수, `scripts/lib/world-art-math.mjs`)과 매니페스트 무결성을 `scripts/convert-world-art.test.mjs`로 검증(기존 `scripts/*.test.mjs` 관례).
+
 
 ### 자동 파생 (생성 불필요)
 - `*-withered`: 지면 시트/식물 소품에 `modulate(saturation 0.35, brightness 0.95, hue -12)` + `#b9a86a` 25% 틴트 오버레이.
@@ -161,10 +170,10 @@ pnpm convert:world-art -- --all                       # 원본 폴더의 전부
 
 | # | 항목 | 내용 | 결정 시점 |
 | --- | --- | --- | --- |
-| 1 | 전역 `MusicPlayer` 충돌 | YouTube iframe 음악이 월드 BGM과 겹침. 월드 열 때 일시정지/복귀 옵션 확인(`MusicPlayer.tsx` API) | S1 |
-| 2 | 좌상단 버튼과 `.topbar` 겹침 | 뷰포트 < 1440px에서 브랜드와 겹칠 수 있음. `top:12px; left:12px` 컴팩트 또는 topbar 좌측 패딩 | S1 |
-| 3 | Esc/모달 중첩 | `useEscape`가 window keydown이라 중첩 시 동시 반응 가능 → 월드 쪽 핸들러가 "열린 모달 없음"일 때만 동작하도록 스택화 | S3 |
-| 4 | J/M 등 키 충돌 | 대시보드에 전역 단축키가 있는지 확인(월드 열림 동안 입력 캡처) | S1 |
+| 1 | 전역 `MusicPlayer` 충돌 | YouTube iframe 음악이 월드 BGM과 겹침. 월드 열 때 일시정지/복귀 옵션 확인(`MusicPlayer.tsx` API) | S1 — **결정됨(2026-09-19)**: 월드가 열리면 재생 중이던 전역 음악을 일시정지하고, 닫을 때 **월드가 멈춘 경우에만** 재개한다. `MusicPlayer.tsx`는 외부 API가 없어 `src/web/musicControl.ts`(등록형 소형 스토어)를 통해 `pause/resume`을 받도록 수정(기존 미니게임은 계속 전역 음악을 안 건드림). 월드 BGM 설정과 무관하게 항상 적용하고, 월드 BGM 설정에 따른 분기는 하지 않는다. |
+| 2 | 좌상단 버튼과 `.topbar` 겹침 | 뷰포트 < 1440px에서 브랜드와 겹칠 수 있음. `top:12px; left:12px` 컴팩트 또는 topbar 좌측 패딩 | S1 — **결정됨(2026-09-19)**: 버튼(220×60 표시)이 사실상 모든 뷰포트(≈1950px 미만)에서 브랜드를 가리고, 스크롤하면 `position: sticky` 검색바도 가리는 것을 확인. **`top:12px; left:12px` 고정 + 여백 예약 + 스크롤 시 축소**: 맨 위에서는 풀 판, `scrollY > 80`이면 원형 아이콘(`fab-icon`, 48px)으로 축소. `world-toggle.css`가 `main:has(.world-toggle)`로 `.topbar`(판 폭 244px)와 sticky 상태의 `.controls`(아이콘 폭 66px) 좌측 패딩을 `<main>`의 왼쪽 여백만큼 빼고 예약한다. `styles.css`는 수정하지 않음. 컴팩트 아이콘은 스크롤 위치 80px~검색바가 붙기 전 구간에서 히어로 좌상단 모서리를 잠깐 덮을 수 있음(허용). |
+| 3 | Esc/모달 중첩 (S1 임시: 오버레이가 캡처 단계에서 Esc를 받아 `stopPropagation` 후 바로 월드를 닫음) | `useEscape`가 window keydown이라 중첩 시 동시 반응 가능 → 월드 쪽 핸들러가 "열린 모달 없음"일 때만 동작하도록 스택화 | S3 |
+| 4 | J/M 등 키 충돌 | 대시보드에 전역 단축키가 있는지 확인(월드 열림 동안 입력 캡처) | S1 — **결정됨(2026-09-19)**: 코드 확인 결과 대시보드에 문자 단축키는 없고(전역 `keydown`은 각 모달/팝오버의 Esc 닫기뿐, `SoccerSum10Canvas`는 요소 로컬) J/M 충돌은 없다. **01의 키를 그대로 유지**하고 `window` 캡처로 받는다: `KeyboardEvent.code` 기반(한글 IME가 켜져 있어도 WASD 동작), 게임 키는 `preventDefault`(방향키·Space 스크롤 방지), Ctrl/Alt/Meta 조합과 입력 필드는 무시, 열릴 때 포커스를 오버레이 루트로 이동(플로팅 버튼 재클릭 방지), 탭 숨김/blur 시 눌린 키 초기화. 구현: `engine/input.ts`. |
 | 5 | AI 도트 순도 | 생성 이미지가 정확한 픽셀 격자가 아님 → 다운스케일+팔레트 양자화로 보정, 결과가 불만족이면 목표 해상도(타일 32→48)나 스타일 재조정 | A1 후 |
 | 6 | 좌향 반전 비대칭 | 비대칭 소품이 어색하면 좌향 전용 시트 추가 생성 | A2 |
 | 7 | 미션 임계값 | placeholder 점수/시간의 난이도 튜닝(`missionDefs.ts`만 수정) | S3~S4 후 플레이 |
@@ -175,6 +184,7 @@ pnpm convert:world-art -- --all                       # 원본 폴더의 전부
 | 12 | 다른 진입 경로 | 딥링크(`?world`)나 공지 클릭으로 열기 여부 | S6 |
 | 13 | 서버 리더보드 | 범위 밖. 필요 시 Worker + KV/D1 설계 별도 문서 | 미정 |
 | 14 | `roster.yaml`/스냅샷 불일치 | 스냅샷의 닉네임이 YAML과 다름(하치·해파린) → 월드는 하드코딩 캐스트 사용으로 회피 | 확정 |
+| 15 | 원본 PNG 추적 | `tmp/world-src/`의 PNG 151장이 이미 커밋돼 있어 `.gitignore`만으로는 추적이 안 풀림 | S1 — **결정됨(2026-09-19)**: `git rm -r --cached tmp/world-src`로 인덱스에서만 제거(디스크 파일 유지, 이 세션에서 커밋하지 않음). 과거 커밋의 용량은 그대로 남는다. |
 
 ## 6. 세션 종료 체크리스트
 - [ ] `pnpm typecheck && pnpm test` 통과

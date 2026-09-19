@@ -37,8 +37,8 @@ No cast shadow, no text anywhere, no watermark.
 - **fab-hover**: 위 이미지를 첨부하고 `Keep exactly the same layout, size and design as the attached image, but make it brighter with a soft mint glow around the plate, tiny gold sparkles near the medallion, and the plate looking lifted slightly. Keep the text area empty.`
 - **fab-icon**: `Draw only the round medallion from the attached plate as a standalone icon, 1024x1024, centred, transparent background, same style.`
 - **(실험, 선택)** 글자 포함 버전: 프롬프트 끝에 `Write the Korean text "잔디동 월드 구경하기" in the empty panel in a clean pixel font, exactly these characters.`를 덧붙여 시도하되, **글자가 한 글자라도 틀리면 텍스트 없는 버전 + CSS 글자를 사용**한다.
-- CSS 글자: Galmuri11 12px, 흰색 + 1px 짙은 청록 외곽선(`text-shadow`), 중앙 정렬. 첫 방문 시 `fc26-world-discovered-v1` 미설정이면 `fancy-border`/attention glow(기존 `fortune-toggle.css` 패턴)와 말풍선("잔디동 마을이 열렸어요!") 표시.
-- 배치: `position: fixed; z-index: 75; top: 12px; left: 12px;` 권장(`.topbar`와 겹침 회피, [01 §10](01-concept-and-architecture.md#10-기존-코드-통합-지점)).
+- CSS 글자(구현): Galmuri11 11px, 흰색 + 1px 짙은 청록 외곽선(`text-shadow`), 판의 빈 패널 중앙(가로 62%)에 배치. 첫 방문 시 `fc26-world-discovered-v1` 미설정이면 `fancy-border`/attention glow(기존 `fortune-toggle.css` 패턴)와 말풍선("잔디동 마을이 열렸어요!") 표시.
+- 배치(구현): `position: fixed; z-index: 75; top: 12px; left: 12px;`, 표시 크기 **220×60**(변환본 264×72를 축소). `.topbar` 브랜드와 sticky 검색바를 가리지 않도록 `world-toggle.css`가 좌측 패딩을 예약하고, 스크롤 80px 이상이면 `fab-icon`(48px 원형)으로 축소한다([08 §5 #2](08-implementation-roadmap.md#5-미해결-항목)). 이미지가 없거나 로드 실패하면 CSS 폴백 판(나무 테두리 + 초록 패널 + 민트 메달리온)이 대신 보이고, hover 이미지는 같은 자리에 겹쳐 페이드한다.
 
 ## 2. 로딩·타이틀·로고 키아트
 

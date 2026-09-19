@@ -21,7 +21,7 @@
 | --- | --- | --- |
 | 렌더러 | Canvas 2D 직접 구현 | Phaser/Pixi 미사용. 기존 `KickupsCanvas.tsx` 패턴(논리 해상도 + rAF + ref) |
 | 논리 해상도 | **640×360** (16:9) | 오프스크린이 아닌 메인 캔버스를 논리 크기로 두고 CSS로 정수 배율 확대 |
-| 화면 배율 | `floor(min(W/640, H/360))`, 최소 1 | 남는 영역은 레터박스(어두운 배경). `image-rendering: pixelated`, `ctx.imageSmoothingEnabled = false` |
+| 화면 배율 | 논리 1픽셀 = **정수 개의 화면(디바이스) 픽셀**: `n = floor(min(W·dpr/640, H·dpr/360))`(최소 1), CSS 배율 = `n / dpr` (`stageLayout.ts`) | dpr 1·2에서는 `floor(min(W/640, H/360))`와 같고, 125%·150% 같은 분수 배율 화면에서도 픽셀이 뭉개지지 않는다. 남는 영역은 레터박스. `image-rendering: pixelated`, `ctx.imageSmoothingEnabled = false` |
 | 타일 | **32×32 px** | 지면 텍스처·충돌 격자·좌표 단위 |
 | 맵 크기 | **80×60 타일 = 2560×1920 px** | [03](03-map-design.md) |
 | 캐릭터 프레임 | **48×64 px** (동물 32×32) | 발끝 기준(anchor: 하단 중앙) |
@@ -79,13 +79,16 @@ src/web/world/
   WorldCanvas.tsx            <canvas> + 게임 루프 마운트, ResizeObserver, DPR
   world.css / world-toggle.css
   storage.ts                 fc26-world-* (schemaVersion + validator, group-photo/storage.ts 패턴)
-  worldAssets.ts             import.meta.glob 매니페스트 + 프리로더(우선순위 그룹, 진행률)
+  worldAssets.ts             import.meta.glob(`?url&no-inline`) 매니페스트 + 프리로더(우선순위 그룹, 진행률)
+  stageLayout.ts             640×360 스테이지의 정수 배율/레터박스 계산(순수, test)
+  debug.ts                   `?worldDebug` 플래그
   engine/
     loop.ts                  고정 스텝 루프
     input.ts                 키 상태, 포커스 스택(대사/모달 우선)
     camera.ts                추적 + 맵 경계 클램프 + 실내 고정
     collision.ts             AABB 슬라이드, 공간 해시 (순수, *.test.ts)
-    scene.ts                 overworld / interior 씬, 문 전환·페이드
+    scene.ts                 씬 데이터(props/충돌 인덱스) + `SceneTransition`(문 전환·페이드)
+    world.ts                 엔진 본체(루프 조립·플레이어 이동·카메라·렌더 호출·자동 저장)
     render.ts                레이어 그리기, 지면 청크 캐시, y-sort
     particles.ts             꽃잎/눈/불씨/반딧불 (코드 생성)
     npcAi.ts                 idle/wander/face-player
@@ -98,6 +101,7 @@ src/web/world/
     progress.ts              잔디 조각 진행도 → 색 복원 단계(0~10)
   data/
     worldCast.ts             캐스트 20명 (하드코딩, roster.yaml 미사용)
+    sandboxMap.ts            S1 임시 빈 평지(S2에서 maps/overworld.json으로 교체)
     missionDefs.ts           미션 정의 + 임계값
     dialogueData.ts          NPC별 대사 노드
     maps/overworld.json      맵 데이터 (03 스키마)
@@ -187,7 +191,7 @@ interface MissionDef {
 type MissionStatus = "locked" | "available" | "active" | "ready" | "completed";
 
 interface WorldSave {
-  schemaVersion: 1;
+  schemaVersion: number;            // 현재 1. 올릴 때 storage.ts의 MIGRATIONS에 단계 추가
   player: CastId | null;
   scene: SceneId; x: number; y: number; facing: "down" | "up" | "left" | "right";
   missions: Record<string, { status: MissionStatus; progress?: unknown; startedAt?: number }>;
@@ -197,7 +201,6 @@ interface WorldSave {
   talked: Record<string, number>;   // NPC별 대화 횟수(순환 대사 인덱스)
   bests: { rush?: number; sum10?: number; kickups?: number; freekick?: number; cardmatch?: number };
   daily: { date: string; picks: string[]; done: string[]; stamps: string[] };
-  settings: { bgm: boolean; bgmVolume: number; sfx: boolean; sfxVolume: number };
   coachDone: boolean;
 }
 
@@ -208,7 +211,7 @@ interface MinigameRoundResult {
 }
 ```
 
-- 저장 키: `fc26-world-save-v1`(전체), `fc26-world-discovered-v1`(첫 방문 글로우 해제), `fc26-world-settings-v1`(사운드). 모두 try/catch로 감싸고 검증 실패 시 새 게임.
+- 저장 키: `fc26-world-save-v1`(전체), `fc26-world-discovered-v1`(첫 방문 글로우 해제), `fc26-world-settings-v1`(사운드). 모두 try/catch로 감싸고 검증 실패 시 새 게임. **사운드 설정은 `WorldSave`에 넣지 않고 자기 키에만 둔다**("새로 시작"이 사운드 설정을 지우지 않도록). 세이브 검증은 구조 오류(버전·씬·좌표·미션·일일)면 통째로 거부하고, `bests`·`talked`·`flags`의 잘못된 항목만 버린다.
 - 일일 미션 날짜 기준: KST(`Asia/Seoul`) `YYYY-MM-DD`, 시드로 `daily.picks`를 결정론적으로 뽑는다.
 
 ## 8. 로딩 화면과 프리로더
@@ -222,7 +225,9 @@ interface MinigameRoundResult {
 | `interior` | 실내 통그림 | 문 진입 직전 지연 로드(진입 전 페이드 동안), 한 번 로드하면 캐시 |
 | `audio` | BGM(현재 씬 것 우선), 자주 쓰는 SFX | `core`와 병행, 실패해도 진행 |
 
-- 진행률 = 완료 바이트(불가하면 완료 개수) / 전체. 로딩 화면은 진행률바(코드) + 팁 문구 순환 + 키아트. 최소 표시 시간 0.6초(깜빡임 방지).
+- 진행률 = 완료 개수 / 전체(구현: 파일이 실제로 있는 키만 분모에 넣어, 아트가 덜 채워져도 100%에 도달). 로딩 화면은 진행률바(코드) + 팁 문구 순환 + 키아트. 최소 표시 시간 0.6초(깜빡임 방지). 이미지는 `fetch → createImageBitmap`으로 디코드하고 오버레이가 닫힐 때 `close()`한다.
+- 에셋 URL은 `?url&no-inline`으로 가져온다: 4KB 미만 이미지가 base64로 JS 청크에 인라인되면 월드 청크가 530KB로 부풀기 때문(끄면 56KB). 월드 이미지 파일은 모두 `dist/`에 복사된다.
+- S1의 `boot` 그룹은 로딩·타이틀 화면 UI(배경, 로고, 로딩바 프레임, 버튼 판)만이고, 선택용 초상·스탠딩은 캐릭터 선택 화면이 생기는 S2에서 추가한다. `core`는 `terrain/core` + 선택 캐릭터 아틀라스 + 샌드박스 소품 몇 개.
 - 이미지 로드 실패 시 **플레이스홀더로 폴백**(색 사각형/이니셜) — 에셋이 아직 없어도 게임이 돈다. 이것이 코딩과 아트 제작을 병렬로 진행하는 핵심 규칙이다.
 - 오디오 자동재생 정책: 플로팅 버튼 클릭이 사용자 제스처이므로 로딩 중 BGM 컨텍스트를 준비하고, 타이틀에서 재생 시작. `.catch(() => {})` 처리.
 
@@ -231,7 +236,7 @@ interface MinigameRoundResult {
 - BGM: 씬/지구 전환 시 1초 크로스페이드, 진행도 낮음(시든) ↔ 높음(복원) 필드 BGM 두 트랙을 진행도 5 기준으로 전환. `new Audio()` 2개를 핑퐁.
 - SFX: 동시 재생이 필요하므로 기존 `playSfx()`(단일 슬롯, `sfxAudio.ts`) 대신 월드 전용 풀(`worldAudio.ts`, 이름별 3~4개 Audio 인스턴스 재사용).
 - 설정: BGM/효과음 on-off·볼륨을 `fc26-world-settings-v1`에 저장, 기본 BGM 35 / SFX 55(기존 게임 기본값과 동일). 기존 `SoundControl.tsx`(`minigame/`) UI 재사용 검토.
-- **사이트 전역 `MusicPlayer`(YouTube iframe)**는 독립 재생이므로 월드 진입 시 겹친다 → 구현 세션에서 "월드 열 때 전역 음악 일시정지/복귀" 옵션을 확인하고 결정(미해결 항목, [08](08-implementation-roadmap.md#5-미해결-항목)).
+- **사이트 전역 `MusicPlayer`(YouTube iframe)**는 독립 재생이라 월드 진입 시 겹친다 → **결정(S1)**: 월드가 열리면 재생 중이던 전역 음악을 일시정지하고, 닫을 때 월드가 멈춘 경우에만 재개한다(`src/web/musicControl.ts`, [08 §5 #1](08-implementation-roadmap.md#5-미해결-항목)).
 - 기존 효과음 재사용 목록과 신규 목록은 [07-audio.md](07-audio.md).
 
 ## 10. 기존 코드 통합 지점
@@ -240,8 +245,9 @@ interface MinigameRoundResult {
 
 | 파일 | 변경 | 근거/패턴 |
 | --- | --- | --- |
-| `src/web/App.tsx` | `worldOpen` 상태(`:87-105` 상태 영역), `lazy(() => import("./world/WorldOverlay"))`(`:78` 패턴), 오버레이 렌더(`:311-448` 모달 영역, `<Suspense fallback={null}>`), 좌상단 `<WorldToggle>` 마운트(`:456` `.bottom-left-toolbar` 옆) | 미니게임은 `activeMinigame` 단일 슬롯. 월드는 별도 상태 + 열려 있는 동안 대시보드 토글 무시 |
-| `src/web/styles.css` 관련 | 직접 수정 없음. `.topbar`(min-height 76px, `main`이 `min(1400px, 100%-40px)` 중앙 정렬) 때문에 좌상단 고정 버튼이 뷰포트 < 1440px에서 브랜드와 겹칠 수 있음 → 버튼을 `top:12px; left:12px`의 컴팩트 크기로 두거나 `.topbar` 좌측 패딩 확장 | 탐색 결과 |
+| `src/web/App.tsx` | **(S1 완료)** `worldOpen` 상태, `lazy(() => import("./world/WorldOverlay"))`, `<Suspense fallback={null}>` 오버레이, `<WorldToggle>`은 `<main>` 안 `<FakeAdRail />` 바로 뒤(고정 위치라 DOM 위치는 무관하지만 CSS `main:has(.world-toggle)`가 `<main>` 안에 있어야 동작) | 미니게임은 `activeMinigame` 단일 슬롯. 월드는 별도 상태 + 오버레이(z90)가 열려 있는 동안 대시보드를 덮음 |
+| `src/web/MusicPlayer.tsx` | **(S1 완료)** `registerMusicHandler`로 `pause/play/isPlaying`을 `musicControl.ts`에 등록(+14줄) | 월드 열림/닫힘 시 전역 음악 일시정지·복귀 |
+| `src/web/styles.css` 관련 | 직접 수정 없음(S1). 좌상단 고정 버튼이 `.topbar` 브랜드와 sticky `.controls-bar`를 가리는 문제는 **`world-toggle.css`의 `main:has(.world-toggle)` 규칙**으로 `.topbar`/스티키 `.controls` 좌측 패딩을 예약하고, 스크롤 시 버튼을 원형 아이콘으로 축소해 푼다([08 §5 #2](08-implementation-roadmap.md#5-미해결-항목)) | 탐색 결과 |
 | `src/web/minigame/soccer-sum10/SoccerSum10Modal.tsx` + `useSoccerSum10Game.ts` | optional `onRoundEnd?: (r: MinigameRoundResult) => void` — phase가 `timeup`/`cleared`가 되는 지점(`:62-66`, `:105-111`)에서 1회 호출 | 기존 동작 불변 |
 | `KickupsModal.tsx` + `useKickupsGame.ts` | 동일 prop, phase → `grounded` 시(`:38` 근처) | |
 | `FreekickModal.tsx` + `useFreekickGame.ts` | 동일 prop, phase → `gameover` 시 | lazy 모달 유지 |
