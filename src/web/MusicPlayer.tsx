@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Music4, Pause, Play, Volume2, VolumeX, X } from "lucide-react";
 import { musicPlaylist } from "./musicPlaylist";
+import { registerMusicHandler } from "./musicControl";
 
 declare global {
   interface Window {
@@ -60,6 +61,19 @@ export function MusicPlayer() {
   const panelRef = useRef<HTMLDivElement>(null);
   const trackIndexRef = useRef(trackIndex);
   trackIndexRef.current = trackIndex;
+  const isPlayingRef = useRef(isPlaying);
+  isPlayingRef.current = isPlaying;
+
+  // Lets the 잔디동 월드 overlay pause this player while it is open and resume it afterwards.
+  useEffect(
+    () =>
+      registerMusicHandler({
+        isPlaying: () => isPlayingRef.current,
+        pause: () => playerRef.current?.pauseVideo(),
+        play: () => playerRef.current?.playVideo(),
+      }),
+    [],
+  );
 
   useEffect(() => {
     let cancelled = false;

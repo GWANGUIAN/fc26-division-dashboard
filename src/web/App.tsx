@@ -72,10 +72,15 @@ import { useWoowakgoodBonusUnlock } from "./toty-card/useWoowakgoodBonusUnlock";
 import { WoowakgoodBonusButton } from "./toty-card/WoowakgoodBonusButton";
 import { WoowakgoodBonusAnnounce } from "./toty-card/WoowakgoodBonusAnnounce";
 import { WOOWAKGOOD_BONUS_STREAMER } from "./toty-card/woowakgoodBonusCard";
+import { WorldToggle } from "./world/WorldToggle";
 
 // Pulls in the `three` dependency (~600KB+), so it's lazy-loaded and only reaches the browser
 // once a user actually opens this modal.
 const FreekickModal = lazy(() => import("./minigame/FreekickModal"));
+
+// 잔디동 월드 (2D 도트 RPG). The overlay, engine and every world asset stay out of the main bundle;
+// only the floating button (WorldToggle) ships with it.
+const WorldOverlay = lazy(() => import("./world/WorldOverlay"));
 
 // "합격 인증샷" 포토부스 배너/트리거를 헤더에 다시 보이게 하려면 true로.
 // 아래 잔디동 LED 티커 + 단체샷으로 임시 교체 — 다른 코드는 삭제되지 않았음.
@@ -98,6 +103,7 @@ export function App() {
   const [groupPhotoOpen, setGroupPhotoOpen] = useState(false);
   const [growthGraphOpen, setGrowthGraphOpen] = useState(false);
   const [fortuneOpen, setFortuneOpen] = useState(false);
+  const [worldOpen, setWorldOpen] = useState(false);
   const [totyCardStreamer, setTotyCardStreamer] =
     useState<Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision" | "sfx">>();
   // A single slot (rather than one boolean per minigame) makes it structurally impossible for two
@@ -199,6 +205,7 @@ export function App() {
   return (
     <main>
       <FakeAdRail />
+      <WorldToggle onClick={() => setWorldOpen(true)} />
       <TopBar
         onUniformOpen={() => setUniformCustomizerOpen(true)}
         onTrophyOpen={() => setTrophyOpen(true)}
@@ -447,6 +454,11 @@ export function App() {
           onSfxVolumeChange={changeSfxVolume}
           onClose={() => setFortuneOpen(false)}
         />
+      )}
+      {worldOpen && (
+        <Suspense fallback={null}>
+          <WorldOverlay onClose={() => setWorldOpen(false)} />
+        </Suspense>
       )}
       <LatestFeedDrawer
         open={feedOpen}
