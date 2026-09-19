@@ -19,12 +19,20 @@ const QUIP_VISIBLE_MS = 3200;
 // a single physical tap; without this guard that double-counts one click as two hits.
 const CLICK_DEDUPE_MS = 120;
 
+/** What the world hears when a run ends: the number of touches before the ball hit the ground. */
+export interface KickupsRoundResult {
+  game: "kickups";
+  score: number;
+}
+
 export function useKickupsGame({
   sfxOn,
   sfxVolume,
+  onRoundEnd,
 }: {
   sfxOn: boolean;
   sfxVolume: number;
+  onRoundEnd?: (result: KickupsRoundResult) => void;
 }) {
   const [state, setState] = useState<GameState>(() => createInitialState(loadKickupsHighScore()));
   const [quip, setQuip] = useState<{ id: number; text: string } | null>(null);
@@ -43,6 +51,7 @@ export function useKickupsGame({
     if (prevPhaseRef.current !== "grounded" && state.phase === "grounded") {
       const finalScore = state.score;
       const isNewRecord = finalScore > 0 && finalScore === state.highScore;
+      onRoundEnd?.({ game: "kickups", score: finalScore });
       setQuip({ id: Date.now(), text: pickQuip(finalScore, isNewRecord) });
       if (sfxOn) {
         if (finalScore >= KICKUPS_TOP_TIER_MIN_SCORE) {
@@ -53,6 +62,7 @@ export function useKickupsGame({
       }
     }
     prevPhaseRef.current = state.phase;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fires on the phase change only; onRoundEnd is read fresh from this render
   }, [state.phase, state.score, state.highScore, sfxOn, sfxVolume]);
 
   useEffect(() => {

@@ -3,7 +3,7 @@ import { Modal, useEscape } from "../Modal.js";
 import { WOOWAKGOOD_BONUS_STREAMER } from "../toty-card/woowakgoodBonusCard.js";
 import { getCardMatchBackUrl } from "./cardMatchAssets.js";
 import { CardMatchCard } from "./CardMatchCard.js";
-import { useCardMatchGame } from "./useCardMatchGame.js";
+import { useCardMatchGame, type CardMatchRoundResult } from "./useCardMatchGame.js";
 import "./card-match.css";
 
 type CardMatchStreamer = Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision">;
@@ -12,15 +12,19 @@ export function CardMatchModal({
   onClose,
   streamers,
   sfxVolume,
+  onRoundEnd,
 }: {
   onClose: () => void;
   streamers: StreamerRecord[] | undefined;
   sfxVolume: number;
+  /** Reports each cleared board (the world missions listen to this). */
+  onRoundEnd?: (result: CardMatchRoundResult) => void;
 }) {
   useEscape(onClose);
   const { state, bestTurns, isNewRecord, poolSize, handleFlip, newGame } = useCardMatchGame({
     streamers,
     sfxVolume,
+    onRoundEnd,
   });
 
   const streamerById = new Map<string, CardMatchStreamer>();

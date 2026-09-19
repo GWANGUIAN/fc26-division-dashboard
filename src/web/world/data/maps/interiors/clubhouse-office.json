@@ -1,0 +1,35 @@
+{
+  "id": "clubhouse-office",
+  "image": "interiors/int-clubhouse-office",
+  "size": [20,12],
+  "spawn": [10,10],
+  "exitTo": {"scene":"interior:clubhouse-lobby","tile":[10,8]},
+  "collision": [
+    [0,0,640,112],
+    [0,112,48,272],
+    [592,112,48,272],
+    [0,340,264,44],
+    [376,340,264,44],
+    [228,118,196,88],
+    [300,80,50,50],
+    [110,110,70,44],
+    [40,140,74,60],
+    [40,176,150,140],
+    [0,235,60,100],
+    [540,76,100,190],
+    [575,230,50,100],
+    [520,90,50,60],
+    [186,110,48,44]
+  ],
+  "examine": [
+    {"id":"card-cabinet","tile":[16,6],"text":"카드 수납장. 서랍마다 카드가 들어 있다.","action":"cards"},
+    {"tile":[5,3],"text":"전술 칠판. 지워지지 않는 화살표가 가득하다."},
+    {"tile":[9,5],"text":"책상 위 메모장. 글씨가 빼곡하다."}
+  ],
+  "npcs": [
+    {"cast":"woowakgood","tile":[10,7],"ai":"stay"}
+  ],
+  "triggers": [
+    {"type":"door","rect":[9,11,2,1],"to":{"scene":"interior:clubhouse-lobby","tile":[10,8],"facing":"down"}}
+  ]
+}

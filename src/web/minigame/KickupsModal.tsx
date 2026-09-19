@@ -2,7 +2,7 @@ import { Music4, Volume2, VolumeX } from "lucide-react";
 import { Modal, useEscape } from "../Modal";
 import { KickupsCanvas } from "./KickupsCanvas";
 import { SoundControl } from "./SoundControl";
-import { useKickupsGame } from "./useKickupsGame";
+import { useKickupsGame, type KickupsRoundResult } from "./useKickupsGame";
 import { useKickupsMusic } from "./useKickupsMusic";
 import { useKickupsSfx } from "./useKickupsSfx";
 
@@ -10,14 +10,17 @@ export function KickupsModal({
   onClose,
   sfxVolume,
   onSfxVolumeChange,
+  onRoundEnd,
 }: {
   onClose: () => void;
   sfxVolume: number;
   onSfxVolumeChange: (value: number) => void;
+  /** Reports each finished run (the world missions listen to this). */
+  onRoundEnd?: (result: KickupsRoundResult) => void;
 }) {
   useEscape(onClose);
   const { sfxOn, toggleSfx } = useKickupsSfx();
-  const { state, liveStateRef, quip, handleStart, handleCanvasClick } = useKickupsGame({ sfxOn, sfxVolume });
+  const { state, liveStateRef, quip, handleStart, handleCanvasClick } = useKickupsGame({ sfxOn, sfxVolume, onRoundEnd });
   const { musicOn, toggleMusic, musicVolume, changeMusicVolume } = useKickupsMusic();
 
   return (

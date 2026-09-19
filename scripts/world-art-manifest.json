@@ -1,0 +1,200 @@
+{
+  "_comment": "Slot -> ID -> final px for scripts/convert-world-art.mjs. Source of truth is docs/world/05-art-world.md and 06-art-ui.md (tables); keep them in sync. Slot tuples are [id, width, height, options?]; slots are ordered left-to-right, top-to-bottom. Options: withered (also emit <id>-withered), slice (9-slice frame: keep aspect, no padding), soft (keep soft alpha for glows), anim (group whose frames share one scale), align (bottom|center), symmetry (\"lr\": only check left-right symmetry of a 9-slice frame).",
+  "characters": {
+    "frame": { "w": 48, "h": 64, "footInset": 4, "standHeight": 58 },
+    "animalFrame": { "w": 32, "h": 32, "footInset": 2 },
+    "portrait": 128,
+    "standHeight": 256,
+    "humans": ["janine95kim", "bboringirl", "sjh4018", "doormomo", "hachi97", "kaksjak0730", "ju010228", "haepalin", "tleod1818", "tdnlamuron", "lina0108", "woowakgood", "elder", "shopkeeper", "kid", "referee", "weedking", "weeder-grunt"],
+    "animals": ["cat-jandi", "dog-ball"],
+    "derived": [
+      { "id": "weeder-grunt-gardener", "from": "weeder-grunt", "kind": "gardener" },
+      { "id": "weedking-reformed", "from": "weedking", "kind": "reformed" }
+    ]
+  },
+  "withered": { "saturation": 0.35, "brightness": 0.95, "hue": -12, "tint": "#b9a86a", "tintAmount": 0.25 },
+  "terrain": {
+    "core": { "withered": true, "slots": ["grass-a", "grass-b", "grass-c", "grass-d", "grass-flower-a", "grass-flower-b", "grass-tuft", "grass-shade", "path-dirt-a", "path-dirt-b", "path-stone-a", "path-stone-b", "plaza-a", "plaza-b", "plaza-c", "plaza-d"] },
+    "water": { "withered": false, "slots": ["water-1", "water-2", "water-3", "water-4", "water-deep-1", "water-deep-2", "water-deep-3", "water-deep-4", "sand-a", "sand-b", "sand-wet", "pebble-a", "pebble-b", "bridge-plank-a", "bridge-plank-b", "water-lily"] },
+    "spring": { "withered": true, "slots": ["sakura-ground-a", "sakura-ground-b", "sakura-ground-c", "clover-a", "clover-b", "flowerbed-pink", "flowerbed-yellow", "moss-a", "soft-dirt-a", "soft-dirt-b", "vine-ground", "garden-path-a", "garden-path-b", "meadow-tall-a", "meadow-tall-b", "dragon-gold-grass"] },
+    "frost": { "withered": true, "slots": ["snow-a", "snow-b", "snow-c", "ice-a", "ice-b", "ice-c", "frozen-grass-a", "frozen-grass-b", "night-grass-a", "night-grass-b", "night-grass-c", "star-stone-a", "star-stone-b", "starlit-path-a", "starlit-path-b", "ice-line"] },
+    "industrial": { "withered": false, "slots": ["cracked-rock-a", "cracked-rock-b", "lava-crack-a", "lava-crack-b", "ash-a", "ash-b", "metal-plate-a", "metal-plate-b", "grate-a", "asphalt-a", "asphalt-b", "caution-stripe", "circuit-floor-a", "circuit-floor-b", "scorched-dirt", "lava-pool"] },
+    "cloud": { "withered": true, "slots": ["cloud-stone-a", "cloud-stone-b", "cloud-puff-a", "cloud-puff-b", "rune-slab-a", "rune-slab-b", "rune-slab-dim", "sky-tile-a", "sky-tile-b", "wind-grass-a", "wind-grass-b", "blue-marble-a", "blue-marble-b", "moss-stone-a", "moss-stone-b", "rune-glow"] },
+    "weed": { "withered": false, "slots": ["gray-ground-a", "gray-ground-b", "gray-ground-c", "gray-ground-d", "concrete-a", "concrete-b", "mowed-stripe-a", "mowed-stripe-b", "gravel-a", "gravel-b", "oil-stain", "sawdust", "mower-track-a", "mower-track-b", "barren-dirt", "dead-weed-patch"] },
+    "pitch": { "withered": true, "slots": ["pitch-light", "pitch-dark", "pitch-worn-a", "pitch-worn-b", "track-red-a", "track-red-b", "turf-train-a", "turf-train-b", "turf-artificial-a", "turf-artificial-b", "sandpit-a", "sandpit-b", "concourse", "goal-dirt", "corner-worn", "pitch-golden"] }
+  },
+  "props": {
+    "trees": [
+      ["tree-oak", 96, 128, { "withered": true }], ["tree-oak-big", 128, 160, { "withered": true }], ["tree-pine", 80, 128, { "withered": true }], ["tree-birch", 80, 120, { "withered": true }],
+      ["tree-sakura", 112, 136, { "withered": true }], ["tree-cloud", 96, 128], ["tree-frost", 80, 128], ["tree-night", 96, 128],
+      ["tree-dead", 88, 128], ["tree-lava", 88, 128], ["tree-golden", 96, 128], ["tree-stump", 40, 32]
+    ],
+    "plants": [
+      ["bush-a", 48, 40, { "withered": true }], ["bush-berry", 48, 40, { "withered": true }], ["bush-flower", 56, 44, { "withered": true }], ["hedge-h", 64, 40, { "withered": true }],
+      ["flower-red", 32, 24, { "withered": true }], ["flower-yellow", 32, 24, { "withered": true }], ["flower-white", 32, 24, { "withered": true }], ["flower-blue", 32, 24, { "withered": true }],
+      ["grass-tuft-prop", 24, 24, { "withered": true }], ["fern", 32, 28, { "withered": true }], ["mushrooms", 24, 20], ["reeds", 40, 48]
+    ],
+    "rocks": [
+      ["rock-small", 24, 20], ["rock-medium", 40, 32], ["rock-large", 64, 48], ["boulder-mossy", 80, 64],
+      ["log", 48, 24], ["log-pile", 56, 40], ["fence-wood-h", 64, 32], ["fence-wood-v", 16, 48],
+      ["fence-wood-corner", 32, 48], ["stone-wall-h", 64, 40], ["stone-wall-v", 24, 64], ["cliff-face", 96, 64]
+    ],
+    "town": [
+      ["lamp-post", 24, 64], ["bench-h", 48, 32], ["bench-v", 24, 40], ["signpost-arrow", 32, 56],
+      ["board-daily", 96, 80], ["mailbox", 24, 40], ["trash-bin", 20, 28], ["flagpole", 32, 96],
+      ["planter", 40, 32], ["market-stall", 64, 56], ["bike-rack", 56, 32], ["mat-door", 56, 32]
+    ],
+    "football": [
+      ["goal-west", 64, 96], ["goal-front", 96, 64], ["corner-flag", 16, 40], ["cone-orange", 20, 24],
+      ["cone-row", 64, 24], ["hurdle", 40, 28], ["ball-standard", 16, 16], ["ad-board", 96, 32],
+      ["bleacher", 128, 96], ["dugout", 96, 64], ["dummy-wall", 72, 56], ["ball-bag", 32, 28]
+    ],
+    "spring": [
+      ["sakura-arch", 128, 128], ["flower-arch", 112, 112], ["vine-trellis", 64, 96], ["lantern-pink", 24, 48],
+      ["petal-pile", 48, 24], ["dragon-statue", 128, 160], ["dragon-egg", 40, 56], ["pond-small", 96, 64],
+      ["bridge-mini", 64, 48], ["scarecrow", 40, 72], ["picnic-blanket", 56, 40], ["windchime", 24, 56]
+    ],
+    "frost": [
+      ["ice-crystal-a", 56, 80], ["ice-crystal-b", 48, 64], ["snowman", 40, 56], ["telescope", 40, 64],
+      ["star-lamp", 24, 72], ["rink-board-h", 64, 32], ["rink-board-v", 16, 48], ["night-flower", 32, 24],
+      ["boat-small", 72, 40], ["dock-post", 16, 40], ["pier-lantern", 20, 48], ["lily-pads", 40, 24]
+    ],
+    "forge": [
+      ["pipe-h", 64, 24], ["pipe-v", 24, 64], ["pipe-corner", 32, 32], ["barrel-red", 28, 36],
+      ["barrel-gray", 28, 36], ["crate-stack", 48, 48], ["generator", 56, 48], ["lava-vent", 40, 32],
+      ["chimney-small", 32, 72], ["anvil", 40, 32], ["tool-rack", 56, 40], ["scrap-pile", 56, 36]
+    ],
+    "cloud": [
+      ["cloud-pillar", 40, 88], ["cloud-bench", 56, 32], ["rune-stone-a", 40, 72], ["rune-stone-b", 40, 64],
+      ["rune-circle", 128, 96, { "soft": true }], ["crystal-purple", 32, 56], ["floating-book", 32, 32], ["wind-vane", 32, 72],
+      ["cloud-fountain", 80, 64], ["banner-blue", 24, 72], ["stone-arch", 96, 96], ["cloud-stairs", 64, 32]
+    ],
+    "weed": [
+      ["mower-ride-on", 80, 64], ["mower-push", 40, 40], ["fence-barbed-h", 64, 40], ["fence-barbed-v", 16, 56],
+      ["warning-sign", 32, 56], ["cut-grass-pile", 40, 24], ["barricade", 72, 32], ["oil-drum", 28, 36],
+      ["tire-stack", 40, 40], ["floodlight", 24, 88], ["chimney-tall", 48, 128], ["king-statue", 56, 88]
+    ],
+    "collect": [
+      ["shard-1", 32, 32, { "anim": "shard", "align": "center", "soft": true }], ["shard-2", 32, 32, { "anim": "shard", "align": "center", "soft": true }], ["shard-3", 32, 32, { "anim": "shard", "align": "center", "soft": true }],
+      ["goldball-1", 24, 24, { "anim": "goldball", "align": "center", "soft": true }], ["goldball-2", 24, 24, { "anim": "goldball", "align": "center", "soft": true }], ["goldball-3", 24, 24, { "anim": "goldball", "align": "center", "soft": true }],
+      ["jelly-lantern-a", 32, 40], ["jelly-lantern-b", 32, 40], ["jelly-lantern-c", 32, 40],
+      ["parcel-a", 24, 24], ["parcel-b", 24, 24], ["parcel-c", 24, 24]
+    ]
+  },
+  "buildings": {
+    "clubhouse": [384, 256], "stadium": [832, 512], "fountain": [192, 160], "store": [224, 160],
+    "house-janine95kim": [256, 224], "house-bboringirl": [256, 192], "house-sjh4018": [320, 288], "house-doormomo": [224, 352],
+    "house-hachi97": [256, 224], "house-kaksjak0730": [256, 256], "house-ju010228": [256, 192], "house-haepalin": [224, 192],
+    "house-tleod1818": [256, 192], "house-tdnlamuron": [224, 192], "house-lina0108": [256, 192],
+    "cafe": [224, 160], "factory": [416, 320]
+  },
+  "interiors": {
+    "size": [640, 384],
+    "sourceWidth": 1536,
+    "lossless": true,
+    "ids": ["house-janine95kim", "house-bboringirl", "house-sjh4018", "house-doormomo", "house-hachi97", "house-kaksjak0730", "house-ju010228", "house-haepalin", "house-tleod1818", "house-tdnlamuron", "house-lina0108", "clubhouse-lobby", "clubhouse-office", "clubhouse-trophy", "arcade", "stadium", "store", "cafe", "factory"]
+  },
+  "ui": {
+    "singles": {
+      "fab-normal": { "src": "ui-fab-normal", "w": 264, "h": 72, "mode": "trim" },
+      "fab-icon": { "src": "ui-fab-icon", "w": 64, "h": 64, "mode": "trim" },
+      "loading-bg": { "src": "ui-loading-bg", "w": 1672, "h": 940, "mode": "cover", "lossless": true },
+      "title-bg": { "src": "ui-title-bg", "w": 1672, "h": 940, "mode": "cover", "lossless": true },
+      "select-bg": { "src": "ui-select-bg", "w": 1672, "h": 940, "mode": "cover", "lossless": true },
+      "logo-emblem": { "src": "ui-logo-emblem", "w": 192, "h": 192, "mode": "trim" },
+      "shard-gauge": { "src": "ui-shard-gauge", "w": 120, "h": 28, "mode": "trim" }
+    },
+    "sheets": {
+      "frames-dialog": {
+        "grid": [4, 3],
+        "slots": [
+          ["dialog-frame", 96, 96, { "slice": 20 }], ["nameplate", 96, 32, { "slice": 10 }], ["portrait-frame", 160, 160, { "slice": 20 }], ["choice-normal", 128, 32, { "slice": 10 }],
+          ["choice-selected", 128, 32, { "slice": 10 }], ["cursor", 24, 24], ["next-1", 16, 16], ["next-2", 16, 16],
+          ["toast-frame", 192, 48, { "slice": 14 }], ["coach-frame", 128, 64, { "slice": 16 }], ["tooltip-frame", 96, 32, { "slice": 10 }], ["loading-bar-frame", 320, 32, { "slice": 8 }]
+        ]
+      },
+      "frames-panel": {
+        "grid": [4, 3],
+        "slots": [
+          ["panel-frame", 128, 128, { "slice": 24, "opaqueInterior": true, "interiorFill": [5, 39, 32] }], ["panel-parchment", 192, 128, { "slice": 24 }], ["tab-normal", 64, 24, { "slice": 8, "symmetry": "lr" }], ["tab-active", 64, 24, { "slice": 8, "symmetry": "lr" }],
+          ["hud-tracker", 168, 40, { "slice": 12 }], ["minimap-frame", 104, 72, { "slice": 12 }], ["shard-gauge-legacy", 188, 28, { "slice": 8 }], ["shard-empty", 16, 16],
+          ["shard-filled", 16, 16], ["board-paper", 128, 96, { "slice": 12 }], ["stamp-card", 192, 160, { "slice": 16 }], ["stamp-mark", 24, 24]
+        ]
+      },
+      "buttons": {
+        "grid": [4, 2],
+        "slots": [
+          ["btn-primary-normal", 96, 28, { "slice": 8 }], ["btn-primary-hover", 96, 28, { "slice": 8 }], ["btn-primary-pressed", 96, 28, { "slice": 8 }], ["btn-primary-disabled", 96, 28, { "slice": 8 }],
+          ["btn-secondary-normal", 96, 28, { "slice": 8 }], ["btn-secondary-hover", 96, 28, { "slice": 8 }], ["btn-secondary-pressed", 96, 28, { "slice": 8 }], ["btn-secondary-disabled", 96, 28, { "slice": 8 }]
+        ]
+      },
+      "select-cards": {
+        "grid": [4, 3],
+        "slots": [
+          ["card-normal", 72, 104, { "slice": 12 }], ["card-hover", 72, 104, { "slice": 12 }], ["card-selected", 72, 104, { "slice": 12 }], ["card-dim", 72, 104, { "slice": 12 }],
+          ["arrow-left", 24, 24], ["arrow-right", 24, 24], ["name-ribbon", 96, 24, { "slice": 10 }], ["spotlight", 96, 96, { "soft": true }],
+          ["shadow-ellipse", 40, 12, { "soft": true }], ["ball-marker", 16, 16], ["sparkle-ring", 64, 64, { "soft": true }], ["check-badge", 20, 20]
+        ]
+      },
+      "icons-mission": {
+        "grid": [4, 3],
+        "slots": [
+          ["mi-progress", 32, 32], ["mi-ready", 32, 32], ["mi-done", 32, 32], ["mi-locked", 32, 32],
+          ["mi-card", 32, 32], ["mi-sum10", 32, 32], ["mi-kickups", 32, 32], ["mi-freekick", 32, 32],
+          ["mi-cardmatch", 32, 32], ["mi-delivery", 32, 32], ["mi-collect", 32, 32], ["mi-talk", 32, 32]
+        ]
+      },
+      "icons-menu": {
+        "grid": [4, 3],
+        "slots": [
+          ["mn-resume", 24, 24], ["mn-log", 24, 24], ["mn-map", 24, 24], ["mn-settings", 24, 24],
+          ["mn-guide", 24, 24], ["mn-sound-on", 24, 24], ["mn-sound-off", 24, 24], ["mn-close", 24, 24],
+          ["mn-back", 24, 24], ["mn-exit", 24, 24], ["mn-new", 24, 24], ["mn-info", 24, 24]
+        ]
+      },
+      "badges": {
+        "grid": [4, 3],
+        "slots": [
+          ["bd-first-game", 48, 48], ["bd-shard-5", 48, 48], ["bd-shard-10", 48, 48], ["bd-weed-beaten", 48, 48],
+          ["bd-ball-hunter", 48, 48], ["bd-ball-collector", 48, 48], ["bd-ball-master", 48, 48], ["bd-green-thumb", 48, 48],
+          ["bd-card-collector", 48, 48], ["bd-rush-1000", 48, 48], ["bd-stamp-7", 48, 48], ["bd-stamp-30", 48, 48]
+        ]
+      }
+    }
+  },
+  "fx": {
+    "emotes": [
+      ["emote-exclaim", 24, 24], ["emote-question", 24, 24], ["emote-dots", 24, 24], ["emote-heart", 24, 24],
+      ["emote-note", 24, 24], ["emote-anger", 24, 24], ["emote-sweat", 24, 24], ["emote-sparkle", 24, 24],
+      ["emote-zzz", 24, 24], ["emote-exclaim2", 24, 24], ["emote-exq", 24, 24], ["emote-star", 24, 24]
+    ],
+    "markers": [
+      ["mark-new", 20, 28], ["mark-complete", 24, 32], ["mark-progress", 20, 28],
+      ["sparkle-1", 16, 16, { "anim": "sparkle", "align": "center", "soft": true }], ["sparkle-2", 16, 16, { "anim": "sparkle", "align": "center", "soft": true }],
+      ["sparkle-3", 16, 16, { "anim": "sparkle", "align": "center", "soft": true }], ["sparkle-4", 16, 16, { "anim": "sparkle", "align": "center", "soft": true }],
+      ["dust-1", 16, 12, { "anim": "dust", "align": "bottom", "soft": true }], ["dust-2", 16, 12, { "anim": "dust", "align": "bottom", "soft": true }],
+      ["dust-3", 16, 12, { "anim": "dust", "align": "bottom", "soft": true }], ["dust-4", 16, 12, { "anim": "dust", "align": "bottom", "soft": true }],
+      ["target-ring", 32, 16, { "soft": true }]
+    ],
+    "world": [
+      ["grow-1", 96, 64, { "anim": "grow", "align": "bottom" }], ["grow-2", 96, 64, { "anim": "grow", "align": "bottom" }], ["grow-3", 96, 64, { "anim": "grow", "align": "bottom" }],
+      ["grow-4", 96, 64, { "anim": "grow", "align": "bottom" }], ["grow-5", 96, 64, { "anim": "grow", "align": "bottom" }], ["grow-6", 96, 64, { "anim": "grow", "align": "bottom" }],
+      ["ripple-1", 32, 16, { "anim": "ripple", "align": "center", "soft": true }], ["ripple-2", 32, 16, { "anim": "ripple", "align": "center", "soft": true }],
+      ["ripple-3", 32, 16, { "anim": "ripple", "align": "center", "soft": true }], ["ripple-4", 32, 16, { "anim": "ripple", "align": "center", "soft": true }],
+      ["splash-1", 32, 32, { "soft": true }], ["splash-2", 40, 40, { "soft": true }]
+    ]
+  },
+  "rush": {
+    "singles": {
+      "bg-far": { "src": "rush-bg-far", "w": 640, "h": 360, "mode": "cover", "seamlessX": true },
+      "bg-mid": { "src": "rush-bg-mid", "w": 640, "h": 360, "mode": "width", "seamlessX": true },
+      "ground": { "src": "rush-ground", "w": 640, "h": 96, "mode": "width", "seamlessX": true },
+      "bg-factory": { "src": "rush-bg-factory", "w": 640, "h": 360, "mode": "cover", "seamlessX": true }
+    },
+    "obstacles": [
+      ["mower", 64, 40], ["cone", 20, 24], ["hurdle", 40, 28], ["tackler-low", 56, 24],
+      ["tackler-stand", 40, 56], ["banner-low", 72, 32], ["puddle", 48, 12], ["sprinkler", 28, 36],
+      ["seed", 20, 20], ["goldball", 20, 20], ["magnet", 24, 24], ["shield", 24, 24]
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "id": "house-tdnlamuron",
+  "image": "interiors/int-house-tdnlamuron",
+  "size": [20,12],
+  "spawn": [10,10],
+  "exitTo": {"scene":"overworld","tile":[25,53]},
+  "collision": [
+    [0,0,640,110],
+    [0,110,42,274],
+    [598,110,42,274],
+    [0,340,264,44],
+    [376,340,264,44],
+    [78,90,140,72],
+    [262,68,60,84],
+    [344,100,64,52],
+    [438,100,100,90],
+    [488,185,110,58],
+    [18,166,168,96],
+    [24,250,110,80],
+    [512,255,60,64],
+    [556,262,64,60]
+  ],
+  "examine": [
+    {"tile":[5,5],"text":"돌격 훈련 노트. 페이지마다 더 빨리라고 적혀 있다."},
+    {"tile":[15,3],"text":"창밖으로 용암이 흐른다."},
+    {"tile":[17,7],"text":"쌓아 둔 콘 더미. 하나 가져가고 싶어진다."},
+    {"tile":[9,3],"text":"목각 훈련 인형. 곳곳이 움푹 패었다."}
+  ],
+  "npcs": [
+    {"cast":"tdnlamuron","tile":[10,7],"ai":"stay","when":"mission-completed:m-tdnlamuron-conerun"}
+  ],
+  "triggers": [
+    {"type":"door","rect":[9,11,2,1],"to":{"scene":"overworld","tile":[25,53],"facing":"down"}}
+  ]
+}

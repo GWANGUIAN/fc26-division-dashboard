@@ -1,0 +1,23 @@
+/** Single source for map generation and the collection guide. Coordinates refined by reachability tests. */
+export const GOLDEN_BALLS: { id: string; scene: "overworld" | "interior:factory"; tile: [number, number]; hint: string; ending?: boolean }[] = [
+  { id: "gb-01", scene: "overworld", tile: [36,19], hint: "분수 뒤편" },
+  { id: "gb-02", scene: "overworld", tile: [46,8], hint: "클럽하우스 오른쪽 뒤" },
+  { id: "gb-03", scene: "overworld", tile: [20,8], hint: "훈련장 골대 옆" },
+  { id: "gb-04", scene: "overworld", tile: [4,10], hint: "구름 요새 왼쪽 벼랑" },
+  { id: "gb-05", scene: "overworld", tile: [20,3], hint: "북쪽 구름 다리" },
+  { id: "gb-06", scene: "overworld", tile: [74,5], hint: "룬 탑 뒤편" },
+  { id: "gb-07", scene: "overworld", tile: [58,12], hint: "룬 스톤 원 근처" },
+  { id: "gb-08", scene: "overworld", tile: [4,24], hint: "봄 정원 꽃밭 구석" },
+  { id: "gb-09", scene: "overworld", tile: [18,27], hint: "봄 정원 벚나무 아래" },
+  { id: "gb-10", scene: "overworld", tile: [3,38], hint: "용의 언덕 조각 근처" },
+  { id: "gb-11", scene: "overworld", tile: [60,41], hint: "호수 데크 끝" },
+  { id: "gb-12", scene: "overworld", tile: [57,24], hint: "서리 링크 얼음 위" },
+  { id: "gb-13", scene: "overworld", tile: [76,20], hint: "천문대 뒤" },
+  { id: "gb-14", scene: "overworld", tile: [2,55], hint: "공업지구 파이프 뒤" },
+  { id: "gb-15", scene: "overworld", tile: [14,44], hint: "배달소 옆 드럼통" },
+  { id: "gb-16", scene: "overworld", tile: [22,56], hint: "용암 옆 바위" },
+  { id: "gb-17", scene: "overworld", tile: [31,52], hint: "편의점 뒤" },
+  { id: "gb-18", scene: "overworld", tile: [58,50], hint: "제초 공장 굴뚝 아래", ending: true },
+  { id: "gb-19", scene: "overworld", tile: [76,56], hint: "폐 제초기 사이", ending: true },
+  { id: "gb-20", scene: "interior:factory", tile: [14,6], hint: "공장 실내 금고 앞", ending: true },
+];

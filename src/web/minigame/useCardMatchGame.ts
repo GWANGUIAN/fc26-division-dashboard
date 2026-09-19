@@ -32,12 +32,20 @@ function buildCandidateIds(streamers: StreamerRecord[] | undefined): string[] {
   return hasUnlockedWoowakgoodBonus() && hasTotyCard(WOOWAKGOOD_ID) ? [...realIds, WOOWAKGOOD_ID] : realIds;
 }
 
+/** What the world hears when the board is cleared: the turns it took (fewer is better). */
+export interface CardMatchRoundResult {
+  game: "cardmatch";
+  score: number;
+}
+
 export function useCardMatchGame({
   streamers,
   sfxVolume,
+  onRoundEnd,
 }: {
   streamers: StreamerRecord[] | undefined;
   sfxVolume: number;
+  onRoundEnd?: (result: CardMatchRoundResult) => void;
 }) {
   const [state, setState] = useState<CardMatchState | null>(null);
   // The authoritative, synchronously-updated game state, same rationale as useKickupsGame's own
@@ -93,8 +101,10 @@ export function useCardMatchGame({
         setIsNewRecord(true);
       }
       playSfx(WIN_SFX_URL, sfxVolume / 100);
+      onRoundEnd?.({ game: "cardmatch", score: state.turns });
     }
     prevPhaseRef.current = state.phase;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fires on the win transition only; onRoundEnd is read fresh from this render
   }, [state, bestTurns, sfxVolume]);
 
   function handleFlip(index: number) {

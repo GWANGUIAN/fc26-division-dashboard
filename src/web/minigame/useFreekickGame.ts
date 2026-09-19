@@ -17,7 +17,13 @@ const MISS_SFX_URL = "/sfxes/game-over.mp3";
 // single physical release; without this guard that double-counts one shot as two.
 const SHOT_DEDUPE_MS = 120;
 
-export function useFreekickGame({ sfxOn, sfxVolume }: { sfxOn: boolean; sfxVolume: number }) {
+/** What the world hears when the three lives are gone: the goals scored in that game. */
+export interface FreekickRoundResult {
+  game: "freekick";
+  score: number;
+}
+
+export function useFreekickGame({ sfxOn, sfxVolume, onRoundEnd }: { sfxOn: boolean; sfxVolume: number; onRoundEnd?: (result: FreekickRoundResult) => void }) {
   const [state, setState] = useState<GameState>(() => createInitialState(loadFreekickHighScore()));
   const prevPhaseRef = useRef(state.phase);
 
@@ -38,7 +44,9 @@ export function useFreekickGame({ sfxOn, sfxVolume }: { sfxOn: boolean; sfxVolum
     if (enteredTerminal && sfxOn) {
       playSfx(state.result === "goal" ? GOAL_SFX_URL : MISS_SFX_URL, sfxVolume / 100);
     }
+    if (prevPhaseRef.current === "flight" && state.phase === "gameover") onRoundEnd?.({ game: "freekick", score: state.score });
     prevPhaseRef.current = state.phase;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fires on the phase change only; onRoundEnd is read fresh from this render
   }, [state.phase, state.result, sfxOn, sfxVolume]);
 
   useEffect(() => {

@@ -23,6 +23,10 @@
 
 **재개(다시 자동 수집 켜기) 방법**: `main.tf`에서 `state = "DISABLED"` 제거 후 `terraform apply` → `src/worker.ts`의 `/api/snapshot` 라우팅·`/healthz` 신선도 체크를 원래대로 되돌림 → `src/web/api.ts`를 fetch 기반으로 되돌리고 `src/web/snapshotFixture.ts`/`snapshotFixture.json` 삭제.
 
+## 잔디동 월드 (S6 코드 폴리시 점검 완료)
+
+좌측 상단 **잔디동 월드 구경하기** 버튼은 전체 화면 Canvas 2D 도트 RPG를 연다. S1~S5의 프롤로그·미션·결전·엔딩·엔딩 후 러시/일일/수집이 구현됐고, S6에서 오디오 매핑·청크 캐시 상한·reduced-motion·크레딧·공지를 정리했다. 월드 전용 저장 키/미션 ID/맵 객체 ID와 대시보드의 미니게임·카드 판정은 분리한다. 다음 세션은 [world/README.md](world/README.md)의 핸드오프를 먼저 읽는다. 외부 배포 전에는 `world-bgm-region-weed.mp3`의 제공/폴백 승인 및 [07-audio.md](world/07-audio.md)의 오디오별 출처·라이선스 기록이 필요하다.
+
 ## 데이터 흐름
 
 ```text
@@ -54,6 +58,7 @@ GitHub push (roster/results/overrides YAML) → Config Sync Lambda → DynamoDB 
 | 위치 | 책임 |
 | --- | --- |
 | `src/web/App.tsx` | 두 화면(디비전/1:1)을 그리는 오케스트레이터. 상태는 `use*.ts` 훅에서 모으고 화면은 섹션 컴포넌트에 위임한다 — 아래 "프런트엔드 구조" 참고 |
+| `src/web/world/` | 캔버스 엔진·맵/미션 상태·저장·오디오·DOM HUD/모달. `WorldModals`가 연 `onRoundEnd`/`onView`만 월드 미션을 판정하며, `engine/terrain.ts`의 세션 한정 청크 캐시와 `worldAudio.ts`의 선택 파일 폴백을 포함한다. |
 | `src/web/api.ts` | `src/web/snapshotFixture.ts`의 고정 스냅샷 반환 (자동 수집 중단 중 — 아래 "현재 상태" 참고) |
 | `src/worker.ts` | Cloudflare API 프록시·2분 Edge 캐시·`/healthz`·정적 자산 캐시 방어 |
 | `src/functions/scraper.ts` | 스케줄 수집, 게시판별 체크포인트, 이미지 재시도, 전적 추출 재시도, 스냅샷 발행 |

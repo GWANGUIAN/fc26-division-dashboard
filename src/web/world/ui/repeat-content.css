@@ -1,0 +1,12 @@
+.world-repeat-backdrop { position: absolute; inset: 0; z-index: 95; display: grid; place-items: center; background: #081711de; padding: 24px; }
+.world-repeat-panel { width: min(760px, 100%); max-height: 90vh; overflow: auto; background: #17382d; color: #f3f9e8; border: 3px solid #d4bc70; border-radius: 12px; padding: 24px; box-shadow: 0 16px 60px #0008; }
+.world-repeat-panel header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.world-repeat-panel h2 { margin: 0; font-size: 24px; }
+.world-repeat-panel button { min-height: 44px; border: 1px solid #d4bc70; border-radius: 6px; background: #244e3d; color: #fff9dc; padding: 8px 16px; cursor: pointer; margin: 4px; }
+.world-repeat-panel button:disabled { opacity: .55; cursor: default; }
+.world-repeat-panel :focus-visible { outline: 3px solid #ffe28a; outline-offset: 3px; }
+.world-repeat-panel canvas { width: 100%; height: auto; image-rendering: pixelated; }
+.world-repeat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; padding: 0; list-style: none; }
+.world-repeat-grid li { padding: 12px; border: 1px solid #678c72; border-radius: 6px; }
+.world-repeat-stamps { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; }
+.world-repeat-stamps span { padding: 8px 0; text-align: center; border: 1px solid #829b70; }

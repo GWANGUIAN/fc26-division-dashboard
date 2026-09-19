@@ -1,0 +1,113 @@
+/* Floating "잔디동 월드 구경하기" button, top-left. Loaded with the main bundle (the button renders on
+   page load, the overlay is lazy). The plate art (fab-normal/hover) is optional — a CSS plate is always
+   drawn underneath — and the label is real text on top of it. */
+.world-toggle {
+  position: fixed;
+  z-index: 75;
+  top: 12px;
+  left: 12px;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #fff;
+  font-family: "Galmuri11", "Noto Sans KR", sans-serif;
+  cursor: pointer;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45));
+  transition: transform 0.15s;
+}
+.world-toggle:hover, .world-toggle:focus-visible { transform: translateY(-1px); filter: brightness(1.12) drop-shadow(0 6px 12px rgba(0, 233, 174, 0.45)); outline: 0; }
+.world-toggle:active { transform: translateY(1px) scale(0.98); }
+.world-toggle:focus-visible .world-toggle__plate,
+.world-toggle:focus-visible .world-toggle__icon { box-shadow: 0 0 0 2px #ffd54a; }
+
+/* Plate (wide) */
+.world-toggle__plate {
+  position: relative;
+  display: block;
+  width: 220px;
+  height: 60px;
+  border-radius: 8px;
+}
+/* CSS fallback plate: wooden frame, dark green panel, mint medallion. */
+.world-toggle__fallback {
+  position: absolute;
+  inset: 0;
+  border: 3px solid #a86b32;
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 26px 50%, #2ee8b6 0 15px, #0b6b4d 15px 19px, transparent 20px),
+    linear-gradient(#155a3b, #0d4a31);
+  box-shadow: inset 0 0 0 2px #2ee8b6;
+}
+.world-toggle__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: auto;
+  pointer-events: none;
+}
+.world-toggle--art .world-toggle__fallback { display: none; }
+.world-toggle__label {
+  position: absolute;
+  top: 50%;
+  left: 62%;
+  transform: translate(-50%, -50%);
+  font-size: 11px;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+  color: #fff;
+  /* 1px dark-teal outline for legibility on the green panel */
+  text-shadow: -1px 0 #0b3a2a, 1px 0 #0b3a2a, 0 -1px #0b3a2a, 0 1px #0b3a2a;
+}
+
+/* First visit: pulsing glow + sparks + speech bubble until the world has been opened once. */
+.world-toggle--new .world-toggle__plate { animation: world-toggle-glow 2.2s ease-in-out infinite; }
+@keyframes world-toggle-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 233, 174, 0); }
+  50% { box-shadow: 0 0 14px 4px rgba(0, 233, 174, 0.75); }
+}
+.world-toggle__bubble {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 18px;
+  padding: 5px 9px;
+  border-radius: 6px;
+  color: #04120c;
+  background: #f4fff9;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+}
+.world-toggle__bubble::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: 16px;
+  border: 5px solid transparent;
+  border-top: 0;
+  border-bottom-color: #f4fff9;
+}
+.world-toggle .view-toggle-card__sparks { inset: -6px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .world-toggle { transition: none; }
+  .world-toggle--new .world-toggle__plate { animation: none; box-shadow: 0 0 10px 2px rgba(0, 233, 174, 0.6); }
+}
+
+/* Mobile has no touch controls (docs/world/01 §1): hide the button. */
+@media (max-width: 680px) { .world-toggle { display: none; } }
+
+/* The button always stays full width, so both the header and sticky controls reserve its plate width. */
+@media (min-width: 681px) {
+  main:has(.world-toggle) .topbar {
+    padding-left: max(0px, calc(244px - (100vw - min(1400px, 100vw - 40px)) / 2));
+  }
+  main:has(.world-toggle) .controls-bar--stuck .controls {
+    padding-left: max(0px, calc(244px - (100vw - min(1400px, 100vw - 40px)) / 2));
+  }
+}

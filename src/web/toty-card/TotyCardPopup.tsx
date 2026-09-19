@@ -153,6 +153,8 @@ export function TotyCardPopup({
   onSfxVolumeChange,
   onSelectStreamer,
   onClose,
+  onView,
+  initialVariant,
 }: {
   streamer: TotyCardPopupStreamer;
   assets: TotyCardAssets;
@@ -182,6 +184,11 @@ export function TotyCardPopup({
    * live-swap a pack-opening sequence already mid-flight. */
   onSelectStreamer: (streamer: TotyCardPopupStreamer) => void;
   onClose: () => void;
+  /** Reports which card is showing in which theme: once the card is revealed and again whenever the viewer
+   * switches theme (the world card missions listen to this; the dashboard does not need it). */
+  onView?: (id: string, variant: TotyCardVariant) => void;
+  /** Optional caller-scoped opening theme. The normal dashboard cycle remains the default. */
+  initialVariant?: TotyCardVariant;
 }) {
   useEscape(onClose);
   useBodyScrollLock();
@@ -210,7 +217,7 @@ export function TotyCardPopup({
   const availableVariants = getAvailableTotyCardVariants(streamer.id);
   const rolledVariantRef = useRef<TotyCardVariant | null>(null);
   if (rolledVariantRef.current === null) {
-    rolledVariantRef.current = rollTotyCardVariant(streamer.id, availableVariants);
+    rolledVariantRef.current = initialVariant ?? rollTotyCardVariant(streamer.id, availableVariants);
   }
   // The viewer can override the rolled variant by hand via the select shown
   // above a revealed card (below) — purely a local override for this popup
@@ -279,6 +286,7 @@ export function TotyCardPopup({
   // "기본" (or between the other options) stays silent.
   const handleVariantChange = (next: TotyCardVariant) => {
     setVariant(next);
+    onView?.(streamer.id, next);
     if (!sfxEnabled) return;
     if (next === "retro") playRetroBlip(sfxVolume / 100);
     else if (next === "lowq") playCrayonScratch(sfxVolume / 100);
@@ -417,6 +425,7 @@ export function TotyCardPopup({
           onRevealed={() => {
             setRevealed(true);
             markTotyCardRevealed(streamer.id);
+            onView?.(streamer.id, variant);
           }}
         />
 

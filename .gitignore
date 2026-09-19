@@ -12,3 +12,6 @@ infrastructure/config-sync-*.json
 !.env.example
 playwright-report/
 test-results/
+
+# World art originals (AI-generated PNGs; converted to src/web/assets/world/ by pnpm convert:world-art)
+tmp/world-src/

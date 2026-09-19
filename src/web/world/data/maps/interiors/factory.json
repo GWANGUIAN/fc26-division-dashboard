@@ -1,0 +1,38 @@
+{
+  "id": "factory",
+  "image": "interiors/int-factory",
+  "size": [20,12],
+  "spawn": [10,10],
+  "exitTo": {"scene":"overworld","tile":[68,56]},
+  "collision": [
+    [0,0,640,120],
+    [0,120,46,264],
+    [594,120,46,264],
+    [0,340,264,44],
+    [376,340,264,44],
+    [96,118,450,74],
+    [265,50,95,140],
+    [10,190,150,140],
+    [20,255,140,85],
+    [480,235,140,105],
+    [445,285,75,55],
+    [165,270,25,50]
+  ],
+  "examine": [
+    {"tile":[8,6],"text":"제초기 컨베이어. 칼날이 줄지어 돌아간다.","when":"not:flag:ending-seen"},
+    {"tile":[16,5],"text":"묵직한 금고. 안에 무엇이 들었을까."},
+    {"tile":[4,4],"text":"경고판. 새싹에 빨간 줄이 그어져 있다."},
+    {"id":"factory-course","tile":[8,6],"text":"멈춘 컨베이어가 훈련 코스로 바뀌었다.","action":"rush-factory","when":"flag:ending-seen"},
+    {"id":"factory-garden","tile":[7,7],"text":"제초 장비 대신 새싹을 기르는 정원. 매일 다시 훈련할 수 있다.","when":"flag:factory-garden"}
+  ],
+  "npcs": [
+    {"cast":"weedking","tile":[10,7],"ai":"stay","when":"not:flag:ending-seen"},
+    {"cast":"weeder-grunt","tile":[10,7],"ai":"stay","when":"flag:ending-seen"}
+  ],
+  "triggers": [
+    {"type":"door","rect":[9,11,2,1],"to":{"scene":"overworld","tile":[68,56],"facing":"down"}}
+  ],
+  "objects": [
+    {"id":"gb-20","type":"pickup","tile":[14,6],"prop":"goldball-1","autoCollect":true,"when":"flag:ending-seen"}
+  ]
+}

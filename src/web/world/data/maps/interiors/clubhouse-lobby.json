@@ -1,0 +1,36 @@
+{
+  "id": "clubhouse-lobby",
+  "image": "interiors/int-clubhouse-lobby",
+  "size": [20,12],
+  "spawn": [10,10],
+  "exitTo": {"scene":"overworld","tile":[40,14]},
+  "collision": [
+    [0,0,640,132],
+    [0,132,46,252],
+    [608,132,32,252],
+    [0,340,264,44],
+    [376,340,264,44],
+    [220,120,170,52],
+    [84,148,100,50],
+    [76,196,90,60],
+    [72,240,90,50],
+    [0,210,50,110],
+    [66,112,124,44],
+    [524,60,62,158],
+    [488,262,110,50],
+    [426,30,86,100],
+    [608,210,32,100]
+  ],
+  "examine": [
+    {"tile":[10,4],"text":"클럽하우스 안내판. 화살표와 그림만 그려져 있다."},
+    {"tile":[8,6],"text":"소파 앞 탁자에 클럽 소식지가 놓여 있다."},
+    {"tile":[16,6],"text":"트로피 진열장. 반짝이는 컵이 가지런히 서 있다."}
+  ],
+  "npcs": [],
+  "triggers": [
+    {"type":"door","rect":[9,11,2,1],"to":{"scene":"overworld","tile":[40,14],"facing":"down"}},
+    {"type":"door","rect":[1,4,1,2],"to":{"scene":"interior:clubhouse-trophy","tile":[10,10],"facing":"up"}},
+    {"type":"door","rect":[18,4,1,4],"to":{"scene":"interior:clubhouse-office","tile":[10,10],"facing":"up"}},
+    {"type":"door","rect":[13,4,3,1],"to":{"scene":"interior:arcade","tile":[10,10],"facing":"up"}}
+  ]
+}
