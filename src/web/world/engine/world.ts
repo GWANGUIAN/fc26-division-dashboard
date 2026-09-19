@@ -195,6 +195,7 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
   let walkedPx = 0;
   let reportedTiles = 0;
   let stepAccum = 0;
+  let bumpCooldown = 0;
   const reducedMotion = typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   // Derived from the save; rebuilt whenever the overlay replaces `store.save` (a mission moved, an item was taken).
@@ -325,7 +326,8 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
     const to = door.to;
     const destination = getScene(to.scene);
     if (!destination || transition.active) return;
-    audio.playSfx(scene.kind === "interior" && to.scene === "overworld" ? "door-close" : "door-open");
+    const enteringShop = to.scene === "interior:store" || to.scene === "interior:cafe";
+    audio.playSfx(scene.kind === "interior" && to.scene === "overworld" ? "door-close" : enteringShop ? "door-bell" : "door-open");
     transition.start(async () => {
       // The room image loads while the screen is black and stays cached afterwards (docs/world/01 §8).
       if (destination.image && !assets.has(destination.image)) await assets.load([destination.image]);
@@ -382,7 +384,14 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
     player.moving = moved > 1e-6;
     player.facing = facingFor(move.x, move.y, player.facing);
     player.animTime = player.moving ? player.animTime + dt : 0;
-    if (!player.moving) return;
+    if (!player.moving) {
+      // A short bump gives feedback for a deliberate wall push without firing every simulation tick.
+      if (bumpCooldown <= 0 && Math.hypot(move.x * speed, move.y * speed) > 0) {
+        audio.playSfx("bump");
+        bumpCooldown = 0.2;
+      }
+      return;
+    }
 
     walkedPx += moved;
     const tiles = Math.floor(walkedPx / TILE);
@@ -427,6 +436,7 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
       ambienceZone = id;
       ambience.setZone(zone ? { id: zone.id, tint: zone.tint, ...(zone.particles ? { particles: zone.particles } : {}) } : null);
       audio.playAmbience?.(ambienceIdFor(scene.id, id));
+      if (id === "z-weed") audio.playSfx("mower-rev");
     }
     ambience.update(dt);
   }
@@ -528,6 +538,8 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
     if (chosen.kind === "npc") {
       const npc = npcs.find((n) => n.key === chosen.key);
       if (npc) {
+        if (npc.cast === "cat-jandi") audio.playSfx("cat-meow");
+        if (npc.cast === "dog-ball") audio.playSfx("dog-bark");
         startTalk(npc, player);
         talking = npc;
       }
@@ -615,6 +627,7 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
 
   function update(dt: number) {
     time += dt;
+    bumpCooldown = Math.max(0, bumpCooldown - dt);
     transition.update(dt);
     const blocked = uiBlocked || transition.active;
     syncInput();
@@ -859,4 +872,3 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
     },
   };
 }
-

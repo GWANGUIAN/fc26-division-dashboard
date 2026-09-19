@@ -270,7 +270,7 @@ interface MinigameRoundResult {
 - SFX: 동시 재생이 필요하므로 기존 `playSfx()`(단일 슬롯, `sfxAudio.ts`) 대신 월드 전용 풀(`worldAudio.ts`, 이름별 3~4개 Audio 인스턴스 재사용).
 - 설정: BGM/효과음 on-off·볼륨을 `fc26-world-settings-v1`에 저장, 기본 BGM 35 / SFX 55(기존 게임 기본값과 동일). 기존 `SoundControl.tsx`(`minigame/`) UI 재사용 검토.
 - **사이트 전역 `MusicPlayer`(YouTube iframe)**는 독립 재생이라 월드 진입 시 겹친다 → **결정(S1)**: 월드가 열리면 재생 중이던 전역 음악을 일시정지하고, 닫을 때 월드가 멈춘 경우에만 재개한다(`src/web/musicControl.ts`, [08 §5 #1](08-implementation-roadmap.md#5-미해결-항목)).
-- **S4 구현 상태**(`audio/worldAudio.ts`): 파일은 전부 선택 사항이다. `public/world-bgm-*.mp3`·`public/sfxes/world-*.mp3`를 이름으로 찾아(HEAD 요청, 오디오 타입이 아니면 없는 파일) 있으면 재생하고 없으면 조용히 무음이다. BGM은 선호 목록에서 처음 존재하는 파일을 1초 크로스페이드로 튼다. S3 미션·월드 효과음에 더해 S4는 보스/엔딩 BGM, 코어 정지·성장·관중 함성, 지구·스타디움·오락실 앰비언스를 연결했다. 앰비언스는 BGM 설정 음량의 40%이며 `prefers-reduced-motion`에서는 파티클도 줄어든다. BGM 13곡과 SFX 53개는 2026-09-19에 `public/`에 들어왔다(`world-bgm-region-weed.mp3`만 없어 제초동 구역은 필드 BGM으로 대체).
+- **S6 구현 상태**(`audio/worldAudio.ts`): 파일은 전부 선택 사항이다. `public/world-bgm-*.mp3`·`public/sfxes/world-*.mp3`를 이름으로 HEAD 검사해(오디오 타입이 아니면 없음) 있으면 재생하고 없으면 조용히 무음이다. BGM은 선호 목록에서 처음 존재하는 파일을 1초 크로스페이드로 튼다. BGM 14개·SFX 53개 매핑을 파일 존재 검사로 회귀 검증하며, 실내/아케이드/보스/엔딩/러시·지면별 발소리·문종·동물·제초동·러시 동작을 연결한다. 앰비언스는 BGM 설정 음량의 40%; 파일 9개 중 중앙/상점·구름/룬·봄·서리·공업·제초동·스타디움·오락실의 8개만 선택하고 `water`는 호수 전용 존이 생길 때까지 선택하지 않는다. `world-bgm-region-weed.mp3`가 없어 제초동 지구는 필드 BGM으로 폴백한다. `prefers-reduced-motion`에서는 파티클과 자동 UI 애니메이션을 줄인다.
 - 기존 효과음 재사용 목록과 신규 목록은 [07-audio.md](07-audio.md).
 
 ## 10. 기존 코드 통합 지점

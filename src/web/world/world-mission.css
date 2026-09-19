@@ -102,6 +102,15 @@
   .world-tracker.is-ready { animation: none; }
 }
 
+.world-credits { display: grid; gap: 8px; max-width: 460px; padding: 4px 10px; color: #e8fff6; font-size: 11px; line-height: 1.5; }
+.world-credits p { margin: 0; }
+.world-credits dl { display: grid; gap: 3px; margin: 0; }
+.world-credits dl div { display: grid; grid-template-columns: 84px 1fr; gap: 8px; }
+.world-credits dt { color: #ffd54a; }
+.world-credits dd { margin: 0; }
+.world-credits__notice { padding: 6px; border: 1px solid #ffb454; background: rgba(75, 42, 8, .5); color: #ffe1b5; }
+.world-credits code { color: #d8fff0; font: inherit; }
+
 /* ── shared veil for the log and the menu ─────────────────── */
 .world-veil {
   position: absolute;

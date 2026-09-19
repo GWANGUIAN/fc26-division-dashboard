@@ -10,6 +10,7 @@ import { createNewGameSave, DEFAULT_WORLD_SETTINGS } from "../storage";
 import { Hud } from "./Hud";
 import { MissionLog } from "./MissionLog";
 import { PauseMenu } from "./PauseMenu";
+import { WorldCredits } from "./WorldCredits";
 import { STATUS_LABEL, missionIconKey, rewardText } from "./missionIcons";
 import { getMissionDef } from "../data/missionDefs";
 
@@ -60,7 +61,7 @@ describe("MissionLog", () => {
 });
 
 describe("PauseMenu", () => {
-  const menu = (view: "main" | "settings" | "confirm-new") => (
+  const menu = (view: "main" | "settings" | "credits" | "confirm-new") => (
     <PauseMenu
       view={view}
       onView={noop}
@@ -77,7 +78,14 @@ describe("PauseMenu", () => {
 
   it("offers every menu item on the main page", () => {
     const html = renderToString(menu("main"));
-    for (const label of ["이어하기", "미션 로그", "설정", "가이드 다시 보기", "새로 시작", "월드 나가기"]) expect(html).toContain(label);
+    for (const label of ["이어하기", "미션 로그", "설정", "크레딧", "가이드 다시 보기", "새로 시작", "월드 나가기"]) expect(html).toContain(label);
+  });
+
+  it("renders the release credit and attribution gate without inventing a licence", () => {
+    const html = renderToString(<WorldCredits />);
+    expect(html).toContain("BGM 13/14, SFX 53/53, 앰비언스 9/9");
+    expect(html).toContain("배포 전 확인 필요");
+    expect(renderToString(menu("credits"))).toContain("배포 전 확인 필요");
   });
 
   it("shows the sound settings and asks before a new game", () => {

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { DEFAULT_WORLD_SETTINGS } from "../storage";
-import { BGM_FADE_SECONDS, BGM_FILES, SFX_FILES, WorldAudio, crossfadeGains, type AudioDeps, type AudioLike } from "./worldAudio";
+import { AMBIENCE_FILES, BGM_FADE_SECONDS, BGM_FILES, SFX_FILES, WorldAudio, crossfadeGains, type AudioDeps, type AudioLike } from "./worldAudio";
 
 class FakeAudio implements AudioLike {
   loop = false;
@@ -46,9 +48,23 @@ describe("crossfadeGains", () => {
 });
 
 describe("file names", () => {
-  it("follow docs/world/07 (public/world-bgm-*.mp3 and public/sfxes/world-*.mp3)", () => {
+  it("covers every documented BGM, SFX and the eight selectable ambience loops", () => {
+    expect(Object.keys(BGM_FILES)).toHaveLength(14);
+    expect(Object.keys(SFX_FILES)).toHaveLength(53);
+    expect(Object.keys(AMBIENCE_FILES)).toHaveLength(8);
+    expect(AMBIENCE_FILES).not.toHaveProperty("water"); // reserved for a future lake zone; do not select it today
     for (const url of Object.values(BGM_FILES)) expect(url).toMatch(/^\/world-bgm-[a-z-]+\.mp3$/);
     for (const url of Object.values(SFX_FILES)) expect(url).toMatch(/^\/sfxes\/world-[a-z]+(-[a-z]+)?\.mp3$/);
+    for (const url of Object.values(AMBIENCE_FILES)) expect(url).toMatch(/^\/world-amb-[a-z-]+\.mp3$/);
+  });
+
+  it("matches the checked-in audio inventory, including the intentional region-weed fallback", () => {
+    const publicFile = (url: string) => join(process.cwd(), "public", url.slice(1));
+    expect(Object.values(BGM_FILES).filter(url => existsSync(publicFile(url)))).toHaveLength(13);
+    expect(existsSync(publicFile(BGM_FILES["region-weed"]))).toBe(false);
+    for (const url of Object.values(SFX_FILES)) expect(existsSync(publicFile(url)), url).toBe(true);
+    for (const url of Object.values(AMBIENCE_FILES)) expect(existsSync(publicFile(url)), url).toBe(true);
+    expect(existsSync(publicFile("/world-amb-water.mp3"))).toBe(true);
   });
 });
 
@@ -153,5 +169,21 @@ describe("WorldAudio SFX", () => {
     await flush();
     b.playSfx("door-open");
     expect(off.created.every((audio) => audio.plays === 0)).toBe(true);
+  });
+});
+
+describe("WorldAudio ambience", () => {
+  it("loops a present ambience at forty percent of the BGM volume and silently skips a missing one", async () => {
+    const { deps, created } = makeDeps([AMBIENCE_FILES.arcade]);
+    const audio = new WorldAudio({ ...DEFAULT_WORLD_SETTINGS, bgmVolume: 50 }, deps, false);
+    audio.playAmbience?.("arcade");
+    await flush();
+    expect(created).toHaveLength(1);
+    expect(created[0].src).toBe(AMBIENCE_FILES.arcade);
+    expect(created[0].loop).toBe(true);
+    expect(created[0].volume).toBeCloseTo(0.2);
+    audio.playAmbience?.("weed");
+    await flush();
+    expect(created).toHaveLength(1);
   });
 });

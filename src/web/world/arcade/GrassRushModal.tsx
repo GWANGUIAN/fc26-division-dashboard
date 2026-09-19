@@ -5,9 +5,10 @@ import { useWorldKeys } from "../ui/useWorldKeys";
 import { arcadeRank } from "../state/ranks";
 import { createRush, RUSH_DT, rushScore, stepRush, type RushInput } from "./GrassRushEngine";
 import { RepeatPanel } from "../ui/RepeatPanel";
+import type { WorldAudioLike } from "../audio/worldAudio";
 
-export function GrassRushModal({ player, factory = false, best, onClose, onRoundEnd }: {
-  player: CastId; factory?: boolean; best?: number; onClose: () => void; onRoundEnd?: (result: MinigameRoundResult) => void;
+export function GrassRushModal({ player, factory = false, best, onClose, onRoundEnd, audio }: {
+  player: CastId; factory?: boolean; best?: number; onClose: () => void; onRoundEnd?: (result: MinigameRoundResult) => void; audio?: WorldAudioLike;
 }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const state = useRef(createRush());
@@ -15,9 +16,16 @@ export function GrassRushModal({ player, factory = false, best, onClose, onRound
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<MinigameRoundResult | null>(null);
   const callback = useRef(onRoundEnd); callback.current = onRoundEnd;
+  const audioRef = useRef(audio); audioRef.current = audio;
   useWorldKeys((code, event) => {
     if (!["Space", "ArrowUp", "ArrowDown"].includes(code)) return false;
-    if (!event.repeat && running) input.current = code === "ArrowDown" ? "slide" : "jump";
+    if (!event.repeat && running) {
+      const next = code === "ArrowDown" ? "slide" : "jump";
+      const accepted = next === "jump" ? state.current.height === 0 && state.current.slide <= 0 : state.current.height === 0;
+      if (!accepted) return true;
+      input.current = next;
+      audioRef.current?.playSfx(next === "jump" ? "rush-jump" : "rush-slide");
+    }
     return true;
   });
   useEffect(() => {
@@ -37,7 +45,10 @@ export function GrassRushModal({ player, factory = false, best, onClose, onRound
       if (running && !document.hidden) {
         accumulator += elapsed;
         while (accumulator >= RUSH_DT && !state.current.over) {
-          state.current = stepRush(state.current, input.current); input.current = undefined; accumulator -= RUSH_DT;
+          const previous = state.current;
+          state.current = stepRush(previous, input.current); input.current = undefined; accumulator -= RUSH_DT;
+          if (state.current.seeds > previous.seeds) audioRef.current?.playSfx("rush-collect");
+          if (state.current.over && !previous.over) audioRef.current?.playSfx("rush-hit");
         }
       }
       const s = state.current;
@@ -56,6 +67,7 @@ export function GrassRushModal({ player, factory = false, best, onClose, onRound
       if (running && s.over && !reported) {
         reported = true;
         const round: MinigameRoundResult = { game: "rush", score: rushScore(s), distance: Math.floor(s.distance) };
+        audioRef.current?.playSfx("rush-gameover");
         setResult(round); setRunning(false); callback.current?.(round);
       }
       raf = requestAnimationFrame(frame);

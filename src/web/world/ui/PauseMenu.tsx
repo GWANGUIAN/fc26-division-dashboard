@@ -5,6 +5,7 @@ import type { WorldSettings } from "../types";
 import { getWorldAssetUrl } from "../worldAssets";
 import { buttonProps } from "./buttonProps";
 import { CONFIRM_CODES, DOWN_CODES, LEFT_CODES, RIGHT_CODES, UP_CODES, useWorldKeys } from "./useWorldKeys";
+import { WorldCredits } from "./WorldCredits";
 
 interface PauseMenuProps {
   view: Exclude<PauseView, "closed">;
@@ -41,6 +42,7 @@ export function PauseMenu({ view, onView, settings, onSettings, audio, onResume,
     { id: "resume", label: "이어하기", icon: "ui/mn-resume", run: onResume },
     { id: "log", label: "미션 로그 (J)", icon: "ui/mn-log", run: onLog },
     { id: "settings", label: "설정", icon: "ui/mn-settings", run: () => go("settings") },
+    { id: "credits", label: "크레딧", icon: "ui/mn-map", run: () => go("credits") },
     { id: "guide", label: "가이드 다시 보기", icon: "ui/mn-guide", run: onGuide },
     { id: "new", label: "새로 시작", icon: "ui/mn-new", run: () => go("confirm-new") },
     { id: "exit", label: "월드 나가기", icon: "ui/mn-exit", run: onExit },
@@ -56,7 +58,7 @@ export function PauseMenu({ view, onView, settings, onSettings, audio, onResume,
     { id: "cancel", label: "취소", icon: "ui/mn-back", run: () => go("main") },
     { id: "yes", label: "새로 시작", icon: "ui/mn-new", run: onNewGame },
   ];
-  const items = view === "main" ? main : view === "settings" ? settingsItems : confirmItems;
+  const items = view === "main" ? main : view === "settings" ? settingsItems : view === "credits" ? [] : confirmItems;
   const at = Math.min(cursor, items.length - 1);
 
   function go(next: Exclude<PauseView, "closed">) {
@@ -90,7 +92,7 @@ export function PauseMenu({ view, onView, settings, onSettings, audio, onResume,
 
   const frame = getWorldAssetUrl("ui/panel-frame");
   const style = frame ? ({ "--frame-panel": `url(${frame})` } as CSSProperties) : undefined;
-  const title = view === "main" ? "메뉴" : view === "settings" ? "설정" : "새로 시작";
+  const title = view === "main" ? "메뉴" : view === "settings" ? "설정" : view === "credits" ? "크레딧" : "새로 시작";
 
   return (
     <div className="world-veil" onClick={onResume}>
@@ -99,7 +101,8 @@ export function PauseMenu({ view, onView, settings, onSettings, audio, onResume,
         {view === "confirm-new" && (
           <p className="world-pause__note">캐릭터를 다시 고르고 프롤로그가 끝날 때까지 지금 기록은 그대로 남아 있어요. 계속할까요?</p>
         )}
-        <ul className="world-pause__list">
+        {view === "credits" && <WorldCredits />}
+        {items.length > 0 && <ul className="world-pause__list">
           {items.map((item, position) => {
             const icon = item.icon ? getWorldAssetUrl(item.icon) : undefined;
             const isVolume = item.id === "bgmVolume" || item.id === "sfxVolume";
@@ -124,8 +127,8 @@ export function PauseMenu({ view, onView, settings, onSettings, audio, onResume,
               </li>
             );
           })}
-        </ul>
-        <p className="world-pause__hint">↑↓ 선택 · E/Enter 확인{view === "settings" ? " · ←→ 볼륨" : ""} · Esc {view === "main" ? "닫기" : "뒤로"}</p>
+        </ul>}
+        <p className="world-pause__hint">{view === "credits" ? "Esc 뒤로" : <>↑↓ 선택 · E/Enter 확인{view === "settings" ? " · ←→ 볼륨" : ""} · Esc {view === "main" ? "닫기" : "뒤로"}</>}</p>
       </section>
     </div>
   );

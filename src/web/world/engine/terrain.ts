@@ -11,6 +11,13 @@ import type { TerrainGrid } from "./scene";
 export const TILE = 32;
 export const CHUNK_TILES = 16;
 export const CHUNK_PX = TILE * CHUNK_TILES;
+/** Each terrain chunk is an RGBA 512px canvas; lush + withered are cached independently. */
+export const TERRAIN_CHUNK_BYTES = CHUNK_PX * CHUNK_PX * 4;
+
+/** A scene-bounded upper limit. It prevents the cache from growing with camera time or a long play session. */
+export function maxTerrainChunkCount(cols: number, rows: number) {
+  return Math.ceil(cols / CHUNK_TILES) * Math.ceil(rows / CHUNK_TILES) * 2;
+}
 /** Width of the blend band on each side of a district border. */
 export const BLEND_BAND = 12;
 /** Crossfade resolution: restore values are quantised to 1/STEPS so a row of tiles merges into few draw calls. */
@@ -68,6 +75,11 @@ export class TerrainRenderer {
   constructor(private readonly assets: WorldAssets, private readonly grid: TerrainGrid) {
     this.cols = Math.ceil(grid.cols / CHUNK_TILES);
     this.rows = Math.ceil(grid.rows / CHUNK_TILES);
+  }
+
+  /** Exposed for headless performance checks; cache lifetime is the current WorldEngine only. */
+  cacheStats() {
+    return { chunks: this.chunks.size, maxChunks: maxTerrainChunkCount(this.grid.cols, this.grid.rows), pixels: this.pixels.size };
   }
 
   dispose() {

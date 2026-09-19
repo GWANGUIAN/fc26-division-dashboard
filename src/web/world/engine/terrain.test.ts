@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BLEND_BAND, RESTORE_STEPS, blendSide, blendWeight, ditherThreshold, restoreStep } from "./terrain";
+import { BLEND_BAND, CHUNK_PX, RESTORE_STEPS, TERRAIN_CHUNK_BYTES, blendSide, blendWeight, ditherThreshold, maxTerrainChunkCount, restoreStep } from "./terrain";
 
 describe("blendWeight", () => {
   it("is half at the border, fades linearly and is zero outside the band", () => {
@@ -63,5 +63,15 @@ describe("restoreStep", () => {
     expect(restoreStep(2)).toBe(RESTORE_STEPS);
     expect(restoreStep(-1)).toBe(0);
     expect(restoreStep(0.5)).toBe(RESTORE_STEPS / 2);
+  });
+});
+
+describe("terrain cache budget", () => {
+  it("is bounded by map dimensions rather than camera time", () => {
+    // 80×60 world → 5×4 chunks, withered and lush variants: 40 maximum 512px canvases (~40 MiB).
+    expect(CHUNK_PX).toBe(512);
+    expect(maxTerrainChunkCount(80, 60)).toBe(40);
+    expect(maxTerrainChunkCount(80, 60) * TERRAIN_CHUNK_BYTES).toBe(40 * 1024 * 1024);
+    expect(maxTerrainChunkCount(20, 12)).toBe(4); // two horizontal chunks, each with two variants
   });
 });

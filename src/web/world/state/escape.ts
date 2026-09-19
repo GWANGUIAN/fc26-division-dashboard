@@ -6,7 +6,7 @@
 export type OverlayPhase = "boot" | "title" | "select" | "prologue" | "core" | "play";
 
 /** Which page of the pause menu is showing (closed = no menu). */
-export type PauseView = "closed" | "main" | "settings" | "confirm-new";
+export type PauseView = "closed" | "main" | "settings" | "credits" | "confirm-new";
 
 /** The ending cut (docs/world/02 §9): the golden grass blooms, the last words, the photo, the credits card. */
 export type EndingStage = "bloom" | "dialogue" | "photo" | "credits";
@@ -47,7 +47,7 @@ export function resolveEscape({ phase, dialogueOpen, coachActive, modalOpen = fa
     if (ending === "credits") return "skip-credits";
     if (ending === "bloom") return "ignore";
     if (modalOpen) return "close-modal";
-    if (pauseView === "settings" || pauseView === "confirm-new") return "pause-back";
+    if (pauseView === "settings" || pauseView === "credits" || pauseView === "confirm-new") return "pause-back";
     if (pauseView === "main") return "close-pause";
     if (logOpen) return "close-log";
     if (dialogueOpen) return "close-dialogue";

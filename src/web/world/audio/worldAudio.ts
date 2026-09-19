@@ -47,11 +47,13 @@ export type SfxId =
   | "stamp"
   | "ui-move" | "ui-select" | "ui-cancel" | "ui-open" | "ui-close" | "ui-error"
   | "dialog-tick" | "dialog-next" | "dialog-open"
-  | "step-grass" | "step-stone" | "step-wood" | "step-dirt" | "step-snow" | "step-metal" | "step-water"
-  | "door-open" | "door-close" | "interact-ping" | "examine"
+  | "step-grass" | "step-stone" | "step-wood" | "step-dirt" | "step-snow" | "step-metal" | "step-water" | "bump"
+  | "door-open" | "door-close" | "door-bell" | "interact-ping" | "examine"
   | "mission-accept" | "mission-ready" | "mission-complete" | "shard-get" | "shard-restore" | "badge-get"
   | "pickup" | "parcel-get" | "checkpoint" | "cone-hit" | "ball-kick" | "ball-net" | "ball-post"
-  | "count-tick" | "count-go" | "timeup" | "whistle-short" | "whistle-long" | "core-stop" | "grow" | "crowd-roar";
+  | "count-tick" | "count-go" | "timeup" | "whistle-short" | "whistle-long" | "core-stop" | "grow" | "crowd-roar"
+  | "cat-meow" | "dog-bark" | "mower-rev"
+  | "rush-jump" | "rush-slide" | "rush-hit" | "rush-collect" | "rush-boost" | "rush-gameover";
 
 export const SFX_FILES: Record<SfxId, string> = {
   stamp: "/sfxes/world-stamp.mp3",
@@ -70,8 +72,10 @@ export const SFX_FILES: Record<SfxId, string> = {
   "step-snow": "/sfxes/world-step-snow.mp3",
   "step-metal": "/sfxes/world-step-metal.mp3",
   "step-water": "/sfxes/world-step-water.mp3",
+  bump: "/sfxes/world-bump.mp3",
   "door-open": "/sfxes/world-door-open.mp3",
   "door-close": "/sfxes/world-door-close.mp3",
+  "door-bell": "/sfxes/world-door-bell.mp3",
   "interact-ping": "/sfxes/world-interact-ping.mp3",
   examine: "/sfxes/world-examine.mp3",
   "ui-error": "/sfxes/world-ui-error.mp3",
@@ -96,6 +100,15 @@ export const SFX_FILES: Record<SfxId, string> = {
   "core-stop": "/sfxes/world-core-stop.mp3",
   grow: "/sfxes/world-grow.mp3",
   "crowd-roar": "/sfxes/world-crowd-roar.mp3",
+  "cat-meow": "/sfxes/world-cat-meow.mp3",
+  "dog-bark": "/sfxes/world-dog-bark.mp3",
+  "mower-rev": "/sfxes/world-mower-rev.mp3",
+  "rush-jump": "/sfxes/world-rush-jump.mp3",
+  "rush-slide": "/sfxes/world-rush-slide.mp3",
+  "rush-hit": "/sfxes/world-rush-hit.mp3",
+  "rush-collect": "/sfxes/world-rush-collect.mp3",
+  "rush-boost": "/sfxes/world-rush-boost.mp3",
+  "rush-gameover": "/sfxes/world-rush-gameover.mp3",
 };
 
 /** What the engine and UI need from the audio system (lets tests and the title screen use a stand-in). */

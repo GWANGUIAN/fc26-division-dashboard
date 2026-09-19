@@ -236,8 +236,9 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
     setProgress(0);
     const keys = assetKeysForGroup("core", session.playerId, session.store.save.scene);
     audio.preloadSfx([
-      "ui-move", "ui-select", "dialog-tick", "dialog-next", "dialog-open", "door-open", "door-close", "step-grass", "step-stone", "step-wood", "examine", "interact-ping",
-      "mission-accept", "mission-ready", "mission-complete", "shard-get", "pickup", "parcel-get", "checkpoint", "ball-kick", "ball-net",
+      "ui-move", "ui-select", "dialog-tick", "dialog-next", "dialog-open", "door-open", "door-close", "door-bell", "step-grass", "step-stone", "step-wood", "bump", "examine", "interact-ping",
+      "mission-accept", "mission-ready", "mission-complete", "shard-get", "pickup", "parcel-get", "checkpoint", "ball-kick", "ball-net", "cat-meow", "dog-bark", "mower-rev",
+      "rush-jump", "rush-slide", "rush-hit", "rush-collect", "rush-gameover",
     ]);
     void assets.load(keys, (done, total) => setProgress(total === 0 ? 1 : done / total), controller.signal).then(async () => {
       const remaining = MIN_LOADING_MS - (performance.now() - startedAt);
@@ -850,6 +851,7 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
           onRoundEnd={handleRoundEnd}
           onCardView={handleCardView}
           onSelectCard={(streamerId) => openModal({ type: "cards", streamerId })}
+          audio={audio}
         />
       )}
       <button type="button" className="world-overlay__close" onClick={onClose} aria-label="월드 나가기">

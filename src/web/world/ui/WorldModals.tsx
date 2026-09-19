@@ -10,6 +10,7 @@ import { SoccerSum10Modal } from "../../minigame/soccer-sum10/SoccerSum10Modal";
 import { TotyCardPopup } from "../../toty-card/TotyCardPopup";
 import { getTotyCardAssets, type TotyCardVariant } from "../../toty-card/totyCardAssets";
 import type { MinigameRoundResult } from "../types";
+import type { WorldAudioLike } from "../audio/worldAudio";
 
 const FreekickModal = lazy(() => import("../../minigame/FreekickModal"));
 
@@ -44,6 +45,7 @@ interface WorldModalsProps {
   onCardView: (id: string, variant: TotyCardVariant) => void;
   /** The viewer picked another member inside the card popup. */
   onSelectCard: (streamerId: string) => void;
+  audio: WorldAudioLike;
 }
 
 /**
@@ -51,7 +53,7 @@ interface WorldModalsProps {
  * They keep their own fixed-position layers (z-index 20 / 90), which sit inside the overlay's stacking
  * context and therefore above the HUD; the overlay routes Esc, so their own Esc listeners never fire.
  */
-export function WorldModals({ modal, save, onClaimDaily, dashboard, onClose, onRoundEnd, onCardView, onSelectCard }: WorldModalsProps) {
+export function WorldModals({ modal, save, onClaimDaily, dashboard, onClose, onRoundEnd, onCardView, onSelectCard, audio }: WorldModalsProps) {
   if (!modal) return null;
   if (modal.type === "daily") return <DailyBoard save={save} onClaim={onClaimDaily} onClose={onClose} />;
   if (modal.type === "collection") return <CollectionBook save={save} hiddenUnlocked={dashboard.woowakgoodUnlocked} onClose={onClose} />;
@@ -82,7 +84,7 @@ export function WorldModals({ modal, save, onClaimDaily, dashboard, onClose, onR
   if (modal.type !== "minigame") return null;
   switch (modal.game) {
     case "rush":
-      return <GrassRushModal player={save.player ?? "janine95kim"} factory={modal.factory} best={save.bests.rush} onClose={onClose} onRoundEnd={onRoundEnd} />;
+      return <GrassRushModal player={save.player ?? "janine95kim"} factory={modal.factory} best={save.bests.rush} onClose={onClose} onRoundEnd={onRoundEnd} audio={audio} />;
     case "soccer-sum10":
       return <SoccerSum10Modal onClose={onClose} onRoundEnd={onRoundEnd} />;
     case "kickups":

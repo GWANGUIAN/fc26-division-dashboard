@@ -24,6 +24,16 @@ export type Announcement = {
 
 export const ANNOUNCEMENTS: Announcement[] = [
   {
+    id: "2026-09-jandi-world",
+    date: "2026.09.19",
+    body: (
+      <>
+        <strong>잔디동 월드</strong>가 열렸습니다. 화면 왼쪽 위의 <strong>잔디동 월드 구경하기</strong> 버튼에서
+        캐릭터를 골라 마을을 탐험하고, 미션·오락실·도감을 즐겨보세요.
+      </>
+    ),
+  },
+  {
     id: "2026-09-uniform-customizer",
     date: "2026.09.18",
     body: (
