@@ -1,12 +1,14 @@
-import { Shirt, Trophy } from "lucide-react";
+import { Castle, Shirt, Trophy } from "lucide-react";
 import { AnnouncementWidget } from "./AnnouncementModal";
 
 export function TopBar({
   onUniformOpen,
   onTrophyOpen,
+  onStadiumOpen,
 }: {
   onUniformOpen: () => void;
   onTrophyOpen: () => void;
+  onStadiumOpen: () => void;
 }) {
   return (
     <header className="topbar">
@@ -19,6 +21,14 @@ export function TopBar({
         <AnnouncementWidget />
       </div>
       <div className="topbar__actions">
+        <button
+          className="stadium-toggle"
+          type="button"
+          onClick={onStadiumOpen}
+          aria-label="3D 경기장 구경"
+        >
+          <Castle aria-hidden="true" />
+        </button>
         <button
           className="uniform-toggle"
           type="button"

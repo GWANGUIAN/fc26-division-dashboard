@@ -74,6 +74,7 @@ import { WorldToggle } from "./world/WorldToggle";
 // Pulls in the `three` dependency (~600KB+), so it's lazy-loaded and only reaches the browser
 // once a user actually opens this modal.
 const FreekickModal = lazy(() => import("./minigame/FreekickModal"));
+const StadiumShowcaseModal = lazy(() => import("./stadium-showcase/StadiumShowcaseModal"));
 
 // 잔디동 월드 (2D 도트 RPG). The overlay, engine and every world asset stay out of the main bundle;
 // only the floating button (WorldToggle) ships with it.
@@ -101,6 +102,7 @@ export function App() {
   const [growthGraphOpen, setGrowthGraphOpen] = useState(false);
   const [fortuneOpen, setFortuneOpen] = useState(false);
   const [worldOpen, setWorldOpen] = useState(false);
+  const [stadiumShowcaseOpen, setStadiumShowcaseOpen] = useState(false);
   const [totyCardStreamer, setTotyCardStreamer] =
     useState<Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision" | "sfx">>();
   // A single slot (rather than one boolean per minigame) makes it structurally impossible for two
@@ -206,6 +208,7 @@ export function App() {
       <TopBar
         onUniformOpen={() => setUniformCustomizerOpen(true)}
         onTrophyOpen={() => setTrophyOpen(true)}
+        onStadiumOpen={() => setStadiumShowcaseOpen(true)}
       />
       {woowakgoodUnlocked && (
         <WoowakgoodBonusButton onOpen={() => setTotyCardStreamer(WOOWAKGOOD_BONUS_STREAMER)} />
@@ -365,6 +368,11 @@ export function App() {
           sfxVolume={sfxVolume}
           onClose={() => setTrophyOpen(false)}
         />
+      )}
+      {stadiumShowcaseOpen && (
+        <Suspense fallback={null}>
+          <StadiumShowcaseModal onClose={() => setStadiumShowcaseOpen(false)} />
+        </Suspense>
       )}
       {growthGraphOpen && (
         <GrowthGraphModal
