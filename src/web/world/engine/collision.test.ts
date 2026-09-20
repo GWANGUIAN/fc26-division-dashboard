@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Rect } from "../types";
-import { SpatialHash, composeObstacles, footBox, moveAndSlide, rectsOverlap } from "./collision";
+import { SpatialHash, composeObstacles, crossesMidline, footBox, moveAndSlide, rectsOverlap } from "./collision";
 
 const box = (x: number, y: number, w = 20, h = 10): Rect => ({ x, y, w, h });
 
@@ -9,6 +9,30 @@ describe("rectsOverlap", () => {
     expect(rectsOverlap(box(0, 0), box(20, 0))).toBe(false);
     expect(rectsOverlap(box(0, 0), box(0, 10))).toBe(false);
     expect(rectsOverlap(box(0, 0), box(19, 9))).toBe(true);
+  });
+});
+
+describe("crossesMidline", () => {
+  // a one-tile gap: x 256–288, midline y = 1808
+  const gap = box(256, 1792, 32, 32);
+
+  it("counts a step through the gap in either direction", () => {
+    expect(crossesMidline({ x: 272, y: 1800 }, { x: 272, y: 1816 }, gap)).toBe(true);
+    expect(crossesMidline({ x: 272, y: 1816 }, { x: 272, y: 1800 }, gap)).toBe(true);
+    expect(crossesMidline({ x: 262, y: 1804 }, { x: 282, y: 1812 }, gap)).toBe(true);
+  });
+
+  it("does not count brushing into the gap without crossing the line", () => {
+    expect(crossesMidline({ x: 272, y: 1790 }, { x: 272, y: 1805 }, gap)).toBe(false);
+    expect(crossesMidline({ x: 272, y: 1830 }, { x: 272, y: 1811 }, gap)).toBe(false);
+    expect(crossesMidline({ x: 250, y: 1808 }, { x: 290, y: 1808 }, gap)).toBe(false);
+  });
+
+  it("does not count crossing the line beside the gap", () => {
+    expect(crossesMidline({ x: 240, y: 1800 }, { x: 240, y: 1816 }, gap)).toBe(false);
+    expect(crossesMidline({ x: 300, y: 1816 }, { x: 300, y: 1800 }, gap)).toBe(false);
+    // a diagonal step that starts in the gap's column but crosses the line outside of it
+    expect(crossesMidline({ x: 280, y: 1806 }, { x: 320, y: 1810 }, gap)).toBe(false);
   });
 });
 

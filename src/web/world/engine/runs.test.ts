@@ -65,7 +65,7 @@ describe("cone-course trial", () => {
     expect(runs.beginTrial(TRIAL)).toEqual([{ type: "trial-start", mission: TRIAL, seconds: 25 }]);
     expect(runs.nextGate()).toEqual({ mission: TRIAL, gate: "tt-1" });
     runs.update(20);
-    const events = cross(runs, 6);
+    const events = cross(runs, 5);
     expect(events.at(-1)).toEqual({ type: "trial-finished", mission: TRIAL, seconds: 20, passed: true });
     expect(runs.active).toBe(false);
   });
@@ -77,14 +77,14 @@ describe("cone-course trial", () => {
     runs.hitHazard();
     runs.hitHazard();
     expect(runs.hud()?.detail).toContain("콘 +2초");
-    const events = cross(runs, 6);
+    const events = cross(runs, 5);
     expect(events.at(-1)).toEqual({ type: "trial-finished", mission: TRIAL, seconds: 25.5, passed: false });
   });
 
   it("counts checkpoints as they are crossed", () => {
     const runs = new RunManager();
     runs.beginTrial(TRIAL);
-    expect(runs.passGate()).toEqual([{ type: "trial-gate", mission: TRIAL, passed: 1, total: 6 }]);
+    expect(runs.passGate()).toEqual([{ type: "trial-gate", mission: TRIAL, passed: 1, total: 5 }]);
     expect(runs.nextGate()?.gate).toBe("tt-2");
   });
 

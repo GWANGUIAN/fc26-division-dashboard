@@ -15,7 +15,7 @@ import { SILENT_AUDIO } from "../audio/worldAudio";
 import type { WorldAssets } from "../worldAssets";
 import { BALL_SIZE, ballBox, createBall, inGoal, kickBall, stepBall, type Ball } from "./ball";
 import { followCamera, interiorCamera, snapCamera, type Camera } from "./camera";
-import { composeObstacles, footBox, moveAndSlide, rectsOverlap } from "./collision";
+import { composeObstacles, crossesMidline, footBox, moveAndSlide, rectsOverlap } from "./collision";
 import { Ambience, BLOOM_SECONDS, ambienceIdFor, drawBloom } from "./ambience";
 import { findInteractTarget, type ExtraTarget, type InteractTarget } from "./interaction";
 import { createInput } from "./input";
@@ -221,12 +221,12 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
   let pickups: SceneObject[] = [];
   let restoreTarget: number[] = [];
   let restoreShown: number[] = [];
-  // kick ball, cone touches, start-gate arming
+  // kick ball, cone touches, where the feet were a frame ago (cone-course gates are crossed, not touched)
   let ball: Ball | null = null;
   let ballRespawn = 0;
   let ballSceneBounce = 0;
   const touchingHazards = new Set<string>();
-  let startGateArmed = true;
+  let courseFoot: { x: number; y: number } | null = null;
   /** The save changed while a conversation was open: the residents are re-checked once it ends. */
   let npcsStale = false;
   // story-dependent parts of the scene (barriers, decor, examine points, spectators), rebuilt with the save
@@ -317,7 +317,7 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
     npcs = npcsFor(next);
     runs.cancelFieldRuns();
     touchingHazards.clear();
-    startGateArmed = true;
+    courseFoot = null;
     const ballSpot = next.objects.find((object) => object.type === "ball");
     if (ballSpot && !ball) ball = createBall(ballSpot.x, ballSpot.y);
     if (!staticOrders.has(id)) staticOrders.set(id, buildStaticOrder(next));
@@ -585,31 +585,33 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
     input.setEnabled(enabled);
   }
 
-  /** Cone course (docs/world/03 §7): the start gate starts the clock, the checkpoints must be crossed in order, cones cost time. */
+  /**
+   * Cone course (docs/world/03 §7): the gates are the gaps in the row of flags and cones. Walking through a gap (either way)
+   * counts: the first one starts the clock, the rest must be crossed in order, cones cost time.
+   */
   function checkCourse() {
-    if (scene.kind !== "overworld" || activeTrials.length === 0) return;
-    const box = footBox(player.x, player.y);
-    const starts = activeTrials.map((def) => objectById(def.gates[0])?.rect).filter((rect): rect is Rect => rect !== undefined);
-    const inStart = starts.some((rect) => rectsOverlap(box, rect));
-    if (!runs.trial) {
-      if (inStart && startGateArmed) {
-        const def = activeTrials.find((entry) => {
-          const rect = objectById(entry.gates[0])?.rect;
-          return rect !== undefined && rectsOverlap(box, rect);
-        });
-        if (def) {
-          startGateArmed = false;
-          touchingHazards.clear();
-          audio.playSfx("count-go");
-          emitRuns(runs.beginTrial(def.id));
-        }
-      }
-      if (!inStart) startGateArmed = true;
+    if (scene.kind !== "overworld" || activeTrials.length === 0) {
+      courseFoot = null;
       return;
     }
+    const from = courseFoot;
+    courseFoot = { x: player.x, y: player.y };
+    const crossed = (gate: string) => {
+      const rect = objectById(gate)?.rect;
+      return from !== null && rect !== undefined && crossesMidline(from, courseFoot!, rect);
+    };
+    if (!runs.trial) {
+      const def = activeTrials.find((entry) => crossed(entry.gates[0]));
+      if (def) {
+        touchingHazards.clear();
+        audio.playSfx("count-go");
+        emitRuns(runs.beginTrial(def.id));
+      }
+      return;
+    }
+    const box = footBox(player.x, player.y);
     const next = runs.nextGate();
-    const rect = next ? objectById(next.gate)?.rect : undefined;
-    if (rect && rectsOverlap(box, rect)) {
+    if (next && crossed(next.gate)) {
       audio.playSfx("checkpoint");
       emitRuns(runs.passGate());
     }

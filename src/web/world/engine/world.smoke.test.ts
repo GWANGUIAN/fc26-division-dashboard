@@ -363,34 +363,50 @@ describe("world engine (headless smoke run)", () => {
     expect(runEvents).toEqual([]);
   });
 
-  it("runs the cone course: the start gate starts the clock, a lane change between cones passes every checkpoint", async () => {
+  // The cone row is y = 56 (foot y 1808): flag, five cones, flag at x 5, 7 … 17 (tile centres); the gaps between them are the gates.
+  const coneLine = 56 * 32 + 16;
+  const above = coneLine - 32;
+  const below = coneLine + 22;
+  const gapX = (tx: number) => tx * 32 + 16;
+
+  it("runs the cone course: crossing the gap beside the first flag starts the clock, weaving through every gap finishes", async () => {
     playing("m-tdnlamuron-conerun");
     await stand([4, 55]);
-    const at = (tx: number) => tx * 32 + 16;
-    const lowerLane = 57 * 32 + 12;
-    const upperLane = 55 * 32 + 16;
-    await hold("ArrowRight", (s) => s.x >= at(8)); // start gate, checkpoint 1 in the upper lane
-    for (const [column, lane] of [[10, lowerLane], [12, upperLane], [14, lowerLane], [16, upperLane]] as const) {
-      // Between two cones (their columns are odd) the runner changes lane, then carries on to the next cone column.
-      await hold(lane > engine.getState().y ? "ArrowDown" : "ArrowUp", (s) => (lane > s.y ? s.y >= lane : s.y <= lane));
-      await hold("ArrowRight", (s) => s.x >= at(column));
+    await hold("ArrowRight", (s) => s.x >= gapX(6));
+    await hold("ArrowDown", (s) => s.y >= below); // through the gap between the flag and the first cone: the clock starts
+    // Then through each gap between two cones, one way and back the other: up, down, up, down, up.
+    for (const [gap, up] of [[8, true], [10, false], [12, true], [14, false], [16, true]] as const) {
+      await hold("ArrowRight", (s) => s.x >= gapX(gap));
+      await hold(up ? "ArrowUp" : "ArrowDown", (s) => (up ? s.y <= above : s.y >= below));
     }
-    await hold("ArrowRight", (s) => s.x >= at(18));
     const kinds = runEvents.map((event) => event.type);
     expect(kinds[0]).toBe("trial-start");
-    expect(kinds.filter((kind) => kind === "trial-gate")).toHaveLength(5);
+    expect(kinds.filter((kind) => kind === "trial-gate")).toHaveLength(4);
     expect(kinds).not.toContain("trial-cone");
     const finished = runEvents.find((event) => event.type === "trial-finished");
     expect(finished).toMatchObject({ type: "trial-finished", mission: "m-tdnlamuron-conerun", passed: true });
   });
 
-  it("fails to pass a checkpoint by running straight through the cones (they cost time and the gates stay shut)", async () => {
+  it("does not start the clock by stepping into the first gap without crossing the cone line", async () => {
     playing("m-tdnlamuron-conerun");
-    await stand([4, 56]);
+    await stand([4, 55]);
+    await hold("ArrowRight", (s) => s.x >= gapX(6));
+    await hold("ArrowDown", (s) => s.y >= coneLine - 4); // inside the gap, still above the line
+    await hold("ArrowUp", (s) => s.y <= above);
+    expect(runEvents.map((event) => event.type)).not.toContain("trial-start");
+  });
+
+  it("fails to pass a checkpoint by running straight along the cone line (the cones cost time and no gap is crossed)", async () => {
+    playing("m-tdnlamuron-conerun");
+    await stand([4, 55]);
+    await hold("ArrowRight", (s) => s.x >= gapX(6));
+    await hold("ArrowDown", (s) => s.y >= below); // start the clock ...
+    await hold("ArrowUp", (s) => s.y <= coneLine - 4); // ... and come back up next to the line, on the cones' side
     await hold("ArrowRight", (s) => s.x >= 18 * 32);
     const kinds = runEvents.map((event) => event.type);
     expect(kinds).toContain("trial-start");
     expect(kinds).toContain("trial-cone");
+    expect(kinds).not.toContain("trial-gate");
     expect(kinds).not.toContain("trial-finished");
   });
 

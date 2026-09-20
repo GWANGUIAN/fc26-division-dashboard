@@ -185,7 +185,7 @@ export const MISSION_DEFS: readonly MissionDef[] = [
   },
   {
     id: "m-tdnlamuron-conerun", giver: "tdnlamuron", title: "돌격병 콘 드리블", kind: "time_trial", seconds: 25, penalty: 1, main: true,
-    gates: ["tt-start", "tt-1", "tt-2", "tt-3", "tt-4", "tt-5", "tt-goal"], hazards: ["cone-1", "cone-2", "cone-3", "cone-4", "cone-5"],
+    gates: ["tt-start", "tt-1", "tt-2", "tt-3", "tt-4", "tt-goal"], hazards: ["cone-1", "cone-2", "cone-3", "cone-4", "cone-5"],
     objective: "콘 코스를 25초 안에 통과 (콘 접촉 +1초)", hint: "남서 용암 훈련장 · 콘 코스",
     requiresFlags: ["main-open"], reward: MAIN_REWARD,
   },

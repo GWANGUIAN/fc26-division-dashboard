@@ -178,14 +178,14 @@ const OBJECTS = [
   // 쥬멩이 킥: 훈련장의 공과 서쪽 골대
   { id: "ball-kick", type: "ball", tile: [27, 11.375], bounds: [20, 6, 12, 10] },
   { id: "goal-west", type: "goal", rect: [20, 10.78125, 2, 2.21875] },
-  // 다시바 콘 코스: 시작/도착 게이트 사이를 콘 사이로 번갈아 위·아래로 지난다 (콘은 가운데 줄 y=56)
-  { id: "tt-start", type: "gate", rect: [5, 54, 1, 5] },
-  { id: "tt-1", type: "gate", rect: [7, 54, 1, 2] },
-  { id: "tt-2", type: "gate", rect: [9, 57, 1, 2] },
-  { id: "tt-3", type: "gate", rect: [11, 54, 1, 2] },
-  { id: "tt-4", type: "gate", rect: [13, 57, 1, 2] },
-  { id: "tt-5", type: "gate", rect: [15, 54, 1, 2] },
-  { id: "tt-goal", type: "gate", rect: [17, 54, 1, 5] },
+  // 다시바 콘 코스: 깃발(5·17)과 콘(7·9·11·13·15)이 모두 y=56 한 줄에 서고, 게이트는 그 사이 틈(6·8·10·12·14·16)이다.
+  // 틈을 위→아래든 아래→위든 가로질러 지나야 인정된다(engine/collision.ts crossesMidline; 게이트 사각형의 가운데 선이 콘 줄).
+  { id: "tt-start", type: "gate", rect: [6, 56, 1, 1] },
+  { id: "tt-1", type: "gate", rect: [8, 56, 1, 1] },
+  { id: "tt-2", type: "gate", rect: [10, 56, 1, 1] },
+  { id: "tt-3", type: "gate", rect: [12, 56, 1, 1] },
+  { id: "tt-4", type: "gate", rect: [14, 56, 1, 1] },
+  { id: "tt-goal", type: "gate", rect: [16, 56, 1, 1] },
   ...[7, 9, 11, 13, 15].map((x, i) => ({ id: `cone-${i + 1}`, type: "hazard", tile: [x, 56], prop: "cone-orange" })),
 ];
 
@@ -510,7 +510,7 @@ export function buildOverworldMap() {
     ["mailbox", ...at(14, 38)], ["mailbox", ...at(69, 27, 14)], ["mailbox", at(68, 13)[0] + 21, at(68, 13)[1]],
     ["goal-west", 21 * TILE, 13 * TILE],
     // start and finish flags of the cone course
-    ["corner-flag", ...at(5, 54)], ["corner-flag", ...at(5, 58)], ["corner-flag", ...at(17, 54)], ["corner-flag", ...at(17, 58)],
+    ["corner-flag", ...at(5, 56, 16)], ["corner-flag", ...at(17, 56, 16)], // on the cone row (y=56), like the cones
   ];
   for (const [id, x, y] of forced) place(id, x, y, true);
   // barbed fences along the weed zone's west and north edge (the barricade in the gate is a conditional `decor` object)

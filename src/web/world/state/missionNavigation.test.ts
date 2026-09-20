@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getMissionDef, totalShardsFor } from "../data/missionDefs";
+import { getScene } from "../engine/mapScene";
 import { createNewGameSave } from "../storage";
 import type { CastId, SceneId, WorldSave } from "../types";
 import { missionObjectiveTarget, navigationNpcTarget, routeMissionTarget } from "./missionNavigation";
@@ -47,6 +48,29 @@ describe("mission objective targets", () => {
     save = applyMissionEvent(save, { type: "pickup", id: "water-1" }).save;
     const second = missionObjectiveTarget(view(save, "s-elder-water"), save, HERE);
     expect(second).not.toEqual(first);
+  });
+
+  it("guides the cone course through the gaps of the cone row, one after another", () => {
+    const save = acceptMission(withMainOpen(), "m-tdnlamuron-conerun");
+    const def = getMissionDef("m-tdnlamuron-conerun");
+    if (def?.kind !== "time_trial") throw new Error("m-tdnlamuron-conerun is not a time trial");
+    const scene = getScene("overworld")!;
+    const cones = def.hazards.map((id) => scene.objects.find((object) => object.id === id)!);
+    const gateTarget = (gate: string) => missionObjectiveTarget(view(save, "m-tdnlamuron-conerun"), save, HERE, { trial: { mission: def.id, nextGate: gate } })!;
+
+    for (const id of def.gates) {
+      const rect = scene.objects.find((object) => object.id === id)!.rect!;
+      expect(gateTarget(id)).toMatchObject({ scene: "overworld", x: rect.x + rect.w / 2, y: rect.y + rect.h / 2 });
+    }
+    // every step points at the cone line itself, between two neighbours: start gap, four cone gaps, finish gap
+    for (const id of def.gates) expect(gateTarget(id).y).toBe(cones[0].y);
+    expect(gateTarget(def.gates[0]).x).toBeLessThan(cones[0].x);
+    for (let i = 0; i < cones.length - 1; i++) {
+      const at = gateTarget(def.gates[i + 1]).x;
+      expect(at).toBeGreaterThan(cones[i].x);
+      expect(at).toBeLessThan(cones[i + 1].x);
+    }
+    expect(gateTarget(def.gates.at(-1)!).x).toBeGreaterThan(cones.at(-1)!.x);
   });
 });
 

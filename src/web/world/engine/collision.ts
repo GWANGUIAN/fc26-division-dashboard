@@ -7,6 +7,19 @@ export function rectsOverlap(a: Rect, b: Rect): boolean {
   return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 }
 
+/**
+ * True when the step `prev` → `cur` crosses the horizontal midline of `rect`, in either direction, within the rect's width:
+ * walking *through* a gap in a row of cones, not just poking a foot into it.
+ */
+export function crossesMidline(prev: { x: number; y: number }, cur: { x: number; y: number }, rect: Rect): boolean {
+  const line = rect.y + rect.h / 2;
+  const before = prev.y - line;
+  const after = cur.y - line;
+  if (!((before < 0 && after >= 0) || (before > 0 && after <= 0))) return false;
+  const x = prev.x + ((cur.x - prev.x) * before) / (before - after);
+  return x >= rect.x && x <= rect.x + rect.w;
+}
+
 /** The character's collision box: `w`×`h` centred on the feet position, ending at the feet. */
 export function footBox(x: number, y: number, w = 20, h = 10): Rect {
   return { x: x - w / 2, y: y - h, w, h };

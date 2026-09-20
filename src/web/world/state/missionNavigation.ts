@@ -63,6 +63,9 @@ function examineTarget(save: WorldSave, id: string): NavigationTarget | null {
 function objectTarget(save: WorldSave, id: string): NavigationTarget | null {
   for (const scene of activeScenes(save)) {
     const object = scene.objects.find((entry) => entry.id === id && evalCondition(entry.when, save));
+    // A gate is an area, not a spot on the ground: its x/y is the bottom edge, which for the tall cone-course gates lands
+    // on a cone or under the trees, so the guide points at the middle of the area instead.
+    if (object?.type === "gate" && object.rect) return pointFor(scene, object.rect.x + object.rect.w / 2, object.rect.y + object.rect.h / 2);
     if (object) return pointFor(scene, object.x, object.y);
   }
   return null;

@@ -342,22 +342,24 @@ describe("mission objects (S3)", () => {
     expect(solid.length).toBeGreaterThan(0);
   });
 
-  it("makes the cone course a real slalom: no single lane satisfies every checkpoint", () => {
+  it("lays the cone course out as one row: flag, cones and flag, with a gate in every gap", () => {
     const def = getMissionDef("m-tdnlamuron-conerun");
     if (def?.kind !== "time_trial") throw new Error("mission");
-    const lanes = def.gates.slice(1, -1).map((id) => byId.get(id)!.rect!);
-    const upper = lanes.filter((_, i) => i % 2 === 0);
-    const lower = lanes.filter((_, i) => i % 2 === 1);
-    const upperBottom = Math.max(...upper.map((rect) => rect.y + rect.h));
-    const lowerTop = Math.min(...lower.map((rect) => rect.y));
-    // A foot box is 10px tall: it can touch both a lane above and a lane below only if they are closer than that.
-    expect(lowerTop - upperBottom).toBeGreaterThan(10);
-    // Each cone sits between the two lanes of its column, so a runner keeping to one lane never touches it.
-    for (const id of def.hazards) {
-      const cone = byId.get(id)!;
-      expect(cone.y - 10).toBeGreaterThanOrEqual(upperBottom);
-      expect(cone.y).toBeLessThanOrEqual(lowerTop);
-    }
+    const cones = def.hazards.map((id) => byId.get(id)!);
+    const flags = OVERWORLD_MAP.props.filter((prop) => prop.prop === "corner-flag");
+    expect(flags).toHaveLength(2);
+    const row = [flags[0], ...cones, flags[1]].map((item) => ({ x: item.x, y: item.y }));
+    // flags and cones stand on the same line (their feet), left to right
+    for (const item of row) expect(item.y).toBe(cones[0].y);
+    for (let i = 1; i < row.length; i++) expect(row[i].x).toBeGreaterThan(row[i - 1].x);
+    // one gate per gap, in order; the gate's midline is that line and it sits between the two neighbours
+    expect(def.gates).toHaveLength(row.length - 1);
+    def.gates.forEach((id, i) => {
+      const rect = byId.get(id)!.rect!;
+      expect(rect.y + rect.h / 2, id).toBe(cones[0].y);
+      expect(rect.x, id).toBeGreaterThanOrEqual(row[i].x);
+      expect(rect.x + rect.w, id).toBeLessThanOrEqual(row[i + 1].x);
+    });
   });
 
   it("has every world object a mission names, with the right kind", () => {
