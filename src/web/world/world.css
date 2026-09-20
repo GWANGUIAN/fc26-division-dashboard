@@ -141,49 +141,284 @@
 .world-loading__tip { min-height: 14px; color: #ffe9b0; font-size: 11px; text-align: center; }
 
 /* ── Title ─────────────────────────────────────────────── */
-.world-title { place-items: center; }
-.world-title__panel {
+/* Emblem + logo float over the key art; only the menu rows sit in a small window (docs/world/16-title-menu-redesign.md). */
+.world-title { place-items: center; overflow: hidden; }
+/* Vignette: darkens the edges and the bottom so the logo and window read on the brighter ending-day art too. */
+.world-title::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, rgba(2, 10, 7, 0.5), rgba(2, 10, 7, 0) 38%),
+    radial-gradient(ellipse at 50% 45%, rgba(2, 10, 7, 0) 42%, rgba(2, 10, 7, 0.6) 100%);
+  pointer-events: none;
+}
+.world-title__fx { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.world-title__fx i {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: #d6ff6a;
+  box-shadow: 0 0 4px 1px rgba(214, 255, 106, 0.6);
+  animation:
+    world-title-drift var(--dur) ease-in-out var(--delay) infinite alternate,
+    world-title-blink calc(var(--dur) / 2) steps(2) var(--delay) infinite;
+}
+.world-title__stack {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  padding: 14px 30px 12px;
-  border-radius: 6px;
-  background: rgba(2, 10, 7, 0.55);
-  backdrop-filter: blur(2px);
 }
-/* The 24px 9-slice frame (ui/title-frame) replaces the translucent box; its border band doubles as the padding. */
-.world-title__panel--art {
+
+/* Crest: the emblem bobs over a slowly turning sunburst and a mint halo, with three twinkling sparks. */
+.world-title__crest {
+  position: relative;
+  display: grid;
+  width: 72px;
+  height: 72px;
+  place-items: center;
+}
+.world-title__crest::before {
+  content: "";
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle, rgba(0, 233, 174, 0.34) 0, rgba(0, 233, 174, 0) 68%);
+}
+.world-title__rays {
+  position: absolute;
+  width: 190px;
+  height: 190px;
+  background: repeating-conic-gradient(rgba(255, 231, 140, 0.2) 0 6deg, rgba(255, 231, 140, 0) 6deg 24deg);
+  -webkit-mask-image: radial-gradient(circle, #000 0, rgba(0, 0, 0, 0) 68%);
+  mask-image: radial-gradient(circle, #000 0, rgba(0, 0, 0, 0) 68%);
+  animation: world-title-spin 48s linear infinite;
+}
+.world-title__emblem {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  animation: world-bob 2.4s ease-in-out infinite alternate;
+}
+.world-title__emblem--fallback { display: grid; place-items: center; font-size: 48px; }
+.world-title__spark {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  background: #fffbe0;
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  animation: world-title-twinkle 1.6s steps(2) infinite;
+}
+.world-title__spark--a { left: -6px; top: 14px; }
+.world-title__spark--b { right: -8px; top: 30px; animation-delay: 0.5s; }
+.world-title__spark--c { right: 8px; top: -4px; animation-delay: 1s; }
+
+/* Logo: gold letters (light top, gold middle, amber bottom) with a cream then a dark-teal outline, drawn as two stroked copies
+   behind the text (a text-shadow would paint over the clipped gold). ui/title-logo replaces all of it when the image exists. */
+.world-title__logo {
+  position: relative;
+  isolation: isolate;
+  margin: 0;
+  font-family: "Cafe24ProUp", "Galmuri11", "Galmuri 11", monospace;
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 40px;
+  letter-spacing: 2px;
+  white-space: nowrap;
+  color: transparent;
+  background:
+    linear-gradient(105deg, rgba(255, 255, 255, 0) 38%, rgba(255, 255, 255, 0.9) 50%, rgba(255, 255, 255, 0) 62%) -150% 0 / 60% 100% no-repeat,
+    linear-gradient(#fff6c8 0 40%, #ffd54a 40% 66%, #e0a21a 66%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 3px 0 #06231a);
+}
+.world-title__logo::before,
+.world-title__logo::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  color: transparent;
+  letter-spacing: inherit;
+  white-space: inherit;
+}
+.world-title__logo::before { -webkit-text-stroke: 9px #0b3a2a; }
+.world-title__logo::after { -webkit-text-stroke: 4px #fffbe6; }
+.world-title__logo--art {
+  display: block;
+  line-height: 0;
+  background: none;
+  filter: none;
+}
+.world-title__logo--art::before,
+.world-title__logo--art::after { content: none; }
+.world-title__logo--art { margin-top: -4px; }
+.world-title__logo--art img { display: block; width: 240px; height: auto; image-rendering: pixelated; }
+.world-title__divider { display: block; width: 160px; height: 24px; margin: -8px 0; image-rendering: pixelated; }
+
+/* Menu window: the 24px 9-slice frame (ui/title-frame) around the rows only; its border band doubles as the padding. */
+.world-title__window {
+  padding: 8px 6px;
+  border-radius: 6px;
+  background: rgba(2, 10, 7, 0.78);
+}
+.world-title__window--art {
   padding: 0 6px;
   border: 24px solid transparent;
   border-image: var(--frame-title) 24 fill / 24px stretch;
   border-radius: 0;
   background: none;
-  backdrop-filter: none;
   image-rendering: pixelated;
 }
-.world-title__emblem {
-  width: 96px;
-  height: 96px;
+/* ui/title-window: slim gem-cornered frame, 15px corners drawn 1:1. */
+.world-title__window--kit {
+  padding: 4px 6px;
+  border-width: 15px;
+  border-image: var(--frame-title) 15 fill / 15px stretch;
+}
+.world-title__menu { display: flex; flex-direction: column; gap: 2px; }
+
+/* Rows: the selected row (:focus) is the only bright one. Keyboard arrows and mouse hover both move the focus. */
+.world-title__row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 184px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #cfeee2;
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: 2px;
+  white-space: nowrap;
+  cursor: pointer;
+  image-rendering: pixelated;
+}
+/* Plate: the dialogue choice frames when they exist, otherwise a plain box. */
+.world-title__row::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  border: 1px solid rgba(0, 233, 174, 0.4);
+  background: rgba(6, 18, 15, 0.94);
+}
+.world-title__menu--art .world-title__row::before {
+  border: 0 solid transparent;
+  border-width: 10px 19px;
+  border-image: var(--row) 9 17 fill / 10px 19px stretch;
+  background: none;
+}
+.world-title__row:focus { outline: 0; color: #fff1b5; text-shadow: 0 1px 0 #0b1614, 0 0 6px rgba(255, 213, 74, 0.55); }
+/* The selected plate is 10px wider than the others (5px each side, inside the window's 6px side padding). */
+.world-title__row:focus::before { inset: 0 -5px; border-color: #ffd54a; }
+.world-title__menu--art .world-title__row:focus::before { border-image: var(--row-on) 10 19 fill / 10px 19px stretch; }
+.world-title__row:active::before { transform: translateY(1px); }
+.world-title__menu--art .world-title__row:active::before { border-image-source: var(--row-down); }
+/* ui/title-row-*: 28px plates, the gold end diamonds live in the 16px side slices. */
+.world-title__menu--kit .world-title__row { height: 28px; }
+.world-title__menu--kit .world-title__row::before,
+.world-title__menu--kit .world-title__row:focus::before {
+  border-width: 10px 16px;
+  border-image-slice: 10 16 fill;
+  border-image-width: 10px 16px;
+}
+.world-title__row-label { position: relative; }
+/* Ball cursor: only on the selected row, nudging toward the label. */
+.world-title__cursor {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  display: none;
+  width: 24px;
+  height: 24px;
+  /* ui/cursor.webp draws the ball (rows 9-23 of 24) below the middle of its box, so the box sits 4px above the row's centre line. */
+  margin-top: -16px;
   object-fit: contain;
   image-rendering: pixelated;
+  animation: world-title-nudge 0.8s steps(2) infinite;
 }
-.world-title__emblem--fallback { display: grid; place-items: center; font-size: 56px; }
-.world-title__logo {
-  margin: 0;
-  font-family: "Cafe24ProUp", "Galmuri11", "Galmuri 11", monospace;
-  font-size: 28px;
-  font-weight: 400;
-  letter-spacing: 2px;
-  color: #0e5a34;
-  /* Hard 2px white outline (eight directions, so it also holds without `paint-order` support), no blur or drop shadow. */
-  text-shadow:
-    -2px 0 #fff, 2px 0 #fff, 0 -2px #fff, 0 2px #fff,
-    -2px -2px #fff, 2px -2px #fff, -2px 2px #fff, 2px 2px #fff;
-}
-.world-title__menu { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
-.world-title__hint { margin: 0; color: #b8ffe8; font-size: 10px; }
+.world-title__cursor--glyph { display: none; margin-top: -12px; color: #ffd54a; font-size: 11px; line-height: 24px; text-align: center; }
+.world-title__row:focus .world-title__cursor { display: block; }
+/* Asking twice before wiping the save: coral plate and label, one short shake. */
+.world-title__row.is-danger { color: #ffb3a8; font-size: 11px; letter-spacing: 0; filter: drop-shadow(0 0 3px #ff7a6b); }
+.world-title__row.is-danger:focus { color: #ffd0c8; text-shadow: 0 1px 0 #0b1614; }
+.world-title__row.is-danger::before { border-color: #ff7a6b; filter: hue-rotate(-150deg) saturate(1.2); }
+.world-title__row.is-danger .world-title__cursor { display: none; }
+
+.world-title__hint { margin: 2px 0 0; color: #b8ffe8; font-size: 10px; text-shadow: 0 1px 0 #0b1614; }
+.world-title__hint .world-key { margin: 0 1px; }
 .world-title__debug { margin: 0; color: #ffd54a; font-size: 10px; }
+
+/* Entrance: crest, logo, window and hint rise in one after the other, then the menu rows. */
+.world-title__crest { animation: world-title-in 0.5s ease-out both; }
+.world-title__logo { animation: world-title-pop 0.4s ease-out 0.15s both, world-title-shine 5s linear 1.2s infinite; }
+.world-title__logo--art { animation: world-title-pop 0.4s ease-out 0.15s both; }
+.world-title__window { animation: world-title-in 0.45s ease-out 0.3s both; }
+.world-title__row { animation: world-title-in 0.35s ease-out calc(0.45s + var(--i, 0) * 0.06s) both; }
+.world-title__row.is-danger { animation: world-title-in 0.35s ease-out calc(0.45s + var(--i, 0) * 0.06s) both, world-title-shake 0.24s steps(3) 1; }
+.world-title__hint { animation: world-title-in 0.4s ease-out 0.7s both; }
+
+/* Sprite versions of the sparks, fireflies and leaves (ui/title-sparkle, -firefly, -leaf); without them the CSS shapes above stay. */
+.world-title--spark-art .world-title__spark { width: 24px; height: 24px; background: var(--fx-spark) center / contain no-repeat; clip-path: none; }
+.world-title--spark-art .world-title__spark--a { left: -12px; top: 6px; }
+.world-title--spark-art .world-title__spark--b { right: -6px; top: 30px; width: 12px; height: 12px; }
+.world-title--spark-art .world-title__spark--c { right: 0; top: -12px; }
+.world-title--firefly-art .world-title__fx i { width: 12px; height: 12px; margin: -6px 0 0 -6px; background: var(--fx-firefly) center / contain no-repeat; box-shadow: none; }
+.world-title__leaf {
+  position: absolute;
+  top: -30px;
+  width: var(--size);
+  height: var(--size);
+  background: var(--fx-leaf) center / contain no-repeat;
+  animation: world-title-fall var(--dur) linear calc(var(--delay) * -1) infinite;
+}
+
+@keyframes world-title-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes world-title-pop { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+@keyframes world-title-shine { 0% { background-position: -150% 0, 0 0; } 35%, 100% { background-position: 250% 0, 0 0; } }
+@keyframes world-title-spin { to { transform: rotate(360deg); } }
+@keyframes world-title-twinkle { 0%, 49.9% { opacity: 1; transform: scale(1); } 50%, 100% { opacity: 0.15; transform: scale(0.6); } }
+@keyframes world-title-nudge { from { transform: translateX(0); } to { transform: translateX(3px); } }
+@keyframes world-title-shake { 0% { transform: translateX(0); } 33% { transform: translateX(-2px); } 66% { transform: translateX(2px); } 100% { transform: translateX(0); } }
+@keyframes world-title-fall {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  8% { opacity: 1; }
+  25% { transform: translate(var(--sway), 100px) rotate(70deg); }
+  50% { transform: translate(calc(var(--sway) * -1), 210px) rotate(160deg); }
+  75% { transform: translate(var(--sway), 320px) rotate(250deg); }
+  92% { opacity: 1; }
+  100% { transform: translate(0, 420px) rotate(340deg); opacity: 0; }
+}
+@keyframes world-title-drift { from { transform: translate(0, 0); } to { transform: translate(var(--dx), var(--dy)); } }
+@keyframes world-title-blink { 0%, 49.9% { opacity: 1; } 50%, 100% { opacity: 0.35; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .world-title__fx i,
+  .world-title__rays,
+  .world-title__emblem,
+  .world-title__spark,
+  .world-title__cursor,
+  .world-title__crest,
+  .world-title__logo,
+  .world-title__window,
+  .world-title__row,
+  .world-title__row.is-danger,
+  .world-title__hint { animation: none; }
+  .world-title__fx i { opacity: 0.7; }
+  .world-title__leaf { display: none; }
+}
 
 .world-btn {
   box-sizing: border-box;

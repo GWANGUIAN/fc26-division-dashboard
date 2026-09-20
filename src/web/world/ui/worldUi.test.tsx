@@ -13,6 +13,7 @@ import { Hud } from "./Hud";
 import { MissionLog } from "./MissionLog";
 import { PauseMenu } from "./PauseMenu";
 import { StingerOverlay } from "./StingerOverlay";
+import { TitleScreen } from "./TitleScreen";
 import { nextToasts } from "./Toast";
 import { WorldCredits } from "./WorldCredits";
 import { STATUS_LABEL, missionIconKey, rewardText } from "./missionIcons";
@@ -28,6 +29,24 @@ function midGame() {
   save = applyMissionEvent(save, { type: "pickup", id: "jelly-lantern-a" }).save;
   return { ...save, shards: 3 };
 }
+
+describe("TitleScreen", () => {
+  const title = (hasSave: boolean) => renderToString(<TitleScreen hasSave={hasSave} audio={SILENT_AUDIO} onContinue={noop} onNew={noop} onExit={noop} debug={false} />);
+
+  it("offers continue, new game and exit when there is a save", () => {
+    const html = title(true);
+    for (const label of ["이어하기", "새로 시작", "나가기"]) expect(html).toContain(label);
+    expect(html).toContain("world-title__row");
+  });
+
+  it("leaves out continue without a save and shows the key hints", () => {
+    const html = title(false);
+    expect(html).not.toContain("이어하기");
+    expect(html).toContain("새로 시작");
+    expect(html).toContain("world-key");
+    expect(html).toContain("잔디동 월드");
+  });
+});
 
 describe("Hud", () => {
   it("shows the shard count and the tracked mission with its progress", () => {

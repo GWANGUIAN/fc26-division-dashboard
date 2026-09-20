@@ -845,7 +845,7 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
       >
         {(phase === "boot" || phase === "core") && <LoadingScreen progress={progress} />}
         {phase === "title" && (
-          <TitleScreen ended={Boolean(savedGame?.flags["ending-seen"])} hasSave={savedGame !== null} onContinue={startContinue} onNew={startNew} onExit={onClose} debug={debug} />
+          <TitleScreen ended={Boolean(savedGame?.flags["ending-seen"])} hasSave={savedGame !== null} audio={audio} onContinue={startContinue} onNew={startNew} onExit={onClose} debug={debug} />
         )}
         {phase === "select" && <CharacterSelect audio={audio} onConfirm={confirmCharacter} onBack={() => setPhase("title")} />}
         {phase === "prologue" && pendingPlayer && (

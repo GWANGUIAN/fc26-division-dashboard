@@ -103,7 +103,8 @@
       "title-bg": { "src": "ui-title-bg", "w": 1672, "h": 940, "mode": "cover", "lossless": true },
       "select-bg": { "src": "ui-select-bg", "w": 1672, "h": 940, "mode": "cover", "lossless": true },
       "logo-emblem": { "src": "ui-logo-emblem", "w": 192, "h": 192, "mode": "trim" },
-      "shard-gauge": { "src": "ui-shard-gauge", "w": 120, "h": 28, "mode": "trim" }
+      "shard-gauge": { "src": "ui-shard-gauge", "w": 120, "h": 28, "mode": "trim" },
+      "title-logo": { "src": "ui-title-logo", "w": 480, "h": 123, "mode": "trim" }
     },
     "sheets": {
       "frames-dialog": {
@@ -127,6 +128,13 @@
         "slots": [
           ["btn-primary-normal", 96, 28, { "slice": 8 }], ["btn-primary-hover", 96, 28, { "slice": 8 }], ["btn-primary-pressed", 96, 28, { "slice": 8 }], ["btn-primary-disabled", 96, 28, { "slice": 8 }],
           ["btn-secondary-normal", 96, 28, { "slice": 8 }], ["btn-secondary-hover", 96, 28, { "slice": 8 }], ["btn-secondary-pressed", 96, 28, { "slice": 8 }], ["btn-secondary-disabled", 96, 28, { "slice": 8 }]
+        ]
+      },
+      "title-kit": {
+        "grid": [4, 2],
+        "slots": [
+          ["title-window", 96, 64, { "slice": 14 }], ["title-row-normal", 128, 28, { "slice": 9, "symmetry": "lr" }], ["title-row-selected", 128, 28, { "slice": 9, "symmetry": "lr" }], ["title-row-pressed", 128, 28, { "slice": 9, "symmetry": "lr" }],
+          ["title-divider", 160, 24, { "symmetry": "lr" }], ["title-leaf", 24, 24], ["title-sparkle", 24, 24, { "soft": true }], ["title-firefly", 12, 12, { "soft": true }]
         ]
       },
       "select-cards": {

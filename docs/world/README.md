@@ -21,6 +21,7 @@
 | [12-turn-regeneration-briefs.md](12-turn-regeneration-briefs.md) | turn 시트 18장을 walk 비율로 재생성: 캐릭터별 독립 프롬프트·저장 파일명·첨부 레퍼런스·비율 합격선 | turn(idle)이 walk보다 길쭉할 때 |
 | [13-debug-console-scripts.md](13-debug-console-scripts.md) | 브라우저 콘솔에 붙여넣는 세이브 편집 스크립트: **결전만 남은 상태**(조각 10개·스타디움 개방), **결전 3라운드만 남은 상태**(1·2라운드 클리어 + 황금 공 12개), 황금 공 지급, 백업 복원 | 결전·엔딩을 빠르게 시험할 때 |
 | [14-postcredits-image-briefs.md](14-postcredits-image-briefs.md) | 엔딩 크레딧 이후 스팅어(「???」가 제초왕의 제초기를 줍는 후일담): 컷 타임라인·자막 초안·캐릭터 디자인 기준·**이미지 8장 파일명/레퍼런스/프롬프트**·개발 세션 메모 | 크레딧 이후 컷 이미지 생성·구현 |
+| [16-title-menu-redesign.md](16-title-menu-redesign.md) | 타이틀 화면 개선안(계획 단계): 현재 화면 진단·목표 배치·CSS/코드 단계(Phase A~C)·**로고 워드마크(글자 포함)와 메뉴 킷 이미지 2장의 파일명/레퍼런스/프롬프트/검수**·매니페스트 추가안 | 타이틀 화면 리디자인·이미지 생성 |
 | [15-onair-sign.md](15-onair-sign.md) | 멤버 집 문 위 **ON AIR 전광판**: SOOP 방송 여부(`/api/soop-onair`, 2분 폴링·월드가 열려 있을 때만), 입구 발판 기준 배치, 켜짐/꺼짐 에셋 변환, 클릭 시 새 탭 | 전광판 수정·재생성 |
 
 ## 한눈에 보는 수치
