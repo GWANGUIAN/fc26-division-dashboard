@@ -510,7 +510,7 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
     }
     if (next.kind === "npc") {
       const npc = npcs.find((n) => n.key === next.key);
-      promptAnchor = npc ? { x: npc.x, y: npc.y - spriteHeight(npc) - 6 } : null;
+      promptAnchor = npc ? { x: npc.x, y: npc.y - spriteHeight(npc, getCast(npc.cast)) - 6 } : null;
     } else if (next.kind === "object") {
       promptAnchor = { x: next.center.x, y: next.center.y - 22 };
     } else if (next.kind === "ball") {
@@ -772,7 +772,7 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
       const npc = guide.npc ? npcs.find((entry) => entry.cast === guide.npc) : undefined;
       const point = npc ?? guide;
       const sx = point.x - cam.x;
-      const sy = point.y - (npc ? spriteHeight(npc) + 12 : 18) - cam.y;
+      const sy = point.y - (npc ? spriteHeight(npc, getCast(npc.cast)) + 12 : 18) - cam.y;
       if (sx > 8 && sx < VIEW_WIDTH - 8 && sy > 8 && sy < VIEW_HEIGHT - 8) drawTargetArrow(ctx, sx, sy, time);
       else drawEdgePointer(ctx, player, point, cam, time);
     }
@@ -782,7 +782,7 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
       const marker = markerOf(npc.cast);
       if (!marker) continue;
       const sx = npc.x - cam.x;
-      const sy = npc.y - spriteHeight(npc) - 2 - cam.y;
+      const sy = npc.y - spriteHeight(npc, getCast(npc.cast)) - 2 - cam.y;
       if (sx > -12 && sx < VIEW_WIDTH + 12 && sy > -4 && sy < VIEW_HEIGHT + 40) drawMarker(ctx, assets, marker, sx, sy, time, reducedMotion);
     }
     if (promptAnchor && !uiBlocked && !transition.active) drawPrompt(ctx, assets, promptAnchor.x - cam.x, promptAnchor.y - cam.y, time);

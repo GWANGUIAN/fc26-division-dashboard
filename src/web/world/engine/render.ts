@@ -193,21 +193,24 @@ export function drawCharacter(ctx: CanvasRenderingContext2D, assets: WorldAssets
   const cell = characterFrameCell(cast.role, view, animal);
   const sx = cell.col * frameW;
   const sy = cell.row * frameH;
-  const dy = screenY - (frameH - inset);
+  const scale = cast.drawScale ?? 1;
+  const drawW = frameW * scale;
+  const drawH = frameH * scale;
+  const dy = screenY - (frameH - inset) * scale;
   if (view.facing === "left") {
     ctx.save();
     ctx.translate(screenX, 0);
     ctx.scale(-1, 1);
-    ctx.drawImage(atlas, sx, sy, frameW, frameH, -frameW / 2, dy, frameW, frameH);
+    ctx.drawImage(atlas, sx, sy, frameW, frameH, -drawW / 2, dy, drawW, drawH);
     ctx.restore();
   } else {
-    ctx.drawImage(atlas, sx, sy, frameW, frameH, screenX - frameW / 2, dy, frameW, frameH);
+    ctx.drawImage(atlas, sx, sy, frameW, frameH, screenX - drawW / 2, dy, drawW, drawH);
   }
 }
 
 /** Height of a character's sprite above its feet (for prompts and arrows). */
-export function spriteHeight(npc: Pick<Npc, "animal">): number {
-  return npc.animal ? 28 : 58;
+export function spriteHeight(npc: Pick<Npc, "animal">, cast?: Pick<CastDef, "drawScale">): number {
+  return (npc.animal ? 28 : 58) * (cast?.drawScale ?? 1);
 }
 
 // ── UI drawn on the canvas ────────────────────────────────────────────────────────────────

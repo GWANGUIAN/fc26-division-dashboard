@@ -39,6 +39,8 @@ export interface CastDef {
   themeColor: string;
   /** Greeting voice clip played on the first conversation (path under public/). */
   voiceSfx?: string;
+  /** Sprite size multiplier around the feet (default 1) — collision and interaction boxes are unchanged. */
+  drawScale?: number;
   spawn: { scene: SceneId; x: number; y: number; ai: "stay" | "idle" | "wander"; wanderRect?: Rect };
 }
 

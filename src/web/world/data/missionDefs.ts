@@ -252,28 +252,30 @@ export function totalShardsFor(player: CastId | null): number {
 export interface BadgeDef {
   id: string;
   label: string;
-  /** `ui/<icon>` asset key when art exists. */
+  /** How to earn it, for the collection book. */
+  hint: string;
+  /** `ui/<icon>` asset key. The art is optional: a badge whose file is missing is drawn as a plain plate (docs/world/17). */
   icon?: string;
 }
 
+/** In collection-book order (eight per row): the first steps, the shards, the finale, the golden balls, the cards and the arcade, then the daily stamps. */
 export const BADGES: Record<string, BadgeDef> = {
-  "ball-hunter": { id: "ball-hunter", label: "공 사냥꾼" },
-  "ball-collector": { id: "ball-collector", label: "공 수집가" },
-  "ball-master": { id: "ball-master", label: "공 마스터" },
-  "card-collector": { id: "card-collector", label: "카드 수집가" },
-  "rush-1000": { id: "rush-1000", label: "러시 1000m" },
-  "daily-first": { id: "daily-first", label: "첫 일일 훈련" },
-  "daily-7": { id: "daily-7", label: "일일 스탬프 7" },
-  "daily-14": { id: "daily-14", label: "일일 스탬프 14" },
-  "daily-30": { id: "daily-30", label: "일일 스탬프 30" },
-  "factory-gardener": { id: "factory-gardener", label: "공장 정원사" },
-
-  "first-game": { id: "first-game", label: "첫 한 판", icon: "ui/bd-first-game" },
-  "delivery-rookie": { id: "delivery-rookie", label: "배달 왕초보" },
-  "green-thumb": { id: "green-thumb", label: "초록 손", icon: "ui/bd-green-thumb" },
-  "weed-buster": { id: "weed-buster", label: "제초동 격파" },
-  "shard-5": { id: "shard-5", label: "잔디 조각 5개", icon: "ui/bd-shard-5" },
-  "shard-10": { id: "shard-10", label: "잔디 조각 10개", icon: "ui/bd-shard-10" },
+  "first-game": { id: "first-game", label: "첫 한 판", hint: "「오락실 워밍업」 — 오락실 기계로 한 판 하기", icon: "ui/bd-first-game" },
+  "delivery-rookie": { id: "delivery-rookie", label: "배달 왕초보", hint: "「잔디 우유 배달」 — 우유를 할아버지에게 전달", icon: "ui/bd-delivery-rookie" },
+  "green-thumb": { id: "green-thumb", label: "초록 손", hint: "「광장 잔디 물 주기」 — 시든 잔디 5곳에 물 주기", icon: "ui/bd-green-thumb" },
+  "shard-5": { id: "shard-5", label: "잔디 조각 5개", hint: "잔디 조각을 5개 모으기", icon: "ui/bd-shard-5" },
+  "shard-10": { id: "shard-10", label: "잔디 조각 10개", hint: "잔디 조각을 10개 모두 모으기", icon: "ui/bd-shard-10" },
+  "weed-buster": { id: "weed-buster", label: "제초동 격파", hint: "「제초동 결전」 — 스타디움 3연전에서 모두 승리", icon: "ui/bd-weed-beaten" },
+  "ball-hunter": { id: "ball-hunter", label: "공 사냥꾼", hint: "「황금 공 숨바꼭질」 — 황금 축구공 5개 찾기", icon: "ui/bd-ball-hunter" },
+  "ball-collector": { id: "ball-collector", label: "공 수집가", hint: "황금 축구공을 10개 발견하기", icon: "ui/bd-ball-collector" },
+  "ball-master": { id: "ball-master", label: "공 마스터", hint: "황금 축구공 20개를 모두 발견하기", icon: "ui/bd-ball-master" },
+  "card-collector": { id: "card-collector", label: "카드 수집가", hint: "「열한 명의 카드 도감」 — 멤버 11명의 카드 공개", icon: "ui/bd-card-collector" },
+  "rush-1000": { id: "rush-1000", label: "러시 1000m", hint: "오락실 잔디 러시에서 1000m 달리기", icon: "ui/bd-rush-1000" },
+  "factory-gardener": { id: "factory-gardener", label: "공장 정원사", hint: "「공장을 정원으로」 — 할아버지와 잔디 코치에게 조언 듣기", icon: "ui/bd-factory-gardener" },
+  "daily-first": { id: "daily-first", label: "첫 일일 훈련", hint: "「잔디 코치의 매일 훈련」 — 첫 스탬프 받기", icon: "ui/bd-daily-first" },
+  "daily-7": { id: "daily-7", label: "일일 스탬프 7", hint: "일일 스탬프 7일 모으기", icon: "ui/bd-stamp-7" },
+  "daily-14": { id: "daily-14", label: "일일 스탬프 14", hint: "일일 스탬프 14일 모으기", icon: "ui/bd-stamp-14" },
+  "daily-30": { id: "daily-30", label: "일일 스탬프 30", hint: "일일 스탬프 30일 모으기", icon: "ui/bd-stamp-30" },
 };
 
 /** Flag that stores an earned badge in `WorldSave.flags`. */

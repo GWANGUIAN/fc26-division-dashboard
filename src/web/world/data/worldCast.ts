@@ -84,6 +84,7 @@ export const WORLD_CAST: CastDef[] = [
     playable: false,
     role: "original",
     themeColor: "#b98a6a",
+    drawScale: 1.5,
     // Before the ending he waits inside the factory; the story moves him to the stadium later.
     spawn: { scene: "interior:factory", ...at(10, 7), ai: "stay" },
   },
