@@ -596,3 +596,24 @@ export function extractSprites(img, cells, { threshold = 240, minArea = 40, gap 
     return { raster, bbox: { x: x0, y: y0, w, h }, components: keep.length, dropped: list.length - keep.length };
   });
 }
+
+/**
+ * Where a board on legs ends: the first row below the wide part whose opaque width drops under `ratio` of the
+ * widest row (the legs and the base plate are narrower than the board). Returns the image height when nothing
+ * narrows, so a picture without legs is left whole. Used to hang a freestanding sign on a wall.
+ */
+export function boardBottomRow(img, { threshold = 240, ratio = 0.5 } = {}) {
+  const counts = new Array(img.height).fill(0);
+  let peak = 0;
+  for (let y = 0; y < img.height; y++) {
+    let count = 0;
+    for (let x = 0; x < img.width; x++) if (img.data[(y * img.width + x) * 4 + 3] >= threshold) count++;
+    counts[y] = count;
+    if (count > peak) peak = count;
+  }
+  if (peak === 0) return img.height;
+  const wide = (y) => counts[y] >= peak * ratio;
+  let y = counts.findIndex((_, row) => wide(row));
+  while (y < img.height && wide(y)) y++;
+  return y;
+}

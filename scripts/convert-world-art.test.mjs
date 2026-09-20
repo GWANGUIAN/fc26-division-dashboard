@@ -4,6 +4,7 @@ import {
   alphaBBox,
   alphaCentroidX,
   bboxTouchesEdge,
+  boardBottomRow,
   blit,
   boxDownscale,
   characterScale,
@@ -382,5 +383,30 @@ describe("hardenAlpha / labelComponents / extractSprites", () => {
     const [a] = extractSprites(img, gridCells(20, 20, 1, 1), { threshold: 240, minArea: 1, softMargin: 3 });
     expect(a.bbox).toEqual({ x: 5, y: 5, w: 10, h: 10 });
     expect(pixel(a.raster, 1, 5)[3]).toBe(90);
+  });
+});
+
+describe("boardBottomRow", () => {
+  // a sign on legs: a narrow beacon on top, a wide board, then two narrow legs and a wide base plate
+  function signOnLegs() {
+    const img = createRaster(100, 100);
+    const fill = (x0, x1, y0, y1) => {
+      for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) setPixel(img, x, y, [200, 200, 200, 255]);
+    };
+    fill(45, 55, 5, 15); // beacon
+    fill(5, 95, 15, 60); // board
+    fill(20, 26, 60, 75); // legs
+    fill(74, 80, 60, 75);
+    fill(10, 90, 75, 95); // base plate
+    return img;
+  }
+
+  it("ends the board where the legs begin", () => {
+    expect(boardBottomRow(signOnLegs())).toBe(60);
+  });
+
+  it("leaves a picture without legs whole and copes with an empty one", () => {
+    expect(boardBottomRow(solid(40, 20, [1, 2, 3, 255]))).toBe(20);
+    expect(boardBottomRow(createRaster(10, 10))).toBe(10);
   });
 });

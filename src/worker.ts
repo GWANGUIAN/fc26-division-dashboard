@@ -1,4 +1,5 @@
 import type { SoopLiveGame, SoopLiveStreamer } from "./shared/soop-live.js";
+import { collectWorldOnAir } from "./shared/world-onair.js";
 
 interface Fetcher {
   fetch(request: Request): Promise<Response>;
@@ -25,6 +26,9 @@ const API_CACHE_VERSION = "v3";
 // the exact same poll cycle twice.
 const SOOP_LIVE_CACHE_SECONDS = 115;
 const SOOP_LIVE_CACHE_VERSION = "v3";
+// The world's ON AIR signs poll on the same 2-minute rhythm as the LIVE rail.
+const WORLD_ONAIR_CACHE_SECONDS = 115;
+const WORLD_ONAIR_CACHE_VERSION = "v1";
 // sooplive's internal ids for the "EA Sports FC 26" and "EA Sports FC 27"
 // directory categories, found via sch.sooplive.com/api.php?m=categoryList
 // (categoryContentsList itself takes the id, not the category name). Not
@@ -190,6 +194,33 @@ async function serveSoopLive(request: Request, ctx: ExecutionContext): Promise<R
   return response;
 }
 
+/**
+ * Live status of the 11 world members for the ON AIR signs of 잔디동 월드. Unlike serveSoopLive this asks
+ * SOOP about each member's own channel, so a member broadcasting outside the FC categories still counts.
+ * Edge-cached like the other lookups, so any number of players collapses into ~11 upstream calls per
+ * cache window per Cloudflare PoP.
+ */
+async function serveWorldOnAir(request: Request, ctx: ExecutionContext): Promise<Response> {
+  if (request.method !== "GET") return new Response("Method Not Allowed", { status: 405 });
+
+  const url = new URL(request.url);
+  const cacheKey = new Request(`${url.origin}/api/soop-onair?edge-cache=${WORLD_ONAIR_CACHE_VERSION}`, { method: "GET" });
+  const cached = await edgeCache.default.match(cacheKey);
+  if (cached) return cached;
+
+  const snapshot = await collectWorldOnAir((input, init) => fetch(input, init));
+  if (!snapshot) return Response.json({ message: "soop onair lookup failed" }, { status: 502, headers: { "cache-control": "no-store" } });
+
+  const response = Response.json(snapshot, {
+    headers: {
+      "cache-control": `public, max-age=${WORLD_ONAIR_CACHE_SECONDS}, stale-while-revalidate=30`,
+      "x-content-type-options": "nosniff",
+    },
+  });
+  ctx.waitUntil(edgeCache.default.put(cacheKey, response.clone()));
+  return response;
+}
+
 function healthResponse(status: number, statusText: string): Response {
   return Response.json({ ok: status === 200, status: statusText }, {
     status,
@@ -237,6 +268,7 @@ export default {
       );
     }
     if (path === "/api/soop-live") return serveSoopLive(request, ctx);
+    if (path === "/api/soop-onair") return serveWorldOnAir(request, ctx);
     return serveAsset(request, env);
   },
 } satisfies ExportedHandler<Env>;

@@ -10,6 +10,7 @@
  *   pnpm convert:world-art -- characters               every character
  *   pnpm convert:world-art -- terrain core             one terrain sheet
  *   pnpm convert:world-art -- props trees              one prop sheet
+ *   pnpm convert:world-art -- onair                    the ON AIR sign pair (props/onair-sign-on + -off, legs cut off, one shared scale)
  *   pnpm convert:world-art -- buildings clubhouse      one building
  *   pnpm convert:world-art -- interiors house-doormomo one interior
  *   pnpm convert:world-art -- ui frames-dialog         one UI sheet or single (fab-normal, loading-bg, ...)
@@ -529,8 +530,50 @@ async function convertSingle(category, id, cfg) {
 }
 
 // ---------------------------------------------------------------------------------------------
+// ON AIR sign pair (docs/world/15-onair-sign.md)
+/**
+ * Two generated images (lit / unlit) of one freestanding sign. It hangs on a house facade in the game, so only the
+ * board and its beacon are kept: the legs and base plate the generator drew below the board are cut where the
+ * silhouette narrows. Both states share ONE scale, so a sign that trims a few pixels differently still swaps in place.
+ */
+async function convertOnAir() {
+  const cfg = manifest.onair;
+  const items = [];
+  for (const id of cfg.ids) {
+    const file = sourceFile("props", id);
+    if (!file) continue;
+    console.log(`props/${id}`);
+    const raster = normalizeAlpha(await loadRaster(file), id).raster;
+    const rows = M.boardBottomRow(raster);
+    if (rows >= raster.height) warn(`props/${id}`, "받침대/다리가 없어 자르지 않음(보드 아래가 좁아지는 행을 못 찾음)", "onair");
+    const board = rows >= raster.height ? raster : M.cropRaster(raster, { x: 0, y: 0, w: raster.width, h: rows });
+    const sprite = extractOne(board);
+    if (!sprite) {
+      warn(`props/${id}`, "비어 있음");
+      continue;
+    }
+    items.push({ id, raster: sprite.raster, bbox: fullBox(sprite.raster) });
+  }
+  if (items.length === 0) return;
+
+  const scale = Math.min(...items.map((item) => Math.min(cfg.w / item.bbox.w, cfg.h / item.bbox.h)));
+  if (items.length === 2) {
+    const [a, b] = items;
+    const diff = Math.abs(a.bbox.w / a.bbox.h / (b.bbox.w / b.bbox.h) - 1);
+    if (diff > 0.04) warn("props/onair-sign", `켜짐/꺼짐 실루엣 비율이 ${(diff * 100).toFixed(1)}% 다름(${a.bbox.w}×${a.bbox.h} vs ${b.bbox.w}×${b.bbox.h}) — 같은 그림에서 조명만 바뀐 게 맞는지 확인`, "onair");
+  }
+  if (scale > 1.001) warn("props/onair-sign", `원본이 목표(${cfg.w}×${cfg.h})보다 작아 확대됨(x${scale.toFixed(2)})`, "scale");
+  for (const { id, raster, bbox } of items) {
+    const { raster: out } = await renderSprite(raster, bbox, cfg.w, cfg.h, { scale, align: "bottom" });
+    warnMagenta(`props/${id}`, out);
+    console.log(`  · ${id}: 보드 ${bbox.w}×${bbox.h} → x${scale.toFixed(4)}`);
+    await saveRaster(out, "props", id, { note: "onair pair" });
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
 // Dispatch
-const CATEGORIES = ["characters", "terrain", "props", "buildings", "interiors", "ui", "fx", "rush", "ending"];
+const CATEGORIES = ["characters", "terrain", "props", "onair", "buildings", "interiors", "ui", "fx", "rush", "ending"];
 
 function unknown(category, name, known) {
   throw new Error(`Unknown ${category} "${name}". Known: ${known.join(", ")}`);
@@ -561,6 +604,10 @@ async function run(category, name) {
         if (!names.includes(sheet)) unknown(category, sheet, names);
         await convertSprites({ srcCategory: "props", sourceName: `props-${sheet}`, grid: [4, 3], slots: manifest.props[sheet], outCategory: "props" });
       }
+      return;
+    }
+    case "onair": {
+      await convertOnAir();
       return;
     }
     case "buildings": {

@@ -361,3 +361,13 @@ turn(서 있는 자세) 시트의 발끝 편차는 전원 허용 이내였다.
 - 레퍼런스 전용(게임에 싣지 않음): `pc-qqq-stand.png`, `pc-qqq-turn.png`, `ref-qqq-original.png/.webp`.
 - 연결: `data/stingerData.ts`(컷·자막·소리 큐) → `state/stinger.ts`(타임라인) → `ui/StingerOverlay.tsx` → `WorldOverlay.tsx`(크레딧 뒤 단계). 스타일은 `world-mission.css`의 `.world-stinger*`.
 - 월드 전용 변환 에셋은 447 → 453개(크레딧 표기 `WorldCredits.tsx`도 같이 고쳤다).
+
+## 16. ON AIR 전광판 에셋 (2026-09-20)
+
+| 원본 | 변환 결과 | 크기 | 상태 |
+| --- | --- | --- | --- |
+| `tmp/world-src/props/onair-sign-on.png` | `props/onair-sign-on.webp` | 58×33 | [x] |
+| `tmp/world-src/props/onair-sign-off.png` | `props/onair-sign-off.webp` | 58×33 | [x] |
+
+- 변환은 `pnpm convert:world-art -- onair`(두 장을 한 배율로, 보드 아래 다리·받침대 자동 제거). 사용처는 `engine/onAirSign.ts`, 사전 로딩은 `worldAssets.ts`의 `overworldKeys()`. 자세한 내용은 [15](15-onair-sign.md).
+- 월드 전용 변환 에셋은 453 → 455개.

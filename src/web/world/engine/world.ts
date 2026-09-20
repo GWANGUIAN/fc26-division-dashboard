@@ -7,6 +7,7 @@ import { evalCondition } from "../state/conditions";
 import { markerFor, missionStatus, type MarkerKind } from "../state/missions";
 import { restoreForZones } from "../state/progress";
 import { ENDING_SEEN_FLAG, storyMarker } from "../state/story";
+import type { OnAirSource } from "../state/onAir";
 import { saveWorldSave } from "../storage";
 import type { CastId, Facing, NavigationTarget, Rect, SceneId, WorldSave } from "../types";
 import type { WorldAudioLike, SfxId } from "../audio/worldAudio";
@@ -21,6 +22,7 @@ import { createInput } from "./input";
 import { createLoop } from "./loop";
 import { getScene, zoneAtPoint, terrainCodeAt } from "./mapScene";
 import { createNpc, endTalk, npcBox, startTalk, stepNpc, type Npc } from "./npc";
+import { drawOnAirSign, findOnAirSigns, onAirSignAt, onAirSize, type OnAirSign } from "./onAirSign";
 import { RunManager, type RunEvent } from "./runs";
 import {
   VIEW_HEIGHT, VIEW_WIDTH, TILE, buildStaticOrder, drawBall, drawBuilding, drawCharacter, drawDebug, drawEdgePointer, drawHomeSign, drawInterior,
@@ -78,6 +80,8 @@ export interface WorldEvents {
   onDoorLocked?(text: string): void;
   /** The golden grass finished blooming (`playBloom()`). */
   onBloomDone?(): void;
+  /** A member's ON AIR sign was clicked (`live`: they are on air, so the broadcast opens instead of the station). */
+  onOnAirClick?(soopId: string, live: boolean): void;
   onDebugPick?(pick: DebugPick): void;
 }
 
@@ -92,6 +96,8 @@ export interface WorldEngineOptions {
   audio?: WorldAudioLike;
   /** Human-readable scale for the debug panel (the overlay knows the layout, the engine does not). */
   getScaleLabel?: () => string;
+  /** Who is live on SOOP right now (the ON AIR signs over the member houses); absent = every sign is off. */
+  onAir?: OnAirSource;
 }
 
 export interface WorldEngine {
@@ -106,6 +112,10 @@ export interface WorldEngine {
   setNavigationTarget(target: NavigationTarget | null): void;
   /** Debug: logical stage coordinates (640×360) → world position. */
   pick(logicalX: number, logicalY: number): DebugPick;
+  /** A click at logical stage coordinates: true when it landed on an ON AIR sign (reported through `onOnAirClick`). */
+  clickAt(logicalX: number, logicalY: number): boolean;
+  /** Is there an ON AIR sign under this logical stage point (drives the pointer cursor)? */
+  hoverAt(logicalX: number, logicalY: number): boolean;
   /** Debug: fade to another scene (default spawn unless a tile is given). */
   teleport(scene: SceneId, tile?: [number, number]): void;
   /** Debug: force the colour restoration (0 withered … 1 lush); null follows the save. */
@@ -178,6 +188,8 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
   let scene: WorldScene = getScene("overworld")!;
   const player = { x: 0, y: 0, facing: "down" as Facing, moving: false, running: false, animTime: 0 };
   let camera: Camera = { x: 0, y: 0 };
+  /** ON AIR signs of the current scene (member houses of the overworld, none indoors). */
+  let onAirSigns: OnAirSign[] = [];
   let npcs: Npc[] = [];
   let uiBlocked = false;
   let talking: Npc | null = null;
@@ -283,10 +295,20 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
 
   const objectById = (id: string) => scene.objects.find((object) => object.id === id);
 
+  const isLive = (soopId: string) => options.onAir?.isLive(soopId) ?? false;
+
+  /** The ON AIR sign under a logical stage point; none while a dialogue/panel owns the input or a fade runs. */
+  function onAirSignAtStage(logicalX: number, logicalY: number): OnAirSign | null {
+    if (onAirSigns.length === 0 || uiBlocked || transition.active) return null;
+    const cam = snapCamera(camera);
+    return onAirSignAt(onAirSigns, onAirSize(assets), cam.x + logicalX, cam.y + logicalY);
+  }
+
   function enterScene(id: SceneId, x: number, y: number, facing: Facing) {
     const next = getScene(id);
     if (!next) return;
     scene = next;
+    onAirSigns = next.kind === "overworld" ? findOnAirSigns(next.buildings, OVERWORLD_MAP) : [];
     player.x = x;
     player.y = y;
     player.facing = facing;
@@ -725,7 +747,13 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
         if (propVisible(prop, cam)) drawProp(ctx, assets, prop, cam, restoreAt(prop.x, prop.y), prop.aboveFrom === null ? "all" : "lower");
       } else {
         const building = scene.buildings[entry.index];
-        if (isVisible(building.x - building.w / 2, building.y - building.h, building.w, building.h, cam)) drawBuilding(ctx, assets, building, cam, building.fronts[entry.strip]);
+        if (isVisible(building.x - building.w / 2, building.y - building.h, building.w, building.h, cam)) {
+          drawBuilding(ctx, assets, building, cam, building.fronts[entry.strip]);
+          // The ON AIR sign hangs on the facade: painted with the building's last strip, so it sorts like the wall it is on.
+          for (const sign of onAirSigns) {
+            if (sign.buildingIndex === entry.index && sign.stripIndex === entry.strip) drawOnAirSign(ctx, assets, sign, isLive(sign.soopId), cam, time, reducedMotion);
+          }
+        }
       }
     }
     flushDynamics(Infinity);
@@ -830,6 +858,16 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
       lastPick = { scene: scene.id, x: Math.round(x), y: Math.round(y), tx: Math.floor(x / TILE), ty: Math.floor(y / TILE) };
       events().onDebugPick?.(lastPick);
       return lastPick;
+    },
+    clickAt(logicalX, logicalY) {
+      const sign = onAirSignAtStage(logicalX, logicalY);
+      if (!sign) return false;
+      audio.playSfx("ui-select");
+      events().onOnAirClick?.(sign.soopId, isLive(sign.soopId));
+      return true;
+    },
+    hoverAt(logicalX, logicalY) {
+      return onAirSignAtStage(logicalX, logicalY) !== null;
     },
     teleport(id, tile) {
       const destination = getScene(id);

@@ -61,6 +61,8 @@ function overworldKeys(): string[] {
     if (PROP_DEFS[id]?.withered) keys.push(propAssetKey(id, true));
   }
   for (const building of OVERWORLD_MAP.buildings) keys.push(`buildings/${building.id}`);
+  // The ON AIR signs over the member houses (docs/world/15-onair-sign.md).
+  keys.push("props/onair-sign-on", "props/onair-sign-off");
   return keys;
 }
 

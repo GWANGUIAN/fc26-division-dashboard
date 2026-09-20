@@ -19,7 +19,7 @@ export const CHAR_FOOT_INSET = 4;
 export const ANIMAL_FRAME = 32;
 export const ANIMAL_FOOT_INSET = 2;
 
-const FONT = "Galmuri11, monospace";
+export const FONT = "Galmuri11, monospace";
 
 // ── static scenery ────────────────────────────────────────────────────────────────────────
 
@@ -310,17 +310,21 @@ export function drawEdgePointer(ctx: CanvasRenderingContext2D, from: { x: number
   ctx.restore();
 }
 
+/** The name plate's top edge sits this many px above the doorstep row's bottom edge; the ON AIR sign stacks above it. */
+export const HOME_SIGN_RISE = 66;
+export const HOME_SIGN_HEIGHT = 14;
+
 /** Small name plate over the player's own house door ("sign-home", docs/world/03 §4 — no art, drawn by code). */
 export function drawHomeSign(ctx: CanvasRenderingContext2D, camera: Camera, doorCenterX: number, baseY: number, label: string) {
   const text = `${label}의 집`;
   ctx.font = `10px ${FONT}`;
   const w = Math.ceil(ctx.measureText(text).width) + 10;
   const x = Math.round(doorCenterX - w / 2 - camera.x);
-  const y = Math.round(baseY - 66 - camera.y);
+  const y = Math.round(baseY - HOME_SIGN_RISE - camera.y);
   ctx.fillStyle = "rgba(11, 22, 20, 0.9)";
-  ctx.fillRect(x, y, w, 14);
+  ctx.fillRect(x, y, w, HOME_SIGN_HEIGHT);
   ctx.strokeStyle = "#00e9ae";
-  ctx.strokeRect(x + 0.5, y + 0.5, w - 1, 13);
+  ctx.strokeRect(x + 0.5, y + 0.5, w - 1, HOME_SIGN_HEIGHT - 1);
   ctx.fillStyle = "#e8fff6";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";

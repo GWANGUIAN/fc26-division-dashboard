@@ -6,6 +6,7 @@ import "./world.css";
 import "./world-ui.css";
 import "./world-mission.css";
 import { resumeGlobalMusic, suspendGlobalMusic } from "../musicControl";
+import { SOOP_LIVE_ENABLED } from "../useSoopLiveStreamers";
 import { GroupPhotoOverlay } from "../group-photo/GroupPhotoOverlay";
 import { hasTotyCard } from "../toty-card/totyCardAssets";
 import { WorldAudio, type BgmId } from "./audio/worldAudio";
@@ -31,6 +32,7 @@ import { initialWorldCardVariant } from "./state/cardTheme";
 import { asProgress, describeProgress, finaleRoundOutcome, type MissionEvent } from "./state/missionEval";
 import { missionObjectiveTarget, navigationNpcTarget, routeMissionTarget } from "./state/missionNavigation";
 import { buildCheerDialogue, buildConversation, buildEndingDialogue, buildExamineDialogue } from "./state/npcDialogue";
+import { OnAirTracker, openOnAirLink } from "./state/onAir";
 import { ENDING_SEEN_FLAG, STADIUM_OPEN_FLAG, endingPending, withEndingFlags } from "./state/story";
 import {
   PROLOGUE_DONE_FLAG, createNewGameSave, isContinuableSave, loadWorldSave, loadWorldSettings, saveWorldSave, saveWorldSettings,
@@ -189,6 +191,15 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
   const stingerStartedAt = useRef(0);
 
   useBodyScrollLock();
+
+  // The ON AIR signs over the member houses: SOOP live status is read every 2 minutes, only while the world
+  // is open (this component only exists then) and, like the dashboard's LIVE rail, only when SOOP lookups are enabled.
+  const onAir = useMemo(() => new OnAirTracker(), []);
+  useEffect(() => {
+    if (!SOOP_LIVE_ENABLED) return;
+    onAir.start();
+    return () => onAir.stop();
+  }, [onAir]);
 
   // The visitor's own YouTube music pauses while the world is open and comes back afterwards.
   useEffect(() => {
@@ -687,6 +698,10 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
       setLogOpen(true);
       advanceCoach({ type: "log" });
     },
+    onOnAirClick(soopId, live) {
+      // On air: their broadcast in a new tab. Off air: their station in a new window.
+      openOnAirLink(soopId, live);
+    },
     onDebugPick: setDebugPick,
   };
 
@@ -845,6 +860,7 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
               store={session.store}
               debug={debug}
               audio={audio}
+              onAir={onAir}
               eventsRef={eventsRef}
               onEngine={handleEngine}
               scaleLabel={`${layout.deviceScale}x device px (css ${layout.cssScale.toFixed(2)})`}
