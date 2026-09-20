@@ -1,4 +1,5 @@
-import { BADGES, type MissionDef } from "../data/missionDefs";
+import { BADGES, type MinigameGame, type MissionDef } from "../data/missionDefs";
+import type { DailyTask } from "../state/daily";
 import type { MissionStatus } from "../types";
 
 /** `ui/` asset key of the icon that stands for a mission in the log and the tracker (docs/world/06 §5 `mi-*`). */
@@ -44,4 +45,25 @@ export function rewardText(def: MissionDef): string {
   if (def.reward.badge) parts.push(`뱃지 「${BADGES[def.reward.badge]?.label ?? def.reward.badge}」`);
   if (def.reward.flags?.includes("main-open")) parts.push("메인 미션 열림");
   return parts.length > 0 ? parts.join(" · ") : "—";
+}
+
+/** Icon keys of a minigame in the daily board and the collection book, in the order they are tried (`mi-rush` and `mi-plays` are new art, docs/world/17 — until they exist a clock stands in). */
+export function gameIconKeys(game: MinigameGame): string[] {
+  switch (game) {
+    case "soccer-sum10": return ["ui/mi-sum10"];
+    case "kickups": return ["ui/mi-kickups"];
+    case "freekick": return ["ui/mi-freekick"];
+    case "cardmatch": return ["ui/mi-cardmatch"];
+    case "rush": return ["ui/mi-rush", "ui/mi-progress"];
+  }
+}
+
+/** Icon keys of a daily task: its minigame's icon, or the icon of what it counts (talking, cards, distinct games). */
+export function dailyTaskIconKeys(task: DailyTask): string[] {
+  if (task.game) return gameIconKeys(task.game);
+  switch (task.group) {
+    case "talk": return ["ui/mi-talk"];
+    case "cards": return ["ui/mi-card"];
+    default: return ["ui/mi-plays", "ui/mi-collect"];
+  }
 }

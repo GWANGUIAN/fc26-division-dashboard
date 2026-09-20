@@ -6,10 +6,6 @@
 .world-repeat-panel button:disabled { opacity: .55; cursor: default; }
 .world-repeat-panel :focus-visible { outline: 3px solid #ffe28a; outline-offset: 3px; }
 .world-repeat-panel canvas { width: 100%; height: auto; image-rendering: pixelated; }
-.world-repeat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; padding: 0; list-style: none; }
-.world-repeat-grid li { padding: 12px; border: 1px solid #678c72; border-radius: 6px; }
-.world-repeat-stamps { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; }
-.world-repeat-stamps span { padding: 8px 0; text-align: center; border: 1px solid #829b70; }
 
 /* Scrollbar in the game's palette (same colours as the credits and the mission log): a dark track with a mint edge and a mint thumb with the gold outline. */
 .world-repeat-panel { overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #00a987 #0b1614; }
@@ -22,15 +18,3 @@
   .world-repeat-panel::-webkit-scrollbar-thumb:hover { background: #2ee8b6; }
   .world-repeat-panel::-webkit-scrollbar-thumb:active { background: #5df0c8; }
 }
-
-/* Collection entries (badges, golden balls, cards): earned ones glow gold on a lighter green with a star, spent balls keep a muted gold edge, unfound ones stay dim and dashed. */
-.world-repeat-grid li { position: relative; }
-.world-repeat-grid li.is-earned {
-  border-color: #ffd54a;
-  background: linear-gradient(135deg, #2f6a49, #1f4d37);
-  color: #fff6cc;
-  box-shadow: inset 0 0 0 1px #ffd54a55, 0 0 10px #ffd54a30;
-}
-.world-repeat-grid li.is-earned::after { content: "★"; position: absolute; top: 6px; right: 8px; color: #ffd54a; font-size: 14px; line-height: 1; text-shadow: 0 1px 0 #0b1614; }
-.world-repeat-grid li.is-spent { border-color: #b9a75a; background: #1c3f31; color: #dfd6a6; box-shadow: inset 0 0 0 1px #b9a75a33; }
-.world-repeat-grid li.is-locked { border-style: dashed; border-color: #678c7288; background: #12291f; color: #8fa89a; opacity: .75; }

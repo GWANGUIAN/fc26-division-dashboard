@@ -1,4 +1,5 @@
-import { DailyBoard, CollectionBook } from "./RepeatContent";
+import { CollectionBook } from "./CollectionBook";
+import { DailyBoard } from "./DailyBoard";
 import { GrassRushModal } from "../arcade/GrassRushModal";
 import { refreshDaily } from "../state/daily";
 import { renderToString } from "react-dom/server";
@@ -17,7 +18,7 @@ import { TitleScreen } from "./TitleScreen";
 import { nextToasts } from "./Toast";
 import { WorldCredits } from "./WorldCredits";
 import { STATUS_LABEL, missionIconKey, rewardText } from "./missionIcons";
-import { getMissionDef } from "../data/missionDefs";
+import { BADGES, getMissionDef } from "../data/missionDefs";
 
 // The overlay's panels render on the server side here (no DOM, effects do not run): enough to catch a render-time
 // crash and to check what text a player would read. How they look is what the ?worldDebug check-list is for.
@@ -186,22 +187,64 @@ describe("mission icons and labels", () => {
 
 
 describe("S5 panels", () => {
-  it("renders saved ranks, twenty ball hints, badges and the hidden card guide", () => {
-    const save = createNewGameSave("janine95kim"); save.bests.rush = 1000; save.collected = ["gb-20"];
-    const html = renderToString(<CollectionBook save={save} hiddenUnlocked onClose={noop} />);
-    expect(html).toContain("에이스급"); expect(html).toContain("히든 카드가 해금");
-    // Each ball shows its status and hint only: no internal id (gb-20) and no tile coordinates.
-    const plain = html.replaceAll("<!-- -->", ""); // the server renderer marks the text-node borders
-    expect(plain).toContain("획득<br/>공장 실내 금고 앞 · 엔딩 후");
-    expect(plain).toContain("미발견<br/>분수 뒤편");
-    expect(plain).not.toMatch(/gb-\d\d/);
-    expect(plain).not.toMatch(/\(\d+, ?\d+\)/);
+  const plain = (html: string) => html.replaceAll("<!-- -->", ""); // the server renderer marks the text-node borders
+
+  it("renders the arcade records with the rank ladder of the highlighted game", () => {
+    const save = createNewGameSave("janine95kim"); save.bests.sum10 = 100;
+    const html = plain(renderToString(<CollectionBook save={save} hiddenUnlocked={false} onClose={noop} />));
+    expect(html).toContain("잔디동 도감"); expect(html).toContain("축구공 합 10"); expect(html).toContain("합격 조건 충족");
+    for (const rank of ["입구컷", "합격 불투명", "상현급", "에이스급", "반장급", "운영급", "회장"]) expect(html).toContain(rank);
+    expect(html).toContain("130점 이상"); expect(html).toContain("아직 기록 없음");
+  });
+  it("renders twenty golden ball slots by state, each hint without an internal id or coordinates", () => {
+    const save = createNewGameSave("janine95kim"); save.collected = ["gb-01", "gb-20"];
+    const html = plain(renderToString(<CollectionBook save={save} hiddenUnlocked={false} initialTab="balls" onClose={noop} />));
+    expect(html.match(/world-codex__ball is-/g)).toHaveLength(20);
+    expect(html.match(/world-codex__ball is-found/g)).toHaveLength(2);
+    expect(html).toContain("1번 · 분수 뒤편"); expect(html).toContain("발견 2/20");
+    expect(html).not.toMatch(/gb-\d\d/); expect(html).not.toMatch(/\(\d+, ?\d+\)/);
+  });
+  it("renders the eleven cards plus the hidden one, revealed or not", () => {
+    const save = createNewGameSave("janine95kim"); save.flags["card:janine95kim"] = true;
+    const shut = plain(renderToString(<CollectionBook save={save} hiddenUnlocked={false} initialTab="cards" onClose={noop} />));
+    expect(shut.match(/world-codex__card /g)).toHaveLength(12);
+    expect(shut).toContain("카드 도감 1/11 공개"); expect(shut).toContain("???");
+    const open = plain(renderToString(<CollectionBook save={save} hiddenUnlocked initialTab="cards" onClose={noop} />));
+    expect(open).not.toContain("???"); expect(open).toContain("우왁굳");
+  });
+  it("renders every badge with how to earn it and marks the earned ones", () => {
+    const save = createNewGameSave("janine95kim"); save.flags["badge:rush-1000"] = true;
+    const html = plain(renderToString(<CollectionBook save={save} hiddenUnlocked={false} initialTab="badges" onClose={noop} />));
+    expect(html.match(/world-codex__badge is-/g)).toHaveLength(Object.keys(BADGES).length);
+    expect(html.match(/world-codex__badge is-earned/g)).toHaveLength(1);
+    expect(html).toContain("뱃지 1/16 획득"); expect(html).toContain("「오락실 워밍업」");
+  });
+  it("draws done and open daily tasks differently, with the count of the counting ones", () => {
+    const save = refreshDaily(createNewGameSave("janine95kim"), Date.now());
+    save.flags["ending-seen"] = true; save.daily.picks = ["sum10", "talk", "rush"]; save.daily.done = ["sum10", "talk:elder"];
+    const html = plain(renderToString(<DailyBoard save={save} onClaim={noop} onClose={noop} />));
+    expect(html.match(/world-daily__task is-done/g)).toHaveLength(1);
+    expect(html.match(/world-daily__task is-todo/g)).toHaveLength(2);
+    expect(html).toContain("합 10 40점"); expect(html).toContain("1/3");
+    expect(html).toContain("스탬프 받기"); expect(html).toMatch(/<button[^>]*disabled=""[^>]*>스탬프 받기/);
+  });
+  it("opens the claim once all three are done, and shuts the board before the ending", () => {
+    const save = refreshDaily(createNewGameSave("janine95kim"), Date.now());
+    save.daily.done = [...save.daily.picks];
+    expect(plain(renderToString(<DailyBoard save={save} onClaim={noop} onClose={noop} />))).toContain("엔딩 후 열려요");
+    save.flags["ending-seen"] = true;
+    const ready = plain(renderToString(<DailyBoard save={save} onClaim={noop} onClose={noop} />));
+    expect(ready).not.toContain("엔딩 후 열려요"); expect(ready).not.toMatch(/<button[^>]*disabled=""[^>]*>스탬프 받기/);
+    expect(ready.match(/world-daily__task is-done/g)).toHaveLength(3);
   });
   it("renders today's completed claim and all thirty stamp slots", () => {
     const save = refreshDaily(createNewGameSave("janine95kim"), Date.now());
     save.flags["ending-seen"] = true; save.daily.stamps = [save.daily.date];
-    const html = renderToString(<DailyBoard save={save} onClaim={noop} onClose={noop} />);
+    const html = plain(renderToString(<DailyBoard save={save} onClaim={noop} onClose={noop} />));
     expect(html).toContain("오늘 수령 완료"); expect(html).toContain("disabled"); expect(html).toContain("30일 스탬프 카드");
+    expect(html.match(/world-daily__slot /g)).toHaveLength(30);
+    expect(html.match(/is-stamped/g)).toHaveLength(1);
+    expect(html).toContain("누적 <b>1</b>일");
   });
   it("renders the factory runner controls and saved best", () => {
     const html = renderToString(<GrassRushModal player="janine95kim" factory best={600} onClose={noop} />);

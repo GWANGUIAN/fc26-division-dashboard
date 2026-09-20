@@ -168,6 +168,27 @@
           ["bd-ball-hunter", 48, 48], ["bd-ball-collector", 48, 48], ["bd-ball-master", 48, 48], ["bd-green-thumb", 48, 48],
           ["bd-card-collector", 48, 48], ["bd-rush-1000", 48, 48], ["bd-stamp-7", 48, 48], ["bd-stamp-30", 48, 48]
         ]
+      },
+      "extras": {
+        "grid": [3, 2],
+        "slots": [
+          ["bd-daily-first", 48, 48], ["bd-stamp-14", 48, 48], ["bd-factory-gardener", 48, 48],
+          ["bd-delivery-rookie", 48, 48], ["mi-rush", 32, 32], ["mi-plays", 32, 32]
+        ]
+      },
+      "daily-kit": {
+        "grid": [3, 2],
+        "slots": [
+          ["daily-task-todo", 144, 36, { "slice": 8, "symmetry": "lr" }], ["daily-task-done", 144, 36, { "slice": 8, "symmetry": "lr" }], ["daily-box", 20, 20],
+          ["daily-slot-empty", 24, 24], ["daily-slot-next", 24, 24], ["daily-slot-bonus", 24, 24]
+        ]
+      },
+      "codex-kit": {
+        "grid": [4, 2],
+        "slots": [
+          ["codex-ball-found", 44, 44], ["codex-ball-spent", 44, 44], ["codex-ball-unknown", 44, 44], ["codex-badge-earned", 56, 56],
+          ["codex-badge-locked", 56, 56], ["codex-gem-on", 12, 12], ["codex-gem-off", 12, 12], ["codex-card-secret", 72, 104, { "slice": 12 }]
+        ]
       }
     }
   },

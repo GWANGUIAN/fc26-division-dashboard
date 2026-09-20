@@ -6,7 +6,7 @@ export const kstDate = (now: number) => new Date(now + 9 * 3600000).toISOString(
  * A task is either a minigame goal (`game` + `min`, or `max` for turns) or a counter over distinct
  * `prefix`-ed entries in `daily.done` (`need` of them). Tasks sharing a `group` are never drawn together.
  */
-interface DailyTask { id: string; label: string; group: string; game?: MinigameRoundResult["game"]; min?: number; max?: number; prefix?: string; need?: number }
+export interface DailyTask { id: string; label: string; group: string; game?: MinigameRoundResult["game"]; min?: number; max?: number; prefix?: string; need?: number }
 export const DAILY_TASKS: readonly DailyTask[] = [
   { id: "sum10", label: "합 10 40점", group: "sum10", game: "soccer-sum10", min: 40 },
   { id: "sum10-hard", label: "합 10 70점", group: "sum10", game: "soccer-sum10", min: 70 },
@@ -61,6 +61,29 @@ export function dailyEvent(save: WorldSave, event: MissionEvent, now: number): W
   }
   return { ...next, daily: { ...next.daily, done: [...done] } };
 }
+/** How the board draws one of today's tasks: done or not, and the "n/need" count for the tasks that count distinct things. */
+export interface DailyTaskView {
+  task: DailyTask;
+  done: boolean;
+  progress?: { have: number; need: number };
+}
+
+export function dailyTaskViews(daily: WorldSave["daily"]): DailyTaskView[] {
+  return daily.picks.flatMap((id) => {
+    const task = DAILY_TASKS.find((entry) => entry.id === id);
+    if (!task) return [];
+    const done = daily.done.includes(id);
+    const need = task.need;
+    if (!task.prefix || need === undefined) return [{ task, done }];
+    const have = daily.done.filter((entry) => entry.startsWith(task.prefix!)).length;
+    return [{ task, done, progress: { have: done ? need : Math.min(have, need), need } }];
+  });
+}
+
+const DAY_MS = 24 * 3600000;
+/** Milliseconds until the next KST midnight, when the three tasks change. */
+export const msUntilDailyReset = (now: number) => DAY_MS - ((now + 9 * 3600000) % DAY_MS);
+
 export function claimDaily(save: WorldSave, displayedDate: string, now: number): WorldSave {
   const next = refreshDaily(save, now);
   const { date, picks, done, stamps } = next.daily;

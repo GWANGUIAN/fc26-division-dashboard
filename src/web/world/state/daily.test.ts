@@ -1,11 +1,26 @@
 import { describe, expect, it } from "vitest";
-import { claimDaily, dailyEvent, dailyPicks, kstDate, refreshDaily, DAILY_TASKS } from "./daily";
+import { claimDaily, dailyEvent, dailyPicks, dailyTaskViews, kstDate, msUntilDailyReset, refreshDaily, DAILY_TASKS } from "./daily";
 import { createNewGameSave, parseWorldSave } from "../storage";
 const before = Date.parse("2026-09-19T14:59:59.999Z");
 const after = before + 1;
 const ended = () => ({ ...createNewGameSave("janine95kim"), flags: { "ending-seen": true as const } });
 const completed = (now = before) => { const save = refreshDaily(ended(), now); return { ...save, daily: { ...save.daily, done: [...save.daily.picks] } }; };
 describe("KST dailies", () => {
+  it("counts down to the next Korean midnight", () => {
+    expect(msUntilDailyReset(before)).toBe(1);
+    expect(msUntilDailyReset(after)).toBe(86400000);
+    expect(msUntilDailyReset(Date.parse("2026-09-19T15:00:00.000Z") + 3661000)).toBe(86400000 - 3661000);
+  });
+  it("tells the board which tasks are done and how far the counting ones are", () => {
+    const s = refreshDaily(ended(), before); s.daily.picks = ["talk", "rush", "cards"];
+    s.daily.done = ["rush", "talk:elder", "talk:kid", "card:janine95kim"];
+    const [talk, rush, cards] = dailyTaskViews(s.daily);
+    expect(talk).toMatchObject({ done: false, progress: { have: 2, need: 3 } });
+    expect(rush).toMatchObject({ done: true }); expect(rush.progress).toBeUndefined();
+    expect(cards).toMatchObject({ done: false, progress: { have: 1, need: 2 } });
+    s.daily.done.push("talk");
+    expect(dailyTaskViews(s.daily)[0]).toMatchObject({ done: true, progress: { have: 3, need: 3 } });
+  });
   it("switches at Korean midnight irrespective of the machine timezone", () => {
     expect(kstDate(before)).toBe("2026-09-19"); expect(kstDate(after)).toBe("2026-09-20");
   });

@@ -9,6 +9,10 @@ export function arcadeRank(game: MinigameRoundResult["game"], score?: number): s
   const passed = thresholds[game].filter(t => game === "cardmatch" ? score <= t : score >= t).length;
   return RANKS[passed + 1];
 }
+/** Position of the rank in RANKS (0 = never played). */
+export const rankTier = (game: MinigameRoundResult["game"], score?: number) => RANKS.indexOf(arcadeRank(game, score));
+/** The score a game asks for to reach a rank tier (null for the two lowest: not played / played once). The card match counts turns, so lower is better there. */
+export const rankGoal = (game: MinigameRoundResult["game"], tier: number): number | null => (tier >= 2 ? thresholds[game][tier - 2] ?? null : null);
 export const bestKey = (game: MinigameRoundResult["game"]): keyof WorldSave["bests"] => game === "soccer-sum10" ? "sum10" : game;
 export function recordRound(save: WorldSave, result: MinigameRoundResult): WorldSave {
   if (!Number.isFinite(result.score) || result.score < 0 || (result.game === "cardmatch" && result.cleared === false)) return save;

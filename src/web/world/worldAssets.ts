@@ -57,6 +57,8 @@ const BOOT_KEYS = [
 const WORLD_UI_KEYS = [
   "ui/dialog-frame", "ui/nameplate", "ui/portrait-frame", "ui/choice-normal", "ui/choice-selected", "ui/cursor",
   "ui/next-1", "ui/next-2", "ui/toast-frame", "ui/coach-frame", "ui/tooltip-frame",
+  // The plaza board and the collection book (docs/world/17) are DOM panels, but fetching their frames here keeps them from popping in on first open.
+  "ui/panel-frame", "ui/panel-parchment", "ui/tab-normal", "ui/tab-active", "ui/stamp-card", "ui/stamp-mark", "ui/check-badge",
 ];
 
 /** Everything the overworld draws: terrain sheets (lush + withered), and the props and buildings the map uses. */

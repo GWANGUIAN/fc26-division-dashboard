@@ -1,11 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { createNewGameSave, parseWorldSave } from "../storage";
 import { repeatEvent } from "./repeatContent";
-import { arcadeRank, recordRound } from "./ranks";
+import { arcadeRank, rankGoal, rankTier, recordRound } from "./ranks";
 import { acceptMission, applyMissionEvent, completeMission } from "./missions";
 import { GOLDEN_BALLS } from "../data/goldenBalls";
 import { PLAYABLE_CAST } from "../data/worldCast";
 describe("repeat progression", () => {
+  it("maps a best score to its rank tier and each tier to the score it asks for", () => {
+    expect([undefined, 299, 300, 1000, 3000].map((score) => rankTier("rush", score))).toEqual([0, 1, 2, 4, 7]);
+    expect([0, 1, 2, 4, 7].map((tier) => rankGoal("rush", tier))).toEqual([null, null, 300, 1000, 3000]);
+    expect(rankGoal("cardmatch", 2)).toBe(30); expect(rankGoal("cardmatch", 7)).toBe(12);
+  });
   it("uses all rank boundaries, inverse card scores, and distance rather than seed bonuses", () => {
     expect(arcadeRank("rush")).toBe("입구컷"); expect(arcadeRank("rush", 299)).toBe("합격 불투명");
     const names = ["합격 조건 충족", "상현급", "에이스급", "반장급", "운영급", "회장"];

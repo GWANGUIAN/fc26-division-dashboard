@@ -1,6 +1,5 @@
 import { WOOWAKGOOD_BONUS_STREAMER, WOOWAKGOOD_ID } from "../../toty-card/woowakgoodBonusCard";
 import { GrassRushModal } from "../arcade/GrassRushModal";
-import { DailyBoard, CollectionBook } from "./RepeatContent";
 import type { WorldSave } from "../types";
 import { Suspense, lazy } from "react";
 import type { StreamerRecord } from "../../../shared/model";
@@ -36,7 +35,6 @@ type CardStreamer = Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1"
 interface WorldModalsProps {
   modal: WorldModal | null;
   save: WorldSave;
-  onClaimDaily: (date: string) => void;
   dashboard: DashboardBridge;
   onClose: () => void;
   /** A minigame round finished — the world judges its missions from this, never from a dashboard play. */
@@ -49,15 +47,14 @@ interface WorldModalsProps {
 }
 
 /**
- * Renders the existing minigame modals and the 3D card popup inside the world overlay (docs/world/01 §10).
+ * Renders the existing minigame modals and the 3D card popup inside the world overlay (docs/world/01 §10). The plaza board and
+ * the collection book are not here: they are drawn inside the scaled stage like the mission log (`DailyBoard`, `CollectionBook`).
  * They keep their own fixed-position layers (z-index 20 / 90), which sit inside the overlay's stacking
  * context and therefore above the HUD; world.css lifts the z-index-20 `.modal-backdrop` above the game
  * frame. The overlay routes Esc, so their own Esc listeners never fire.
  */
-export function WorldModals({ modal, save, onClaimDaily, dashboard, onClose, onRoundEnd, onCardView, onSelectCard, audio }: WorldModalsProps) {
+export function WorldModals({ modal, save, dashboard, onClose, onRoundEnd, onCardView, onSelectCard, audio }: WorldModalsProps) {
   if (!modal) return null;
-  if (modal.type === "daily") return <DailyBoard save={save} onClaim={onClaimDaily} onClose={onClose} />;
-  if (modal.type === "collection") return <CollectionBook save={save} hiddenUnlocked={dashboard.woowakgoodUnlocked} onClose={onClose} />;
 
   if (modal.type === "cards") {
     const streamer = dashboard.streamers?.find((entry) => entry.id === modal.streamerId) ?? (dashboard.woowakgoodUnlocked && modal.streamerId === WOOWAKGOOD_ID ? WOOWAKGOOD_BONUS_STREAMER : undefined);
@@ -83,7 +80,7 @@ export function WorldModals({ modal, save, onClaimDaily, dashboard, onClose, onR
     );
   }
 
-  if (modal.type !== "minigame") return null;
+  if (modal.type !== "minigame") return null; // "daily" and "collection" are drawn by the overlay itself
   switch (modal.game) {
     case "rush":
       return <GrassRushModal player={save.player ?? "janine95kim"} factory={modal.factory} best={save.bests.rush} onClose={onClose} onRoundEnd={onRoundEnd} audio={audio} />;

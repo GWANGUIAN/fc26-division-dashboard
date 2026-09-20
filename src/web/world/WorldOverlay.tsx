@@ -41,6 +41,8 @@ import { STAGE_HEIGHT, STAGE_WIDTH, computeStageLayout, type StageLayout } from 
 import type { CastId, MinigameRoundResult, SceneId, WorldSave, WorldSettings } from "./types";
 import { CharacterSelect } from "./ui/CharacterSelect";
 import { CoachMarks } from "./ui/CoachMarks";
+import { CollectionBook } from "./ui/CollectionBook";
+import { DailyBoard } from "./ui/DailyBoard";
 import { DebugPanel } from "./ui/DebugPanel";
 import { DialogueBox } from "./ui/DialogueBox";
 import { EndingOverlay } from "./ui/EndingOverlay";
@@ -899,6 +901,22 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
                 onClose={() => setLogOpen(false)}
               />
             )}
+            {modal?.type === "daily" && (
+              <DailyBoard
+                save={save ?? session.store.save}
+                audio={audio}
+                onClaim={(date) => {
+                  const before = session.store.save.daily.stamps.length;
+                  commit((current) => claimDaily(current, date, Date.now()));
+                  if (session.store.save.daily.stamps.length > before) {
+                    dispatch({ type: "daily-claimed" });
+                    pushSequence([{ text: "오늘의 스탬프를 받았어요!", sfx: "stamp" }]);
+                  }
+                }}
+                onClose={closeModal}
+              />
+            )}
+            {modal?.type === "collection" && <CollectionBook save={save ?? session.store.save} hiddenUnlocked={dashboard.woowakgoodUnlocked} audio={audio} onClose={closeModal} />}
             {pauseView !== "closed" && (
               <PauseMenu
                 key={pauseView}
@@ -926,15 +944,6 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
         <WorldModals
           modal={modal}
           save={save}
-          onClaimDaily={(date) => {
-            if (!store) return;
-            const before = store.save.daily.stamps.length;
-            commit(current => claimDaily(current, date, Date.now()));
-            if (store.save.daily.stamps.length > before) {
-              dispatch({ type: "daily-claimed" });
-              pushSequence([{ text: "오늘의 스탬프를 받았어요!", sfx: "stamp" }]);
-            }
-          }}
           dashboard={dashboard}
           onClose={closeModal}
           onRoundEnd={handleRoundEnd}
