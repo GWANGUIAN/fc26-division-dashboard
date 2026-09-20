@@ -10,6 +10,7 @@
  *   pnpm convert:world-art -- characters               every character
  *   pnpm convert:world-art -- terrain core             one terrain sheet
  *   pnpm convert:world-art -- props trees              one prop sheet
+ *   pnpm convert:world-art -- propSingles              one-off single props (collection-stand-arcade, ...), bottom-aligned
  *   pnpm convert:world-art -- onair                    the ON AIR sign pair (props/onair-sign-on + -off, legs cut off, one shared scale)
  *   pnpm convert:world-art -- buildings clubhouse      one building
  *   pnpm convert:world-art -- interiors house-doormomo one interior
@@ -507,6 +508,7 @@ async function convertSingle(category, id, cfg) {
     warnMagenta(target, out, true);
     lossless = cfg.lossless === true;
   } else {
+    if (cfg.bg === "black") console.log(`  · ${cfg.src}: black background cleared (${M.floodKeyDark(raster)}px)`);
     raster = normalizeAlpha(raster, cfg.src).raster;
     const sprite = extractOne(raster, cfg.soft ? SOFT : HARD);
     if (!sprite) return warn(target, "비어 있음");
@@ -517,7 +519,7 @@ async function convertSingle(category, id, cfg) {
       if (bbox.w * scale < cfg.w - 2) warn(target, `높이 제한(${cfg.h}px) 때문에 가로 ${cfg.w}px를 못 채움(트림 ${bbox.w}×${bbox.h}) — 반복 시 틈 생김`);
     } else {
       warnAspect(target, bbox, cfg.w, cfg.h);
-      const result = await renderSprite(sprite.raster, bbox, cfg.w, cfg.h, { align: "center", soft: cfg.soft });
+      const result = await renderSprite(sprite.raster, bbox, cfg.w, cfg.h, { align: cfg.align ?? "center", soft: cfg.soft });
       if (result.scale > 1.001) warn(target, `원본이 목표보다 작아 확대됨(x${result.scale.toFixed(2)})`, "scale");
       out = result.raster;
     }
@@ -575,7 +577,7 @@ async function convertOnAir() {
 
 // ---------------------------------------------------------------------------------------------
 // Dispatch
-const CATEGORIES = ["characters", "terrain", "props", "onair", "buildings", "interiors", "ui", "fx", "rush", "ending"];
+const CATEGORIES = ["characters", "terrain", "props", "propSingles", "onair", "buildings", "interiors", "ui", "fx", "rush", "ending"];
 
 function unknown(category, name, known) {
   throw new Error(`Unknown ${category} "${name}". Known: ${known.join(", ")}`);
@@ -605,6 +607,15 @@ async function run(category, name) {
       for (const sheet of name ? [name] : names) {
         if (!names.includes(sheet)) unknown(category, sheet, names);
         await convertSprites({ srcCategory: "props", sourceName: `props-${sheet}`, grid: [4, 3], slots: manifest.props[sheet], outCategory: "props" });
+      }
+      return;
+    }
+    case "propSingles": {
+      // Props that are not part of a 4x3 sheet: originals tmp/world-src/props/<src>.png, feet on the bottom edge like the sheet props.
+      const names = Object.keys(manifest.propSingles);
+      for (const item of name ? [name] : names) {
+        if (!manifest.propSingles[item]) unknown(category, item, names);
+        await convertSingle("props", item, manifest.propSingles[item]);
       }
       return;
     }

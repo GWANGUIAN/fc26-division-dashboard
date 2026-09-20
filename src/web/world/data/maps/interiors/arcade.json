@@ -16,7 +16,8 @@
     [36,252,152,86],
     [462,140,132,120],
     [568,120,72,140],
-    [545,262,90,80]
+    [545,262,90,80],
+    [354,258,24,10]
   ],
   "examine": [
     {"id":"machine-1","tile":[6,4],"text":"오락실 기계 1번 — 축구공 합 10.","action":"minigame:soccer-sum10"},
@@ -26,9 +27,12 @@
     {"id":"machine-5","tile":[12.5625,4],"text":"오락실 기계 5번 — 잔디 러시.","action":"minigame:rush"},
     {"tile":[3,4],"text":"경품 진열장. 인형이 빼곡하다."},
     {"tile":[3,6],"text":"테이블 축구대. 손잡이가 닳아 있다."},
-    {"id":"arcade-records","tile":[10,8],"text":"개인 최고 기록과 랭크","action":"collection"}
+    {"id":"arcade-records","tile":[10.9375,8],"text":"개인 최고 기록과 랭크","action":"collection"}
   ],
   "npcs": [],
+  "objects": [
+    {"id":"arcade-records-art","type":"decor","at":[366,268],"prop":"collection-stand-arcade","when":""}
+  ],
   "triggers": [
     {"type":"door","rect":[9,11,2,1],"to":{"scene":"interior:clubhouse-lobby","tile":[10,8],"facing":"down"}}
   ]

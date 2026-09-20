@@ -1,4 +1,4 @@
-import { OVERWORLD_MAP } from "./data/maps";
+import { INTERIOR_MAPS, OVERWORLD_MAP } from "./data/maps";
 import { PROP_DEFS, propAssetKey } from "./data/propDefs";
 import { TERRAIN_SHEETS, terrainAssetKey } from "./data/terrainDefs";
 import { PLAYABLE_CAST, WORLD_CAST } from "./data/worldCast";
@@ -78,10 +78,11 @@ function overworldKeys(): string[] {
 /** Canvas art of the missions: the markers over the givers, sparkles, pickups, cones and the kick ball (docs/world/03 §7). */
 function missionKeys(): string[] {
   const keys = ["fx/mark-new", "fx/mark-progress", "fx/mark-complete", "fx/sparkle-1", "fx/sparkle-2", "fx/sparkle-3", "fx/sparkle-4", "props/ball-standard"];
-  for (const object of OVERWORLD_MAP.objects) {
+  for (const object of [...OVERWORLD_MAP.objects, ...Object.values(INTERIOR_MAPS).flatMap((map) => map.objects ?? [])]) {
     // Map decorations can be conditionally visible too (for example the Weed Town
     // entrance barricades), so preload them with the mission props rather than
-    // allowing the renderer to fall back to its cyan placeholder.
+    // allowing the renderer to fall back to its cyan placeholder. Room objects are
+    // included: the arcade's codex kiosk is a decor sprite that no overworld prop shares.
     if (object.type !== "pickup" && object.type !== "hazard" && object.type !== "decor") continue;
     if (object.prop) keys.push(propAssetKey(object.prop));
     if (object.type === "pickup" && object.look === "withered") keys.push(propAssetKey(object.prop, true));

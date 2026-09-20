@@ -261,6 +261,40 @@ export function chromaKey(img, key = [255, 0, 255], tolerance = 40) {
   return removed;
 }
 
+/**
+ * Clears the flat dark background of an opaque original: a flood fill from the border through pixels whose
+ * R+G+B is at most `limit`, so the dark screens and panels inside the sprite survive. Returns how many pixels it cleared.
+ */
+export function floodKeyDark(img, limit = 12) {
+  const { width, height, data } = img;
+  const seen = new Uint8Array(width * height);
+  const stack = [];
+  const push = (x, y) => {
+    const at = y * width + x;
+    if (seen[at]) return;
+    const i = at * 4;
+    if (data[i] + data[i + 1] + data[i + 2] > limit) return;
+    seen[at] = 1;
+    stack.push(at);
+  };
+  for (let x = 0; x < width; x++) { push(x, 0); push(x, height - 1); }
+  for (let y = 0; y < height; y++) { push(0, y); push(width - 1, y); }
+  let removed = 0;
+  while (stack.length) {
+    const at = stack.pop();
+    const x = at % width;
+    const y = (at - x) / width;
+    const i = at * 4;
+    data[i] = data[i + 1] = data[i + 2] = data[i + 3] = 0;
+    removed++;
+    if (x > 0) push(x - 1, y);
+    if (x < width - 1) push(x + 1, y);
+    if (y > 0) push(x, y - 1);
+    if (y < height - 1) push(x, y + 1);
+  }
+  return removed;
+}
+
 /** Pulls the magenta cast off edge pixels (those touching transparency) left by a chroma key. */
 export function despillMagenta(img) {
   const { data, width, height } = img;
