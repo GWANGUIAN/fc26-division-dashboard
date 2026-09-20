@@ -15,6 +15,7 @@
  *   pnpm convert:world-art -- ui frames-dialog         one UI sheet or single (fab-normal, loading-bg, ...)
  *   pnpm convert:world-art -- fx markers               one FX sheet
  *   pnpm convert:world-art -- rush obstacles           one rush sheet or single (bg-far, ground, ...)
+ *   pnpm convert:world-art -- ending pc-03-silhouette-rise   one post-credits still (or every still without a name)
  *   pnpm convert:world-art -- --all                    everything that has an original
  * Flags: --tolerance N (chroma-key distance, default 40) · --palette [N] (quantize sprites, default 48)
  *        --seamless (cross-fade terrain tile edges) · --quality N (lossy WebP quality, default 92)
@@ -529,7 +530,7 @@ async function convertSingle(category, id, cfg) {
 
 // ---------------------------------------------------------------------------------------------
 // Dispatch
-const CATEGORIES = ["characters", "terrain", "props", "buildings", "interiors", "ui", "fx", "rush"];
+const CATEGORIES = ["characters", "terrain", "props", "buildings", "interiors", "ui", "fx", "rush", "ending"];
 
 function unknown(category, name, known) {
   throw new Error(`Unknown ${category} "${name}". Known: ${known.join(", ")}`);
@@ -605,6 +606,15 @@ async function run(category, name) {
         else if (item === "obstacles") {
           await convertSprites({ srcCategory: "rush", sourceName: "rush-obstacles", grid: [4, 3], slots: manifest.rush.obstacles, outCategory: "rush" });
         } else unknown(category, item, [...singles, "obstacles"]);
+      }
+      return;
+    }
+    case "ending": {
+      // The post-credits stinger stills (docs/world/14): full-frame art, lossy like the buildings.
+      const names = Object.keys(manifest.ending.singles);
+      for (const item of name ? [name] : names) {
+        if (!manifest.ending.singles[item]) unknown(category, item, names);
+        await convertSingle("ending", item, manifest.ending.singles[item]);
       }
       return;
     }

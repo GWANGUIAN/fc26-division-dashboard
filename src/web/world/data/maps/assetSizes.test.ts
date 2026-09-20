@@ -39,6 +39,10 @@ describe("converted image sizes match the definitions", () => {
     for (const key of ["ui/loading-bg", "ui/title-bg", "ui/select-bg"]) expect(await size(key), key).toEqual([1672, 940]);
   });
 
+  it("keeps the six post-credits stinger stills at the 16:9 size the overlay covers the stage with (docs/world/14)", async () => {
+    for (const key of ["pc-01-dropped-trimmer", "pc-02-glove-grab", "pc-03-silhouette-rise", "pc-04-scheme-room", "pc-05-eye-v-sign", "pc-06-village-hint"]) expect(await size(`ending/${key}`), key).toEqual([1672, 940]);
+  });
+
   it("keeps the game frame at the size stageLayout.ts measured its see-through middle on", async () => {
     expect(await size("ui/game-outer-frame")).toEqual([1672, 941]);
   });

@@ -1,5 +1,5 @@
 // Esc priority (docs/world/08 §5 #3): the topmost open UI takes the key and nothing else reacts. From the top:
-//   group photo → ending cards (credits skip, the bloom banner ignores it) → minigame / card modal → pause menu
+//   group photo → ending cards (the credits skip to the stinger, the stinger skips to the world, the bloom banner ignores it) → minigame / card modal → pause menu
 //   (a sub-page goes back to the menu first) → mission log → dialogue → coach marks (skip the guide) → otherwise
 //   Esc opens the pause menu. Leaving the world is a menu item (or the X button); Esc alone never closes it while playing.
 
@@ -8,12 +8,13 @@ export type OverlayPhase = "boot" | "title" | "select" | "prologue" | "core" | "
 /** Which page of the pause menu is showing (closed = no menu). */
 export type PauseView = "closed" | "main" | "settings" | "credits" | "confirm-new";
 
-/** The ending cut (docs/world/02 §9): the golden grass blooms, the last words, the photo, the credits card. */
-export type EndingStage = "bloom" | "dialogue" | "photo" | "credits";
+/** The ending cut (docs/world/02 §9): the golden grass blooms, the last words, the photo, the credits card and the post-credits stinger (docs/world/14). */
+export type EndingStage = "bloom" | "dialogue" | "photo" | "credits" | "stinger";
 
 export type EscapeAction =
   | "close-photo"
   | "skip-credits"
+  | "skip-stinger"
   | "ignore"
   | "close-modal"
   | "pause-back"
@@ -45,6 +46,7 @@ export function resolveEscape({ phase, dialogueOpen, coachActive, modalOpen = fa
   if (phase === "play") {
     if (photoOpen) return "close-photo";
     if (ending === "credits") return "skip-credits";
+    if (ending === "stinger") return "skip-stinger";
     if (ending === "bloom") return "ignore";
     if (modalOpen) return "close-modal";
     if (pauseView === "settings" || pauseView === "credits" || pauseView === "confirm-new") return "pause-back";

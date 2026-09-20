@@ -79,7 +79,8 @@ export type FinaleOutcome = "cleared" | "failed" | "ignored";
 export function finaleRoundOutcome(def: Extract<MissionDef, { kind: "finale" }>, raw: unknown, result: MinigameRoundResult): FinaleOutcome {
   const round = def.rounds[asProgress(raw).round ?? 0];
   if (!round || round.game !== result.game) return "ignored";
-  return result.score >= round.min ? "cleared" : "failed";
+  const met = round.max !== undefined ? result.score <= round.max : result.score >= (round.min ?? 0);
+  return met ? "cleared" : "failed";
 }
 
 /** Untimed deliveries are picked up on accept; the item id list to carry. */

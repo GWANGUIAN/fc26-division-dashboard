@@ -195,7 +195,7 @@ export const FINALE_SCRIPT: FinaleScript = {
   rounds: [
     { taunt: "깎기 전에 숫자부터 세 보시지!", cleared: "…제법이군. 하지만 다음은 다르다!" },
     { taunt: "내 제초기보다 빨리 튀길 수 있나?", cleared: "이럴 수가! 하지만 마지막 라운드가 남았다!" },
-    { taunt: "마지막이다! 이 골대는 내 것이야!", cleared: "" },
+    { taunt: "마지막이다! 짝이 안 맞는 잔디는 전부 밀어 버리겠어!", cleared: "" },
   ],
   victory: [
     { who: "referee", text: "삐이익—! 3라운드 모두 승리! 결전 종료!", mood: "happy" },

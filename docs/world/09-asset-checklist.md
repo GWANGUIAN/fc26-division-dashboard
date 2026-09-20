@@ -344,3 +344,20 @@ turn(서 있는 자세) 시트의 발끝 편차는 전원 허용 이내였다.
 - [x] **고해상도 재변환**: `ui-{loading,title,select}-bg.png` 3장은 1672×940 무손실 WebP, `int-*.png` 19장은 1536px 원본 크롭 후 640×384 무손실 WebP로 재변환했다. `assetSizes.test.ts`가 두 규격을 검사한다.
 - 생성 요청은 [11-s7-image-generation-briefs.md](11-s7-image-generation-briefs.md)에 별도 정리했다. 파일마다 레퍼런스·세션 유지 여부·저장 이름·프롬프트를 분리한다.
 - 자동 검증: S7 변환 후 `assetSizes.test.ts`가 실내 19장의 640×384 논리 크기와 UI 배경 3장의 1672×940 크기를 확인한다. 전체 `pnpm typecheck && pnpm test`는 2026-09-19에 679개 테스트를 통과했다.
+
+## 15. 엔딩 크레딧 이후 스팅어 에셋 (2026-09-20)
+
+[14-postcredits-image-briefs.md](14-postcredits-image-briefs.md)의 컷 6장. 원본은 `tmp/world-src/ending/`(1672×941 불투명 PNG), 최종은 `src/web/assets/world/ending/`. 변환은 `pnpm convert:world-art -- ending --quality 90`(`world-art-manifest.json`의 `ending.singles`, 1672×940 `cover`, 손실 WebP q90). 6장 합계 약 2.2MB이며 엔딩이 되어서야 `img`로 불려 나온다(개화 시작 때 미리 내려받기 시작, 로딩 프리로더 대상 아님). 크기는 `assetSizes.test.ts`가, 타임라인·에셋 존재는 `state/stinger.test.ts`가 검사한다.
+
+| 파일 | 원본 | 상태 |
+| --- | --- | --- |
+| `ending/pc-01-dropped-trimmer.webp` | `pc-01-dropped-trimmer.png` | [x] |
+| `ending/pc-02-glove-grab.webp` | `pc-02-glove-grab.png` | [x] |
+| `ending/pc-03-silhouette-rise.webp` | `pc-03-silhouette-rise.png` | [x] |
+| `ending/pc-04-scheme-room.webp` | `pc-04-scheme-room.png` | [x] |
+| `ending/pc-05-eye-v-sign.webp` | `pc-05-eye-v-sign.png` | [x] |
+| `ending/pc-06-village-hint.webp` | `pc-06-village-hint.png` | [x] |
+
+- 레퍼런스 전용(게임에 싣지 않음): `pc-qqq-stand.png`, `pc-qqq-turn.png`, `ref-qqq-original.png/.webp`.
+- 연결: `data/stingerData.ts`(컷·자막·소리 큐) → `state/stinger.ts`(타임라인) → `ui/StingerOverlay.tsx` → `WorldOverlay.tsx`(크레딧 뒤 단계). 스타일은 `world-mission.css`의 `.world-stinger*`.
+- 월드 전용 변환 에셋은 447 → 453개(크레딧 표기 `WorldCredits.tsx`도 같이 고쳤다).

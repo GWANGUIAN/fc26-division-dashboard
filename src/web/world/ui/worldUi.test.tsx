@@ -12,6 +12,7 @@ import { GoldBallCounter } from "./GoldBallCounter";
 import { Hud } from "./Hud";
 import { MissionLog } from "./MissionLog";
 import { PauseMenu } from "./PauseMenu";
+import { StingerOverlay } from "./StingerOverlay";
 import { nextToasts } from "./Toast";
 import { WorldCredits } from "./WorldCredits";
 import { STATUS_LABEL, missionIconKey, rewardText } from "./missionIcons";
@@ -118,7 +119,7 @@ describe("PauseMenu", () => {
     const html = renderToString(<WorldCredits />);
     expect(html).toContain("기획·구현");
     expect(html).toContain("뉴팬치");
-    expect(html).toContain("월드 전용 변환 에셋 447개");
+    expect(html).toContain("월드 전용 변환 에셋 453개");
     expect(html).not.toContain("상세 목록은 에셋 체크리스트");
     expect(html).toContain("BGM 13/14, SFX 53/53, 앰비언스 9/9");
     expect(html).not.toContain("배포 전 확인 필요");
@@ -186,5 +187,16 @@ describe("S5 panels", () => {
   it("renders the factory runner controls and saved best", () => {
     const html = renderToString(<GrassRushModal player="janine95kim" factory best={600} onClose={noop} />);
     expect(html).toContain("제초 공장 코스"); expect(html).toContain("슬라이드"); expect(html).toContain("상현급");
+  });
+});
+
+describe("StingerOverlay", () => {
+  it("starts on a black screen (no still, no caption yet) with a skip hint", () => {
+    const html = renderToString(<StingerOverlay audio={SILENT_AUDIO} onDone={noop} />);
+    expect(html).toContain("world-stinger");
+    expect(html).toContain("Esc 전체 건너뛰기");
+    expect(html).not.toContain("world-stinger__next");
+    expect(html).not.toContain("<img");
+    expect(html).not.toContain("<p class=\"world-stinger__caption\"");
   });
 });

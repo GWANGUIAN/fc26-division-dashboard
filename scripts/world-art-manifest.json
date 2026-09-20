@@ -196,5 +196,15 @@
       ["tackler-stand", 40, 56], ["banner-low", 72, 32], ["puddle", 48, 12], ["sprinkler", 28, 36],
       ["seed", 20, 20], ["goldball", 20, 20], ["magnet", 24, 24], ["shield", 24, 24]
     ]
+  },
+  "ending": {
+    "singles": {
+      "pc-01-dropped-trimmer": { "src": "pc-01-dropped-trimmer", "w": 1672, "h": 940, "mode": "cover" },
+      "pc-02-glove-grab": { "src": "pc-02-glove-grab", "w": 1672, "h": 940, "mode": "cover" },
+      "pc-03-silhouette-rise": { "src": "pc-03-silhouette-rise", "w": 1672, "h": 940, "mode": "cover" },
+      "pc-04-scheme-room": { "src": "pc-04-scheme-room", "w": 1672, "h": 940, "mode": "cover" },
+      "pc-05-eye-v-sign": { "src": "pc-05-eye-v-sign", "w": 1672, "h": 940, "mode": "cover" },
+      "pc-06-village-hint": { "src": "pc-06-village-hint", "w": 1672, "h": 940, "mode": "cover" }
+    }
   }
 }

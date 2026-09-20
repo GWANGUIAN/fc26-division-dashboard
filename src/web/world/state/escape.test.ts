@@ -26,6 +26,13 @@ describe("resolveEscape while playing", () => {
   it("opens the pause menu when nothing else is open (it never leaves the world by itself)", () => {
     expect(resolveEscape(play())).toBe("open-pause");
   });
+
+  it("takes the ending one card at a time: the photo, then the credits, then the stinger; the bloom banner ignores it", () => {
+    expect(resolveEscape(play({ ending: "photo", photoOpen: true }))).toBe("close-photo");
+    expect(resolveEscape(play({ ending: "credits", pauseView: "main", modalOpen: true }))).toBe("skip-credits");
+    expect(resolveEscape(play({ ending: "stinger", pauseView: "main", modalOpen: true }))).toBe("skip-stinger");
+    expect(resolveEscape(play({ ending: "bloom" }))).toBe("ignore");
+  });
 });
 
 describe("resolveEscape outside the world", () => {

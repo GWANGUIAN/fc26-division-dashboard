@@ -386,3 +386,145 @@
   .world-ending__banner--second,
   .world-ending__line { animation-duration: 0.01s; }
 }
+
+/* ── Post-credits stinger (docs/world/14): six stills, a caption or two and "to be continued" ───── */
+.world-stinger {
+  position: absolute;
+  inset: 0;
+  z-index: 16;
+  overflow: hidden;
+  background: #000;
+  cursor: pointer;
+}
+.world-stinger__cut {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  animation: world-stinger-fade var(--stinger-fade, 0s) linear both;
+}
+.world-stinger__cut img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  animation-duration: var(--stinger-seconds, 5s);
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+.world-stinger__cut.is-zoom-in img { animation-name: world-stinger-zoom-in; }
+.world-stinger__cut.is-shake img { animation-name: world-stinger-shake; }
+.world-stinger__cut.is-tilt-up img { animation-name: world-stinger-tilt-up; }
+.world-stinger__cut.is-pan-right img { animation-name: world-stinger-pan-right; }
+.world-stinger__cut.is-punch img { animation-name: world-stinger-punch; }
+.world-stinger__cut.is-settle img { animation-name: world-stinger-settle; }
+@keyframes world-stinger-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes world-stinger-zoom-in {
+  from { transform: scale(1); }
+  to { transform: scale(1.06); }
+}
+@keyframes world-stinger-shake {
+  0% { transform: scale(1.04) translate(0, 0); }
+  6% { transform: scale(1.04) translate(-5px, 3px); }
+  12% { transform: scale(1.04) translate(5px, -4px); }
+  18% { transform: scale(1.04) translate(-4px, 2px); }
+  24% { transform: scale(1.04) translate(3px, -2px); }
+  30% { transform: scale(1.04) translate(0, 0); }
+  100% { transform: scale(1.07) translate(0, 0); }
+}
+@keyframes world-stinger-tilt-up {
+  from { transform: scale(1.08) translateY(3%); }
+  to { transform: scale(1.08) translateY(-3%); }
+}
+@keyframes world-stinger-pan-right {
+  from { transform: scale(1.1) translateX(3.5%); }
+  to { transform: scale(1.1) translateX(-3.5%); }
+}
+@keyframes world-stinger-punch {
+  0% { transform: scale(1); }
+  15% { transform: scale(1.1); }
+  100% { transform: scale(1.13); }
+}
+@keyframes world-stinger-settle {
+  from { transform: scale(1.03); }
+  to { transform: scale(1); }
+}
+
+.world-stinger__captions {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+.world-stinger__caption,
+.world-stinger__end {
+  margin: 0;
+  padding: 6px 14px;
+  color: #f4fffb;
+  font-size: 13px;
+  text-align: center;
+  text-shadow: 0 1px 0 #000;
+  background: rgba(2, 8, 12, 0.74);
+  border: 1px solid rgba(106, 220, 242, 0.55);
+  animation: world-stinger-fade 0.35s ease-out both;
+}
+.world-stinger__who {
+  margin-right: 8px;
+  color: #6adcf2;
+}
+.world-stinger__end {
+  padding: 6px 18px;
+  color: #e8fff6;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  border-color: rgba(232, 255, 246, 0.35);
+  animation-duration: 1.2s;
+}
+.world-stinger__hint {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  margin: 0;
+  color: #b8ffe8;
+  font-size: 10px;
+  text-shadow: 0 1px 0 #000;
+  opacity: 0.55;
+}
+/* Shown once a still has settled: the player is holding on it and Enter moves on. */
+.world-stinger__next {
+  position: absolute;
+  right: 14px;
+  bottom: 8px;
+  margin: 0;
+  color: #e8fff6;
+  font-size: 11px;
+  text-shadow: 0 1px 0 #000;
+  animation: world-stinger-blink 1.2s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes world-stinger-blink {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+.world-stinger__black {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+}
+.world-stinger__black.is-fading { animation: world-stinger-fade 1s linear both; }
+
+@media (prefers-reduced-motion: reduce) {
+  /* Fades stay; the zoom, tilt, pan and shake go. */
+  .world-stinger__cut img { animation: none; transform: none; }
+  .world-stinger__next { animation: none; }
+}

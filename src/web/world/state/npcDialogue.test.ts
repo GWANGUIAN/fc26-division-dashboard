@@ -257,7 +257,7 @@ describe("the showdown", () => {
     expect(start.choices?.[0]).toMatchObject({ label: "1라운드 도전!", effect: { type: "start-round", mission: "m-90-finale" } });
     expect(roundCall(finale, 0)).toBe("1라운드! 축구공 합 10, 80점 이상이면 통과!");
     expect(roundCall(finale, 1)).toBe("2라운드! 축구공 튀기기, 20회 이상이면 통과!");
-    expect(roundCall(finale, 2)).toBe("3라운드! 3D 프리킥, 5골 이상이면 통과!");
+    expect(roundCall(finale, 2)).toBe("3라운드! 카드 짝 맞추기, 17턴 이하면 통과!");
   });
 
   it("asks for the round the player is on, and the King answers the last one", () => {
@@ -271,7 +271,7 @@ describe("the showdown", () => {
 
   it("reports the win with the whistle and pays the mission out at the end", () => {
     let save = acceptMission(open(), "m-90-finale");
-    for (const game of ["soccer-sum10", "kickups", "freekick"] as const) save = applyMissionEvent(save, { type: "finale-round", result: { game, score: 99 } }).save;
+    for (const [game, score] of [["soccer-sum10", 99], ["kickups", 99], ["cardmatch", 12]] as const) save = applyMissionEvent(save, { type: "finale-round", result: { game, score } }).save;
     const win = talkTo("referee", save);
     expect(win.node.lines.map((line) => line.text)).toEqual(FINALE_SCRIPT.victory.map((line) => line.text));
     expect(win.endEffects).toEqual([{ type: "complete", mission: "m-90-finale" }]);

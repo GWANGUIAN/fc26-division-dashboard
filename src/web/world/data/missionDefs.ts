@@ -23,11 +23,20 @@ export const MINIGAME_INFO: Record<MinigameGame, { name: string; unit: string }>
   cardmatch: { name: "카드 짝 맞추기", unit: "턴" },
 };
 
-/** One round of the final showdown: the round's game must be played in the stadium and reach `min`. */
+/** One round of the final showdown: the round's game must be played in the stadium and reach its goal (`min` or, for the card match, `max`). */
 export interface FinaleRound {
   game: MinigameGame;
-  /** score ≥ min */
-  min: number;
+  /** score ≥ min (every game but the card match) */
+  min?: number;
+  /** turns ≤ max (the card match: fewer turns is better) */
+  max?: number;
+}
+
+/** What a round asks for, with the ending that fits the wording: "80점 이상이면" / "17턴 이하면" ("…이 필요해요" / "…여야 해요" for the failure toast). */
+export function finaleRoundGoal(round: FinaleRound, ending: "if" | "need"): string {
+  const { unit } = MINIGAME_INFO[round.game];
+  if (round.max !== undefined) return `${round.max}${unit} 이하${ending === "if" ? "면" : "여야 해요"}`;
+  return `${round.min}${unit} 이상${ending === "if" ? "이면" : "이 필요해요"}`;
 }
 
 /** What a delivery item has to reach: a mailbox (world object id) or a person (cast id). */
@@ -193,7 +202,7 @@ export const MISSION_DEFS: readonly MissionDef[] = [
     rounds: [
       { game: "soccer-sum10", min: 80 },
       { game: "kickups", min: 20 },
-      { game: "freekick", min: 5 },
+      { game: "cardmatch", max: 17 },
     ],
     // 17 balls lie outside the sealed weed zone (the other three come after the ending), so 12 asks for most of the map and
     // leaves 5 of all 20 for the kid's "any 5 balls" mission after the ending (it counts held balls, spent ones do not).

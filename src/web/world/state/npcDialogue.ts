@@ -1,7 +1,7 @@
 import {
   CAST_SCRIPTS, FINALE_SCRIPT, MISSION_SCRIPTS, STORY_SCRIPT, cheerLine, type CastScript, type CutLine, type Line, type MissionScript,
 } from "../data/dialogueData";
-import { MINIGAME_INFO, missionDefsFor, type MissionDef } from "../data/missionDefs";
+import { MINIGAME_INFO, finaleRoundGoal, missionDefsFor, type MissionDef } from "../data/missionDefs";
 import type { CastDef, CastId, SceneId } from "../types";
 import type { DialogueChoice, DialogueEffect, DialogueLine, DialogueNode } from "./dialogue";
 import { missionStatus, type MissionSave } from "./missions";
@@ -111,8 +111,7 @@ function completePart(cast: CastDef, def: MissionDef): Part {
 /** "1라운드! 축구공 합 10, 80점 이상이면 통과!" — built from the mission data so retuning a threshold retunes the line. */
 export function roundCall(def: Extract<MissionDef, { kind: "finale" }>, round: number): string {
   const spec = def.rounds[round];
-  const info = MINIGAME_INFO[spec.game];
-  return `${round + 1}라운드! ${info.name}, ${spec.min}${info.unit} 이상이면 통과!`;
+  return `${round + 1}라운드! ${MINIGAME_INFO[spec.game].name}, ${finaleRoundGoal(spec, "if")} 통과!`;
 }
 
 /** The golden-ball way out of one round: asked about, sure-check, and the scene once the balls are spent. */

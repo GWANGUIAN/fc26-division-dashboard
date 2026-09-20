@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getMissionDef, type MissionDef } from "../data/missionDefs";
-import { describeProgress, evaluateEvent, initialProgress, meetsMinigameGoal, type EvalContext, type MissionEvent } from "./missionEval";
+import { describeProgress, evaluateEvent, finaleRoundOutcome, initialProgress, meetsMinigameGoal, type EvalContext, type MissionEvent } from "./missionEval";
 
 const def = (id: string): MissionDef => {
   const found = getMissionDef(id);
@@ -147,5 +147,30 @@ describe("talk_chain", () => {
     expect(run("m-hachi97-talkchain", { type: "talk", cast: "cat-jandi" }, progress)).toBeNull();
     const last = run("m-hachi97-talkchain", { type: "talk", cast: "shopkeeper" }, progress);
     expect(last?.ready).toBe(true);
+  });
+});
+
+describe("finale rounds", () => {
+  const finale = def("m-90-finale");
+  if (finale.kind !== "finale") throw new Error("m-90-finale is a finale");
+  const outcome = (round: number, game: "soccer-sum10" | "kickups" | "freekick" | "cardmatch", score: number) => finaleRoundOutcome(finale, { round }, { game, score });
+
+  it("clears the score rounds at or above the minimum", () => {
+    expect(outcome(0, "soccer-sum10", 79)).toBe("failed");
+    expect(outcome(0, "soccer-sum10", 80)).toBe("cleared");
+    expect(outcome(1, "kickups", 19)).toBe("failed");
+    expect(outcome(1, "kickups", 20)).toBe("cleared");
+  });
+
+  it("makes the last round the card match: 17 turns or fewer, fewer is better", () => {
+    expect(finale.rounds[2]).toEqual({ game: "cardmatch", max: 17 });
+    expect(outcome(2, "cardmatch", 18)).toBe("failed");
+    expect(outcome(2, "cardmatch", 17)).toBe("cleared");
+    expect(outcome(2, "cardmatch", 12)).toBe("cleared");
+  });
+
+  it("only counts the game that is on the card", () => {
+    expect(outcome(2, "freekick", 15)).toBe("ignored");
+    expect(outcome(0, "cardmatch", 10)).toBe("ignored");
   });
 });

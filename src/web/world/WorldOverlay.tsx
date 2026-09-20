@@ -12,8 +12,10 @@ import { WorldAudio, type BgmId } from "./audio/worldAudio";
 import { WorldCanvas } from "./WorldCanvas";
 import { isWorldDebug } from "./debug";
 import { FINALE_SCRIPT } from "./data/dialogueData";
-import { MINIGAME_INFO, getMissionDef, missionDefsFor, totalShardsFor } from "./data/missionDefs";
+import { STINGER_SKIP_GUARD_MS } from "./data/stingerData";
+import { MINIGAME_INFO, finaleRoundGoal, getMissionDef, missionDefsFor, totalShardsFor } from "./data/missionDefs";
 import { getCast } from "./data/worldCast";
+import { ambienceIdFor } from "./engine/ambience";
 import type { DebugPick, SaveStore, WorldEngine, WorldEvents } from "./engine/world";
 import type { RunEvent } from "./engine/runs";
 import { parseAction } from "./state/actions";
@@ -46,6 +48,7 @@ import { LoadingScreen } from "./ui/LoadingScreen";
 import { MissionLog } from "./ui/MissionLog";
 import { PauseMenu } from "./ui/PauseMenu";
 import { Prologue } from "./ui/Prologue";
+import { StingerOverlay, preloadStingerImages } from "./ui/StingerOverlay";
 import { TitleScreen } from "./ui/TitleScreen";
 import { ToastLayer, useToasts } from "./ui/Toast";
 import { WorldModals, type DashboardBridge, type WorldModal } from "./ui/WorldModals";
@@ -182,6 +185,8 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
   /** The minigame of a showdown round the player just chose; it opens once the conversation is closed. */
   const pendingRound = useRef<MinigameRoundResult["game"] | null>(null);
   const modalRef = useRef<WorldModal | null>(null);
+  /** When the post-credits stinger began: an Esc within the guard window is the tail of the press that ended the credits. */
+  const stingerStartedAt = useRef(0);
 
   useBodyScrollLock();
 
@@ -475,7 +480,7 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
       const spec = finale.rounds[round];
       const info = MINIGAME_INFO[spec.game];
       if (outcome === "failed") {
-        pushSequence([{ text: `${result.score}${info.unit} — ${spec.min}${info.unit} 이상이 필요해요. 심판에게 다시 말을 걸어 도전하세요`, accent: "#ff6a5a", sfx: "timeup" }]);
+        pushSequence([{ text: `${result.score}${info.unit} — ${finaleRoundGoal(spec, "need")}. 심판에게 다시 말을 걸어 도전하세요`, accent: "#ff6a5a", sfx: "timeup" }]);
         return;
       }
       if (round + 1 < finale.rounds.length) pushSequence([{ text: `${round + 1}라운드 통과! (${round + 1}/${finale.rounds.length})`, accent: "#ffd54a", sfx: "checkpoint" }]);
@@ -719,12 +724,21 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
     if (!endingDue || ending !== null || busy || !engine) return;
     setEnding("bloom");
     playBgm(["ending", "stadium", "interior"]);
+    preloadStingerImages();
     engine.playBloom();
   }, [endingDue, ending, busy, engine, playBgm]);
+
+  /** The credits are over (or skipped): the post-credits stinger (docs/world/14) runs before the world comes back. */
+  function beginStinger() {
+    stingerStartedAt.current = performance.now();
+    setEnding("stinger");
+  }
 
   function finishEnding() {
     commit((current) => withEndingFlags(current));
     setEnding(null);
+    // The stinger switched the ambience to its own night, machine and dawn loops: put the stadium back.
+    audio.playAmbience(ambienceIdFor(engineRef.current?.getState().scene ?? "overworld", null));
     if (store) playBgm(bgmFor(engineRef.current?.getState().scene ?? "overworld", undefined, { shards: store.save.shards, flags: { ...store.save.flags, [ENDING_SEEN_FLAG]: true } }));
     pushSequence([
       { text: "제초동 구역의 문이 열렸어요! 남동쪽 게이트로 가 보세요", accent: "#00e9ae", sfx: "shard-restore" },
@@ -744,7 +758,10 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
         else setFramePhoto(false);
         break;
       case "skip-credits":
-        finishEnding();
+        beginStinger();
+        break;
+      case "skip-stinger":
+        if (performance.now() - stingerStartedAt.current >= STINGER_SKIP_GUARD_MS) finishEnding();
         break;
       case "close-modal":
         closeModal();
@@ -841,7 +858,8 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
             {!dialogue && !logOpen && pauseView === "closed" && <p className="world-hint">방향키/WASD 이동 · Shift 달리기 · E 상호작용 · J 미션 로그 · Esc 메뉴</p>}
             <CoachMarks step={coachStep} />
             <ToastLayer toasts={toasts} />
-            {(ending === "bloom" || ending === "credits") && <EndingOverlay stage={ending} lines={FINALE_SCRIPT.credits} onDone={finishEnding} />}
+            {(ending === "bloom" || ending === "credits") && <EndingOverlay stage={ending} lines={FINALE_SCRIPT.credits} onDone={beginStinger} />}
+            {ending === "stinger" && <StingerOverlay audio={audio} onDone={finishEnding} />}
             {dialogue && (
               <DialogueBox
                 key={`${dialogue.cast ?? "object"}-${talkedTotal}`}

@@ -310,6 +310,8 @@ describe("world-art-manifest.json", () => {
     expect(manifest.interiors.ids).toHaveLength(19);
     expect(manifest.interiors).toMatchObject({ size: [640, 384], sourceWidth: 1536, lossless: true });
     for (const id of ["loading-bg", "title-bg", "select-bg"]) expect(manifest.ui.singles[id]).toMatchObject({ w: 1672, h: 940, lossless: true });
+    expect(Object.keys(manifest.ending.singles)).toEqual(["pc-01-dropped-trimmer", "pc-02-glove-grab", "pc-03-silhouette-rise", "pc-04-scheme-room", "pc-05-eye-v-sign", "pc-06-village-hint"]);
+    for (const still of Object.values(manifest.ending.singles)) expect(still).toMatchObject({ w: 1672, h: 940, mode: "cover" });
     expect(manifest.ui.singles["shard-gauge"]).toMatchObject({ src: "ui-shard-gauge", w: 120, h: 28, mode: "trim" });
     expect(manifest.ui.sheets["frames-panel"].slots[0][3]).toMatchObject({ opaqueInterior: true, interiorFill: [5, 39, 32] });
     expect(manifest.ui.sheets["frames-panel"].slots[6][0]).toBe("shard-gauge-legacy");
