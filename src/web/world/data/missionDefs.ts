@@ -32,7 +32,7 @@ export interface FinaleRound {
   max?: number;
 }
 
-/** What a round asks for, with the ending that fits the wording: "80점 이상이면" / "17턴 이하면" ("…이 필요해요" / "…여야 해요" for the failure toast). */
+/** What a round asks for, with the ending that fits the wording: "70점 이상이면" / "17턴 이하면" ("…이 필요해요" / "…여야 해요" for the failure toast). */
 export function finaleRoundGoal(round: FinaleRound, ending: "if" | "need"): string {
   const { unit } = MINIGAME_INFO[round.game];
   if (round.max !== undefined) return `${round.max}${unit} 이하${ending === "if" ? "면" : "여야 해요"}`;
@@ -200,7 +200,7 @@ export const MISSION_DEFS: readonly MissionDef[] = [
   {
     id: "m-90-finale", giver: "referee", title: "제초동 결전", kind: "finale", main: false,
     rounds: [
-      { game: "soccer-sum10", min: 80 },
+      { game: "soccer-sum10", min: 70 },
       { game: "kickups", min: 20 },
       { game: "cardmatch", max: 17 },
     ],

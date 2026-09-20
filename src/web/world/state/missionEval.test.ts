@@ -156,8 +156,8 @@ describe("finale rounds", () => {
   const outcome = (round: number, game: "soccer-sum10" | "kickups" | "freekick" | "cardmatch", score: number) => finaleRoundOutcome(finale, { round }, { game, score });
 
   it("clears the score rounds at or above the minimum", () => {
-    expect(outcome(0, "soccer-sum10", 79)).toBe("failed");
-    expect(outcome(0, "soccer-sum10", 80)).toBe("cleared");
+    expect(outcome(0, "soccer-sum10", 69)).toBe("failed");
+    expect(outcome(0, "soccer-sum10", 70)).toBe("cleared");
     expect(outcome(1, "kickups", 19)).toBe("failed");
     expect(outcome(1, "kickups", 20)).toBe("cleared");
   });
