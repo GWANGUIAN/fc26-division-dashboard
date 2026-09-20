@@ -9,6 +9,12 @@
 .cardmatch-badge--best { color: var(--accent-text); }
 .cardmatch-restart { margin-left: auto; padding: 7px 16px; border: 1px solid var(--accent-border); border-radius: 999px; color: #002219; background: var(--accent-text); font: 700 13px/1 "Barlow Condensed", "Noto Sans KR"; letter-spacing: .04em; transition: transform .15s; }
 .cardmatch-restart:hover, .cardmatch-restart:focus-visible { transform: scale(1.05); outline: 0; }
+/* The clear message sits in the middle of the badge/new-game line and stays until a new game starts. */
+.cardmatch-badges { position: relative; }
+.cardmatch-clear { position: absolute; left: 50%; padding: 5px 14px; border: 1px solid var(--accent-border); border-radius: 20px; color: var(--accent-text); background: var(--surface-3); font: 800 14px/1 "Barlow Condensed", "Noto Sans KR"; letter-spacing: .02em; white-space: nowrap; transform: translateX(-50%); }
+@media (max-width: 560px) {
+  .cardmatch-clear { position: static; order: 3; width: 100%; text-align: center; transform: none; }
+}
 
 .cardmatch-empty { color: var(--text-secondary); font-size: 13px; }
 
@@ -104,7 +110,3 @@
   60% { transform: rotateY(180deg) translateX(-4px); }
   80% { transform: rotateY(180deg) translateX(4px); }
 }
-
-.cardmatch-result { display: grid; gap: 8px; justify-items: center; padding: 16px; border: 1px solid var(--border-default); border-radius: 12px; background: var(--surface-elevated); box-shadow: 0 12px 30px rgba(var(--shadow-color), .5); text-align: center; }
-.cardmatch-result__label { font: 800 22px/1 "Barlow Condensed", "Noto Sans KR"; }
-.cardmatch-result__record { color: var(--accent-text); font: 700 14px/1 "Barlow Condensed", "Noto Sans KR"; }

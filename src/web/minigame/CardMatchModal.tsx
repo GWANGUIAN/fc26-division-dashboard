@@ -62,6 +62,11 @@ export function CardMatchModal({
           <div className="cardmatch-badge cardmatch-badge--best">
             최고 기록 {bestTurns !== null ? `${bestTurns}턴` : "-"}
           </div>
+          {state?.phase === "won" && (
+            <div className="cardmatch-clear" role="status">
+              🎉 클리어! {state.turns}턴{isNewRecord && " · 🏆 신기록!"}
+            </div>
+          )}
           <button type="button" className="cardmatch-restart" onClick={newGame}>
             새 게임
           </button>
@@ -80,12 +85,6 @@ export function CardMatchModal({
                 onFlip={() => handleFlip(index)}
               />
             ))}
-          </div>
-        )}
-        {state && state.phase === "won" && (
-          <div className="cardmatch-result">
-            <div className="cardmatch-result__label">🎉 클리어! {state.turns}턴</div>
-            {isNewRecord && <div className="cardmatch-result__record">🏆 신기록!</div>}
           </div>
         )}
       </div>

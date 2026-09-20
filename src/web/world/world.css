@@ -40,6 +40,12 @@
   user-select: none;
 }
 
+/* The dashboard's minigame modals (.modal-backdrop is z-index 20 site-wide) render inside the overlay, so
+   lift them above the frame (50) while keeping the world's close button (60) on top. */
+.world-overlay .modal-backdrop {
+  z-index: 55;
+}
+
 .world-canvas {
   display: block;
   width: 640px;

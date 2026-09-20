@@ -51,7 +51,8 @@ interface WorldModalsProps {
 /**
  * Renders the existing minigame modals and the 3D card popup inside the world overlay (docs/world/01 §10).
  * They keep their own fixed-position layers (z-index 20 / 90), which sit inside the overlay's stacking
- * context and therefore above the HUD; the overlay routes Esc, so their own Esc listeners never fire.
+ * context and therefore above the HUD; world.css lifts the z-index-20 `.modal-backdrop` above the game
+ * frame. The overlay routes Esc, so their own Esc listeners never fire.
  */
 export function WorldModals({ modal, save, onClaimDaily, dashboard, onClose, onRoundEnd, onCardView, onSelectCard, audio }: WorldModalsProps) {
   if (!modal) return null;
