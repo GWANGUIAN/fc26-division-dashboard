@@ -2,22 +2,20 @@ import { WORLD_ONAIR_SOOP_IDS } from "../../../shared/world-onair.js";
 import type { MapBuilding, MapProp, Rect, TileBox } from "../types";
 import type { WorldAssets } from "../worldAssets";
 import type { Camera } from "./camera";
-import { FONT, HOME_SIGN_RISE, TILE } from "./render";
+import { ON_AIR_RISE, ON_AIR_SIZE } from "./doorSigns";
+import { FONT, TILE } from "./render";
 import type { BuildingInstance } from "./scene";
 
 /**
  * The ON AIR sign over a member's front door (docs/world/15-onair-sign.md). It hangs on the house
- * facade above the "~의 집" name plate, lit while the member is live on SOOP, and a click opens their
+ * facade under the "~의 집" name plate, lit while the member is live on SOOP, and a click opens their
  * broadcast (or their station when they are off air).
  */
 
+export { ON_AIR_RISE };
 export const ON_AIR_KEYS = { on: "props/onair-sign-on", off: "props/onair-sign-off" } as const;
 /** Size drawn while the art is missing; the converted webp is this size (scripts/world-art-manifest.json, "onair"). */
-export const ON_AIR_FALLBACK_SIZE = { w: 58, h: 33 } as const;
-/** Air between the sign's bottom edge and the name plate under it. */
-const NAME_PLATE_GAP = 6;
-/** How far above the doorstep row's bottom edge the sign's bottom edge sits: clear of the name plate. */
-export const ON_AIR_RISE = HOME_SIGN_RISE + NAME_PLATE_GAP;
+export const ON_AIR_FALLBACK_SIZE = ON_AIR_SIZE;
 /** Forgiveness around the sign for a mouse click, in stage px. */
 const HIT_PAD = 3;
 
@@ -59,6 +57,15 @@ export function entranceX(door: TileBox, props: readonly MapProp[]): number {
 export interface OnAirMapData {
   buildings: readonly Pick<MapBuilding, "id" | "door">[];
   props: readonly MapProp[];
+}
+
+/**
+ * Where the "○○의 집" name plate of a house is anchored: x = the middle of the entrance mat (the same axis as its
+ * ON AIR sign), y = the doorstep row's bottom edge. `null` for a house the map gives no door.
+ */
+export function homeSignAnchor(map: OnAirMapData, houseId: string): { x: number; y: number } | null {
+  const door = map.buildings.find((entry) => entry.id === houseId)?.door;
+  return door ? { x: entranceX(door, map.props), y: (door[1] + 1) * TILE } : null;
 }
 
 /** A sign for every member house of a scene, centred on the house's entrance mat. */

@@ -4,6 +4,7 @@ import type { MarkerKind } from "../state/missions";
 import { BALL_SIZE, ballBox, type Ball } from "./ball";
 import type { Camera } from "./camera";
 import { footBox } from "./collision";
+import { HOME_SIGN_HEIGHT, HOME_SIGN_RISE } from "./doorSigns";
 import { INTERACT_REACH, interactionProbe, npcHitArea } from "./interaction";
 import { NPC_BOX, type Npc } from "./npc";
 import type { RunHud } from "./runs";
@@ -310,16 +311,16 @@ export function drawEdgePointer(ctx: CanvasRenderingContext2D, from: { x: number
   ctx.restore();
 }
 
-/** The name plate's top edge sits this many px above the doorstep row's bottom edge; the ON AIR sign stacks above it. */
-export const HOME_SIGN_RISE = 66;
-export const HOME_SIGN_HEIGHT = 14;
-
-/** Small name plate over the player's own house door ("sign-home", docs/world/03 §4 — no art, drawn by code). */
-export function drawHomeSign(ctx: CanvasRenderingContext2D, camera: Camera, doorCenterX: number, baseY: number, label: string) {
+/**
+ * Small name plate over the player's own house door ("sign-home", docs/world/03 §4 — no art, drawn by code).
+ * `entranceX` is the middle of the entrance mat; the plate stacks above the ON AIR sign (engine/doorSigns.ts).
+ */
+export function drawHomeSign(ctx: CanvasRenderingContext2D, camera: Camera, entranceX: number, baseY: number, label: string) {
   const text = `${label}의 집`;
   ctx.font = `10px ${FONT}`;
-  const w = Math.ceil(ctx.measureText(text).width) + 10;
-  const x = Math.round(doorCenterX - w / 2 - camera.x);
+  // An even width puts the plate's middle on a whole pixel, so it centres exactly on the entrance axis.
+  const w = Math.ceil(ctx.measureText(text).width / 2) * 2 + 10;
+  const x = Math.round(entranceX - w / 2 - camera.x);
   const y = Math.round(baseY - HOME_SIGN_RISE - camera.y);
   ctx.fillStyle = "rgba(11, 22, 20, 0.9)";
   ctx.fillRect(x, y, w, HOME_SIGN_HEIGHT);

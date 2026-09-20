@@ -22,7 +22,7 @@ import { createInput } from "./input";
 import { createLoop } from "./loop";
 import { getScene, zoneAtPoint, terrainCodeAt } from "./mapScene";
 import { createNpc, endTalk, npcBox, startTalk, stepNpc, type Npc } from "./npc";
-import { drawOnAirSign, findOnAirSigns, onAirSignAt, onAirSize, type OnAirSign } from "./onAirSign";
+import { drawOnAirSign, findOnAirSigns, homeSignAnchor, onAirSignAt, onAirSize, type OnAirSign } from "./onAirSign";
 import { RunManager, type RunEvent } from "./runs";
 import {
   VIEW_HEIGHT, VIEW_WIDTH, TILE, buildStaticOrder, drawBall, drawBuilding, drawCharacter, drawDebug, drawEdgePointer, drawHomeSign, drawInterior,
@@ -181,8 +181,8 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
   const npcPool = new Map<string, Npc>();
   const runs = new RunManager();
 
-  const home = OVERWORLD_MAP.buildings.find((b) => b.id === `house-${playerId}`);
-  const homeSign = home?.door ? { x: (home.door[0] + 1) * TILE, y: (home.door[1] + 1) * TILE } : null;
+  // The player's "○○의 집" name plate: on the entrance mat's axis like the house's ON AIR sign, above it.
+  const homeSign = homeSignAnchor(OVERWORLD_MAP, `house-${playerId}`);
 
   // ── state ────────────────────────────────────────────────────────────────────────────────
   let scene: WorldScene = getScene("overworld")!;

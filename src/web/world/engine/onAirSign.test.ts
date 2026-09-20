@@ -4,9 +4,10 @@ import { describe, expect, it } from "vitest";
 import { WORLD_ONAIR_SOOP_IDS } from "../../../shared/world-onair.js";
 import { OVERWORLD_MAP } from "../data/maps";
 import { WORLD_CAST } from "../data/worldCast";
-import { ON_AIR_FALLBACK_SIZE, ON_AIR_KEYS, ON_AIR_RISE, drawOnAirSign, entranceX, findOnAirSigns, onAirRect, onAirSignAt, onAirSize } from "./onAirSign";
+import { ON_AIR_FALLBACK_SIZE, ON_AIR_KEYS, ON_AIR_RISE, drawOnAirSign, entranceX, findOnAirSigns, homeSignAnchor, onAirRect, onAirSignAt, onAirSize } from "./onAirSign";
 import { getScene } from "./mapScene";
-import { HOME_SIGN_HEIGHT, HOME_SIGN_RISE, TILE } from "./render";
+import { HOME_SIGN_GAP, HOME_SIGN_HEIGHT, HOME_SIGN_RISE } from "./doorSigns";
+import { TILE, drawHomeSign } from "./render";
 
 const overworld = getScene("overworld")!;
 const signs = findOnAirSigns(overworld.buildings, OVERWORLD_MAP);
@@ -31,10 +32,24 @@ describe("findOnAirSigns", () => {
       expect(mats, sign.soopId).toHaveLength(1);
       expect(sign.x, sign.soopId).toBe(mats[0].x);
       expect(sign.y, sign.soopId).toBe(building.y - ON_AIR_RISE);
-      // The player's own house shows "~의 집" between the door and the sign: the sign's bottom edge must clear its top edge.
+    }
+  });
+
+  it("keeps the ON AIR sign where it was: 72 px above the doorstep row", () => {
+    expect(ON_AIR_RISE).toBe(72);
+    for (const sign of signs) expect(sign.y, sign.soopId).toBe(overworld.buildings[sign.buildingIndex].y - 72);
+  });
+
+  it("stacks the name plate above the ON AIR sign without touching it", () => {
+    for (const sign of signs) {
+      const building = overworld.buildings[sign.buildingIndex];
+      const signTop = sign.y - size.h;
       const plateTop = building.y - HOME_SIGN_RISE;
-      expect(sign.y).toBeLessThan(plateTop);
-      expect(plateTop + HOME_SIGN_HEIGHT).toBeLessThan(building.y);
+      const plateBottom = plateTop + HOME_SIGN_HEIGHT;
+      expect(plateBottom, sign.soopId).toBe(signTop - HOME_SIGN_GAP);
+      expect(plateBottom, sign.soopId).toBeLessThan(signTop);
+      // and it still lies inside the house sprite
+      expect(plateTop, sign.soopId).toBeGreaterThanOrEqual(building.y - building.h);
     }
   });
 
@@ -90,6 +105,39 @@ describe("findOnAirSigns", () => {
     expect(findOnAirSigns([{ ...building, id: "house-stranger" }], map)).toEqual([]);
     // a house the map gives no door has nothing to hang the sign over
     expect(findOnAirSigns([building], { buildings: [{ id: "house-hachi97" }], props: [] })).toEqual([]);
+  });
+});
+
+describe("name plate", () => {
+  it("is anchored on the same entrance axis as the ON AIR sign, for every house", () => {
+    for (const sign of signs) {
+      const anchor = homeSignAnchor(OVERWORLD_MAP, `house-${sign.soopId}`)!;
+      expect(anchor.x, sign.soopId).toBe(sign.x);
+      expect(anchor.y, sign.soopId).toBe(overworld.buildings[sign.buildingIndex].y);
+    }
+    expect(homeSignAnchor(OVERWORLD_MAP, "house-nobody")).toBeNull();
+    expect(homeSignAnchor({ buildings: [{ id: "house-x" }], props: [] }, "house-x")).toBeNull();
+  });
+
+  it("is drawn centred on that axis, above the sign", () => {
+    const rects: number[][] = [];
+    const ctx = new Proxy({} as CanvasRenderingContext2D, {
+      get: (_target, name: string) => {
+        if (name === "measureText") return (text: string) => ({ width: text.length * 5 + 1 }); // odd on purpose
+        if (name === "fillRect") return (...args: number[]) => rects.push(args);
+        return () => undefined;
+      },
+      set: () => true,
+    });
+    for (const sign of signs) {
+      rects.length = 0;
+      const anchor = homeSignAnchor(OVERWORLD_MAP, `house-${sign.soopId}`)!;
+      const camera = { x: anchor.x - 300, y: anchor.y - 200 };
+      drawHomeSign(ctx, camera, anchor.x, anchor.y, "하치");
+      const [x, y, w, h] = rects[0];
+      expect(x + w / 2, sign.soopId).toBe(anchor.x - camera.x);
+      expect(y + h, sign.soopId).toBeLessThan(sign.y - size.h - camera.y);
+    }
   });
 });
 
