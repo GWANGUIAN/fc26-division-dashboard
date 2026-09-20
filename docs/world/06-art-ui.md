@@ -200,7 +200,8 @@ Elements in order (left to right, top to bottom):
 | 대사 | `dialog-frame`(하단) + `nameplate` + `portrait-frame`(초상 128×128) + `next-1/2` 깜빡임 + 선택지 `choice-*` + `cursor` |
 | 미션 로그(J) | `panel-parchment`(slice 24, 테두리 24px) + 탭 `tab-*`(진행/완료) + `mi-*` 아이콘 + 오른쪽 상세(목표·의뢰인·장소·진행·보상). 종이 위라 글자색은 짙은 갈색 |
 | 메뉴(Esc) | `panel-frame`(slice 24, 테두리 24px) + `btn-secondary` 목록 + `mn-*` 아이콘. 페이지: 메인 / 설정(음악·효과음 켜기와 볼륨 ←→) / 새로 시작 확인 |
-| 일일 게시판 | `board-paper` + `stamp-card` + `stamp-mark` + `bd-*` |
+| 일일 게시판 | **S6 구현([17](17-daily-board-codex-redesign.md))**: `panel-frame`(528×324) 안에 `stamp-card` 프레임 카드 2장(오늘의 훈련 / 30일 스탬프) + `stamp-mark` + `check-badge` + `bd-stamp-*` + `btn-primary-*`. `board-paper`는 핀이 늘어나 미사용 |
+| 도감 | **S6 구현([17](17-daily-board-codex-redesign.md))**: `panel-parchment`(540×316) + `tab-*` 4탭(기록·황금 공·카드·뱃지) + `card-*`·초상·`bd-*`·`goldball-1` |
 | 토스트 | `toast-frame` + `shard-filled`/`bd-*` 아이콘 + 텍스트 |
 | 코치마크 | `coach-frame` + CSS 꼬리 + 키캡(CSS) |
 

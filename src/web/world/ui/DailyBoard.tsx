@@ -121,24 +121,24 @@ export function DailyBoard({ save, audio = SILENT_AUDIO, onClaim, onClose }: Dai
         <div className={`world-daily__body${ended ? "" : " is-locked"}`}>
           <section className={`world-daily__paper${has["frame-stamp"] ? " world-daily__paper--art" : ""}`} aria-label="오늘의 훈련">
             <div className="world-daily__sheet">
-            <h3>
-              오늘의 훈련 <em className={doneCount === 3 ? "is-all" : ""}>{doneCount}/3</em>
-            </h3>
-            <ul className="world-daily__tasks">
-              {views.map((view) => {
-                const icon = firstAsset(...dailyTaskIconKeys(view.task));
-                return (
-                  <li key={view.task.id} className={`world-daily__task is-${view.done ? "done" : "todo"}${taskArt ? " world-daily__task--art" : ""}`}>
-                    {icon ? <img className="world-daily__task-icon" src={icon} alt="" draggable={false} /> : <span className="world-daily__task-icon" aria-hidden="true" />}
-                    <span className="world-daily__task-text">{view.task.label}</span>
-                    <span className="world-daily__task-state">
-                      {view.done ? check ? <img src={check} alt="" draggable={false} /> : <i className="world-daily__tick">✓</i> : <i className={`world-daily__box${has["task-box"] ? " world-daily__box--art" : ""}`} aria-hidden="true" />}
-                      <b>{view.done ? "완료" : view.progress ? `${view.progress.have}/${view.progress.need}` : "진행"}</b>
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
+              <h3>
+                오늘의 훈련 <em className={doneCount === 3 ? "is-all" : ""}>{doneCount}/3</em>
+              </h3>
+              <ul className="world-daily__tasks">
+                {views.map((view) => {
+                  const icon = firstAsset(...dailyTaskIconKeys(view.task));
+                  return (
+                    <li key={view.task.id} className={`world-daily__task is-${view.done ? "done" : "todo"}${taskArt ? " world-daily__task--art" : ""}`}>
+                      {icon ? <img className="world-daily__task-icon" src={icon} alt="" draggable={false} /> : <span className="world-daily__task-icon" aria-hidden="true" />}
+                      <span className="world-daily__task-text">{view.task.label}</span>
+                      <span className="world-daily__task-state">
+                        {view.done ? check ? <img src={check} alt="" draggable={false} /> : <i className="world-daily__tick">✓</i> : <i className={`world-daily__box${has["task-box"] ? " world-daily__box--art" : ""}`} aria-hidden="true" />}
+                        <b>{view.done ? "완료" : view.progress ? `${view.progress.have}/${view.progress.need}` : "진행"}</b>
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
             {!ended && (
               <div className="world-daily__lock">

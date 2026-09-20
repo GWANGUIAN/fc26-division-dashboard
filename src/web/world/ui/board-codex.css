@@ -120,7 +120,8 @@
 
 /* Optional kit art (docs/world/17): plates for the task rows, the checkbox and the stamp cells. */
 .world-daily__task--art.is-todo,
-.world-daily__task--art.is-done { padding: 0 2px; border: 6px solid transparent; border-image: var(--task-todo) 8 fill / 6px stretch; background: none; box-shadow: none; }
+/* The plate's end gems stick out ~14px of its 123px, so the side slices are 14 (drawn 10px wide); top and bottom are 8 (drawn 6px). */
+.world-daily__task--art.is-done { padding: 0 2px; border: solid transparent; border-width: 6px 10px; border-image: var(--task-todo) 8 14 fill / 6px 10px stretch; background: none; box-shadow: none; }
 .world-daily__task--art.is-done { border-image-source: var(--task-done); }
 .world-daily__box--art { border: 0; background: var(--task-box) center / 20px 20px no-repeat; }
 
@@ -157,7 +158,7 @@
 .world-daily__slot.is-milestone::after { position: absolute; top: 0; right: 2px; color: #e0a21a; font-size: 8px; line-height: 1; text-shadow: 0 1px 0 #fef0d0; content: "★"; }
 .world-daily__slot.is-fresh .world-daily__mark { animation: world-daily-slam 0.4s ease-out both; }
 .world-daily__burst { position: absolute; z-index: 1; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px; pointer-events: none; animation: world-daily-burst 0.9s ease-out both; }
-.world-daily__stamps.is-art .world-daily__slot .world-daily__day { border: 0; background: var(--slot-empty) center / 24px 24px no-repeat; }
+.world-daily__stamps.is-art .world-daily__slot .world-daily__day { width: 24px; height: 24px; border: 0; background: var(--slot-empty) center / 24px 24px no-repeat; }
 .world-daily__stamps.is-art .world-daily__slot.is-milestone .world-daily__day { background-image: var(--slot-bonus); }
 .world-daily__stamps.is-art .world-daily__slot.is-next .world-daily__day { background-color: transparent; background-image: var(--slot-next); animation: none; }
 .world-daily__stamps.is-art .world-daily__slot.is-milestone::after { content: none; }
@@ -319,7 +320,7 @@
 .world-codex__ball.is-spent > img:not(.world-codex__ball-mark) { filter: grayscale(0.85); opacity: 0.7; }
 .world-codex__balls.is-art .world-codex__ball { border: 0; box-shadow: none; background: var(--ball-found) center / 44px 44px no-repeat; }
 .world-codex__balls.is-art .world-codex__ball.is-spent { background-image: var(--ball-spent); }
-.world-codex__balls.is-art .world-codex__ball.is-unknown { background-image: var(--ball-unknown); }
+.world-codex__balls.is-art .world-codex__ball.is-unknown { background-image: var(--ball-unknown); filter: sepia(1) brightness(1.15); }
 /* Not found yet: a dashed empty socket with a dark silhouette. */
 .world-codex__ball.is-unknown { border-style: dashed; border-color: rgba(120, 90, 40, 0.5); background: rgba(120, 90, 40, 0.1); }
 .world-codex__ball.is-unknown > img:not(.world-codex__ball-mark) { filter: brightness(0); opacity: 0.22; }
@@ -383,7 +384,7 @@
 .world-codex__badge.is-earned { border-color: #d19a00; background: linear-gradient(#fff3bc, #f3d36a); box-shadow: 0 0 6px rgba(255, 213, 74, 0.55); }
 .world-codex__badge.is-locked { border-style: dashed; border-color: rgba(120, 90, 40, 0.5); background: rgba(120, 90, 40, 0.1); }
 .world-codex__badges.is-art .world-codex__badge { border: 0; box-shadow: none; background: var(--badge-earned) center / 56px 56px no-repeat; }
-.world-codex__badges.is-art .world-codex__badge.is-locked { background-image: var(--badge-locked); }
+.world-codex__badges.is-art .world-codex__badge.is-locked { background-image: var(--badge-locked); filter: sepia(1) brightness(1.15); } /* the locked slot art is mauve; sepia turns it into a dim parchment tan */
 .world-codex .world-badge-icon.is-locked { filter: brightness(0); opacity: 0.28; }
 .world-codex__lock { position: absolute; right: 1px; bottom: 1px; width: 16px; height: 16px; image-rendering: pixelated; }
 

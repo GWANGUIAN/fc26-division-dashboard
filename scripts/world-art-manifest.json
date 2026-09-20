@@ -187,7 +187,7 @@
         "grid": [4, 2],
         "slots": [
           ["codex-ball-found", 44, 44], ["codex-ball-spent", 44, 44], ["codex-ball-unknown", 44, 44], ["codex-badge-earned", 56, 56],
-          ["codex-badge-locked", 56, 56], ["codex-gem-on", 12, 12], ["codex-gem-off", 12, 12], ["codex-card-secret", 72, 104, { "slice": 12 }]
+          ["codex-badge-locked", 56, 56], ["codex-gem-on", 12, 12], ["codex-gem-off", 12, 12], ["codex-card-secret", 72, 104, { "slice": 12, "opaqueInterior": true, "interiorFill": [16, 20, 30] }]
         ]
       }
     }
