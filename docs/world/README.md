@@ -19,6 +19,7 @@
 | [09-asset-checklist.md](09-asset-checklist.md) | 전 에셋 마스터 체크리스트(진행 추적) | 에셋 작업 후 체크 |
 | [10-image-generation-runbook.md](10-image-generation-runbook.md) | **이미지 151장 실행 순서표**: #001부터 저장 이름·스레드·레퍼런스·독립형 프롬프트(스타일 문구 인라인). `tools/build-image-runbook.mjs`로 04~06에서 생성 | **이미지 생성할 때 이 문서만 보면 됨** |
 | [12-turn-regeneration-briefs.md](12-turn-regeneration-briefs.md) | turn 시트 18장을 walk 비율로 재생성: 캐릭터별 독립 프롬프트·저장 파일명·첨부 레퍼런스·비율 합격선 | turn(idle)이 walk보다 길쭉할 때 |
+| [13-debug-console-scripts.md](13-debug-console-scripts.md) | 브라우저 콘솔에 붙여넣는 세이브 편집 스크립트: **결전만 남은 상태**(조각 10개·스타디움 개방), 황금 공 지급, 백업 복원 | 결전·엔딩을 빠르게 시험할 때 |
 
 ## 한눈에 보는 수치
 
