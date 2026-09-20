@@ -170,13 +170,14 @@ function warnMagenta(target, raster, opaque = false) {
 // Sprite rendering
 /**
  * Draws the trimmed `bbox` region of `source` into a w×h canvas (or a tight fitted raster when
- * `pad` is false): aspect preserved, snapped to hard alpha unless `soft`.
+ * `pad` is false): aspect preserved, snapped to hard alpha unless `soft`. `stretch` (slot option `fill`) resizes the
+ * trimmed region to exactly w×h instead, for fixed-size slots that must line up edge to edge in a grid.
  */
-async function renderSprite(source, bbox, w, h, { scale, align = "bottom", pad = true, soft = false } = {}) {
+async function renderSprite(source, bbox, w, h, { scale, align = "bottom", pad = true, soft = false, stretch = false } = {}) {
   const trimmed = M.cropRaster(source, bbox);
   const s = scale ?? Math.min(w / bbox.w, h / bbox.h);
-  const dw = Math.min(w, Math.max(1, Math.round(bbox.w * s)));
-  const dh = Math.min(h, Math.max(1, Math.round(bbox.h * s)));
+  const dw = stretch ? w : Math.min(w, Math.max(1, Math.round(bbox.w * s)));
+  const dh = stretch ? h : Math.min(h, Math.max(1, Math.round(bbox.h * s)));
   let scaled = M.boxDownscale(trimmed, dw, dh);
   if (!soft) M.snapAlpha(scaled);
   if (flags.palette) scaled = await quantize(scaled, flags.palette);
@@ -257,6 +258,7 @@ async function convertSprites({ sourceName, srcCategory, grid, slots, outCategor
       align: opts.align ?? "bottom",
       pad: !frame,
       soft: opts.soft,
+      stretch: opts.fill,
     });
     if (opts.opaqueInterior) M.sealInteriorAlpha(sprite, opts.slice, opts.interiorFill);
     if (scale > 1.001) warn(target, `원본(${bbox.w}×${bbox.h})이 목표(${w}×${h})보다 작아 확대됨(x${scale.toFixed(2)})`, "scale");

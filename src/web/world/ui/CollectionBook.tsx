@@ -197,8 +197,8 @@ export function CollectionBook({ save, hiddenUnlocked, audio = SILENT_AUDIO, ini
             <li key={entry.ball.id} {...slotProps(position)} className={`world-codex__ball is-${entry.state}${position === at ? " is-on" : ""}${entry.ball.ending ? " is-ending" : ""}`}>
               {ballSprite ? <img src={ballSprite} alt="" draggable={false} /> : <span className="world-codex__ball-fallback" aria-hidden="true" />}
               <em>{entry.no}</em>
-              {entry.state === "spent" && (check ? <img className="world-codex__ball-mark" src={check} alt="" draggable={false} /> : <b className="world-codex__ball-mark">✓</b>)}
-              {entry.state === "unknown" && <b className="world-codex__ball-mark">?</b>}
+              {entry.state === "spent" && (check ? <img className="world-codex__ball-mark world-codex__ball-mark--check" src={check} alt="" draggable={false} /> : <b className="world-codex__ball-mark world-codex__ball-mark--check">✓</b>)}
+              {entry.state === "unknown" && <b className="world-codex__ball-mark world-codex__ball-mark--q">?</b>}
             </li>
           ))}
         </ul>

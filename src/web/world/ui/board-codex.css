@@ -85,6 +85,7 @@
 .world-daily__sheet,
 .world-daily__stamps { box-sizing: border-box; height: 100%; margin: 0; padding: 4px 6px; background: #fef0d0; list-style: none; }
 
+.world-daily__sheet { padding-inline: 9px; } /* the task plates' end gems need air before the card frame */
 .world-daily__paper h3 { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 3px; color: #2f2410; font-size: 11px; line-height: 14px; }
 .world-daily__paper h3 em { color: #a86a00; font-size: 10px; font-style: normal; }
 .world-daily__paper h3 em.is-all { color: #1f7a45; }
@@ -174,13 +175,13 @@
 
 .world-daily__foot { display: flex; flex: none; align-items: center; gap: 8px; height: 46px; margin-top: 6px; }
 .world-daily__rewards { display: flex; gap: 4px; margin: 0; padding: 0; list-style: none; }
-.world-daily__rewards li { display: flex; align-items: center; gap: 4px; box-sizing: border-box; width: 78px; height: 40px; padding: 0 4px; border: 1px solid #00e9ae55; border-radius: 3px; background: #0b1614; }
+.world-daily__rewards li { display: flex; align-items: center; gap: 3px; box-sizing: border-box; width: 88px; height: 40px; padding: 0 3px; border: 1px solid #00e9ae55; border-radius: 3px; background: #0b1614; }
 .world-daily__rewards li.is-earned { border-color: #ffd54a; background: #22260f; box-shadow: inset 0 0 0 1px #ffd54a44; }
 .world-daily__rewards .world-badge-icon { width: 32px; height: 32px; }
 .world-daily__rewards .world-badge-icon--plate { font-size: 12px; }
 .world-daily__rewards span { display: flex; min-width: 0; flex-direction: column; line-height: 11px; }
 .world-daily__rewards b { color: #e8fff6; font-size: 10px; font-weight: 400; }
-.world-daily__rewards small { color: #8fbfae; font-size: 9px; }
+.world-daily__rewards small { color: #8fbfae; font-size: 9px; white-space: nowrap; }
 .world-daily__rewards li.is-earned small { color: #ffd54a; }
 .world-daily__total { flex: 1; margin: 0; color: #b8ffe8; font-size: 10px; text-align: center; }
 .world-daily__total b { color: #ffd54a; font-size: 15px; font-weight: 400; }
@@ -310,17 +311,25 @@
 .world-codex__ball > img:not(.world-codex__ball-mark),
 .world-codex__ball-fallback { display: block; width: 24px; height: 24px; image-rendering: pixelated; }
 .world-codex__ball-fallback { border-radius: 50%; background: #e0a21a; }
-.world-codex__ball em { position: absolute; top: 1px; left: 3px; color: #6a4f1a; font-size: 8px; font-style: normal; line-height: 10px; }
-.world-codex__ball-mark { position: absolute; right: 2px; bottom: 1px; width: 14px; height: 14px; color: #8a7a5a; font-size: 10px; line-height: 14px; text-align: center; image-rendering: pixelated; }
-.world-codex__ball.is-ending::before { position: absolute; top: 3px; right: 3px; width: 5px; height: 5px; border-radius: 50%; background: #8a4ad0; content: ""; }
+/* The slot number sits on a dark pill at the bottom (brown-on-tan ink vanished into the rim art); the ball is nudged up to make room. */
+.world-codex__ball > img:not(.world-codex__ball-mark),
+.world-codex__ball-fallback { transform: translateY(-3px); }
+.world-codex__ball em { position: absolute; bottom: 4px; left: 50%; min-width: 8px; padding: 0 3px; border-radius: 2px; background: #3a2a10; color: #fff1b5; font-size: 8px; font-style: normal; line-height: 10px; text-align: center; transform: translateX(-50%); }
+.world-codex__ball-mark { position: absolute; width: 14px; height: 14px; font-style: normal; line-height: 14px; text-align: center; image-rendering: pixelated; }
+.world-codex__ball-mark--check { top: 3px; right: 3px; color: #1f7a45; font-size: 11px; }
+.world-codex__ball-mark--q { top: 12px; left: 15px; color: #fef0d0; font-size: 12px; text-shadow: 0 1px 0 #3a2a10; }
+.world-codex__ball.is-ending::before { position: absolute; top: 4px; left: 4px; width: 6px; height: 6px; border-radius: 50%; background: #8a4ad0; box-shadow: 0 0 0 1px #fef0d0; content: ""; }
 /* Found: warm gold plate, the ball in colour. */
 .world-codex__ball.is-found { border-color: #d19a00; background: linear-gradient(#fff3bc, #f3d36a); box-shadow: 0 0 6px rgba(255, 213, 74, 0.55); }
 /* Used for a mission: the same ball washed out with a check. */
 .world-codex__ball.is-spent { border-color: #a99b62; background: #e5dcb4; }
 .world-codex__ball.is-spent > img:not(.world-codex__ball-mark) { filter: grayscale(0.85); opacity: 0.7; }
-.world-codex__balls.is-art .world-codex__ball { border: 0; box-shadow: none; background: var(--ball-found) center / 44px 44px no-repeat; }
-.world-codex__balls.is-art .world-codex__ball.is-spent { background-image: var(--ball-spent); }
-.world-codex__balls.is-art .world-codex__ball.is-unknown { background-image: var(--ball-unknown); filter: sepia(1) brightness(1.15); }
+/* The slot art is a layer under the ball, number and marks (z-index -1 inside an isolated slot), so the parchment tint of an unfound slot
+   (its art is mauve) colours only the plate and never the purple "after the ending" dot or the other marks. */
+.world-codex__balls.is-art .world-codex__ball { isolation: isolate; border: 0; border-radius: 6px; box-shadow: none; background: none; }
+.world-codex__balls.is-art .world-codex__ball::after { position: absolute; z-index: -1; inset: 0; background: var(--ball-found) center / 44px 44px no-repeat; content: ""; pointer-events: none; }
+.world-codex__balls.is-art .world-codex__ball.is-spent::after { background-image: var(--ball-spent); }
+.world-codex__balls.is-art .world-codex__ball.is-unknown::after { background-image: var(--ball-unknown); filter: sepia(1) brightness(1.15); }
 /* Not found yet: a dashed empty socket with a dark silhouette. */
 .world-codex__ball.is-unknown { border-style: dashed; border-color: rgba(120, 90, 40, 0.5); background: rgba(120, 90, 40, 0.1); }
 .world-codex__ball.is-unknown > img:not(.world-codex__ball-mark) { filter: brightness(0); opacity: 0.22; }
@@ -383,8 +392,9 @@
 .world-codex__badge { position: relative; display: grid; width: 56px; height: 56px; box-sizing: border-box; place-items: center; border: 2px solid; border-radius: 6px; cursor: pointer; }
 .world-codex__badge.is-earned { border-color: #d19a00; background: linear-gradient(#fff3bc, #f3d36a); box-shadow: 0 0 6px rgba(255, 213, 74, 0.55); }
 .world-codex__badge.is-locked { border-style: dashed; border-color: rgba(120, 90, 40, 0.5); background: rgba(120, 90, 40, 0.1); }
-.world-codex__badges.is-art .world-codex__badge { border: 0; box-shadow: none; background: var(--badge-earned) center / 56px 56px no-repeat; }
-.world-codex__badges.is-art .world-codex__badge.is-locked { background-image: var(--badge-locked); filter: sepia(1) brightness(1.15); } /* the locked slot art is mauve; sepia turns it into a dim parchment tan */
+.world-codex__badges.is-art .world-codex__badge { isolation: isolate; border: 0; box-shadow: none; background: none; }
+.world-codex__badges.is-art .world-codex__badge::after { position: absolute; z-index: -1; inset: 0; background: var(--badge-earned) center / 56px 56px no-repeat; content: ""; pointer-events: none; }
+.world-codex__badges.is-art .world-codex__badge.is-locked::after { background-image: var(--badge-locked); filter: sepia(1) brightness(1.15); } /* the locked slot art is mauve; sepia turns it into a dim parchment tan */
 .world-codex .world-badge-icon.is-locked { filter: brightness(0); opacity: 0.28; }
 .world-codex__lock { position: absolute; right: 1px; bottom: 1px; width: 16px; height: 16px; image-rendering: pixelated; }
 
