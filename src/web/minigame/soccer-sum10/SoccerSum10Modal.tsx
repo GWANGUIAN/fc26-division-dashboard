@@ -2,13 +2,10 @@ import { Clock3, Music4, Volume2, VolumeX } from "lucide-react";
 import { Modal, useEscape } from "../../Modal.js";
 import { SoundControl } from "../SoundControl.js";
 import { SoccerSum10Canvas } from "./SoccerSum10Canvas.js";
-import { SoccerSum10Toggle } from "./SoccerSum10Toggle.js";
 import { useSoccerSum10Game, type SoccerSum10RoundResult } from "./useSoccerSum10Game.js";
 import { useSoccerSum10Music } from "./useSoccerSum10Music.js";
 import { useSoccerSum10Sfx } from "./useSoccerSum10Sfx.js";
 import "./soccer-sum10.css";
-
-export { SoccerSum10Toggle };
 
 export function SoccerSum10Modal({
   onClose,

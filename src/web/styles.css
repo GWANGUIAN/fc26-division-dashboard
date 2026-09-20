@@ -1750,12 +1750,6 @@ body { isolation: isolate; }
 
 .card-board--skeleton .fifa-card--skeleton { display: block; width: 100%; aspect-ratio: 5 / 7; border-radius: 16px; cursor: default; }
 
-.kickups-toggle { display: grid; width: 44px; height: 44px; place-items: center; border: 1px solid var(--border-default); border-radius: 50%; background: var(--surface-3); box-shadow: 0 8px 20px rgba(var(--shadow-color), .35); transition: border-color .2s, background-color .2s, box-shadow .2s, transform .15s; }
-.kickups-toggle:hover, .kickups-toggle:focus-visible { border-color: var(--accent-border); background: #00e9ae14; box-shadow: 0 0 0 3px #00e9ae12, 0 8px 20px rgba(var(--shadow-color), .35); outline: 0; }
-.kickups-toggle:active { transform: scale(.92); }
-.kickups-toggle:hover .kickups-toggle__icon { transform: rotate(24deg); }
-.kickups-toggle__icon { width: 22px; height: 22px; object-fit: contain; transition: transform .3s ease; }
-@media (max-width: 680px) { .kickups-toggle { display: none; } }
 
 .kickups__title { display: flex; align-items: center; gap: 9px; font: 800 32px/1 "Barlow Condensed", "Noto Sans KR"; }
 .kickups__intro { margin: 10px 0 0; color: var(--text-secondary); font-size: 13px; }

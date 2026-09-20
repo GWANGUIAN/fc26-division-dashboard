@@ -57,12 +57,9 @@ import { PhotoBoothOverlay } from "./photo-booth/PhotoBoothOverlay";
 import { GroupPhotoTrigger } from "./group-photo/GroupPhotoTrigger";
 import { GroupPhotoOverlay } from "./group-photo/GroupPhotoOverlay";
 import { LedSignboard } from "./group-photo/LedSignboard";
-import { KickupsToggle } from "./minigame/KickupsToggle";
+import { MinigameMenu } from "./minigame/MinigameMenu";
 import { KickupsModal } from "./minigame/KickupsModal";
-import { FreekickToggle } from "./minigame/FreekickToggle";
-import { CardMatchToggle } from "./minigame/CardMatchToggle";
 import { CardMatchModal } from "./minigame/CardMatchModal";
-import { SoccerSum10Toggle } from "./minigame/soccer-sum10/SoccerSum10Toggle";
 import { SoccerSum10Modal } from "./minigame/soccer-sum10/SoccerSum10Modal";
 import { FortuneToggle } from "./fortune/FortuneToggle";
 import { FortunePopup } from "./fortune/FortunePopup";
@@ -478,10 +475,7 @@ export function App() {
       />
       <div className="bottom-left-toolbar">
         <ThemeToggle theme={theme} onToggle={toggleTheme} />
-        <KickupsToggle onClick={() => setActiveMinigame("kickups")} />
-        <FreekickToggle onClick={() => setActiveMinigame("freekick")} />
-        <CardMatchToggle onClick={() => setActiveMinigame("cardmatch")} />
-        <SoccerSum10Toggle onClick={() => setActiveMinigame("soccer-sum10")} />
+        <MinigameMenu onSelect={setActiveMinigame} />
         <FortuneToggle onClick={() => setFortuneOpen(true)} />
       </div>
       <BrightnessGag />
