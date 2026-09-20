@@ -28,7 +28,14 @@ interface Item {
 }
 
 const VOLUME_STEP = 5;
-const clampVolume = (value: number) => Math.min(100, Math.max(0, value));
+/** Volume moves by 1 up to 10 (0..10) and by 5 above it (10, 15, 20 ... 100), so quiet levels stay fine-grained. */
+const FINE_VOLUME_MAX = 10;
+const stepVolume = (value: number, direction: -1 | 1) => {
+  const next = direction > 0
+    ? value < FINE_VOLUME_MAX ? value + 1 : (Math.floor(value / VOLUME_STEP) + 1) * VOLUME_STEP
+    : value <= FINE_VOLUME_MAX ? value - 1 : (Math.ceil(value / VOLUME_STEP) - 1) * VOLUME_STEP;
+  return Math.min(100, Math.max(0, next));
+};
 
 /**
  * Pause menu (Esc when nothing else is open, docs/world/06 §8): resume, mission log, settings (music and
@@ -68,8 +75,8 @@ export function PauseMenu({ view, onView, settings, onSettings, audio, onResume,
   }
 
   function nudge(id: string, direction: -1 | 1) {
-    if (id === "bgmVolume") onSettings({ ...settings, bgmVolume: clampVolume(settings.bgmVolume + direction * VOLUME_STEP) });
-    else if (id === "sfxVolume") onSettings({ ...settings, sfxVolume: clampVolume(settings.sfxVolume + direction * VOLUME_STEP) });
+    if (id === "bgmVolume") onSettings({ ...settings, bgmVolume: stepVolume(settings.bgmVolume, direction) });
+    else if (id === "sfxVolume") onSettings({ ...settings, sfxVolume: stepVolume(settings.sfxVolume, direction) });
     else return false;
     audio.playSfx("ui-move");
     return true;
