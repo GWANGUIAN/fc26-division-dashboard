@@ -1,9 +1,32 @@
 import { useState, type FormEvent } from "react";
 import { Pencil, RotateCw } from "lucide-react";
-import { sanitizeNickname, SCORE_GAMES } from "../../../shared/minigame-scores.js";
+import { LEADERBOARD_DEFAULT_LIMIT, sanitizeNickname, SCORE_GAMES } from "../../../shared/minigame-scores.js";
 import type { RankingPanelProps } from "./useRanking.js";
 
 const MEDALS = ["🥇", "🥈", "🥉"];
+
+// Varied name widths so the placeholder rows read as a list rather than a striped block.
+const SKELETON_NAME_WIDTHS = [62, 48, 70, 55, 40, 66, 52, 44, 58, 36];
+
+/** Placeholder rows shaped like the TOP list, so the panel does not jump in height when the ranking arrives. */
+function RankingSkeleton() {
+  return (
+    <div aria-busy="true">
+      <p className="sr-only" role="status">
+        순위를 불러오는 중…
+      </p>
+      <ol className="ranking-list" aria-hidden="true">
+        {Array.from({ length: LEADERBOARD_DEFAULT_LIMIT }, (_, index) => (
+          <li key={index} className="ranking-row ranking-row--skeleton">
+            <span className="ranking-skeleton ranking-skeleton--rank" />
+            <span className="ranking-skeleton ranking-skeleton--name" style={{ width: `${SKELETON_NAME_WIDTHS[index % SKELETON_NAME_WIDTHS.length]}%` }} />
+            <span className="ranking-skeleton ranking-skeleton--score" />
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
 
 export function RankingPanel({
   game,
@@ -46,6 +69,7 @@ export function RankingPanel({
       <div className="ranking-panel__head">
         <h3>🏆 순위</h3>
         {board && <span>총 {board.total.toLocaleString("ko-KR")}명</span>}
+        {!board && status === "loading" && <span className="ranking-skeleton ranking-skeleton--count" aria-hidden="true" />}
       </div>
 
       {pending && (
@@ -86,7 +110,7 @@ export function RankingPanel({
         </p>
       )}
 
-      {status === "loading" && !board && <p className="ranking-state">순위를 불러오는 중…</p>}
+      {status === "loading" && !board && <RankingSkeleton />}
       {status === "error" && !board && (
         <div className="ranking-state">
           <p>순위를 불러올 수 없어요.</p>

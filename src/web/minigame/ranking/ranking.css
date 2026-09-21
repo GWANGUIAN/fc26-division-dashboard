@@ -15,6 +15,13 @@
 .ranking-row__score { color: var(--accent-text); font: 800 14px/1 "Barlow Condensed", "Noto Sans KR"; white-space: nowrap; }
 .ranking-row--me { border-color: var(--accent-border); background: color-mix(in srgb, var(--accent) 14%, transparent); }
 .ranking-row--pinned { margin-top: 2px; }
+.ranking-row--skeleton { min-height: 30px; background: none; }
+.ranking-skeleton { display: block; height: 11px; border-radius: 4px; background: linear-gradient(90deg, var(--fill-faint) 25%, color-mix(in srgb, var(--text-primary) 14%, transparent) 50%, var(--fill-faint) 75%); background-size: 200% 100%; animation: ranking-shimmer 1.5s ease-in-out infinite; }
+.ranking-skeleton--rank { width: 18px; height: 14px; justify-self: center; }
+.ranking-skeleton--score { width: 34px; }
+.ranking-skeleton--count { width: 44px; height: 10px; }
+@keyframes ranking-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .ranking-skeleton { animation: none; } }
 .ranking-empty, .ranking-state { margin: 0; padding: 14px 6px; color: var(--text-muted); font-size: 12px; line-height: 1.5; text-align: center; }
 .ranking-state { display: grid; justify-items: center; gap: 8px; }
 
