@@ -676,7 +676,9 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
     },
     onRunEvent: handleRunEvent,
     onZoneEnter(zone) {
-      pushToast(zone.name, zone.tint, "region");
+      // The running-delivery timer shares this area of the stage with region notices.
+      // Keep the timer readable while the player is racing between delivery targets.
+      if (!engineRef.current?.isDeliveryRunning()) pushToast(zone.name, zone.tint, "region");
       if (store) playBgm(bgmFor("overworld", zone.bgm, store.save));
     },
     onSceneChange(scene) {
