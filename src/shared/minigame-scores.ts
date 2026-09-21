@@ -61,8 +61,8 @@ export const SCORE_GAMES = {
   rush: { label: "잔디 러시", unit: "m", order: "desc", min: 1, max: 100_000 },
   // Endless in theory; 200k is about 6,700 average-30-point merges, leaving normal long runs headroom.
   "grass-merge": { label: "잔디 머지", unit: "점", order: "desc", min: 1, max: 200_000 },
-  // 3,245 points of breakable bricks across five fixed stages + 1,500 maximum life bonuses = 4,745, rounded up to 100.
-  "keeper-breakout": { label: "골키퍼 벽돌깨기", unit: "점", order: "desc", min: 1, max: 4_800 },
+  // 3,345 points of breakable bricks across five fixed stages + 1,500 maximum life bonuses = 4,845, rounded up to 100.
+  "keeper-breakout": { label: "골키퍼 벽돌깨기", unit: "점", order: "desc", min: 1, max: 4_900 },
   // Greedy bot: 500 seeded 30-turn games, observed high 9,880; 3× = 29,640, so retain the 60,000 floor.
   "football-match3": { label: "축구 매치3", unit: "점", order: "desc", min: 1, max: 60_000 },
 } as const satisfies Record<string, ScoreGameDef>;

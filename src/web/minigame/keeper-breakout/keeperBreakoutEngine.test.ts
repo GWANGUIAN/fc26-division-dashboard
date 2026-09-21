@@ -21,7 +21,9 @@ describe("keeper breakout engine", () => {
     expect(ceiling.balls[0].vy).toBeGreaterThan(0);
     const base = startGame(2).paddle;
     const centre = step(withPlaying({ paddle: base, balls: [{ x: base.x + base.w / 2, y: PADDLE_Y - 9, vx: 80, vy: 340, stuck: false }] }));
-    expect(Math.abs(centre.balls[0].vx)).toBeLessThan(1);
+    // The incoming vx of 80 px/s moves the ball 0.44 px within the first substep, so a centre hit leaves with a
+    // tiny angle (about 3 px/s), not exactly 0. What matters is that it is nearly vertical, not the 80 that came in.
+    expect(Math.abs(centre.balls[0].vx)).toBeLessThan(5);
     const edge = step(withPlaying({ paddle: base, balls: [{ x: base.x + base.w - 2, y: PADDLE_Y - 9, vx: 0, vy: 340, stuck: false }] }));
     expect(edge.balls[0].vx).toBeGreaterThan(250);
     expect(edge.balls[0].vy).toBeLessThan(0);
@@ -51,9 +53,12 @@ describe("keeper breakout engine", () => {
   });
 
   it("drops from gold always and normal bricks at roughly eight percent over seeds", () => {
+    // xorshift32 returns a value near 0 as its first output for tiny seeds (1..1000), which would drop every time.
+    // A real game reaches a brick after launch() has already advanced the generator, so mix the seeds first.
+    const spread = (seed: number) => { let mixed = Math.imul(seed ^ 0x9e3779b9, 0x85ebca6b) >>> 0; mixed ^= mixed >>> 13; mixed = Math.imul(mixed, 0xc2b2ae35) >>> 0; mixed ^= mixed >>> 16; return mixed || 1; };
     const hit = (seed: number, type: "gold" | "hp1") => step(withPlaying({ rngState: seed, bricks: [parseStage([type === "gold" ? "G" : "1"])[0]], balls: [{ x: BRICK_LEFT + BRICK_WIDTH / 2, y: BRICK_TOP - 9, vx: 0, vy: 520, stuck: false }] }));
     expect(hit(1, "gold").drops).toHaveLength(1);
-    let drops = 0; for (let seed = 1; seed <= 1000; seed += 1) drops += hit(seed, "hp1").drops.length;
+    let drops = 0; for (let seed = 1; seed <= 1000; seed += 1) drops += hit(spread(seed), "hp1").drops.length;
     expect(drops).toBeGreaterThan(45); expect(drops).toBeLessThan(115);
   });
 
@@ -81,7 +86,8 @@ describe("keeper breakout engine", () => {
   });
 
   it("keeps the shared score ceiling above the calculated maximum", () => {
-    expect(maxPossibleScore()).toBe(4745);
+    // Breakable brick points per stage: 600 + 600 + 560 + 700 + 885 = 3,345, plus 100 x 3 lives x 5 stages = 1,500.
+    expect(maxPossibleScore()).toBe(4845);
     expect(SCORE_GAMES["keeper-breakout"].max).toBeGreaterThanOrEqual(maxPossibleScore());
   });
 });
