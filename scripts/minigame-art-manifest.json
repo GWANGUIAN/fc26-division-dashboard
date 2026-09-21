@@ -1,0 +1,33 @@
+{
+  "games": [
+    {
+      "id": "grass-merge",
+      "sourceDir": "grass-merge",
+      "assets": [
+        {
+          "source": "tiers-sheet.png",
+          "key": "magenta",
+          "grid": { "columns": 4, "rows": 3 },
+          "trim": true,
+          "outputs": [
+            { "cell": 0, "file": "grass-merge-tier-01.webp", "width": 256, "height": 256 },
+            { "cell": 1, "file": "grass-merge-tier-02.webp", "width": 256, "height": 256 },
+            { "cell": 2, "file": "grass-merge-tier-03.webp", "width": 256, "height": 256 },
+            { "cell": 3, "file": "grass-merge-tier-04.webp", "width": 256, "height": 256 },
+            { "cell": 4, "file": "grass-merge-tier-05.webp", "width": 256, "height": 256 },
+            { "cell": 5, "file": "grass-merge-tier-06.webp", "width": 256, "height": 256 },
+            { "cell": 6, "file": "grass-merge-tier-07.webp", "width": 256, "height": 256 },
+            { "cell": 7, "file": "grass-merge-tier-08.webp", "width": 256, "height": 256 },
+            { "cell": 8, "file": "grass-merge-tier-09.webp", "width": 256, "height": 256 },
+            { "cell": 9, "file": "grass-merge-tier-10.webp", "width": 256, "height": 256 },
+            { "cell": 10, "file": "grass-merge-tier-11.webp", "width": 256, "height": 256 }
+          ]
+        },
+        { "source": "icon.png", "key": "magenta", "trim": true, "outputs": [{ "file": "grass-merge-icon.webp", "width": 256, "height": 256 }] },
+        { "source": "board-frame.png", "key": "magenta", "fit": "contain", "outputs": [{ "file": "grass-merge-board.webp", "width": 480, "height": 720 }] },
+        { "source": "background.png", "fit": "cover", "outputs": [{ "file": "grass-merge-background.webp", "width": 1536, "height": 864 }] },
+        { "source": "burst.png", "key": "magenta", "fit": "contain", "outputs": [{ "file": "grass-merge-burst.webp", "width": 512, "height": 512 }] }
+      ]
+    }
+  ]
+}

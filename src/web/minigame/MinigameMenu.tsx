@@ -5,7 +5,7 @@ import { Gamepad2 } from "lucide-react";
 import "./minigame-menu.css";
 import { getCardMatchBackUrl } from "./cardMatchAssets.js";
 
-export type MinigameId = "kickups" | "freekick" | "cardmatch" | "soccer-sum10";
+export type MinigameId = "kickups" | "freekick" | "cardmatch" | "soccer-sum10" | "grass-merge";
 
 // Warming these up while the menu sits idle on the dashboard means the browser has already
 // fetched and decoded them by the time a modal opens — measured ~50ms main-thread block
@@ -31,6 +31,10 @@ const WARMUP_URLS = Array.from(
     "/sfxes/soccer-sum10-start.mp3",
     "/sfxes/soccer-sum10-clear.mp3",
     "/sfxes/soccer-sum10-timeup.mp3",
+    // grass merge
+    "/grass-merge-bgm.mp3",
+    "/sfxes/grass-merge-drop.mp3",
+    "/sfxes/grass-merge-merge.mp3",
   ]),
 );
 
@@ -91,6 +95,7 @@ export function MinigameMenu({ onSelect }: { onSelect: (game: MinigameId) => voi
       label: "축구공 사과게임",
       icon: <img src="/soccer-sum10-icon.webp" alt="" className="minigame-menu__icon" />,
     },
+    { id: "grass-merge", label: "잔디 머지", icon: <img src="/grass-merge-icon.webp" alt="" className="minigame-menu__icon" /> },
   ];
 
   return (

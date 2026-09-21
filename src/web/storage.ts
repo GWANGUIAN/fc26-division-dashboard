@@ -344,6 +344,87 @@ export function saveSoccerSum10MusicVolume(volume: number) {
   }
 }
 
+const GRASS_MERGE_HIGH_SCORE_KEY = "fc26-grass-merge-highscore";
+const GRASS_MERGE_SFX_ENABLED_KEY = "fc26-grass-merge-sfx-enabled";
+const GRASS_MERGE_SFX_VOLUME_KEY = "fc26-grass-merge-sfx-volume";
+const GRASS_MERGE_MUSIC_ENABLED_KEY = "fc26-grass-merge-music-enabled";
+const GRASS_MERGE_MUSIC_VOLUME_KEY = "fc26-grass-merge-music-volume";
+
+export function loadGrassMergeHighScore(): number {
+  try {
+    const value = Number(localStorage.getItem(GRASS_MERGE_HIGH_SCORE_KEY) ?? 0);
+    return Number.isFinite(value) && value > 0 ? Math.floor(value) : 0;
+  } catch {
+    return 0;
+  }
+}
+
+export function saveGrassMergeHighScore(score: number) {
+  try {
+    localStorage.setItem(GRASS_MERGE_HIGH_SCORE_KEY, String(Math.max(0, Math.floor(score))));
+  } catch {
+    // ignore storage failures
+  }
+}
+
+export function loadGrassMergeSfxEnabled(): boolean {
+  try {
+    const raw = localStorage.getItem(GRASS_MERGE_SFX_ENABLED_KEY);
+    return raw === null ? true : raw === "1";
+  } catch {
+    return true;
+  }
+}
+
+export function saveGrassMergeSfxEnabled(enabled: boolean) {
+  try {
+    localStorage.setItem(GRASS_MERGE_SFX_ENABLED_KEY, enabled ? "1" : "0");
+  } catch {
+    // ignore storage failures
+  }
+}
+
+export function loadGrassMergeSfxVolume() {
+  return loadStoredVolume(GRASS_MERGE_SFX_VOLUME_KEY, 55);
+}
+
+export function saveGrassMergeSfxVolume(volume: number) {
+  try {
+    localStorage.setItem(GRASS_MERGE_SFX_VOLUME_KEY, String(Math.min(100, Math.max(0, Math.floor(volume)))));
+  } catch {
+    // ignore storage failures
+  }
+}
+
+export function loadGrassMergeMusicEnabled(): boolean {
+  try {
+    const raw = localStorage.getItem(GRASS_MERGE_MUSIC_ENABLED_KEY);
+    return raw === null ? true : raw === "1";
+  } catch {
+    return true;
+  }
+}
+
+export function saveGrassMergeMusicEnabled(enabled: boolean) {
+  try {
+    localStorage.setItem(GRASS_MERGE_MUSIC_ENABLED_KEY, enabled ? "1" : "0");
+  } catch {
+    // ignore storage failures
+  }
+}
+
+export function loadGrassMergeMusicVolume() {
+  return loadStoredVolume(GRASS_MERGE_MUSIC_VOLUME_KEY, 35);
+}
+
+export function saveGrassMergeMusicVolume(volume: number) {
+  try {
+    localStorage.setItem(GRASS_MERGE_MUSIC_VOLUME_KEY, String(Math.min(100, Math.max(0, Math.floor(volume)))));
+  } catch {
+    // ignore storage failures
+  }
+}
+
 const FREEKICK_HIGH_SCORE_KEY = "fc26-freekick-highscore";
 
 const TEST_SCHEDULE_PITCH_ASSIGNMENTS_KEY = "fc26-test-schedule-pitch-assignments";
