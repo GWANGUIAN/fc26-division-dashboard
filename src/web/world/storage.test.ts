@@ -150,7 +150,7 @@ describe("localStorage helpers", () => {
   it("loads settings with defaults, clamping and per-field fallback", () => {
     expect(loadWorldSettings()).toEqual(DEFAULT_WORLD_SETTINGS);
     storage.map.set(WORLD_SETTINGS_KEY, JSON.stringify({ bgm: false, bgmVolume: 150, sfx: "x", sfxVolume: "loud" }));
-    expect(loadWorldSettings()).toEqual({ bgm: false, bgmVolume: 100, sfx: true, sfxVolume: 55 });
+    expect(loadWorldSettings()).toEqual({ bgm: false, bgmVolume: 100, sfx: true, sfxVolume: 10 });
     storage.map.set(WORLD_SETTINGS_KEY, "nope");
     expect(loadWorldSettings()).toEqual(DEFAULT_WORLD_SETTINGS);
     saveWorldSettings({ bgm: true, bgmVolume: 10, sfx: false, sfxVolume: 0 });

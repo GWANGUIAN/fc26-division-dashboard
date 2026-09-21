@@ -15,7 +15,7 @@ const FACINGS: readonly Facing[] = ["down", "up", "left", "right"];
 const MISSION_STATUSES: readonly MissionStatus[] = ["locked", "available", "active", "ready", "completed"];
 const MAX_SHARDS = 10;
 
-export const DEFAULT_WORLD_SETTINGS: WorldSettings = { bgm: true, bgmVolume: 35, sfx: true, sfxVolume: 55 };
+export const DEFAULT_WORLD_SETTINGS: WorldSettings = { bgm: true, bgmVolume: 10, sfx: true, sfxVolume: 10 };
 
 /** Fallback position (the road below the clubhouse, docs/world/03) for a save with no player yet. */
 export const DEFAULT_SPAWN = { scene: "overworld" as SceneId, x: 40 * 32 + 16, y: 17 * 32 + 16, facing: "down" as Facing };
