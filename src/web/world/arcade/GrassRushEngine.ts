@@ -6,13 +6,15 @@ export interface RushState {
   spawn: number; seed: number; objects: RushObject[]; over: boolean;
 }
 export const RUSH_DT = 1 / 60;
+/** How long a slide lasts, in seconds (the modal turns the runner onto its back for that long). */
+export const RUSH_SLIDE_SECONDS = 0.7;
 export const createRush = (seed = 26): RushState => ({ distance: 0, seeds: 0, height: 0, velocity: 0, slide: 0, spawn: 1.5, seed, objects: [], over: false });
 export const rushScore = (state: RushState) => Math.floor(state.distance) + state.seeds * 10;
 export function stepRush(state: RushState, input?: RushInput): RushState {
   if (state.over) return state;
   const next = { ...state, objects: state.objects.map(o => ({ ...o })) };
   if (input === "jump" && next.height === 0 && next.slide <= 0) next.velocity = 470;
-  if (input === "slide" && next.height === 0) next.slide = 0.7;
+  if (input === "slide" && next.height === 0) next.slide = RUSH_SLIDE_SECONDS;
   next.slide = Math.max(0, next.slide - RUSH_DT);
   next.height = Math.max(0, next.height + next.velocity * RUSH_DT);
   next.velocity = next.height > 0 ? next.velocity - 1100 * RUSH_DT : 0;

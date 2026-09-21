@@ -246,6 +246,14 @@ describe("S5 panels", () => {
     expect(html.match(/is-stamped/g)).toHaveLength(1);
     expect(html).toContain("누적 <b>1</b>일");
   });
+  it("opens Grass Rush on a start window with the record, the next rank and the badge goal", () => {
+    const html = plain(renderToString(<GrassRushModal player="janine95kim" best={950} onClose={noop} />));
+    expect(html).toContain("world-rush is-ready"); expect(html).toContain("최고 <b>950m</b>");
+    expect(html).toContain("다음 랭크 · 에이스급 1000m"); expect(html).toContain("상현급");
+    expect(html).toContain("시작"); expect(html).not.toContain("world-rush__chip"); // the HUD only shows once a run starts
+    const top = plain(renderToString(<GrassRushModal player="janine95kim" best={3000} onClose={noop} />));
+    expect(top).toContain("최고 랭크를 달성했어요"); expect(top).toContain("world-rush__badge is-earned");
+  });
   it("renders the factory runner controls and saved best", () => {
     const html = renderToString(<GrassRushModal player="janine95kim" factory best={600} onClose={noop} />);
     expect(html).toContain("제초 공장 코스"); expect(html).toContain("슬라이드"); expect(html).toContain("상현급");

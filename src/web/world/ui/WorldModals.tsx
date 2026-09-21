@@ -1,5 +1,4 @@
 import { WOOWAKGOOD_BONUS_STREAMER, WOOWAKGOOD_ID } from "../../toty-card/woowakgoodBonusCard";
-import { GrassRushModal } from "../arcade/GrassRushModal";
 import type { WorldSave } from "../types";
 import { Suspense, lazy } from "react";
 import type { StreamerRecord } from "../../../shared/model";
@@ -83,7 +82,7 @@ export function WorldModals({ modal, save, dashboard, onClose, onRoundEnd, onCar
   if (modal.type !== "minigame") return null; // "daily" and "collection" are drawn by the overlay itself
   switch (modal.game) {
     case "rush":
-      return <GrassRushModal player={save.player ?? "janine95kim"} factory={modal.factory} best={save.bests.rush} onClose={onClose} onRoundEnd={onRoundEnd} audio={audio} />;
+      return null; // Grass Rush is drawn inside the scaled stage by the overlay itself (docs/world/18)
     case "soccer-sum10":
       return <SoccerSum10Modal onClose={onClose} onRoundEnd={onRoundEnd} />;
     case "kickups":

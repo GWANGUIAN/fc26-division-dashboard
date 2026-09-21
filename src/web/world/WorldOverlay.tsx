@@ -41,6 +41,7 @@ import { STAGE_HEIGHT, STAGE_WIDTH, computeStageLayout, type StageLayout } from 
 import type { CastId, MinigameRoundResult, SceneId, WorldSave, WorldSettings } from "./types";
 import { CharacterSelect } from "./ui/CharacterSelect";
 import { CoachMarks } from "./ui/CoachMarks";
+import { GrassRushModal } from "./arcade/GrassRushModal";
 import { CollectionBook } from "./ui/CollectionBook";
 import { DailyBoard } from "./ui/DailyBoard";
 import { DebugPanel } from "./ui/DebugPanel";
@@ -917,6 +918,9 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
                 }}
                 onClose={closeModal}
               />
+            )}
+            {modal?.type === "minigame" && modal.game === "rush" && (
+              <GrassRushModal player={save?.player ?? "janine95kim"} factory={modal.factory} best={save?.bests.rush} onClose={closeModal} onRoundEnd={handleRoundEnd} audio={audio} />
             )}
             {modal?.type === "collection" && <CollectionBook save={save ?? session.store.save} hiddenUnlocked={dashboard.woowakgoodUnlocked} audio={audio} onClose={closeModal} />}
             {pauseView !== "closed" && (

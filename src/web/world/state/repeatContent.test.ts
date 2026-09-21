@@ -1,11 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { createNewGameSave, parseWorldSave } from "../storage";
 import { repeatEvent } from "./repeatContent";
-import { arcadeRank, rankGoal, rankTier, recordRound } from "./ranks";
+import { arcadeRank, nextRankGoal, rankGoal, rankTier, recordRound } from "./ranks";
 import { acceptMission, applyMissionEvent, completeMission } from "./missions";
 import { GOLDEN_BALLS } from "../data/goldenBalls";
 import { PLAYABLE_CAST } from "../data/worldCast";
 describe("repeat progression", () => {
+  it("names the next rank and where its gauge starts", () => {
+    expect(nextRankGoal("rush")).toEqual({ rank: "합격 조건 충족", goal: 300, from: 0 });
+    expect(nextRankGoal("rush", 299)).toEqual({ rank: "합격 조건 충족", goal: 300, from: 0 });
+    expect(nextRankGoal("rush", 300)).toEqual({ rank: "상현급", goal: 600, from: 300 });
+    expect(nextRankGoal("rush", 2200)).toEqual({ rank: "회장", goal: 3000, from: 2200 });
+    expect(nextRankGoal("rush", 3000)).toBeNull();
+    expect(nextRankGoal("cardmatch", 20)).toEqual({ rank: "반장급", goal: 16, from: 20 });
+  });
   it("maps a best score to its rank tier and each tier to the score it asks for", () => {
     expect([undefined, 299, 300, 1000, 3000].map((score) => rankTier("rush", score))).toEqual([0, 1, 2, 4, 7]);
     expect([0, 1, 2, 4, 7].map((tier) => rankGoal("rush", tier))).toEqual([null, null, 300, 1000, 3000]);

@@ -13,6 +13,16 @@ export function arcadeRank(game: MinigameRoundResult["game"], score?: number): s
 export const rankTier = (game: MinigameRoundResult["game"], score?: number) => RANKS.indexOf(arcadeRank(game, score));
 /** The score a game asks for to reach a rank tier (null for the two lowest: not played / played once). The card match counts turns, so lower is better there. */
 export const rankGoal = (game: MinigameRoundResult["game"], tier: number): number | null => (tier >= 2 ? thresholds[game][tier - 2] ?? null : null);
+/**
+ * The next rank to reach and the score it asks for, plus the score of the rank below it (the start of the gauge that fills
+ * towards it). Everyone is at least "합격 불투명", so the next goal starts at "합격 조건 충족". Null at the top rank.
+ */
+export function nextRankGoal(game: MinigameRoundResult["game"], score?: number): { rank: string; goal: number; from: number } | null {
+  const target = Math.max(rankTier(game, score) + 1, 2);
+  const goal = rankGoal(game, target);
+  if (goal === null) return null;
+  return { rank: RANKS[target], goal, from: rankGoal(game, target - 1) ?? 0 };
+}
 export const bestKey = (game: MinigameRoundResult["game"]): keyof WorldSave["bests"] => game === "soccer-sum10" ? "sum10" : game;
 export function recordRound(save: WorldSave, result: MinigameRoundResult): WorldSave {
   if (!Number.isFinite(result.score) || result.score < 0 || (result.game === "cardmatch" && result.cleared === false)) return save;
