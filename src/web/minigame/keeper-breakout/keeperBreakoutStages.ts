@@ -28,7 +28,7 @@ const BRICKS: Record<Exclude<BrickType, "steel">, { hp: number; value: number }>
 const CHARACTERS: Record<string, BrickType | undefined> = { "1": "hp1", "2": "hp2", "3": "hp3", G: "gold", S: "steel", B: "burst" };
 
 export function parseStage(lines: string[]): KeeperBreakoutBrick[] {
-  return lines.flatMap((line, row) => Array.from(line).flatMap((character, col) => {
+  return lines.flatMap((line, row) => Array.from(line).flatMap((character, col): KeeperBreakoutBrick[] => {
     const type = CHARACTERS[character];
     if (!type) return [];
     if (type === "steel") return [{ col, row, type, hp: Number.POSITIVE_INFINITY, value: 0 }];

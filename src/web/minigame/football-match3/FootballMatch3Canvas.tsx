@@ -7,7 +7,9 @@ const LABELS = ["공", "유", "화", "휘", "장", "카"];
 // Measured against the board frame's clear opening. The outer grid always clears its mint trim.
 const GRID_ORIGIN = 74;
 const CELL_SIZE = 45;
-const findHint = (_engine: FootballMatch3State): undefined => undefined;
+// Hints are switched off for now: the design's 5 s idle hint (docs/minigame-football-match3.md) is not wired up yet, and
+// drawing the engine's findHint on every frame would show the answer at once. The type matches the engine's findHint.
+const findHint = (_engine: FootballMatch3State): [number, number] | undefined => undefined;
 const copy = (board: Board) => board.map((tile) => tile && { ...tile });
 const point = (index: number) => ({ x: GRID_ORIGIN + index % 8 * CELL_SIZE, y: GRID_ORIGIN + Math.floor(index / 8) * CELL_SIZE });
 
