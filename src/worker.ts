@@ -20,6 +20,8 @@ export interface Env {
   ORIGIN_AUTH_TOKEN: string;
   /** D1 database holding the minigame rankings (see migrations/). */
   DB: D1Database;
+  /** Signs minigame run tokens; optional so an unset secret just turns the check off. */
+  SCORE_TOKEN_SECRET?: string;
 }
 
 const API_CACHE_SECONDS = 120;

@@ -239,3 +239,132 @@ describe("routing and failure modes", () => {
     expect(await result.json()).toEqual({ message: "ranking_unavailable" });
   });
 });
+
+describe("run tokens", () => {
+  const SECRET = "test-secret";
+  const start = async (game: string, pid: string) => (await call("POST", `/api/scores/${game}/start`, { body: { pid } })).body.token as string | null;
+  const submitWith = (game: string, pid: string, score: number, token?: string | null) =>
+    call("POST", `/api/scores/${game}`, { body: { pid, name: "문모모", score, ...(token ? { token } : {}) } });
+
+  beforeEach(() => {
+    env = { ...env, SCORE_TOKEN_SECRET: SECRET };
+  });
+
+  it("issues tokens only for timed games", async () => {
+    expect(typeof (await start("kickups", newPid()))).toBe("string");
+    expect(await start("rush", newPid())).toBeNull();
+  });
+
+  it("issues no token while the signing secret is unset", async () => {
+    env = { DB: env.DB };
+    expect(await start("kickups", newPid())).toBeNull();
+  });
+
+  it("requires a token for timed games", async () => {
+    const result = await submitWith("kickups", newPid(), 5);
+    expect(result).toMatchObject({ status: 400, body: { message: "token_required" } });
+  });
+
+  it("accepts a score that fits the time that really passed", async () => {
+    const pid = newPid();
+    const token = await start("kickups", pid);
+    advance(5_000);
+    expect((await submitWith("kickups", pid, 20, token)).body).toMatchObject({ improved: true, best: 20 });
+  });
+
+  it("rejects a score that is too fast for the elapsed time", async () => {
+    const pid = newPid();
+    const token = await start("kickups", pid);
+    advance(3_000);
+    expect((await submitWith("kickups", pid, 20, token)).body.message).toBe("implausible_score"); // needs 4 s
+    expect((await submitWith("kickups", pid, 10, token)).status).toBe(200); // 2 s of work fits in 3 s
+  });
+
+  it("rejects an instant submit even for a tiny score", async () => {
+    const pid = newPid();
+    const token = await start("freekick", pid);
+    advance(500);
+    expect((await submitWith("freekick", pid, 1, token)).body.message).toBe("implausible_score");
+  });
+
+  it("scales the required time with the score", async () => {
+    const pid = newPid();
+    const token = await start("soccer-sum10", pid);
+    advance(31_000);
+    expect((await submitWith("soccer-sum10", pid, 160, token)).body.message).toBe("implausible_score"); // 160 × 200 ms = 32 s
+    expect((await submitWith("soccer-sum10", pid, 150, token)).status).toBe(200); // 30 s fits in 31 s
+  });
+
+  it("rejects a token used by another player or for another game", async () => {
+    const pid = newPid();
+    const token = await start("kickups", pid);
+    advance(10_000);
+    expect((await submitWith("kickups", newPid(), 5, token)).body.message).toBe("invalid_token");
+    expect((await submitWith("freekick", pid, 1, token)).body.message).toBe("invalid_token");
+  });
+
+  it("rejects forged and expired tokens", async () => {
+    const pid = newPid();
+    expect((await submitWith("kickups", pid, 5, "nonsense")).body.message).toBe("invalid_token");
+    const token = await start("kickups", pid);
+    advance(2 * 60 * 60_000 + 1_000);
+    expect((await submitWith("kickups", pid, 5, token)).body.message).toBe("token_expired");
+  });
+
+  it("does not require a token for games without timing", async () => {
+    const result = await submitWith("rush", newPid(), 500);
+    expect(result.status).toBe(200);
+  });
+});
+
+describe("POST /api/scores/:game/rename", () => {
+  it("renames the player across games without a score or token", async () => {
+    const pid = newPid();
+    const key = await hashPlayerId(pid);
+    await submit("kickups", pid, "옛이름", 10);
+    advance();
+    await submit("freekick", pid, "옛이름", 3);
+    const renamed = await call("POST", "/api/scores/kickups/rename", { body: { pid, name: "새이름" } });
+    expect(renamed).toEqual({ status: 200, body: { changed: 2 } });
+    expect((await call("GET", `/api/scores/freekick/me?k=${key}`)).body).toMatchObject({ name: "새이름", score: 3 });
+    expect((await call("GET", "/api/scores/kickups")).body.entries[0].name).toBe("새이름");
+  });
+
+  it("reports zero changes for an unknown player or an unchanged name, and validates input", async () => {
+    expect((await call("POST", "/api/scores/kickups/rename", { body: { pid: newPid(), name: "아무개" } })).body).toEqual({ changed: 0 });
+    expect((await call("POST", "/api/scores/kickups/rename", { body: { pid: newPid(), name: "<b>" } })).body.message).toBe("invalid_nickname");
+    expect((await call("POST", "/api/scores/kickups/rename", { body: { pid: "short", name: "아무개" } })).body.message).toBe("invalid_player_id");
+    expect((await call("POST", "/api/scores/kickups/rename", { body: { pid: newPid(), name: "아무개" }, headers: { origin: "https://evil.example" } })).status).toBe(403);
+  });
+});
+
+describe("per-IP rate limiting", () => {
+  const ip = { "cf-connecting-ip": "203.0.113.7" };
+  const start = (headers: Record<string, string> = ip) => call("POST", "/api/scores/kickups/start", { body: { pid: newPid() }, headers });
+
+  it("throttles a flood of run starts from one IP and recovers next minute", async () => {
+    for (let index = 0; index < 60; index += 1) expect((await start()).status).toBe(200);
+    const blocked = await start();
+    expect(blocked).toMatchObject({ status: 429, body: { message: "rate_limited" } });
+    advance(61_000);
+    expect((await start()).status).toBe(200);
+  });
+
+  it("counts each IP separately", async () => {
+    for (let index = 0; index < 60; index += 1) await start();
+    expect((await start()).status).toBe(429);
+    expect((await start({ "cf-connecting-ip": "203.0.113.99" })).status).toBe(200);
+  });
+
+  it("throttles score writes independently of run starts", async () => {
+    const headers = ip;
+    for (let index = 0; index < 30; index += 1) await call("POST", "/api/scores/rush", { body: { pid: newPid(), name: "문모모", score: 5 }, headers });
+    const blocked = await call("POST", "/api/scores/rush", { body: { pid: newPid(), name: "문모모", score: 5 }, headers });
+    expect(blocked.status).toBe(429);
+    expect((await start()).status).toBe(200);
+  });
+
+  it("does not throttle reads", async () => {
+    for (let index = 0; index < 80; index += 1) expect((await call("GET", "/api/scores/kickups", { headers: ip })).status).toBe(200);
+  });
+});

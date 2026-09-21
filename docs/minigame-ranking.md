@@ -8,6 +8,7 @@
 | 파일 | 역할 |
 |---|---|
 | `src/shared/minigame-scores.ts` | 게임 레지스트리 `SCORE_GAMES`(허용 목록·단위·정렬·점수 범위), 닉네임 정제, 점수 검증, `hashPlayerId` |
+| `src/shared/run-token.ts` | 런 토큰 서명·검증(HMAC-SHA256, Web Crypto) |
 | `src/worker-scores.ts` | `/api/scores/*` 핸들러 (D1). `src/worker.ts`는 라우팅만 |
 | `migrations/0001_scores.sql` | `scores` 테이블 — 게임×플레이어당 1행(본인 최고기록) |
 | `src/web/minigame/ranking/` | `useRanking`(상태·제출), `RankingPanel`(UI), `MinigameStage`(좌 게임 / 우 패널 레이아웃), `scoreApi`, `shouldSubmit` |
@@ -19,12 +20,19 @@
 |---|---|---|
 | `GET /api/scores/:game?limit=10` | `{order, unit, total, entries:[{rank,key,name,score}]}` | 엣지 30초 (점수 등록 시 `limit=10` 키 삭제) |
 | `GET /api/scores/:game/me?k=<playerKey>` | `{rank, score, name}` 또는 `{rank:null}` | no-store |
-| `POST /api/scores/:game` `{pid,name,score}` | 검증 → 더 좋을 때만 갱신 → `{improved,rank,total,best}` | no-store |
+| `POST /api/scores/:game/start` `{pid}` | 서명된 런 토큰 발급 `{token}` (토큰을 안 쓰는 게임·시크릿 미설정이면 `null`) | no-store |
+| `POST /api/scores/:game` `{pid,name,score,token?}` | 검증 → 더 좋을 때만 갱신 → `{improved,rank,total,best}` | no-store |
+| `POST /api/scores/:game/rename` `{pid,name}` | 점수는 건드리지 않고 이 플레이어의 모든 게임 닉네임 변경 `{changed}` (토큰 불필요) | no-store |
 
 - **신원**: 클라이언트가 만든 `pid`(UUID)가 쓰기 권한이고, 서버에는 `sha256(pid)`(=`player_key`)만 저장한다. 목록에는 key만 나가므로 남이 내 기록을 덮어쓸 수 없다. 기기를 바꾸거나 저장소를 지우면 새 신원이 된다(로그인 없는 설계의 한계).
 - **동점**은 먼저 달성한 사람이 상위. 카드 짝 맞추기처럼 낮을수록 좋은 게임은 `order: "asc"`로 등록하면 서버가 `rank_score`를 부호 반전해 저장한다.
-- **방어**: 게임 허용목록, 점수 정수·범위(`min`/`max`), 닉네임 2~12자·허용 문자·금칙어, 본문 ≤1KB, JSON만, `Origin`이 같은 오리진(또는 localhost)일 것, 같은 플레이어·게임 5초 쿨다운(429).
-- **한계**: 클라이언트 점수는 콘솔에서 위조할 수 있다. 상한 검증과 운영자 삭제로 대응하고, 필요하면 Cloudflare WAF 레이트리밋 규칙(POST `/api/scores/*`)이나 서버 발급 nonce를 추가한다.
+- **기본 방어**: 게임 허용목록, 점수 정수·범위(`min`/`max`), 닉네임 2~12자·허용 문자·금칙어, 본문 ≤1KB, JSON만, `Origin`이 같은 오리진(또는 localhost)일 것, 같은 플레이어·게임 5초 쿨다운(429 `too_frequent`).
+- **런 토큰(시간 증명)**: `SCORE_GAMES[game].timing`이 있는 게임은 제출에 토큰이 필요하다. 토큰 = `발급시각.HMAC(비밀키, game|playerKey|발급시각)`이라 저장소가 필요 없고 다른 플레이어·게임에는 쓸 수 없다. 서버는 **발급 후 실제 경과 시간**으로 `경과 ≥ minRunMs` 그리고 `경과 ≥ 점수 × minMsPerUnit`을 검사하고(`implausible_score`), `tokenTtlMs`가 지난 토큰은 거부한다(`token_expired`). 즉 콘솔에서 점수를 바로 POST할 수 없고 "그 점수만큼의 시간을 기다려야" 한다. 클라이언트(`useRanking`)는 모달을 열 때와 매 라운드가 끝날 때 토큰을 새로 받는다.
+  - 기준값: kickups 히트당 200ms / freekick 골당 1200ms / 사과게임 점수당 200ms(최소 30초) / 카드 짝 맞추기 턴당 600ms(최소 8초).
+  - **비밀키 `SCORE_TOKEN_SECRET`(Worker secret)이 없으면 토큰을 발급도 요구도 하지 않는다**(예전 동작). 그래서 코드를 먼저 배포하고 나중에 시크릿을 넣어도 안전하다.
+  - 토큰이 켜지면 "내 예전 로컬 기록 등록" 카드는 뜨지 않는다(시간 증명이 불가능하므로 다시 플레이해서 갱신).
+- **IP별 요청 제한**: 엣지 캐시 카운터로 IP당 분당 점수/닉네임 쓰기 30회, 런 시작 60회(`rate_limited`, 429). 데이터센터별 best-effort라 완벽하진 않지만 무료이고 D1 쓰기를 쓰지 않는다. 로컬 개발(IP 헤더 없음)에서는 꺼진다.
+- **한계**: 토큰은 "시간 비용"을 강제할 뿐 게임을 실제로 플레이했다는 증명은 아니다. 스크립트로 기다렸다가 상한 근처 점수를 보내는 것은 여전히 가능하고, 카드 짝 맞추기·매치3처럼 시간과 점수의 관계가 약한 게임은 효과가 작다. 눈에 띄는 위조는 아래 "운영"의 SQL로 지운다. 더 강하게 막으려면 Cloudflare WAF 레이트리밋 규칙(POST `/api/scores/*`)을 대시보드에서 추가한다.
 
 ## 최초 설정 (운영) — 완료
 
@@ -37,7 +45,14 @@
 npx wrangler d1 migrations apply fc26-minigame-scores --remote
 ```
 
-3. push → 자동 배포. 바인딩이 없으면 사이트는 정상이고 `/api/scores/*`만 503이다. 배포 로그의 `--env` 권고 경고는 `env.dev`(로컬 개발용) 때문이며 무시해도 된다.
+3. 런 토큰 비밀키를 넣는다(값은 어디에도 남기지 않는다). **코드가 배포된 뒤에** 넣는 게 안전하다 — 클라이언트가 토큰을 보내기 전에 켜면 이전 버전 화면의 제출이 `token_required`로 거부된다.
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))" | npx wrangler secret put SCORE_TOKEN_SECRET
+```
+
+4. push → 자동 배포. 바인딩이 없으면 사이트는 정상이고 `/api/scores/*`만 503이다. 배포 로그의 `--env` 권고 경고는 `env.dev`(로컬 개발용) 때문이며 무시해도 된다.
+5. 토큰을 끄려면 `npx wrangler secret delete SCORE_TOKEN_SECRET`. 비밀키를 바꾸면 이미 발급된 토큰은 모두 무효가 되고(클라이언트는 다음 라운드에 새로 받음) 저장된 순위에는 영향이 없다.
 
 ## 로컬 개발
 
@@ -46,6 +61,8 @@ pnpm db:migrate:local   # 최초 1회: 로컬 D1(.wrangler/state)에 스키마 �
 pnpm dev:api            # 127.0.0.1:8787 에서 Worker + 로컬 D1
 pnpm dev                # 별도 터미널. vite가 /api/scores 를 8787로 프록시
 ```
+
+런 토큰까지 로컬에서 시험하려면 저장소 루트에 `.dev.vars`(gitignore 됨)를 만들고 `SCORE_TOKEN_SECRET=아무값`을 넣은 뒤 `pnpm dev:api`를 다시 시작한다. 없으면 토큰 검사는 꺼진 채로 동작한다.
 
 `/api/scores`를 운영으로 프록시하지 않는 이유: 개발 중 점수가 실제 순위표에 들어가기 때문이다. `pnpm dev:api` 없이 `pnpm dev`만 켜면 패널이 오류 상태로 보일 뿐 게임은 정상 동작한다.
 
@@ -80,5 +97,6 @@ const game = useGrassMergeGame({
 </Modal>
 ```
 
-3. 패널은 반드시 `Modal`의 children 안에 둔다. `.modal` 섹션 밖에 두면 클릭이 backdrop으로 전달돼 모달이 닫힌다.
-4. 잔디 러시(월드, 공용 `Modal`이 아닌 640×360 스테이지)는 아직 연결하지 않았다. `SCORE_GAMES.rush`(거리 m 기준)만 등록돼 있다.
+3. 런 토큰을 쓰려면 `SCORE_GAMES` 항목에 `timing: { minRunMs, minMsPerUnit, tokenTtlMs }`를 추가한다. 엔진에서 "이보다 빠를 수 없다"는 속도(점수 1점에 걸리는 최소 시간, 라운드 최소 길이)를 보수적으로 잡는다. 훅이 토큰 발급·전송을 알아서 하므로 모달 코드는 바뀌지 않는다. `timing`이 없으면 토큰 없이 제출된다(상한 검증만).
+4. 패널은 반드시 `Modal`의 children 안에 둔다. `.modal` 섹션 밖에 두면 클릭이 backdrop으로 전달돼 모달이 닫힌다.
+5. 잔디 러시(월드, 공용 `Modal`이 아닌 640×360 스테이지)는 아직 연결하지 않았다. `SCORE_GAMES.rush`(거리 m 기준)만 등록돼 있다.

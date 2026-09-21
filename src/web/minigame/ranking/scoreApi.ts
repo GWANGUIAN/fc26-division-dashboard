@@ -1,7 +1,9 @@
 import type {
   LeaderboardResponse,
   MyRankResponse,
+  RenameResponse,
   ScoreGameId,
+  StartRunResponse,
   SubmitScoreRequest,
   SubmitScoreResponse,
 } from "../../../shared/minigame-scores.js";
@@ -44,4 +46,13 @@ export function fetchMyRank(game: ScoreGameId, playerKey: string): Promise<MyRan
 
 export function submitScore(game: ScoreGameId, payload: SubmitScoreRequest): Promise<SubmitScoreResponse> {
   return request(game, { method: "POST", body: JSON.stringify(payload) });
+}
+
+/** Asks for a signed run token; `token` is null when the server does not use them. */
+export function startRun(game: ScoreGameId, pid: string): Promise<StartRunResponse> {
+  return request(`${game}/start`, { method: "POST", body: JSON.stringify({ pid }) });
+}
+
+export function renameNickname(game: ScoreGameId, pid: string, name: string): Promise<RenameResponse> {
+  return request(`${game}/rename`, { method: "POST", body: JSON.stringify({ pid, name }) });
 }

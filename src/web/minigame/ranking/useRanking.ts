@@ -10,7 +10,7 @@ import {
   type ScoreGameId,
 } from "../../../shared/minigame-scores.js";
 import { loadPlayerId, loadPlayerNickname, loadSubmittedScore, savePlayerNickname, saveSubmittedScore } from "../../storage.js";
-import { fetchLeaderboard, fetchMyRank, ScoreApiError, submitScore } from "./scoreApi.js";
+import { fetchLeaderboard, fetchMyRank, renameNickname, ScoreApiError, startRun, submitScore } from "./scoreApi.js";
 import { shouldSubmit } from "./shouldSubmit.js";
 
 export const NICKNAME_HINT = "2~12자, 한글·영문·숫자와 공백 _ . ! - 만 쓸 수 있어요.";
@@ -21,6 +21,8 @@ export interface PendingSubmission {
   /** "record": a fresh personal best; "import": a best that predates the ranking. */
   kind: "record" | "import";
   failed: boolean;
+  /** The run token that was current when this result was produced; a retry must reuse it. */
+  token: string | null;
 }
 
 export interface RankingPanelProps {
@@ -40,7 +42,13 @@ export interface RankingPanelProps {
   onReload: () => void;
 }
 
-type SendKind = PendingSubmission["kind"] | "rename";
+/** Rejections that retrying cannot fix: the result no longer counts as a verifiable run. */
+const UNVERIFIABLE: Record<string, string> = {
+  token_expired: "창을 너무 오래 열어둬서 기록을 확인할 수 없어요. 한 번 더 플레이해 주세요",
+  implausible_score: "기록을 확인할 수 없어 등록하지 못했어요",
+  invalid_token: "기록 확인에 실패했어요. 한 번 더 플레이해 주세요",
+  token_required: "기록 확인에 실패했어요. 한 번 더 플레이해 주세요",
+};
 
 /**
  * Online ranking for one minigame. `panel` feeds <RankingPanel>; call
@@ -72,7 +80,22 @@ export function useRanking(game: ScoreGameId, readLocalBest?: () => number | nul
   const readLocalBestRef = useRef(readLocalBest);
   readLocalBestRef.current = readLocalBest;
 
+  // The run token proves how long this run could have lasted; it is renewed after every finished run.
+  const tokenRef = useRef<string | null>(null);
+  const enforcedRef = useRef(false);
+
   const playerId = () => (playerIdRef.current ??= loadPlayerId());
+
+  const refreshToken = async () => {
+    try {
+      const { token } = await startRun(game, playerId());
+      if (!alive.current) return;
+      tokenRef.current = token;
+      enforcedRef.current = token !== null;
+    } catch {
+      // Keep the previous token: an older one only means more elapsed time.
+    }
+  };
 
   const load = async (key: string): Promise<MyRankResponse | null> => {
     try {
@@ -88,42 +111,40 @@ export function useRanking(game: ScoreGameId, readLocalBest?: () => number | nul
     }
   };
 
-  const send = async (score: number, name: string, kind: SendKind, retried = false): Promise<void> => {
+  const send = async (score: number, name: string, kind: PendingSubmission["kind"], token: string | null, retried = false): Promise<void> => {
     setBusy(true);
     setNicknameError(null);
     try {
-      const result = await submitScore(game, { pid: playerId(), name, score });
+      const result = await submitScore(game, { pid: playerId(), name, score, ...(token ? { token } : {}) });
       if (!alive.current) return;
       savePlayerNickname(name);
       setNickname(name);
       submittedBest.current = result.best;
       saveSubmittedScore(game, result.best);
       setPending(null);
-      setNotice(
-        kind === "rename"
-          ? "닉네임을 바꿨어요"
-          : result.improved
-            ? `순위 등록 완료 · ${result.rank}위`
-            : `저장된 최고기록이 더 좋아요 · ${result.rank}위`,
-      );
+      setNotice(result.improved ? `순위 등록 완료 · ${result.rank}위` : `저장된 최고기록이 더 좋아요 · ${result.rank}위`);
       setBusy(false);
       if (playerKeyRef.current) await load(playerKeyRef.current);
     } catch (cause) {
       if (!alive.current) return;
       // The server asks for a short pause between submits from one player; wait it out once.
-      if (cause instanceof ScoreApiError && cause.status === 429 && !retried) {
+      if (cause instanceof ScoreApiError && cause.code === "too_frequent" && !retried) {
         setTimeout(() => {
-          if (alive.current) void send(score, name, kind, true);
+          if (alive.current) void send(score, name, kind, token, true);
         }, (cause.retryAfterMs ?? 5_000) + 300);
         return;
       }
       setBusy(false);
-      if (cause instanceof ScoreApiError && cause.code === "invalid_nickname") setNicknameError(NICKNAME_HINT);
-      if (kind === "rename") setNotice("닉네임을 바꾸지 못했어요. 잠시 후 다시 시도해 주세요");
-      else {
-        setPending({ score, kind, failed: true });
-        setNotice("등록에 실패했어요. 다시 시도해 주세요");
+      const unverifiable = cause instanceof ScoreApiError ? UNVERIFIABLE[cause.code] : undefined;
+      if (unverifiable) {
+        setPending(null);
+        setNotice(unverifiable);
+        void refreshToken();
+        return;
       }
+      if (cause instanceof ScoreApiError && cause.code === "invalid_nickname") setNicknameError(NICKNAME_HINT);
+      setPending({ score, kind, failed: true, token });
+      setNotice("등록에 실패했어요. 다시 시도해 주세요");
     }
   };
 
@@ -134,7 +155,7 @@ export function useRanking(game: ScoreGameId, readLocalBest?: () => number | nul
       if (cancelled) return;
       playerKeyRef.current = key;
       setPlayerKey(key);
-      const mine = await load(key);
+      const [mine] = await Promise.all([load(key), refreshToken()]);
       if (cancelled || !mine) return;
       if (mine.rank !== null && mine.score !== undefined && submittedBest.current === null) {
         // Storage was cleared but the server still knows this player: adopt its best.
@@ -142,9 +163,11 @@ export function useRanking(game: ScoreGameId, readLocalBest?: () => number | nul
         saveSubmittedScore(game, mine.score);
         return;
       }
+      // A pre-existing local best cannot be verified as a timed run, so once the server checks
+      // run tokens it can only be replaced by playing again: no "register my old record" card.
       const local = readLocalBestRef.current?.() ?? null;
-      if (mine.rank === null && submittedBest.current === null && local !== null && validateScore(game, local) !== null) {
-        setPending((current) => current ?? { score: local, kind: "import", failed: false });
+      if (!enforcedRef.current && mine.rank === null && submittedBest.current === null && local !== null && validateScore(game, local) !== null) {
+        setPending((current) => current ?? { score: local, kind: "import", failed: false, token: null });
       }
     });
     return () => {
@@ -155,14 +178,19 @@ export function useRanking(game: ScoreGameId, readLocalBest?: () => number | nul
   }, [game]);
 
   const report = (score: number) => {
-    if (validateScore(game, score) === null) return;
-    if (!shouldSubmit(order, score, submittedBest.current ?? null)) return;
-    const name = nicknameRef.current;
-    if (name) void send(score, name, "record");
-    else {
-      setNicknameError(null);
-      setPending((current) => (current && !isBetterScore(order, score, current.score) ? current : { score, kind: "record", failed: false }));
+    // The token that was issued before this run is the one that proves its duration.
+    const token = tokenRef.current;
+    const submittable = validateScore(game, score) !== null && shouldSubmit(order, score, submittedBest.current ?? null);
+    if (submittable) {
+      const name = nicknameRef.current;
+      if (name) void send(score, name, "record", token);
+      else {
+        setNicknameError(null);
+        setPending((current) => (current && !isBetterScore(order, score, current.score) ? current : { score, kind: "record", failed: false, token }));
+      }
     }
+    // Whether or not this run was submitted, the next one needs a fresh token.
+    void refreshToken();
   };
 
   const onSubmitPending = (name: string) => {
@@ -172,7 +200,7 @@ export function useRanking(game: ScoreGameId, readLocalBest?: () => number | nul
       setNicknameError(NICKNAME_HINT);
       return;
     }
-    void send(pending.score, clean, pending.kind);
+    void send(pending.score, clean, pending.kind, pending.token);
   };
 
   const onRename = (name: string) => {
@@ -188,7 +216,24 @@ export function useRanking(game: ScoreGameId, readLocalBest?: () => number | nul
       setNotice("닉네임을 저장했어요");
       return;
     }
-    void send(submittedBest.current, clean, "rename");
+    setBusy(true);
+    void renameNickname(game, playerId(), clean)
+      .then(() => {
+        if (!alive.current) return;
+        savePlayerNickname(clean);
+        setNickname(clean);
+        setNicknameError(null);
+        setNotice("닉네임을 바꿨어요");
+        if (playerKeyRef.current) void load(playerKeyRef.current);
+      })
+      .catch((cause: unknown) => {
+        if (!alive.current) return;
+        if (cause instanceof ScoreApiError && cause.code === "invalid_nickname") setNicknameError(NICKNAME_HINT);
+        else setNotice("닉네임을 바꾸지 못했어요. 잠시 후 다시 시도해 주세요");
+      })
+      .finally(() => {
+        if (alive.current) setBusy(false);
+      });
   };
 
   const panel: RankingPanelProps = {

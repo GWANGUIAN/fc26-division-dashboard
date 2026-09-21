@@ -7,6 +7,20 @@
 
 export type ScoreOrder = "desc" | "asc";
 
+/**
+ * How long a run of this game takes at the very least. A signed run token
+ * proves how much wall-clock time has passed since the client asked to start,
+ * so a forged score has to be "waited for" instead of just POSTed.
+ */
+export interface RunTiming {
+  /** No real run submits sooner than this after its token was issued. */
+  minRunMs: number;
+  /** Fastest plausible pace: a score of N needs at least N × this many ms. */
+  minMsPerUnit: number;
+  /** A token older than this is refused, which also caps how far a held token can be exploited. */
+  tokenTtlMs: number;
+}
+
 export interface ScoreGameDef {
   label: string;
   unit: string;
@@ -16,23 +30,44 @@ export interface ScoreGameDef {
   min: number;
   /** Largest score a real run can produce; anything above is a forged submit. */
   max: number;
+  /** When set, submissions must carry a run token (once the server has a signing secret). */
+  timing?: RunTiming;
 }
 
 export const SCORE_GAMES = {
-  kickups: { label: "축구공 튀기기", unit: "회", order: "desc", min: 1, max: 100_000 },
-  freekick: { label: "3D 프리킥", unit: "골", order: "desc", min: 1, max: 10_000 },
-  // 17 × 10 board, one point per cleared ball.
-  "soccer-sum10": { label: "축구공 사과게임", unit: "점", order: "desc", min: 1, max: 170 },
-  // 10 pairs: the fewest possible turns is 10.
-  cardmatch: { label: "카드 짝 맞추기", unit: "턴", order: "asc", min: 10, max: 999 },
+  // Consecutive hits are at least ~0.2 s apart even for a fast clicker.
+  kickups: {
+    label: "축구공 튀기기", unit: "회", order: "desc", min: 1, max: 100_000,
+    timing: { minRunMs: 1_500, minMsPerUnit: 200, tokenTtlMs: 2 * 60 * 60_000 },
+  },
+  // A goal needs a drag, ~0.7 s of flight and a click on "next shot".
+  freekick: {
+    label: "3D 프리킥", unit: "골", order: "desc", min: 1, max: 10_000,
+    timing: { minRunMs: 2_000, minMsPerUnit: 1_200, tokenTtlMs: 60 * 60_000 },
+  },
+  // 17 × 10 board, one point per cleared ball; a drag clears at least two.
+  "soccer-sum10": {
+    label: "축구공 사과게임", unit: "점", order: "desc", min: 1, max: 170,
+    timing: { minRunMs: 30_000, minMsPerUnit: 200, tokenTtlMs: 60 * 60_000 },
+  },
+  // 10 pairs: the fewest possible turns is 10; a mismatch alone shows for 0.7 s.
+  cardmatch: {
+    label: "카드 짝 맞추기", unit: "턴", order: "asc", min: 10, max: 999,
+    timing: { minRunMs: 8_000, minMsPerUnit: 600, tokenTtlMs: 60 * 60_000 },
+  },
   // World-only. Ranked by distance in metres, not by the seed-bonus score.
   rush: { label: "잔디 러시", unit: "m", order: "desc", min: 1, max: 100_000 },
-  "grass-merge": { label: "잔디 머지", unit: "점", order: "desc", min: 1, max: 1_000_000 },
+  // Endless in theory; 200k is about 6,700 average-30-point merges, leaving normal long runs headroom.
+  "grass-merge": { label: "잔디 머지", unit: "점", order: "desc", min: 1, max: 200_000 },
   "keeper-breakout": { label: "골키퍼 벽돌깨기", unit: "점", order: "desc", min: 1, max: 1_000_000 },
   "football-match3": { label: "축구 매치3", unit: "점", order: "desc", min: 1, max: 1_000_000 },
 } as const satisfies Record<string, ScoreGameDef>;
 
 export type ScoreGameId = keyof typeof SCORE_GAMES;
+
+export function scoreGame(game: ScoreGameId): ScoreGameDef {
+  return SCORE_GAMES[game];
+}
 
 export function isScoreGameId(value: string): value is ScoreGameId {
   return Object.prototype.hasOwnProperty.call(SCORE_GAMES, value);
@@ -72,6 +107,17 @@ export interface SubmitScoreRequest {
   pid: string;
   name: string;
   score: number;
+  /** From POST /start; required for games with `timing` once the server signs tokens. */
+  token?: string;
+}
+
+export interface StartRunResponse {
+  /** null when this game or this deployment does not use run tokens. */
+  token: string | null;
+}
+
+export interface RenameResponse {
+  changed: number;
 }
 
 export interface SubmitScoreResponse {
@@ -125,4 +171,9 @@ export function sanitizeNickname(input: unknown): string | null {
 export async function hashPlayerId(playerId: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(playerId));
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+/** Whether `score` fits in the time that really passed between token issue and submit. */
+export function isRunPlausible(timing: RunTiming, score: number, elapsedMs: number): boolean {
+  return elapsedMs >= timing.minRunMs && elapsedMs >= score * timing.minMsPerUnit;
 }

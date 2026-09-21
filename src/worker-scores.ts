@@ -1,19 +1,23 @@
 import {
-  isScoreGameId,
   hashPlayerId,
+  isRunPlausible,
+  isScoreGameId,
   LEADERBOARD_DEFAULT_LIMIT,
   LEADERBOARD_MAX_LIMIT,
   PLAYER_ID_PATTERN,
   PLAYER_KEY_PATTERN,
-  SCORE_GAMES,
   sanitizeNickname,
+  scoreGame,
   toRankScore,
   validateScore,
   type LeaderboardResponse,
   type MyRankResponse,
+  type RenameResponse,
   type ScoreGameId,
+  type StartRunResponse,
   type SubmitScoreResponse,
 } from "./shared/minigame-scores.js";
+import { signRunToken, verifyRunToken } from "./shared/run-token.js";
 
 // The subset of the Cloudflare D1 API this file uses; declared here because
 // the project does not depend on @cloudflare/workers-types.
@@ -31,6 +35,12 @@ export interface D1Database {
 
 export interface ScoresEnv {
   DB: D1Database;
+  /**
+   * Signs run tokens (`wrangler secret put SCORE_TOKEN_SECRET`). While it is
+   * unset, tokens are neither issued nor required, so a deploy that predates
+   * the secret behaves like the version without run tokens.
+   */
+  SCORE_TOKEN_SECRET?: string;
 }
 
 export interface ScoresContext {
@@ -46,6 +56,10 @@ const MAX_BODY_BYTES = 1024;
 /** A player's stored best must be at least this old before it can be replaced. */
 const SUBMIT_COOLDOWN_MS = 5_000;
 const LOCAL_ORIGIN = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/u;
+
+/** Per-IP request budgets (per minute). Generous for a real player, tight for a script. */
+const RATE_LIMITS = { write: 30, start: 60 } as const;
+const RATE_WINDOW_SECONDS = 60;
 
 const NO_STORE = { "cache-control": "no-store", "x-content-type-options": "nosniff" };
 
@@ -65,6 +79,23 @@ function parseLimit(raw: string | null): number {
   const value = raw === null ? LEADERBOARD_DEFAULT_LIMIT : Number(raw);
   if (!Number.isInteger(value)) return LEADERBOARD_DEFAULT_LIMIT;
   return Math.min(LEADERBOARD_MAX_LIMIT, Math.max(1, value));
+}
+
+/**
+ * Best-effort per-IP throttle on the edge cache: free, no D1 writes, and
+ * counted per Cloudflare data center, which is enough to stop one machine
+ * flooding new players. Skipped when the IP header is missing (local dev).
+ */
+async function isThrottled(request: Request, ctx: ScoresContext, bucket: keyof typeof RATE_LIMITS): Promise<boolean> {
+  const ip = request.headers.get("cf-connecting-ip");
+  if (!ip) return false;
+  const windowId = Math.floor(Date.now() / (RATE_WINDOW_SECONDS * 1000));
+  const key = new Request(`https://rate-limit.invalid/${bucket}/${encodeURIComponent(ip)}/${windowId}`);
+  const hit = await edgeCache().match(key);
+  const count = hit ? Number(await hit.text()) || 0 : 0;
+  if (count >= RATE_LIMITS[bucket]) return true;
+  ctx.waitUntil(edgeCache().put(key, new Response(String(count + 1), { headers: { "cache-control": `max-age=${RATE_WINDOW_SECONDS}` } })));
+  return false;
 }
 
 interface StoredRow {
@@ -102,8 +133,8 @@ async function serveLeaderboard(request: Request, env: ScoresEnv, ctx: ScoresCon
   ]);
   const rows = top.results as { player_key: string; nickname: string; score: number }[];
   const body: LeaderboardResponse = {
-    order: SCORE_GAMES[game].order,
-    unit: SCORE_GAMES[game].unit,
+    order: scoreGame(game).order,
+    unit: scoreGame(game).unit,
     total: (total.results[0] as { total: number } | undefined)?.total ?? 0,
     entries: rows.map((row, index) => ({ rank: index + 1, key: row.player_key, name: row.nickname, score: row.score })),
   };
@@ -129,29 +160,59 @@ function originAllowed(request: Request): boolean {
   return origin === new URL(request.url).origin || LOCAL_ORIGIN.test(origin);
 }
 
-async function submitScore(request: Request, env: ScoresEnv, ctx: ScoresContext, game: ScoreGameId): Promise<Response> {
-  if (!originAllowed(request)) return error(403, "forbidden_origin");
-  if (!(request.headers.get("content-type") ?? "").includes("application/json")) return error(415, "expected_json");
+type JsonBody = { pid?: unknown; name?: unknown; score?: unknown; token?: unknown };
+
+/** The checks every write shares: same origin, JSON, small body, a well-formed player id. */
+async function readWrite(request: Request): Promise<{ body: JsonBody; pid: string } | { failure: Response }> {
+  if (!originAllowed(request)) return { failure: error(403, "forbidden_origin") };
+  if (!(request.headers.get("content-type") ?? "").includes("application/json")) return { failure: error(415, "expected_json") };
 
   const raw = await request.text();
-  if (new TextEncoder().encode(raw).length > MAX_BODY_BYTES) return error(413, "body_too_large");
-  let payload: { pid?: unknown; name?: unknown; score?: unknown };
+  if (new TextEncoder().encode(raw).length > MAX_BODY_BYTES) return { failure: error(413, "body_too_large") };
+  let body: JsonBody;
   try {
     const parsed: unknown = JSON.parse(raw);
-    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return error(400, "invalid_body");
-    payload = parsed;
+    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return { failure: error(400, "invalid_body") };
+    body = parsed;
   } catch {
-    return error(400, "invalid_body");
+    return { failure: error(400, "invalid_body") };
   }
+  if (typeof body.pid !== "string" || !PLAYER_ID_PATTERN.test(body.pid)) return { failure: error(400, "invalid_player_id") };
+  return { body, pid: body.pid };
+}
 
-  if (typeof payload.pid !== "string" || !PLAYER_ID_PATTERN.test(payload.pid)) return error(400, "invalid_player_id");
-  const nickname = sanitizeNickname(payload.name);
+/** Hands out a run token: proof of when a run could have begun, checked again on submit. */
+async function startRun(request: Request, env: ScoresEnv, game: ScoreGameId): Promise<Response> {
+  const write = await readWrite(request);
+  if ("failure" in write) return write.failure;
+  const secret = env.SCORE_TOKEN_SECRET;
+  if (!scoreGame(game).timing || !secret) return json({ token: null } satisfies StartRunResponse);
+  const token = await signRunToken(secret, game, await hashPlayerId(write.pid), Date.now());
+  return json({ token } satisfies StartRunResponse);
+}
+
+async function submitScore(request: Request, env: ScoresEnv, ctx: ScoresContext, game: ScoreGameId): Promise<Response> {
+  const write = await readWrite(request);
+  if ("failure" in write) return write.failure;
+  const { body, pid } = write;
+
+  const nickname = sanitizeNickname(body.name);
   if (!nickname) return error(400, "invalid_nickname");
-  const score = validateScore(game, payload.score);
+  const score = validateScore(game, body.score);
   if (score === null) return error(400, "invalid_score");
 
-  const playerKey = await hashPlayerId(payload.pid);
+  const playerKey = await hashPlayerId(pid);
   const now = Date.now();
+
+  const timing = scoreGame(game).timing;
+  const secret = env.SCORE_TOKEN_SECRET;
+  if (timing && secret) {
+    if (typeof body.token !== "string") return error(400, "token_required");
+    const verdict = await verifyRunToken(secret, body.token, game, playerKey, now, timing.tokenTtlMs);
+    if (!verdict.ok) return error(400, verdict.reason === "expired" ? "token_expired" : "invalid_token");
+    if (!isRunPlausible(timing, score, verdict.elapsedMs)) return error(400, "implausible_score");
+  }
+
   const existing = await env.DB
     .prepare("SELECT achieved_at FROM scores WHERE game = ?1 AND player_key = ?2")
     .bind(game, playerKey)
@@ -182,16 +243,35 @@ async function submitScore(request: Request, env: ScoresEnv, ctx: ScoresContext,
   const [mine, total] = await env.DB.batch<StoredRow | { total: number }>([selectMine(env.DB, game, playerKey), countAll(env.DB, game)]);
   const stored = mine.results[0] as StoredRow | undefined;
   if (!stored) return error(500, "not_stored");
-  const body: SubmitScoreResponse = {
+  const response: SubmitScoreResponse = {
     improved,
     rank: stored.rank,
     total: (total.results[0] as { total: number } | undefined)?.total ?? 0,
     best: stored.score,
   };
-  return json(body);
+  return json(response);
 }
 
-/** Routes /api/scores/:game[/me]. Anything unexpected in D1 degrades to a 503 so the UI can say "unavailable". */
+/** Renames the player everywhere without touching any score, so it needs no run token. */
+async function renamePlayer(request: Request, env: ScoresEnv, ctx: ScoresContext, game: ScoreGameId): Promise<Response> {
+  const write = await readWrite(request);
+  if ("failure" in write) return write.failure;
+  const nickname = sanitizeNickname(write.body.name);
+  if (!nickname) return error(400, "invalid_nickname");
+
+  const playerKey = await hashPlayerId(write.pid);
+  const result = await env.DB
+    .prepare("UPDATE scores SET nickname = ?1 WHERE player_key = ?2 AND nickname <> ?1")
+    .bind(nickname, playerKey)
+    .run();
+  if (result.meta.changes > 0) {
+    const url = new URL(request.url);
+    ctx.waitUntil(edgeCache().delete(leaderboardCacheKey(url.origin, game, LEADERBOARD_DEFAULT_LIMIT)));
+  }
+  return json({ changed: result.meta.changes } satisfies RenameResponse);
+}
+
+/** Routes /api/scores/:game[/me|/start|/rename]. Anything unexpected in D1 degrades to a 503 so the UI can say "unavailable". */
 export async function serveScores(request: Request, env: ScoresEnv, ctx: ScoresContext): Promise<Response> {
   const url = new URL(request.url);
   const [, , , game, sub, ...rest] = url.pathname.split("/");
@@ -200,9 +280,16 @@ export async function serveScores(request: Request, env: ScoresEnv, ctx: ScoresC
   try {
     if (request.method === "GET" && sub === undefined) return await serveLeaderboard(request, env, ctx, game);
     if (request.method === "GET" && sub === "me") return await serveMyRank(url, env, game);
-    if (request.method === "POST" && sub === undefined) return await submitScore(request, env, ctx, game);
+    if (request.method === "POST" && (sub === undefined || sub === "start" || sub === "rename")) {
+      if (await isThrottled(request, ctx, sub === "start" ? "start" : "write")) {
+        return error(429, "rate_limited", { retryAfterMs: RATE_WINDOW_SECONDS * 1000 });
+      }
+      if (sub === "start") return await startRun(request, env, game);
+      if (sub === "rename") return await renamePlayer(request, env, ctx, game);
+      return await submitScore(request, env, ctx, game);
+    }
   } catch {
     return error(503, "ranking_unavailable");
   }
-  return sub === undefined || sub === "me" ? error(405, "method_not_allowed") : error(404, "not_found");
+  return ["me", "start", "rename", undefined].includes(sub) ? error(405, "method_not_allowed") : error(404, "not_found");
 }

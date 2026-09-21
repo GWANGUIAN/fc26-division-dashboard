@@ -18,3 +18,8 @@ tmp/world-src/
 
 # Local wrangler state (dev D1 etc.)
 .wrangler/
+
+# Local Worker secrets (wrangler dev)
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
