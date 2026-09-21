@@ -9,17 +9,17 @@ export const DANGER_Y = 90;
 export const FIXED_STEP = 1 / 60;
 
 export const TIERS = [
-  { tier: 1, name: "씨앗", radius: 14, color: "#9b633e" },
-  { tier: 2, name: "새싹", radius: 20, color: "#a9df58" },
-  { tier: 3, name: "클로버", radius: 27, color: "#238a47" },
-  { tier: 4, name: "잔디 뭉치", radius: 34, color: "#39aa52" },
-  { tier: 5, name: "낡은 축구공", radius: 42, color: "#b8b3a7" },
-  { tier: 6, name: "새 축구공", radius: 52, color: "#9ff6df" },
-  { tier: 7, name: "은메달", radius: 63, color: "#cbd6dc" },
-  { tier: 8, name: "금메달", radius: 76, color: "#ffd44f" },
-  { tier: 9, name: "트로피", radius: 90, color: "#d9a92f" },
-  { tier: 10, name: "잔디동 엠블럼", radius: 106, color: "#48e0b0" },
-  { tier: 11, name: "황금 왕관 잔디구", radius: 124, color: "#f5b92b" },
+  { tier: 1, name: "씨앗", radius: 16, color: "#9b633e" },
+  { tier: 2, name: "새싹", radius: 23, color: "#a9df58" },
+  { tier: 3, name: "클로버", radius: 31, color: "#238a47" },
+  { tier: 4, name: "잔디 뭉치", radius: 39, color: "#39aa52" },
+  { tier: 5, name: "낡은 축구공", radius: 48, color: "#b8b3a7" },
+  { tier: 6, name: "새 축구공", radius: 59, color: "#9ff6df" },
+  { tier: 7, name: "은메달", radius: 72, color: "#cbd6dc" },
+  { tier: 8, name: "금메달", radius: 87, color: "#ffd44f" },
+  { tier: 9, name: "트로피", radius: 103, color: "#d9a92f" },
+  { tier: 10, name: "잔디동 엠블럼", radius: 121, color: "#48e0b0" },
+  { tier: 11, name: "황금 왕관 잔디구", radius: 141, color: "#f5b92b" },
 ] as const;
 
 const GRAVITY = 1400;
