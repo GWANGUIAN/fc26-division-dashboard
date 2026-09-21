@@ -1,5 +1,6 @@
 import { GROUP_PHOTO_ROSTER } from "./groupPhotoRoster.js";
-import { getGroupPhotoBackgroundUrl, getGroupPhotoCharacterUrl } from "./groupPhotoAssets.js";
+import { getGroupPhotoBackgroundUrl, getGroupPhotoCharacterUrl, getGroupPhotoPropUrl } from "./groupPhotoAssets.js";
+import { GROUP_PHOTO_BALL, GROUP_PHOTO_PROPS, type GroupPhotoPropSlot } from "./groupPhotoProps.js";
 
 // group-photo.css의 .group-photo-character--back/--front가 쓰는 것과 같은 값
 // (배경 자체의 상단 가장자리 기준 오프셋, vw 단위) — 캔버스에서는 그 계산의
@@ -234,10 +235,49 @@ function drawLedSignboard(
 }
 
 /**
- * Composites the group-photo background + every positioned character +
- * the LED cheer signboard into a single PNG and triggers a download. Pure
- * client-side canvas composite, same approach as
+ * Draws one 축구장 소품 (groupPhotoProps.ts) at its resting position — the
+ * same left% / bottomVw / widthVw the DOM uses, with "vw" meaning
+ * `canvasWidth / 100` here (same convention as the character rows above).
+ * Kick animation, confetti and click reactions are deliberately not part of
+ * the saved image.
+ */
+function drawProp(ctx: CanvasRenderingContext2D, canvasWidth: number, slot: GroupPhotoPropSlot, image: HTMLImageElement) {
+  const widthPx = (slot.widthVw / 100) * canvasWidth;
+  const heightPx = (image.naturalHeight / image.naturalWidth) * widthPx;
+  const x = (slot.left / 100) * canvasWidth - widthPx / 2;
+  const y = (slot.bottomVw / 100) * canvasWidth - heightPx;
+
+  if (slot.id === GROUP_PHOTO_BALL.id) {
+    // group-photo.css의 .group-photo-ball__shadow와 같은 모양: 공 폭의 84%,
+    // 높이 24%의 타원, 하단이 공 하단보다 9% 아래.
+    const shadowWidth = widthPx * 0.84;
+    const shadowHeight = heightPx * 0.24;
+    const centerX = x + widthPx / 2;
+    const centerY = y + heightPx + heightPx * 0.09 - shadowHeight / 2;
+    ctx.save();
+    ctx.translate(centerX, centerY);
+    ctx.scale(1, shadowHeight / shadowWidth);
+    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, shadowWidth / 2);
+    gradient.addColorStop(0, "rgba(0, 0, 0, .38)");
+    gradient.addColorStop(0.7, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(0, 0, shadowWidth / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  ctx.drawImage(image, x, y, widthPx, heightPx);
+}
+
+/**
+ * Composites the group-photo background + props + every positioned
+ * character + the LED cheer signboard into a single PNG and triggers a
+ * download. Pure client-side canvas composite, same approach as
  * ../toty-card/exportTotyCardImage.ts's exportTotyCardPng.
+ *
+ * Draw order mirrors GroupPhotoOverlay's DOM/z-index order: behind props →
+ * characters (back row, then front row) → front props (ball last) → LED.
  */
 export async function exportGroupPhotoPng(cheerText: string, fancy = false): Promise<void> {
   const backgroundUrl = getGroupPhotoBackgroundUrl();
@@ -260,6 +300,22 @@ export async function exportGroupPhotoPng(cheerText: string, fancy = false): Pro
     }),
   );
 
+  // 소품 이미지가 아직 없으면(null) 그냥 건너뜀 — 화면(GroupPhotoProp)과 같은 규칙.
+  const propImages = await Promise.all(
+    [...GROUP_PHOTO_PROPS, GROUP_PHOTO_BALL].map(async (slot) => {
+      const url = getGroupPhotoPropUrl(slot.id);
+      if (!url) return null;
+      return { slot, image: await loadImage(url) };
+    }),
+  );
+  const drawProps = (layer: GroupPhotoPropSlot["layer"]) => {
+    for (const entry of propImages) {
+      if (entry && entry.slot.layer === layer) drawProp(ctx, canvas.width, entry.slot, entry.image);
+    }
+  };
+
+  drawProps("behind");
+
   // GROUP_PHOTO_ROSTER already lists the back row before the front row, so
   // drawing in array order naturally layers front-row characters on top —
   // same z-index intent as group-photo.css's --back (2) / --front (3).
@@ -273,6 +329,8 @@ export async function exportGroupPhotoPng(cheerText: string, fancy = false): Pro
     const y = (topVw / 100) * canvas.width;
     ctx.drawImage(image, x, y, widthPx, heightPx);
   }
+
+  drawProps("front");
 
   // Canvas text needs the webfont already loaded, or it silently falls back.
   if (document.fonts?.load) {

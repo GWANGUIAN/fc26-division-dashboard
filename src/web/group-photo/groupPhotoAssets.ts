@@ -26,6 +26,25 @@ for (const [path, url] of Object.entries(modules)) {
   characterUrls[id] = url;
 }
 
+// 소품(골대/공/콘 등)은 하위 폴더 props/에 둔다 — 위의 `*.webp` glob은 비재귀
+// 라서 캐릭터 목록과 섞이지 않는다. 캐릭터와 같은 "파일이 있으면 자동 반영"
+// 규칙이고, 위치/크기는 groupPhotoProps.ts. 생성 워크플로는
+// docs/group-photo-props.md 참고.
+const propModules = import.meta.glob<string>("../assets/group-photo/props/*.webp", {
+  eager: true,
+  import: "default",
+  query: "?url",
+});
+const propUrls: Record<string, string> = {};
+for (const [path, url] of Object.entries(propModules)) {
+  const filename = path.split("/").pop() ?? "";
+  propUrls[filename.replace(/\.webp$/, "")] = url;
+}
+
+export function getGroupPhotoPropUrl(propId: string): string | undefined {
+  return propUrls[propId];
+}
+
 export function getGroupPhotoCharacterUrl(streamerId: string): string | undefined {
   return characterUrls[streamerId];
 }

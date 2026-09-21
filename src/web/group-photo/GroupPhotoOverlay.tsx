@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ImageDown, X } from "lucide-react";
 import type { StreamerRecord } from "../../shared/model.js";
 import "../photo-booth/photo-booth.css";
@@ -8,6 +8,10 @@ import { PhotoBoothStreamerPicker } from "../photo-booth/PhotoBoothStreamerPicke
 import { WOOWAKGOOD_BONUS_STREAMER } from "../toty-card/woowakgoodBonusCard.js";
 import { GROUP_PHOTO_ROSTER } from "./groupPhotoRoster";
 import { GroupPhotoCharacter } from "./GroupPhotoCharacter";
+import { GroupPhotoProp } from "./GroupPhotoProp";
+import { GroupPhotoBall } from "./GroupPhotoBall";
+import { GroupPhotoConfetti } from "./GroupPhotoConfetti";
+import { GROUP_PHOTO_PROPS } from "./groupPhotoProps";
 import { getGroupPhotoBackgroundUrl } from "./groupPhotoAssets";
 import { exportGroupPhotoPng } from "./exportGroupPhotoImage.js";
 import { LedSignboard } from "./LedSignboard";
@@ -15,6 +19,22 @@ import { loadGroupPhotoState, saveGroupPhotoState } from "./storage";
 
 // PhotoBoothOverlay.tsx와 같은 함성 효과음 — 처음 열렸을 때 + 선수 바꿀 때.
 const CHEER_SFX_URL = "/sfxes/cheer.mp3";
+
+// 공 차기 이스터에그(docs/group-photo-props.md "동작 스펙") 효과음 — 전부
+// 기존 public/sfxes/ 재사용. playSfx는 단일 채널이라 킥음 → 골음처럼
+// 순차 재생이어야 서로 안 끊긴다.
+const KICK_SFX_URL = "/sfxes/ball-bounce.mp3";
+const GOAL_SFX_URL = "/sfxes/goal.mp3";
+const HAT_TRICK_SFX_URL = CHEER_SFX_URL;
+const GOAL_MESSAGE = "GOAL!! 골~~~인!";
+const HAT_TRICK_MESSAGE = "HAT-TRICK!!";
+const GOAL_MESSAGE_MS = 3000;
+const CONFETTI_MS = 2800;
+
+const PROP_LABELS: Record<string, string> = {
+  "corner-flag": "코너 플래그 흔들기",
+  cones: "훈련 콘 건드리기",
+};
 
 function useEscape(onClose: () => void) {
   useEffect(() => {
@@ -108,6 +128,41 @@ export function GroupPhotoOverlay({
     if (sfxEnabled) playSfx(CHEER_SFX_URL, sfxVolume / 100);
   }
 
+  // 공 차기: 골이 들어가면 전광판 문구를 잠시 골 문구로 바꾸고 색종이를
+  // 터뜨린다. 저장 이미지에는 반영하지 않음(handleDownload는 아래 선택된
+  // 선수 문구만 사용).
+  const [goalMessage, setGoalMessage] = useState<string | null>(null);
+  const [confettiId, setConfettiId] = useState<number | null>(null);
+  const goalCountRef = useRef(0);
+  const goalMessageTimerRef = useRef<number | undefined>(undefined);
+  const confettiTimerRef = useRef<number | undefined>(undefined);
+
+  useEffect(
+    () => () => {
+      window.clearTimeout(goalMessageTimerRef.current);
+      window.clearTimeout(confettiTimerRef.current);
+    },
+    [],
+  );
+
+  function playPropSfx(url: string) {
+    if (sfxEnabled) playSfx(url, sfxVolume / 100);
+  }
+
+  function handleGoal() {
+    goalCountRef.current += 1;
+    const hatTrick = goalCountRef.current % 3 === 0;
+    playPropSfx(hatTrick ? HAT_TRICK_SFX_URL : GOAL_SFX_URL);
+
+    setGoalMessage(hatTrick ? HAT_TRICK_MESSAGE : GOAL_MESSAGE);
+    window.clearTimeout(goalMessageTimerRef.current);
+    goalMessageTimerRef.current = window.setTimeout(() => setGoalMessage(null), GOAL_MESSAGE_MS);
+
+    setConfettiId(goalCountRef.current);
+    window.clearTimeout(confettiTimerRef.current);
+    confettiTimerRef.current = window.setTimeout(() => setConfettiId(null), CONFETTI_MS);
+  }
+
   const selectedExists = pickerStreamers.some((streamer) => streamer.id === selectedStreamerId);
   const backgroundUrl = getGroupPhotoBackgroundUrl();
 
@@ -131,13 +186,15 @@ export function GroupPhotoOverlay({
     return passedStreamers.find((item) => item.id === id)?.isFancy ?? false;
   }
 
+  // 골 문구가 떠 있는 동안은 그것을 우선 표시 — 저장 이미지(handleDownload)는
+  // 항상 선택된 선수의 문구를 쓴다.
+  const cheerText =
+    selectedStreamerId && selectedExists ? `${cheerNameFor(selectedStreamerId)} 화이팅~!!` : undefined;
+  const ledText = goalMessage ?? cheerText;
+
   function handleDownload() {
-    const cheerText =
-      selectedStreamerId && selectedExists
-        ? `${cheerNameFor(selectedStreamerId)} 화이팅~!!`
-        : "잔디동 화이팅!!";
     const fancy = selectedStreamerId ? isFancySelected(selectedStreamerId) : false;
-    void exportGroupPhotoPng(cheerText, fancy);
+    void exportGroupPhotoPng(cheerText ?? "잔디동 화이팅!!", fancy);
   }
 
   return (
@@ -178,6 +235,11 @@ export function GroupPhotoOverlay({
           onSelect={handleSelect}
         />
       </div>
+      {/* 렌더 순서 = 겹침 순서: 뒤 소품(z1) → 캐릭터(z2/3) → 앞 소품·공(z3, DOM 순서로 위).
+          exportGroupPhotoImage.ts의 그리기 순서와 같아야 함. */}
+      {GROUP_PHOTO_PROPS.filter((slot) => slot.layer === "behind").map((slot) => (
+        <GroupPhotoProp key={slot.id} slot={slot} label={PROP_LABELS[slot.id]} />
+      ))}
       {GROUP_PHOTO_ROSTER.map((slot) => (
         <GroupPhotoCharacter
           key={slot.id}
@@ -186,12 +248,22 @@ export function GroupPhotoOverlay({
           onSelect={() => handleSelect(slot.id)}
         />
       ))}
-      {selectedStreamerId && selectedExists && (
+      {GROUP_PHOTO_PROPS.filter((slot) => slot.layer === "front").map((slot) => (
+        <GroupPhotoProp
+          key={slot.id}
+          slot={slot}
+          label={PROP_LABELS[slot.id]}
+          onReact={slot.reaction === "tip" ? () => playPropSfx(KICK_SFX_URL) : undefined}
+        />
+      ))}
+      <GroupPhotoBall onKick={() => playPropSfx(KICK_SFX_URL)} onGoal={handleGoal} />
+      {confettiId !== null && <GroupPhotoConfetti burstId={confettiId} />}
+      {ledText && (
         <div className="group-photo-cheer">
           <LedSignboard
             mode="static"
-            text={`${cheerNameFor(selectedStreamerId)} 화이팅~!!`}
-            fancy={isFancySelected(selectedStreamerId)}
+            text={ledText}
+            fancy={selectedStreamerId ? isFancySelected(selectedStreamerId) : false}
           />
         </div>
       )}

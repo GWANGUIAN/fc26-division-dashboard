@@ -48,6 +48,176 @@
   z-index: 3;
 }
 
+/* --- 축구장 소품 (docs/group-photo-props.md) ---
+   위치/크기는 groupPhotoProps.ts가 인라인 style로 준다: left(%) + top(배경
+   상단 기준 vw, 위 캐릭터 줄과 같은 앵커) + width(vw). 소품은 접지점(하단
+   중앙) 앵커라서 translate(-50%, -100%). px/clamp 값은 쓰지 않는다 — 어떤
+   확대/창 비율에서도 배경과 같은 비율로 움직여야 함. 그림자는 이미지에 구워져
+   있어 CSS filter는 없다(저장 이미지와 화면을 같게 유지). */
+.group-photo-prop {
+  position: absolute;
+  display: block;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+}
+.group-photo-prop--behind { z-index: 1; }
+.group-photo-prop--front { z-index: 3; }
+.group-photo-prop__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform-origin: 50% 100%;
+  pointer-events: none;
+}
+.group-photo-prop--interactive {
+  pointer-events: auto;
+  cursor: pointer;
+}
+.group-photo-prop--interactive:focus-visible {
+  outline: 2px solid #00e9ae;
+  outline-offset: 2px;
+}
+.group-photo-prop--wave .group-photo-prop__img { animation: gp-wave .9s ease-in-out; }
+.group-photo-prop--tip .group-photo-prop__img { animation: gp-wobble .7s ease-out; }
+
+@keyframes gp-wave {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-5deg); }
+  45% { transform: rotate(4deg); }
+  70% { transform: rotate(-2.5deg); }
+}
+@keyframes gp-wobble {
+  0% { transform: rotate(0) scaleY(1); }
+  20% { transform: rotate(-7deg) scaleY(.94); }
+  45% { transform: rotate(5deg) scaleY(1.02); }
+  70% { transform: rotate(-2deg); }
+  100% { transform: rotate(0) scaleY(1); }
+}
+
+/* --- 공 (클릭 → 골대로 킥) ---
+   button(위치, z-index) > __x(가로 이동) > __y(세로 포물선 + 원근 축소) > img(회전).
+   이동량 --kick-dx/--kick-dy(vw)는 GroupPhotoBall이 groupPhotoProps.ts의
+   공 위치와 골 목표점으로 계산해 넘긴다. 비행 시간 --kick-duration은
+   GroupPhotoBall.tsx의 FLIGHT_MS와 같은 값. 비행 중에는 z-index 3(캐릭터
+   위)이고, behind/sunk 단계에서 0(골대 z-index 1 아래 = 골대 뒤)으로 전환. */
+.group-photo-ball {
+  position: absolute;
+  z-index: 3;
+  display: block;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  transform: translate(-50%, -100%);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+/* 공(3.6vw)은 모바일에서 너무 작으므로 눈에 안 보이는 터치 영역만 넓힘 —
+   화면에 보이는 크기는 여전히 순수 vw. */
+.group-photo-ball::before {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * max(.9vw, 10px));
+  border-radius: 50%;
+}
+.group-photo-ball:focus-visible { outline: 2px solid #00e9ae; outline-offset: 4px; border-radius: 50%; }
+.group-photo-ball[data-phase="behind"],
+.group-photo-ball[data-phase="sunk"] { z-index: 0; }
+.group-photo-ball[data-phase]:not([data-phase="idle"]) { cursor: default; }
+
+.group-photo-ball__shadow {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: -9%;
+  height: 24%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, .38), rgba(0, 0, 0, 0) 70%);
+  pointer-events: none;
+}
+.group-photo-ball[data-kicked] .group-photo-ball__shadow { opacity: 0; }
+
+.group-photo-ball__x,
+.group-photo-ball__y { display: block; }
+.group-photo-ball__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+.group-photo-ball[data-phase="idle"]:hover .group-photo-ball__y { transform: scale(1.12); }
+.group-photo-ball__y { transition: transform .15s; }
+
+.group-photo-ball[data-kicked] .group-photo-ball__x {
+  animation: gp-kick-x var(--kick-duration, 1100ms) linear forwards;
+}
+.group-photo-ball[data-kicked] .group-photo-ball__y {
+  animation: gp-kick-y var(--kick-duration, 1100ms) linear forwards;
+}
+.group-photo-ball[data-kicked] .group-photo-ball__img {
+  animation: gp-kick-spin var(--kick-duration, 1100ms) linear forwards;
+}
+.group-photo-ball[data-phase="respawn"] .group-photo-ball__y { animation: gp-ball-pop .4s ease-out; }
+
+@keyframes gp-kick-x {
+  from { transform: translateX(0); }
+  to { transform: translateX(var(--kick-dx)); }
+}
+/* 올라갈 땐 ease-out, 내려올 땐 ease-in — 정점은 도착 높이보다 약 7vw 위.
+   마지막 scale(.62)은 groupPhotoProps.ts의 GROUP_PHOTO_BALL_END_SCALE. */
+@keyframes gp-kick-y {
+  0% { transform: translateY(0) scale(1); animation-timing-function: cubic-bezier(.2, .7, .4, 1); }
+  45% { transform: translateY(calc(var(--kick-dy) * .55 - 7vw)) scale(.85); animation-timing-function: cubic-bezier(.6, 0, .9, .5); }
+  100% { transform: translateY(var(--kick-dy)) scale(.62); }
+}
+@keyframes gp-kick-spin {
+  from { transform: rotate(0); }
+  to { transform: rotate(-720deg); }
+}
+@keyframes gp-ball-pop {
+  from { transform: scale(.25); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* 골 순간 골문에서 터지는 색종이 — 이미지 없는 CSS 파티클. */
+.group-photo-confetti {
+  position: absolute;
+  z-index: 5;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.group-photo-confetti i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: .7vw;
+  height: 1.1vw;
+  border-radius: 1px;
+  opacity: 0;
+  animation: gp-confetti 2.4s ease-out forwards;
+}
+@keyframes gp-confetti {
+  0% { transform: translate(0, 0) rotate(0); opacity: 1; }
+  35% { transform: translate(calc(var(--cx) * .7), var(--cy-up)) rotate(calc(var(--rot) * .4)); opacity: 1; }
+  100% { transform: translate(var(--cx), var(--cy-fall)) rotate(var(--rot)); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .group-photo-prop--wave .group-photo-prop__img,
+  .group-photo-prop--tip .group-photo-prop__img { animation: none; }
+  .group-photo-ball[data-kicked] .group-photo-ball__x,
+  .group-photo-ball[data-kicked] .group-photo-ball__y,
+  .group-photo-ball[data-kicked] .group-photo-ball__img,
+  .group-photo-ball[data-phase="respawn"] .group-photo-ball__y { animation: none; }
+  /* 비행 없이 골 처리만 하므로 공은 골 처리 동안 숨김. */
+  .group-photo-ball[data-phase="behind"] .group-photo-ball__x,
+  .group-photo-ball[data-phase="sunk"] .group-photo-ball__x { visibility: hidden; }
+  .group-photo-confetti { display: none; }
+}
+
 .group-photo-cheer {
   position: absolute;
   z-index: 4;
