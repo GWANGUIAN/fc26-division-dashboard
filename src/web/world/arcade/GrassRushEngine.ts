@@ -8,15 +8,15 @@ export interface RushState {
 export const RUSH_DT = 1 / 60;
 /** How long a slide lasts, in seconds (the modal turns the runner onto its back for that long). */
 export const RUSH_SLIDE_SECONDS = 0.7;
-/** Scroll speed (px/s) at the start and its ceiling: the run keeps speeding up with distance, about 1.5x after 25 s and the cap after a minute. */
-export const RUSH_SPEED_START = 210;
-export const RUSH_SPEED_MAX = 600;
+/** Scroll speed (px/s) at the start and its ceiling: the run keeps speeding up with distance, nearly double after 25 s and the cap after ~50 s. */
+export const RUSH_SPEED_START = 240;
+export const RUSH_SPEED_MAX = 850;
 /**
  * The shortest time (s) between two spawns at top speed. A jump keeps the runner in the air for ~0.86 s, so anything under
- * that would be an unavoidable pair; 1 s leaves the tightest gap possible but fair.
+ * that would be an unavoidable pair; 0.95 s leaves the tightest gap possible but fair.
  */
-export const RUSH_MIN_GAP_SECONDS = 1;
-export const rushSpeed = (distance: number) => Math.min(RUSH_SPEED_MAX, RUSH_SPEED_START + distance / 8);
+export const RUSH_MIN_GAP_SECONDS = 0.95;
+export const rushSpeed = (distance: number) => Math.min(RUSH_SPEED_MAX, RUSH_SPEED_START + distance / 5);
 export const createRush = (seed = 26): RushState => ({ distance: 0, seeds: 0, height: 0, velocity: 0, slide: 0, spawn: 1.5, seed, objects: [], over: false });
 export const rushScore = (state: RushState) => Math.floor(state.distance) + state.seeds * 10;
 export function stepRush(state: RushState, input?: RushInput): RushState {
@@ -35,7 +35,7 @@ export function stepRush(state: RushState, input?: RushInput): RushState {
     const kinds: RushObject["kind"][] = ["cone", "mower", "banner-low", "tackler-stand", "seed"];
     next.objects.push({ x: 670, kind: kinds[next.seed % kinds.length] });
     // A fixed pixel gap (as long as the old 1.5–2.1 s at the start) that shrinks in time as the run speeds up, down to the fair minimum.
-    next.spawn = Math.max(RUSH_MIN_GAP_SECONDS + (next.seed % 60) / 150, (330 + (next.seed % 60) * 2.2) / speed);
+    next.spawn = Math.max(RUSH_MIN_GAP_SECONDS + (next.seed % 60) / 200, (360 + (next.seed % 60) * 2.5) / speed);
   }
   for (const object of next.objects) {
     object.x -= speed * RUSH_DT;
