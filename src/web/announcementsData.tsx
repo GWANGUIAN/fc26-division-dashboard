@@ -24,6 +24,30 @@ export type Announcement = {
 
 export const ANNOUNCEMENTS: Announcement[] = [
   {
+    id: "2026-09-new-minigames",
+    date: "2026.09.21",
+    body: (
+      <>
+        <strong>미니게임 3종</strong>이 추가되었습니다. 화면 왼쪽 아래{" "}
+        <strong>미니게임</strong> 버튼에서 <strong>잔디 머지</strong>,{" "}
+        <strong>골키퍼 벽돌깨기</strong>, <strong>축구 매치3</strong>를
+        즐겨보세요.
+      </>
+    ),
+  },
+  {
+    id: "2026-09-minigame-ranking",
+    date: "2026.09.21",
+    body: (
+      <>
+        <strong>미니게임 랭킹</strong>이 추가되었습니다. 최고 기록을 세우면
+        닉네임과 함께 순위에 등록할 수 있고, 게임 창 오른쪽에서{" "}
+        <strong>TOP 10</strong>과 내 순위를 확인할 수 있습니다.
+      </>
+    ),
+    note: "브라우저 저장 데이터를 지우거나 다른 기기에서 접속하면 새 참가자로 등록됩니다. 잔디동 월드 안의 미니게임에는 랭킹이 표시되지 않습니다.",
+  },
+  {
     id: "2026-09-jandi-world",
     date: "2026.09.19",
     body: (
