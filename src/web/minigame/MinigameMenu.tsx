@@ -5,7 +5,12 @@ import { Gamepad2 } from "lucide-react";
 import "./minigame-menu.css";
 import { getCardMatchBackUrl } from "./cardMatchAssets.js";
 
-export type MinigameId = "kickups" | "freekick" | "cardmatch" | "soccer-sum10" | "grass-merge";
+export type MinigameId = "kickups" | "freekick" | "cardmatch" | "soccer-sum10" | "grass-merge" | "keeper-breakout";
+
+function KeeperBreakoutMenuIcon() {
+  const [available, setAvailable] = useState(true);
+  return available ? <img src="/keeper-breakout-icon.webp" alt="" className="minigame-menu__icon" onError={() => setAvailable(false)} /> : <span className="minigame-menu__icon minigame-menu__icon--fallback" aria-hidden="true">🧤</span>;
+}
 
 // Warming these up while the menu sits idle on the dashboard means the browser has already
 // fetched and decoded them by the time a modal opens — measured ~50ms main-thread block
@@ -35,6 +40,10 @@ const WARMUP_URLS = Array.from(
     "/grass-merge-bgm.mp3",
     "/sfxes/grass-merge-drop.mp3",
     "/sfxes/grass-merge-merge.mp3",
+    // keeper breakout
+    "/keeper-breakout-bgm.mp3",
+    "/sfxes/keeper-breakout-paddle.mp3",
+    "/sfxes/keeper-breakout-brick.mp3",
   ]),
 );
 
@@ -77,7 +86,7 @@ export function MinigameMenu({ onSelect }: { onSelect: (game: MinigameId) => voi
 
   const cardBackUrl = getCardMatchBackUrl();
   const games: { id: MinigameId; label: string; icon: React.ReactNode }[] = [
-    { id: "kickups", label: "키업스", icon: <img src="/soccer_ball.webp" alt="" className="minigame-menu__icon" /> },
+    { id: "kickups", label: "축구공 튀기기", icon: <img src="/soccer_ball.webp" alt="" className="minigame-menu__icon" /> },
     { id: "freekick", label: "3D 프리킥", icon: <img src="/goalpost.webp" alt="" className="minigame-menu__icon" /> },
     {
       id: "cardmatch",
@@ -96,6 +105,7 @@ export function MinigameMenu({ onSelect }: { onSelect: (game: MinigameId) => voi
       icon: <img src="/soccer-sum10-icon.webp" alt="" className="minigame-menu__icon" />,
     },
     { id: "grass-merge", label: "잔디 머지", icon: <img src="/grass-merge-icon.webp" alt="" className="minigame-menu__icon" /> },
+    { id: "keeper-breakout", label: "골키퍼 벽돌깨기", icon: <KeeperBreakoutMenuIcon /> },
   ];
 
   return (

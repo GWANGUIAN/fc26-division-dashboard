@@ -1,0 +1,3 @@
+import { useState } from "react";
+import { loadKeeperBreakoutSfxEnabled, loadKeeperBreakoutSfxVolume, saveKeeperBreakoutSfxEnabled, saveKeeperBreakoutSfxVolume } from "../../storage.js";
+export function useKeeperBreakoutSfx() { const [sfxOn, setSfxOn] = useState(loadKeeperBreakoutSfxEnabled); const [sfxVolume, setSfxVolume] = useState(loadKeeperBreakoutSfxVolume); return { sfxOn, sfxVolume, toggleSfx: () => setSfxOn((value) => { saveKeeperBreakoutSfxEnabled(!value); return !value; }), changeSfxVolume: (value: number) => { const next = Math.round(value); setSfxVolume(next); saveKeeperBreakoutSfxVolume(next); } }; }

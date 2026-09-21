@@ -28,6 +28,32 @@
         { "source": "background.png", "fit": "cover", "outputs": [{ "file": "grass-merge-background.webp", "width": 1536, "height": 864 }] },
         { "source": "burst.png", "key": "magenta", "fit": "contain", "outputs": [{ "file": "grass-merge-burst.webp", "width": 512, "height": 512 }] }
       ]
+    },
+    {
+      "id": "keeper-breakout",
+      "sourceDir": "keeper-breakout",
+      "assets": [
+        { "source": "bricks-sheet.png", "key": "magenta", "grid": { "columns": 3, "rows": 2 }, "trim": true, "outputs": [
+          { "cell": 0, "file": "keeper-breakout-brick-hp1.webp", "width": 112, "height": 40 },
+          { "cell": 1, "file": "keeper-breakout-brick-hp2.webp", "width": 112, "height": 40 },
+          { "cell": 2, "file": "keeper-breakout-brick-hp3.webp", "width": 112, "height": 40 },
+          { "cell": 3, "file": "keeper-breakout-brick-gold.webp", "width": 112, "height": 40 },
+          { "cell": 4, "file": "keeper-breakout-brick-steel.webp", "width": 112, "height": 40 },
+          { "cell": 5, "file": "keeper-breakout-brick-burst.webp", "width": 112, "height": 40 }
+        ] },
+        { "source": "powerups-sheet.png", "key": "magenta", "grid": { "columns": 2, "rows": 2 }, "trim": true, "outputs": [
+          { "cell": 0, "file": "keeper-breakout-powerup-wide.webp", "width": 64, "height": 64 },
+          { "cell": 1, "file": "keeper-breakout-powerup-multi.webp", "width": 64, "height": 64 },
+          { "cell": 2, "file": "keeper-breakout-powerup-slow.webp", "width": 64, "height": 64 },
+          { "cell": 3, "file": "keeper-breakout-powerup-shield.webp", "width": 64, "height": 64 }
+        ] },
+        { "source": "paddles.png", "key": "magenta", "grid": { "columns": 1, "rows": 2 }, "trim": true, "outputs": [
+          { "cell": 0, "file": "keeper-breakout-paddle.webp", "width": 224, "height": 56 },
+          { "cell": 1, "file": "keeper-breakout-paddle-wide.webp", "width": 336, "height": 56 }
+        ] },
+        { "source": "icon.png", "key": "magenta", "trim": true, "outputs": [{ "file": "keeper-breakout-icon.webp", "width": 256, "height": 256 }] },
+        { "source": "background.png", "fit": "cover", "outputs": [{ "file": "keeper-breakout-background.webp", "width": 1280, "height": 960 }] }
+      ]
     }
   ]
 }

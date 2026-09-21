@@ -11,18 +11,20 @@ import { alphaBBox, chromaKey, cropRaster, despillMagenta, extractSprites, fitSi
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
 const manifest = JSON.parse(readFileSync(path.join(__dirname, "minigame-art-manifest.json"), "utf8"));
-const usage = "Usage: pnpm convert:minigame-art -- <game-id>\n\nConverts tmp/minigame-src/<game-id> originals according to scripts/minigame-art-manifest.json.";
+const usage = "Usage: pnpm convert:minigame-art -- <game-id> [--skip-missing]\n\nConverts tmp/minigame-src/<game-id> originals according to scripts/minigame-art-manifest.json.";
 const args = process.argv.slice(2).filter((arg) => arg !== "--");
+const skipMissing = args.includes("--skip-missing");
+const gameArgs = args.filter((arg) => arg !== "--skip-missing");
 
 if (args.includes("--help") || args.includes("-h")) {
   console.log(usage);
   process.exit(0);
 }
-if (args.length !== 1) {
+if (gameArgs.length !== 1) {
   console.error(usage);
   process.exit(1);
 }
-const game = manifest.games.find((entry) => entry.id === args[0]);
+const game = manifest.games.find((entry) => entry.id === gameArgs[0]);
 if (!game) {
   console.error(`Unknown minigame "${args[0]}". Available: ${manifest.games.map((entry) => entry.id).join(", ")}`);
   process.exit(1);
@@ -30,11 +32,12 @@ if (!game) {
 
 const sourceRoot = path.join(root, "tmp", "minigame-src", game.sourceDir);
 const absent = game.assets.filter((asset) => !existsSync(path.join(sourceRoot, asset.source)));
-if (absent.length) {
+if (absent.length && !skipMissing) {
   absent.forEach((asset) => console.error(`Original not found: tmp/minigame-src/${game.sourceDir}/${asset.source}`));
   console.error(`Conversion stopped: ${absent.length} original file(s) missing.`);
   process.exit(1);
 }
+if (absent.length) absent.forEach((asset) => console.warn(`Skipping missing original: tmp/minigame-src/${game.sourceDir}/${asset.source}`));
 const { default: sharp } = await import("sharp");
 
 async function loadRaster(file) {
@@ -80,6 +83,7 @@ async function render(source, output, asset, sprite) {
 let missing = 0;
 for (const asset of game.assets) {
   const sourceFile = path.join(root, "tmp", "minigame-src", game.sourceDir, asset.source);
+  if (!existsSync(sourceFile)) continue;
   const source = await loadRaster(sourceFile);
   if (asset.key === "magenta") {
     chromaKey(source);

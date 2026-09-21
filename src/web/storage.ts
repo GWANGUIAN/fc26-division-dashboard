@@ -350,6 +350,23 @@ const GRASS_MERGE_SFX_VOLUME_KEY = "fc26-grass-merge-sfx-volume";
 const GRASS_MERGE_MUSIC_ENABLED_KEY = "fc26-grass-merge-music-enabled";
 const GRASS_MERGE_MUSIC_VOLUME_KEY = "fc26-grass-merge-music-volume";
 
+const KEEPER_BREAKOUT_HIGH_SCORE_KEY = "fc26-keeper-breakout-highscore";
+const KEEPER_BREAKOUT_SFX_ENABLED_KEY = "fc26-keeper-breakout-sfx-enabled";
+const KEEPER_BREAKOUT_SFX_VOLUME_KEY = "fc26-keeper-breakout-sfx-volume";
+const KEEPER_BREAKOUT_MUSIC_ENABLED_KEY = "fc26-keeper-breakout-music-enabled";
+const KEEPER_BREAKOUT_MUSIC_VOLUME_KEY = "fc26-keeper-breakout-music-volume";
+
+export function loadKeeperBreakoutHighScore(): number { try { const value = Number(localStorage.getItem(KEEPER_BREAKOUT_HIGH_SCORE_KEY) ?? 0); return Number.isFinite(value) && value > 0 ? Math.floor(value) : 0; } catch { return 0; } }
+export function saveKeeperBreakoutHighScore(score: number) { try { localStorage.setItem(KEEPER_BREAKOUT_HIGH_SCORE_KEY, String(Math.max(0, Math.floor(score)))); } catch { /* ignore storage failures */ } }
+export function loadKeeperBreakoutSfxEnabled(): boolean { try { const value = localStorage.getItem(KEEPER_BREAKOUT_SFX_ENABLED_KEY); return value === null ? true : value === "1"; } catch { return true; } }
+export function saveKeeperBreakoutSfxEnabled(enabled: boolean) { try { localStorage.setItem(KEEPER_BREAKOUT_SFX_ENABLED_KEY, enabled ? "1" : "0"); } catch { /* ignore storage failures */ } }
+export function loadKeeperBreakoutSfxVolume() { return loadStoredVolume(KEEPER_BREAKOUT_SFX_VOLUME_KEY, 55); }
+export function saveKeeperBreakoutSfxVolume(volume: number) { try { localStorage.setItem(KEEPER_BREAKOUT_SFX_VOLUME_KEY, String(Math.min(100, Math.max(0, Math.floor(volume))))); } catch { /* ignore storage failures */ } }
+export function loadKeeperBreakoutMusicEnabled(): boolean { try { const value = localStorage.getItem(KEEPER_BREAKOUT_MUSIC_ENABLED_KEY); return value === null ? true : value === "1"; } catch { return true; } }
+export function saveKeeperBreakoutMusicEnabled(enabled: boolean) { try { localStorage.setItem(KEEPER_BREAKOUT_MUSIC_ENABLED_KEY, enabled ? "1" : "0"); } catch { /* ignore storage failures */ } }
+export function loadKeeperBreakoutMusicVolume() { return loadStoredVolume(KEEPER_BREAKOUT_MUSIC_VOLUME_KEY, 35); }
+export function saveKeeperBreakoutMusicVolume(volume: number) { try { localStorage.setItem(KEEPER_BREAKOUT_MUSIC_VOLUME_KEY, String(Math.min(100, Math.max(0, Math.floor(volume))))); } catch { /* ignore storage failures */ } }
+
 export function loadGrassMergeHighScore(): number {
   try {
     const value = Number(localStorage.getItem(GRASS_MERGE_HIGH_SCORE_KEY) ?? 0);
