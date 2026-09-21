@@ -1,8 +1,8 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import {
+  checkNickname,
   hashPlayerId,
   isBetterScore,
-  sanitizeNickname,
   SCORE_GAMES,
   validateScore,
   type LeaderboardResponse,
@@ -15,6 +15,7 @@ import { fetchLeaderboard, fetchMyRank, renameNickname, ScoreApiError, startRun,
 import { shouldSubmit } from "./shouldSubmit.js";
 
 export const NICKNAME_HINT = "2~12자, 한글·영문·숫자와 공백 _ . ! - 만 쓸 수 있어요.";
+export const BLOCKED_NICKNAME_HINT = "사용할 수 없는 단어가 포함되어 있어요. 다른 닉네임을 입력해 주세요.";
 
 /** A result waiting to be registered: it needs a nickname, a confirmation, or a retry. */
 export interface PendingSubmission {
@@ -146,6 +147,7 @@ export function useRanking(game: ScoreGameId, readLocalBest?: () => number | nul
         return;
       }
       if (cause instanceof ScoreApiError && cause.code === "invalid_nickname") setNicknameError(NICKNAME_HINT);
+      if (cause instanceof ScoreApiError && cause.code === "blocked_nickname") setNicknameError(BLOCKED_NICKNAME_HINT);
       setPending({ score, kind, failed: true, token });
       setNotice("등록에 실패했어요. 다시 시도해 주세요");
     }
@@ -200,20 +202,21 @@ export function useRanking(game: ScoreGameId, readLocalBest?: () => number | nul
 
   const onSubmitPending = (name: string) => {
     if (!pending) return;
-    const clean = sanitizeNickname(name);
-    if (!clean) {
-      setNicknameError(NICKNAME_HINT);
+    const checked = checkNickname(name);
+    if (!checked.ok) {
+      setNicknameError(checked.reason === "blocked" ? BLOCKED_NICKNAME_HINT : NICKNAME_HINT);
       return;
     }
-    void send(pending.score, clean, pending.kind, pending.token);
+    void send(pending.score, checked.name, pending.kind, pending.token);
   };
 
   const onRename = (name: string) => {
-    const clean = sanitizeNickname(name);
-    if (!clean) {
-      setNicknameError(NICKNAME_HINT);
+    const checked = checkNickname(name);
+    if (!checked.ok) {
+      setNicknameError(checked.reason === "blocked" ? BLOCKED_NICKNAME_HINT : NICKNAME_HINT);
       return;
     }
+    const clean = checked.name;
     if (submittedBest.current === null || submittedBest.current === undefined) {
       savePlayerNickname(clean);
       setNickname(clean);
@@ -234,6 +237,7 @@ export function useRanking(game: ScoreGameId, readLocalBest?: () => number | nul
       .catch((cause: unknown) => {
         if (!alive.current) return;
         if (cause instanceof ScoreApiError && cause.code === "invalid_nickname") setNicknameError(NICKNAME_HINT);
+        else if (cause instanceof ScoreApiError && cause.code === "blocked_nickname") setNicknameError(BLOCKED_NICKNAME_HINT);
         else setNotice("닉네임을 바꾸지 못했어요. 잠시 후 다시 시도해 주세요");
       })
       .finally(() => {

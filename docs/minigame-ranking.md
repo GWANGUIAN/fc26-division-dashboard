@@ -27,6 +27,16 @@
 - **신원**: 클라이언트가 만든 `pid`(UUID)가 쓰기 권한이고, 서버에는 `sha256(pid)`(=`player_key`)만 저장한다. 목록에는 key만 나가므로 남이 내 기록을 덮어쓸 수 없다. 기기를 바꾸거나 저장소를 지우면 새 신원이 된다(로그인 없는 설계의 한계).
 - **동점**은 먼저 달성한 사람이 상위. 카드 짝 맞추기처럼 낮을수록 좋은 게임은 `order: "asc"`로 등록하면 서버가 `rank_score`를 부호 반전해 저장한다.
 - **기본 방어**: 게임 허용목록, 점수 정수·범위(`min`/`max`), 닉네임 2~12자·허용 문자·금칙어, 본문 ≤1KB, JSON만, `Origin`이 같은 오리진(또는 localhost)일 것, 같은 플레이어·게임 5초 쿨다운(429 `too_frequent`).
+- **닉네임 금지어 필터** (`src/shared/nickname-filter.ts`, 서버와 클라이언트가 같은 코드를 쓴다): 금지어가 들어 있으면 서버가 `blocked_nickname`(400)으로 거부하고, 형식 오류(`invalid_nickname`)와 구분해 화면에 "사용할 수 없는 단어가 포함되어 있어요"를 띄운다. 등록과 닉네임 변경 모두에 적용된다.
+  - **단어 목록**(모두 공개 목록을 복사해 생성한 파일, 머리말에 출처·변경점 기록):
+    `nickname-blocklist-ldnoobw.ts` — [LDNOOBW](https://github.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words) 한국어 72개·영어 403개(CC BY 4.0, 노모·유모·망가 포함, 수정 없이 그대로),
+    `nickname-blocklist-badwords-ko.ts` — [badwords-ko](https://github.com/yoonheyjung/badwords-ko)(MIT) 한글 항목,
+    `nickname-blocklist-slang.ts` — [korean-profanity-resources](https://github.com/Tanat05/korean-profanity-resources)의 `slang.csv` 한글 항목(중국어·일본어 제외). 이 파일에는 게임사 채팅 필터 잔재(게임·회사·직원·정치인 이름, 시간·박사·개발자 같은 일상어)가 섞여 있어 그런 항목은 걸러냈다.
+    직접 관리하는 `nickname-blocklist-extra.ts` — 변형 표기, 초성 약어, 선정·혐오 표현, 영타 입력("tlqkf") 등.
+  - **우회 대응**: 이름과 단어를 모두 자모로 분해해 비교한다. 띄어쓰기·숫자·기호("씨 1 발", "씨.발"), 자모 분리("ㅅㅣㅂㅏㄹ"), 모음 늘이기("시이이발"), 영문 변형("f.u_c-k", "sh1t")을 잡는다. 초성 약어(ㅅㅂ, ㅂㅅ 등)는 **직접 입력한 자모에만** 적용해서 "옷발" 같은 정상 이름은 걸리지 않는다.
+  - **영어 짧은 단어**(4글자 이하)는 단독 단어일 때만 막는다("ass"는 막고 "Assassin"·"Classic"은 통과). 부분 일치로 막아도 정상 단어가 없는 것(fuck, shit, porn, sex …)만 `SUBSTRING_SHORT_LATIN`에 있다.
+  - **단어 추가/예외**: 막고 싶은 단어는 `EXTRA_KO`/`EXTRA_EN`에, 정상 이름이 잘못 걸리면 `ALLOWED_PHRASES`에 넣는다(그 구절만 검사 전에 잘라내므로 "시바견"은 통과하고 "시바견씨발"은 막힌다). `nickname-filter.test.ts`가 `roster.yaml`의 모든 스트리머 이름이 통과하는지 확인하므로, 새 스트리머 이름이 걸리면 테스트가 알려 준다. 생성 파일은 직접 고치지 않는다.
+  - **한계**: 한국어는 부분 일치라 "보지마"처럼 금지어가 들어간 정상 문장도 막힌다(엄격한 쪽을 택함). 새로운 은어·신조어는 목록에 없으면 통과하므로 눈에 띄면 위의 운영 SQL로 지우고 단어를 추가한다.
 - **런 토큰(시간 증명)**: `SCORE_GAMES[game].timing`이 있는 게임은 제출에 토큰이 필요하다. 토큰 = `발급시각.HMAC(비밀키, game|playerKey|발급시각)`이라 저장소가 필요 없고 다른 플레이어·게임에는 쓸 수 없다. 서버는 **발급 후 실제 경과 시간**으로 `경과 ≥ minRunMs` 그리고 `경과 ≥ 점수 × minMsPerUnit`을 검사하고(`implausible_score`), `tokenTtlMs`가 지난 토큰은 거부한다(`token_expired`). 즉 콘솔에서 점수를 바로 POST할 수 없고 "그 점수만큼의 시간을 기다려야" 한다. 클라이언트(`useRanking`)는 모달을 열 때와 매 라운드가 끝날 때 토큰을 새로 받는다.
   - 기준값: kickups 히트당 200ms / freekick 골당 1200ms / 사과게임 점수당 200ms(최소 30초) / 카드 짝 맞추기 턴당 600ms(최소 8초).
   - **비밀키 `SCORE_TOKEN_SECRET`(Worker secret)이 없으면 토큰을 발급도 요구도 하지 않는다**(예전 동작). 그래서 코드를 먼저 배포하고 나중에 시크릿을 넣어도 안전하다.

@@ -368,3 +368,34 @@ describe("per-IP rate limiting", () => {
     for (let index = 0; index < 80; index += 1) expect((await call("GET", "/api/scores/kickups", { headers: ip })).status).toBe(200);
   });
 });
+
+describe("blocked nicknames", () => {
+  it("refuses a banned word when submitting a score, with its own error code", async () => {
+    const result = await submit("kickups", newPid(), "씨발", 5);
+    expect(result).toMatchObject({ status: 400, body: { message: "blocked_nickname" } });
+  });
+
+  it("refuses disguised banned words too", async () => {
+    for (const name of ["시 1 발", "ㅅㅣㅂㅏㄹ", "f.u_c-k", "노모", "망가"]) {
+      expect((await submit("kickups", newPid(), name, 5)).body.message).toBe("blocked_nickname");
+    }
+  });
+
+  it("refuses a banned word when renaming, and keeps the old name", async () => {
+    const pid = newPid();
+    const key = await hashPlayerId(pid);
+    await submit("kickups", pid, "착한닉", 10);
+    const renamed = await call("POST", "/api/scores/kickups/rename", { body: { pid, name: "병신" } });
+    expect(renamed).toMatchObject({ status: 400, body: { message: "blocked_nickname" } });
+    expect((await call("GET", `/api/scores/kickups/me?k=${key}`)).body.name).toBe("착한닉");
+  });
+
+  it("keeps calling a malformed name invalid_nickname, not blocked", async () => {
+    expect((await submit("kickups", newPid(), "<b>", 5)).body.message).toBe("invalid_nickname");
+  });
+
+  it("stores nothing for a rejected name", async () => {
+    await submit("kickups", newPid(), "씨발", 5);
+    expect((await call("GET", "/api/scores/kickups")).body.total).toBe(0);
+  });
+});

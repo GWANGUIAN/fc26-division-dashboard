@@ -7,6 +7,8 @@
 
 export type ScoreOrder = "desc" | "asc";
 
+import { containsBlockedWord } from "./nickname-filter.js";
+
 /**
  * How long a run of this game takes at the very least. A signed run token
  * proves how much wall-clock time has passed since the client asked to start,
@@ -149,24 +151,27 @@ export function validateScore(game: ScoreGameId, value: unknown): number | null 
 
 const NICKNAME_ALLOWED = /^[\p{Script=Hangul}A-Za-z0-9 _.!-]+$/u;
 
-// A deliberately tiny list; extend it when someone actually abuses the board.
-// Matched against the nickname lowercased with spaces and punctuation removed.
-const BLOCKED_NICKNAME_PARTS = ["시발", "씨발", "병신", "개새끼", "fuck", "shit", "nigg"];
+export type NicknameCheck = { ok: true; name: string } | { ok: false; reason: "format" | "blocked" };
 
 /**
  * Cleans a typed nickname: NFC, trimmed, single-spaced, 2–12 characters, only
- * Hangul / Latin letters / digits / space / `_ . ! -`, no blocked words.
- * Returns null when it cannot be made acceptable.
+ * Hangul / Latin letters / digits / space / `_ . ! -`. "format" means the shape
+ * is wrong; "blocked" means it contains a banned word (see nickname-filter.ts).
  */
-export function sanitizeNickname(input: unknown): string | null {
-  if (typeof input !== "string") return null;
+export function checkNickname(input: unknown): NicknameCheck {
+  if (typeof input !== "string") return { ok: false, reason: "format" };
   const name = input.normalize("NFC").replace(/\s+/gu, " ").trim();
   const length = Array.from(name).length;
-  if (length < NICKNAME_MIN_LENGTH || length > NICKNAME_MAX_LENGTH) return null;
-  if (!NICKNAME_ALLOWED.test(name)) return null;
-  const squashed = name.toLowerCase().replace(/[\s_.!-]/gu, "");
-  if (BLOCKED_NICKNAME_PARTS.some((part) => squashed.includes(part))) return null;
-  return name;
+  if (length < NICKNAME_MIN_LENGTH || length > NICKNAME_MAX_LENGTH) return { ok: false, reason: "format" };
+  if (!NICKNAME_ALLOWED.test(name)) return { ok: false, reason: "format" };
+  if (containsBlockedWord(name)) return { ok: false, reason: "blocked" };
+  return { ok: true, name };
+}
+
+/** The cleaned nickname, or null when it cannot be accepted for any reason. */
+export function sanitizeNickname(input: unknown): string | null {
+  const result = checkNickname(input);
+  return result.ok ? result.name : null;
 }
 
 /** sha256(playerId) as lowercase hex; the same call works in browsers and Workers. */

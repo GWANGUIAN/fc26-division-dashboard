@@ -6,7 +6,7 @@ import {
   LEADERBOARD_MAX_LIMIT,
   PLAYER_ID_PATTERN,
   PLAYER_KEY_PATTERN,
-  sanitizeNickname,
+  checkNickname,
   scoreGame,
   toRankScore,
   validateScore,
@@ -196,8 +196,9 @@ async function submitScore(request: Request, env: ScoresEnv, ctx: ScoresContext,
   if ("failure" in write) return write.failure;
   const { body, pid } = write;
 
-  const nickname = sanitizeNickname(body.name);
-  if (!nickname) return error(400, "invalid_nickname");
+  const checked = checkNickname(body.name);
+  if (!checked.ok) return error(400, checked.reason === "blocked" ? "blocked_nickname" : "invalid_nickname");
+  const nickname = checked.name;
   const score = validateScore(game, body.score);
   if (score === null) return error(400, "invalid_score");
 
@@ -256,8 +257,9 @@ async function submitScore(request: Request, env: ScoresEnv, ctx: ScoresContext,
 async function renamePlayer(request: Request, env: ScoresEnv, ctx: ScoresContext, game: ScoreGameId): Promise<Response> {
   const write = await readWrite(request);
   if ("failure" in write) return write.failure;
-  const nickname = sanitizeNickname(write.body.name);
-  if (!nickname) return error(400, "invalid_nickname");
+  const checked = checkNickname(write.body.name);
+  if (!checked.ok) return error(400, checked.reason === "blocked" ? "blocked_nickname" : "invalid_nickname");
+  const nickname = checked.name;
 
   const playerKey = await hashPlayerId(write.pid);
   const result = await env.DB
