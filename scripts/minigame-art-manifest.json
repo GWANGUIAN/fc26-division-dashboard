@@ -68,6 +68,47 @@
         { "source": "icon.png", "key": "magenta", "trim": true, "outputs": [{ "file": "keeper-breakout-icon.webp", "width": 256, "height": 256 }] },
         { "source": "background.png", "fit": "cover", "outputs": [{ "file": "keeper-breakout-background.webp", "width": 1280, "height": 960 }] }
       ]
+    },
+    {
+      "id": "football-rules-quiz",
+      "sourceDir": "football-rules-quiz",
+      "assets": [
+        { "source": "q01-corner-own-goal.png", "fit": "cover", "outputs": [{ "file": "football-rules-quiz-q01.webp", "width": 1280, "height": 720 }] },
+        { "source": "q02-trick-backpass.png", "fit": "cover", "outputs": [{ "file": "football-rules-quiz-q02.webp", "width": 1280, "height": 720 }] },
+        { "source": "q03-seven-players.png", "fit": "cover", "outputs": [{ "file": "football-rules-quiz-q03.webp", "width": 1280, "height": 720 }] },
+        { "source": "q04-referee-deflection.png", "fit": "cover", "outputs": [{ "file": "football-rules-quiz-q04.webp", "width": 1280, "height": 720 }] },
+        { "source": "q05-throw-in-own-goal.png", "fit": "cover", "outputs": [{ "file": "football-rules-quiz-q05.webp", "width": 1280, "height": 720 }] },
+        { "source": "q06-traffic-light-cards.png", "fit": "cover", "outputs": [{ "file": "football-rules-quiz-q06.webp", "width": 1280, "height": 720 }] },
+        { "source": "q07-tap-penalty.png", "fit": "cover", "outputs": [{ "file": "football-rules-quiz-q07.webp", "width": 1280, "height": 720 }] },
+        { "source": "q08-throw-in-offside.png", "fit": "cover", "outputs": [{ "file": "football-rules-quiz-q08.webp", "width": 1280, "height": 720 }] },
+        { "source": "q09-pickles-trophy.png", "fit": "cover", "outputs": [{ "file": "football-rules-quiz-q09.webp", "width": 1280, "height": 720 }] },
+        { "source": "q10-square-goalpost.png", "fit": "cover", "outputs": [{ "file": "football-rules-quiz-q10.webp", "width": 1280, "height": 720 }] },
+        { "source": "q11-penalty-double-touch.png", "fit": "cover", "outputs": [{ "file": "football-rules-quiz-q11.webp", "width": 1280, "height": 720 }] },
+        { "source": "grade-01-sprout.png", "fit": "cover", "outputs": [{ "file": "football-rules-quiz-grade-01.webp", "width": 1024, "height": 1024 }] },
+        { "source": "grade-02-sprout.png", "fit": "cover", "outputs": [{ "file": "football-rules-quiz-grade-02.webp", "width": 1024, "height": 1024 }] },
+        { "source": "grade-03-sprout.png", "fit": "cover", "outputs": [{ "file": "football-rules-quiz-grade-03.webp", "width": 1024, "height": 1024 }] },
+        { "source": "grade-04-sprout.png", "fit": "cover", "outputs": [{ "file": "football-rules-quiz-grade-04.webp", "width": 1024, "height": 1024 }] },
+        { "source": "grade-05-sprout.png", "fit": "cover", "outputs": [{ "file": "football-rules-quiz-grade-05.webp", "width": 1024, "height": 1024 }] },
+        { "source": "modal-backdrop.png", "fit": "cover", "outputs": [{ "file": "football-rules-quiz-modal-backdrop.webp", "width": 1536, "height": 1024 }] },
+        { "source": "modal-frame.png", "key": "magenta", "fit": "contain", "outputs": [{ "file": "football-rules-quiz-modal-frame.webp", "width": 1254, "height": 1254 }] },
+        { "source": "question-panel.png", "key": "magenta", "fit": "contain", "outputs": [{ "file": "football-rules-quiz-question-panel.webp", "width": 1200, "height": 400 }] },
+        { "source": "choice-panel-default.png", "key": "magenta", "fit": "contain", "outputs": [{ "file": "football-rules-quiz-choice-panel-default.webp", "width": 960, "height": 384 }] },
+        { "source": "choice-panel-correct.png", "key": "magenta", "fit": "contain", "outputs": [{ "file": "football-rules-quiz-choice-panel-correct.webp", "width": 960, "height": 384 }] },
+        { "source": "choice-panel-wrong.png", "key": "magenta", "fit": "contain", "outputs": [{ "file": "football-rules-quiz-choice-panel-wrong.webp", "width": 960, "height": 384 }] },
+        { "source": "choice-number-default.png", "key": "magenta", "trim": true, "outputs": [{ "file": "football-rules-quiz-choice-number-default.webp", "width": 256, "height": 256 }] },
+        { "source": "choice-number-correct.png", "key": "magenta", "trim": true, "outputs": [{ "file": "football-rules-quiz-choice-number-correct.webp", "width": 256, "height": 256 }] },
+        { "source": "choice-number-wrong.png", "key": "magenta", "trim": true, "outputs": [{ "file": "football-rules-quiz-choice-number-wrong.webp", "width": 256, "height": 256 }] },
+        { "source": "explanation-panel.png", "key": "magenta", "fit": "contain", "outputs": [{ "file": "football-rules-quiz-explanation-panel.webp", "width": 1200, "height": 440 }] },
+        { "source": "progress-pip-idle.png", "key": "magenta", "fit": "contain", "outputs": [{ "file": "football-rules-quiz-progress-pip-idle.webp", "width": 192, "height": 64 }] },
+        { "source": "progress-pip-active.png", "key": "magenta", "fit": "contain", "outputs": [{ "file": "football-rules-quiz-progress-pip-active.webp", "width": 192, "height": 64 }] },
+        { "source": "primary-button.png", "key": "magenta", "fit": "contain", "outputs": [{ "file": "football-rules-quiz-primary-button.webp", "width": 640, "height": 214 }] },
+        { "source": "icon.png", "key": "magenta", "trim": true, "outputs": [{ "file": "football-rules-quiz-icon.webp", "width": 256, "height": 256 }] },
+        { "source": "ui-kit.png", "key": "magenta", "fit": "contain", "outputs": [{ "file": "football-rules-quiz-ui-kit.webp", "width": 1536, "height": 1024 }] },
+        { "source": "burst.png", "key": "magenta", "grid": { "columns": 2, "rows": 2 }, "trim": true, "outputs": [
+          { "cell": 1, "file": "football-rules-quiz-correct-burst.webp", "width": 512, "height": 512 },
+          { "cell": 2, "file": "football-rules-quiz-wrong-burst.webp", "width": 512, "height": 512 }
+        ] }
+      ]
     }
   ]
 }

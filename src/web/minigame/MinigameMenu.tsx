@@ -1,15 +1,20 @@
 import { useEffect, useRef, useState } from "react";
-import { Gamepad2 } from "lucide-react";
+import { BookOpenCheck, Gamepad2 } from "lucide-react";
 // Renders immediately on page load (unlike the lazy-loaded minigame modals), so its styles live in
 // a stylesheet that ships with the main bundle — same reasoning as FortuneToggle's own css file.
 import "./minigame-menu.css";
 import { getCardMatchBackUrl } from "./cardMatchAssets.js";
 
-export type MinigameId = "kickups" | "freekick" | "cardmatch" | "soccer-sum10" | "grass-merge" | "keeper-breakout" | "football-match3";
+export type MinigameId = "kickups" | "freekick" | "cardmatch" | "soccer-sum10" | "grass-merge" | "keeper-breakout" | "football-match3" | "football-rules-quiz";
 
 function KeeperBreakoutMenuIcon() {
   const [available, setAvailable] = useState(true);
   return available ? <img src="/keeper-breakout-icon.webp" alt="" className="minigame-menu__icon" onError={() => setAvailable(false)} /> : <span className="minigame-menu__icon minigame-menu__icon--fallback" aria-hidden="true">🧤</span>;
+}
+
+function FootballRulesQuizMenuIcon() {
+  const [available, setAvailable] = useState(true);
+  return available ? <img src="/football-rules-quiz-icon.webp" alt="" className="minigame-menu__icon" onError={() => setAvailable(false)} /> : <BookOpenCheck className="minigame-menu__icon minigame-menu__icon--fallback" aria-hidden="true" />;
 }
 
 // Warming these up while the menu sits idle on the dashboard means the browser has already
@@ -47,6 +52,15 @@ const WARMUP_URLS = Array.from(
     "/football-match3-bgm.mp3",
     "/sfxes/football-match3-swap.mp3",
     "/sfxes/football-match3-match.mp3",
+    // football rules quiz
+    "/football-rules-quiz-bgm.mp3",
+    "/sfxes/football-rules-quiz-open.mp3",
+    "/sfxes/football-rules-quiz-select.mp3",
+    "/sfxes/football-rules-quiz-correct.mp3",
+    "/sfxes/football-rules-quiz-wrong.mp3",
+    "/sfxes/football-rules-quiz-next.mp3",
+    "/sfxes/football-rules-quiz-result.mp3",
+    "/sfxes/football-rules-quiz-perfect.mp3",
   ]),
 );
 
@@ -110,6 +124,7 @@ export function MinigameMenu({ onSelect }: { onSelect: (game: MinigameId) => voi
     { id: "grass-merge", label: "잔디 머지", icon: <img src="/grass-merge-icon.webp" alt="" className="minigame-menu__icon" /> },
     { id: "keeper-breakout", label: "골키퍼 벽돌깨기", icon: <KeeperBreakoutMenuIcon /> },
     { id: "football-match3", label: "축구 매치3", icon: <img src="/football-match3-icon.webp" alt="" className="minigame-menu__icon" /> },
+    { id: "football-rules-quiz", label: "축구 상식 퀴즈", icon: <FootballRulesQuizMenuIcon /> },
   ];
 
   return (

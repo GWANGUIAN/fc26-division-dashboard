@@ -94,6 +94,7 @@ export function Modal({
   fancyLite,
   saviorBorder,
   wide,
+  className,
 }: {
   children: ReactNode;
   header: ReactNode;
@@ -104,11 +105,12 @@ export function Modal({
   fancyLite?: boolean;
   saviorBorder?: boolean;
   wide?: boolean;
+  className?: string;
 }) {
   return (
     <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
       <div
-        className={`modal-frame ${wide ? "modal-frame--wide" : ""}`}
+        className={`modal-frame ${wide ? "modal-frame--wide" : ""} ${className ?? ""}`}
         style={
           fancyBorderColor || saviorBorder
             ? ({
@@ -131,7 +133,7 @@ export function Modal({
         }
       >
         <section
-          className={`modal ${wide ? "modal--wide" : ""} ${fancyBorderColor ? "fancy-border" : ""} ${fancyBorderColor && fancyLite ? "fancy-border--lite" : ""} ${saviorBorder ? "savior-border" : ""}`}
+          className={`modal ${wide ? "modal--wide" : ""} ${fancyBorderColor ? "fancy-border" : ""} ${fancyBorderColor && fancyLite ? "fancy-border--lite" : ""} ${saviorBorder ? "savior-border" : ""} ${className ?? ""}`}
           role="dialog"
           aria-modal="true"
           aria-label={label}
