@@ -1,6 +1,20 @@
 {
   "games": [
     {
+      "id": "football-match3",
+      "sourceDir": "football-match3",
+      "assets": [
+        { "source": "tiles-sheet.png", "key": "magenta", "grid": { "columns": 3, "rows": 2 }, "trim": true, "outputs": [
+          { "cell": 0, "file": "football-match3-tile-ball.webp", "width": 128, "height": 128 }, { "cell": 1, "file": "football-match3-tile-jersey.webp", "width": 128, "height": 128 }, { "cell": 2, "file": "football-match3-tile-boots.webp", "width": 128, "height": 128 }, { "cell": 3, "file": "football-match3-tile-whistle.webp", "width": 128, "height": 128 }, { "cell": 4, "file": "football-match3-tile-glove.webp", "width": 128, "height": 128 }, { "cell": 5, "file": "football-match3-tile-redcard.webp", "width": 128, "height": 128 }
+        ] },
+        { "source": "specials-sheet.png", "key": "magenta", "grid": { "columns": 2, "rows": 2 }, "trim": true, "outputs": [{ "cell": 0, "file": "football-match3-special-line.webp", "width": 128, "height": 128 }, { "cell": 1, "file": "football-match3-special-golden.webp", "width": 128, "height": 128 }] },
+        { "source": "icon.png", "key": "magenta", "trim": true, "outputs": [{ "file": "football-match3-icon.webp", "width": 256, "height": 256 }] },
+        { "source": "background.png", "fit": "cover", "outputs": [{ "file": "football-match3-background.webp", "width": 1280, "height": 960 }] },
+        { "source": "board-frame.png", "key": "magenta", "fit": "contain", "outputs": [{ "file": "football-match3-board.webp", "width": 560, "height": 560 }] },
+        { "source": "sparkle.png", "key": "magenta", "fit": "contain", "outputs": [{ "file": "football-match3-sparkle.webp", "width": 512, "height": 512 }] }
+      ]
+    },
+    {
       "id": "grass-merge",
       "sourceDir": "grass-merge",
       "assets": [

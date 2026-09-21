@@ -356,6 +356,23 @@ const KEEPER_BREAKOUT_SFX_VOLUME_KEY = "fc26-keeper-breakout-sfx-volume";
 const KEEPER_BREAKOUT_MUSIC_ENABLED_KEY = "fc26-keeper-breakout-music-enabled";
 const KEEPER_BREAKOUT_MUSIC_VOLUME_KEY = "fc26-keeper-breakout-music-volume";
 
+const FOOTBALL_MATCH3_HIGH_SCORE_KEY = "fc26-football-match3-highscore";
+const FOOTBALL_MATCH3_SFX_ENABLED_KEY = "fc26-football-match3-sfx-enabled";
+const FOOTBALL_MATCH3_SFX_VOLUME_KEY = "fc26-football-match3-sfx-volume";
+const FOOTBALL_MATCH3_MUSIC_ENABLED_KEY = "fc26-football-match3-music-enabled";
+const FOOTBALL_MATCH3_MUSIC_VOLUME_KEY = "fc26-football-match3-music-volume";
+
+export function loadFootballMatch3HighScore(): number { try { const value = Number(localStorage.getItem(FOOTBALL_MATCH3_HIGH_SCORE_KEY) ?? 0); return Number.isFinite(value) && value > 0 ? Math.floor(value) : 0; } catch { return 0; } }
+export function saveFootballMatch3HighScore(score: number) { try { localStorage.setItem(FOOTBALL_MATCH3_HIGH_SCORE_KEY, String(Math.max(0, Math.floor(score)))); } catch { /* ignore storage failures */ } }
+export function loadFootballMatch3SfxEnabled(): boolean { try { const value = localStorage.getItem(FOOTBALL_MATCH3_SFX_ENABLED_KEY); return value === null ? true : value === "1"; } catch { return true; } }
+export function saveFootballMatch3SfxEnabled(enabled: boolean) { try { localStorage.setItem(FOOTBALL_MATCH3_SFX_ENABLED_KEY, enabled ? "1" : "0"); } catch { /* ignore storage failures */ } }
+export function loadFootballMatch3SfxVolume() { return loadStoredVolume(FOOTBALL_MATCH3_SFX_VOLUME_KEY, 55); }
+export function saveFootballMatch3SfxVolume(volume: number) { try { localStorage.setItem(FOOTBALL_MATCH3_SFX_VOLUME_KEY, String(Math.min(100, Math.max(0, Math.floor(volume))))); } catch { /* ignore storage failures */ } }
+export function loadFootballMatch3MusicEnabled(): boolean { try { const value = localStorage.getItem(FOOTBALL_MATCH3_MUSIC_ENABLED_KEY); return value === null ? true : value === "1"; } catch { return true; } }
+export function saveFootballMatch3MusicEnabled(enabled: boolean) { try { localStorage.setItem(FOOTBALL_MATCH3_MUSIC_ENABLED_KEY, enabled ? "1" : "0"); } catch { /* ignore storage failures */ } }
+export function loadFootballMatch3MusicVolume() { return loadStoredVolume(FOOTBALL_MATCH3_MUSIC_VOLUME_KEY, 35); }
+export function saveFootballMatch3MusicVolume(volume: number) { try { localStorage.setItem(FOOTBALL_MATCH3_MUSIC_VOLUME_KEY, String(Math.min(100, Math.max(0, Math.floor(volume))))); } catch { /* ignore storage failures */ } }
+
 export function loadKeeperBreakoutHighScore(): number { try { const value = Number(localStorage.getItem(KEEPER_BREAKOUT_HIGH_SCORE_KEY) ?? 0); return Number.isFinite(value) && value > 0 ? Math.floor(value) : 0; } catch { return 0; } }
 export function saveKeeperBreakoutHighScore(score: number) { try { localStorage.setItem(KEEPER_BREAKOUT_HIGH_SCORE_KEY, String(Math.max(0, Math.floor(score)))); } catch { /* ignore storage failures */ } }
 export function loadKeeperBreakoutSfxEnabled(): boolean { try { const value = localStorage.getItem(KEEPER_BREAKOUT_SFX_ENABLED_KEY); return value === null ? true : value === "1"; } catch { return true; } }

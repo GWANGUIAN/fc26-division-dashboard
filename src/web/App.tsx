@@ -76,6 +76,7 @@ import { WorldToggle } from "./world/WorldToggle";
 const FreekickModal = lazy(() => import("./minigame/FreekickModal"));
 const GrassMergeModal = lazy(() => import("./minigame/grass-merge/GrassMergeModal"));
 const KeeperBreakoutModal = lazy(() => import("./minigame/keeper-breakout/KeeperBreakoutModal"));
+const FootballMatch3Modal = lazy(() => import("./minigame/football-match3/FootballMatch3Modal"));
 const StadiumShowcaseModal = lazy(() => import("./stadium-showcase/StadiumShowcaseModal"));
 
 // 잔디동 월드 (2D 도트 RPG). The overlay, engine and every world asset stay out of the main bundle;
@@ -109,7 +110,7 @@ export function App() {
     useState<Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision" | "sfx">>();
   // A single slot (rather than one boolean per minigame) makes it structurally impossible for two
   // minigame modals to be open at once.
-  const [activeMinigame, setActiveMinigame] = useState<"kickups" | "freekick" | "cardmatch" | "soccer-sum10" | "grass-merge" | "keeper-breakout" | null>(null);
+  const [activeMinigame, setActiveMinigame] = useState<"kickups" | "freekick" | "cardmatch" | "soccer-sum10" | "grass-merge" | "keeper-breakout" | "football-match3" | null>(null);
 
   const { toast, showToast } = useToast();
   const [woowakgoodAnnounceVisible, setWoowakgoodAnnounceVisible] = useState(false);
@@ -462,6 +463,11 @@ export function App() {
       {activeMinigame === "keeper-breakout" && (
         <Suspense fallback={null}>
           <KeeperBreakoutModal onClose={() => setActiveMinigame(null)} />
+        </Suspense>
+      )}
+      {activeMinigame === "football-match3" && (
+        <Suspense fallback={null}>
+          <FootballMatch3Modal onClose={() => setActiveMinigame(null)} />
         </Suspense>
       )}
       {fortuneOpen && (

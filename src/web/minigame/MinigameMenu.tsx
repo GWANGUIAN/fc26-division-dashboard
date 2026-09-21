@@ -5,7 +5,7 @@ import { Gamepad2 } from "lucide-react";
 import "./minigame-menu.css";
 import { getCardMatchBackUrl } from "./cardMatchAssets.js";
 
-export type MinigameId = "kickups" | "freekick" | "cardmatch" | "soccer-sum10" | "grass-merge" | "keeper-breakout";
+export type MinigameId = "kickups" | "freekick" | "cardmatch" | "soccer-sum10" | "grass-merge" | "keeper-breakout" | "football-match3";
 
 function KeeperBreakoutMenuIcon() {
   const [available, setAvailable] = useState(true);
@@ -44,6 +44,9 @@ const WARMUP_URLS = Array.from(
     "/keeper-breakout-bgm.mp3",
     "/sfxes/keeper-breakout-paddle.mp3",
     "/sfxes/keeper-breakout-brick.mp3",
+    "/football-match3-bgm.mp3",
+    "/sfxes/football-match3-swap.mp3",
+    "/sfxes/football-match3-match.mp3",
   ]),
 );
 
@@ -106,6 +109,7 @@ export function MinigameMenu({ onSelect }: { onSelect: (game: MinigameId) => voi
     },
     { id: "grass-merge", label: "잔디 머지", icon: <img src="/grass-merge-icon.webp" alt="" className="minigame-menu__icon" /> },
     { id: "keeper-breakout", label: "골키퍼 벽돌깨기", icon: <KeeperBreakoutMenuIcon /> },
+    { id: "football-match3", label: "축구 매치3", icon: <img src="/football-match3-icon.webp" alt="" className="minigame-menu__icon" /> },
   ];
 
   return (

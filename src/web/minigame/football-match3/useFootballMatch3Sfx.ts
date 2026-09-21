@@ -1,0 +1,3 @@
+import { useState } from "react";
+import { loadFootballMatch3SfxEnabled, loadFootballMatch3SfxVolume, saveFootballMatch3SfxEnabled, saveFootballMatch3SfxVolume } from "../../storage.js";
+export function useFootballMatch3Sfx() { const [sfxOn, setSfxOn] = useState(loadFootballMatch3SfxEnabled); const [sfxVolume, setSfxVolume] = useState(loadFootballMatch3SfxVolume); return { sfxOn, sfxVolume, toggleSfx: () => setSfxOn((value) => { const next = !value; saveFootballMatch3SfxEnabled(next); return next; }), changeSfxVolume: (value: number) => { const next = Math.round(value); setSfxVolume(next); saveFootballMatch3SfxVolume(next); } }; }
