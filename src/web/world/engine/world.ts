@@ -31,8 +31,8 @@ import {
 import { SceneTransition, zoneIndexAt, type DoorTrigger, type ExaminePoint, type SceneObject, type SpectatorSpawn, type WorldScene } from "./scene";
 import { TerrainRenderer } from "./terrain";
 
-export const WALK_SPEED = 150;
-export const RUN_SPEED = 225;
+export const WALK_SPEED = 180;
+export const RUN_SPEED = 270;
 const AUTOSAVE_SECONDS = 5;
 const DOOR_GRACE_SECONDS = 0.35;
 /** How fast a district's colours follow a new restore target (per second, exponential). */

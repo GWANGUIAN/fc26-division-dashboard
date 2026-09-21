@@ -24,8 +24,8 @@ describe("facingFor", () => {
 
 describe("movement speeds", () => {
   it("uses S7 walk and run speeds without changing the run multiplier", () => {
-    expect(WALK_SPEED).toBe(150);
-    expect(RUN_SPEED).toBe(225);
+    expect(WALK_SPEED).toBe(180);
+    expect(RUN_SPEED).toBe(270);
     expect(RUN_SPEED / WALK_SPEED).toBe(1.5);
   });
 });
