@@ -3,7 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { disposeObject3D, mountThreeRenderer } from "../three-utils";
-import { cameraPoseFor, modelTransform, type CameraPreset } from "./stadiumShowcaseMath";
+import { cameraPoseFor, modelTransform, type CameraRequest } from "./stadiumShowcaseMath";
 
 export type SceneStatus = "loading" | "ready" | "error";
 
@@ -152,11 +152,11 @@ function prepareProp(model: THREE.Object3D) {
   });
 }
 
-export function StadiumShowcaseScene({ preset, onStatus }: { preset: CameraPreset; onStatus: (status: SceneStatus) => void }) {
+export function StadiumShowcaseScene({ request, onStatus }: { request: CameraRequest; onStatus: (status: SceneStatus) => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const presetRef = useRef(preset);
+  const requestRef = useRef(request);
   const onStatusRef = useRef(onStatus);
-  presetRef.current = preset;
+  requestRef.current = request;
   onStatusRef.current = onStatus;
 
   useEffect(() => {
@@ -278,7 +278,7 @@ export function StadiumShowcaseScene({ preset, onStatus }: { preset: CameraPrese
         }
       });
 
-      let currentPreset: CameraPreset = "overview";
+      let handledRequest = requestRef.current;
       const desiredPosition = new THREE.Vector3(overview.position.x, overview.position.y, overview.position.z);
       const desiredTarget = new THREE.Vector3(overview.target.x, overview.target.y, overview.target.z);
       controls.addEventListener("change", () => {
@@ -294,10 +294,10 @@ export function StadiumShowcaseScene({ preset, onStatus }: { preset: CameraPrese
       const animate = (now: number) => {
         const dt = Math.min((now - previousTime) / 1000, 0.1);
         previousTime = now;
-        if (presetRef.current !== currentPreset) {
-          currentPreset = presetRef.current;
+        if (requestRef.current !== handledRequest) {
+          handledRequest = requestRef.current;
           manualCamera = false;
-          const next = cameraPoseFor(currentPreset);
+          const next = cameraPoseFor(handledRequest.preset);
           desiredPosition.set(next.position.x, next.position.y, next.position.z);
           desiredTarget.set(next.target.x, next.target.y, next.target.z);
           controls.autoRotate = false;

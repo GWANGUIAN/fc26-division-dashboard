@@ -1,5 +1,10 @@
 export type CameraPreset = "overview" | "top" | "goal";
 
+/** A fresh object per click, so re-selecting the active preset still re-applies it after manual orbiting. */
+export interface CameraRequest {
+  preset: CameraPreset;
+}
+
 export interface Vec3 {
   x: number;
   y: number;

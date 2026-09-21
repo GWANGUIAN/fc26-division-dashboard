@@ -3,7 +3,7 @@ import { Castle, Goal, LayersArrowUp, Maximize2, RotateCcw, Sparkles } from "luc
 import stadiumFallback from "../assets/world/buildings/stadium.webp";
 import { Modal, useEscape } from "../Modal";
 import { StadiumShowcaseScene, type SceneStatus } from "./StadiumShowcaseScene";
-import type { CameraPreset } from "./stadiumShowcaseMath";
+import type { CameraPreset, CameraRequest } from "./stadiumShowcaseMath";
 import "./stadium-showcase.css";
 
 const CAMERA_BUTTONS: { id: CameraPreset; label: string; icon: typeof Maximize2 }[] = [
@@ -13,8 +13,9 @@ const CAMERA_BUTTONS: { id: CameraPreset; label: string; icon: typeof Maximize2 
 ];
 
 export default function StadiumShowcaseModal({ onClose }: { onClose: () => void }) {
-  const [preset, setPreset] = useState<CameraPreset>("overview");
+  const [request, setRequest] = useState<CameraRequest>({ preset: "overview" });
   const [status, setStatus] = useState<SceneStatus>("loading");
+  const selectPreset = (preset: CameraPreset) => setRequest({ preset });
   useEscape(onClose);
 
   return (
@@ -32,7 +33,7 @@ export default function StadiumShowcaseModal({ onClose }: { onClose: () => void 
     >
       <div className="stadium-showcase">
         <div className="stadium-showcase__viewer">
-          <StadiumShowcaseScene preset={preset} onStatus={setStatus} />
+          <StadiumShowcaseScene request={request} onStatus={setStatus} />
           {status === "loading" && <p className="stadium-showcase__loading" role="status">경기장을 준비하고 있어요…</p>}
           {status === "error" && (
             <div className="stadium-showcase__fallback" role="status">
@@ -44,11 +45,11 @@ export default function StadiumShowcaseModal({ onClose }: { onClose: () => void 
         </div>
         <div className="stadium-showcase__controls" aria-label="카메라 시점">
           {CAMERA_BUTTONS.map(({ id, label, icon: Icon }) => (
-            <button key={id} type="button" className={preset === id ? "active" : ""} onClick={() => setPreset(id)} aria-pressed={preset === id}>
+            <button key={id} type="button" className={request.preset === id ? "active" : ""} onClick={() => selectPreset(id)} aria-pressed={request.preset === id}>
               <Icon aria-hidden="true" /> {label}
             </button>
           ))}
-          <button type="button" onClick={() => setPreset("overview")} aria-label="처음 시점으로 돌아가기">
+          <button type="button" onClick={() => selectPreset("overview")} aria-label="처음 시점으로 돌아가기">
             <RotateCcw aria-hidden="true" /> 처음 시점
           </button>
         </div>
