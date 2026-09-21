@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import {
   hashPlayerId,
   isBetterScore,
@@ -10,6 +10,7 @@ import {
   type ScoreGameId,
 } from "../../../shared/minigame-scores.js";
 import { loadPlayerId, loadPlayerNickname, loadSubmittedScore, savePlayerNickname, saveSubmittedScore } from "../../storage.js";
+import { RankingEnabledContext } from "./RankingEnabledContext.js";
 import { fetchLeaderboard, fetchMyRank, renameNickname, ScoreApiError, startRun, submitScore } from "./scoreApi.js";
 import { shouldSubmit } from "./shouldSubmit.js";
 
@@ -59,6 +60,8 @@ const UNVERIFIABLE: Record<string, string> = {
  */
 export function useRanking(game: ScoreGameId, readLocalBest?: () => number | null) {
   const { order } = SCORE_GAMES[game];
+  // Off inside the world overlay: no requests, no submissions, no panel.
+  const enabled = useContext(RankingEnabledContext);
   const [playerKey, setPlayerKey] = useState<string | null>(null);
   const [nickname, setNickname] = useState(loadPlayerNickname);
   const [status, setStatus] = useState<RankingPanelProps["status"]>("loading");
@@ -149,6 +152,7 @@ export function useRanking(game: ScoreGameId, readLocalBest?: () => number | nul
   };
 
   useEffect(() => {
+    if (!enabled) return undefined;
     alive.current = true;
     let cancelled = false;
     void hashPlayerId(playerId()).then(async (key) => {
@@ -175,9 +179,10 @@ export function useRanking(game: ScoreGameId, readLocalBest?: () => number | nul
       alive.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- load/playerId only read refs and `game`, which is the dependency
-  }, [game]);
+  }, [game, enabled]);
 
   const report = (score: number) => {
+    if (!enabled) return;
     // The token that was issued before this run is the one that proves its duration.
     const token = tokenRef.current;
     const submittable = validateScore(game, score) !== null && shouldSubmit(order, score, submittedBest.current ?? null);

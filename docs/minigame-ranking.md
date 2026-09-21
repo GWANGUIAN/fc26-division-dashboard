@@ -99,4 +99,5 @@ const game = useGrassMergeGame({
 
 3. 런 토큰을 쓰려면 `SCORE_GAMES` 항목에 `timing: { minRunMs, minMsPerUnit, tokenTtlMs }`를 추가한다. 엔진에서 "이보다 빠를 수 없다"는 속도(점수 1점에 걸리는 최소 시간, 라운드 최소 길이)를 보수적으로 잡는다. 훅이 토큰 발급·전송을 알아서 하므로 모달 코드는 바뀌지 않는다. `timing`이 없으면 토큰 없이 제출된다(상한 검증만).
 4. 패널은 반드시 `Modal`의 children 안에 둔다. `.modal` 섹션 밖에 두면 클릭이 backdrop으로 전달돼 모달이 닫힌다.
-5. 잔디 러시(월드, 공용 `Modal`이 아닌 640×360 스테이지)는 아직 연결하지 않았다. `SCORE_GAMES.rush`(거리 m 기준)만 등록돼 있다.
+5. **잔디동 월드 안에서는 순위를 쓰지 않는다.** `WorldModals`가 미니게임 모달을 `RankingEnabledContext`(false)로 감싸므로 패널이 안 보이고, 서버 요청·제출도 하지 않으며, 게임 영역은 원래 레이아웃 그대로다. 새 게임은 `MinigameStage`와 `useRanking`만 쓰면 이 동작을 자동으로 따른다(월드 기록은 순위에 올라가지 않는다).
+6. 잔디 러시(월드, 공용 `Modal`이 아닌 640×360 스테이지)는 아직 연결하지 않았다. `SCORE_GAMES.rush`(거리 m 기준)만 등록돼 있다.

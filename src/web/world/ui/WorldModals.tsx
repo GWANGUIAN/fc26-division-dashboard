@@ -3,6 +3,7 @@ import type { WorldSave } from "../types";
 import { Suspense, lazy } from "react";
 import type { StreamerRecord } from "../../../shared/model";
 import { CardMatchModal } from "../../minigame/CardMatchModal";
+import { RankingEnabledContext } from "../../minigame/ranking/RankingEnabledContext";
 import { KickupsModal } from "../../minigame/KickupsModal";
 import { SoccerSum10Modal } from "../../minigame/soccer-sum10/SoccerSum10Modal";
 import { TotyCardPopup } from "../../toty-card/TotyCardPopup";
@@ -80,7 +81,26 @@ export function WorldModals({ modal, save, dashboard, onClose, onRoundEnd, onCar
   }
 
   if (modal.type !== "minigame") return null; // "daily" and "collection" are drawn by the overlay itself
-  switch (modal.game) {
+  // The online ranking belongs to the dashboard: inside the world these modals show no ranking panel and neither load nor submit scores.
+  return (
+    <RankingEnabledContext.Provider value={false}>
+      <WorldMinigame game={modal.game} dashboard={dashboard} onClose={onClose} onRoundEnd={onRoundEnd} />
+    </RankingEnabledContext.Provider>
+  );
+}
+
+function WorldMinigame({
+  game,
+  dashboard,
+  onClose,
+  onRoundEnd,
+}: {
+  game: MinigameRoundResult["game"];
+  dashboard: DashboardBridge;
+  onClose: () => void;
+  onRoundEnd: (result: MinigameRoundResult) => void;
+}) {
+  switch (game) {
     case "rush":
       return null; // Grass Rush is drawn inside the scaled stage by the overlay itself (docs/world/18)
     case "soccer-sum10":
