@@ -218,6 +218,10 @@ GitHub push (roster/results/overrides YAML) → Config Sync Lambda → DynamoDB 
 - 목록 뷰(`viewMode: "list"`, `StreamerCard`)에서는 우왁굳 메모장 호버 툴팁을 뺐다 — 표/카드 뷰는 그대로 유지된다.
 - 새 의존성: `react-day-picker`(날짜 범위 팝업 캘린더, `package.json`).
 
+### 미니게임 온라인 순위 (Cloudflare D1, `src/worker-scores.ts` · `src/web/minigame/ranking/`)
+
+미니게임 최고기록을 닉네임과 함께 제출해 모달 오른쪽 패널에서 TOP 10·내 순위를 본다. AWS가 아니라 **Worker + D1**이며(무료 한도 초과 시 과금이 아니라 요청 실패), 게임당 플레이어 1행(본인 최고기록)만 저장한다. 최초 D1 생성·마이그레이션 순서, API, 신규 게임에 붙이는 레시피는 `docs/minigame-ranking.md`. D1 바인딩(`DB`)은 `wrangler.toml`에 설정돼 있고 스키마는 원격에 적용 완료.
+
 ### 수집 안전 원칙
 
 - CAPTCHA, 자동입력, 접근 제한 신호를 만나면 우회하지 않고 실패 처리하며 기존 정상 스냅샷을 보존한다.

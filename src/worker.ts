@@ -1,5 +1,6 @@
 import type { SoopLiveGame, SoopLiveStreamer } from "./shared/soop-live.js";
 import { collectWorldOnAir } from "./shared/world-onair.js";
+import { serveScores, type D1Database } from "./worker-scores.js";
 
 interface Fetcher {
   fetch(request: Request): Promise<Response>;
@@ -17,6 +18,8 @@ export interface Env {
   ASSETS: Fetcher;
   API_ORIGIN_URL: string;
   ORIGIN_AUTH_TOKEN: string;
+  /** D1 database holding the minigame rankings (see migrations/). */
+  DB: D1Database;
 }
 
 const API_CACHE_SECONDS = 120;
@@ -269,6 +272,7 @@ export default {
     }
     if (path === "/api/soop-live") return serveSoopLive(request, ctx);
     if (path === "/api/soop-onair") return serveWorldOnAir(request, ctx);
+    if (path.startsWith("/api/scores/")) return serveScores(request, env, ctx);
     return serveAsset(request, env);
   },
 } satisfies ExportedHandler<Env>;

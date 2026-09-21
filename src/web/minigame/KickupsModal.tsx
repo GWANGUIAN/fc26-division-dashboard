@@ -2,9 +2,13 @@ import { Music4, Volume2, VolumeX } from "lucide-react";
 import { Modal, useEscape } from "../Modal";
 import { KickupsCanvas } from "./KickupsCanvas";
 import { SoundControl } from "./SoundControl";
+import { loadKickupsHighScore } from "../storage";
 import { useKickupsGame, type KickupsRoundResult } from "./useKickupsGame";
 import { useKickupsMusic } from "./useKickupsMusic";
 import { useKickupsSfx } from "./useKickupsSfx";
+import { MinigameStage } from "./ranking/MinigameStage";
+import { RankingPanel } from "./ranking/RankingPanel";
+import { useRanking } from "./ranking/useRanking";
 
 export function KickupsModal({
   onClose,
@@ -20,7 +24,15 @@ export function KickupsModal({
 }) {
   useEscape(onClose);
   const { sfxOn, toggleSfx } = useKickupsSfx();
-  const { state, liveStateRef, quip, handleStart, handleCanvasClick } = useKickupsGame({ sfxOn, sfxVolume, onRoundEnd });
+  const ranking = useRanking("kickups", () => loadKickupsHighScore() || null);
+  const { state, liveStateRef, quip, handleStart, handleCanvasClick } = useKickupsGame({
+    sfxOn,
+    sfxVolume,
+    onRoundEnd: (result) => {
+      onRoundEnd?.(result);
+      ranking.report(result.score);
+    },
+  });
   const { musicOn, toggleMusic, musicVolume, changeMusicVolume } = useKickupsMusic();
 
   return (
@@ -36,42 +48,44 @@ export function KickupsModal({
         </div>
       }
     >
-      <div className="kickups-play-area">
-        <div className="kickups-badge kickups-badge--high">최고기록 {state.highScore}</div>
-        <SoundControl
-          enabled={musicOn}
-          volume={musicVolume}
-          onToggle={toggleMusic}
-          onVolumeChange={changeMusicVolume}
-          icon={<Music4 aria-hidden="true" />}
-          label="배경음악"
-          wrapperClassName={`kickups-icon-toggle kickups-icon-toggle--music ${musicOn ? "" : "kickups-icon-toggle--muted"}`}
-        />
-        <SoundControl
-          enabled={sfxOn}
-          volume={sfxVolume}
-          onToggle={toggleSfx}
-          onVolumeChange={onSfxVolumeChange}
-          icon={sfxOn ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
-          label="효과음"
-          wrapperClassName={`kickups-icon-toggle kickups-icon-toggle--sfx ${sfxOn ? "" : "kickups-icon-toggle--muted"}`}
-        />
-        {state.phase === "idle" ? (
-          <button type="button" className="kickups-start" onClick={handleStart}>
-            시작
-          </button>
-        ) : (
-          <>
-            <div className="kickups-score-display">{state.score}</div>
-            <KickupsCanvas stateRef={liveStateRef} onPointerDown={handleCanvasClick} />
-          </>
-        )}
-        {quip && (
-          <div key={quip.id} className="kickups-quip">
-            {quip.text}
-          </div>
-        )}
-      </div>
+      <MinigameStage panel={<RankingPanel {...ranking.panel} />}>
+        <div className="kickups-play-area">
+          <div className="kickups-badge kickups-badge--high">최고기록 {state.highScore}</div>
+          <SoundControl
+            enabled={musicOn}
+            volume={musicVolume}
+            onToggle={toggleMusic}
+            onVolumeChange={changeMusicVolume}
+            icon={<Music4 aria-hidden="true" />}
+            label="배경음악"
+            wrapperClassName={`kickups-icon-toggle kickups-icon-toggle--music ${musicOn ? "" : "kickups-icon-toggle--muted"}`}
+          />
+          <SoundControl
+            enabled={sfxOn}
+            volume={sfxVolume}
+            onToggle={toggleSfx}
+            onVolumeChange={onSfxVolumeChange}
+            icon={sfxOn ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
+            label="효과음"
+            wrapperClassName={`kickups-icon-toggle kickups-icon-toggle--sfx ${sfxOn ? "" : "kickups-icon-toggle--muted"}`}
+          />
+          {state.phase === "idle" ? (
+            <button type="button" className="kickups-start" onClick={handleStart}>
+              시작
+            </button>
+          ) : (
+            <>
+              <div className="kickups-score-display">{state.score}</div>
+              <KickupsCanvas stateRef={liveStateRef} onPointerDown={handleCanvasClick} />
+            </>
+          )}
+          {quip && (
+            <div key={quip.id} className="kickups-quip">
+              {quip.text}
+            </div>
+          )}
+        </div>
+      </MinigameStage>
     </Modal>
   );
 }

@@ -21,6 +21,12 @@ export default defineConfig({
         target: "https://wakjandy.stream",
         changeOrigin: true,
       },
+      // Rankings go to a local Worker with a throwaway D1 (`pnpm dev:api`).
+      // Pointing this at production would write dev scores into the live board.
+      "/api/scores": {
+        target: "http://127.0.0.1:8787",
+        changeOrigin: true,
+      },
     },
   },
   build: {

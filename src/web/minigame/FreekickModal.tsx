@@ -3,9 +3,13 @@ import { Modal, useEscape } from "../Modal";
 import { FreekickScene } from "./FreekickScene";
 import { SoundControl } from "./SoundControl";
 import { STARTING_LIVES } from "./freekickEngine";
+import { loadFreekickHighScore } from "../storage";
 import { useFreekickGame, type FreekickRoundResult } from "./useFreekickGame";
 import { useFreekickMusic } from "./useFreekickMusic";
 import { useFreekickSfx } from "./useFreekickSfx";
+import { MinigameStage } from "./ranking/MinigameStage";
+import { RankingPanel } from "./ranking/RankingPanel";
+import { useRanking } from "./ranking/useRanking";
 import "./freekick.css";
 
 const RESULT_LABEL: Record<string, string> = {
@@ -45,10 +49,14 @@ function FreekickModal({
   useEscape(onClose);
   const { sfxOn, toggleSfx } = useFreekickSfx();
   const { musicOn, toggleMusic, musicVolume, changeMusicVolume } = useFreekickMusic();
+  const ranking = useRanking("freekick", () => loadFreekickHighScore() || null);
   const { state, liveStateRef, handleShoot, handleNextAttempt, handleNewRound } = useFreekickGame({
     sfxOn,
     sfxVolume,
-    onRoundEnd,
+    onRoundEnd: (result) => {
+      onRoundEnd?.(result);
+      ranking.report(result.score);
+    },
   });
 
   return (
@@ -72,50 +80,52 @@ function FreekickModal({
         </div>
       }
     >
-      <div className="freekick-play-area">
-        <LivesDisplay lives={state.lives} />
-        <div className="freekick-badge freekick-badge--score">점수 {state.score}</div>
-        <div className="freekick-badge freekick-badge--best">최고 기록 {state.bestScore}</div>
-        <SoundControl
-          enabled={musicOn}
-          volume={musicVolume}
-          onToggle={toggleMusic}
-          onVolumeChange={changeMusicVolume}
-          icon={<Music4 aria-hidden="true" />}
-          label="배경음악"
-          wrapperClassName={`freekick-icon-toggle freekick-icon-toggle--music ${musicOn ? "" : "freekick-icon-toggle--muted"}`}
-        />
-        <SoundControl
-          enabled={sfxOn}
-          volume={sfxVolume}
-          onToggle={toggleSfx}
-          onVolumeChange={onSfxVolumeChange}
-          icon={sfxOn ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
-          label="효과음"
-          wrapperClassName={`freekick-icon-toggle freekick-icon-toggle--sfx ${sfxOn ? "" : "freekick-icon-toggle--muted"}`}
-        />
-        <FreekickScene stateRef={liveStateRef} onShoot={handleShoot} />
-        {state.phase === "idle" && (
-          <div className="freekick-hint">공을 드래그해서 슛하세요</div>
-        )}
-        {state.phase === "result" && (
-          <div className="freekick-result">
-            <div className="freekick-result__label">{RESULT_LABEL[state.result ?? "miss"]}</div>
-            <button type="button" className="freekick-start" onClick={handleNextAttempt}>
-              다음 슛
-            </button>
-          </div>
-        )}
-        {state.phase === "gameover" && (
-          <div className="freekick-result">
-            <div className="freekick-result__label">{RESULT_LABEL[state.result ?? "miss"]}</div>
-            <div className="freekick-result__gameover">게임 오버 · 점수 {state.score}</div>
-            <button type="button" className="freekick-start" onClick={handleNewRound}>
-              다시 시작
-            </button>
-          </div>
-        )}
-      </div>
+      <MinigameStage panel={<RankingPanel {...ranking.panel} />}>
+        <div className="freekick-play-area">
+          <LivesDisplay lives={state.lives} />
+          <div className="freekick-badge freekick-badge--score">점수 {state.score}</div>
+          <div className="freekick-badge freekick-badge--best">최고 기록 {state.bestScore}</div>
+          <SoundControl
+            enabled={musicOn}
+            volume={musicVolume}
+            onToggle={toggleMusic}
+            onVolumeChange={changeMusicVolume}
+            icon={<Music4 aria-hidden="true" />}
+            label="배경음악"
+            wrapperClassName={`freekick-icon-toggle freekick-icon-toggle--music ${musicOn ? "" : "freekick-icon-toggle--muted"}`}
+          />
+          <SoundControl
+            enabled={sfxOn}
+            volume={sfxVolume}
+            onToggle={toggleSfx}
+            onVolumeChange={onSfxVolumeChange}
+            icon={sfxOn ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
+            label="효과음"
+            wrapperClassName={`freekick-icon-toggle freekick-icon-toggle--sfx ${sfxOn ? "" : "freekick-icon-toggle--muted"}`}
+          />
+          <FreekickScene stateRef={liveStateRef} onShoot={handleShoot} />
+          {state.phase === "idle" && (
+            <div className="freekick-hint">공을 드래그해서 슛하세요</div>
+          )}
+          {state.phase === "result" && (
+            <div className="freekick-result">
+              <div className="freekick-result__label">{RESULT_LABEL[state.result ?? "miss"]}</div>
+              <button type="button" className="freekick-start" onClick={handleNextAttempt}>
+                다음 슛
+              </button>
+            </div>
+          )}
+          {state.phase === "gameover" && (
+            <div className="freekick-result">
+              <div className="freekick-result__label">{RESULT_LABEL[state.result ?? "miss"]}</div>
+              <div className="freekick-result__gameover">게임 오버 · 점수 {state.score}</div>
+              <button type="button" className="freekick-start" onClick={handleNewRound}>
+                다시 시작
+              </button>
+            </div>
+          )}
+        </div>
+      </MinigameStage>
     </Modal>
   );
 }

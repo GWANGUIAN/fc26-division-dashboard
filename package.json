@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
+    "dev:api": "wrangler dev --env dev --local --port 8787",
+    "db:migrate:local": "wrangler d1 migrations apply fc26-minigame-scores --env dev --local",
     "build": "vite build",
     "build:lambda": "esbuild src/functions/scraper.ts src/functions/reader.ts src/functions/config-sync.ts src/functions/budget-guard.ts --bundle --platform=node --target=node22 --format=esm --outdir=dist/lambda --out-extension:.js=.mjs --external:@aws-sdk/* --external:@sparticuz/chromium --external:playwright-core --external:yaml --external:@google/genai",
     "generate:ascii-art": "node scripts/generate-ascii-art.mjs",

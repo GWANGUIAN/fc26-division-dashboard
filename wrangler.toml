@@ -2,6 +2,25 @@ name = "fc26-division-dashboard"
 compatibility_date = "2026-08-16"
 main = "src/worker.ts"
 
+# Minigame rankings (D1). Apply schema changes to the remote database BEFORE
+# deploying code that needs them:
+#   npx wrangler d1 migrations apply fc26-minigame-scores --remote
+# Without this binding the Worker still serves, but /api/scores/* answers 503.
+[[d1_databases]]
+binding = "DB"
+database_name = "fc26-minigame-scores"
+database_id = "bee0b71f-68cc-434c-a830-46fc1c72da9f"
+migrations_dir = "migrations"
+
+# Local development only (`pnpm dev:api` = wrangler dev --env dev): a throwaway
+# local D1 for the rankings. The id is ignored in --local mode, and a normal
+# `wrangler deploy` never reads this environment.
+[[env.dev.d1_databases]]
+binding = "DB"
+database_name = "fc26-minigame-scores"
+database_id = "local-dev"
+migrations_dir = "migrations"
+
 [assets]
 directory = "dist/web"
 binding = "ASSETS"

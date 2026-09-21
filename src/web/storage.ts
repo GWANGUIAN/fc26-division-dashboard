@@ -659,3 +659,61 @@ export function useSeenUpdates() {
   };
   return { seenKeys, markSeen, todayKey };
 }
+
+// --- Online minigame rankings -------------------------------------------------
+
+const PLAYER_ID_KEY = "fc26-player-id";
+const PLAYER_NICKNAME_KEY = "fc26-player-nickname";
+const SCORE_SUBMITTED_KEY_PREFIX = "fc26-score-submitted-";
+
+// Fallback when localStorage is unavailable: stable for this page load only.
+let memoryPlayerId: string | null = null;
+
+/** The secret device id that authorises rank submissions; created on first use. */
+export function loadPlayerId(): string {
+  try {
+    const stored = localStorage.getItem(PLAYER_ID_KEY);
+    if (stored) return stored;
+    const created = crypto.randomUUID();
+    localStorage.setItem(PLAYER_ID_KEY, created);
+    return created;
+  } catch {
+    memoryPlayerId ??= crypto.randomUUID();
+    return memoryPlayerId;
+  }
+}
+
+export function loadPlayerNickname(): string {
+  try {
+    return localStorage.getItem(PLAYER_NICKNAME_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+export function savePlayerNickname(name: string) {
+  try {
+    localStorage.setItem(PLAYER_NICKNAME_KEY, name);
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
+
+/** The best result the server last confirmed for this game, or null if none was ever registered. */
+export function loadSubmittedScore(game: string): number | null {
+  try {
+    const raw = localStorage.getItem(SCORE_SUBMITTED_KEY_PREFIX + game);
+    const value = raw === null ? NaN : Number(raw);
+    return Number.isFinite(value) ? Math.floor(value) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveSubmittedScore(game: string, score: number) {
+  try {
+    localStorage.setItem(SCORE_SUBMITTED_KEY_PREFIX + game, String(Math.floor(score)));
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}

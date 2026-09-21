@@ -15,3 +15,6 @@ test-results/
 
 # World art originals (AI-generated PNGs; converted to src/web/assets/world/ by pnpm convert:world-art)
 tmp/world-src/
+
+# Local wrangler state (dev D1 etc.)
+.wrangler/

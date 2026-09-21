@@ -1,0 +1,45 @@
+.minigame-stage { display: grid; grid-template-columns: minmax(0, 1fr) 280px; align-items: start; gap: 20px; min-height: 0; }
+.minigame-stage__game { display: flex; min-width: 0; flex-direction: column; }
+.minigame-stage__panel { min-width: 0; margin-top: 20px; }
+
+.ranking-panel { display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1px solid var(--border-default); border-radius: 12px; color: var(--text-primary); background: var(--surface-2); font-family: "Noto Sans KR", sans-serif; }
+.ranking-panel__head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.ranking-panel__head h3 { margin: 0; font: 800 17px/1.2 "Barlow Condensed", "Noto Sans KR"; letter-spacing: .02em; }
+.ranking-panel__head span { color: var(--text-muted); font-size: 11px; }
+
+.ranking-list { display: flex; flex-direction: column; gap: 3px; margin: 0; padding: 0; list-style: none; }
+.ranking-row { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; align-items: center; gap: 8px; min-height: 30px; padding: 4px 8px; border: 1px solid transparent; border-radius: 8px; font-size: 13px; }
+.ranking-row:nth-child(-n + 3) { background: var(--fill-faint); }
+.ranking-row__rank { color: var(--text-secondary); font: 800 14px/1 "Barlow Condensed", "Noto Sans KR"; text-align: center; }
+.ranking-row__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ranking-row__score { color: var(--accent-text); font: 800 14px/1 "Barlow Condensed", "Noto Sans KR"; white-space: nowrap; }
+.ranking-row--me { border-color: var(--accent-border); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.ranking-row--pinned { margin-top: 2px; }
+.ranking-empty, .ranking-state { margin: 0; padding: 14px 6px; color: var(--text-muted); font-size: 12px; line-height: 1.5; text-align: center; }
+.ranking-state { display: grid; justify-items: center; gap: 8px; }
+
+.ranking-card { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border: 1px solid #ffe278; border-radius: 10px; background: color-mix(in srgb, #ffd44f 12%, transparent); font-size: 12px; }
+.ranking-card strong { font-size: 14px; }
+.ranking-card__name { color: var(--text-secondary); }
+.ranking-card__actions { display: flex; gap: 6px; }
+.ranking-notice { margin: 0; padding: 7px 10px; border: 1px solid var(--accent-border); border-radius: 8px; color: var(--accent-text); background: color-mix(in srgb, var(--accent) 10%, transparent); font-size: 12px; }
+.ranking-error { color: #ff8f8f; font-size: 11px; line-height: 1.4; }
+
+.ranking-input { min-width: 0; width: 100%; padding: 7px 9px; border: 1px solid var(--border-strong); border-radius: 8px; color: var(--text-primary); background: var(--surface-input); font: 500 13px/1.2 "Noto Sans KR"; }
+.ranking-input:focus-visible { border-color: var(--accent); outline: 0; }
+.ranking-btn { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-height: 30px; padding: 5px 12px; border: 1px solid var(--border-strong); border-radius: 999px; color: var(--text-primary); background: var(--surface-3); font: 700 12px/1 "Noto Sans KR"; cursor: pointer; transition: filter .15s, border-color .15s; }
+.ranking-btn:hover:not(:disabled), .ranking-btn:focus-visible { border-color: var(--accent); outline: 0; }
+.ranking-btn:disabled { opacity: .5; cursor: not-allowed; }
+.ranking-btn svg { width: 13px; height: 13px; }
+.ranking-btn--primary { border-color: #ffe278; color: #14291a; background: linear-gradient(135deg, #ffe992, #ffd44f); }
+.ranking-btn--icon { flex: 0 0 auto; width: 28px; min-height: 28px; padding: 0; }
+
+.ranking-panel__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; padding-top: 8px; border-top: 1px solid var(--border-faint); }
+.ranking-panel__nick { overflow: hidden; color: var(--text-secondary); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.ranking-rename { display: flex; width: 100%; gap: 5px; }
+.ranking-rename .ranking-btn { padding: 5px 9px; }
+
+@media (max-width: 1000px) {
+  .minigame-stage { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .minigame-stage__panel { width: 100%; max-width: 720px; margin: 16px auto 0; }
+}
