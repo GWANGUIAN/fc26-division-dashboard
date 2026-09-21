@@ -1,6 +1,7 @@
 import { Music4, Volume2, VolumeX } from "lucide-react";
 import { Modal, useEscape } from "../Modal";
 import { FreekickScene } from "./FreekickScene";
+import { NewGameButton } from "./NewGameButton";
 import { SoundControl } from "./SoundControl";
 import { STARTING_LIVES } from "./freekickEngine";
 import { loadFreekickHighScore } from "../storage";
@@ -59,6 +60,12 @@ function FreekickModal({
     },
   });
 
+  // Giving up a game reports nothing (no world mission, no ranking entry); only the ranking's run clock starts over.
+  const newGame = () => {
+    ranking.abandon();
+    handleNewRound();
+  };
+
   return (
     <Modal
       onClose={onClose}
@@ -103,6 +110,7 @@ function FreekickModal({
             label="효과음"
             wrapperClassName={`freekick-icon-toggle freekick-icon-toggle--sfx ${sfxOn ? "" : "freekick-icon-toggle--muted"}`}
           />
+          {state.phase !== "gameover" && <NewGameButton className="freekick-new-game" onNewGame={newGame} />}
           <FreekickScene stateRef={liveStateRef} onShoot={handleShoot} />
           {state.phase === "idle" && (
             <div className="freekick-hint">공을 드래그해서 슛하세요</div>

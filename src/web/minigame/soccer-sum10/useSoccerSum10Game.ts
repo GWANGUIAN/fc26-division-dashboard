@@ -99,7 +99,8 @@ export function useSoccerSum10Game({
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [state.phase]);
+    // roundId: a new game started mid-round keeps the phase "playing", so the phase alone would not restart this clock.
+  }, [state.phase, state.roundId]);
 
   useEffect(() => {
     if (state.highScore > 0) saveSoccerSum10HighScore(state.highScore);

@@ -1,5 +1,6 @@
 import { Music4, Volume2, VolumeX } from "lucide-react";
 import { Modal, useEscape } from "../../Modal.js";
+import { NewGameButton } from "../NewGameButton.js";
 import { SoundControl } from "../SoundControl.js";
 import { MinigameStage } from "../ranking/MinigameStage.js";
 import { RankingPanel } from "../ranking/RankingPanel.js";
@@ -20,6 +21,8 @@ export function GrassMergeModal({ onClose, onRoundEnd }: { onClose: () => void; 
   const ranking = useRanking("grass-merge", () => loadGrassMergeHighScore() || null);
   const { state, startGame, aim, release, advance } = useGrassMergeGame({ sfxOn, sfxVolume, onRoundEnd: (result) => { stopMusic(); onRoundEnd?.(result); ranking.report(result.score); } });
   const startRound = () => { startGame(); startMusic(); };
+  // Giving up a round reports nothing (no ranking entry); only the ranking's run clock starts over.
+  const newGame = () => { ranking.abandon(); startRound(); };
   const next = TIERS[state.engine.nextTier - 1];
   return (
     <Modal wide onClose={onClose} label="잔디 머지" header={<div><p className="eyebrow">MINIGAME</p><h2 className="grass-merge__title"><span className="grass-merge__title-icon"><img src={grassMergeAssetUrls.icon} alt="" /></span> 잔디 머지</h2><p className="grass-merge__intro">같은 잔디 아이템을 합쳐 황금 왕관 잔디구까지 진화시키세요.</p></div>}>
@@ -28,6 +31,7 @@ export function GrassMergeModal({ onClose, onRoundEnd }: { onClose: () => void; 
         <div className="grass-merge-hud"><span className="grass-merge-badge">점수 {state.engine.score}</span><span className="grass-merge-badge">최고 {state.highScore}</span><span className="grass-merge-next">다음 <i style={{ backgroundColor: next.color }}>{state.engine.nextTier}</i></span></div>
         <SoundControl enabled={musicOn} volume={musicVolume} onToggle={toggleMusic} onVolumeChange={changeMusicVolume} icon={<Music4 aria-hidden="true" />} label="배경음악" wrapperClassName={`grass-merge-icon-toggle ${musicOn ? "" : "grass-merge-icon-toggle--muted"}`} />
         <SoundControl enabled={sfxOn} volume={sfxVolume} onToggle={toggleSfx} onVolumeChange={changeSfxVolume} icon={sfxOn ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />} label="효과음" wrapperClassName={`grass-merge-icon-toggle ${sfxOn ? "" : "grass-merge-icon-toggle--muted"}`} />
+        <NewGameButton onNewGame={newGame} hidden={state.phase !== "playing"} />
       </div>
       <div className="grass-merge-play-area">
         <div className="grass-merge-board-wrap">{state.phase !== "ready" && <GrassMergeCanvas key={state.roundId} engine={state.engine} phase={state.phase} onAim={aim} onDrop={release} onAdvance={advance} />}

@@ -1,0 +1,5 @@
+.new-game-button { position: relative; z-index: 21; display: inline-flex; flex: 0 0 auto; align-items: center; gap: 5px; min-height: 32px; padding: 0 12px; border: 1px solid rgba(224, 255, 239, .3); border-radius: 999px; color: var(--text-primary); background: rgba(0, 23, 14, .58); backdrop-filter: blur(5px); font: 700 13px/1 "Noto Sans KR", sans-serif; white-space: nowrap; cursor: pointer; transition: border-color .2s, color .2s; }
+.new-game-button svg { width: 14px; height: 14px; }
+.new-game-button:hover, .new-game-button:focus-visible { border-color: #ffe278; color: #ffe278; outline: 0; }
+.new-game-button--hidden { visibility: hidden; pointer-events: none; }
+@media (max-width: 680px) { .new-game-button { padding: 0 9px; font-size: 12px; } }

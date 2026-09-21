@@ -200,6 +200,14 @@ export function useRanking(game: ScoreGameId, readLocalBest?: () => number | nul
     void refreshToken();
   };
 
+  /**
+   * A run was given up ("새 게임") before it ended: nothing is submitted, but the next run's clock starts now, so it
+   * needs its own token — the old one dates from before the abandoned run and would age past its lifetime.
+   */
+  const abandon = () => {
+    if (enabled) void refreshToken();
+  };
+
   const onSubmitPending = (name: string) => {
     if (!pending) return;
     const checked = checkNickname(name);
@@ -268,5 +276,5 @@ export function useRanking(game: ScoreGameId, readLocalBest?: () => number | nul
       void load(playerKeyRef.current);
     },
   };
-  return { panel, report };
+  return { panel, report, abandon };
 }

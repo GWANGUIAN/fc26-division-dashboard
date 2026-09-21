@@ -1,5 +1,6 @@
 import { Clock3, Music4, Volume2, VolumeX } from "lucide-react";
 import { Modal, useEscape } from "../../Modal.js";
+import { NewGameButton } from "../NewGameButton.js";
 import { SoundControl } from "../SoundControl.js";
 import { MinigameStage } from "../ranking/MinigameStage.js";
 import { RankingPanel } from "../ranking/RankingPanel.js";
@@ -38,6 +39,11 @@ export function SoccerSum10Modal({
     startMusic();
   };
   const ended = state.phase === "timeup" || state.phase === "cleared";
+  // Giving up a round reports nothing (no world mission, no ranking entry); only the ranking's run clock starts over.
+  const newGame = () => {
+    ranking.abandon();
+    startRound();
+  };
 
   return (
     <Modal
@@ -77,6 +83,7 @@ export function SoccerSum10Modal({
             label="효과음"
             wrapperClassName={`soccer-sum10-icon-toggle ${sfxOn ? "" : "soccer-sum10-icon-toggle--muted"}`}
           />
+          <NewGameButton onNewGame={newGame} hidden={state.phase !== "playing"} />
         </div>
         <div className="soccer-sum10-play-area">
 

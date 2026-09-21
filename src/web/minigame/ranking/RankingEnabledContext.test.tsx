@@ -65,4 +65,37 @@ describe("useRanking", () => {
     expect(fetchSpy).toHaveBeenCalled();
     vi.restoreAllMocks();
   });
+
+  describe("abandon (\"새 게임\" in the middle of a run)", () => {
+    const captureAbandon = (enabled: boolean) => {
+      let abandon: () => void = () => {};
+      function Probe() {
+        abandon = useRanking("kickups").abandon;
+        return null;
+      }
+      renderToStaticMarkup(
+        <RankingEnabledContext.Provider value={enabled}>
+          <Probe />
+        </RankingEnabledContext.Provider>,
+      );
+      return abandon;
+    };
+
+    it("sends nothing where the ranking is switched off (the world)", () => {
+      const fetchSpy = vi.fn(() => Promise.reject(new Error("offline")));
+      vi.stubGlobal("fetch", fetchSpy);
+      captureAbandon(false)();
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
+
+    it("asks only for a fresh run token, never submits a score, when the ranking is on", () => {
+      const fetchSpy = vi.fn((..._args: unknown[]) => Promise.reject(new Error("offline")));
+      vi.stubGlobal("fetch", fetchSpy);
+      captureAbandon(true)();
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+      const [url, init] = fetchSpy.mock.calls[0] as [string, { method?: string } | undefined];
+      expect(String(url)).toMatch(/\/api\/scores\/kickups\/start$/u);
+      expect(init?.method).toBe("POST");
+    });
+  });
 });
