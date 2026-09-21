@@ -1,8 +1,9 @@
 import { WORLD_ONAIR_SOOP_IDS } from "../../../shared/world-onair.js";
-import type { MapBuilding, MapProp, Rect, TileBox } from "../types";
+import type { MapBuilding, MapProp, Rect } from "../types";
 import type { WorldAssets } from "../worldAssets";
 import type { Camera } from "./camera";
 import { ON_AIR_RISE, ON_AIR_SIZE } from "./doorSigns";
+import { entranceX } from "./entrance";
 import { FONT, TILE } from "./render";
 import type { BuildingInstance } from "./scene";
 
@@ -32,26 +33,7 @@ export interface OnAirSign {
 
 const HOUSE_PREFIX = "house-";
 
-/** The prop lying at a house's entrance: an entrance mat placed by hand, by eye, on the middle of the door art. */
-const ENTRANCE_MAT = "mat-door";
-/** How far below the doorstep row and how far aside of the door tiles a mat may lie and still be that house's. */
-const MAT_REACH = 64;
-
-/**
- * The x of a house's entrance: the middle of its entrance mat. The mat is the value the map's author aligned to
- * the visible door by eye, so it is what the sign follows; the door tiles' middle is only the fallback (it is a
- * few px off for most houses, up to 21 px). Falls back too when the map gives the house no mat.
- */
-export function entranceX(door: TileBox, props: readonly MapProp[]): number {
-  const tileMiddle = (door[0] + door[2] / 2) * TILE;
-  const doorstep = (door[1] + 1) * TILE;
-  let nearest: MapProp | null = null;
-  for (const prop of props) {
-    if (prop.prop !== ENTRANCE_MAT || prop.y < doorstep || prop.y > doorstep + MAT_REACH || Math.abs(prop.x - tileMiddle) > MAT_REACH) continue;
-    if (!nearest || Math.abs(prop.x - tileMiddle) < Math.abs(nearest.x - tileMiddle)) nearest = prop;
-  }
-  return nearest ? nearest.x : tileMiddle;
-}
+export { entranceX };
 
 /** The part of the map data the signs are placed from. */
 export interface OnAirMapData {

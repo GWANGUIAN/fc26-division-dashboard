@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { OVERWORLD_MAP } from "../data/maps";
 import { PROP_DEFS } from "../data/propDefs";
 import { footBox, rectsOverlap } from "./collision";
+import { entranceX } from "./entrance";
 import { getScene, terrainCodeAt, tileCenter, zoneAtPoint, buildingFronts } from "./mapScene";
 import { buildStaticOrder, isVisible } from "./render";
 
@@ -135,5 +136,24 @@ describe("map data", () => {
   it("has door triggers for every building with a door", () => {
     const doors = OVERWORLD_MAP.buildings.filter((b) => b.door);
     expect(overworld.doors).toHaveLength(doors.length);
+  });
+
+  it("fires every building's door only while the character's feet are over its entrance mat", () => {
+    let shifted = 0;
+    for (const building of OVERWORLD_MAP.buildings) {
+      if (!building.door) continue;
+      const trigger = overworld.doors.find((door) => door.to.scene === `interior:${building.interior}`)!;
+      const mat = entranceX(building.door, OVERWORLD_MAP.props);
+      expect(trigger.rect.x + trigger.rect.w / 2, building.id).toBe(mat);
+      if (mat !== (building.door[0] + building.door[2] / 2) * 32) shifted++;
+      const feetY = trigger.rect.y + trigger.rect.h; // a foot box ending here reaches into the trigger
+      const halfMat = PROP_DEFS["mat-door"].content[0] / 2;
+      for (const dx of [0, -(halfMat - 1), halfMat - 1]) expect(rectsOverlap(footBox(mat + dx, feetY), trigger.rect), `${building.id} on the mat ${dx}`).toBe(true);
+      for (const dx of [-(halfMat + 1), halfMat + 1, -36, 36]) expect(rectsOverlap(footBox(mat + dx, feetY), trigger.rect), `${building.id} beside the mat ${dx}`).toBe(false);
+    }
+    // the door tiles had the factory wrong: its mat lies at 2224, the tiles' middle at 2208
+    expect(shifted).toBeGreaterThan(0);
+    const factory = overworld.doors.find((door) => door.to.scene === "interior:factory")!;
+    expect(factory.rect.x + factory.rect.w / 2).toBe(2224);
   });
 });

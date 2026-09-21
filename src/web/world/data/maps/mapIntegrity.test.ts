@@ -139,8 +139,8 @@ describe("doors", () => {
     expect(reachable(overworld, overworld.spawn).touches(storeDoor.rect)).toBe(true);
     const clubhouse = OVERWORLD_MAP.buildings.find((building) => building.id === "clubhouse")!;
     expect(clubhouse.door).toEqual([39, 12, 2, 2]);
-    // Overworld entrances trim their bottom 12px so walking along the facade does not trigger them.
-    expect(overworld.doors.find((door) => door.to.scene === "interior:clubhouse-lobby")?.rect).toMatchObject({ x: 39 * 32, y: 12 * 32, w: 2 * 32, h: 2 * 32 - 12 });
+    // Overworld entrances trim their bottom 12px so walking along the facade does not trigger them, and sit on the entrance mat (1282, 53 px wide, less the 20 px foot box), not on the door tiles.
+    expect(overworld.doors.find((door) => door.to.scene === "interior:clubhouse-lobby")?.rect).toMatchObject({ x: 1282 - 33 / 2, y: 12 * 32, w: 53 - 20, h: 2 * 32 - 12 });
     const lobby = INTERIOR_MAPS["clubhouse-lobby"];
     expect(lobby.triggers.find((trigger) => trigger.rect.join() === "1,4,1,2")?.to.scene).toBe("interior:clubhouse-trophy");
     expect(lobby.triggers.find((trigger) => trigger.rect.join() === "18,4,1,4")?.to.scene).toBe("interior:clubhouse-office");

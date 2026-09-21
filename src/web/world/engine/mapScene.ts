@@ -1,6 +1,8 @@
 import { INTERIOR_MAPS, OVERWORLD_MAP, hasScene, interiorIdOf } from "../data/maps";
 import { PROP_DEFS } from "../data/propDefs";
-import type { Facing, InteriorMapData, MapExamine, MapNpc, MapObject, MapSpectator, MapTrigger, OverworldMapData, PxBox, Rect, SceneId, TileBox, TileSpan } from "../types";
+import type { Facing, InteriorMapData, MapExamine, MapNpc, MapObject, MapProp, MapSpectator, MapTrigger, OverworldMapData, PxBox, Rect, SceneId, TileBox, TileSpan } from "../types";
+import { FOOT_W } from "./collision";
+import { entranceMatWidth, findEntranceMat } from "./entrance";
 import { indexColliders, type BuildingFront, type BuildingInstance, type DoorTrigger, type ExaminePoint, type NpcSpawn, type PropInstance, type SceneObject, type SceneZone, type SpectatorSpawn, type TerrainGrid, type WorldScene } from "./scene";
 
 export const TILE = 32;
@@ -50,13 +52,24 @@ export function buildingFronts(box: Rect, solids: readonly Rect[]): BuildingFron
 /** The bottom of an outdoor door rect is trimmed so walking along the building front never counts as entering. */
 const OUTDOOR_DOOR_TRIM = 12;
 
-function buildDoors(triggers: readonly MapTrigger[], outdoor: boolean): DoorTrigger[] {
+/**
+ * `props` (overworld only): the entrance trigger sits on the building's entrance mat, the hand-aligned truth of where the
+ * door is drawn, instead of on the door tiles (up to 21 px off, and 64 px wide against a ~53 px door). The trigger fires while
+ * the foot box overlaps it, so it is made `FOOT_W` narrower than the mat: it fires exactly while the character's feet
+ * (their middle) are over the mat, and not when the character stands beside it. A building without a mat keeps its tiles.
+ */
+function buildDoors(triggers: readonly MapTrigger[], outdoor: boolean, props?: readonly MapProp[]): DoorTrigger[] {
   return triggers
     .filter((trigger) => trigger.type === "door")
     .map((trigger) => {
       const at = tileCenter(trigger.to.tile[0], trigger.to.tile[1]);
       const rect = tileBox(trigger.rect);
       if (outdoor) rect.h -= OUTDOOR_DOOR_TRIM;
+      const mat = props && findEntranceMat(trigger.rect, props);
+      if (mat) {
+        rect.w = entranceMatWidth(mat) - FOOT_W;
+        rect.x = mat.x - rect.w / 2;
+      }
       return {
         rect,
         to: { scene: trigger.to.scene, x: at.x, y: at.y, facing: (trigger.to.facing ?? "up") as Facing },
@@ -175,7 +188,7 @@ export function buildOverworldScene(data: OverworldMapData): WorldScene {
     props,
     buildings,
     npcSpawns: buildNpcs(data.npcs),
-    doors: buildDoors(data.triggers, true),
+    doors: buildDoors(data.triggers, true, data.props),
     examine: buildExamine(data.examine),
     objects: buildObjects(data.objects),
     spectators: [],

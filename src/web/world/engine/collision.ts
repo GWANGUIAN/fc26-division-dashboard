@@ -20,8 +20,12 @@ export function crossesMidline(prev: { x: number; y: number }, cur: { x: number;
   return x >= rect.x && x <= rect.x + rect.w;
 }
 
+/** Size of the character's collision box. */
+export const FOOT_W = 20;
+export const FOOT_H = 10;
+
 /** The character's collision box: `w`×`h` centred on the feet position, ending at the feet. */
-export function footBox(x: number, y: number, w = 20, h = 10): Rect {
+export function footBox(x: number, y: number, w = FOOT_W, h = FOOT_H): Rect {
   return { x: x - w / 2, y: y - h, w, h };
 }
 
