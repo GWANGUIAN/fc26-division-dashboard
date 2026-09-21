@@ -44,4 +44,8 @@ describe("resolveEscape outside the world", () => {
   it("closes the world from the title and the loading screens", () => {
     for (const phase of ["boot", "title", "core"] as const) expect(resolveEscape({ phase, dialogueOpen: false, coachActive: false })).toBe("close-world");
   });
+
+  it("steps back from the title's settings page before closing the world", () => {
+    expect(resolveEscape({ phase: "title", dialogueOpen: false, coachActive: false, titleSettingsOpen: true })).toBe("close-title-settings");
+  });
 });

@@ -4,6 +4,7 @@ import type { PauseView } from "../state/escape";
 import type { WorldSettings } from "../types";
 import { getWorldAssetUrl } from "../worldAssets";
 import { buttonProps } from "./buttonProps";
+import { stepVolume } from "./stepVolume";
 import { CONFIRM_CODES, DOWN_CODES, LEFT_CODES, RIGHT_CODES, UP_CODES, useWorldKeys } from "./useWorldKeys";
 import { WorldCredits } from "./WorldCredits";
 
@@ -26,16 +27,6 @@ interface Item {
   icon?: string;
   run: () => void;
 }
-
-const VOLUME_STEP = 5;
-/** Volume moves by 1 up to 10 (0..10) and by 5 above it (10, 15, 20 ... 100), so quiet levels stay fine-grained. */
-const FINE_VOLUME_MAX = 10;
-const stepVolume = (value: number, direction: -1 | 1) => {
-  const next = direction > 0
-    ? value < FINE_VOLUME_MAX ? value + 1 : (Math.floor(value / VOLUME_STEP) + 1) * VOLUME_STEP
-    : value <= FINE_VOLUME_MAX ? value - 1 : (Math.ceil(value / VOLUME_STEP) - 1) * VOLUME_STEP;
-  return Math.min(100, Math.max(0, next));
-};
 
 /**
  * Pause menu (Esc when nothing else is open, docs/world/06 §8): resume, mission log, settings (music and

@@ -1,11 +1,18 @@
 import { useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent } from "react";
 import type { WorldAudioLike } from "../audio/worldAudio";
+import type { WorldSettings } from "../types";
 import { getWorldAssetUrl } from "../worldAssets";
+import { stepVolume } from "./stepVolume";
 
 interface TitleScreenProps {
   hasSave: boolean;
   ended?: boolean;
   audio: WorldAudioLike;
+  settings: WorldSettings;
+  onSettings: (settings: WorldSettings) => void;
+  /** The settings page is showing instead of the main menu (lifted so Esc can step back, `state/escape.ts`). */
+  settingsOpen: boolean;
+  onSettingsOpen: (open: boolean) => void;
   onContinue: () => void;
   onNew: () => void;
   onExit: () => void;
@@ -63,7 +70,53 @@ function TitleRow({ label, index, cursor, danger, autoFocus, onClick, onBlur, on
   );
 }
 
-export function TitleScreen({ hasSave, ended, audio, onContinue, onNew, onExit, debug }: TitleScreenProps) {
+type VolumeKey = "bgmVolume" | "sfxVolume";
+
+interface VolumeRowProps {
+  label: string;
+  value: number;
+  volumeKey: VolumeKey;
+  index: number;
+  cursor: string | undefined;
+  onStep: (key: VolumeKey, direction: -1 | 1) => void;
+  onHover: (event: MouseEvent<HTMLButtonElement>) => void;
+}
+
+/** A volume row: the label with `◀ value ▶` beside it. Left/right keys (handled by the menu) and clicks on the arrows both step it. */
+function VolumeRow({ label, value, volumeKey, index, cursor, onStep, onHover }: VolumeRowProps) {
+  const arrow = (direction: -1 | 1) => (
+    <span
+      className="world-title__arrow"
+      aria-hidden="true"
+      onClick={(event) => {
+        event.stopPropagation();
+        onStep(volumeKey, direction);
+      }}
+    >
+      {direction < 0 ? "◀" : "▶"}
+    </span>
+  );
+  return (
+    <button
+      type="button"
+      className="world-title__row world-title__row--volume"
+      style={{ "--i": index } as CSSProperties}
+      data-volume={volumeKey}
+      aria-label={`${label} ${value}`}
+      onMouseEnter={onHover}
+    >
+      {cursor ? <img className="world-title__cursor" src={cursor} alt="" draggable={false} /> : <span className="world-title__cursor world-title__cursor--glyph" aria-hidden="true">▶</span>}
+      <span className="world-title__row-label">{label}</span>
+      <span className="world-title__volume">
+        {arrow(-1)}
+        <span className="world-title__value">{value}</span>
+        {arrow(1)}
+      </span>
+    </button>
+  );
+}
+
+export function TitleScreen({ hasSave, ended, audio, settings, onSettings, settingsOpen, onSettingsOpen, onContinue, onNew, onExit, debug }: TitleScreenProps) {
   const art = getWorldAssetUrl("ui/title-bg");
   const emblem = getWorldAssetUrl("ui/logo-emblem");
   // Every piece of art below is optional: without it plain CSS draws that piece (docs/world/16-title-menu-redesign.md).
@@ -87,7 +140,22 @@ export function TitleScreen({ hasSave, ended, audio, onContinue, onNew, onExit, 
   // "새로 시작" wipes the save, so with an existing save it asks once more before doing it.
   const [confirmNew, setConfirmNew] = useState(false);
 
+  // Coming back from the settings page, the cursor lands on "설정" again instead of the first row.
+  const cameFromSettings = useRef(false);
+
+  function stepSetting(key: VolumeKey, direction: -1 | 1) {
+    onSettings({ ...settings, [key]: stepVolume(settings[key], direction) });
+    audio.playSfx("ui-move");
+  }
+
   function moveFocus(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+      const key = (event.target as HTMLElement).closest<HTMLElement>("[data-volume]")?.dataset.volume as VolumeKey | undefined;
+      if (!key) return;
+      event.preventDefault();
+      stepSetting(key, event.key === "ArrowLeft" ? -1 : 1);
+      return;
+    }
     if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
     const buttons = [...(listRef.current?.querySelectorAll<HTMLButtonElement>("button") ?? [])];
     const index = buttons.indexOf(document.activeElement as HTMLButtonElement);
@@ -122,6 +190,22 @@ export function TitleScreen({ hasSave, ended, audio, onContinue, onNew, onExit, 
     onExit();
   }
 
+  function handleSettings() {
+    audio.playSfx("ui-select");
+    cameFromSettings.current = true;
+    onSettingsOpen(true);
+  }
+
+  function handleBack() {
+    audio.playSfx("ui-cancel");
+    onSettingsOpen(false);
+  }
+
+  function toggleSetting(key: "bgm" | "sfx") {
+    onSettings({ ...settings, [key]: !settings[key] });
+    audio.playSfx("ui-select");
+  }
+
   const menuStyle =
     rowNormal && rowSelected ? ({ "--row": `url(${rowNormal})`, "--row-on": `url(${rowSelected})`, "--row-down": `url(${rowPressed})` } as CSSProperties) : undefined;
   const windowFrame = windowKit ?? frame;
@@ -132,14 +216,25 @@ export function TitleScreen({ hasSave, ended, audio, onContinue, onNew, onExit, 
     ...(firefly ? { "--fx-firefly": `url(${firefly})` } : null),
     ...(leaf ? { "--fx-leaf": `url(${leaf})` } : null),
   } as CSSProperties;
-  const rows: Array<Omit<TitleRowProps, "index" | "cursor" | "onHover">> = [
-    ...(hasSave ? [{ label: "이어하기", onClick: handleContinue, autoFocus: true }] : []),
-    { label: confirmNew ? "저장이 지워져요. 정말?" : "새로 시작", onClick: handleNew, onBlur: () => setConfirmNew(false), autoFocus: !hasSave, danger: confirmNew },
-    { label: "나가기", onClick: handleExit },
+  const returning = cameFromSettings.current;
+  type MenuRow = { id: string; volume?: { key: VolumeKey; value: number } } & Omit<TitleRowProps, "index" | "cursor" | "onHover">;
+  const mainRows: MenuRow[] = [
+    ...(hasSave ? [{ id: "continue", label: "이어하기", onClick: handleContinue, autoFocus: !returning }] : []),
+    { id: "new", label: confirmNew ? "저장이 지워져요. 정말?" : "새로 시작", onClick: handleNew, onBlur: () => setConfirmNew(false), autoFocus: !hasSave && !returning, danger: confirmNew },
+    { id: "settings", label: "설정", onClick: handleSettings, autoFocus: returning },
+    { id: "exit", label: "나가기", onClick: handleExit },
   ];
+  const settingsRows: MenuRow[] = [
+    { id: "bgm", label: `배경음악 ${settings.bgm ? "켜짐" : "꺼짐"}`, onClick: () => toggleSetting("bgm"), autoFocus: true },
+    { id: "bgmVolume", label: "음악 볼륨", onClick: () => {}, volume: { key: "bgmVolume", value: settings.bgmVolume } },
+    { id: "sfx", label: `효과음 ${settings.sfx ? "켜짐" : "꺼짐"}`, onClick: () => toggleSetting("sfx") },
+    { id: "sfxVolume", label: "효과음 볼륨", onClick: () => {}, volume: { key: "sfxVolume", value: settings.sfxVolume } },
+    { id: "back", label: "뒤로", onClick: handleBack },
+  ];
+  const rows = settingsOpen ? settingsRows : mainRows;
 
   return (
-    <div className={`world-title${ended ? " world-title--restored" : ""}${sparkle ? " world-title--spark-art" : ""}${firefly ? " world-title--firefly-art" : ""}`} style={rootStyle}>
+    <div className={`world-title${ended ? " world-title--restored" : ""}${settingsOpen ? " world-title--settings" : ""}${sparkle ? " world-title--spark-art" : ""}${firefly ? " world-title--firefly-art" : ""}`} style={rootStyle}>
       <div className="world-title__fx" aria-hidden="true">
         {leaf &&
           LEAVES.map((item, index) => (
@@ -170,13 +265,18 @@ export function TitleScreen({ hasSave, ended, audio, onContinue, onNew, onExit, 
         {divider && <img className="world-title__divider" src={divider} alt="" draggable={false} />}
         <div className={`world-title__window${windowFrame ? " world-title__window--art" : ""}${windowKit ? " world-title__window--kit" : ""}`} style={windowStyle}>
           <div className={`world-title__menu${menuStyle ? " world-title__menu--art" : ""}${kit ? " world-title__menu--kit" : ""}`} style={menuStyle} ref={listRef} onKeyDown={moveFocus}>
-            {rows.map((row, index) => (
-              <TitleRow key={index} {...row} index={index} cursor={cursor} onHover={hover} />
-            ))}
+            {rows.map(({ id, volume, ...row }, index) =>
+              volume ? (
+                <VolumeRow key={`settings-${id}`} label={row.label} value={volume.value} volumeKey={volume.key} index={index} cursor={cursor} onStep={stepSetting} onHover={hover} />
+              ) : (
+                <TitleRow key={`${settingsOpen ? "settings" : "main"}-${id}`} {...row} index={index} cursor={cursor} onHover={hover} />
+              ),
+            )}
           </div>
         </div>
         <p className="world-title__hint">
-          <kbd className="world-key">↑↓</kbd> 선택 <kbd className="world-key">Enter</kbd> 확인 <kbd className="world-key">Esc</kbd> 나가기
+          <kbd className="world-key">↑↓</kbd> 선택 {settingsOpen && <><kbd className="world-key">←→</kbd> 볼륨 </>}
+          <kbd className="world-key">Enter</kbd> 확인 <kbd className="world-key">Esc</kbd> {settingsOpen ? "뒤로" : "나가기"}
         </p>
         {debug && <p className="world-title__debug">worldDebug · 새로 시작하면 캐릭터 선택 → 프롤로그 → 집에서 시작</p>}
       </div>

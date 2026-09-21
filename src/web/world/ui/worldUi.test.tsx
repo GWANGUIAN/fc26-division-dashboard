@@ -32,12 +32,24 @@ function midGame() {
 }
 
 describe("TitleScreen", () => {
-  const title = (hasSave: boolean) => renderToString(<TitleScreen hasSave={hasSave} audio={SILENT_AUDIO} onContinue={noop} onNew={noop} onExit={noop} debug={false} />);
+  const title = (hasSave: boolean, settingsOpen = false) =>
+    renderToString(
+      <TitleScreen hasSave={hasSave} audio={SILENT_AUDIO} settings={DEFAULT_WORLD_SETTINGS} onSettings={noop} settingsOpen={settingsOpen} onSettingsOpen={noop} onContinue={noop} onNew={noop} onExit={noop} debug={false} />,
+    );
 
-  it("offers continue, new game and exit when there is a save", () => {
+  it("offers continue, new game, settings and exit when there is a save", () => {
     const html = title(true);
-    for (const label of ["이어하기", "새로 시작", "나가기"]) expect(html).toContain(label);
+    for (const label of ["이어하기", "새로 시작", "설정", "나가기"]) expect(html).toContain(label);
     expect(html).toContain("world-title__row");
+    expect(html).not.toContain("음악 볼륨");
+  });
+
+  it("shows the music and sound-effect controls on the settings page", () => {
+    const html = title(true, true);
+    for (const label of ["배경음악 켜짐", "음악 볼륨", "효과음 켜짐", "효과음 볼륨", "뒤로"]) expect(html).toContain(label);
+    expect(html).toContain(`${DEFAULT_WORLD_SETTINGS.bgmVolume}`);
+    expect(html).not.toContain("나가기");
+    expect(html).not.toContain("이어하기");
   });
 
   it("leaves out continue without a save and shows the key hints", () => {

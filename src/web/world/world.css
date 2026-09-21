@@ -356,6 +356,15 @@
 .world-title__row.is-danger:focus { color: #ffd0c8; text-shadow: 0 1px 0 #0b1614; }
 .world-title__row.is-danger::before { border-color: #ff7a6b; filter: hue-rotate(-150deg) saturate(1.2); }
 .world-title__row.is-danger .world-title__cursor { display: none; }
+/* Settings page: five rows, so the emblem steps aside to keep the stack inside the 360px stage. */
+.world-title--settings .world-title__crest { display: none; }
+/* Volume row: label on the left, `◀ value ▶` on the right; the left 42px stay free for the ball cursor. */
+.world-title__row--volume { justify-content: space-between; padding: 0 18px 0 42px; font-size: 11px; letter-spacing: 0; }
+.world-title__volume { position: relative; display: flex; align-items: center; gap: 2px; }
+.world-title__arrow { display: grid; width: 14px; height: 20px; place-items: center; color: #ffd54a; font-size: 9px; letter-spacing: 0; cursor: pointer; }
+.world-title__arrow:hover { color: #fff1b5; filter: brightness(1.25); }
+.world-title__value { min-width: 22px; color: #e8fff6; text-align: center; }
+.world-title__row:focus .world-title__value { color: #fff1b5; }
 
 .world-title__hint { margin: 2px 0 0; color: #b8ffe8; font-size: 10px; text-shadow: 0 1px 0 #0b1614; }
 .world-title__hint .world-key { margin: 0 1px; }

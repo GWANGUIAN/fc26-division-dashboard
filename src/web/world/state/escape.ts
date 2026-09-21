@@ -2,6 +2,7 @@
 //   group photo → ending cards (the credits skip to the stinger, the stinger skips to the world, the bloom banner ignores it) → minigame / card modal → pause menu
 //   (a sub-page goes back to the menu first) → mission log → dialogue → coach marks (skip the guide) → otherwise
 //   Esc opens the pause menu. Leaving the world is a menu item (or the X button); Esc alone never closes it while playing.
+//   On the title screen Esc closes the world, except on its settings page, where it goes back to the main menu first.
 
 export type OverlayPhase = "boot" | "title" | "select" | "prologue" | "core" | "play";
 
@@ -24,6 +25,7 @@ export type EscapeAction =
   | "skip-coach"
   | "open-pause"
   | "back-to-title"
+  | "close-title-settings"
   | "skip-prologue"
   | "close-world";
 
@@ -40,9 +42,11 @@ export interface EscapeContext {
   photoOpen?: boolean;
   /** Where the ending cut is (null = not running). */
   ending?: EndingStage | null;
+  /** The title screen is on its settings page. */
+  titleSettingsOpen?: boolean;
 }
 
-export function resolveEscape({ phase, dialogueOpen, coachActive, modalOpen = false, pauseView = "closed", logOpen = false, photoOpen = false, ending = null }: EscapeContext): EscapeAction {
+export function resolveEscape({ phase, dialogueOpen, coachActive, modalOpen = false, pauseView = "closed", logOpen = false, photoOpen = false, ending = null, titleSettingsOpen = false }: EscapeContext): EscapeAction {
   if (phase === "play") {
     if (photoOpen) return "close-photo";
     if (ending === "credits") return "skip-credits";
@@ -56,6 +60,7 @@ export function resolveEscape({ phase, dialogueOpen, coachActive, modalOpen = fa
     if (coachActive) return "skip-coach";
     return "open-pause";
   }
+  if (phase === "title" && titleSettingsOpen) return "close-title-settings";
   if (phase === "select") return "back-to-title";
   if (phase === "prologue") return "skip-prologue";
   return "close-world";

@@ -158,6 +158,7 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
   const rootRef = useRef<HTMLDivElement>(null);
   const layout = useStageLayout();
   const [phase, setPhase] = useState<OverlayPhase>("boot");
+  const [titleSettingsOpen, setTitleSettingsOpen] = useState(false);
   const [progress, setProgress] = useState(0);
   const [session, setSession] = useState<Session | null>(null);
   const [pendingPlayer, setPendingPlayer] = useState<CastId | null>(null);
@@ -770,7 +771,7 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
   const coachActive = phase === "play" && coachStep < COACH_DONE;
   const escapeRef = useRef<() => void>(() => {});
   escapeRef.current = () => {
-    switch (resolveEscape({ phase, dialogueOpen: dialogue !== null, coachActive, modalOpen: modal !== null, pauseView, logOpen, photoOpen, ending })) {
+    switch (resolveEscape({ phase, dialogueOpen: dialogue !== null, coachActive, modalOpen: modal !== null, pauseView, logOpen, photoOpen, ending, titleSettingsOpen })) {
       case "ignore":
         break;
       case "close-photo":
@@ -813,6 +814,10 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
       case "back-to-title":
         setPhase("title");
         break;
+      case "close-title-settings":
+        audio.playSfx("ui-cancel");
+        setTitleSettingsOpen(false);
+        break;
       case "skip-prologue":
         finishPrologue();
         break;
@@ -850,7 +855,19 @@ export default function WorldOverlay({ onClose, dashboard }: { onClose: () => vo
       >
         {(phase === "boot" || phase === "core") && <LoadingScreen progress={progress} />}
         {phase === "title" && (
-          <TitleScreen ended={Boolean(savedGame?.flags["ending-seen"])} hasSave={savedGame !== null} audio={audio} onContinue={startContinue} onNew={startNew} onExit={onClose} debug={debug} />
+          <TitleScreen
+            ended={Boolean(savedGame?.flags["ending-seen"])}
+            hasSave={savedGame !== null}
+            audio={audio}
+            settings={settings}
+            onSettings={changeSettings}
+            settingsOpen={titleSettingsOpen}
+            onSettingsOpen={setTitleSettingsOpen}
+            onContinue={startContinue}
+            onNew={startNew}
+            onExit={onClose}
+            debug={debug}
+          />
         )}
         {phase === "select" && <CharacterSelect audio={audio} onConfirm={confirmCharacter} onBack={() => setPhase("title")} />}
         {phase === "prologue" && pendingPlayer && (
