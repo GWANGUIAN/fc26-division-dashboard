@@ -385,7 +385,11 @@ rhythmic tap while the heel remains in place. From 3 to 5.5 seconds, the toe
 returns exactly to the initial position. At 4 seconds, both eyelids close once
 and reopen to the same calm gaze. Hands, torso, boot laces, lockers, towels,
 and all background objects remain in the initial pose. From 5.5 to 8 seconds,
-hold the initial pose. Silent video, no generated audio.
+hold the initial pose. The bottom area is only the original dark locker-room
+floor and lighting; it remains completely empty and unchanged. Do not generate
+or reveal any video-player controls, progress bar, timeline, play or pause
+icon, scrubber, captions, text, border, frame, watermark, interface overlay,
+or fade-in/fade-out graphic at any time. Silent video, no generated audio.
 ~~~
 
 ### 핑구 / CB — 새벽 계단의 수비 집중

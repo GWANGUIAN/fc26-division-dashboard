@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  ChevronLeft,
-  ChevronRight,
+  ChevronFirst,
+  ChevronLast,
   ListMusic,
   Maximize,
   Minimize,
@@ -15,12 +15,20 @@ import {
 } from "lucide-react";
 import { coverLoopTracks, type CoverLoopTrack } from "./coverLoopLabData";
 import { CoverLoopLyricTimingTool } from "./CoverLoopLyricTimingTool";
+import {
+  loadCoverLoopLastPlayback,
+  loadCoverLoopRepeatMode,
+  loadCoverLoopVolume,
+  saveCoverLoopLastPlayback,
+  saveCoverLoopRepeatMode,
+  saveCoverLoopVolume,
+} from "./coverLoopLabStorage";
 import "./cover-loop-lab.css";
 
 type YouTubePlayer = {
   playVideo(): void;
   pauseVideo(): void;
-  loadVideoById(videoId: string): void;
+  loadVideoById(videoId: string, startSeconds?: number): void;
   seekTo(seconds: number, allowSeekAhead: boolean): void;
   getCurrentTime(): number;
   getDuration(): number;
@@ -144,18 +152,28 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
   const frameRef = useRef<HTMLDivElement>(null);
   const sceneVideoRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<YouTubePlayer | undefined>(undefined);
-  const [selectedTrackId, setSelectedTrackId] = useState(initialTrack.id);
+  // 재생목록을 닫았다가 다시 열었을 때 마지막으로 듣던 곡으로 복귀하기 위한 초기값. 저장된
+  // 곡이 이제는 목록에 없으면(가사/에셋을 뺐거나 한 경우) 원래 initialTrack으로 되돌아간다.
+  const [selectedTrackId, setSelectedTrackId] = useState(() => {
+    const saved = loadCoverLoopLastPlayback();
+    if (saved && coverLoopTracks.some((item) => item.id === saved.trackId)) return saved.trackId;
+    return initialTrack.id;
+  });
   const [playlistOpen, setPlaylistOpen] = useState(false);
   const playlistRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(80);
+  const [volume, setVolume] = useState(() => loadCoverLoopVolume());
   const [muted, setMuted] = useState(false);
   const reducedMotion = useReducedMotion();
   const { isFullscreen, toggle: toggleFullscreen, supported: fullscreenSupported } = useFullscreen();
-  const [repeatMode, setRepeatMode] = useState<"off" | "all" | "one">("all");
+  const [repeatMode, setRepeatMode] = useState<"off" | "all" | "one">(() => loadCoverLoopRepeatMode());
+
+  useEffect(() => {
+    saveCoverLoopRepeatMode(repeatMode);
+  }, [repeatMode]);
 
   const activeIndex = Math.max(0, coverLoopTracks.findIndex((item) => item.id === selectedTrackId));
   const track = coverLoopTracks[activeIndex] ?? initialTrack;
@@ -167,6 +185,33 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
   repeatModeRef.current = repeatMode;
   const activeIndexRef = useRef(activeIndex);
   activeIndexRef.current = activeIndex;
+  // 마지막 재생 위치 저장용 — 인터벌/언마운트 콜백에서 최신 값을 읽기 위해 매 렌더마다 갱신한다
+  // (playerRef는 언마운트 시점에 이미 destroy돼 있을 수 있어 getCurrentTime()을 못 믿는다).
+  const latestCurrentTimeRef = useRef(currentTime);
+  latestCurrentTimeRef.current = currentTime;
+
+  // 재생 중엔 3초마다, 일시정지로 전환되는 순간엔 즉시, 컴포넌트가 사라질 때(팝업을 닫을 때)도
+  // 한 번 더 저장해 "마지막으로 재생한 곡 + 위치"가 항상 최신으로 남게 한다.
+  useEffect(() => {
+    if (!isPlaying) return;
+    const interval = window.setInterval(() => {
+      saveCoverLoopLastPlayback(track.id, latestCurrentTimeRef.current);
+    }, 3000);
+    return () => window.clearInterval(interval);
+  }, [isPlaying, track.id]);
+
+  useEffect(() => {
+    if (!ready || isPlaying) return;
+    saveCoverLoopLastPlayback(track.id, latestCurrentTimeRef.current);
+  }, [isPlaying, ready, track.id]);
+
+  const latestTrackIdRef = useRef(track.id);
+  latestTrackIdRef.current = track.id;
+  useEffect(() => {
+    return () => {
+      saveCoverLoopLastPlayback(latestTrackIdRef.current, latestCurrentTimeRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -174,12 +219,23 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
       const youtubeWindow = window as YouTubeWindow;
       if (cancelled || !frameRef.current || !youtubeWindow.YT) return;
       playerRef.current = new youtubeWindow.YT.Player(frameRef.current, {
-        videoId: initialTrack.media.videoId,
-        playerVars: { rel: 0, playsinline: 1, modestbranding: 1 },
+        videoId: track.media.videoId,
+        playerVars: {
+          rel: 0,
+          playsinline: 1,
+          modestbranding: 1,
+          ...(track.media.startSeconds ? { start: track.media.startSeconds } : {}),
+        },
         events: {
           onReady: () => {
             playerRef.current?.setVolume(volume);
             setDuration(playerRef.current?.getDuration() ?? 0);
+            // 재생목록에 다시 들어왔을 때 마지막으로 듣던 위치로 되돌리되, 일시정지 상태를
+            // 유지한다(자동재생하지 않음) — 저장된 곡이 지금 로드된 곡과 다르면 무시한다.
+            const saved = loadCoverLoopLastPlayback();
+            const restoreSeconds = saved && saved.trackId === track.id ? saved.seconds : track.media.startSeconds ?? 0;
+            if (restoreSeconds > 0) playerRef.current?.seekTo(restoreSeconds, true);
+            setCurrentTime(restoreSeconds);
             setReady(true);
           },
           onStateChange: (event: { data: number }) => {
@@ -190,7 +246,8 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
               setIsPlaying(false);
               const mode = repeatModeRef.current;
               if (mode === "one") {
-                playerRef.current?.seekTo(0, true);
+                const repeatingTrack = coverLoopTracks[activeIndexRef.current];
+                playerRef.current?.seekTo(repeatingTrack?.media.startSeconds ?? 0, true);
                 playerRef.current?.playVideo();
               } else if (mode === "all" && coverLoopTracks.length > 0) {
                 const nextIndex = (activeIndexRef.current + 1) % coverLoopTracks.length;
@@ -214,11 +271,12 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
   const previousTrackIdRef = useRef(selectedTrackId);
   useEffect(() => {
     if (previousTrackIdRef.current === selectedTrackId) return;
+    saveCoverLoopLastPlayback(previousTrackIdRef.current, latestCurrentTimeRef.current);
     previousTrackIdRef.current = selectedTrackId;
     setCurrentTime(0);
     setDuration(0);
-    playerRef.current?.loadVideoById(track.media.videoId);
-  }, [selectedTrackId, track.media.videoId]);
+    playerRef.current?.loadVideoById(track.media.videoId, track.media.startSeconds ?? 0);
+  }, [selectedTrackId, track.media.videoId, track.media.startSeconds]);
 
   // 팝오버 바깥 클릭 또는 Escape로 닫는다.
   useEffect(() => {
@@ -269,6 +327,7 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
 
   const updateVolume = (nextVolume: number) => {
     setVolume(nextVolume);
+    saveCoverLoopVolume(nextVolume);
     playerRef.current?.setVolume(nextVolume);
     if (nextVolume === 0) {
       playerRef.current?.mute();
@@ -312,8 +371,18 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
 
   // 곡이 하치 하나뿐이던 때만 비활성화했던 이전/다음 버튼 — 이제 2곡 이상이면 순환 이동한다.
   const canSkip = coverLoopTracks.length > 1;
+  // 일반적인 뮤직 플레이어처럼: 어느 정도 재생이 진행된 뒤(3초 초과) "이전" 버튼을 누르면
+  // 이전 곡으로 넘어가지 않고 지금 곡을 처음부터 다시 재생한다. 곡 시작 부근에서 누르면
+  // 그제서야 실제로 이전 곡으로 이동한다.
+  const PREV_RESTART_THRESHOLD_SECONDS = 3;
   const goToPrevTrack = () => {
     if (!canSkip) return;
+    const trackStart = track.media.startSeconds ?? 0;
+    if (ready && currentTime - trackStart > PREV_RESTART_THRESHOLD_SECONDS) {
+      playerRef.current?.seekTo(trackStart, true);
+      setCurrentTime(trackStart);
+      return;
+    }
     const prevIndex = (activeIndex - 1 + coverLoopTracks.length) % coverLoopTracks.length;
     setSelectedTrackId(coverLoopTracks[prevIndex].id);
   };
@@ -333,6 +402,11 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
     (cue) => currentTime >= cue.startSeconds && currentTime < cue.endSeconds,
   );
   const activeLyric = activeLyricIndex >= 0 ? track.lyrics[activeLyricIndex] : undefined;
+  // 가사 타이밍은 유튜브 원본 재생 시각(currentTime) 그대로 매칭하되, 화면에 보이는 재생
+  // 시간·전체 길이·플레이바는 media.startSeconds만큼 당겨서 "0초부터 재생된" 것처럼 보여준다.
+  const trackStartOffset = track.media.startSeconds ?? 0;
+  const displayCurrentTime = Math.max(0, currentTime - trackStartOffset);
+  const displayDuration = Math.max(0, duration - trackStartOffset);
   const nextLyric = activeLyricIndex >= 0 ? track.lyrics[activeLyricIndex + 1] : undefined;
   const visibleVolume = muted ? 0 : volume;
   const showLoopVideo = !!track.loopVideo && !reducedMotion;
@@ -466,7 +540,7 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
           </div>
           <div className="cover-loop-lab__controls">
             <button type="button" className="cover-loop-lab__skip" onClick={goToPrevTrack} disabled={!canSkip} aria-label="이전 곡">
-              <ChevronLeft aria-hidden="true" />
+              <ChevronFirst aria-hidden="true" />
             </button>
             <button
               type="button"
@@ -478,7 +552,7 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
               {isPlaying ? <Pause aria-hidden="true" /> : <Play aria-hidden="true" />}
             </button>
             <button type="button" className="cover-loop-lab__skip" onClick={goToNextTrack} disabled={!canSkip} aria-label="다음 곡">
-              <ChevronRight aria-hidden="true" />
+              <ChevronLast aria-hidden="true" />
             </button>
             <div className="cover-loop-lab__volume-group">
               <button
@@ -500,6 +574,7 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
                 onChange={(event) => updateVolume(Number(event.target.value))}
                 disabled={!ready}
                 aria-label="볼륨"
+                style={{ "--cover-loop-volume": `${visibleVolume}%` } as React.CSSProperties}
               />
             </div>
             {/* 볼륨 버튼과 같은 줄에 표시. 가사가 없어도 폭을 그대로 차지해 시간/전체화면이
@@ -519,7 +594,7 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
               )}
             </div>
             <time>
-              {formatTime(currentTime)} / {formatTime(duration)}
+              {formatTime(displayCurrentTime)} / {formatTime(displayDuration)}
             </time>
             {fullscreenSupported && (
               <button
@@ -537,17 +612,20 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
             className="cover-loop-lab__progress"
             type="range"
             min="0"
-            max={Math.max(duration, 1)}
+            max={Math.max(displayDuration, 1)}
             step="0.1"
-            value={Math.min(currentTime, Math.max(duration, 1))}
+            value={Math.min(displayCurrentTime, Math.max(displayDuration, 1))}
             onChange={(event) => {
-              const seconds = Number(event.target.value);
+              const displaySeconds = Number(event.target.value);
+              const seconds = displaySeconds + trackStartOffset;
               playerRef.current?.seekTo(seconds, true);
               setCurrentTime(seconds);
             }}
             disabled={!ready || duration === 0}
             aria-label="재생 위치"
-            style={{ "--cover-loop-progress": `${duration ? (currentTime / duration) * 100 : 0}%` } as React.CSSProperties}
+            style={
+              { "--cover-loop-progress": `${displayDuration ? (displayCurrentTime / displayDuration) * 100 : 0}%` } as React.CSSProperties
+            }
           />
           </section>
         </div>

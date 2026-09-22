@@ -30,6 +30,8 @@ export type LyricCue = {
 export type CoverLoopMedia = {
   type: "youtube";
   videoId: string;
+  /** 유튜브 영상 인트로를 건너뛰고 항상 이 시각부터 재생을 시작하고 싶을 때만 지정. */
+  startSeconds?: number;
 };
 
 export type CoverLoopTrack = {
@@ -257,9 +259,128 @@ export const hangyeolCoverLoopTrack: CoverLoopTrack = {
   lyrics: hangyeolLyrics,
 };
 
-// 나머지 8명은 이번 세션에서 구현하지 않는다 — 에셋/가사가 준비되면 이 배열에 추가한다.
+// 개발 전용 가사 타이밍 도구(CoverLoopLyricTimingTool)로 직접 찍어 확정한 구간(2026-09-22).
+// 실제 재생 시각을 그대로 탭한 값이라 별도 오프셋 없이 그대로 쓴다. 1:17.63~1:46.07,
+// 2:40.79~3:16.43 구간은 간주곡이라 가사 Cue가 없다.
+const linyaLyrics: readonly LyricCue[] = [
+  { startSeconds: 10.14, endSeconds: 12.84, text: "아련히 피워낸 열" },
+  { startSeconds: 12.84, endSeconds: 15.9, text: "눈부신 다짐도" },
+  { startSeconds: 15.9, endSeconds: 20.76, text: "꽃이 지듯 시들어가겠지" },
+  { startSeconds: 20.76, endSeconds: 22.92, text: "아름답단 말처럼" },
+  { startSeconds: 22.92, endSeconds: 25.98, text: "내 모습 이대로" },
+  { startSeconds: 25.98, endSeconds: 28.14, text: "심어둔 우리를" },
+  { startSeconds: 28.14, endSeconds: 31.2, text: "기억하겠다 해줘" },
+  { startSeconds: 31.2, endSeconds: 39.47, text: "난 새하얀 눈이 돼 어딘가로 흩어질 거야" },
+  { startSeconds: 39.47, endSeconds: 44.7, text: "그 장면 안에도" },
+  { startSeconds: 44.7, endSeconds: 50.45, text: "네가 미소 짓기를" },
+  { startSeconds: 50.45, endSeconds: 55.49, text: "바람아 네가 보여준 이 세상은" },
+  { startSeconds: 55.49, endSeconds: 60.72, text: "꽃잎들이 모여 세상을 밝히더라" },
+  { startSeconds: 60.72, endSeconds: 65.94, text: "시간 따라 다다른 이 순간은" },
+  { startSeconds: 65.94, endSeconds: 73.31, text: "작은 티끌 하나 하나라도 없었다면" },
+  { startSeconds: 73.31, endSeconds: 77.63, text: "보지 못했을 이야기" },
+  { startSeconds: 106.07, endSeconds: 111.47, text: "'피다'의 반대말은 '지다'가 아냐" },
+  { startSeconds: 111.47, endSeconds: 113.63, text: "너를 봐봐" },
+  { startSeconds: 113.63, endSeconds: 116.87, text: "얼마나 예쁜지" },
+  { startSeconds: 116.87, endSeconds: 119.75, text: "난 아지랑이 속에" },
+  { startSeconds: 119.75, endSeconds: 125.33, text: "뛰놀던 우리를 본 것만 같아" },
+  { startSeconds: 125.33, endSeconds: 130.01, text: "선잠의 꿈이라도" },
+  { startSeconds: 130.01, endSeconds: 134.51, text: "이유가 되니까" },
+  { startSeconds: 134.51, endSeconds: 136.67, text: "네가" },
+  { startSeconds: 136.67, endSeconds: 141.35, text: "바람아 네가 보여준 이 세상은" },
+  { startSeconds: 141.35, endSeconds: 146.21, text: "꽃잎들이 모여 세상을 밝히더라" },
+  { startSeconds: 146.21, endSeconds: 151.61, text: "시간 따라 다다른 이 순간을" },
+  { startSeconds: 151.61, endSeconds: 160.79, text: "기억해 낼 거야 분명" },
+  { startSeconds: 196.43, endSeconds: 200.75, text: "난 나는 게 아닌" },
+  { startSeconds: 200.75, endSeconds: 206.33, text: "그저 떨어지던 걸지도 몰라" },
+  { startSeconds: 206.33, endSeconds: 211.19, text: "언젠가 너 앞에" },
+  { startSeconds: 211.19, endSeconds: 216.77, text: "또 다시 피울게" },
+  { startSeconds: 216.77, endSeconds: 222.35, text: "바람이 내게 보여준 이 세상은" },
+  { startSeconds: 222.35, endSeconds: 227.21, text: "반딧불이 모여 꽃잎이 돼 주더라" },
+  { startSeconds: 227.21, endSeconds: 232.43, text: "시간 따라 다다른 이 따스함은" },
+  { startSeconds: 232.43, endSeconds: 240.35, text: "놓지 않을 기억, 그날에 너와 나" },
+  { startSeconds: 240.35, endSeconds: 242.33, text: "시작의 해로" },
+  { startSeconds: 242.33, endSeconds: 245.03, text: "다시 돌아간대도" },
+  { startSeconds: 245.03, endSeconds: 250.07, text: "몇천 번이라도 같은 길을 걸어가리" },
+  { startSeconds: 250.07, endSeconds: 255.29, text: "우릴 함께 날아오르게 해줬던" },
+  { startSeconds: 255.29, endSeconds: 259.61, text: "나의 봄바람아" },
+  { startSeconds: 259.61, endSeconds: 262.85, text: "다시 만나게 되면" },
+  { startSeconds: 262.85, endSeconds: 267.0, text: "또 어디론가 데려가 줘" },
+];
+
+export const linyaCoverLoopTrack: CoverLoopTrack = {
+  id: "lina0108",
+  code: "LINYA",
+  displayName: "리냐_LINYA",
+  position: "FB",
+  title: "낙화",
+  artist: "LUCY",
+  media: { type: "youtube", videoId: "9WVURtxNSTE" },
+  poster: posterFor("lina0108"),
+  loopVideo: loopVideoFor("lina0108"),
+  objectPosition: "center",
+  lyricStartSeconds: 10.14,
+  lyrics: linyaLyrics,
+};
+
+// 개발 전용 가사 타이밍 도구(CoverLoopLyricTimingTool)로 직접 찍어 확정한 구간(2026-09-22).
+// 실제 재생 시각을 그대로 탭한 값이라 별도 오프셋 없이 그대로 쓴다. 1:24.33~1:26.13,
+// 2:35.24~2:46.58 구간은 간주곡이라 가사 Cue가 없다.
+const bboringirlLyrics: readonly LyricCue[] = [
+  { startSeconds: 15.21, endSeconds: 24.93, text: "Everyday Everytime 손끝에 번진 네 미소" },
+  { startSeconds: 24.93, endSeconds: 35.19, text: "Everyday Everynight 또 꿈을 꾸듯 다가와" },
+  { startSeconds: 35.19, endSeconds: 39.33, text: "스뚜루루 떨리는 두 눈" },
+  { startSeconds: 39.33, endSeconds: 45.45, text: "수줍은 미소가 너무 좋아" },
+  { startSeconds: 45.45, endSeconds: 54.63, text: "달콤해 너의 향기까지 날 설레게 해" },
+  { startSeconds: 54.63, endSeconds: 60.39, text: "난 이대로 Falling 우린 Falling" },
+  { startSeconds: 60.39, endSeconds: 64.91, text: "눈부시게 빛나는 Little star" },
+  { startSeconds: 64.91, endSeconds: 69.93, text: "난 너 없인 Lonely 슬픈 Lonely" },
+  { startSeconds: 69.93, endSeconds: 75.51, text: "사랑스런 나만의 Little star" },
+  { startSeconds: 75.51, endSeconds: 84.33, text: "내게로 와 오오" },
+  { startSeconds: 86.13, endSeconds: 95.49, text: "Everyday Everytime 살며시 내린 비처럼" },
+  { startSeconds: 95.49, endSeconds: 105.93, text: "Everyday Everynight 늘 속삭이듯 다가와" },
+  { startSeconds: 105.93, endSeconds: 110.07, text: "스뚜루루 귓가를 맴돈" },
+  { startSeconds: 110.07, endSeconds: 115.65, text: "낮은 목소리가 나는 좋아" },
+  { startSeconds: 115.65, endSeconds: 124.83, text: "온종일 I'm falling in love 너를 사랑해" },
+  { startSeconds: 124.83, endSeconds: 130.95, text: "난 이대로 Falling 우린 Falling" },
+  { startSeconds: 130.95, endSeconds: 135.63, text: "눈부시게 빛나는 Little star" },
+  { startSeconds: 135.63, endSeconds: 140.66, text: "난 너 없인 Lonely 슬픈 Lonely" },
+  { startSeconds: 140.66, endSeconds: 146.06, text: "사랑스런 나만의 Little star" },
+  { startSeconds: 146.06, endSeconds: 155.24, text: "내게로 와 오오" },
+  { startSeconds: 166.58, endSeconds: 170.72, text: "스뚜루루 귓가를 맴돈" },
+  { startSeconds: 170.72, endSeconds: 176.12, text: "낮은 목소리가 나는 좋아" },
+  { startSeconds: 176.12, endSeconds: 185.66, text: "온종일 I'm falling in love 너를 사랑해" },
+  { startSeconds: 185.66, endSeconds: 191.6, text: "난 이대로 Falling 우린 Falling" },
+  { startSeconds: 191.6, endSeconds: 196.1, text: "눈부시게 빛나는 Little star" },
+  { startSeconds: 196.1, endSeconds: 201.5, text: "난 너 없인 Lonely 슬픈 Lonely" },
+  { startSeconds: 201.5, endSeconds: 206.72, text: "사랑스런 나만의 Little star" },
+  { startSeconds: 206.72, endSeconds: 211.94, text: "내게로 와 내게로 와" },
+  { startSeconds: 211.94, endSeconds: 216.98, text: "내 맘 다 가져간 넌 Little star" },
+  { startSeconds: 216.98, endSeconds: 221.66, text: "난 너 없인 Lonely 슬픈 Lonely" },
+  { startSeconds: 221.66, endSeconds: 227.06, text: "사랑스런 나만의 Little star" },
+  { startSeconds: 227.06, endSeconds: 236.06, text: "널 기다려 Oh yeah" },
+  { startSeconds: 236.06, endSeconds: 242.36, text: "널 사랑해" },
+];
+
+export const bboringirlCoverLoopTrack: CoverLoopTrack = {
+  id: "bboringirl",
+  code: "BBORING",
+  displayName: "뽀린걸",
+  position: "CM",
+  title: "Everyday",
+  artist: "박은우",
+  media: { type: "youtube", videoId: "4FtYneG447I", startSeconds: 13 },
+  poster: posterFor("bboringirl"),
+  loopVideo: loopVideoFor("bboringirl"),
+  objectPosition: "center",
+  lyricStartSeconds: 15.21,
+  lyrics: bboringirlLyrics,
+};
+
+// 나머지 6명은 이번 세션에서 구현하지 않는다 — 에셋/가사가 준비되면 이 배열에 추가한다.
 export const coverLoopTracks: readonly CoverLoopTrack[] = [
   hachiCoverLoopTrack,
   janineCoverLoopTrack,
   hangyeolCoverLoopTrack,
+  linyaCoverLoopTrack,
+  bboringirlCoverLoopTrack,
 ];
