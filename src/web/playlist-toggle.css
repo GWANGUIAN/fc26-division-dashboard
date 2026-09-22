@@ -1,0 +1,80 @@
+/* Floating "잔디동 플레이리스트" button — same slot the old MusicPlayer icon used, inside
+   .floating-toolbar (bottom-right). Thin white/translucent-white, angular; no capsule shape and
+   no orange/cream gradient (docs/cover-loop-lab-next-implementation.md "진입 버튼"). */
+.playlist-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  min-width: 44px;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 0;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  font: 700 12px/1 "Barlow Condensed", "Noto Sans KR", sans-serif;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: background 0.18s ease, border-color 0.18s ease, filter 0.18s ease, transform 0.12s ease;
+}
+.playlist-toggle svg { width: 18px; height: 18px; stroke-width: 1.75; flex: 0 0 auto; }
+.playlist-toggle > span:not(.playlist-toggle__badge) { white-space: nowrap; }
+.playlist-toggle:hover, .playlist-toggle:focus-visible { border-color: #fff; background: rgba(255, 255, 255, 0.18); outline: 0; }
+.playlist-toggle:focus-visible { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9); }
+.playlist-toggle:active { transform: translateY(1px); }
+
+/* First-visit highlight: 테두리/글로우 펄스 + 살짝 위아래로 떠 있는 움직임 + 말풍선 안내문으로
+   눈에 띄게 한다(잔디동 월드 구경하기 버튼처럼 첫 방문에만, 첫 클릭 후 영구 해제). */
+.playlist-toggle--new { animation: playlist-toggle-pulse 2.2s ease-in-out infinite, playlist-toggle-bob 2.2s ease-in-out infinite; }
+@keyframes playlist-toggle-pulse {
+  0%, 100% { border-color: rgba(255, 255, 255, 0.55); filter: brightness(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+  50% { border-color: #fff; filter: brightness(1.3); box-shadow: 0 0 18px 3px rgba(255, 255, 255, 0.5); }
+}
+@keyframes playlist-toggle-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* 말풍선 안내 라벨 — 잔디동 월드 구경하기 버튼의 말풍선(world-toggle__bubble) 패턴을 참고해
+   둥근 말풍선 + 버튼을 향한 꼬리를 쓴다. */
+.playlist-toggle__badge {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 14px);
+  width: max-content;
+  max-width: min(220px, calc(100vw - 40px));
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 12px;
+  color: #14151a;
+  background: #fff;
+  font: 700 12px/1.35 "Noto Sans KR", sans-serif;
+  letter-spacing: 0;
+  text-align: center;
+  white-space: normal;
+  pointer-events: none;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+}
+.playlist-toggle__badge::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  right: 16px;
+  width: 0;
+  height: 0;
+  border: 7px solid transparent;
+  border-bottom: 0;
+  border-top-color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .playlist-toggle { transition: none; }
+  .playlist-toggle--new { animation: none; border-color: #fff; box-shadow: 0 0 14px 2px rgba(255, 255, 255, 0.45); }
+}
+
+@media (max-width: 680px) {
+  .playlist-toggle { gap: 0; padding: 0 12px; }
+  .playlist-toggle > span:not(.playlist-toggle__badge) { display: none; }
+}

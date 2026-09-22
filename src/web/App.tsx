@@ -46,7 +46,8 @@ import { TestScheduleModal } from "./TestScheduleModal";
 import { WakgoodNotebookModal } from "./WakgoodNotebookModal";
 import { EvaluationModal } from "./EvaluationViews";
 import { SfxIntroNotice, SfxToggle } from "./SfxControls";
-import { MusicPlayer } from "./MusicPlayer";
+import { PlaylistToggle } from "./PlaylistToggle";
+import { CoverLoopPlaylistOverlay } from "./CoverLoopPlaylistOverlay";
 import { ThemeToggle } from "./ThemeToggle";
 import { BrightnessGag } from "./BrightnessGag";
 import { FakeAdRail } from "./FakeAdRail";
@@ -106,6 +107,7 @@ export function App() {
   const [growthGraphOpen, setGrowthGraphOpen] = useState(false);
   const [fortuneOpen, setFortuneOpen] = useState(false);
   const [worldOpen, setWorldOpen] = useState(false);
+  const [playlistOpen, setPlaylistOpen] = useState(false);
   const [stadiumShowcaseOpen, setStadiumShowcaseOpen] = useState(false);
   const [totyCardStreamer, setTotyCardStreamer] =
     useState<Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision" | "sfx">>();
@@ -519,8 +521,9 @@ export function App() {
           onVolumeChange={changeSfxVolume}
           highlight={sfxIntroVisible}
         />
-        <MusicPlayer />
+        <PlaylistToggle onClick={() => setPlaylistOpen(true)} />
       </div>
+      {playlistOpen && <CoverLoopPlaylistOverlay onClose={() => setPlaylistOpen(false)} />}
       {sfxIntroVisible && (
         <SfxIntroNotice
           enabled={sfxEnabled}

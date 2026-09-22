@@ -1,0 +1,412 @@
+/* 커버 루프 플레이어 본체(CoverLoopStage) — /cover-loop-lab 라우트와 CoverLoopPlaylistOverlay
+   팝업이 함께 쓴다. 첨부 레퍼런스처럼 장면이 주인공, UI는 조용한 흰색 레이어
+   (docs/cover-loop-lab-next-implementation.md "UI 명세"): 주황/크림 그라데이션·glow·둥근 캡슐 없음,
+   재생 버튼만 원형이고 나머지는 border-radius: 0. */
+/* NOW PLAYING / COVER BY / HACHI · 01 라벨(Barlow Condensed 유지)을 제외한 나머지 전부에 쓴다. */
+@font-face {
+  font-family: 'GMarketSans';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansLight.woff') format('woff');
+  font-weight: 300;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'GMarketSans';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'GMarketSans';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');
+  font-weight: 700;
+  font-display: swap;
+}
+.cover-loop-lab { min-height: 100vh; background: #08060a; color: #fff; font-family: 'GMarketSans', "Noto Sans KR", sans-serif; }
+.cover-loop-lab__youtube-frame { position: fixed; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
+.cover-loop-lab__stage { position: relative; isolation: isolate; display: grid; min-height: 100svh; overflow: hidden; place-items: end stretch; background: #0a0a0c; }
+
+/* 장면 크롭 해결: 채움 배경(cover + blur, 여백 없이 viewport를 채움) 위에 주 장면(contain, 16:9
+   전체 보존)을 올린다. 불투명 레터박스는 만들지 않는다. */
+.cover-loop-lab__fill {
+  position: absolute;
+  z-index: -3;
+  inset: -24px;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  filter: blur(38px) brightness(0.55) saturate(1.05);
+  transform: scale(1.06);
+}
+.cover-loop-lab__fill-shade { position: absolute; z-index: -2; inset: 0; background: rgba(3, 2, 5, 0.46); }
+.cover-loop-lab__scene { position: absolute; z-index: -1; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center; background: transparent; }
+.cover-loop-lab__vignette {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, #030204a3 0%, transparent 20%),
+    linear-gradient(180deg, transparent 58%, #030204c7 82%, #030204ef 100%);
+}
+
+/* 장면 클릭 영역 — 다른 버튼들 뒤(z-index 2)에 깔려서, 실제 컨트롤 위를 누르면 그 버튼이 먼저
+   반응하고 빈 화면만 클릭했을 때 재생/일시정지가 토글된다. */
+.cover-loop-lab__click-catcher {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.cover-loop-lab__click-catcher:disabled { cursor: wait; }
+.cover-loop-lab__click-catcher:focus-visible { outline: 2px solid rgba(255, 255, 255, 0.9); outline-offset: -6px; }
+
+/* 클릭 직후 가운데에 잠깐 떴다 사라지는 재생/일시정지 아이콘. */
+.cover-loop-lab__center-flash {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.cover-loop-lab__center-flash svg {
+  box-sizing: content-box;
+  width: 30px;
+  height: 30px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  color: #111;
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(6px);
+  animation: cover-loop-center-flash 0.65s ease-out forwards;
+}
+@keyframes cover-loop-center-flash {
+  0% { opacity: 0; transform: scale(0.85); }
+  18% { opacity: 1; transform: scale(1); }
+  70% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.05); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cover-loop-lab__center-flash svg { animation: cover-loop-center-flash-reduced 0.65s linear forwards; }
+}
+@keyframes cover-loop-center-flash-reduced {
+  0% { opacity: 1; }
+  82% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* 상단: 좌측 NOW PLAYING/원곡 제목(+작은 아티스트), 우측 COVER BY/선수 이름(하치_HACHI).
+   뷰포트 가장자리에 각각 붙되, 원래(clamp 20px~96px)보다 살짝 더 안쪽으로 들어온다. */
+.cover-loop-lab__top {
+  position: absolute;
+  z-index: 2;
+  top: clamp(20px, 4.4vw, 56px);
+  right: clamp(64px, 8vw, 178px);
+  left: clamp(64px, 8vw, 178px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  /* 버튼이 아닌 텍스트 라벨이라 클릭이 아래 click-catcher로 그대로 통과한다. */
+  pointer-events: none;
+}
+.cover-loop-lab__now-playing { display: flex; align-items: flex-start; gap: 8px; }
+.cover-loop-lab__now-playing-text { display: grid; gap: 3px; }
+.cover-loop-lab__now-playing span { color: rgba(255, 255, 255, 0.74); font: 700 10px/1 "Barlow Condensed", sans-serif; letter-spacing: 0.16em; }
+.cover-loop-lab__now-playing strong { font-size: clamp(14px, 1.6vw, 19px); font-weight: 700; letter-spacing: -0.01em; }
+.cover-loop-lab__now-playing small { color: rgba(255, 255, 255, 0.74); font-size: 12px; font-weight: 500; }
+/* 원곡 제목 옆에 작게 붙는 아티스트 표기. */
+.cover-loop-lab__title-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; }
+
+/* NOW PLAYING 왼쪽의 재생목록 버튼 + 팝오버. .cover-loop-lab__top 전체는 pointer-events:none이라
+   (텍스트 라벨 클릭이 장면 클릭으로 통과하도록) 이 버튼/팝오버만 따로 pointer-events를 되살린다. */
+.cover-loop-lab__playlist-anchor { position: relative; flex: 0 0 auto; margin-top: 2px; pointer-events: auto; }
+.cover-loop-lab__playlist-toggle {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 0;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+}
+.cover-loop-lab__playlist-toggle:hover, .cover-loop-lab__playlist-toggle:focus-visible { border-color: #fff; background: rgba(255, 255, 255, 0.2); outline: 0; }
+.cover-loop-lab__playlist-toggle:focus-visible { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9); }
+.cover-loop-lab__playlist-toggle svg { width: 14px; height: 14px; }
+
+/* 팝오버: 어두운 유리 카드 — 흰 반투명 배경은 밝은 영상 위에서 글자(어두운 톤)가 묻혀
+   안 보이는 문제가 있어, 나머지 UI와 같은 흰 글자/어두운 유리 톤으로 바꿨다. */
+.cover-loop-lab__playlist-popover {
+  position: absolute;
+  z-index: 6;
+  top: calc(100% + 10px);
+  left: 0;
+  display: grid;
+  gap: 2px;
+  width: min(280px, 74vw);
+  max-height: min(320px, 50vh);
+  overflow-y: auto;
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(12, 10, 16, 0.86);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+.cover-loop-lab__playlist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 0;
+  color: #fff;
+  text-align: left;
+  background: transparent;
+  cursor: pointer;
+}
+.cover-loop-lab__playlist-item:hover, .cover-loop-lab__playlist-item:focus-visible { background: rgba(255, 255, 255, 0.14); outline: 0; }
+.cover-loop-lab__playlist-item--active { background: rgba(255, 255, 255, 0.22); }
+.cover-loop-lab__playlist-item-index { flex: 0 0 auto; width: 20px; color: rgba(255, 255, 255, 0.5); font: 700 11px/1 "Barlow Condensed", sans-serif; }
+.cover-loop-lab__playlist-item-meta { display: grid; gap: 1px; min-width: 0; }
+.cover-loop-lab__playlist-item-meta strong { overflow: hidden; font-size: 13px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.cover-loop-lab__playlist-item-meta small { overflow: hidden; color: rgba(255, 255, 255, 0.68); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.cover-loop-lab__playlist-footer { margin: 4px 0 0; padding: 8px 10px 2px; border-top: 1px solid rgba(255, 255, 255, 0.16); color: rgba(255, 255, 255, 0.45); font-size: 11px; text-align: center; }
+
+/* 원곡 정보(now-playing)와 별개인 커버 선수 이름 영역 — 우측 정렬로 대칭. */
+.cover-loop-lab__performer { display: grid; gap: 3px; justify-items: end; text-align: right; }
+.cover-loop-lab__performer span { color: rgba(255, 255, 255, 0.74); font: 700 10px/1 "Barlow Condensed", sans-serif; letter-spacing: 0.16em; }
+.cover-loop-lab__performer strong { font-size: clamp(14px, 1.6vw, 19px); font-weight: 700; letter-spacing: -0.01em; }
+.cover-loop-lab__performer small { color: #fff; font: 700 clamp(10px, 1vw, 12px)/1 "Barlow Condensed", sans-serif; letter-spacing: 0.14em; opacity: 0.82; }
+
+/* 가사 + 플레이바를 한 덩어리로 화면 아래에 고정한다(스크린샷 참고) — 이전엔 가사가 상단에
+   따로 떠 있었지만, 이제 플레이바 바로 위에 붙는다. */
+.cover-loop-lab__bottom {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  width: min(1180px, calc(100% - 64px));
+  margin: 0 auto clamp(24px, 5.5vw, 72px);
+}
+
+/* 가사: 컨트롤 행 안에서 볼륨 버튼과 같은 줄을 쓴다(별도 행/구분선 없음). 없어도 폭은 그대로
+   차지해 시간/전체화면이 옆으로 밀리지 않게 한다. 다음 가사가 한 줄쯤 잘리고 아래로 갈수록
+   흐려진 채 미리 보이다가, 전환 시 위로 올라와 현재 줄 자리를 차지한다. 두 줄의 top/line-height를
+   px 커스텀 프로퍼티로 공유해야 한다 — em은 각 줄 자신의 font-size 기준이라, next 줄의 top을
+   current 줄 기준 1.4em으로 주면(글자 크기가 서로 달라) 겹쳐 보인다. */
+.cover-loop-lab__lyric {
+  --lyric-current-h: clamp(18px, 1.8vw, 22px);
+  --lyric-next-h: clamp(13px, 1.2vw, 15px);
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: calc(var(--lyric-current-h) + var(--lyric-next-h) * 0.7);
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 62%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 62%, transparent 100%);
+}
+.cover-loop-lab__lyric-line {
+  position: absolute;
+  inset-inline: 0;
+  margin: 0;
+  overflow: hidden;
+  color: #fff;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 2px 18px #000;
+}
+.cover-loop-lab__lyric-line--current {
+  top: 0;
+  font-size: clamp(14px, 1.4vw, 17px);
+  font-weight: 700;
+  line-height: var(--lyric-current-h);
+  letter-spacing: -0.01em;
+  transform-origin: bottom center;
+  animation: cover-loop-lyric-rise 0.45s cubic-bezier(0.22, 0.9, 0.32, 1);
+}
+.cover-loop-lab__lyric-line--next {
+  top: var(--lyric-current-h);
+  font-size: clamp(10px, 1vw, 12px);
+  font-weight: 500;
+  line-height: var(--lyric-next-h);
+  color: rgba(255, 255, 255, 0.72);
+}
+/* next 줄(작은 글씨)이 현재 줄로 바뀔 때, 아래에서 위로 올라오면서 동시에 next 크기에서
+   current 크기로 커지는 것처럼 보이도록 scale도 함께 애니메이션한다. */
+@keyframes cover-loop-lyric-rise {
+  from { transform: translateY(var(--lyric-current-h)) scale(0.62); opacity: 0.55; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cover-loop-lab__lyric-line--current { animation: none; }
+}
+
+/* 하단 플레이어 패널: 비주얼라이저 + 곡 메타 + 가사 + 재생/볼륨/시간 + 1px 진행선. 실제
+   컨트롤 행(볼륨~재생시간) 바로 위에 얇은 구분선을 둔다(불필요한 카드 배경은 두지 않는다). */
+.cover-loop-lab__player { display: grid; gap: 12px; }
+.cover-loop-lab__visualizer { display: flex; height: 32px; align-items: end; gap: clamp(2px, 0.35vw, 4px); opacity: 0.92; }
+.cover-loop-lab__visualizer span { width: 100%; max-width: 2px; min-height: 2px; background: #fff; transition: height 0.16s ease-out; }
+.cover-loop-lab__track-meta { display: grid; gap: 2px; pointer-events: none; }
+.cover-loop-lab__track-meta-row { display: flex; align-items: center; gap: 8px; }
+.cover-loop-lab__track-meta strong { font-size: clamp(16px, 1.8vw, 24px); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; }
+.cover-loop-lab__track-meta small { color: rgba(255, 255, 255, 0.74); font-size: 12px; font-weight: 500; }
+
+/* 반복재생 토글(꺼짐 → 전체 → 한 곡 → 꺼짐) — 제목 오른쪽, 플레이바(컨트롤 행) 바로 위. */
+.cover-loop-lab__repeat {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 0;
+  border-radius: 0;
+  color: rgba(255, 255, 255, 0.6);
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.cover-loop-lab__repeat:hover, .cover-loop-lab__repeat:focus-visible { color: #fff; background: rgba(255, 255, 255, 0.14); outline: 0; }
+.cover-loop-lab__repeat:focus-visible { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9); }
+.cover-loop-lab__repeat[aria-pressed="true"] { color: #fff; }
+.cover-loop-lab__repeat svg { width: 16px; height: 16px; }
+.cover-loop-lab__controls { display: flex; align-items: center; gap: 14px; }
+
+/* 재생 버튼만 원형(UI 명세의 유일한 예외) — 반투명 유리 느낌. */
+.cover-loop-lab__play {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  color: #111;
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  transition: transform 0.16s ease, background 0.16s ease;
+}
+.cover-loop-lab__play:hover:not(:disabled), .cover-loop-lab__play:focus-visible:not(:disabled) { background: #fff; outline: 2px solid #fff; outline-offset: 3px; transform: scale(1.05); }
+.cover-loop-lab__play:disabled { cursor: wait; opacity: 0.5; }
+.cover-loop-lab__play svg { width: 18px; height: 18px; }
+
+/* 이전/다음 곡 — 지금은 하치 한 곡뿐이라 항상 disabled(나머지 10명 추가 시 실제 동작 연결). */
+.cover-loop-lab__skip {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  place-items: center;
+  border: 0;
+  border-radius: 0;
+  color: #fff;
+  background: transparent;
+  cursor: pointer;
+}
+.cover-loop-lab__skip:hover:not(:disabled), .cover-loop-lab__skip:focus-visible:not(:disabled) { background: rgba(255, 255, 255, 0.14); outline: 0; }
+.cover-loop-lab__skip:focus-visible { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9); }
+.cover-loop-lab__skip:disabled { cursor: not-allowed; opacity: 0.32; }
+.cover-loop-lab__skip svg { width: 18px; height: 18px; }
+
+/* 볼륨: 데스크톱은 hover/focus-within에서만 range가 열린다(opacity + max-width만 전환, layout
+   shift 없음). 터치(hover 불가)에서는 짧은 range를 항상 보이게 한다. */
+.cover-loop-lab__volume-group { display: flex; align-items: center; gap: 8px; }
+.cover-loop-lab__mute {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  place-items: center;
+  border: 0;
+  border-radius: 0;
+  color: #fff;
+  background: transparent;
+  cursor: pointer;
+}
+.cover-loop-lab__mute:hover:not(:disabled), .cover-loop-lab__mute:focus-visible:not(:disabled) { background: rgba(255, 255, 255, 0.14); outline: 0; }
+.cover-loop-lab__mute:focus-visible { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9); }
+.cover-loop-lab__mute:disabled { cursor: wait; opacity: 0.5; }
+.cover-loop-lab__mute svg { width: 16px; height: 16px; }
+.cover-loop-lab__volume-range {
+  width: 0;
+  max-width: 0;
+  height: 3px;
+  margin: 0;
+  overflow: hidden;
+  accent-color: #fff;
+  opacity: 0;
+  pointer-events: none;
+  cursor: pointer;
+  transition: max-width 0.18s ease, opacity 0.18s ease;
+}
+.cover-loop-lab__volume-group:hover .cover-loop-lab__volume-range,
+.cover-loop-lab__volume-group:focus-within .cover-loop-lab__volume-range {
+  max-width: 112px;
+  width: 112px;
+  opacity: 1;
+  pointer-events: auto;
+}
+.cover-loop-lab__controls time { flex: 0 0 auto; color: rgba(255, 255, 255, 0.74); font: 500 13px/1 'GMarketSans', sans-serif; letter-spacing: 0.02em; white-space: nowrap; }
+
+/* 전체화면 토글 — 브라우저 Fullscreen API 미지원 환경(iOS Safari 등)에서는 아예 렌더되지 않는다. */
+.cover-loop-lab__fullscreen {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  place-items: center;
+  border: 0;
+  border-radius: 0;
+  color: #fff;
+  background: transparent;
+  cursor: pointer;
+}
+.cover-loop-lab__fullscreen:hover, .cover-loop-lab__fullscreen:focus-visible { background: rgba(255, 255, 255, 0.14); outline: 0; }
+.cover-loop-lab__fullscreen:focus-visible { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9); }
+.cover-loop-lab__fullscreen svg { width: 16px; height: 16px; }
+
+/* 1px 진행선. */
+.cover-loop-lab__progress {
+  width: 100%;
+  height: 1px;
+  margin: 2px 0 0;
+  accent-color: #fff;
+  appearance: none;
+  border-radius: 0;
+  background: linear-gradient(to right, #fff var(--cover-loop-progress), rgba(255, 255, 255, 0.42) var(--cover-loop-progress));
+  cursor: pointer;
+}
+.cover-loop-lab__progress::-webkit-slider-thumb { width: 9px; height: 9px; border: 0; border-radius: 50%; background: #fff; appearance: none; }
+.cover-loop-lab__progress::-moz-range-thumb { width: 9px; height: 9px; border: 0; border-radius: 50%; background: #fff; }
+.cover-loop-lab__progress:focus-visible { outline: 2px solid #fff; outline-offset: 5px; }
+
+@media (max-width: 600px) {
+  .cover-loop-lab__top { top: 18px; right: 54px; left: 54px; }
+  .cover-loop-lab__bottom { width: min(100% - 32px, 560px); margin-bottom: 24px; }
+  /* 좁은 화면의 컨트롤 행은 아이콘만으로도 빠듯하므로 next 미리보기는 접고 현재 줄만 남긴다. */
+  .cover-loop-lab__lyric { --lyric-current-h: 18px; height: var(--lyric-current-h); }
+  .cover-loop-lab__lyric-line--current { font-size: 13px; }
+  .cover-loop-lab__lyric-line--next { display: none; }
+  .cover-loop-lab__player { gap: 10px; }
+  .cover-loop-lab__controls { gap: 10px; }
+  .cover-loop-lab__controls time { font-size: 12px; }
+}
+
+/* 터치(hover 불가) 환경: 짧은 range를 항상 노출한다 — 아이콘 hover에 의존하지 않는다. */
+@media (hover: none) {
+  .cover-loop-lab__volume-range { max-width: 72px; width: 72px; opacity: 1; pointer-events: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cover-loop-lab__visualizer span { transition: none; }
+  .cover-loop-lab__play { transition: none; }
+  .cover-loop-lab__volume-range { transition: none; }
+}

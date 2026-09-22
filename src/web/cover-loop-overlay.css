@@ -1,0 +1,58 @@
+/* Full-screen 잔디동 플레이리스트 popup (docs/cover-loop-lab-next-implementation.md "팝업과 닫기
+   제어"). Wraps the same CoverLoopStage player body the dev-only /cover-loop-lab route uses. */
+.cover-loop-overlay {
+  position: fixed;
+  z-index: 85;
+  inset: 0;
+  overflow: hidden;
+  background: #08060a;
+}
+.cover-loop-overlay:focus { outline: 0; }
+
+/* 상단 중앙 닫기 버튼: 처음엔 숨기고 마우스 이동/키보드 포커스로만 나타난다. 항상
+   tabIndex 0(기본값)이라 키보드로는 언제든 Tab으로 도달해 스스로를 드러낼 수 있다. */
+.cover-loop-overlay__close {
+  position: absolute;
+  z-index: 2;
+  top: clamp(14px, 3vw, 28px);
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 0;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(6px);
+  font: 700 12px/1 "Barlow Condensed", "Noto Sans KR", sans-serif;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -6px);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.cover-loop-overlay__close svg { width: 16px; height: 16px; }
+.cover-loop-overlay__close--visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
+.cover-loop-overlay__close:hover, .cover-loop-overlay__close:focus-visible {
+  border-color: #fff;
+  background: rgba(0, 0, 0, 0.62);
+  outline: 0;
+}
+.cover-loop-overlay__close:focus-visible { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9); }
+
+@media (prefers-reduced-motion: reduce) {
+  .cover-loop-overlay__close {
+    transition: none;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, 0);
+  }
+}

@@ -3,6 +3,7 @@ import {
   Box,
   CalendarDays,
   CirclePile,
+  ListMusic,
   Shield,
   Shirt,
   Sparkles,
@@ -23,6 +24,24 @@ export type Announcement = {
 };
 
 export const ANNOUNCEMENTS: Announcement[] = [
+  {
+    id: "2026-09-cover-loop-playlist",
+    date: "2026.09.22",
+    body: (
+      <>
+        <strong>잔디동 플레이리스트</strong> 기능이 추가되었습니다. 화면 오른쪽
+        아래 <br />
+        <br />
+        <span className="announcement-playlist-btn">
+          <ListMusic aria-hidden="true" />
+          <span>잔디동 플레이리스트</span>
+        </span>{" "}
+        버튼을 누르면 잔디동 멤버의 루프 애니메이션과 커버곡을 감상하실 수
+        있습니다.
+      </>
+    ),
+    note: "순차적으로 멤버(유튜브 영상이 있는 경우만)가 추가될 예정입니다.",
+  },
   {
     id: "2026-09-new-minigames",
     date: "2026.09.21",
@@ -52,8 +71,9 @@ export const ANNOUNCEMENTS: Announcement[] = [
     date: "2026.09.19",
     body: (
       <>
-        <strong>잔디동 월드</strong>가 열렸습니다. 화면 왼쪽 위의 <strong>잔디동 월드 구경하기</strong> 버튼에서
-        캐릭터를 골라 마을을 탐험하고, 미션·오락실·도감을 즐겨보세요.
+        <strong>잔디동 월드</strong>가 열렸습니다. 화면 왼쪽 위의{" "}
+        <strong>잔디동 월드 구경하기</strong> 버튼에서 캐릭터를 골라 마을을
+        탐험하고, 미션·오락실·도감을 즐겨보세요.
       </>
     ),
   },
@@ -75,9 +95,8 @@ export const ANNOUNCEMENTS: Announcement[] = [
     date: "2026.09.17",
     body: (
       <>
-        <strong>3D 카드</strong>에 새로운 테마 3가지가 추가되었습니다.
-        카드를 공개한 뒤 위쪽에 뜨는 선택 창에서 어떤 테마인지 직접
-        확인해보세요.
+        <strong>3D 카드</strong>에 새로운 테마 3가지가 추가되었습니다. 카드를
+        공개한 뒤 위쪽에 뜨는 선택 창에서 어떤 테마인지 직접 확인해보세요.
       </>
     ),
   },
@@ -89,14 +108,21 @@ export const ANNOUNCEMENTS: Announcement[] = [
         <strong>오늘의 운세 뽑기</strong> 기능이 추가되었습니다. 화면 왼쪽 아래{" "}
         <span className="fortune-toggle fortune-toggle--inline">
           {fortuneCardBackUrl ? (
-            <img src={fortuneCardBackUrl} alt="" className="fortune-toggle__icon" />
+            <img
+              src={fortuneCardBackUrl}
+              alt=""
+              className="fortune-toggle__icon"
+            />
           ) : (
-            <Sparkles aria-hidden="true" className="fortune-toggle__icon fortune-toggle__icon--fallback" />
+            <Sparkles
+              aria-hidden="true"
+              className="fortune-toggle__icon fortune-toggle__icon--fallback"
+            />
           )}
           <span className="fortune-toggle__label">오늘의 운세 뽑기</span>
         </span>{" "}
-        버튼을 누르면 타로 카드 3장 중 한 장을 뽑아 오늘의 축구 운세를 확인할
-        수 있습니다.
+        버튼을 누르면 타로 카드 3장 중 한 장을 뽑아 오늘의 축구 운세를 확인할 수
+        있습니다.
       </>
     ),
   },

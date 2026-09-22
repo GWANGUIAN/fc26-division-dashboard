@@ -1,0 +1,97 @@
+/* Dev-only manual lyric timing tool (CoverLoopLyricTimingTool.tsx). Deliberately styled apart from
+   the rest of the player (amber accent, monospace) so it reads as a debug affordance, never the
+   polished white UI. Never rendered in production — caller gates it behind import.meta.env.DEV. */
+.cover-loop-lyric-timing__trigger {
+  position: fixed;
+  z-index: 50;
+  left: 14px;
+  bottom: 14px;
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid rgba(255, 196, 0, 0.7);
+  border-radius: 0;
+  color: #ffc400;
+  background: rgba(20, 16, 0, 0.55);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+}
+.cover-loop-lyric-timing__trigger:hover, .cover-loop-lyric-timing__trigger:focus-visible { background: rgba(255, 196, 0, 0.2); outline: 0; }
+.cover-loop-lyric-timing__trigger svg { width: 18px; height: 18px; }
+
+.cover-loop-lyric-timing__backdrop {
+  position: fixed;
+  z-index: 60;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  animation: cover-loop-lyric-timing-fade 0.15s ease-out;
+}
+.cover-loop-lyric-timing__drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(380px, 92vw);
+  height: 100%;
+  padding: 16px;
+  overflow-y: auto;
+  border-left: 1px solid rgba(255, 196, 0, 0.5);
+  background: #121014;
+  color: #fff;
+  box-shadow: -20px 0 50px rgba(0, 0, 0, 0.5);
+  font-family: "Noto Sans KR", sans-serif;
+  animation: cover-loop-lyric-timing-slide 0.18s ease-out;
+}
+@keyframes cover-loop-lyric-timing-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes cover-loop-lyric-timing-slide { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+.cover-loop-lyric-timing__header { display: flex; align-items: center; justify-content: space-between; }
+.cover-loop-lyric-timing__header strong { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.cover-loop-lyric-timing__header strong span { padding: 1px 6px; border: 1px solid #ffc400; color: #ffc400; font: 700 10px/1 "Barlow Condensed", sans-serif; letter-spacing: 0.06em; }
+.cover-loop-lyric-timing__header button { display: grid; width: 28px; height: 28px; place-items: center; border: 0; background: transparent; color: #fff; cursor: pointer; }
+.cover-loop-lyric-timing__header button:hover { background: rgba(255, 255, 255, 0.12); }
+
+.cover-loop-lyric-timing__hint { margin: 0; color: rgba(255, 255, 255, 0.65); font-size: 11px; line-height: 1.5; }
+.cover-loop-lyric-timing__hint strong { color: #ffc400; }
+
+.cover-loop-lyric-timing__playback { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.cover-loop-lyric-timing__playback button { padding: 6px 10px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 0; color: #fff; background: transparent; font-size: 12px; cursor: pointer; }
+.cover-loop-lyric-timing__playback button:hover { background: rgba(255, 255, 255, 0.1); }
+.cover-loop-lyric-timing__playback time { color: #ffc400; font: 700 13px/1 "Barlow Condensed", sans-serif; }
+.cover-loop-lyric-timing__tap { margin-left: auto; padding: 8px 12px; border: 1px solid #ffc400; border-radius: 0; color: #141014; background: #ffc400; font-weight: 700; }
+.cover-loop-lyric-timing__tap:disabled { opacity: 0.4; cursor: default; }
+
+.cover-loop-lyric-timing__lines-head, .cover-loop-lyric-timing__output-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: rgba(255, 255, 255, 0.6); font-size: 11px; }
+.cover-loop-lyric-timing__lines-head button, .cover-loop-lyric-timing__output-head button { display: flex; align-items: center; gap: 4px; padding: 4px 8px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 0; color: #fff; background: transparent; font-size: 11px; cursor: pointer; }
+.cover-loop-lyric-timing__lines-head button:hover, .cover-loop-lyric-timing__output-head button:hover { background: rgba(255, 255, 255, 0.1); }
+.cover-loop-lyric-timing__output-head button:disabled { opacity: 0.4; cursor: default; }
+.cover-loop-lyric-timing__output-head button svg { width: 13px; height: 13px; }
+
+.cover-loop-lyric-timing__lines-input, .cover-loop-lyric-timing__output {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+  font: 12px/1.5 ui-monospace, "SFMono-Regular", Menlo, monospace;
+  resize: vertical;
+}
+
+.cover-loop-lyric-timing__lines { display: grid; overflow-y: auto; max-height: 220px; margin: 0; padding: 0; border: 1px solid rgba(255, 255, 255, 0.15); list-style: none; gap: 2px; }
+.cover-loop-lyric-timing__lines li { display: flex; gap: 8px; padding: 5px 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); font-size: 12px; }
+.cover-loop-lyric-timing__lines li.done { color: rgba(255, 255, 255, 0.55); }
+.cover-loop-lyric-timing__lines li.current { color: #fff; background: rgba(255, 196, 0, 0.16); }
+.cover-loop-lyric-timing__time { flex: 0 0 52px; color: #ffc400; font: 700 11px/1.5 "Barlow Condensed", sans-serif; }
+.cover-loop-lyric-timing__text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.cover-loop-lyric-timing__actions { display: flex; gap: 8px; }
+.cover-loop-lyric-timing__actions button { flex: 1; padding: 6px 10px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 0; color: #fff; background: transparent; font-size: 12px; cursor: pointer; }
+.cover-loop-lyric-timing__actions button:not(:disabled):hover { background: rgba(255, 255, 255, 0.1); }
+.cover-loop-lyric-timing__actions button:disabled { opacity: 0.4; cursor: default; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cover-loop-lyric-timing__backdrop, .cover-loop-lyric-timing__drawer { animation: none; }
+}
