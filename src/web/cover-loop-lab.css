@@ -158,7 +158,15 @@
   backdrop-filter: blur(22px) saturate(160%);
   -webkit-backdrop-filter: blur(22px) saturate(160%);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
 }
+/* 곡이 늘어 스크롤이 생겼을 때 기본 회색 스크롤바 대신 유리 카드 톤에 맞춘 얇은 흰색
+   막대로 — Firefox는 위 scrollbar-width/color로, 웹킷 계열은 아래 pseudo-element로. */
+.cover-loop-lab__playlist-popover::-webkit-scrollbar { width: 6px; }
+.cover-loop-lab__playlist-popover::-webkit-scrollbar-track { background: transparent; }
+.cover-loop-lab__playlist-popover::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(255, 255, 255, 0.28); }
+.cover-loop-lab__playlist-popover::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.45); }
 .cover-loop-lab__playlist-item {
   display: flex;
   align-items: center;
