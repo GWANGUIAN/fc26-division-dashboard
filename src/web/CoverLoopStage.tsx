@@ -14,6 +14,8 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faYoutube } from "@fortawesome/free-brands-svg-icons";
 import { coverLoopTracks, type CoverLoopTrack } from "./coverLoopLabData";
 import { CoverLoopLyricTimingTool } from "./CoverLoopLyricTimingTool";
 import {
@@ -212,7 +214,10 @@ export function CoverLoopStage({
     if (reducedMotion) return;
     if (!aiNoticeVisibleRef.current) setAiNoticeVisible(true);
     window.clearTimeout(aiNoticeHideTimerRef.current);
-    aiNoticeHideTimerRef.current = window.setTimeout(() => setAiNoticeVisible(false), 2500);
+    aiNoticeHideTimerRef.current = window.setTimeout(
+      () => setAiNoticeVisible(false),
+      2500,
+    );
   }
   const [repeatMode, setRepeatMode] = useState<"off" | "all" | "one">(() =>
     loadCoverLoopRepeatMode(),
@@ -647,6 +652,16 @@ export function CoverLoopStage({
             <div className="cover-loop-lab__track-meta">
               <div className="cover-loop-lab__track-meta-row">
                 <strong>{track.title}</strong>
+                <a
+                  className="cover-loop-lab__youtube-link"
+                  href={`https://www.youtube.com/watch?v=${track.media.videoId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${track.title} 유튜브에서 보기`}
+                  title="유튜브에서 보기"
+                >
+                  <FontAwesomeIcon icon={faYoutube} aria-hidden="true" />
+                </a>
                 <button
                   type="button"
                   className="cover-loop-lab__repeat"
