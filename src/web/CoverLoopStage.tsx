@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  Bot,
   ChevronFirst,
   ChevronLast,
   ListMusic,
@@ -40,7 +41,10 @@ type YouTubePlayer = {
 
 type YouTubeWindow = Window & {
   YT?: {
-    Player: new (element: HTMLElement, options: Record<string, unknown>) => YouTubePlayer;
+    Player: new (
+      element: HTMLElement,
+      options: Record<string, unknown>,
+    ) => YouTubePlayer;
     PlayerState: { PLAYING: number; PAUSED: number; ENDED: number };
   };
   onYouTubeIframeAPIReady?: () => void;
@@ -69,12 +73,16 @@ function loadYouTubeApi(): Promise<void> {
 function formatTime(seconds: number) {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
   const minutes = Math.floor(seconds / 60);
-  return `${minutes}:${Math.floor(seconds % 60).toString().padStart(2, "0")}`;
+  return `${minutes}:${Math.floor(seconds % 60)
+    .toString()
+    .padStart(2, "0")}`;
 }
 
 export function useReducedMotion() {
   const [reducedMotion, setReducedMotion] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
 
   useEffect(() => {
@@ -91,9 +99,11 @@ export function useReducedMotion() {
 // renders where the browser actually supports it (document.fullscreenEnabled is false there).
 function useFullscreen() {
   const [isFullscreen, setIsFullscreen] = useState(
-    () => typeof document !== "undefined" && document.fullscreenElement !== null,
+    () =>
+      typeof document !== "undefined" && document.fullscreenElement !== null,
   );
-  const supported = typeof document !== "undefined" && document.fullscreenEnabled;
+  const supported =
+    typeof document !== "undefined" && document.fullscreenEnabled;
 
   useEffect(() => {
     if (!supported) return;
@@ -104,8 +114,10 @@ function useFullscreen() {
 
   const toggle = () => {
     if (!supported) return;
-    if (document.fullscreenElement) void document.exitFullscreen().catch(() => undefined);
-    else void document.documentElement.requestFullscreen().catch(() => undefined);
+    if (document.fullscreenElement)
+      void document.exitFullscreen().catch(() => undefined);
+    else
+      void document.documentElement.requestFullscreen().catch(() => undefined);
   };
 
   return { isFullscreen, toggle, supported };
@@ -128,7 +140,9 @@ function CoverLoopVisualizer({
     () =>
       Array.from({ length: 28 }, (_, index) => {
         if (reducedMotion || !isPlaying || volume === 0) return 16;
-        const wave = Math.sin(currentTime * 4.1 + index * 0.83) + Math.sin(currentTime * 2.2 + index * 1.91) * 0.42;
+        const wave =
+          Math.sin(currentTime * 4.1 + index * 0.83) +
+          Math.sin(currentTime * 2.2 + index * 1.91) * 0.42;
         return Math.round(12 + ((wave + 1.42) / 2.84) * (76 * (volume / 100)));
       }),
     [currentTime, isPlaying, volume, reducedMotion],
@@ -148,7 +162,13 @@ function CoverLoopVisualizer({
  * `track`/`index` are only the initial selection — the NOW PLAYING playlist popover switches
  * between all of `coverLoopTracks` from here on, independent of what the caller originally passed in.
  */
-export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }: { track: CoverLoopTrack; index?: number }) {
+export function CoverLoopStage({
+  track: initialTrack,
+  index: initialIndex = 1,
+}: {
+  track: CoverLoopTrack;
+  index?: number;
+}) {
   const frameRef = useRef<HTMLDivElement>(null);
   const sceneVideoRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<YouTubePlayer | undefined>(undefined);
@@ -156,7 +176,8 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
   // 곡이 이제는 목록에 없으면(가사/에셋을 뺐거나 한 경우) 원래 initialTrack으로 되돌아간다.
   const [selectedTrackId, setSelectedTrackId] = useState(() => {
     const saved = loadCoverLoopLastPlayback();
-    if (saved && coverLoopTracks.some((item) => item.id === saved.trackId)) return saved.trackId;
+    if (saved && coverLoopTracks.some((item) => item.id === saved.trackId))
+      return saved.trackId;
     return initialTrack.id;
   });
   const [playlistOpen, setPlaylistOpen] = useState(false);
@@ -168,14 +189,43 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
   const [volume, setVolume] = useState(() => loadCoverLoopVolume());
   const [muted, setMuted] = useState(false);
   const reducedMotion = useReducedMotion();
-  const { isFullscreen, toggle: toggleFullscreen, supported: fullscreenSupported } = useFullscreen();
-  const [repeatMode, setRepeatMode] = useState<"off" | "all" | "one">(() => loadCoverLoopRepeatMode());
+  const {
+    isFullscreen,
+    toggle: toggleFullscreen,
+    supported: fullscreenSupported,
+  } = useFullscreen();
+
+  // AI 생성 영상 안내 태그 — CoverLoopPlaylistOverlay.tsx의 닫기 버튼과 같은 방식: 기본은
+  // 숨겨져 있다가 마우스가 움직이면 잠깐 보였다 다시 사라진다(reduced-motion에서는 계속 표시).
+  const [aiNoticeVisible, setAiNoticeVisible] = useState(() => reducedMotion);
+  const aiNoticeVisibleRef = useRef(aiNoticeVisible);
+  aiNoticeVisibleRef.current = aiNoticeVisible;
+  const aiNoticeHideTimerRef = useRef<number | undefined>(undefined);
+
+  useEffect(() => {
+    if (reducedMotion) setAiNoticeVisible(true);
+  }, [reducedMotion]);
+
+  useEffect(() => () => window.clearTimeout(aiNoticeHideTimerRef.current), []);
+
+  function revealAiNotice() {
+    if (reducedMotion) return;
+    if (!aiNoticeVisibleRef.current) setAiNoticeVisible(true);
+    window.clearTimeout(aiNoticeHideTimerRef.current);
+    aiNoticeHideTimerRef.current = window.setTimeout(() => setAiNoticeVisible(false), 2500);
+  }
+  const [repeatMode, setRepeatMode] = useState<"off" | "all" | "one">(() =>
+    loadCoverLoopRepeatMode(),
+  );
 
   useEffect(() => {
     saveCoverLoopRepeatMode(repeatMode);
   }, [repeatMode]);
 
-  const activeIndex = Math.max(0, coverLoopTracks.findIndex((item) => item.id === selectedTrackId));
+  const activeIndex = Math.max(
+    0,
+    coverLoopTracks.findIndex((item) => item.id === selectedTrackId),
+  );
   const track = coverLoopTracks[activeIndex] ?? initialTrack;
   const index = coverLoopTracks.length ? activeIndex + 1 : initialIndex;
 
@@ -209,7 +259,10 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
   latestTrackIdRef.current = track.id;
   useEffect(() => {
     return () => {
-      saveCoverLoopLastPlayback(latestTrackIdRef.current, latestCurrentTimeRef.current);
+      saveCoverLoopLastPlayback(
+        latestTrackIdRef.current,
+        latestCurrentTimeRef.current,
+      );
     };
   }, []);
 
@@ -224,7 +277,9 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
           rel: 0,
           playsinline: 1,
           modestbranding: 1,
-          ...(track.media.startSeconds ? { start: track.media.startSeconds } : {}),
+          ...(track.media.startSeconds
+            ? { start: track.media.startSeconds }
+            : {}),
         },
         events: {
           onReady: () => {
@@ -233,8 +288,12 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
             // 재생목록에 다시 들어왔을 때 마지막으로 듣던 위치로 되돌리되, 일시정지 상태를
             // 유지한다(자동재생하지 않음) — 저장된 곡이 지금 로드된 곡과 다르면 무시한다.
             const saved = loadCoverLoopLastPlayback();
-            const restoreSeconds = saved && saved.trackId === track.id ? saved.seconds : track.media.startSeconds ?? 0;
-            if (restoreSeconds > 0) playerRef.current?.seekTo(restoreSeconds, true);
+            const restoreSeconds =
+              saved && saved.trackId === track.id
+                ? saved.seconds
+                : (track.media.startSeconds ?? 0);
+            if (restoreSeconds > 0)
+              playerRef.current?.seekTo(restoreSeconds, true);
             setCurrentTime(restoreSeconds);
             setReady(true);
           },
@@ -247,10 +306,14 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
               const mode = repeatModeRef.current;
               if (mode === "one") {
                 const repeatingTrack = coverLoopTracks[activeIndexRef.current];
-                playerRef.current?.seekTo(repeatingTrack?.media.startSeconds ?? 0, true);
+                playerRef.current?.seekTo(
+                  repeatingTrack?.media.startSeconds ?? 0,
+                  true,
+                );
                 playerRef.current?.playVideo();
               } else if (mode === "all" && coverLoopTracks.length > 0) {
-                const nextIndex = (activeIndexRef.current + 1) % coverLoopTracks.length;
+                const nextIndex =
+                  (activeIndexRef.current + 1) % coverLoopTracks.length;
                 setSelectedTrackId(coverLoopTracks[nextIndex].id);
               }
             }
@@ -271,18 +334,28 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
   const previousTrackIdRef = useRef(selectedTrackId);
   useEffect(() => {
     if (previousTrackIdRef.current === selectedTrackId) return;
-    saveCoverLoopLastPlayback(previousTrackIdRef.current, latestCurrentTimeRef.current);
+    saveCoverLoopLastPlayback(
+      previousTrackIdRef.current,
+      latestCurrentTimeRef.current,
+    );
     previousTrackIdRef.current = selectedTrackId;
     setCurrentTime(0);
     setDuration(0);
-    playerRef.current?.loadVideoById(track.media.videoId, track.media.startSeconds ?? 0);
+    playerRef.current?.loadVideoById(
+      track.media.videoId,
+      track.media.startSeconds ?? 0,
+    );
   }, [selectedTrackId, track.media.videoId, track.media.startSeconds]);
 
   // 팝오버 바깥 클릭 또는 Escape로 닫는다.
   useEffect(() => {
     if (!playlistOpen) return;
     const handlePointerDown = (event: PointerEvent) => {
-      if (playlistRef.current && !playlistRef.current.contains(event.target as Node)) setPlaylistOpen(false);
+      if (
+        playlistRef.current &&
+        !playlistRef.current.contains(event.target as Node)
+      )
+        setPlaylistOpen(false);
     };
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setPlaylistOpen(false);
@@ -311,7 +384,8 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
   useEffect(() => {
     const sceneVideo = sceneVideoRef.current;
     if (!sceneVideo) return;
-    if (isPlaying && !reducedMotion) void sceneVideo.play().catch(() => undefined);
+    if (isPlaying && !reducedMotion)
+      void sceneVideo.play().catch(() => undefined);
     else sceneVideo.pause();
   }, [isPlaying, reducedMotion, track.loopVideo]);
 
@@ -360,7 +434,10 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
     if (!ready) return;
     setCenterFlash(isPlaying ? "pause" : "play");
     window.clearTimeout(centerFlashTimerRef.current);
-    centerFlashTimerRef.current = window.setTimeout(() => setCenterFlash(null), 650);
+    centerFlashTimerRef.current = window.setTimeout(
+      () => setCenterFlash(null),
+      650,
+    );
     togglePlayback();
   };
 
@@ -383,7 +460,8 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
       setCurrentTime(trackStart);
       return;
     }
-    const prevIndex = (activeIndex - 1 + coverLoopTracks.length) % coverLoopTracks.length;
+    const prevIndex =
+      (activeIndex - 1 + coverLoopTracks.length) % coverLoopTracks.length;
     setSelectedTrackId(coverLoopTracks[prevIndex].id);
   };
   const goToNextTrack = () => {
@@ -394,30 +472,52 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
 
   // 꺼짐 → 전체 반복 → 한 곡 반복 → 꺼짐 순환.
   const cycleRepeatMode = () => {
-    setRepeatMode((current) => (current === "off" ? "all" : current === "all" ? "one" : "off"));
+    setRepeatMode((current) =>
+      current === "off" ? "all" : current === "all" ? "one" : "off",
+    );
   };
-  const repeatLabel = repeatMode === "one" ? "한 곡 반복재생" : repeatMode === "all" ? "전체 반복재생" : "반복재생 꺼짐";
+  const repeatLabel =
+    repeatMode === "one"
+      ? "한 곡 반복재생"
+      : repeatMode === "all"
+        ? "전체 반복재생"
+        : "반복재생 꺼짐";
 
   const activeLyricIndex = track.lyrics.findIndex(
     (cue) => currentTime >= cue.startSeconds && currentTime < cue.endSeconds,
   );
-  const activeLyric = activeLyricIndex >= 0 ? track.lyrics[activeLyricIndex] : undefined;
+  const activeLyric =
+    activeLyricIndex >= 0 ? track.lyrics[activeLyricIndex] : undefined;
   // 가사 타이밍은 유튜브 원본 재생 시각(currentTime) 그대로 매칭하되, 화면에 보이는 재생
   // 시간·전체 길이·플레이바는 media.startSeconds만큼 당겨서 "0초부터 재생된" 것처럼 보여준다.
   const trackStartOffset = track.media.startSeconds ?? 0;
   const displayCurrentTime = Math.max(0, currentTime - trackStartOffset);
   const displayDuration = Math.max(0, duration - trackStartOffset);
-  const nextLyric = activeLyricIndex >= 0 ? track.lyrics[activeLyricIndex + 1] : undefined;
+  const nextLyric =
+    activeLyricIndex >= 0 ? track.lyrics[activeLyricIndex + 1] : undefined;
   const visibleVolume = muted ? 0 : volume;
   const showLoopVideo = !!track.loopVideo && !reducedMotion;
   const indexLabel = `${track.code} · ${String(index).padStart(2, "0")}`;
 
   return (
     <>
-      <div className="cover-loop-lab__youtube-frame" ref={frameRef} aria-hidden="true" />
-      <section className="cover-loop-lab__stage" aria-label={`${track.displayName} 커버 루프 영상`}>
+      <div
+        className="cover-loop-lab__youtube-frame"
+        ref={frameRef}
+        aria-hidden="true"
+      />
+      <section
+        className="cover-loop-lab__stage"
+        aria-label={`${track.displayName} 커버 루프 영상`}
+        onPointerMove={revealAiNotice}
+        onPointerEnter={revealAiNotice}
+      >
         {/* 채움 배경: 같은 포스터를 cover + blur로 화면 끝까지 채워 세로로 긴 화면에서도 여백이 남지 않게 한다. */}
-        <div className="cover-loop-lab__fill" aria-hidden="true" style={{ backgroundImage: `url(${track.poster})` }} />
+        <div
+          className="cover-loop-lab__fill"
+          aria-hidden="true"
+          style={{ backgroundImage: `url(${track.poster})` }}
+        />
         <div className="cover-loop-lab__fill-shade" aria-hidden="true" />
         {/* 주 장면: contain으로 16:9 원본 프레임을 그대로 보존해 좌우를 자르지 않는다. */}
         {showLoopVideo ? (
@@ -454,7 +554,11 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
         />
         {centerFlash && (
           <div className="cover-loop-lab__center-flash" aria-hidden="true">
-            {centerFlash === "play" ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
+            {centerFlash === "play" ? (
+              <Play aria-hidden="true" />
+            ) : (
+              <Pause aria-hidden="true" />
+            )}
           </div>
         )}
 
@@ -472,7 +576,11 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
                 <ListMusic aria-hidden="true" />
               </button>
               {playlistOpen && (
-                <div className="cover-loop-lab__playlist-popover" role="listbox" aria-label="재생목록">
+                <div
+                  className="cover-loop-lab__playlist-popover"
+                  role="listbox"
+                  aria-label="재생목록"
+                >
                   {coverLoopTracks.map((item, itemIndex) => (
                     <button
                       key={item.id}
@@ -482,7 +590,9 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
                       className={`cover-loop-lab__playlist-item${item.id === selectedTrackId ? " cover-loop-lab__playlist-item--active" : ""}`}
                       onClick={() => selectTrack(item.id)}
                     >
-                      <span className="cover-loop-lab__playlist-item-index">{String(itemIndex + 1).padStart(2, "0")}</span>
+                      <span className="cover-loop-lab__playlist-item-index">
+                        {String(itemIndex + 1).padStart(2, "0")}
+                      </span>
                       <span className="cover-loop-lab__playlist-item-meta">
                         <strong>{item.title}</strong>
                         <small>
@@ -491,7 +601,7 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
                       </span>
                     </button>
                   ))}
-                  <p className="cover-loop-lab__playlist-footer">추가 예정</p>
+                  {/* <p className="cover-loop-lab__playlist-footer">추가 예정</p> */}
                 </div>
               )}
             </div>
@@ -503,130 +613,185 @@ export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }:
               </span>
             </div>
           </div>
-          {/* 원곡 제목/가수(위 NOW PLAYING)와 별개로, 이 커버를 부른 잔디동 선수 표기 영역. 선수
-              이름 자체는 하단 플레이어 패널(cover-loop-lab__track-meta)에 표시한다. */}
-          <div className="cover-loop-lab__performer">
-            <span>COVER BY</span>
-            <small>{indexLabel}</small>
+          <div className="cover-loop-lab__performer-group">
+            {/* 원곡 제목/가수(위 NOW PLAYING)와 별개로, 이 커버를 부른 잔디동 선수 표기 영역.
+                선수 이름 자체는 하단 플레이어 패널(cover-loop-lab__track-meta)에 표시한다. */}
+            <div className="cover-loop-lab__performer">
+              <span>COVER BY</span>
+              <small>{indexLabel}</small>
+            </div>
+            {/* AI로 생성한 루프 영상이라 어색할 수 있다는 안내 — 평소엔 숨겨져 있다가 마우스가
+                움직이면 잠깐 나타난다(닫기 버튼과 같은 hover-reveal 패턴). */}
+            <div
+              className={`cover-loop-lab__ai-notice${aiNoticeVisible ? " cover-loop-lab__ai-notice--visible" : ""}`}
+            >
+              <Bot aria-hidden="true" />
+              <span>AI로 생성한 영상으로 어색할 수 있어요</span>
+            </div>
           </div>
         </div>
         {/* 가사 + 플레이바를 한 덩어리로 화면 아래에 고정. 가사는 실제 컨트롤 행(볼륨~재생시간이
             있는 줄) 바로 위에 뜨고, 없을 때도 높이를 그대로 비워둬 그 줄이 위아래로 흔들리지
             않게 한다. */}
         <div className="cover-loop-lab__bottom">
-          <section className="cover-loop-lab__player" aria-label="커버 음악 플레이어">
-          <CoverLoopVisualizer isPlaying={isPlaying} currentTime={currentTime} volume={visibleVolume} reducedMotion={reducedMotion} />
-          <div className="cover-loop-lab__track-meta">
-            <div className="cover-loop-lab__track-meta-row">
-              <strong>{track.title}</strong>
+          <section
+            className="cover-loop-lab__player"
+            aria-label="커버 음악 플레이어"
+          >
+            <CoverLoopVisualizer
+              isPlaying={isPlaying}
+              currentTime={currentTime}
+              volume={visibleVolume}
+              reducedMotion={reducedMotion}
+            />
+            <div className="cover-loop-lab__track-meta">
+              <div className="cover-loop-lab__track-meta-row">
+                <strong>{track.title}</strong>
+                <button
+                  type="button"
+                  className="cover-loop-lab__repeat"
+                  onClick={cycleRepeatMode}
+                  aria-pressed={repeatMode !== "off"}
+                  aria-label={repeatLabel}
+                  title={repeatLabel}
+                >
+                  {repeatMode === "one" ? (
+                    <Repeat1 aria-hidden="true" />
+                  ) : repeatMode === "all" ? (
+                    <Repeat aria-hidden="true" />
+                  ) : (
+                    <RepeatOff aria-hidden="true" />
+                  )}
+                </button>
+              </div>
+              <small>{track.displayName}</small>
+            </div>
+            <div className="cover-loop-lab__controls">
               <button
                 type="button"
-                className="cover-loop-lab__repeat"
-                onClick={cycleRepeatMode}
-                aria-pressed={repeatMode !== "off"}
-                aria-label={repeatLabel}
-                title={repeatLabel}
+                className="cover-loop-lab__skip"
+                onClick={goToPrevTrack}
+                disabled={!canSkip}
+                aria-label="이전 곡"
               >
-                {repeatMode === "one" ? (
-                  <Repeat1 aria-hidden="true" />
-                ) : repeatMode === "all" ? (
-                  <Repeat aria-hidden="true" />
+                <ChevronFirst aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className="cover-loop-lab__play"
+                onClick={togglePlayback}
+                disabled={!ready}
+                aria-label={isPlaying ? "일시정지" : "재생"}
+              >
+                {isPlaying ? (
+                  <Pause aria-hidden="true" />
                 ) : (
-                  <RepeatOff aria-hidden="true" />
+                  <Play aria-hidden="true" />
                 )}
               </button>
-            </div>
-            <small>{track.displayName}</small>
-          </div>
-          <div className="cover-loop-lab__controls">
-            <button type="button" className="cover-loop-lab__skip" onClick={goToPrevTrack} disabled={!canSkip} aria-label="이전 곡">
-              <ChevronFirst aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              className="cover-loop-lab__play"
-              onClick={togglePlayback}
-              disabled={!ready}
-              aria-label={isPlaying ? "일시정지" : "재생"}
-            >
-              {isPlaying ? <Pause aria-hidden="true" /> : <Play aria-hidden="true" />}
-            </button>
-            <button type="button" className="cover-loop-lab__skip" onClick={goToNextTrack} disabled={!canSkip} aria-label="다음 곡">
-              <ChevronLast aria-hidden="true" />
-            </button>
-            <div className="cover-loop-lab__volume-group">
               <button
                 type="button"
-                className="cover-loop-lab__mute"
-                onClick={toggleMuted}
-                disabled={!ready}
-                aria-pressed={muted}
-                aria-label={muted ? "음소거 해제" : "음소거"}
+                className="cover-loop-lab__skip"
+                onClick={goToNextTrack}
+                disabled={!canSkip}
+                aria-label="다음 곡"
               >
-                {muted || visibleVolume === 0 ? <VolumeX aria-hidden="true" /> : <Volume2 aria-hidden="true" />}
+                <ChevronLast aria-hidden="true" />
               </button>
-              <input
-                className="cover-loop-lab__volume-range"
-                type="range"
-                min="0"
-                max="100"
-                value={visibleVolume}
-                onChange={(event) => updateVolume(Number(event.target.value))}
-                disabled={!ready}
-                aria-label="볼륨"
-                style={{ "--cover-loop-volume": `${visibleVolume}%` } as React.CSSProperties}
-              />
-            </div>
-            {/* 볼륨 버튼과 같은 줄에 표시. 가사가 없어도 폭을 그대로 차지해 시간/전체화면이
+              <div className="cover-loop-lab__volume-group">
+                <button
+                  type="button"
+                  className="cover-loop-lab__mute"
+                  onClick={toggleMuted}
+                  disabled={!ready}
+                  aria-pressed={muted}
+                  aria-label={muted ? "음소거 해제" : "음소거"}
+                >
+                  {muted || visibleVolume === 0 ? (
+                    <VolumeX aria-hidden="true" />
+                  ) : (
+                    <Volume2 aria-hidden="true" />
+                  )}
+                </button>
+                <input
+                  className="cover-loop-lab__volume-range"
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={visibleVolume}
+                  onChange={(event) => updateVolume(Number(event.target.value))}
+                  disabled={!ready}
+                  aria-label="볼륨"
+                  style={
+                    {
+                      "--cover-loop-volume": `${visibleVolume}%`,
+                    } as React.CSSProperties
+                  }
+                />
+              </div>
+              {/* 볼륨 버튼과 같은 줄에 표시. 가사가 없어도 폭을 그대로 차지해 시간/전체화면이
                 옆으로 밀리지 않게 한다. */}
-            <div className="cover-loop-lab__lyric" aria-live="polite">
-              {activeLyric && (
-                <p key={`cur-${activeLyricIndex}`} className="cover-loop-lab__lyric-line cover-loop-lab__lyric-line--current">
-                  {activeLyric.text}
-                </p>
-              )}
-              {/* 다음 가사를 한 줄쯤 잘리고 흐려진 채로 미리 보여주다가, 전환되면 이 줄이 위로
+              <div className="cover-loop-lab__lyric" aria-live="polite">
+                {activeLyric && (
+                  <p
+                    key={`cur-${activeLyricIndex}`}
+                    className="cover-loop-lab__lyric-line cover-loop-lab__lyric-line--current"
+                  >
+                    {activeLyric.text}
+                  </p>
+                )}
+                {/* 다음 가사를 한 줄쯤 잘리고 흐려진 채로 미리 보여주다가, 전환되면 이 줄이 위로
                   올라와 현재 가사 자리를 차지한다(key가 바뀌며 rise 애니메이션이 다시 재생됨). */}
-              {activeLyric && nextLyric && (
-                <p key={`next-${activeLyricIndex}`} className="cover-loop-lab__lyric-line cover-loop-lab__lyric-line--next" aria-hidden="true">
-                  {nextLyric.text}
-                </p>
+                {activeLyric && nextLyric && (
+                  <p
+                    key={`next-${activeLyricIndex}`}
+                    className="cover-loop-lab__lyric-line cover-loop-lab__lyric-line--next"
+                    aria-hidden="true"
+                  >
+                    {nextLyric.text}
+                  </p>
+                )}
+              </div>
+              <time>
+                {formatTime(displayCurrentTime)} / {formatTime(displayDuration)}
+              </time>
+              {fullscreenSupported && (
+                <button
+                  type="button"
+                  className="cover-loop-lab__fullscreen"
+                  onClick={toggleFullscreen}
+                  aria-pressed={isFullscreen}
+                  aria-label={isFullscreen ? "전체화면 종료" : "전체화면"}
+                >
+                  {isFullscreen ? (
+                    <Minimize aria-hidden="true" />
+                  ) : (
+                    <Maximize aria-hidden="true" />
+                  )}
+                </button>
               )}
             </div>
-            <time>
-              {formatTime(displayCurrentTime)} / {formatTime(displayDuration)}
-            </time>
-            {fullscreenSupported && (
-              <button
-                type="button"
-                className="cover-loop-lab__fullscreen"
-                onClick={toggleFullscreen}
-                aria-pressed={isFullscreen}
-                aria-label={isFullscreen ? "전체화면 종료" : "전체화면"}
-              >
-                {isFullscreen ? <Minimize aria-hidden="true" /> : <Maximize aria-hidden="true" />}
-              </button>
-            )}
-          </div>
-          <input
-            className="cover-loop-lab__progress"
-            type="range"
-            min="0"
-            max={Math.max(displayDuration, 1)}
-            step="0.1"
-            value={Math.min(displayCurrentTime, Math.max(displayDuration, 1))}
-            onChange={(event) => {
-              const displaySeconds = Number(event.target.value);
-              const seconds = displaySeconds + trackStartOffset;
-              playerRef.current?.seekTo(seconds, true);
-              setCurrentTime(seconds);
-            }}
-            disabled={!ready || duration === 0}
-            aria-label="재생 위치"
-            style={
-              { "--cover-loop-progress": `${displayDuration ? (displayCurrentTime / displayDuration) * 100 : 0}%` } as React.CSSProperties
-            }
-          />
+            <input
+              className="cover-loop-lab__progress"
+              type="range"
+              min="0"
+              max={Math.max(displayDuration, 1)}
+              step="0.1"
+              value={Math.min(displayCurrentTime, Math.max(displayDuration, 1))}
+              onChange={(event) => {
+                const displaySeconds = Number(event.target.value);
+                const seconds = displaySeconds + trackStartOffset;
+                playerRef.current?.seekTo(seconds, true);
+                setCurrentTime(seconds);
+              }}
+              disabled={!ready || duration === 0}
+              aria-label="재생 위치"
+              style={
+                {
+                  "--cover-loop-progress": `${displayDuration ? (displayCurrentTime / displayDuration) * 100 : 0}%`,
+                } as React.CSSProperties
+              }
+            />
           </section>
         </div>
       </section>

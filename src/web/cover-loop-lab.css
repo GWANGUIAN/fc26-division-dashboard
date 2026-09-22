@@ -188,10 +188,36 @@
 .cover-loop-lab__playlist-footer { margin: 4px 0 0; padding: 8px 10px 2px; border-top: 1px solid rgba(255, 255, 255, 0.16); color: rgba(255, 255, 255, 0.45); font-size: 11px; text-align: center; }
 
 /* 원곡 정보(now-playing)와 별개인 커버 선수 이름 영역 — 우측 정렬로 대칭. */
+.cover-loop-lab__performer-group { display: grid; gap: 6px; justify-items: end; }
 .cover-loop-lab__performer { display: grid; gap: 3px; justify-items: end; text-align: right; }
 .cover-loop-lab__performer span { color: rgba(255, 255, 255, 0.74); font: 700 10px/1 "Barlow Condensed", sans-serif; letter-spacing: 0.16em; }
 .cover-loop-lab__performer strong { font-size: clamp(14px, 1.6vw, 19px); font-weight: 700; letter-spacing: -0.01em; }
 .cover-loop-lab__performer small { color: #fff; font: 700 clamp(10px, 1vw, 12px)/1 "Barlow Condensed", sans-serif; letter-spacing: 0.14em; opacity: 0.82; }
+/* AI 생성 영상 안내 태그 — 닫기 버튼(cover-loop-overlay.css의 __close--visible)과 같은
+   hover-reveal 패턴: 평소엔 숨어있다가 마우스가 움직이면 잠깐 나타난다. */
+.cover-loop-lab__ai-notice {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  font: 600 10px/1.3 "Noto Sans KR", sans-serif;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.cover-loop-lab__ai-notice svg { width: 12px; height: 12px; flex: 0 0 auto; }
+.cover-loop-lab__ai-notice--visible { opacity: 1; transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+  .cover-loop-lab__ai-notice { transition: none; }
+}
 
 /* 가사 + 플레이바를 한 덩어리로 화면 아래에 고정한다(스크린샷 참고) — 이전엔 가사가 상단에
    따로 떠 있었지만, 이제 플레이바 바로 위에 붙는다. */
