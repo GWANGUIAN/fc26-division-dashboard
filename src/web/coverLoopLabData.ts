@@ -1,3 +1,5 @@
+import { WOOWAKGOOD_BONUS_STREAMER } from "./toty-card/woowakgoodBonusCard.js";
+
 // 포스터/루프 영상은 파일명 규칙(<id>-cover-poster.*, <id>-cover-loop.mp4)만 지키면 이 글롭이
 // 알아서 찾아준다 — 멤버가 늘어도 이 파일에 import 문을 추가할 필요가 없다. mp4는 ?url로
 // 받아 20MB 파일 바이트가 JS 번들에 들어가지 않고 빌드타임 URL 문자열만 남게 한다.
@@ -376,11 +378,47 @@ export const bboringirlCoverLoopTrack: CoverLoopTrack = {
   lyrics: bboringirlLyrics,
 };
 
-// 나머지 6명은 이번 세션에서 구현하지 않는다 — 에셋/가사가 준비되면 이 배열에 추가한다.
+// 개발 전용 가사 타이밍 도구(CoverLoopLyricTimingTool)로 직접 찍어 확정한 구간(2026-09-22).
+// 실제 재생 시각을 그대로 탭한 값이라 별도 오프셋 없이 그대로 쓴다.
+const woowakgoodLyrics: readonly LyricCue[] = [
+  { startSeconds: 7.46, endSeconds: 14.44, text: "왜 너에겐 그렇게 어려운지" },
+  { startSeconds: 14.44, endSeconds: 21.47, text: "애를 쓰는 나를 제대로 봐주는 게" },
+  { startSeconds: 21.47, endSeconds: 32.08, text: "너 하나에 이토록 아플 수 있음에 놀라곤 해" },
+  { startSeconds: 32.08, endSeconds: 41.08, text: "고단했던 하루, 나는 꿈을 꿔도 아파" },
+  { startSeconds: 41.08, endSeconds: 49.36, text: "너였다면 어떨 것 같아?" },
+  { startSeconds: 49.36, endSeconds: 55.12, text: "이런 미친 날들이 네 하루가 되면 말야" },
+  { startSeconds: 55.12, endSeconds: 69.17, text: "너도 나만큼 혼자 부서져 본다면 알게 될까?" },
+  { startSeconds: 69.17, endSeconds: 76.18, text: "가슴이 터질 듯 날 가득 채운 통증과" },
+  { startSeconds: 76.18, endSeconds: 85, text: "얼마나 너를 원하고 있는지" },
+  { startSeconds: 85, endSeconds: 89.5, text: "내가 너라면 그냥 날 사랑할 텐데" },
+];
+
+// 로스터(roster.yaml)에 없는 감독 우왁굳 — 하드코딩 게스트 컨벤션은
+// src/web/toty-card/woowakgoodBonusCard.ts 참고, group-photo/groupPhotoRoster.ts와 같은 방식으로
+// WOOWAKGOOD_BONUS_STREAMER를 재사용한다.
+export const woowakgoodCoverLoopTrack: CoverLoopTrack = {
+  id: WOOWAKGOOD_BONUS_STREAMER.id,
+  code: "WOOWAKGOOD",
+  displayName: WOOWAKGOOD_BONUS_STREAMER.displayName,
+  position: WOOWAKGOOD_BONUS_STREAMER.hopedPosition1 ?? "ALL",
+  title: "너였다면",
+  artist: "정승환",
+  media: { type: "youtube", videoId: "4jcWUW8_Fys" },
+  poster: posterFor(WOOWAKGOOD_BONUS_STREAMER.id),
+  loopVideo: loopVideoFor(WOOWAKGOOD_BONUS_STREAMER.id),
+  objectPosition: "center",
+  lyricStartSeconds: 7.46,
+  lyrics: woowakgoodLyrics,
+};
+
+// 나머지 5명은 이번 세션에서 구현하지 않는다 — 에셋/가사가 준비되면 이 배열에 추가한다.
+// 우왁굳(감독, 로스터 밖 게스트)은 선수단이 아니므로 항상 배열 맨 끝에 둔다 — 새 선수를
+// 추가할 땐 이 트랙 "앞"에 끼워 넣을 것.
 export const coverLoopTracks: readonly CoverLoopTrack[] = [
   hachiCoverLoopTrack,
   janineCoverLoopTrack,
   hangyeolCoverLoopTrack,
   linyaCoverLoopTrack,
   bboringirlCoverLoopTrack,
+  woowakgoodCoverLoopTrack,
 ];
