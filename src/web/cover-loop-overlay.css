@@ -1,5 +1,5 @@
 /* Full-screen 잔디동 플레이리스트 popup (docs/cover-loop-lab-next-implementation.md "팝업과 닫기
-   제어"). Wraps the same CoverLoopStage player body the dev-only /cover-loop-lab route uses. */
+   제어"). Wraps the shared CoverLoopStage player body. */
 .cover-loop-overlay {
   position: fixed;
   z-index: 85;

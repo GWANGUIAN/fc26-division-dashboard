@@ -1,5 +1,5 @@
-/* 커버 루프 플레이어 본체(CoverLoopStage) — /cover-loop-lab 라우트와 CoverLoopPlaylistOverlay
-   팝업이 함께 쓴다. 첨부 레퍼런스처럼 장면이 주인공, UI는 조용한 흰색 레이어
+/* 커버 루프 플레이어 본체(CoverLoopStage) — CoverLoopPlaylistOverlay 팝업이 쓴다. 첨부
+   레퍼런스처럼 장면이 주인공, UI는 조용한 흰색 레이어
    (docs/cover-loop-lab-next-implementation.md "UI 명세"): 주황/크림 그라데이션·glow·둥근 캡슐 없음,
    재생 버튼만 원형이고 나머지는 border-radius: 0. */
 /* NOW PLAYING / COVER BY / HACHI · 01 라벨(Barlow Condensed 유지)을 제외한 나머지 전부에 쓴다. */

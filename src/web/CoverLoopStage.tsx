@@ -136,10 +136,9 @@ function CoverLoopVisualizer({
 }
 
 /**
- * The player body shared by the standalone /cover-loop-lab route (CoverLoopLab.tsx) and the
- * full-screen playlist popup (CoverLoopPlaylistOverlay.tsx). `track`/`index` are only the initial
- * selection — the NOW PLAYING playlist popover switches between all of `coverLoopTracks` from here
- * on, independent of what the caller originally passed in.
+ * The player body used by the full-screen playlist popup (CoverLoopPlaylistOverlay.tsx).
+ * `track`/`index` are only the initial selection — the NOW PLAYING playlist popover switches
+ * between all of `coverLoopTracks` from here on, independent of what the caller originally passed in.
  */
 export function CoverLoopStage({ track: initialTrack, index: initialIndex = 1 }: { track: CoverLoopTrack; index?: number }) {
   const frameRef = useRef<HTMLDivElement>(null);

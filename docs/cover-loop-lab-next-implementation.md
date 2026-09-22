@@ -159,9 +159,30 @@ sound effects, dialogue, or music. Continuous single shot.
 
 0초와 8초의 눈, 어깨, 손, 그림자, 배경이 다르거나 입김/연기/오디오/얼굴 변화가 있으면 해당 생성본은 채택하지 않는다.
 
-## 이후 10명 커버 스틸 프롬프트
+## 이후 10명과 감독 커버 스틸 프롬프트
 
 모든 프롬프트는 해당 선수의 아바타 레퍼런스를 첨부한 뒤 사용한다. 공통 요구는 한 장의 완성 16:9 장면, 전신, 원본 얼굴·헤어·액세서리·선화·비율 유지, 하단 24%의 어두운 UI 안전 영역, 상단 중앙 가사 여백, 읽을 수 있는 글자·로고·워터마크 없는 이미지다.
+
+### 우왁굳 / 잔디동 감독
+
+선수 아바타가 아니라 **감독 아바타 레퍼런스**를 첨부한다. 감독이 주인공임이 분명해야 하므로 선수 유니폼, 공을 차는 동작, 관중석의 과도한 군중은 넣지 않는다.
+
+~~~
+Use the attached Woowakgood coach avatar reference to preserve the exact face,
+hairstyle, accessories, proportions, and illustration style. Create one
+cinematic 16:9 music-cover illustration: the Jandydong football club head coach
+alone in the technical area of an empty small stadium at blue hour, quietly
+watching the floodlit pitch after training. Wear a refined dark coach jacket and
+subtle staff lanyard, not a player uniform. A closed tactics folder rests under
+one arm; a few training cones and a distant goal softly establish football
+without becoming busy. The expression is calm, observant, and responsible, as
+if checking that every player has made it home. Full body, three-quarter view,
+slightly left of center, facing the field. Cool stadium light meets one warm
+sideline lamp; use a coherent contact shadow. Leave the lower 24 percent dark
+and uncluttered for player controls and keep open upper-center space for lyrics.
+No readable text, logos, scoreboards, watermarks, crowd, whistle, action pose,
+or camera drama. Fixed composition, high-resolution unlettered image.
+~~~
 
 ### 재닌 / janine95kim / GK
 
@@ -311,10 +332,29 @@ proportions, and linework from the reference; fixed composition,
 high-resolution unlettered image.
 ~~~
 
-+
-## 10명 전용 루프 애니메이션 프롬프트
+## 10명과 감독 전용 루프 애니메이션 프롬프트
 
 아래 프롬프트는 각 선수의 해당 완성 스틸을 First frame과 Last frame에 같은 파일로 넣고 Animate Keyframes의 8초 클립에서 사용한다. Prompt Enhance와 Audio는 끈다. 공통적으로 locked camera, silent video, identical first/final frame, 그리고 원본의 얼굴·헤어·의상·손·배경·광원을 그대로 유지한다. 한 번에 두 가지보다 많은 움직임을 넣지 않는다.
+
+### 우왁굳 / 잔디동 감독 — 비어 있는 피치를 바라보는 감독
+
+전술 폴더나 손을 움직이면 형태가 깨질 가능성이 있으므로, 감독의 시선과 재킷 자락만 아주 작게 쓴다. 말을 하거나 호루라기를 부는 연출은 금지한다.
+
+~~~
+An eight-second seamless silent loop. The first and final frame are identical.
+Preserve the coach's exact face, hairstyle, calm expression, dark coach jacket,
+staff lanyard, closed tactics folder, technical area, distant goal, cones,
+stadium lights, contact shadow, and composition. Locked camera. From 0 to 2.5
+seconds, the lowest edge of the coach jacket settles inward by only a few pixels
+as if a faint sideline breeze briefly eases; the hands and tactics folder stay
+in the exact initial pose. From 3 to 5.5 seconds, the jacket edge returns
+precisely to its initial shape. At 4 seconds, both eyelids close once and open
+to the identical gaze toward the pitch. The head, mouth, body, hands, folder,
+cones, goal, floodlights, grass, and background remain still. From 5.5 to 8
+seconds, hold the exact initial pose. Silent video: no generated audio, speech,
+whistle, crowd sound, music, wind sound, camera movement, new text, or new
+objects.
+~~~
 
 ### 재닌 / GK — 골문 앞 준비 자세
 
