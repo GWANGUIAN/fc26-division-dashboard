@@ -10,10 +10,15 @@ function formatLrcTimestamp(seconds: number): string {
   return `${String(minutes).padStart(2, "0")}:${rest.toFixed(2).padStart(5, "0")}`;
 }
 
+type Tap = { time: number; text: string; isBlank: boolean };
+
 /**
  * Dev-only manual lyric timing tool — for when a track's cues drift out of sync (e.g. Janine's
  * lyrics after "끝이 아니야"). Play the song, tap through the lyric lines as they're sung, then
  * copy the generated LRC text back into chat so it can be converted into a LyricCue[] update.
+ * "빈 줄 추가" records a blank-text tap at the current time without consuming a lyric line — for
+ * marking instrumental breaks (간주) between verses, matching the `[mm:ss.cc]` blank-line LRC
+ * convention already used to mark gaps (see hachiLyricsRaw in coverLoopLabData.ts).
  * Never rendered in production — the caller gates it behind `import.meta.env.DEV`.
  */
 export function CoverLoopLyricTimingTool({
@@ -31,13 +36,15 @@ export function CoverLoopLyricTimingTool({
 }) {
   const [open, setOpen] = useState(false);
   const [linesText, setLinesText] = useState(() => track.lyrics.map((cue) => cue.text).join("\n"));
-  const [taps, setTaps] = useState<number[]>([]);
+  const [taps, setTaps] = useState<Tap[]>([]);
   const [copied, setCopied] = useState(false);
   const listRef = useRef<HTMLOListElement>(null);
   const copiedTimerRef = useRef<number | undefined>(undefined);
 
   const lines = useMemo(() => linesText.split("\n").map((line) => line.trim()).filter(Boolean), [linesText]);
-  const tapIndex = taps.length;
+  // 빈 줄 탭은 lines 목록을 소비하지 않으므로, 다음으로 찍을 실제 가사 줄은 지금까지 찍은
+  // "빈 줄이 아닌" 탭 개수로 정해진다.
+  const nextLineIndex = taps.filter((tap) => !tap.isBlank).length;
 
   useEffect(() => () => window.clearTimeout(copiedTimerRef.current), []);
 
@@ -53,16 +60,20 @@ export function CoverLoopLyricTimingTool({
   useEffect(() => {
     if (!open) return;
     listRef.current?.querySelector<HTMLLIElement>('[data-current="true"]')?.scrollIntoView({ block: "nearest" });
-  }, [open, tapIndex]);
+  }, [open, nextLineIndex]);
 
   function loadFromTrack() {
     setLinesText(track.lyrics.map((cue) => cue.text).join("\n"));
     setTaps([]);
   }
 
-  function handleTap() {
-    if (tapIndex >= lines.length) return;
-    setTaps((previous) => [...previous, currentTime]);
+  function handleTapLine() {
+    if (nextLineIndex >= lines.length) return;
+    setTaps((previous) => [...previous, { time: currentTime, text: lines[nextLineIndex], isBlank: false }]);
+  }
+
+  function handleTapBlank() {
+    setTaps((previous) => [...previous, { time: currentTime, text: "", isBlank: true }]);
   }
 
   function handleUndo() {
@@ -73,7 +84,7 @@ export function CoverLoopLyricTimingTool({
     setTaps([]);
   }
 
-  const lrcOutput = taps.map((time, i) => `[${formatLrcTimestamp(time)}]${lines[i]}`).join("\n");
+  const lrcOutput = taps.map((tap) => `[${formatLrcTimestamp(tap.time)}]${tap.text}`).join("\n");
 
   async function handleCopy() {
     try {
@@ -85,6 +96,8 @@ export function CoverLoopLyricTimingTool({
       /* clipboard permission denied — the output textarea can still be selected/copied by hand */
     }
   }
+
+  const pendingLines = lines.slice(nextLineIndex);
 
   return (
     <>
@@ -117,6 +130,7 @@ export function CoverLoopLyricTimingTool({
 
             <p className="cover-loop-lyric-timing__hint">
               아래 줄이 <strong>시작되는 순간</strong> 누르세요(끝나는 시점 아님) — 그 줄의 시작 시각으로 기록됩니다.
+              간주(가사가 없는 구간)에는 <strong>빈 줄 추가</strong>를 눌러 그 지점을 표시하세요.
             </p>
             <div className="cover-loop-lyric-timing__playback">
               <button type="button" onClick={onSeekToStart}>
@@ -126,8 +140,18 @@ export function CoverLoopLyricTimingTool({
                 {isPlaying ? "일시정지" : "재생"}
               </button>
               <time>{formatLrcTimestamp(currentTime)}</time>
-              <button type="button" className="cover-loop-lyric-timing__tap" onClick={handleTap} disabled={tapIndex >= lines.length}>
-                이 줄 시작! ({Math.min(tapIndex + 1, lines.length)}/{lines.length})
+            </div>
+            <div className="cover-loop-lyric-timing__playback">
+              <button
+                type="button"
+                className="cover-loop-lyric-timing__tap"
+                onClick={handleTapLine}
+                disabled={nextLineIndex >= lines.length}
+              >
+                이 줄 시작! ({Math.min(nextLineIndex + 1, lines.length)}/{lines.length})
+              </button>
+              <button type="button" className="cover-loop-lyric-timing__tap-blank" onClick={handleTapBlank}>
+                빈 줄 추가 (간주)
               </button>
             </div>
 
@@ -146,11 +170,15 @@ export function CoverLoopLyricTimingTool({
             />
 
             <ol className="cover-loop-lyric-timing__lines" ref={listRef}>
-              {lines.map((line, i) => (
-                <li key={i} data-current={i === tapIndex} className={i < tapIndex ? "done" : i === tapIndex ? "current" : ""}>
-                  <span className="cover-loop-lyric-timing__time">
-                    {i < tapIndex ? formatLrcTimestamp(taps[i]) : i === tapIndex ? "▶" : "—"}
-                  </span>
+              {taps.map((tap, i) => (
+                <li key={`tap-${i}`} className="done">
+                  <span className="cover-loop-lyric-timing__time">{formatLrcTimestamp(tap.time)}</span>
+                  <span className="cover-loop-lyric-timing__text">{tap.isBlank ? "(간주 · 빈 줄)" : tap.text}</span>
+                </li>
+              ))}
+              {pendingLines.map((line, i) => (
+                <li key={`pending-${i}`} data-current={i === 0} className={i === 0 ? "current" : ""}>
+                  <span className="cover-loop-lyric-timing__time">{i === 0 ? "▶" : "—"}</span>
                   <span className="cover-loop-lyric-timing__text">{line}</span>
                 </li>
               ))}

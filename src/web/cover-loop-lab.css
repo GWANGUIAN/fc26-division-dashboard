@@ -354,7 +354,9 @@
   opacity: 1;
   pointer-events: auto;
 }
-.cover-loop-lab__controls time { flex: 0 0 auto; color: rgba(255, 255, 255, 0.74); font: 500 13px/1 'GMarketSans', sans-serif; letter-spacing: 0.02em; white-space: nowrap; }
+/* 숫자 폭이 자릿수마다 달라 재생 중 옆 버튼(전체화면)이 미세하게 밀리는 걸 막는다 —
+   tabular-nums로 자릿수 폭을 고정하고, min-width로 "0:00 / 0:00" 전체 자리를 미리 확보한다. */
+.cover-loop-lab__controls time { flex: 0 0 auto; min-width: 78px; color: rgba(255, 255, 255, 0.74); font: 500 13px/1 'GMarketSans', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; text-align: right; white-space: nowrap; }
 
 /* 전체화면 토글 — 브라우저 Fullscreen API 미지원 환경(iOS Safari 등)에서는 아예 렌더되지 않는다. */
 .cover-loop-lab__fullscreen {
@@ -397,7 +399,7 @@
   .cover-loop-lab__lyric-line--next { display: none; }
   .cover-loop-lab__player { gap: 10px; }
   .cover-loop-lab__controls { gap: 10px; }
-  .cover-loop-lab__controls time { font-size: 12px; }
+  .cover-loop-lab__controls time { min-width: 70px; font-size: 12px; }
 }
 
 /* 터치(hover 불가) 환경: 짧은 range를 항상 노출한다 — 아이콘 hover에 의존하지 않는다. */

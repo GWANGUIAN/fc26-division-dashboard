@@ -60,9 +60,12 @@
 .cover-loop-lyric-timing__playback { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .cover-loop-lyric-timing__playback button { padding: 6px 10px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 0; color: #fff; background: transparent; font-size: 12px; cursor: pointer; }
 .cover-loop-lyric-timing__playback button:hover { background: rgba(255, 255, 255, 0.1); }
-.cover-loop-lyric-timing__playback time { color: #ffc400; font: 700 13px/1 "Barlow Condensed", sans-serif; }
-.cover-loop-lyric-timing__tap { margin-left: auto; padding: 8px 12px; border: 1px solid #ffc400; border-radius: 0; color: #141014; background: #ffc400; font-weight: 700; }
+.cover-loop-lyric-timing__playback time { display: inline-block; min-width: 58px; color: #ffc400; font: 700 13px/1 "Barlow Condensed", sans-serif; font-variant-numeric: tabular-nums; }
+.cover-loop-lyric-timing__tap { flex: 1 1 auto; padding: 8px 12px; border: 1px solid #ffc400; border-radius: 0; color: #141014; background: #ffc400; font-weight: 700; cursor: pointer; }
 .cover-loop-lyric-timing__tap:disabled { opacity: 0.4; cursor: default; }
+/* 간주(가사 없는 구간) 표시용 — 빈 텍스트로 탭을 남기고 lines 목록은 소비하지 않는다. */
+.cover-loop-lyric-timing__tap-blank { flex: 1 1 auto; padding: 8px 12px; border: 1px dashed rgba(255, 255, 255, 0.45); border-radius: 0; color: #fff; background: rgba(255, 255, 255, 0.06); font-weight: 700; cursor: pointer; }
+.cover-loop-lyric-timing__tap-blank:hover { background: rgba(255, 255, 255, 0.14); }
 
 .cover-loop-lyric-timing__lines-head, .cover-loop-lyric-timing__output-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: rgba(255, 255, 255, 0.6); font-size: 11px; }
 .cover-loop-lyric-timing__lines-head button, .cover-loop-lyric-timing__output-head button { display: flex; align-items: center; gap: 4px; padding: 4px 8px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 0; color: #fff; background: transparent; font-size: 11px; cursor: pointer; }
