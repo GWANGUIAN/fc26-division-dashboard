@@ -83,6 +83,13 @@ function loadYouTubeApi(): Promise<void> {
   return youtubeApiPromise;
 }
 
+// 지금 플레이어(YT.Player 인스턴스 또는 SOOP iframe)에 실제로 로드된 미디어를 식별하는 키.
+// 트랙을 전환할 때뿐 아니라, 지금 재생 중인 커스텀 곡을 수정해서 media가 바뀐 경우(같은
+// track.id)에도 다시 로드해야 하므로 track.id 동일 여부가 아니라 이 값으로 판단한다.
+function mediaSignature(media: CoverLoopTrack["media"]): string {
+  return media.type === "youtube" ? `youtube:${media.videoId}` : `soop:${media.titleNo}`;
+}
+
 function formatTime(seconds: number) {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
   const minutes = Math.floor(seconds / 60);
@@ -282,10 +289,33 @@ export function CoverLoopStage({
   const selectedIndex = coverLoopTracks.findIndex(
     (item) => item.id === selectedTrackId,
   );
+  // 재생 중인 커스텀 곡이 관리 모달에서 삭제되면 selectedIndex가 -1이 된다 — 방금 있던 자리에
+  // 남는 게 "다음 곡"이므로, 삭제 전 마지막으로 유효했던 인덱스를 기억해 그 자리로 되돌린다.
+  // -1(sentinel)은 "selectedTrackId가 애초에 이 목록에 있어본 적이 없음"을 뜻한다 — 이땐
+  // initialTrack을 그대로 존중한다(예: 목록에 없는 임시 트랙을 곧바로 넘겨받은 경우).
+  // 실제 selectedTrackId 갱신은 아래 effect가 한다; 이 값은 그 전까지의 한 프레임 표시용.
+  const lastKnownIndexRef = useRef(-1);
+  if (selectedIndex >= 0) lastKnownIndexRef.current = selectedIndex;
   const activeIndex = selectedIndex >= 0 ? selectedIndex : 0;
   const track =
-    selectedIndex >= 0 ? coverLoopTracks[selectedIndex] : initialTrack;
+    selectedIndex >= 0
+      ? coverLoopTracks[selectedIndex]
+      : lastKnownIndexRef.current >= 0
+        ? coverLoopTracks[Math.min(lastKnownIndexRef.current, coverLoopTracks.length - 1)] ??
+          initialTrack
+        : initialTrack;
   const index = selectedIndex >= 0 ? selectedIndex + 1 : initialIndex;
+
+  // 지금 재생 중이던 커스텀 곡이 관리 모달에서 삭제되면 selectedTrackId가 더는 목록에 없다 —
+  // 위에서 계산한 fallback track(같은 자리, 즉 "다음 곡")으로 selectedTrackId 자체를 갱신해야
+  // 아래 트랙 전환 effect가 실제로 플레이어를 그 곡으로 넘겨준다.
+  useEffect(() => {
+    if (selectedIndex !== -1 || lastKnownIndexRef.current < 0 || coverLoopTracks.length === 0)
+      return;
+    const fallbackIndex = Math.min(lastKnownIndexRef.current, coverLoopTracks.length - 1);
+    setSelectedTrackId(coverLoopTracks[fallbackIndex].id);
+  }, [selectedIndex, coverLoopTracks]);
+
   const capabilities = getCoverLoopMediaCapabilities(track.media);
   const isYouTube = track.media.type === "youtube";
   const firstYouTubeTrack =
@@ -338,6 +368,10 @@ export function CoverLoopStage({
     };
   }, []);
 
+  // 지금 플레이어에 실제로 로드된 미디어 — 트랙 전환 effect가 "전환"과 "같은 곡을 수정해서
+  // media가 바뀜"을 구분하는 기준으로 쓴다.
+  const loadedMediaSignatureRef = useRef<string | undefined>(undefined);
+
   useEffect(() => {
     let cancelled = false;
     // 마운트 시점에 이미 복원된(로컬스토리지) 곡이 유튜브면 그 곡으로 플레이어를 만들어야
@@ -361,6 +395,9 @@ export function CoverLoopStage({
         },
         events: {
           onReady: () => {
+            loadedMediaSignatureRef.current = initialYouTubeMedia
+              ? mediaSignature(initialYouTubeMedia)
+              : undefined;
             playerRef.current?.setVolume(volume);
             setDuration(playerRef.current?.getDuration() ?? 0);
             // 재생목록에 다시 들어왔을 때 마지막으로 듣던 위치로 되돌리되, 일시정지 상태를
@@ -411,20 +448,30 @@ export function CoverLoopStage({
   }, []);
 
   // 재생목록 팝오버에서 다른 곡을 고르면, iframe을 다시 만들지 않고 같은 플레이어에 새 영상만
-  // 불러온다(MusicPlayer.tsx의 playTrack과 같은 방식).
+  // 불러온다(MusicPlayer.tsx의 playTrack과 같은 방식). track.id가 같아도 관리 모달에서 지금
+  // 재생 중인 커스텀 곡을 수정해 media(유튜브 videoId/SOOP titleNo)가 바뀐 경우에도 다시
+  // 로드해야 하므로, "곡을 바꿨는지"가 아니라 "로드된 미디어가 실제로 달라졌는지"로 판단한다.
   const previousTrackIdRef = useRef(selectedTrackId);
   useEffect(() => {
-    if (previousTrackIdRef.current === selectedTrackId) return;
-    const previousTrack = coverLoopTracks.find(
-      (item) => item.id === previousTrackIdRef.current,
-    );
-    saveCoverLoopLastPlayback(
-      previousTrackIdRef.current,
-      previousTrack?.media.type === "youtube"
-        ? latestCurrentTimeRef.current
-        : 0,
-    );
-    previousTrackIdRef.current = selectedTrackId;
+    const isNewTrack = previousTrackIdRef.current !== selectedTrackId;
+    const signature = mediaSignature(track.media);
+    const mediaChanged = loadedMediaSignatureRef.current !== signature;
+    if (!isNewTrack && !mediaChanged) return;
+
+    if (isNewTrack) {
+      const previousTrack = coverLoopTracks.find(
+        (item) => item.id === previousTrackIdRef.current,
+      );
+      saveCoverLoopLastPlayback(
+        previousTrackIdRef.current,
+        previousTrack?.media.type === "youtube"
+          ? latestCurrentTimeRef.current
+          : 0,
+      );
+      previousTrackIdRef.current = selectedTrackId;
+    }
+
+    loadedMediaSignatureRef.current = signature;
     setCurrentTime(0);
     setDuration(0);
     if (track.media.type === "soop-clip") {
@@ -608,7 +655,7 @@ export function CoverLoopStage({
   // 언마운트하지 않고 화면에서만 숨겨, SOOP 내부 플레이어의 재생 상태를 유지한다.
   useEffect(() => {
     setSoopEmbedVisible(true);
-  }, [track.id]);
+  }, [track.id, mediaSignature(track.media)]);
 
   return (
     <>
@@ -633,7 +680,7 @@ export function CoverLoopStage({
         {/* 주 장면: contain으로 16:9 원본 프레임을 그대로 보존해 좌우를 자르지 않는다. */}
         {showLoopVideo ? (
           <video
-            key={track.id}
+            key={`${track.id}:${track.loopVideo}`}
             ref={sceneVideoRef}
             className="cover-loop-lab__scene"
             poster={track.poster}
@@ -803,7 +850,7 @@ export function CoverLoopStage({
                 aria-hidden={!soopEmbedVisible}
               >
                 <iframe
-                  key={track.id}
+                  key={`${track.id}:${track.media.titleNo}`}
                   src={soopClipEmbedUrl(track.media.titleNo)}
                   title={`${soopClipTitle} SOOP 클립 플레이어`}
                   allow="fullscreen; picture-in-picture"
