@@ -714,6 +714,13 @@ export function CoverLoopStage({
                       <span className="cover-loop-lab__playlist-item-index">
                         {String(itemIndex + 1).padStart(2, "0")}
                       </span>
+                      <span className="cover-loop-lab__playlist-item-icon" aria-hidden="true">
+                        {item.media.type === "youtube" ? (
+                          <FontAwesomeIcon icon={faYoutube} />
+                        ) : (
+                          <SoopLogo />
+                        )}
+                      </span>
                       <span className="cover-loop-lab__playlist-item-meta">
                         <strong>{item.title}</strong>
                         <small>
