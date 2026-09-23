@@ -1,0 +1,38 @@
+/* Pill-shaped floating button (icon + label) — same shape language as
+   fortune-toggle.css, sitting right next to it in .bottom-left-toolbar. */
+.position-test-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 16px 0 10px;
+  border: 1px solid var(--border-default);
+  border-radius: 999px;
+  background: var(--surface-3);
+  box-shadow: 0 8px 20px rgba(var(--shadow-color), .35);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: border-color .2s, background-color .2s, box-shadow .2s, transform .15s;
+}
+.position-test-toggle:hover, .position-test-toggle:focus-visible {
+  border-color: var(--accent-border);
+  background: #00e9ae14;
+  box-shadow: 0 0 0 3px #00e9ae12, 0 8px 20px rgba(var(--shadow-color), .35);
+  outline: 0;
+}
+.position-test-toggle:active { transform: scale(.96); }
+.position-test-toggle:hover .position-test-toggle__icon { transform: scale(1.12) rotate(-6deg); }
+
+.position-test-toggle__icon {
+  display: block;
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  transition: transform .3s ease;
+}
+.position-test-toggle__icon--fallback { color: var(--accent-text); }
+.position-test-toggle__label { line-height: 1; }
+
+@media (max-width: 680px) { .position-test-toggle { display: none; } }

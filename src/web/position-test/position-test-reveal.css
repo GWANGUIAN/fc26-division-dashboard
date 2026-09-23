@@ -1,0 +1,162 @@
+/* Card-back -> "결과 확인하기" -> flip -> result-panel sequence. Reuses the
+   fortune-draw.css 3D flip technique (perspective + rotateY, bounce at the
+   midpoint) under its own class names — see PositionTestReveal.tsx header
+   comment. FLIP_MS there (700ms) must match this file's animation
+   duration. */
+
+.position-test-reveal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.position-test-reveal__status {
+  margin: 0;
+  color: #b9fadd;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+
+.position-test-card-face {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 8% / 6%;
+  overflow: hidden;
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, .5));
+}
+.position-test-card-face img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.position-test-card-face__placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--position-accent, #00e9ae) 35%, #0a1c16), #061410 75%);
+  color: rgba(255, 255, 255, .7);
+  font-size: 20cqw;
+}
+.position-test-card-face__placeholder svg { width: 30%; height: 30%; }
+
+.position-flip {
+  position: relative;
+  width: min(72vw, 300px);
+  aspect-ratio: 1060 / 1484;
+  perspective: 1600px;
+}
+.position-flip__inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+.position-flip--anim .position-flip__inner {
+  animation: position-flip-inner .7s cubic-bezier(.34, 1.56, .64, 1) both;
+}
+.position-flip--flipped .position-flip__inner {
+  transform: rotateY(180deg);
+}
+@keyframes position-flip-inner {
+  0% { transform: rotateY(0deg) scale(1); }
+  50% { transform: rotateY(90deg) scale(1.15); }
+  100% { transform: rotateY(180deg) scale(1); }
+}
+.position-test-card-face--back, .position-test-card-face--front {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+}
+.position-flip__front { transform: rotateY(180deg); }
+.position-flip--flipped .position-test-card-face--front {
+  animation: position-flip-glow-pulse 2.4s ease-in-out infinite;
+}
+@keyframes position-flip-glow-pulse {
+  0%, 100% { filter: drop-shadow(0 10px 22px rgba(0, 0, 0, .5)) drop-shadow(0 0 6px var(--position-accent, #00e9ae)); }
+  50% { filter: drop-shadow(0 10px 22px rgba(0, 0, 0, .5)) drop-shadow(0 0 16px var(--position-accent, #00e9ae)); }
+}
+
+.position-test-reveal__open-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 14px 36px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #14a37a, #0a6b50);
+  color: #f2fffa;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 40, 28, .4);
+  transition: transform .15s, box-shadow .2s;
+}
+.position-test-reveal__open-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(0, 40, 28, .5); }
+.position-test-reveal__open-btn:active { transform: scale(.97); }
+
+.position-test-reveal__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: min(94vw, 520px);
+  padding: 20px 26px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 16px;
+  background: rgba(0, 0, 0, .5);
+  backdrop-filter: blur(8px);
+  text-align: center;
+  animation: position-test-panel-enter .5s cubic-bezier(.22, 1, .36, 1);
+}
+@keyframes position-test-panel-enter {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.position-test-reveal__eyebrow {
+  margin: 0;
+  color: rgba(255, 255, 255, .78);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.position-test-reveal__eyebrow b { color: var(--position-accent, #00e9ae); }
+.position-test-reveal__title {
+  margin: 0;
+  color: #fff;
+  font-family: "Barlow Condensed", sans-serif;
+  font-weight: 800;
+  font-size: clamp(22px, 6vw, 30px);
+  word-break: keep-all;
+}
+.position-test-reveal__subtitle {
+  margin: 0;
+  color: rgba(255, 255, 255, .85);
+  font-size: 15px;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+.position-test-reveal__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+.position-test-reveal__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 22px;
+  border: 1px solid var(--position-accent, #00e9ae);
+  border-radius: 14px;
+  color: #fff;
+  background: rgba(10, 20, 16, .55);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, .4);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .2s;
+}
+.position-test-reveal__btn:hover:not(:disabled) { transform: translateY(-2px); }
+.position-test-reveal__btn:disabled { opacity: .55; cursor: default; }
+.position-test-reveal__btn svg { width: 16px; height: 16px; }
+.position-test-reveal__btn--save { border-color: #6dfbd0; color: #6dfbd0; }

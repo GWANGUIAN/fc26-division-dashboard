@@ -64,6 +64,8 @@ import { CardMatchModal } from "./minigame/CardMatchModal";
 import { SoccerSum10Modal } from "./minigame/soccer-sum10/SoccerSum10Modal";
 import { FortuneToggle } from "./fortune/FortuneToggle";
 import { FortunePopup } from "./fortune/FortunePopup";
+import { PositionTestToggle } from "./position-test/PositionTestToggle";
+import { PositionTestPopup } from "./position-test/PositionTestPopup";
 import { TotyCardPopup } from "./toty-card/TotyCardPopup";
 import { getTotyCardAssets } from "./toty-card/totyCardAssets";
 import { useWoowakgoodBonusUnlock } from "./toty-card/useWoowakgoodBonusUnlock";
@@ -106,6 +108,7 @@ export function App() {
   const [groupPhotoOpen, setGroupPhotoOpen] = useState(false);
   const [growthGraphOpen, setGrowthGraphOpen] = useState(false);
   const [fortuneOpen, setFortuneOpen] = useState(false);
+  const [positionTestOpen, setPositionTestOpen] = useState(false);
   const [worldOpen, setWorldOpen] = useState(false);
   const [playlistOpen, setPlaylistOpen] = useState(false);
   const [stadiumShowcaseOpen, setStadiumShowcaseOpen] = useState(false);
@@ -486,6 +489,9 @@ export function App() {
           onClose={() => setFortuneOpen(false)}
         />
       )}
+      {positionTestOpen && (
+        <PositionTestPopup sfxVolume={sfxVolume} onSfxVolumeChange={changeSfxVolume} onClose={() => setPositionTestOpen(false)} />
+      )}
       {worldOpen && (
         <Suspense fallback={null}>
           <WorldOverlay
@@ -511,6 +517,7 @@ export function App() {
         <ThemeToggle theme={theme} onToggle={toggleTheme} />
         <MinigameMenu onSelect={setActiveMinigame} />
         <FortuneToggle onClick={() => setFortuneOpen(true)} />
+        <PositionTestToggle onClick={() => setPositionTestOpen(true)} />
       </div>
       <BrightnessGag />
       <div className="floating-toolbar">

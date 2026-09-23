@@ -846,3 +846,44 @@ export function saveSubmittedScore(game: string, score: number) {
     // ignore storage failures (e.g. private browsing)
   }
 }
+
+const POSITION_TEST_SFX_ENABLED_KEY = "fc26-position-test-sfx-enabled";
+
+export function loadPositionTestSfxEnabled(): boolean {
+  try {
+    const raw = localStorage.getItem(POSITION_TEST_SFX_ENABLED_KEY);
+    return raw === null ? true : raw === "1";
+  } catch {
+    return true;
+  }
+}
+
+export function savePositionTestSfxEnabled(enabled: boolean) {
+  try {
+    localStorage.setItem(POSITION_TEST_SFX_ENABLED_KEY, enabled ? "1" : "0");
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
+
+const POSITION_TEST_NAME_KEY = "fc26-position-test-name";
+
+/** Remembers what the viewer last typed into the name field, so reopening
+ * the popup pre-fills it instead of asking again every time — a separate
+ * key from PLAYER_NICKNAME_KEY (that one is tied to minigame ranking
+ * submissions, a different concern than this feature's own name prompt). */
+export function loadPositionTestName(): string {
+  try {
+    return localStorage.getItem(POSITION_TEST_NAME_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+export function savePositionTestName(name: string) {
+  try {
+    localStorage.setItem(POSITION_TEST_NAME_KEY, name);
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
