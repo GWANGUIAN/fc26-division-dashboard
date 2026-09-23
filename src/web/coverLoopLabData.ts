@@ -880,7 +880,7 @@ const bboringirlLyrics: readonly LyricCue[] = [
 
 export const bboringirlCoverLoopTrack: CoverLoopTrack = {
   id: "bboringirl",
-  code: "BBORING",
+  code: "BBORINGIRL",
   displayName: "뽀린걸",
   position: "CM",
   title: "Everyday",
@@ -1106,7 +1106,7 @@ const bingmingLyrics: readonly LyricCue[] = [
 
 export const bingmingCoverLoopTrack: CoverLoopTrack = {
   id: "tleod1818",
-  code: "BINGMING",
+  code: "VINGMING",
   displayName: "빙밍",
   position: "FB",
   title: "만찬가(晩餐歌)",
@@ -1285,7 +1285,7 @@ const doormomoLyrics: readonly LyricCue[] = doormomoLyricTiming.map((cue) => {
 
 export const doormomoCoverLoopTrack: CoverLoopTrack = {
   id: "doormomo",
-  code: "DOORMOMO",
+  code: "MOONMOMO",
   displayName: "문모모",
   position: "CDM",
   title: "BUMPA",
