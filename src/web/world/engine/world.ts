@@ -1,6 +1,7 @@
 import { OVERWORLD_MAP } from "../data/maps";
 import { missionDefsFor, type MissionDef } from "../data/missionDefs";
 import { surfaceOf } from "../data/terrainDefs";
+import { HACHI_TOP_FANS, HACHI_TROPHY_ROOM_SCENE } from "../data/topFans";
 import { getCast } from "../data/worldCast";
 import { isBackwalk, oppositeFacing } from "../state/backwalk";
 import { evalCondition } from "../state/conditions";
@@ -25,8 +26,9 @@ import { createNpc, endTalk, npcBox, startTalk, stepNpc, type Npc } from "./npc"
 import { drawOnAirSign, findOnAirSigns, homeSignAnchor, onAirSignAt, onAirSize, type OnAirSign } from "./onAirSign";
 import { RunManager, type RunEvent } from "./runs";
 import {
-  VIEW_HEIGHT, VIEW_WIDTH, TILE, buildStaticOrder, drawBall, drawBuilding, drawCharacter, drawDebug, drawEdgePointer, drawHomeSign, drawInterior,
-  drawMarker, drawProp, drawPrompt, drawRunHud, drawSceneObject, drawSpectator, drawTargetArrow, isVisible, propVisible, spriteHeight, type StaticDrawable,
+  VIEW_HEIGHT, VIEW_WIDTH, TILE, buildStaticOrder, drawBall, drawBuilding, drawCharacter, drawDebug, drawEdgePointer, drawHachiTopFanPhotos, drawHomeSign,
+  drawInterior, drawMarker, drawProp, drawPrompt, drawRunHud, drawSceneObject, drawSpectator, drawTargetArrow, isVisible, propVisible, spriteHeight,
+  type StaticDrawable,
 } from "./render";
 import { SceneTransition, zoneIndexAt, type DoorTrigger, type ExaminePoint, type SceneObject, type SpectatorSpawn, type WorldScene } from "./scene";
 import { TerrainRenderer } from "./terrain";
@@ -347,6 +349,11 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
     saveWorldSave({ ...store.save, player: playerId, scene: scene.id, x: player.x, y: player.y, facing: player.facing });
   }
 
+  /** Extra art a scene needs beyond its own room image (docs/world/01 §8 covers only `destination.image`). */
+  function extraAssetKeysFor(sceneId: SceneId): string[] {
+    return sceneId === HACHI_TROPHY_ROOM_SCENE ? HACHI_TOP_FANS.map((fan) => fan.photo) : [];
+  }
+
   function useDoor(door: DoorTrigger) {
     const to = door.to;
     const destination = getScene(to.scene);
@@ -355,7 +362,8 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
     audio.playSfx(scene.kind === "interior" && to.scene === "overworld" ? "door-close" : enteringShop ? "door-bell" : "door-open");
     transition.start(async () => {
       // The room image loads while the screen is black and stays cached afterwards (docs/world/01 §8).
-      if (destination.image && !assets.has(destination.image)) await assets.load([destination.image]);
+      const need = [...(destination.image ? [destination.image] : []), ...extraAssetKeysFor(to.scene)].filter((key) => !assets.has(key));
+      if (need.length) await assets.load(need);
       enterScene(to.scene, to.x, to.y, to.facing);
       persist();
     });
@@ -723,6 +731,7 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
     dynamics.sort((a, b) => a.y - b.y);
 
     if (scene.kind === "interior") {
+      if (scene.id === HACHI_TROPHY_ROOM_SCENE) drawHachiTopFanPhotos(ctx, assets, cam);
       drawInterior(ctx, assets, scene, cam);
       for (const spot of spectatorsNow) drawSpectator(ctx, assets, getCast(spot.cast), spot.x, spot.y, cam, time);
       for (const item of dynamics) item.draw(cam);
@@ -877,7 +886,8 @@ export function createWorldEngine(options: WorldEngineOptions): WorldEngine {
       const x = tile ? tile[0] * TILE + TILE / 2 : destination.spawn.x;
       const y = tile ? tile[1] * TILE + TILE / 2 : destination.spawn.y;
       transition.start(async () => {
-        if (destination.image && !assets.has(destination.image)) await assets.load([destination.image]);
+        const need = [...(destination.image ? [destination.image] : []), ...extraAssetKeysFor(id)].filter((key) => !assets.has(key));
+        if (need.length) await assets.load(need);
         enterScene(id, x, y, destination.kind === "interior" ? "up" : "down");
         persist();
       });

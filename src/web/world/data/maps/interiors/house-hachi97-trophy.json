@@ -1,0 +1,30 @@
+{
+  "id": "house-hachi97-trophy",
+  "image": "interiors/int-house-hachi97-trophy",
+  "size": [20,12],
+  "spawn": [10,10],
+  "exitTo": {"scene":"interior:house-hachi97","tile":[10,5]},
+  "collision": [
+    [0,0,640,150],
+    [0,150,46,234],
+    [594,150,46,234],
+    [0,340,264,44],
+    [376,340,264,44],
+    [67,149,88,51],
+    [169,149,94,51],
+    [269,159,105,54],
+    [387,149,95,51],
+    [495,149,88,51]
+  ],
+  "examine": [
+    {"id":"hachi-trophy-1","tile":[10,7],"text":"1등 트로피. '회장' 우리하치! 님의 자리다."},
+    {"id":"hachi-trophy-2","tile":[6,7],"text":"2등 트로피. '부회장' 환승연애중 님의 자리다."},
+    {"id":"hachi-trophy-3","tile":[13,7],"text":"3등 트로피. 류햇귀텐카이 님의 자리다."},
+    {"id":"hachi-trophy-4","tile":[16,7],"text":"4등 트로피. 양나리 님의 자리다."},
+    {"id":"hachi-trophy-5","tile":[3,7],"text":"5등 트로피. _로코_ 님의 자리다."}
+  ],
+  "npcs": [],
+  "triggers": [
+    {"type":"door","rect":[9,11,2,1],"to":{"scene":"interior:house-hachi97","tile":[10,5],"facing":"down"}}
+  ]
+}

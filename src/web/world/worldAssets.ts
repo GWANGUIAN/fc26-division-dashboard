@@ -1,6 +1,7 @@
 import { INTERIOR_MAPS, OVERWORLD_MAP } from "./data/maps";
 import { PROP_DEFS, propAssetKey } from "./data/propDefs";
 import { TERRAIN_SHEETS, terrainAssetKey } from "./data/terrainDefs";
+import { HACHI_TOP_FANS, HACHI_TROPHY_ROOM_SCENE } from "./data/topFans";
 import { PLAYABLE_CAST, WORLD_CAST } from "./data/worldCast";
 import type { CastId, SceneId } from "./types";
 
@@ -100,6 +101,7 @@ export function assetKeysForGroup(group: AssetGroup, player: CastId | null, star
   const keys = [...overworldKeys(), ...missionKeys(), ...WORLD_UI_KEYS, ...WORLD_CAST.map((cast) => `characters/${cast.id}-atlas`)];
   if (player) keys.push(`characters/${player}-atlas`);
   if (startScene?.startsWith("interior:")) keys.push(`interiors/int-${startScene.slice("interior:".length)}`);
+  if (startScene === HACHI_TROPHY_ROOM_SCENE) keys.push(...HACHI_TOP_FANS.map((fan) => fan.photo));
   return keys;
 }
 

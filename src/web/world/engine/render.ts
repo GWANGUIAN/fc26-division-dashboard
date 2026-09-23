@@ -1,6 +1,7 @@
 import type { CastDef, Facing, Rect } from "../types";
 import type { WorldAssets } from "../worldAssets";
 import type { MarkerKind } from "../state/missions";
+import { HACHI_TOP_FANS } from "../data/topFans";
 import { BALL_SIZE, ballBox, type Ball } from "./ball";
 import type { Camera } from "./camera";
 import { footBox } from "./collision";
@@ -475,6 +476,30 @@ export function drawInterior(ctx: CanvasRenderingContext2D, assets: WorldAssets,
   ctx.font = `12px ${FONT}`;
   ctx.textAlign = "center";
   ctx.fillText(scene.id, scene.size.w / 2 - camera.x, 24 - camera.y);
+}
+
+/**
+ * The hachi97 trophy room's podium (docs: house-hachi97-trophy). The room art punches a transparent
+ * hole where each frame is, so the photo is drawn first and `drawInterior` frames it from on top —
+ * this must run before that call (docs/world/01 §5).
+ */
+export function drawHachiTopFanPhotos(ctx: CanvasRenderingContext2D, assets: WorldAssets, camera: Camera) {
+  for (const fan of HACHI_TOP_FANS) {
+    const cx = Math.round(fan.frame.x - camera.x);
+    const cy = Math.round(fan.frame.y - camera.y);
+    const r = fan.frame.r;
+    const photo = assets.get(fan.photo);
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.clip();
+    if (photo) ctx.drawImage(photo, cx - r, cy - r, r * 2, r * 2);
+    else {
+      ctx.fillStyle = "#cfc3d6";
+      ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+    }
+    ctx.restore();
+  }
 }
 
 // ── debug overlay ─────────────────────────────────────────────────────────────────────────

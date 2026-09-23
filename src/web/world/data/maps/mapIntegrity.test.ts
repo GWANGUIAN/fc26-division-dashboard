@@ -78,8 +78,8 @@ const residents = (scene: WorldScene) => scene.npcSpawns.filter((spawn) => !spaw
 const npcRects = (scene: WorldScene) => residents(scene).map((spawn) => footBox(spawn.x, spawn.y, NPC_BOX.w, NPC_BOX.h));
 
 describe("map data shape", () => {
-  it("has 19 interiors and the 80×60 overworld with 60 rows of 80 legend characters", () => {
-    expect(INTERIOR_IDS).toHaveLength(19);
+  it("has 20 interiors and the 80×60 overworld with 60 rows of 80 legend characters", () => {
+    expect(INTERIOR_IDS).toHaveLength(20);
     expect(OVERWORLD_MAP.size).toEqual([80, 60]);
     expect(OVERWORLD_MAP.terrainRows).toHaveLength(60);
     for (const row of OVERWORLD_MAP.terrainRows) {
