@@ -363,7 +363,7 @@ const janineLyrics: readonly LyricCue[] = [
     endSeconds: 72.3,
     text: "마음껏 즐겨줘, 사랑을 가득담은 스페셜 나이트",
   },
-  { startSeconds: 72.3, endSeconds: 85.26, text: "팬썹해줄거야!" },
+  { startSeconds: 72.3, endSeconds: 74.5, text: "팬썹해줄거야!" },
   {
     startSeconds: 85.26,
     endSeconds: 89.76,
@@ -433,7 +433,7 @@ const janineLyrics: readonly LyricCue[] = [
     endSeconds: 163.19,
     text: "다음에, 또다시... 만날 수 있는거지?",
   },
-  { startSeconds: 163.19, endSeconds: 174.16, text: '"약속이야!"' },
+  { startSeconds: 163.19, endSeconds: 166, text: '"약속이야!"' },
   {
     startSeconds: 174.16,
     endSeconds: 177.04,
@@ -474,7 +474,7 @@ const janineLyrics: readonly LyricCue[] = [
     endSeconds: 230.68,
     text: "마음껏 즐겨줘, 사랑을 가득담은 스페셜 나이트",
   },
-  { startSeconds: 230.68, endSeconds: 238.68, text: "팬썹해줄거야!" },
+  { startSeconds: 230.68, endSeconds: 233, text: "팬썹해줄거야!" },
 ];
 
 export const janineCoverLoopTrack: CoverLoopTrack = {
@@ -559,7 +559,7 @@ const hangyeolLyrics: readonly LyricCue[] = [
   },
   {
     startSeconds: 128.18,
-    endSeconds: 152.3,
+    endSeconds: 135,
     text: "잊는다는 것도 역시 비워둔다는 것을",
   },
   {
@@ -1107,7 +1107,7 @@ const bingmingLyrics: readonly LyricCue[] = [
 export const bingmingCoverLoopTrack: CoverLoopTrack = {
   id: "tleod1818",
   code: "BINGMING",
-  displayName: "빙밍_",
+  displayName: "빙밍",
   position: "FB",
   title: "만찬가(晩餐歌)",
   artist: "tuki",
