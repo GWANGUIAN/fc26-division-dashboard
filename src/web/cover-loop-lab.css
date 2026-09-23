@@ -46,7 +46,7 @@
   pointer-events: none;
   background:
     linear-gradient(180deg, #030204a3 0%, transparent 20%),
-    linear-gradient(180deg, transparent 58%, transparent 82%, transparent 100%);
+    linear-gradient(180deg, transparent 58%, #030204a0 82%, #030204c4 100%);
 }
 
 /* 장면 클릭 영역 — 다른 버튼들 뒤(z-index 2)에 깔려서, 실제 컨트롤 위를 누르면 그 버튼이 먼저
