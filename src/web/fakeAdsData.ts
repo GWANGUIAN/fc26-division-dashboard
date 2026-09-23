@@ -14,28 +14,10 @@ export interface FakeAd {
 // Add or remove entries freely; the rail cycles through whatever is in this array.
 export const fakeAds: FakeAd[] = [
   {
-    id: "bingming",
-    image: "/fake-ads/ad-bingming.webp",
-    href: "https://vod.sooplive.com/player/206243369?change_second=33",
-    label: "초보.빙밍",
-  },
-  {
     id: "charlie",
     image: "/fake-ads/ad-charlie.webp",
     href: "https://vod.sooplive.com/player/207247339",
     label: "찰신",
-  },
-  {
-    id: "hachi",
-    image: "/fake-ads/ad-hachi.webp",
-    href: "https://vod.sooplive.com/player/207076087",
-    label: "우왁굳의 은밀한 과외",
-  },
-  {
-    id: "bboringirl",
-    image: "/fake-ads/ad-bboringirl.webp",
-    href: "https://vod.sooplive.com/player/205333447/catch?szSearchTnoList=205333447",
-    label: "치즈 중독자 뽀린걸",
   },
   {
     id: "wowhachi",
@@ -44,10 +26,10 @@ export const fakeAds: FakeAd[] = [
     label: "두고하치...",
   },
   {
-    id: "panzee",
-    image: "/fake-ads/ad-panzee.webp",
-    href: "https://vod.sooplive.com/player/206149139/catch",
-    label: "야추털",
+    id: "bmw",
+    image: "/fake-ads/ad-bmw.webp",
+    href: "https://www.sooplive.com/station/ecvhao/post/207633197",
+    label: "차가리",
   },
   {
     id: "haeparin",
