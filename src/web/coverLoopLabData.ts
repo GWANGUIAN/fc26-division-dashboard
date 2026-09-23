@@ -1,4 +1,5 @@
 import { WOOWAKGOOD_BONUS_STREAMER } from "./toty-card/woowakgoodBonusCard.js";
+import type { CoverLoopMedia } from "./coverLoopMedia";
 
 // 포스터/루프 영상은 파일명 규칙(<id>-cover-poster.*, <id>-cover-loop.mp4)만 지키면 이 글롭이
 // 알아서 찾아준다 — 멤버가 늘어도 이 파일에 import 문을 추가할 필요가 없다. mp4는 ?url로
@@ -39,12 +40,7 @@ export type LyricCue = {
   text: string;
 };
 
-export type CoverLoopMedia = {
-  type: "youtube";
-  videoId: string;
-  /** 유튜브 영상 인트로를 건너뛰고 항상 이 시각부터 재생을 시작하고 싶을 때만 지정. */
-  startSeconds?: number;
-};
+export type { CoverLoopMedia } from "./coverLoopMedia";
 
 export type CoverLoopTrack = {
   id: string;
@@ -224,6 +220,87 @@ export const hachiCoverLoopTrack: CoverLoopTrack = {
   objectPosition: "center",
   lyricStartSeconds: 6 + HACHI_LYRIC_DELAY_SECONDS,
   lyrics: hachiLyrics,
+};
+
+// 해파린 커버는 SOOP 클립으로만 제공된다. 재생·볼륨 등은 SOOP iframe 내부 컨트롤에 맡기고,
+// 배경 루프 MP4는 재생 상태와 무관하게(SOOP는 재생 상태를 알 수 없으므로) 항상 돌아간다
+// (CoverLoopStage의 showLoopVideo/scene video 참고).
+export const haepalinCoverLoopTrack: CoverLoopTrack = {
+  id: "haepalin",
+  code: "HAEPALIN",
+  displayName: "해파린",
+  position: "CB",
+  title: "너의 색으로 물들어",
+  artist: "GUMI",
+  media: {
+    type: "soop-clip",
+    titleNo: 145540969,
+    clipTitle: "ଳ୍ଠ [MMD] 너의 색으로 물들어 (Cover by 해파린)",
+  },
+  poster: posterFor("haepalin"),
+  loopVideo: loopVideoFor("haepalin"),
+  objectPosition: "center",
+  lyricStartSeconds: 0,
+  lyrics: [],
+};
+
+// 아래 세 트랙도 해파린과 동일하게 SOOP 클립 전용 — 재생·볼륨 등은 SOOP iframe 내부 컨트롤에
+// 맡기고, 배경 루프 MP4만 항상 재생한다.
+export const jumengiCoverLoopTrack: CoverLoopTrack = {
+  id: "ju010228",
+  code: "JYUMENGE",
+  displayName: "쥬멩이",
+  position: "ST",
+  title: "기다린 만큼, 더",
+  artist: "카더가든",
+  media: {
+    type: "soop-clip",
+    titleNo: 206994189,
+    clipTitle: "쥬멩이 - 기다린 만큼, 더",
+  },
+  poster: posterFor("ju010228"),
+  loopVideo: loopVideoFor("ju010228"),
+  objectPosition: "center",
+  lyricStartSeconds: 0,
+  lyrics: [],
+};
+
+export const dashibaCoverLoopTrack: CoverLoopTrack = {
+  id: "tdnlamuron",
+  code: "DASHIBA",
+  displayName: "다시바",
+  position: "WF",
+  title: "책방오빠 문학소녀",
+  artist: "비비",
+  media: {
+    type: "soop-clip",
+    titleNo: 199339643,
+    clipTitle: "레전드 시바님 노래",
+  },
+  poster: posterFor("tdnlamuron"),
+  loopVideo: loopVideoFor("tdnlamuron"),
+  objectPosition: "center",
+  lyricStartSeconds: 0,
+  lyrics: [],
+};
+
+export const pingguCoverLoopTrack: CoverLoopTrack = {
+  id: "sjh4018",
+  code: "PINGGU",
+  displayName: "핑구",
+  position: "CB",
+  title: "Say Something",
+  artist: "A Great Big World",
+  media: {
+    type: "soop-clip",
+    titleNo: 207852887,
+    clipTitle: "핑구 - say something",
+  },
+  poster: posterFor("sjh4018"),
+  loopVideo: loopVideoFor("sjh4018"),
+  objectPosition: "center",
+  lyricStartSeconds: 0,
+  lyrics: [],
 };
 
 // 개발 전용 가사 타이밍 도구(CoverLoopLyricTimingTool)로 직접 찍어 확정한 구간(2026-09-22).
@@ -1293,5 +1370,9 @@ export const coverLoopTracks: readonly CoverLoopTrack[] = [
   bboringirlCoverLoopTrack,
   bingmingCoverLoopTrack,
   doormomoCoverLoopTrack,
+  haepalinCoverLoopTrack,
+  jumengiCoverLoopTrack,
+  dashibaCoverLoopTrack,
+  pingguCoverLoopTrack,
   woowakgoodCoverLoopTrack,
 ];

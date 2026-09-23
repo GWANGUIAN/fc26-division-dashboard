@@ -40,7 +40,6 @@ export const ANNOUNCEMENTS: Announcement[] = [
         있습니다.
       </>
     ),
-    note: "유튜브에 커버곡 영상이 있는 멤버만 추가되었습니다.",
   },
   {
     id: "2026-09-new-minigames",

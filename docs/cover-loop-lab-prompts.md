@@ -13,7 +13,7 @@
 
 ## 이미지 생성 프롬프트
 
-아래 프롬프트는 영어로 복사해 사용한다. 레퍼런스 이미지가 있는 서비스에서는 `Hachi avatar reference`를 캐릭터 정체성 참고로, 이 문서 첫머리의 스크린샷은 조명·여백·앨범 커버 같은 구도 참고로만 넣는다.
+아래 프롬프트는 영어로 복사해 사용한다. 레퍼런스 이미지가 있는 서비스에서는 첨부한 **캐릭터 아바타 레퍼런스**를 정체성 참고로, 이 문서 첫머리의 스크린샷은 조명·여백·앨범 커버 같은 구도 참고로만 넣는다. 프롬프트 안의 이름은 모델의 정체성 정보가 아니므로 쓰지 않는다.
 
 ### 1) 배경 단독 — 탐색용
 
@@ -36,7 +36,7 @@ No people, no character, no text, no logo, no watermark, no motion blur.
 최종 통합 장면을 만들기 전 의상·실루엣을 잡는 용도다. 투명 배경 기능이 있는 도구에서만 투명 PNG를 요청한다. 그렇지 않으면 중립 회색 배경으로 만들고 합성은 권장하지 않는다.
 
 ```
-Use the attached Hachi avatar reference only to preserve the character's
+Use the attached character avatar reference only to preserve the character's
 recognizable facial features, hair, and signature accessories. Full-body
 anime-inspired football player, three-quarter view facing slightly left, just
 after exhausting practice: hands resting on thighs, a tired but quietly
@@ -54,9 +54,9 @@ feet, no extra limbs.
 캐릭터 레퍼런스와 함께 생성한다. 마음에 드는 결과를 뽑은 뒤 그 **한 장**을 루프 영상의 첫·마지막 프레임에 재사용한다.
 
 ```
-Use the attached Hachi avatar reference only to preserve the character's
+Use the attached character avatar reference only to preserve the character's
 recognizable identity. Create a single polished anime-inspired illustration
-for a YouTube music cover: Hachi, a football player, has just finished a hard
+for a YouTube music cover: a football player has just finished a hard
 sunset training session and leans lightly against the low rail beside an empty
 football ground. He is catching his breath with both hands resting on his
 knees, tired but calm and resilient. Full body visible, three-quarter view,

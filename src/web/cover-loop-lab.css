@@ -295,9 +295,10 @@
 
 /* 곡 제목 왼쪽 유튜브 원본 영상 링크 — 아이콘만, 테두리/배경 없이. __track-meta 전체가
    pointer-events:none이라 이 링크만 따로 되살린다. */
-.cover-loop-lab__youtube-link { display: grid; flex: 0 0 auto; place-items: center; color: rgba(255, 255, 255, 0.74); pointer-events: auto; }
-.cover-loop-lab__youtube-link:hover, .cover-loop-lab__youtube-link:focus-visible { color: #fff; outline: 0; }
-.cover-loop-lab__youtube-link svg { width: 16px; height: 16px; }
+.cover-loop-lab__media-link { display: grid; flex: 0 0 auto; place-items: center; color: rgba(255, 255, 255, 0.74); pointer-events: auto; }
+.cover-loop-lab__media-link:hover, .cover-loop-lab__media-link:focus-visible { color: #fff; outline: 0; }
+.cover-loop-lab__media-link svg { width: 16px; height: 16px; }
+.cover-loop-lab__media-link .cover-loop-lab__soop-logo { width: 32px; height: auto; }
 
 /* 반복재생 토글(꺼짐 → 전체 → 한 곡 → 꺼짐) — 제목 오른쪽, 플레이바(컨트롤 행) 바로 위. */
 .cover-loop-lab__repeat {
@@ -313,7 +314,7 @@
   cursor: pointer;
   pointer-events: auto;
 }
-.cover-loop-lab__repeat:hover, .cover-loop-lab__repeat:focus-visible { color: #fff; background: rgba(255, 255, 255, 0.14); outline: 0; }
+.cover-loop-lab__repeat:not(.cover-loop-lab__control--unavailable):hover, .cover-loop-lab__repeat:not(.cover-loop-lab__control--unavailable):focus-visible { color: #fff; background: rgba(255, 255, 255, 0.14); outline: 0; }
 .cover-loop-lab__repeat:focus-visible { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9); }
 .cover-loop-lab__repeat[aria-pressed="true"] { color: #fff; }
 .cover-loop-lab__repeat svg { width: 16px; height: 16px; }
@@ -334,7 +335,7 @@
   cursor: pointer;
   transition: transform 0.16s ease, background 0.16s ease;
 }
-.cover-loop-lab__play:hover:not(:disabled), .cover-loop-lab__play:focus-visible:not(:disabled) { background: #fff; outline: 2px solid #fff; outline-offset: 3px; transform: scale(1.05); }
+.cover-loop-lab__play:not(.cover-loop-lab__control--unavailable):hover:not(:disabled), .cover-loop-lab__play:not(.cover-loop-lab__control--unavailable):focus-visible:not(:disabled) { background: #fff; outline: 2px solid #fff; outline-offset: 3px; transform: scale(1.05); }
 .cover-loop-lab__play:disabled { cursor: wait; opacity: 0.5; }
 .cover-loop-lab__play svg { width: 18px; height: 18px; }
 
@@ -371,7 +372,7 @@
   background: transparent;
   cursor: pointer;
 }
-.cover-loop-lab__mute:hover:not(:disabled), .cover-loop-lab__mute:focus-visible:not(:disabled) { background: rgba(255, 255, 255, 0.14); outline: 0; }
+.cover-loop-lab__mute:not(.cover-loop-lab__control--unavailable):hover:not(:disabled), .cover-loop-lab__mute:not(.cover-loop-lab__control--unavailable):focus-visible:not(:disabled) { background: rgba(255, 255, 255, 0.14); outline: 0; }
 .cover-loop-lab__mute:focus-visible { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9); }
 .cover-loop-lab__mute:disabled { cursor: wait; opacity: 0.5; }
 .cover-loop-lab__mute svg { width: 16px; height: 16px; }
@@ -405,7 +406,7 @@
 }
 /* 숫자 폭이 자릿수마다 달라 재생 중 옆 버튼(전체화면)이 미세하게 밀리는 걸 막는다 —
    tabular-nums로 자릿수 폭을 고정하고, min-width로 "0:00 / 0:00" 전체 자리를 미리 확보한다. */
-.cover-loop-lab__controls time { flex: 0 0 auto; min-width: 78px; color: rgba(255, 255, 255, 0.74); font: 500 13px/1 'GMarketSans', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; text-align: right; white-space: nowrap; }
+.cover-loop-lab__controls time { flex: 0 0 auto; min-width: 78px; margin-left: auto; color: rgba(255, 255, 255, 0.74); font: 500 13px/1 'GMarketSans', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; text-align: right; white-space: nowrap; }
 
 /* 전체화면 토글 — 브라우저 Fullscreen API 미지원 환경(iOS Safari 등)에서는 아예 렌더되지 않는다. */
 .cover-loop-lab__fullscreen {
@@ -439,6 +440,134 @@
 .cover-loop-lab__progress::-moz-range-thumb { width: 9px; height: 9px; border: 0; border-radius: 50%; background: #fff; }
 .cover-loop-lab__progress:focus-visible { outline: 2px solid #fff; outline-offset: 5px; }
 
+/* SOOP clips remain intentionally small and self-contained: their own iframe retains all
+   provider controls while the site's timeline UI clearly shows its unavailable state. */
+.cover-loop-lab__soop-embed {
+  width: clamp(220px, 32vw, 420px);
+  margin: 0 auto 4px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  background: #08060a;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.38);
+}
+.cover-loop-lab__soop-embed--collapsed {
+  position: relative;
+  z-index: 1;
+  transform: translateY(32px);
+}
+.cover-loop-lab__soop-embed-header {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 8px 0 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+.cover-loop-lab__soop-embed-title {
+  min-width: 0;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cover-loop-lab__soop-embed-toggle {
+  display: inline-flex;
+  min-width: 58px;
+  min-height: 36px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 0;
+  color: rgba(255, 255, 255, 0.78);
+  background: transparent;
+  font: 600 12px/1 "Noto Sans KR", sans-serif;
+  cursor: pointer;
+}
+.cover-loop-lab__soop-embed-toggle:hover,
+.cover-loop-lab__soop-embed-toggle:focus-visible {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  outline: 0;
+}
+.cover-loop-lab__soop-embed-toggle:focus-visible { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9); }
+.cover-loop-lab__soop-embed-toggle svg { width: 16px; height: 16px; }
+.cover-loop-lab__soop-embed-frame { aspect-ratio: 16 / 9; }
+.cover-loop-lab__soop-embed-frame iframe { display: block; width: 100%; height: 100%; border: 0; }
+.cover-loop-lab__soop-embed-frame--collapsed {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* An aria-disabled button stays in tab order so its provider-specific explanation is available
+   on hover and keyboard focus. Unlike a native disabled button, it never performs an action. */
+.cover-loop-lab__control--unavailable {
+  position: relative;
+  cursor: not-allowed !important;
+  color: rgba(255, 255, 255, 0.42);
+}
+.cover-loop-lab__control--unavailable.cover-loop-lab__play {
+  border-color: rgba(255, 255, 255, 0.42);
+  color: rgba(17, 17, 17, 0.42);
+  background: rgba(255, 255, 255, 0.42);
+}
+.cover-loop-lab__control--unavailable:focus-visible { outline: 2px solid rgba(255, 255, 255, 0.92); outline-offset: 3px; }
+.cover-loop-lab__control--unavailable::after {
+  position: absolute;
+  z-index: 8;
+  right: 0;
+  bottom: calc(100% + 10px);
+  width: max-content;
+  max-width: min(260px, calc(100vw - 32px));
+  padding: 7px 9px;
+  color: #fff;
+  background: rgba(5, 4, 7, 0.99);
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.44);
+  content: attr(data-tooltip);
+  font: 600 11px/1.45 "Noto Sans KR", sans-serif;
+  letter-spacing: -0.01em;
+  text-align: left;
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+.cover-loop-lab__control--unavailable:hover::after,
+.cover-loop-lab__control--unavailable:focus-visible::after { opacity: 1; transform: translateY(0); }
+.cover-loop-lab__time-unavailable {
+  min-width: 78px;
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  color: rgba(255, 255, 255, 0.74);
+  background: transparent;
+  font: 500 13px/1 'GMarketSans', sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  text-align: right;
+  white-space: nowrap;
+}
+.cover-loop-lab__time-unavailable.cover-loop-lab__control--unavailable { color: rgba(255, 255, 255, 0.42); }
+button.cover-loop-lab__progress {
+  display: block;
+  height: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.cover-loop-lab__progress-line { display: block; width: 100%; height: 1px; background: rgba(255, 255, 255, 0.42); }
+
 @media (max-width: 600px) {
   .cover-loop-lab__top { top: 18px; right: 54px; left: 54px; }
   .cover-loop-lab__bottom { width: min(100% - 32px, 560px); margin-bottom: 24px; }
@@ -449,6 +578,9 @@
   .cover-loop-lab__player { gap: 10px; }
   .cover-loop-lab__controls { gap: 10px; }
   .cover-loop-lab__controls time { min-width: 70px; font-size: 12px; }
+  .cover-loop-lab__soop-embed { width: min(100%, 360px); }
+  .cover-loop-lab__soop-embed--collapsed { transform: none; }
+  .cover-loop-lab__time-unavailable { min-width: 70px; font-size: 12px; }
 }
 
 /* 터치(hover 불가) 환경: 짧은 range를 항상 노출한다 — 아이콘 hover에 의존하지 않는다. */
@@ -460,4 +592,5 @@
   .cover-loop-lab__visualizer span { transition: none; }
   .cover-loop-lab__play { transition: none; }
   .cover-loop-lab__volume-range { transition: none; }
+  .cover-loop-lab__control--unavailable::after { transition: none; }
 }

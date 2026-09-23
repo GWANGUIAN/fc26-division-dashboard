@@ -168,9 +168,9 @@ sound effects, dialogue, or music. Continuous single shot.
 선수 아바타가 아니라 **감독 아바타 레퍼런스**를 첨부한다. 감독이 주인공임이 분명해야 하므로 선수 유니폼, 공을 차는 동작, 관중석의 과도한 군중은 넣지 않는다.
 
 ~~~
-Use the attached Woowakgood coach avatar reference to preserve the exact face,
+Use the attached coach avatar reference to preserve the exact face,
 hairstyle, accessories, proportions, and illustration style. Create one
-cinematic 16:9 music-cover illustration: the Jandydong football club head coach
+cinematic 16:9 music-cover illustration: a football club head coach
 alone in the technical area of an empty small stadium at blue hour, quietly
 watching the floodlit pitch after training. Wear a refined dark coach jacket and
 subtle staff lanyard, not a player uniform. A closed tactics folder rests under
@@ -187,10 +187,10 @@ or camera drama. Fixed composition, high-resolution unlettered image.
 ### 재닌 / janine95kim / GK
 
 ~~~
-Use the attached Janine reference to preserve the exact face, eye shape,
+Use the attached character reference to preserve the exact face, eye shape,
 hairstyle, accessories, proportions, and illustration style. Create one
 cinematic 16:9 music-cover illustration: a goalkeeper mentally resetting after
-training in a quiet indoor goalkeeping hall at blue hour. Janine stands beside a
+training in a quiet indoor goalkeeping hall at blue hour. The goalkeeper stands beside a
 full-size goal in the warm pool of a single floodlight, goalkeeper gloves at the
 sides, a focused calm expression, damp floor reflections and cool pale-blue
 shadows. The goal net and neatly stacked training cones establish the goalkeeper
@@ -203,10 +203,10 @@ high-resolution unlettered image.
 ### 뽀린걸 / bboringirl / CM
 
 ~~~
-Use the attached Bboringirl reference to preserve the exact character identity
+Use the attached character reference to preserve the exact character identity
 and existing illustration style. Create one cinematic 16:9 music-cover
 illustration: a central midfielder recovering alone in a softly sunlit locker
-room after a long match. Bboringirl sits upright on a simple wooden bench,
+room after a long match. The character sits upright on a simple wooden bench,
 football boots nearby, elbows loosely on the knees, calm and resilient. Open
 lockers, folded training towels, and late-afternoon light create quiet depth.
 Full body, three-quarter view, a little left of center. Reserve a dark,
@@ -218,7 +218,7 @@ unlettered image.
 ### 핑구 / sjh4018 / CB
 
 ~~~
-Use the attached Pinggu reference to preserve the exact character identity and
+Use the attached character reference to preserve the exact character identity and
 art style. Create one cinematic 16:9 music-cover illustration: a center back
 standing in a quiet concrete stadium stairwell before dawn, taking a moment to
 reset after defending all night. A cool skylight frames fading stars; a football
@@ -232,10 +232,10 @@ fixed composition, high-resolution unlettered image.
 ### 문모모 / doormomo / CDM
 
 ~~~
-Use the attached Doormomo reference to preserve the exact character identity and
+Use the attached character reference to preserve the exact character identity and
 illustration style. Create one cinematic 16:9 music-cover illustration: a deep
 midfielder alone in a dim recovery and video-analysis room after practice.
-Doormomo stands beside a plain tactical board with abstract non-readable
+The character stands beside a plain tactical board with abstract non-readable
 markings and a softly glowing overhead projector, thoughtful and in control. A
 football rests near one shoe; navy shadows and a warm desk lamp make clean
 geometric light across the floor. Full body, three-quarter view, slightly left
@@ -247,9 +247,9 @@ high-resolution unlettered image.
 ### 한결 / kaksjak0730 / CM·CDM
 
 ~~~
-Use the attached Hangyeol reference to preserve exact identity and existing art
+Use the attached character reference to preserve exact identity and existing art
 style. Create one cinematic 16:9 music-cover illustration: a midfielder resting
-on the quiet rooftop of a small observatory after evening training. Hangyeol
+on the quiet rooftop of a small observatory after evening training. The character
 stands beside a telescope and low parapet, one football at the feet, watching a
 clear indigo sky where a few stars emerge. Cool moonlight and one warm interior
 window suggest patience and field vision. Full body, three-quarter view, a little
@@ -261,10 +261,10 @@ composition, high-resolution unlettered image.
 ### 쥬멩이 / ju010228 / ST
 
 ~~~
-Use the attached Jumengi reference to preserve exact identity and existing
+Use the attached character reference to preserve exact identity and existing
 illustration style. Create one cinematic 16:9 music-cover illustration: a
 striker recharging in a quiet glass greenhouse beside a training center at early
-morning. Jumengi leans lightly against the doorway with a football by one foot,
+morning. The character leans lightly against the doorway with a football by one foot,
 soft spring leaves, pale sunlight, and condensation on the glass. The feeling is
 hopeful after a difficult session, never an action shot. Full body,
 three-quarter view, slightly left of center. Keep lower 24 percent dark and
@@ -276,24 +276,28 @@ unlettered image.
 ### 해파린 / haepalin / CB
 
 ~~~
-Use the attached Haepalin reference to preserve exact identity and existing art
-style. Create one cinematic 16:9 music-cover illustration: a calm center back
-recovering on a wooden lakeside dock after rain. Haepalin stands quietly with a
-training jacket folded over one arm and a football near the boot, facing still
-blue-green water that mirrors distant lights. The mood is protective, patient,
-and restorative. Full body, three-quarter view, a little right of center.
-Reserve dark low-detail lower 24 percent for player controls and upper-center
-lyric space. Preserve exact face, hair, proportions, and rendering technique;
-fixed composition, high-resolution unlettered image.
+Use the attached character reference only to preserve the exact face, hairstyle,
+accessories, proportions, and existing illustration style. Create one cinematic
+16:9 music-cover illustration: a calm center back resetting alone in a quiet
+stadium equipment room after a rainy practice. The character sits on a simple
+wooden equipment trunk beside matte slate-blue lockers, with a folded training
+jacket and one football on the floor. Use soft, even side light from outside the
+frame and a plain, darker locker surface behind the head; keep all light sources
+away from the head and shoulders. The feeling is patient, grounded, and quietly
+protective. Full body, three-quarter view, a little right of center. Reserve a
+dark, low-detail lower 24 percent for player controls and open upper-center
+space for lyrics. No readable text, logos, or watermarks. Keep the lighting
+soft, practical, and diffuse; every prop rests naturally on the floor or an
+existing surface. Fixed composition, high-resolution unlettered image.
 ~~~
 
 ### 빙밍 / tleod1818 / FB
 
 ~~~
-Use the attached Bingming reference to preserve exact identity and existing art
+Use the attached character reference to preserve exact identity and existing art
 style. Create one cinematic 16:9 music-cover illustration: a fullback taking a
 quiet break on a pedestrian bridge over an empty city canal after light rain.
-Bingming stands beside a bicycle rack with a football kit bag at the feet, city
+The character stands beside a bicycle rack with a football kit bag at the feet, city
 lights reflecting on wet pavement and a thin cool sunrise in the distance. The
 scene implies speed finally slowing down without running. Full body,
 three-quarter view, slightly left of center. Keep lower 24 percent dark and
@@ -305,10 +309,10 @@ image.
 ### 다시바 / tdnlamuron / WF
 
 ~~~
-Use the attached Dasiba reference to preserve exact identity and existing art
+Use the attached character reference to preserve exact identity and existing art
 style. Create one cinematic 16:9 music-cover illustration: a winger cooling
 down in a quiet indoor recovery room lit by deep ember-red sunset through high
-windows. Dasiba sits on a low bench with a football at the side, relaxed after
+windows. The character sits on a low bench with a football at the side, relaxed after
 an intense session, warm red light fading into charcoal shadows and simple
 recovery towels behind. The mood is controlled energy returning to calm, with
 no flames, smoke, or fantasy effects. Full body, three-quarter view, slightly
@@ -320,10 +324,10 @@ rendering method; fixed composition, high-resolution unlettered image.
 ### 리냐 / lina0108 / FB
 
 ~~~
-Use the attached Linya reference to preserve exact identity and existing art
+Use the attached character reference to preserve exact identity and existing art
 style. Create one cinematic 16:9 music-cover illustration: a fullback pausing
 at a quiet forked path in a riverside cherry-blossom park at late golden hour.
-Linya rests one hand on a bicycle-style training bag, football near the shoes,
+The character rests one hand on a bicycle-style training bag, football near the shoes,
 with two soft diverging paths and petals on the ground. The character stays
 calm and still; the scene suggests awareness and unexpected options. Full body,
 three-quarter view, a little left of center. Keep lower 24 percent dark and
@@ -362,7 +366,7 @@ objects.
 
 ~~~
 An eight-second seamless silent loop. The first and final frame are identical.
-Preserve Janine's exact face, hairstyle, goalkeeper gloves, goal net, lighting,
+Preserve the attached character's exact face, hairstyle, goalkeeper gloves, goal net, lighting,
 and composition. Locked camera. From 0 to 2.5 seconds, she makes one tiny
 goalkeeper readiness shift: weight settles very slightly from the back foot to
 a centered stance while both gloves hold the exact starting position. From 3 to
@@ -378,7 +382,7 @@ new motion in the goal net or background.
 
 ~~~
 An eight-second seamless silent loop. The first and final frame are identical.
-Preserve Bboringirl's exact face, hair, seated pose, locker room, bench,
+Preserve the attached character's exact face, hair, seated pose, locker room, bench,
 football boots, lighting, and composition. Locked camera. From 0 to 2.5
 seconds, the toe of the forward foot lifts a few millimeters in one quiet
 rhythmic tap while the heel remains in place. From 3 to 5.5 seconds, the toe
@@ -394,17 +398,20 @@ or fade-in/fade-out graphic at any time. Silent video, no generated audio.
 
 ### 핑구 / CB — 새벽 계단의 수비 집중
 
-수비수의 단단함은 자세를 거의 움직이지 않은 채, 고개가 아닌 시선과 한 번의 눈 깜빡임으로 표현한다. 얼굴 변형을 피하기 위해 고개 회전은 금지한다.
+수비수의 단단함은 눈 한 번과 어깨의 아주 작은 무게 정리만으로 표현한다. 재킷·하늘·계단에 움직임을 지시하면 의상이나 배경 효과로 과장될 수 있으므로 모두 고정한다.
 
 ~~~
 An eight-second seamless silent loop. The first and final frame are identical.
-Preserve Pinggu's exact face, hair, stairwell, football, jacket, skylight,
-lighting, and composition. Locked camera. From 0 to 2.5 seconds, the jacket hem
-settles downward by a few pixels as the subject becomes still after climbing
-the stairs. From 3 to 5.5 seconds, it returns exactly to the initial shape.
-At 4 seconds, both eyelids close once and reopen to the identical steady gaze.
-The head, hands, legs, football, stairs, and sky remain unchanged. From 5.5 to
-8 seconds, hold the initial pose. Silent video, no generated audio.
+Preserve the attached character's exact face, hair, stairwell, football, jacket, skylight,
+lighting, and composition. Locked camera. From 0.8 to 2.5 seconds, both
+shoulders settle downward by only one or two pixels in one tiny natural posture
+adjustment; the head, jacket shape, and hands do not move independently. From
+3 to 5.5 seconds, the shoulders return precisely to the initial pose. At 4
+seconds, both eyelids close once and reopen to the identical steady gaze. The
+head, hands, legs, jacket, football, stairs, skylight, sky, and every background
+object remain completely still. No wind, moving fabric, light flicker, stars,
+mist, glow, magic, particles, overlays, or new objects. From 5.5 to 8 seconds,
+hold the exact initial pose. Silent video, no generated audio.
 ~~~
 
 ### 문모모 / CDM — 전술실의 정적
@@ -413,7 +420,7 @@ The head, hands, legs, football, stairs, and sky remain unchanged. From 5.5 to
 
 ~~~
 An eight-second seamless silent loop. The first and final frame are identical.
-Preserve Doormomo's exact face, hair, pose, tactical room, board markings,
+Preserve the attached character's exact face, hair, pose, tactical room, board markings,
 football, lamp, and composition. Locked camera. From 0 to 2.5 seconds, the
 soft projector glow on the floor becomes fractionally brighter without changing
 its shape. From 3 to 5.5 seconds, it returns exactly to the initial brightness.
@@ -429,13 +436,13 @@ video, no generated audio, no new text or symbols.
 
 ~~~
 An eight-second seamless silent loop. The first and final frame are identical.
-Preserve Hangyeol's exact face, eye shape, hairstyle, observatory roof,
+Preserve the attached character's exact face, eye shape, hairstyle, observatory roof,
 telescope, football, parapet, moonlight, and composition. Locked camera. Use
 the single existing shooting star already visible in the upper sky; do not add
 another star. From 0.8 to 2.8 seconds, the shooting star glides only a very
 short distance along its existing diagonal path, its thin tail briefly grows
 brighter and longer, then settles back to the exact original star position and
-tail by 3.5 seconds. While the shooting star moves, Hangyeol gently lifts the
+tail by 3.5 seconds. While the shooting star moves, the character gently lifts the
 chin by a few pixels and the eyes follow it upward. From 3.5 to 5.5 seconds,
 the chin and gaze return precisely to the initial pose. At 5.8 seconds, both
 eyelids close once and reopen to the identical original gaze. The hair, hands,
@@ -446,33 +453,41 @@ audio, no new text, no camera movement.
 
 ### 쥬멩이 / ST — 온실의 아침
 
-공격수의 회복 장면은 온실 유리의 부드러운 빛 변화와 눈 한 번으로 처리한다. 나뭇잎이나 공이 움직이면 장면이 산만해지므로 고정한다.
+온실의 빛·유리·나뭇잎은 변화시키지 않는다. 캐릭터가 문틀에 기대며 아주 작게 무게를 정리하고 눈을 한 번 깜빡이는 것만 사용한다.
 
 ~~~
 An eight-second seamless silent loop. The first and final frame are identical.
-Preserve Jumengi's exact face, hair, doorway pose, football, greenhouse glass,
-leaves, sunlight, and composition. Locked camera. From 0 to 2.5 seconds, the
-small patch of morning light on the glass becomes gently brighter. From 3 to
-5.5 seconds, it returns exactly to the initial brightness. At 4 seconds, both
-eyelids close once and reopen to the identical hopeful gaze. The body, hands,
-football, leaves, glass condensation, and doorway remain unchanged. From 5.5
-to 8 seconds, hold the initial pose. Silent video, no generated audio.
+Preserve the attached character's exact face, hair, doorway pose, football, greenhouse glass,
+leaves, sunlight, and composition. Locked camera. From 0.8 to 2.5 seconds, the
+upper torso settles toward the existing doorway by only one or two pixels in a
+single tiny weight adjustment; face, head angle, arms, hands, and clothing shape
+remain unchanged. From 3 to 5.5 seconds, the torso returns precisely to the
+initial pose. At 4 seconds, both eyelids close once and reopen to the identical
+hopeful gaze. The football, greenhouse glass, leaves, sunlight, condensation,
+doorway, and all background objects remain completely still. No changing light,
+moving leaves, wind, bloom, flare, particles, mist, magic, overlays, or new
+objects. From 5.5 to 8 seconds, hold the exact initial pose. Silent video, no
+generated audio.
 ~~~
 
-### 해파린 / CB — 빗물 뒤 호숫가
+### 해파린 / CB — 장비실의 고요한 회복
 
-해파린은 물결 콘셉트에 맞되, 루프 접합이 깨지는 지속 파문 대신 하나의 아주 작은 반사광 변화만 쓴다.
+원본을 거의 완전히 고정한 뒤 눈과 앉은 발끝만 허용한다. 머리 주변·조명·배경을 전부 고정해, 캐릭터 위에 새 시각 요소가 생길 여지를 없앤다.
 
 ~~~
 An eight-second seamless silent loop. The first and final frame are identical.
-Preserve Haepalin's exact face, hair, dock, jacket, football, lake, distant
-lights, and composition. Locked camera. From 0 to 2.5 seconds, one small
-reflection of a distant light on the lake brightens very slightly. From 3 to
-5.5 seconds, that same reflection returns exactly to its initial brightness.
-At 4 seconds, both eyelids close once and reopen to the identical patient gaze.
-The body, hands, jacket, football, dock, waterline, and all other reflections
-remain unchanged. From 5.5 to 8 seconds, hold the initial pose. Silent video,
-no generated audio.
+Use the input image as a frozen plate. Preserve the attached character's exact
+face, hair, head silhouette, seated pose, equipment trunk, lockers, jacket,
+football, side lighting, and composition exactly as in the input. Locked
+camera. There are only two permitted changes in the entire clip. First, from
+0.8 to 2.5 seconds, the toe of the forward foot lifts by only a few millimeters
+while the heel stays planted, then returns precisely to its initial position by
+3.5 seconds; the head, face, hands, torso, and clothing outline stay fixed.
+Second, at 4 seconds, both eyelids close once and reopen to the identical
+patient gaze by 4.3 seconds. Every other part of the input image remains a
+perfectly still, unchanged freeze-frame for all eight seconds, including the
+area around the head, the lockers, and the lighting. From 5.5 to 8 seconds,
+hold the exact initial pose. Silent video, no generated audio.
 ~~~
 
 ### 빙밍 / FB — 비 갠 도시 다리
@@ -481,7 +496,7 @@ no generated audio.
 
 ~~~
 An eight-second seamless silent loop. The first and final frame are identical.
-Preserve Bingming's exact face, hair, bridge, kit bag, shoes, wet pavement,
+Preserve the attached character's exact face, hair, bridge, kit bag, shoes, wet pavement,
 city lights, and composition. Locked camera. From 0 to 2.5 seconds, weight
 settles very slightly onto the front foot, moving only the ankle and shoe by a
 few pixels. From 3 to 5.5 seconds, the foot returns exactly to the initial
@@ -492,18 +507,20 @@ From 5.5 to 8 seconds, hold the initial pose. Silent video, no generated audio.
 
 ### 다시바 / WF — 붉은 회복실
 
-다시바는 강한 에너지가 가라앉는 연출을 창문 빛의 작고 따뜻한 변화로 표현한다. 불꽃·연기·열기 왜곡은 쓰지 않는다.
+붉은 창문빛도 고정한다. 빛 변화가 불꽃·열기·연기 효과로 번질 수 있으므로, 앉은 캐릭터의 발끝과 눈 한 번만 움직인다.
 
 ~~~
 An eight-second seamless silent loop. The first and final frame are identical.
-Preserve Dasiba's exact face, hair, seated pose, bench, football, towels,
-windows, and composition. Locked camera. From 0 to 2.5 seconds, the warm red
-window light on the floor softens very slightly. From 3 to 5.5 seconds, it
-returns exactly to the initial intensity. At 4 seconds, both eyelids close once
-and reopen to the identical composed gaze. The body, hands, football, bench,
-towels, and all background objects remain unchanged. From 5.5 to 8 seconds,
-hold the initial pose. Silent video, no generated audio, no fire, smoke, or heat
-distortion.
+Preserve the attached character's exact face, hair, seated pose, bench, football, towels,
+windows, and composition. Locked camera. From 0.8 to 2.5 seconds, the toe of
+the forward foot lifts only a few millimeters while the heel stays planted; the
+rest of the leg, torso, hands, and clothing remain still. From 3 to 5.5 seconds,
+the toe returns precisely to the initial position. At 4 seconds, both eyelids
+close once and reopen to the identical composed gaze. The football, bench,
+towels, windows, red light, floor, and every background object remain completely
+still. No light change, fire, smoke, heat distortion, glow, flare, particles,
+wind, magic, overlay, or new object. From 5.5 to 8 seconds, hold the exact
+initial pose. Silent video, no generated audio.
 ~~~
 
 ### 리냐 / FB — 벚꽃 갈림길
@@ -512,7 +529,7 @@ distortion.
 
 ~~~
 An eight-second seamless silent loop. The first and final frame are identical.
-Preserve Linya's exact face, hair, forked path, training bag, football, cherry
+Preserve the attached character's exact face, hair, forked path, training bag, football, cherry
 trees, petals, sunset, and composition. Locked camera. From 0 to 2.5 seconds,
 one single petal resting near the edge of the path slides a few pixels. From 3
 to 5.5 seconds, it returns exactly to the initial position. At 4 seconds, both

@@ -3,6 +3,8 @@ import {
   Bot,
   ChevronFirst,
   ChevronLast,
+  ChevronDown,
+  ChevronUp,
   ListMusic,
   Maximize,
   Minimize,
@@ -17,6 +19,11 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faYoutube } from "@fortawesome/free-brands-svg-icons";
 import { coverLoopTracks, type CoverLoopTrack } from "./coverLoopLabData";
+import {
+  coverLoopMediaLink,
+  getCoverLoopMediaCapabilities,
+  soopClipEmbedUrl,
+} from "./coverLoopMedia";
 import { CoverLoopLyricTimingTool } from "./CoverLoopLyricTimingTool";
 import {
   loadCoverLoopLastPlayback,
@@ -159,6 +166,54 @@ function CoverLoopVisualizer({
   );
 }
 
+function SoopLogo() {
+  return (
+    <svg
+      className="cover-loop-lab__soop-logo"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 760.99 222.772"
+      aria-hidden="true"
+    >
+      <path
+        fill="#FFF"
+        d="M467.392.09a111.03 111.03 0 0 0-83.002 37.158c-.895.896-2.418.896-3.223 0a111.297 111.297 0 1 0 0 148.366c.895-1.075 2.328-1.075 3.223 0A111.297 111.297 0 1 0 467.303.179m0 169.228a58.2 58.2 0 0 1-41.904-18.355c-2.866-3.044-6.447-7.342-10.476-10.924q-2.776-2.507-5.552-4.656a45.665 45.665 0 0 0-53.365 0l-5.64 4.656c-3.94 3.582-7.522 7.88-10.387 10.924a58.2 58.2 0 0 1-41.815 18.266h-1.433l-3.76-.269h-.896a57.84 57.84 0 0 1-51.842-57.573v.268-.537.269a57.84 57.84 0 0 1 51.753-57.574h.985l1.522-.179h2.328l1.343-.09A58.2 58.2 0 0 1 339.89 71.9c2.955 3.044 6.536 7.342 10.476 10.923q2.776 2.507 5.641 4.656a45.665 45.665 0 0 0 53.365 0l5.552-4.656c4.029-3.581 7.61-7.88 10.476-10.923a58.2 58.2 0 0 1 41.814-18.266h1.343l2.328.09 1.433.089 1.074.09a57.84 57.84 0 0 1 51.575 54.17v.538l.09 1.611v4.477a57.84 57.84 0 0 1-51.664 54.26l-1.075.09-1.433.18h-2.328z"
+      />
+    </svg>
+  );
+}
+
+function UnavailableControl({
+  className,
+  label,
+  tooltip,
+  children,
+}: {
+  className: string;
+  label: string;
+  tooltip: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      className={`${className} cover-loop-lab__control--unavailable`}
+      aria-disabled="true"
+      aria-label={`${label}. ${tooltip}`}
+      title={tooltip}
+      data-tooltip={tooltip}
+      onClick={(event) => event.preventDefault()}
+      onKeyDown={(event) => {
+        if (event.key === " " || event.key === "Enter") event.preventDefault();
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+const SOOP_UNAVAILABLE_TOOLTIP = "SOOP 클립은 이 기능을 사용할 수 없습니다.";
+
 /**
  * The player body used by the full-screen playlist popup (CoverLoopPlaylistOverlay.tsx).
  * `track`/`index` are only the initial selection — the NOW PLAYING playlist popover switches
@@ -183,6 +238,7 @@ export function CoverLoopStage({
     return initialTrack.id;
   });
   const [playlistOpen, setPlaylistOpen] = useState(false);
+  const [soopEmbedVisible, setSoopEmbedVisible] = useState(true);
   const playlistRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -227,12 +283,27 @@ export function CoverLoopStage({
     saveCoverLoopRepeatMode(repeatMode);
   }, [repeatMode]);
 
-  const activeIndex = Math.max(
-    0,
-    coverLoopTracks.findIndex((item) => item.id === selectedTrackId),
+  const selectedIndex = coverLoopTracks.findIndex(
+    (item) => item.id === selectedTrackId,
   );
-  const track = coverLoopTracks[activeIndex] ?? initialTrack;
-  const index = coverLoopTracks.length ? activeIndex + 1 : initialIndex;
+  const activeIndex = selectedIndex >= 0 ? selectedIndex : 0;
+  const track =
+    selectedIndex >= 0 ? coverLoopTracks[selectedIndex] : initialTrack;
+  const index = selectedIndex >= 0 ? selectedIndex + 1 : initialIndex;
+  const capabilities = getCoverLoopMediaCapabilities(track.media);
+  const isYouTube = track.media.type === "youtube";
+  const firstYouTubeTrack =
+    initialTrack.media.type === "youtube"
+      ? initialTrack
+      : coverLoopTracks.find(
+          (item): item is CoverLoopTrack & {
+            media: Extract<CoverLoopTrack["media"], { type: "youtube" }>;
+          } => item.media.type === "youtube",
+        );
+  const firstYouTubeMedia =
+    firstYouTubeTrack?.media.type === "youtube"
+      ? firstYouTubeTrack.media
+      : undefined;
 
   // onStateChange is bound once inside the mount-only effect below, so it can only see fresh
   // repeatMode/activeIndex values through refs (same pattern MusicPlayer.tsx uses for trackIndex).
@@ -248,17 +319,17 @@ export function CoverLoopStage({
   // 재생 중엔 3초마다, 일시정지로 전환되는 순간엔 즉시, 컴포넌트가 사라질 때(팝업을 닫을 때)도
   // 한 번 더 저장해 "마지막으로 재생한 곡 + 위치"가 항상 최신으로 남게 한다.
   useEffect(() => {
-    if (!isPlaying) return;
+    if (!isPlaying || !isYouTube) return;
     const interval = window.setInterval(() => {
       saveCoverLoopLastPlayback(track.id, latestCurrentTimeRef.current);
     }, 3000);
     return () => window.clearInterval(interval);
-  }, [isPlaying, track.id]);
+  }, [isPlaying, isYouTube, track.id]);
 
   useEffect(() => {
-    if (!ready || isPlaying) return;
+    if (!ready || isPlaying || !isYouTube) return;
     saveCoverLoopLastPlayback(track.id, latestCurrentTimeRef.current);
-  }, [isPlaying, ready, track.id]);
+  }, [isPlaying, isYouTube, ready, track.id]);
 
   const latestTrackIdRef = useRef(track.id);
   latestTrackIdRef.current = track.id;
@@ -276,14 +347,15 @@ export function CoverLoopStage({
     loadYouTubeApi().then(() => {
       const youtubeWindow = window as YouTubeWindow;
       if (cancelled || !frameRef.current || !youtubeWindow.YT) return;
+      if (!firstYouTubeMedia) return;
       playerRef.current = new youtubeWindow.YT.Player(frameRef.current, {
-        videoId: track.media.videoId,
+        videoId: firstYouTubeMedia.videoId,
         playerVars: {
           rel: 0,
           playsinline: 1,
           modestbranding: 1,
-          ...(track.media.startSeconds
-            ? { start: track.media.startSeconds }
+          ...(firstYouTubeMedia.startSeconds
+            ? { start: firstYouTubeMedia.startSeconds }
             : {}),
         },
         events: {
@@ -294,9 +366,11 @@ export function CoverLoopStage({
             // 유지한다(자동재생하지 않음) — 저장된 곡이 지금 로드된 곡과 다르면 무시한다.
             const saved = loadCoverLoopLastPlayback();
             const restoreSeconds =
-              saved && saved.trackId === track.id
-                ? saved.seconds
-                : (track.media.startSeconds ?? 0);
+              track.media.type === "youtube"
+                ? saved && saved.trackId === track.id
+                  ? saved.seconds
+                  : (track.media.startSeconds ?? 0)
+                : 0;
             if (restoreSeconds > 0)
               playerRef.current?.seekTo(restoreSeconds, true);
             setCurrentTime(restoreSeconds);
@@ -311,10 +385,11 @@ export function CoverLoopStage({
               const mode = repeatModeRef.current;
               if (mode === "one") {
                 const repeatingTrack = coverLoopTracks[activeIndexRef.current];
-                playerRef.current?.seekTo(
-                  repeatingTrack?.media.startSeconds ?? 0,
-                  true,
-                );
+                const startSeconds =
+                  repeatingTrack?.media.type === "youtube"
+                    ? (repeatingTrack.media.startSeconds ?? 0)
+                    : 0;
+                playerRef.current?.seekTo(startSeconds, true);
                 playerRef.current?.playVideo();
               } else if (mode === "all" && coverLoopTracks.length > 0) {
                 const nextIndex =
@@ -339,18 +414,29 @@ export function CoverLoopStage({
   const previousTrackIdRef = useRef(selectedTrackId);
   useEffect(() => {
     if (previousTrackIdRef.current === selectedTrackId) return;
+    const previousTrack = coverLoopTracks.find(
+      (item) => item.id === previousTrackIdRef.current,
+    );
     saveCoverLoopLastPlayback(
       previousTrackIdRef.current,
-      latestCurrentTimeRef.current,
+      previousTrack?.media.type === "youtube"
+        ? latestCurrentTimeRef.current
+        : 0,
     );
     previousTrackIdRef.current = selectedTrackId;
     setCurrentTime(0);
     setDuration(0);
+    if (track.media.type === "soop-clip") {
+      playerRef.current?.pauseVideo();
+      setIsPlaying(false);
+      saveCoverLoopLastPlayback(track.id, 0);
+      return;
+    }
     playerRef.current?.loadVideoById(
       track.media.videoId,
       track.media.startSeconds ?? 0,
     );
-  }, [selectedTrackId, track.media.videoId, track.media.startSeconds]);
+  }, [selectedTrackId, track]);
 
   // 팝오버 바깥 클릭 또는 Escape로 닫는다.
   useEffect(() => {
@@ -374,37 +460,42 @@ export function CoverLoopStage({
   }, [playlistOpen]);
 
   useEffect(() => {
-    if (!isPlaying) return;
+    if (!isPlaying || !isYouTube) return;
     const interval = window.setInterval(() => {
       setCurrentTime(playerRef.current?.getCurrentTime() ?? 0);
       setDuration(playerRef.current?.getDuration() ?? 0);
     }, 180);
     return () => window.clearInterval(interval);
-  }, [isPlaying]);
+  }, [isPlaying, isYouTube]);
 
-  // Background loop video stays muted/loop/playsInline always; it only plays while the external
-  // YouTube audio is actually playing, so the scene doesn't move against silence. track.loopVideo
-  // is in the deps so switching tracks (which remounts <video> via key={track.id} below) re-plays
-  // the fresh element — a <source> src swap alone doesn't make the browser reload the video.
+  // Background loop video stays muted/loop/playsInline always. For YouTube tracks it only plays
+  // while the external audio is actually playing, so the scene doesn't move against silence. SOOP
+  // clips have no reliable playback signal to sync against (canSyncScene is false), so their loop
+  // video just runs continuously as ambient scenery instead. track.loopVideo is in the deps so
+  // switching tracks (which remounts <video> via key={track.id} below) re-plays the fresh element
+  // — a <source> src swap alone doesn't make the browser reload the video.
   useEffect(() => {
     const sceneVideo = sceneVideoRef.current;
     if (!sceneVideo) return;
-    if (isPlaying && !reducedMotion)
-      void sceneVideo.play().catch(() => undefined);
+    const shouldPlay = capabilities.canSyncScene ? isPlaying : true;
+    if (shouldPlay && !reducedMotion) void sceneVideo.play().catch(() => undefined);
     else sceneVideo.pause();
-  }, [isPlaying, reducedMotion, track.loopVideo]);
+  }, [capabilities.canSyncScene, isPlaying, reducedMotion, track.loopVideo]);
 
   const togglePlayback = () => {
+    if (!capabilities.canControlPlayback) return;
     if (isPlaying) playerRef.current?.pauseVideo();
     else playerRef.current?.playVideo();
   };
 
   const seekToStart = () => {
+    if (!capabilities.canSeek) return;
     playerRef.current?.seekTo(0, true);
     setCurrentTime(0);
   };
 
   const updateVolume = (nextVolume: number) => {
+    if (!capabilities.canControlVolume) return;
     setVolume(nextVolume);
     saveCoverLoopVolume(nextVolume);
     playerRef.current?.setVolume(nextVolume);
@@ -418,6 +509,7 @@ export function CoverLoopStage({
   };
 
   const toggleMuted = () => {
+    if (!capabilities.canControlVolume) return;
     if (muted) {
       playerRef.current?.unMute();
       setMuted(false);
@@ -436,7 +528,7 @@ export function CoverLoopStage({
   useEffect(() => () => window.clearTimeout(centerFlashTimerRef.current), []);
 
   const handleStageClick = () => {
-    if (!ready) return;
+    if (!ready || !capabilities.canControlPlayback) return;
     setCenterFlash(isPlaying ? "pause" : "play");
     window.clearTimeout(centerFlashTimerRef.current);
     centerFlashTimerRef.current = window.setTimeout(
@@ -459,7 +551,8 @@ export function CoverLoopStage({
   const PREV_RESTART_THRESHOLD_SECONDS = 3;
   const goToPrevTrack = () => {
     if (!canSkip) return;
-    const trackStart = track.media.startSeconds ?? 0;
+    const trackStart =
+      track.media.type === "youtube" ? (track.media.startSeconds ?? 0) : 0;
     if (ready && currentTime - trackStart > PREV_RESTART_THRESHOLD_SECONDS) {
       playerRef.current?.seekTo(trackStart, true);
       setCurrentTime(trackStart);
@@ -477,6 +570,7 @@ export function CoverLoopStage({
 
   // 꺼짐 → 전체 반복 → 한 곡 반복 → 꺼짐 순환.
   const cycleRepeatMode = () => {
+    if (!capabilities.canRepeat) return;
     setRepeatMode((current) =>
       current === "off" ? "all" : current === "all" ? "one" : "off",
     );
@@ -488,14 +582,15 @@ export function CoverLoopStage({
         ? "전체 반복재생"
         : "반복재생 꺼짐";
 
-  const activeLyricIndex = track.lyrics.findIndex(
+  const activeLyricIndex = capabilities.canShowLyrics ? track.lyrics.findIndex(
     (cue) => currentTime >= cue.startSeconds && currentTime < cue.endSeconds,
-  );
+  ) : -1;
   const activeLyric =
     activeLyricIndex >= 0 ? track.lyrics[activeLyricIndex] : undefined;
   // 가사 타이밍은 유튜브 원본 재생 시각(currentTime) 그대로 매칭하되, 화면에 보이는 재생
   // 시간·전체 길이·플레이바는 media.startSeconds만큼 당겨서 "0초부터 재생된" 것처럼 보여준다.
-  const trackStartOffset = track.media.startSeconds ?? 0;
+  const trackStartOffset =
+    track.media.type === "youtube" ? (track.media.startSeconds ?? 0) : 0;
   const displayCurrentTime = Math.max(0, currentTime - trackStartOffset);
   const displayDuration = Math.max(0, duration - trackStartOffset);
   const nextLyric =
@@ -503,6 +598,16 @@ export function CoverLoopStage({
   const visibleVolume = muted ? 0 : volume;
   const showLoopVideo = !!track.loopVideo && !reducedMotion;
   const indexLabel = `${track.code} · ${String(index).padStart(2, "0")}`;
+  const soopClipTitle =
+    track.media.type === "soop-clip"
+      ? (track.media.clipTitle ?? track.title)
+      : track.title;
+
+  // 다른 SOOP 트랙을 고르면 새 클립을 바로 확인할 수 있게 다시 표시한다. 접을 때는 iframe을
+  // 언마운트하지 않고 화면에서만 숨겨, SOOP 내부 플레이어의 재생 상태를 유지한다.
+  useEffect(() => {
+    setSoopEmbedVisible(true);
+  }, [track.id]);
 
   return (
     <>
@@ -554,8 +659,14 @@ export function CoverLoopStage({
           type="button"
           className="cover-loop-lab__click-catcher"
           onClick={handleStageClick}
-          disabled={!ready}
-          aria-label={isPlaying ? "일시정지" : "재생"}
+          disabled={!ready || !capabilities.canControlPlayback}
+          aria-label={
+            capabilities.canControlPlayback
+              ? isPlaying
+                ? "일시정지"
+                : "재생"
+              : SOOP_UNAVAILABLE_TOOLTIP
+          }
         />
         {centerFlash && (
           <div className="cover-loop-lab__center-flash" aria-hidden="true">
@@ -639,45 +750,102 @@ export function CoverLoopStage({
             있는 줄) 바로 위에 뜨고, 없을 때도 높이를 그대로 비워둬 그 줄이 위아래로 흔들리지
             않게 한다. */}
         <div className="cover-loop-lab__bottom">
+          {track.media.type === "soop-clip" && (
+            <section
+              className={`cover-loop-lab__soop-embed${soopEmbedVisible ? "" : " cover-loop-lab__soop-embed--collapsed"}`}
+              aria-label={`${soopClipTitle} SOOP 클립`}
+            >
+              <div className="cover-loop-lab__soop-embed-header">
+                <strong
+                  className="cover-loop-lab__soop-embed-title"
+                  title={soopClipTitle}
+                >
+                  {soopClipTitle}
+                </strong>
+                <button
+                  type="button"
+                  className="cover-loop-lab__soop-embed-toggle"
+                  onClick={() => setSoopEmbedVisible((visible) => !visible)}
+                  aria-expanded={soopEmbedVisible}
+                >
+                  <span>{soopEmbedVisible ? "접기" : "펼치기"}</span>
+                  {soopEmbedVisible ? (
+                    <ChevronUp aria-hidden="true" />
+                  ) : (
+                    <ChevronDown aria-hidden="true" />
+                  )}
+                </button>
+              </div>
+              <div
+                className={`cover-loop-lab__soop-embed-frame${soopEmbedVisible ? "" : " cover-loop-lab__soop-embed-frame--collapsed"}`}
+                aria-hidden={!soopEmbedVisible}
+              >
+                <iframe
+                  key={track.id}
+                  src={soopClipEmbedUrl(track.media.titleNo)}
+                  title={`${soopClipTitle} SOOP 클립 플레이어`}
+                  allow="fullscreen; picture-in-picture"
+                  allowFullScreen
+                  tabIndex={soopEmbedVisible ? 0 : -1}
+                />
+              </div>
+            </section>
+          )}
           <section
             className="cover-loop-lab__player"
             aria-label="커버 음악 플레이어"
           >
-            <CoverLoopVisualizer
-              isPlaying={isPlaying}
-              currentTime={currentTime}
-              volume={visibleVolume}
-              reducedMotion={reducedMotion}
-            />
+            {capabilities.canVisualize && (
+              <CoverLoopVisualizer
+                isPlaying={isPlaying}
+                currentTime={currentTime}
+                volume={visibleVolume}
+                reducedMotion={reducedMotion}
+              />
+            )}
             <div className="cover-loop-lab__track-meta">
               <div className="cover-loop-lab__track-meta-row">
                 <strong>{track.title}</strong>
                 <a
-                  className="cover-loop-lab__youtube-link"
-                  href={`https://www.youtube.com/watch?v=${track.media.videoId}`}
+                  className="cover-loop-lab__media-link"
+                  href={coverLoopMediaLink(track.media)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={`${track.title} 유튜브에서 보기`}
-                  title="유튜브에서 보기"
+                  aria-label={`${track.title} ${isYouTube ? "유튜브" : "SOOP"}에서 보기`}
+                  title={`${isYouTube ? "유튜브" : "SOOP"}에서 보기`}
                 >
-                  <FontAwesomeIcon icon={faYoutube} aria-hidden="true" />
-                </a>
-                <button
-                  type="button"
-                  className="cover-loop-lab__repeat"
-                  onClick={cycleRepeatMode}
-                  aria-pressed={repeatMode !== "off"}
-                  aria-label={repeatLabel}
-                  title={repeatLabel}
-                >
-                  {repeatMode === "one" ? (
-                    <Repeat1 aria-hidden="true" />
-                  ) : repeatMode === "all" ? (
-                    <Repeat aria-hidden="true" />
+                  {isYouTube ? (
+                    <FontAwesomeIcon icon={faYoutube} aria-hidden="true" />
                   ) : (
-                    <RepeatOff aria-hidden="true" />
+                    <SoopLogo />
                   )}
-                </button>
+                </a>
+                {capabilities.canRepeat ? (
+                  <button
+                    type="button"
+                    className="cover-loop-lab__repeat"
+                    onClick={cycleRepeatMode}
+                    aria-pressed={repeatMode !== "off"}
+                    aria-label={repeatLabel}
+                    title={repeatLabel}
+                  >
+                    {repeatMode === "one" ? (
+                      <Repeat1 aria-hidden="true" />
+                    ) : repeatMode === "all" ? (
+                      <Repeat aria-hidden="true" />
+                    ) : (
+                      <RepeatOff aria-hidden="true" />
+                    )}
+                  </button>
+                ) : (
+                  <UnavailableControl
+                    className="cover-loop-lab__repeat"
+                    label="반복재생을 지원하지 않음"
+                    tooltip={SOOP_UNAVAILABLE_TOOLTIP}
+                  >
+                    <RepeatOff aria-hidden="true" />
+                  </UnavailableControl>
+                )}
               </div>
               <small>{track.displayName}</small>
             </div>
@@ -691,19 +859,29 @@ export function CoverLoopStage({
               >
                 <ChevronFirst aria-hidden="true" />
               </button>
-              <button
-                type="button"
-                className="cover-loop-lab__play"
-                onClick={togglePlayback}
-                disabled={!ready}
-                aria-label={isPlaying ? "일시정지" : "재생"}
-              >
-                {isPlaying ? (
-                  <Pause aria-hidden="true" />
-                ) : (
+              {capabilities.canControlPlayback ? (
+                <button
+                  type="button"
+                  className="cover-loop-lab__play"
+                  onClick={togglePlayback}
+                  disabled={!ready}
+                  aria-label={isPlaying ? "일시정지" : "재생"}
+                >
+                  {isPlaying ? (
+                    <Pause aria-hidden="true" />
+                  ) : (
+                    <Play aria-hidden="true" />
+                  )}
+                </button>
+              ) : (
+                <UnavailableControl
+                  className="cover-loop-lab__play"
+                  label="재생과 일시정지를 지원하지 않음"
+                  tooltip={SOOP_UNAVAILABLE_TOOLTIP}
+                >
                   <Play aria-hidden="true" />
-                )}
-              </button>
+                </UnavailableControl>
+              )}
               <button
                 type="button"
                 className="cover-loop-lab__skip"
@@ -714,62 +892,84 @@ export function CoverLoopStage({
                 <ChevronLast aria-hidden="true" />
               </button>
               <div className="cover-loop-lab__volume-group">
-                <button
-                  type="button"
-                  className="cover-loop-lab__mute"
-                  onClick={toggleMuted}
-                  disabled={!ready}
-                  aria-pressed={muted}
-                  aria-label={muted ? "음소거 해제" : "음소거"}
-                >
-                  {muted || visibleVolume === 0 ? (
+                {capabilities.canControlVolume ? (
+                  <>
+                    <button
+                      type="button"
+                      className="cover-loop-lab__mute"
+                      onClick={toggleMuted}
+                      disabled={!ready}
+                      aria-pressed={muted}
+                      aria-label={muted ? "음소거 해제" : "음소거"}
+                    >
+                      {muted || visibleVolume === 0 ? (
+                        <VolumeX aria-hidden="true" />
+                      ) : (
+                        <Volume2 aria-hidden="true" />
+                      )}
+                    </button>
+                    <input
+                      className="cover-loop-lab__volume-range"
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={visibleVolume}
+                      onChange={(event) => updateVolume(Number(event.target.value))}
+                      disabled={!ready}
+                      aria-label="볼륨"
+                      style={
+                        {
+                          "--cover-loop-volume": `${visibleVolume}%`,
+                        } as React.CSSProperties
+                      }
+                    />
+                  </>
+                ) : (
+                  <UnavailableControl
+                    className="cover-loop-lab__mute"
+                    label="볼륨 조절을 지원하지 않음"
+                    tooltip={SOOP_UNAVAILABLE_TOOLTIP}
+                  >
                     <VolumeX aria-hidden="true" />
-                  ) : (
-                    <Volume2 aria-hidden="true" />
-                  )}
-                </button>
-                <input
-                  className="cover-loop-lab__volume-range"
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={visibleVolume}
-                  onChange={(event) => updateVolume(Number(event.target.value))}
-                  disabled={!ready}
-                  aria-label="볼륨"
-                  style={
-                    {
-                      "--cover-loop-volume": `${visibleVolume}%`,
-                    } as React.CSSProperties
-                  }
-                />
+                  </UnavailableControl>
+                )}
               </div>
               {/* 볼륨 버튼과 같은 줄에 표시. 가사가 없어도 폭을 그대로 차지해 시간/전체화면이
                 옆으로 밀리지 않게 한다. */}
-              <div className="cover-loop-lab__lyric" aria-live="polite">
-                {activeLyric && (
-                  <p
-                    key={`cur-${activeLyricIndex}`}
-                    className="cover-loop-lab__lyric-line cover-loop-lab__lyric-line--current"
-                  >
-                    {activeLyric.text}
-                  </p>
-                )}
-                {/* 다음 가사를 한 줄쯤 잘리고 흐려진 채로 미리 보여주다가, 전환되면 이 줄이 위로
-                  올라와 현재 가사 자리를 차지한다(key가 바뀌며 rise 애니메이션이 다시 재생됨). */}
-                {activeLyric && nextLyric && (
-                  <p
-                    key={`next-${activeLyricIndex}`}
-                    className="cover-loop-lab__lyric-line cover-loop-lab__lyric-line--next"
-                    aria-hidden="true"
-                  >
-                    {nextLyric.text}
-                  </p>
-                )}
-              </div>
-              <time>
-                {formatTime(displayCurrentTime)} / {formatTime(displayDuration)}
-              </time>
+              {capabilities.canShowLyrics && (
+                <div className="cover-loop-lab__lyric" aria-live="polite">
+                  {activeLyric && (
+                    <p
+                      key={`cur-${activeLyricIndex}`}
+                      className="cover-loop-lab__lyric-line cover-loop-lab__lyric-line--current"
+                    >
+                      {activeLyric.text}
+                    </p>
+                  )}
+                  {activeLyric && nextLyric && (
+                    <p
+                      key={`next-${activeLyricIndex}`}
+                      className="cover-loop-lab__lyric-line cover-loop-lab__lyric-line--next"
+                      aria-hidden="true"
+                    >
+                      {nextLyric.text}
+                    </p>
+                  )}
+                </div>
+              )}
+              {capabilities.canReadTimeline ? (
+                <time>
+                  {formatTime(displayCurrentTime)} / {formatTime(displayDuration)}
+                </time>
+              ) : (
+                <UnavailableControl
+                  className="cover-loop-lab__time-unavailable"
+                  label="재생 시간을 지원하지 않음"
+                  tooltip={SOOP_UNAVAILABLE_TOOLTIP}
+                >
+                  <span aria-hidden="true">--:-- / --:--</span>
+                </UnavailableControl>
+              )}
               {fullscreenSupported && (
                 <button
                   type="button"
@@ -786,27 +986,37 @@ export function CoverLoopStage({
                 </button>
               )}
             </div>
-            <input
-              className="cover-loop-lab__progress"
-              type="range"
-              min="0"
-              max={Math.max(displayDuration, 1)}
-              step="0.1"
-              value={Math.min(displayCurrentTime, Math.max(displayDuration, 1))}
-              onChange={(event) => {
-                const displaySeconds = Number(event.target.value);
-                const seconds = displaySeconds + trackStartOffset;
-                playerRef.current?.seekTo(seconds, true);
-                setCurrentTime(seconds);
-              }}
-              disabled={!ready || duration === 0}
-              aria-label="재생 위치"
-              style={
-                {
-                  "--cover-loop-progress": `${displayDuration ? (displayCurrentTime / displayDuration) * 100 : 0}%`,
-                } as React.CSSProperties
-              }
-            />
+            {capabilities.canSeek ? (
+              <input
+                className="cover-loop-lab__progress"
+                type="range"
+                min="0"
+                max={Math.max(displayDuration, 1)}
+                step="0.1"
+                value={Math.min(displayCurrentTime, Math.max(displayDuration, 1))}
+                onChange={(event) => {
+                  const displaySeconds = Number(event.target.value);
+                  const seconds = displaySeconds + trackStartOffset;
+                  playerRef.current?.seekTo(seconds, true);
+                  setCurrentTime(seconds);
+                }}
+                disabled={!ready || duration === 0}
+                aria-label="재생 위치"
+                style={
+                  {
+                    "--cover-loop-progress": `${displayDuration ? (displayCurrentTime / displayDuration) * 100 : 0}%`,
+                  } as React.CSSProperties
+                }
+              />
+            ) : (
+              <UnavailableControl
+                className="cover-loop-lab__progress"
+                label="재생 위치 이동을 지원하지 않음"
+                tooltip={SOOP_UNAVAILABLE_TOOLTIP}
+              >
+                <span className="cover-loop-lab__progress-line" aria-hidden="true" />
+              </UnavailableControl>
+            )}
           </section>
         </div>
       </section>
