@@ -37,7 +37,8 @@ export const ANNOUNCEMENTS: Announcement[] = [
           <span>잔디동 플레이리스트</span>
         </span>{" "}
         버튼을 누르면 잔디동 멤버의 루프 애니메이션과 커버곡을 감상하실 수
-        있습니다.
+        있습니다. <strong>나만의 플레이 리스트 관리</strong> 메뉴에서 커스텀
+        곡을 추가해보세요.
       </>
     ),
   },

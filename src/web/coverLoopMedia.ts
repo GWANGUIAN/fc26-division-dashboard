@@ -15,6 +15,12 @@ export type SoopClipCoverLoopMedia = {
 
 export type CoverLoopMedia = YouTubeCoverLoopMedia | SoopClipCoverLoopMedia;
 
+export type LyricCue = {
+  startSeconds: number;
+  endSeconds: number;
+  text: string;
+};
+
 export type CoverLoopMediaCapabilities = {
   canControlPlayback: boolean;
   canControlVolume: boolean;
@@ -71,6 +77,22 @@ export function soopClipEmbedUrl(titleNo: number): string {
     mutePlay: "false",
   });
   return `https://vod.sooplive.com/player/${safeTitleNo}/embed?${params}`;
+}
+
+// vod.sooplive.com/player/<id>, sooplive.co.kr/videos/<id> 등 알려진 경로 패턴에서 먼저 찾고,
+// 못 찾으면 URL에서 가장 긴 숫자열(보통 9자리 titleNo)을 fallback으로 쓴다.
+const SOOP_URL_PATH_PATTERNS = [/\/player\/(\d+)/, /\/videos?\/(\d+)/, /\/vod\/(\d+)/];
+
+export function extractSoopTitleNo(url: string): number | undefined {
+  const trimmed = url.trim();
+  if (!trimmed) return undefined;
+  for (const pattern of SOOP_URL_PATH_PATTERNS) {
+    const match = pattern.exec(trimmed);
+    if (match) return Number(match[1]);
+  }
+  const digitRuns = trimmed.match(/\d{6,}/g);
+  if (!digitRuns) return undefined;
+  return Number(digitRuns.sort((a, b) => b.length - a.length)[0]);
 }
 
 export function coverLoopMediaLink(media: CoverLoopMedia): string {

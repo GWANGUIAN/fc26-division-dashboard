@@ -13,18 +13,22 @@ import {
   Repeat,
   Repeat1,
   RepeatOff,
+  Settings2,
   Volume2,
   VolumeX,
 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faYoutube } from "@fortawesome/free-brands-svg-icons";
-import { coverLoopTracks, type CoverLoopTrack } from "./coverLoopLabData";
+import type { CoverLoopTrack } from "./coverLoopLabData";
+import { SoopLogo } from "./SoopLogo";
 import {
   coverLoopMediaLink,
   getCoverLoopMediaCapabilities,
   soopClipEmbedUrl,
 } from "./coverLoopMedia";
 import { CoverLoopLyricTimingTool } from "./CoverLoopLyricTimingTool";
+import { CoverLoopPlaylistManagerModal } from "./CoverLoopPlaylistManagerModal";
+import { useMergedCoverLoopTracks } from "./useMergedCoverLoopTracks";
 import {
   loadCoverLoopLastPlayback,
   loadCoverLoopRepeatMode,
@@ -166,23 +170,6 @@ function CoverLoopVisualizer({
   );
 }
 
-function SoopLogo() {
-  return (
-    <svg
-      className="cover-loop-lab__soop-logo"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 760.99 222.772"
-      aria-hidden="true"
-    >
-      <path
-        fill="#FFF"
-        d="M467.392.09a111.03 111.03 0 0 0-83.002 37.158c-.895.896-2.418.896-3.223 0a111.297 111.297 0 1 0 0 148.366c.895-1.075 2.328-1.075 3.223 0A111.297 111.297 0 1 0 467.303.179m0 169.228a58.2 58.2 0 0 1-41.904-18.355c-2.866-3.044-6.447-7.342-10.476-10.924q-2.776-2.507-5.552-4.656a45.665 45.665 0 0 0-53.365 0l-5.64 4.656c-3.94 3.582-7.522 7.88-10.387 10.924a58.2 58.2 0 0 1-41.815 18.266h-1.433l-3.76-.269h-.896a57.84 57.84 0 0 1-51.842-57.573v.268-.537.269a57.84 57.84 0 0 1 51.753-57.574h.985l1.522-.179h2.328l1.343-.09A58.2 58.2 0 0 1 339.89 71.9c2.955 3.044 6.536 7.342 10.476 10.923q2.776 2.507 5.641 4.656a45.665 45.665 0 0 0 53.365 0l5.552-4.656c4.029-3.581 7.61-7.88 10.476-10.923a58.2 58.2 0 0 1 41.814-18.266h1.343l2.328.09 1.433.089 1.074.09a57.84 57.84 0 0 1 51.575 54.17v.538l.09 1.611v4.477a57.84 57.84 0 0 1-51.664 54.26l-1.075.09-1.433.18h-2.328z"
-      />
-    </svg>
-  );
-}
-
 function UnavailableControl({
   className,
   label,
@@ -226,6 +213,14 @@ export function CoverLoopStage({
   track: CoverLoopTrack;
   index?: number;
 }) {
+  const {
+    tracks: coverLoopTracks,
+    library,
+    addCustomTrack,
+    updateCustomTrack,
+    deleteCustomTrack,
+    reorder,
+  } = useMergedCoverLoopTracks();
   const frameRef = useRef<HTMLDivElement>(null);
   const sceneVideoRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<YouTubePlayer | undefined>(undefined);
@@ -238,6 +233,7 @@ export function CoverLoopStage({
     return initialTrack.id;
   });
   const [playlistOpen, setPlaylistOpen] = useState(false);
+  const [managerOpen, setManagerOpen] = useState(false);
   const [soopEmbedVisible, setSoopEmbedVisible] = useState(true);
   const playlistRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
@@ -697,39 +693,53 @@ export function CoverLoopStage({
                 <ListMusic aria-hidden="true" />
               </button>
               {playlistOpen && (
-                <div
-                  className="cover-loop-lab__playlist-popover"
-                  role="listbox"
-                  aria-label="재생목록"
-                >
-                  {coverLoopTracks.map((item, itemIndex) => (
+                <div className="cover-loop-lab__playlist-popover">
+                  <div className="cover-loop-lab__playlist-header">
                     <button
-                      key={item.id}
                       type="button"
-                      role="option"
-                      aria-selected={item.id === selectedTrackId}
-                      className={`cover-loop-lab__playlist-item${item.id === selectedTrackId ? " cover-loop-lab__playlist-item--active" : ""}`}
-                      onClick={() => selectTrack(item.id)}
+                      className="cover-loop-lab__playlist-manage"
+                      onClick={() => {
+                        setPlaylistOpen(false);
+                        setManagerOpen(true);
+                      }}
                     >
-                      <span className="cover-loop-lab__playlist-item-index">
-                        {String(itemIndex + 1).padStart(2, "0")}
-                      </span>
-                      <span className="cover-loop-lab__playlist-item-icon" aria-hidden="true">
-                        {item.media.type === "youtube" ? (
-                          <FontAwesomeIcon icon={faYoutube} />
-                        ) : (
-                          <SoopLogo />
-                        )}
-                      </span>
-                      <span className="cover-loop-lab__playlist-item-meta">
-                        <strong>{item.title}</strong>
-                        <small>
-                          {item.artist} · {item.displayName}
-                        </small>
-                      </span>
+                      <Settings2 aria-hidden="true" />
+                      <span>나만의 플레이 리스트 관리</span>
                     </button>
-                  ))}
-                  {/* <p className="cover-loop-lab__playlist-footer">추가 예정</p> */}
+                  </div>
+                  <div
+                    className="cover-loop-lab__playlist-list"
+                    role="listbox"
+                    aria-label="재생목록"
+                  >
+                    {coverLoopTracks.map((item, itemIndex) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        role="option"
+                        aria-selected={item.id === selectedTrackId}
+                        className={`cover-loop-lab__playlist-item${item.id === selectedTrackId ? " cover-loop-lab__playlist-item--active" : ""}`}
+                        onClick={() => selectTrack(item.id)}
+                      >
+                        <span className="cover-loop-lab__playlist-item-index">
+                          {String(itemIndex + 1).padStart(2, "0")}
+                        </span>
+                        <span className="cover-loop-lab__playlist-item-icon" aria-hidden="true">
+                          {item.media.type === "youtube" ? (
+                            <FontAwesomeIcon icon={faYoutube} />
+                          ) : (
+                            <SoopLogo />
+                          )}
+                        </span>
+                        <span className="cover-loop-lab__playlist-item-meta">
+                          <strong>{item.title}</strong>
+                          <small>
+                            {item.artist} · {item.displayName}
+                          </small>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -1041,6 +1051,17 @@ export function CoverLoopStage({
           isPlaying={isPlaying}
           onTogglePlayback={togglePlayback}
           onSeekToStart={seekToStart}
+        />
+      )}
+      {managerOpen && (
+        <CoverLoopPlaylistManagerModal
+          tracks={coverLoopTracks}
+          customTracks={library.tracks}
+          onAdd={addCustomTrack}
+          onUpdate={updateCustomTrack}
+          onDelete={deleteCustomTrack}
+          onReorder={reorder}
+          onClose={() => setManagerOpen(false)}
         />
       )}
     </>

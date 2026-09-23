@@ -34,13 +34,8 @@ function loopVideoFor(id: string): string | undefined {
   )?.[1];
 }
 
-export type LyricCue = {
-  startSeconds: number;
-  endSeconds: number;
-  text: string;
-};
-
-export type { CoverLoopMedia } from "./coverLoopMedia";
+export type { CoverLoopMedia, LyricCue } from "./coverLoopMedia";
+import type { LyricCue } from "./coverLoopMedia";
 
 export type CoverLoopTrack = {
   id: string;
@@ -1376,3 +1371,13 @@ export const coverLoopTracks: readonly CoverLoopTrack[] = [
   pingguCoverLoopTrack,
   woowakgoodCoverLoopTrack,
 ];
+
+/** id들이 여기 있으면 <id>-cover-poster/<id>-cover-loop.mp4 에셋이 실제로 존재한다는 뜻 — 커스텀
+ * 곡 폼에서 "기존 루프 애니메이션 재사용" 옵션을 보여줄 수 있는지 판별하는 데 쓴다. */
+export const coverLoopBuiltinAssetIds: ReadonlySet<string> = new Set(
+  coverLoopTracks.map((track) => track.id),
+);
+
+/** 커스텀 곡 폼의 "누구의 영상인가요?" 선택지 — 잔디동 멤버 11명 + 우왁굳, 정확히 이 12명만. */
+export const coverLoopBuiltinPerformers: readonly { id: string; displayName: string }[] =
+  coverLoopTracks.map((track) => ({ id: track.id, displayName: track.displayName }));

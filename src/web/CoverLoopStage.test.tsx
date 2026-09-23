@@ -19,9 +19,7 @@ const soopTrack: CoverLoopTrack = {
 
 describe("CoverLoopStage SOOP clips", () => {
   it("renders the regular iframe and exposes unavailable media controls", () => {
-    const html = renderToStaticMarkup(
-      <CoverLoopStage track={soopTrack} index={9} />,
-    );
+    const html = renderToStaticMarkup(<CoverLoopStage track={soopTrack} index={9} />);
 
     expect(html).toContain(
       "https://vod.sooplive.com/player/145540969/embed?autoPlay=false&amp;showChat=false&amp;mutePlay=false",

@@ -1,0 +1,255 @@
+/* "나만의 플레이 리스트 관리" 모달 + 곡 추가/수정 폼 — 사이트 기본 모달(녹색 테마, 라이트/다크
+   테마 전환)이 아니라 재생목록 팝오버(cover-loop-lab.css의 __playlist-popover)와 똑같은 어두운
+   글래스모피즘 톤을 그대로 따른다. 재생목록 위에서 열리는 모달이라 톤이 갈라지면 어색해서,
+   테마 토글과 무관하게 항상 이 다크 글래스 스킨을 쓴다. */
+.modal.cover-loop-manager-modal {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(12, 10, 16, 0.86);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+.modal.cover-loop-manager-modal .modal__header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  background: transparent;
+}
+.modal.cover-loop-manager-modal .modal__header h2 {
+  margin: 0;
+  color: #fff;
+  font: 800 22px "Barlow Condensed", "Noto Sans KR";
+}
+.modal.cover-loop-manager-modal .close { color: rgba(255, 255, 255, 0.7); }
+.modal.cover-loop-manager-modal .close:hover { color: #fff; }
+.modal.cover-loop-manager-modal .modal__body { padding-top: 22px; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.4) transparent; }
+.modal.cover-loop-manager-modal .modal__body::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.28); box-shadow: none; }
+.modal.cover-loop-manager-modal .modal__body::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.45); }
+
+/* 목록(왼쪽) + 곡 추가/수정 패널(오른쪽) 2단 레이아웃 — 패널은 버튼으로 여닫지 않고 항상
+   떠 있고, 목록에서 수정(연필) 아이콘을 누르면 이 패널의 내용만 그 곡으로 바뀐다. */
+.cover-loop-manager-modal__layout { display: flex; gap: 20px; min-height: 0; }
+.cover-loop-manager-modal__list-col { flex: 1 1 auto; min-width: 0; overflow-y: auto; max-height: 62vh; }
+.cover-loop-manager-modal__form-col {
+  flex: 0 0 460px;
+  overflow-y: auto;
+  max-height: 62vh;
+  padding-left: 20px;
+  border-left: 1px solid rgba(255, 255, 255, 0.16);
+}
+@media (max-width: 780px) {
+  .cover-loop-manager-modal__layout { flex-direction: column; }
+  .cover-loop-manager-modal__list-col, .cover-loop-manager-modal__form-col { max-height: none; flex: 1 1 auto; }
+  .cover-loop-manager-modal__form-col { padding-left: 0; padding-top: 18px; border-left: 0; border-top: 1px solid rgba(255, 255, 255, 0.16); }
+}
+
+.cover-loop-manager-modal__list { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
+
+.cover-loop-manager-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.05);
+}
+.cover-loop-manager-row--dragging { opacity: .5; }
+.cover-loop-manager-row__handle {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 3px;
+  color: rgba(255, 255, 255, 0.55);
+  background: transparent;
+  cursor: grab;
+  touch-action: none;
+}
+.cover-loop-manager-row__handle:hover, .cover-loop-manager-row__handle:focus-visible { color: #fff; outline: 0; }
+.cover-loop-manager-row__handle svg { width: 16px; height: 16px; }
+.cover-loop-manager-row__icon { display: grid; flex: 0 0 auto; place-items: center; width: 20px; height: 20px; color: rgba(255, 255, 255, 0.6); }
+.cover-loop-manager-row__icon svg { width: 15px; height: 15px; }
+.cover-loop-manager-row__icon .cover-loop-lab__soop-logo { width: 24px; height: auto; }
+.cover-loop-manager-row__meta { display: grid; flex: 1 1 auto; gap: 1px; min-width: 0; }
+.cover-loop-manager-row__meta strong { overflow: hidden; color: #fff; font-size: 13px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.cover-loop-manager-row__meta small { overflow: hidden; color: rgba(255, 255, 255, 0.62); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.cover-loop-manager-row__actions { display: flex; flex: 0 0 auto; gap: 4px; }
+.cover-loop-manager-row__actions button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  color: rgba(255, 255, 255, 0.7);
+  background: transparent;
+  cursor: pointer;
+}
+.cover-loop-manager-row__actions button:hover { color: #fff; border-color: #fff; }
+.cover-loop-manager-row__actions button:last-child:hover { color: #ffb4b4; border-color: rgba(255, 107, 107, 0.6); }
+.cover-loop-manager-row__actions svg { width: 14px; height: 14px; }
+.cover-loop-manager-row__badge { flex: 0 0 auto; color: rgba(255, 255, 255, 0.45); font-size: 11px; }
+
+/* --- 곡 추가/수정 폼 (관리 모달 오른쪽에 항상 떠 있는 패널) --- */
+
+.cover-loop-track-form-panel h3 { margin: 0 0 16px; color: #fff; font: 800 16px "Barlow Condensed", "Noto Sans KR"; }
+
+.cover-loop-track-form { display: flex; flex-direction: column; gap: 16px; color: #fff; }
+.cover-loop-track-form__field { display: flex; flex-direction: column; gap: 6px; }
+.cover-loop-track-form__field > span:first-child { color: rgba(255, 255, 255, 0.7); font: 700 12px "Noto Sans KR"; }
+.cover-loop-track-form__required { color: #ffb4b4; }
+
+.cover-loop-track-form input[type="text"],
+.cover-loop-track-form input:not([type]),
+.cover-loop-track-form input[type="number"],
+.cover-loop-track-form textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 3px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+  font: 500 13px "Noto Sans KR";
+}
+.cover-loop-track-form input::placeholder, .cover-loop-track-form textarea::placeholder { color: rgba(255, 255, 255, 0.4); }
+.cover-loop-track-form textarea { min-height: 110px; font-family: "Consolas", monospace; resize: vertical; }
+.cover-loop-track-form input:focus, .cover-loop-track-form textarea:focus {
+  border-color: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.14);
+  outline: 0;
+}
+
+.cover-loop-track-form__toggle { display: flex; gap: 8px; }
+.cover-loop-track-form__toggle-btn {
+  flex: 1 1 auto;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 3px;
+  color: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.05);
+  font: 700 12px "Noto Sans KR";
+  cursor: pointer;
+}
+.cover-loop-track-form__toggle-btn:hover { border-color: #fff; }
+.cover-loop-track-form__toggle-btn--active { color: #fff; border-color: #fff; background: rgba(255, 255, 255, 0.2); }
+
+/* "누구의 영상인가요?" — 네이티브 select 대신 잔디동 멤버 12명을 작은 pill 버튼 그리드로. */
+.cover-loop-track-form__performer-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.cover-loop-track-form__performer-btn {
+  padding: 7px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.05);
+  font: 700 12px "Noto Sans KR";
+  cursor: pointer;
+}
+.cover-loop-track-form__performer-btn:hover { border-color: #fff; color: #fff; }
+.cover-loop-track-form__performer-btn--active { color: #04140f; border-color: #fff; background: #fff; }
+
+.cover-loop-track-form__url-row { display: flex; gap: 8px; }
+.cover-loop-track-form__url-row input { flex: 1 1 auto; }
+.cover-loop-track-form__url-row button {
+  flex: 0 0 auto;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 3px;
+  color: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.06);
+  font: 700 12px "Noto Sans KR";
+  cursor: pointer;
+  white-space: nowrap;
+}
+.cover-loop-track-form__url-row button:hover:not(:disabled) { border-color: #fff; color: #fff; }
+.cover-loop-track-form__url-row button:disabled { opacity: .5; cursor: not-allowed; }
+
+.cover-loop-track-form__hint { margin: 0; color: rgba(255, 255, 255, 0.55); font-size: 12px; line-height: 1.6; }
+.cover-loop-track-form__hint code { display: inline-block; margin-top: 2px; padding: 6px 8px; border-radius: 3px; background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.85); font-size: 11px; white-space: pre-wrap; }
+.cover-loop-track-form__error { margin: 4px 0 0; padding: 0; color: #ffb4b4; font-size: 12px; list-style: none; }
+.cover-loop-track-form__error li { margin: 2px 0; }
+
+.cover-loop-track-form__upload-row { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+.cover-loop-track-form__upload-field { display: flex; flex-direction: column; gap: 6px; }
+.cover-loop-track-form__upload-field > span:first-child { color: rgba(255, 255, 255, 0.7); font-size: 12px; }
+.cover-loop-track-form__upload-field input[type="file"] { padding: 4px 0; color: rgba(255, 255, 255, 0.55); background: transparent; border: 0; font-size: 12px; }
+.cover-loop-track-form__upload-field input[type="file"]::file-selector-button,
+.cover-loop-track-form__upload-field input[type="file"]::-webkit-file-upload-button {
+  margin-right: 10px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 3px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  font: 700 12px "Noto Sans KR";
+  cursor: pointer;
+}
+.cover-loop-track-form__upload-field input[type="file"]:hover::file-selector-button,
+.cover-loop-track-form__upload-field input[type="file"]:hover::-webkit-file-upload-button {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: #fff;
+}
+.cover-loop-track-form__upload-field button {
+  align-self: flex-start;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 3px;
+  color: rgba(255, 255, 255, 0.7);
+  background: transparent;
+  font-size: 11px;
+  cursor: pointer;
+}
+.cover-loop-track-form__upload-field button:hover { color: #ffb4b4; border-color: rgba(255, 107, 107, 0.55); }
+.cover-loop-track-form__preview { width: 100%; max-height: 120px; border-radius: 3px; object-fit: cover; background: rgba(255, 255, 255, 0.08); }
+
+.cover-loop-track-form__actions { display: flex; justify-content: flex-end; gap: 8px; padding-top: 4px; }
+.cover-loop-track-form__actions button {
+  padding: 9px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 3px;
+  color: rgba(255, 255, 255, 0.75);
+  background: transparent;
+  font: 700 13px "Noto Sans KR";
+  cursor: pointer;
+}
+.cover-loop-track-form__actions button:hover { color: #fff; border-color: #fff; }
+.cover-loop-track-form__actions button[type="submit"] { border-color: rgba(255, 255, 255, 0.5); color: #fff; background: rgba(255, 255, 255, 0.14); }
+.cover-loop-track-form__actions button[type="submit"]:hover { background: rgba(255, 255, 255, 0.22); }
+
+/* --- 삭제 확인(작은 글래스 다이얼로그) --- */
+.cover-loop-confirm-backdrop {
+  position: fixed;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  inset: 0;
+  padding: 18px;
+  background: rgba(0, 0, 0, 0.55);
+}
+.cover-loop-confirm-dialog {
+  width: min(360px, 100%);
+  padding: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  background: rgba(12, 10, 16, 0.92);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  color: #fff;
+}
+.cover-loop-confirm-dialog h3 { margin: 0 0 12px; font: 800 17px "Barlow Condensed", "Noto Sans KR"; }
+.cover-loop-confirm-dialog p { margin: 0 0 18px; color: rgba(255, 255, 255, 0.75); font-size: 13px; line-height: 1.6; }
+.cover-loop-confirm-dialog__actions { display: flex; justify-content: flex-end; gap: 8px; }
+.cover-loop-confirm-dialog__actions button {
+  padding: 9px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 3px;
+  color: rgba(255, 255, 255, 0.8);
+  background: transparent;
+  font: 700 13px "Noto Sans KR";
+  cursor: pointer;
+}
+.cover-loop-confirm-dialog__actions button:hover { color: #fff; border-color: #fff; }
+.cover-loop-confirm-dialog__actions button.cover-loop-confirm-dialog__danger { border-color: rgba(255, 107, 107, 0.55); color: #ffd6d6; background: rgba(255, 107, 107, 0.16); }
+.cover-loop-confirm-dialog__actions button.cover-loop-confirm-dialog__danger:hover { background: rgba(255, 107, 107, 0.28); border-color: rgba(255, 107, 107, 0.8); }
+
