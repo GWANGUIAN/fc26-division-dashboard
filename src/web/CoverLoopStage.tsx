@@ -344,18 +344,23 @@ export function CoverLoopStage({
 
   useEffect(() => {
     let cancelled = false;
+    // 마운트 시점에 이미 복원된(로컬스토리지) 곡이 유튜브면 그 곡으로 플레이어를 만들어야
+    // 한다 — initialTrack/firstYouTubeMedia는 팝업을 처음 열 때 호출부가 넘긴 기본값이라,
+    // "마지막으로 듣던 3번째 곡"으로 복원됐는데 플레이어는 항상 1번째 곡으로 뜨는 버그가 있었다.
+    const initialYouTubeMedia =
+      track.media.type === "youtube" ? track.media : firstYouTubeMedia;
     loadYouTubeApi().then(() => {
       const youtubeWindow = window as YouTubeWindow;
       if (cancelled || !frameRef.current || !youtubeWindow.YT) return;
-      if (!firstYouTubeMedia) return;
+      if (!initialYouTubeMedia) return;
       playerRef.current = new youtubeWindow.YT.Player(frameRef.current, {
-        videoId: firstYouTubeMedia.videoId,
+        videoId: initialYouTubeMedia.videoId,
         playerVars: {
           rel: 0,
           playsinline: 1,
           modestbranding: 1,
-          ...(firstYouTubeMedia.startSeconds
-            ? { start: firstYouTubeMedia.startSeconds }
+          ...(initialYouTubeMedia.startSeconds
+            ? { start: initialYouTubeMedia.startSeconds }
             : {}),
         },
         events: {
