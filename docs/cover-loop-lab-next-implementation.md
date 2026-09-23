@@ -342,21 +342,21 @@ high-resolution unlettered image.
 
 ### 우왁굳 / 잔디동 감독 — 비어 있는 피치를 바라보는 감독
 
-전술 폴더나 손을 움직이면 형태가 깨질 가능성이 있으므로, 감독의 시선과 재킷 자락만 아주 작게 쓴다. 말을 하거나 호루라기를 부는 연출은 금지한다.
+재킷 자락·전술 폴더·손은 형태가 바뀌기 쉬우므로 움직이지 않는다. 이 장면은 한 번의 눈 깜빡임만으로 충분하며, 원본 의상 실루엣을 완전히 고정한다.
 
 ~~~
 An eight-second seamless silent loop. The first and final frame are identical.
 Preserve the coach's exact face, hairstyle, calm expression, dark coach jacket,
 staff lanyard, closed tactics folder, technical area, distant goal, cones,
-stadium lights, contact shadow, and composition. Locked camera. From 0 to 2.5
-seconds, the lowest edge of the coach jacket settles inward by only a few pixels
-as if a faint sideline breeze briefly eases; the hands and tactics folder stay
-in the exact initial pose. From 3 to 5.5 seconds, the jacket edge returns
-precisely to its initial shape. At 4 seconds, both eyelids close once and open
-to the identical gaze toward the pitch. The head, mouth, body, hands, folder,
-cones, goal, floodlights, grass, and background remain still. From 5.5 to 8
-seconds, hold the exact initial pose. Silent video: no generated audio, speech,
-whistle, crowd sound, music, wind sound, camera movement, new text, or new
+stadium lights, contact shadow, and composition. Locked camera. Use the input
+image as a frozen plate. The only permitted animation is one natural blink: at
+4 seconds both eyelids close once and reopen to the identical gaze toward the
+pitch by 4.3 seconds. The original jacket silhouette is immutable: its hem,
+sleeve length, lapels, shoulders, fabric texture, and every edge remain exactly
+as in the input for all eight seconds. The head, mouth, body, hands, lanyard,
+folder, cones, goal, floodlights, grass, and background remain perfectly still.
+From 5.5 to 8 seconds, hold the exact initial pose. Silent video: no generated
+audio, speech, whistle, crowd sound, music, camera movement, text, or added
 objects.
 ~~~
 
