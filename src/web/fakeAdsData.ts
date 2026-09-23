@@ -37,4 +37,10 @@ export const fakeAds: FakeAd[] = [
     href: "https://vod.sooplive.com/player/206811383/catch?szSearchTnoList=206811383-206811153",
     label: "해피해피해파린🪼",
   },
+  {
+    id: "hiki",
+    image: "/fake-ads/ad-hiki.webp",
+    href: "https://vod.sooplive.com/player/207949483",
+    label: "차가리",
+  },
 ];
