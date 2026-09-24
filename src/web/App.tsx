@@ -16,6 +16,7 @@ import {
 import { useDashboardSnapshot } from "./useDashboardSnapshot";
 import { useToast } from "./useToast";
 import { useTheme } from "./useTheme";
+import { useCursorPlayer } from "./useCursorPlayer";
 import { useSfxSettings } from "./useSfxSettings";
 import { usePendingAnnouncements } from "./usePendingAnnouncements";
 import { useViewPreferences } from "./useViewPreferences";
@@ -49,6 +50,8 @@ import { SfxIntroNotice, SfxToggle } from "./SfxControls";
 import { PlaylistToggle } from "./PlaylistToggle";
 import { CoverLoopPlaylistOverlay } from "./CoverLoopPlaylistOverlay";
 import { ThemeToggle } from "./ThemeToggle";
+import { CursorPicker } from "./CursorPicker";
+import { CursorOverlay } from "./CursorOverlay";
 import { BrightnessGag } from "./BrightnessGag";
 import { FakeAdRail } from "./FakeAdRail";
 import { SquadBuilderOverlay } from "./squad-builder/SquadBuilderOverlay";
@@ -122,6 +125,7 @@ export function App() {
     setWoowakgoodAnnounceVisible(true),
   );
   const { theme, toggleTheme } = useTheme();
+  const { cursorPlayerId, setCursorPlayerId } = useCursorPlayer();
   const {
     sfxEnabled,
     sfxVolume,
@@ -513,12 +517,14 @@ export function App() {
       />
       <div className="bottom-left-toolbar">
         <ThemeToggle theme={theme} onToggle={toggleTheme} />
+        <CursorPicker playerId={cursorPlayerId} onPlayerChange={setCursorPlayerId} />
         <MinigameMenu
           onSelect={setActiveMinigame}
           onOpenFortune={() => setFortuneOpen(true)}
           onOpenPositionTest={() => setPositionTestOpen(true)}
         />
       </div>
+      {cursorPlayerId !== "default" && <CursorOverlay playerId={cursorPlayerId} />}
       <BrightnessGag />
       <div className="floating-toolbar">
         <SfxToggle

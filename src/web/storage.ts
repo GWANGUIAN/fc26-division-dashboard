@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { koreaDateKey } from "../shared/dates.js";
 import type { StreamerRecord } from "../shared/model.js";
+import {
+  DEFAULT_CURSOR_PLAYER_ID,
+  isCursorSelectionId,
+  type CursorSelectionId,
+} from "./cursorCatalog";
 
 const SEEN_ANNOUNCEMENTS_STORAGE_KEY = "fc26-seen-announcements";
 
@@ -27,10 +32,12 @@ export function markAnnouncementsSeen(ids: string[]) {
 }
 
 export const THEME_STORAGE_KEY = "fc26-theme";
+export const CURSOR_PLAYER_STORAGE_KEY = "fc26-cursor-player";
 export const SEEN_UPDATES_STORAGE_KEY = "fc26-seen-updates";
 export const SFX_ENABLED_STORAGE_KEY = "fc26-sfx-enabled";
 export const SFX_VOLUME_STORAGE_KEY = "fc26-sfx-volume";
 const SFX_HEARD_STORAGE_KEY = "fc26-sfx-heard";
+const CURSOR_PICKER_DISCOVERED_STORAGE_KEY = "fc26-cursor-picker-discovered-v1";
 const PHOTO_BOOTH_DISCOVERED_STORAGE_KEY = "fc26-photo-booth-discovered-v2";
 const GROUP_PHOTO_DISCOVERED_STORAGE_KEY = "fc26-group-photo-discovered-v1";
 const VIEW_MODE_STORAGE_KEY = "fc26-view-mode";
@@ -56,6 +63,39 @@ export function loadTheme(): "dark" | "light" {
 export function saveTheme(theme: "dark" | "light") {
   try {
     localStorage.setItem(THEME_STORAGE_KEY, theme);
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
+
+export function loadCursorPlayerId(): CursorSelectionId {
+  try {
+    const stored = localStorage.getItem(CURSOR_PLAYER_STORAGE_KEY);
+    return isCursorSelectionId(stored) ? stored : DEFAULT_CURSOR_PLAYER_ID;
+  } catch {
+    return DEFAULT_CURSOR_PLAYER_ID;
+  }
+}
+
+export function saveCursorPlayerId(playerId: CursorSelectionId) {
+  try {
+    localStorage.setItem(CURSOR_PLAYER_STORAGE_KEY, playerId);
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
+
+export function hasDiscoveredCursorPicker(): boolean {
+  try {
+    return localStorage.getItem(CURSOR_PICKER_DISCOVERED_STORAGE_KEY) === "1";
+  } catch {
+    return true;
+  }
+}
+
+export function markCursorPickerDiscovered() {
+  try {
+    localStorage.setItem(CURSOR_PICKER_DISCOVERED_STORAGE_KEY, "1");
   } catch {
     // ignore storage failures (e.g. private browsing)
   }
