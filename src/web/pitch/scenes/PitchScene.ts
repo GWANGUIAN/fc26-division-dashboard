@@ -71,6 +71,7 @@ import { loadPitchSettings, loadPitchStats, savePitchSettings, savePitchStats, t
 import { CharacterSelectScene } from "./CharacterSelectScene";
 import { drawPrompt } from "./hudCommon";
 import { LockerScene, type PitchEnterParams } from "./LockerScene";
+import { VolumePanel } from "../ui/volumePanel";
 import { PitchDebug, pitchDebugEnabled } from "./pitchDebug";
 import { drawAimBar, drawAimGuide, drawNetRipple, drawPowerBar, drawResultBanner, drawSweetRing, drawTooFar } from "./shotHud";
 import { drawCallout, drawSkillLabel, drawStyleMeter, type CalloutKind } from "./styleHud";
@@ -207,6 +208,7 @@ export class PitchScene implements Scene {
   private gateApproach = false;
   private lockerRequested = false;
 
+  private volume: VolumePanel | null = null;
   private hovered: ButtonId | null = null;
   private pressed: ButtonId | null = null;
   /** Seconds left of the fade-out before switching to the dashboard; null while not leaving. */
@@ -225,6 +227,11 @@ export class PitchScene implements Scene {
     this.audio = ctx.host.audio ?? SILENT_PITCH_AUDIO;
     this.audio.setSettings(settings);
     this.audio.playBgm("pitch");
+    this.volume = new VolumePanel({
+      audio: this.audio,
+      setCursor: (kind) => ctx.host.setCursor(kind),
+      onChange: (s) => void (this.muted = !s.sfxOn && !s.musicOn),
+    });
     this.stats = loadPitchStats();
     if (pitchDebugEnabled()) this.debug = new PitchDebug(this.shotTuning, this.keeperTuning);
     if ((params as PitchEnterParams | undefined)?.fromLocker) this.arriveFromLocker();
@@ -275,6 +282,7 @@ export class PitchScene implements Scene {
   // ---- update ----
 
   update(dt: number) {
+    this.volume?.update(dt);
     this.clock += dt;
     if (this.toast) {
       this.toast.left -= dt;
@@ -751,6 +759,7 @@ export class PitchScene implements Scene {
   onKey(e: { code: string }) {
     if (this.leaving !== null) return;
     if (this.debug?.onKey(e.code)) return;
+    if (this.volume?.key(e.code)) return;
     switch (e.code) {
       case "Space":
         this.onSpace();
@@ -824,6 +833,7 @@ export class PitchScene implements Scene {
 
   onPointer(e: PointerInput) {
     if (this.leaving !== null) return;
+    if (this.volume?.pointer(e)) return;
     const hover = this.buttonAt(e.x, e.y);
     if (hover !== this.hovered) {
       if (hover) this.audio.playSfx("ui-hover");
@@ -859,6 +869,7 @@ export class PitchScene implements Scene {
     this.drawWorld(g);
     g.restore();
     this.drawHud(g);
+    this.volume?.draw(g);
 
     const fade = Math.max(this.leaving !== null ? Math.min(1, 1 - this.leaving / LEAVE_FADE_SECONDS) : 0, fadeAlpha(this.match));
     if (fade > 0) {

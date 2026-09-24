@@ -155,7 +155,7 @@
 | UI | hover `ui-hover`(0.5) · 대시보드 `mode-switch` · 소리 켤 때 `ui-click` · 로딩 완료 `load-complete` |
 | BGM | 로딩 `loading` → 피치 `pitch`(1s 크로스페이드, 첫 입력 후) |
 
-- 소리 버튼/M = `sfxOn`·`musicOn` 동시 토글(P2)을 오디오 매니저가 즉시 따른다(`setSettings`). 별도 볼륨 UI 는 없고 `sfxVolume`(0.8)·`musicVolume`(0.5)은 저장된 값을 그대로 쓴다(설정 화면 = 백로그 B5).
+- 소리 버튼/M = `sfxOn`·`musicOn` 동시 토글(P2)을 오디오 매니저가 즉시 따른다(`setSettings`). `sfxVolume`(기본 0.8)·`musicVolume`(기본 0.5)은 소리 버튼 hover 패널의 슬라이더와 `-`/`=` 키로 조절한다(03 §0).
 - **P0 목록 점검**: `S17 aim-tick` 만 P0 인데 없음. 나머지 P0 SFX 31개와 BGM B1·B2 는 존재.
 
 ## 4. 총계

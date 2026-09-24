@@ -13,7 +13,8 @@ import { LOGICAL_HEIGHT, LOGICAL_WIDTH } from "../engine/stage";
 import { drawText, PIXEL_FONT_FAMILY, TEXT_COLORS } from "../engine/text";
 import { cycleAxis, drawHexagon, hitAxis, labelPlateRect, HEX, KIND_COLORS, type AxisStep, type Rect } from "../ui/hexagon";
 import { CHIP_HEIGHT, CHIP_SIZE, DESC_LINE, DESC_SIZE, DETAIL_CONTENT, SIGN_CHIP, SMALL_LINE, SMALL_SIZE, clampScroll, layoutStatDetail, type Measure, type SignRow, type StatDetailLayout } from "../ui/statDetail";
-import { drawHudButtons, hudButtonAt, inside, syncSoundState, toggleSound, type HudButtonId } from "./hudCommon";
+import { VolumePanel } from "../ui/volumePanel";
+import { drawHudButtons, soundState, hudButtonAt, inside, syncSoundState, toggleSound, type HudButtonId } from "./hudCommon";
 
 export const STAT_FRAME: Rect = { x: 32, y: 24, w: 896, h: 492 };
 export const STAT_DETAIL_PANEL: Rect = { x: 512, y: 104, w: 400, h: 392 };
@@ -150,6 +151,11 @@ export class StatScene implements Scene {
     this.assets = ctx.host.assets;
     this.audio = ctx.host.audio ?? SILENT_PITCH_AUDIO;
     syncSoundState();
+    this.volume = new VolumePanel({
+      audio: this.audio,
+      setCursor: (kind) => ctx.host.setCursor(kind),
+      onChange: (s) => void (soundState.muted = !s.sfxOn && !s.musicOn),
+    });
     this.audio.playSfx("stat-on");
     this.announce(true);
   }
@@ -212,7 +218,10 @@ export class StatScene implements Scene {
     this.ctx?.manager.pop();
   }
 
+  private volume: VolumePanel | null = null;
+
   update(dt: number) {
+    this.volume?.update(dt);
     this.clock += dt;
     this.swapClock += dt;
   }
@@ -220,6 +229,7 @@ export class StatScene implements Scene {
   // ---- input ----
 
   onKey(e: KeyInput) {
+    if (this.volume?.key(e.code)) return;
     if (e.code === "Escape") {
       this.audio.playSfx("ui-back");
       this.close();
@@ -250,6 +260,7 @@ export class StatScene implements Scene {
   }
 
   onPointer(e: PointerInput) {
+    if (this.volume?.pointer(e)) return;
     const button = hudButtonAt(HUD_BUTTONS, e.x, e.y);
     const charStep: CharStep | 0 = button ? 0 : inside(CHAR_PREV_RECT, e.x, e.y) ? -1 : inside(CHAR_NEXT_RECT, e.x, e.y) ? 1 : 0;
     if (charStep !== this.hoveredChar && charStep) this.audio.playSfx("ui-hover");
@@ -316,6 +327,7 @@ export class StatScene implements Scene {
     g.globalAlpha = fade;
     drawHudButtons(g, (key) => this.image(key), HUD_BUTTONS, { hovered: this.hoveredButton, pressed: this.pressedButton });
     g.restore();
+    this.volume?.draw(g);
   }
 
   private drawFrame(g: CanvasRenderingContext2D) {

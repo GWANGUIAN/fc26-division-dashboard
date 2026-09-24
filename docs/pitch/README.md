@@ -75,7 +75,7 @@
 | B2 | 난이도 3단계 | 열린 결정 #5. 02 §6 표를 단계별로 만들고 Monte Carlo 로 검증한 뒤 설정 UI 필요 |
 | B3 | 소리 확보 6개 | `pitch-aim-tick`(P0) · `pitch-ball-loose` · `pitch-goal-horn`(코드는 스윗스팟 골에 연결됨) · `pitch-stat-on` · `pitch-stat-soon` + `pitch-miss-whoos.mp3` 철자 교정. 파일을 `public/sfxes/` 에 넣으면 코드 변경 없이 켜짐([06 §3-1](06-audio.md)) |
 | B4 | 오디오 47개 출처/라이선스 기록 + 크레딧 | [06 §5](06-audio.md) 표를 확보자가 채움. CC-BY 표기 필요 파일이 있으면 그때 크레딧 UI 추가(현재 근거 없어 미구현) |
-| B5 | 볼륨 조절 UI | 저장된 `sfxVolume`/`musicVolume` 만 사용 중 |
+| B5 | ~~볼륨 조절 UI~~ **완료(2026-09-25)** | 소리 버튼 hover 패널의 슬라이더 2개(효과음·배경음) + `-`/`=` 키. 03 §0 |
 | B6 | 누적 통계 표시 위치 | `fc26-pitch-stats-v1` 는 저장만 함(스탯 화면/락커룸에 표시할지 결정) |
 | B7 | 미사용 이미지 | `env/crowd-idle\|cheer\|groan`(스탠드 흔들기로 대체, 3장 700KB 라 core 밖) · `env/ad-a\|b\|c` · 콘·물병·조끼 등 필드 소품(배경 그림에 이미 광고판이 있어 배치 근거 없음) · `ui/sweet-spot`·`ring-perfect`·`star-style`. 쓰려면 배치를 사용자가 확인하며 정할 것 |
 | B8 | Galmuri11 자체 호스팅 | 지금은 jsDelivr(`styles.css` @import) + monospace 폴백([01 §10](01-concept-and-architecture.md)) |

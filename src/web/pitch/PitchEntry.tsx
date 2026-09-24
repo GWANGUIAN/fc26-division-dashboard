@@ -160,6 +160,12 @@ export default function PitchEntry({ onGoDashboard, customCursor = false }: { on
     const focusCanvas = () => stage.canvas.focus({ preventScroll: true });
     const onPointerDown = (event: PointerEvent) => {
       focusCanvas();
+      // keep receiving move/up while a slider is dragged past the canvas edge
+      try {
+        stage.canvas.setPointerCapture(event.pointerId);
+      } catch {
+        // synthetic or already released pointer: dragging still works inside the canvas
+      }
       onDown(event);
     };
     const onUp = pointer("up");

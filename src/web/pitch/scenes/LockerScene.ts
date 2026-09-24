@@ -15,7 +15,8 @@ import { ANALYZER, EXIT_DOOR, EXIT_DOOR_SCALE, LOCKER_PLAYER_SCALE, LOCKER_SPAWN
 import { createPlayer, playerPose, stepPlayer, type PlayerState } from "../game/player";
 import { depthScale } from "../game/tuning";
 import { CharacterSelectScene } from "./CharacterSelectScene";
-import { drawHudButtons, drawPrompt, hudButtonAt, syncSoundState, toggleSound, type HudButtonId } from "./hudCommon";
+import { VolumePanel } from "../ui/volumePanel";
+import { drawHudButtons, soundState, drawPrompt, hudButtonAt, syncSoundState, toggleSound, type HudButtonId } from "./hudCommon";
 import { StatScene } from "./StatScene";
 
 const HUD_BUTTONS: readonly HudButtonId[] = ["dashboard", "change", "sound"];
@@ -98,6 +99,11 @@ export class LockerScene implements Scene {
     this.audio = ctx.host.audio ?? SILENT_PITCH_AUDIO;
     this.character = resolveStoredCharacter();
     syncSoundState();
+    this.volume = new VolumePanel({
+      audio: this.audio,
+      setCursor: (kind) => ctx.host.setCursor(kind),
+      onChange: (s) => void (soundState.muted = !s.sfxOn && !s.musicOn),
+    });
     this.audio.playBgm("locker");
     this.audio.playSfx("gate-close");
     this.ready = this.assets.has?.("env/locker-bg") ?? false;
@@ -119,7 +125,10 @@ export class LockerScene implements Scene {
 
   // ---- update ----
 
+  private volume: VolumePanel | null = null;
+
   update(dt: number) {
+    this.volume?.update(dt);
     this.clock += dt;
     if (this.afterglow > 0) this.afterglow = Math.max(0, this.afterglow - dt);
     const host = this.ctx?.host;
@@ -188,6 +197,7 @@ export class LockerScene implements Scene {
 
   onKey(e: KeyInput) {
     if (this.exiting) return;
+    if (this.volume?.key(e.code)) return;
     if (INTERACT_KEYS.has(e.code)) {
       const target = this.interaction();
       if (target === "analyzer") this.openStats();
@@ -208,6 +218,7 @@ export class LockerScene implements Scene {
 
   onPointer(e: PointerInput) {
     if (this.exiting) return;
+    if (this.volume?.pointer(e)) return;
     const hover = hudButtonAt(HUD_BUTTONS, e.x, e.y);
     if (hover !== this.hovered) {
       if (hover) this.audio.playSfx("ui-hover");
@@ -244,6 +255,7 @@ export class LockerScene implements Scene {
     }
     this.drawPromptBubble(g);
     drawHudButtons(g, (key) => this.image(key), HUD_BUTTONS, { hovered: this.hovered, pressed: this.pressed });
+    this.volume?.draw(g);
   }
 
   private drawBackground(g: CanvasRenderingContext2D) {
