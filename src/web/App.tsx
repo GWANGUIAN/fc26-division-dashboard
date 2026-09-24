@@ -62,9 +62,7 @@ import { MinigameMenu } from "./minigame/MinigameMenu";
 import { KickupsModal } from "./minigame/KickupsModal";
 import { CardMatchModal } from "./minigame/CardMatchModal";
 import { SoccerSum10Modal } from "./minigame/soccer-sum10/SoccerSum10Modal";
-import { FortuneToggle } from "./fortune/FortuneToggle";
 import { FortunePopup } from "./fortune/FortunePopup";
-import { PositionTestToggle } from "./position-test/PositionTestToggle";
 import { PositionTestPopup } from "./position-test/PositionTestPopup";
 import { TotyCardPopup } from "./toty-card/TotyCardPopup";
 import { getTotyCardAssets } from "./toty-card/totyCardAssets";
@@ -515,9 +513,11 @@ export function App() {
       />
       <div className="bottom-left-toolbar">
         <ThemeToggle theme={theme} onToggle={toggleTheme} />
-        <MinigameMenu onSelect={setActiveMinigame} />
-        <FortuneToggle onClick={() => setFortuneOpen(true)} />
-        <PositionTestToggle onClick={() => setPositionTestOpen(true)} />
+        <MinigameMenu
+          onSelect={setActiveMinigame}
+          onOpenFortune={() => setFortuneOpen(true)}
+          onOpenPositionTest={() => setPositionTestOpen(true)}
+        />
       </div>
       <BrightnessGag />
       <div className="floating-toolbar">

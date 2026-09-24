@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { BookOpenCheck, Gamepad2 } from "lucide-react";
+import { BookOpenCheck, Footprints, Gamepad2, Sparkles } from "lucide-react";
 // Renders immediately on page load (unlike the lazy-loaded minigame modals), so its styles live in
 // a stylesheet that ships with the main bundle — same reasoning as FortuneToggle's own css file.
 import "./minigame-menu.css";
 import { getCardMatchBackUrl } from "./cardMatchAssets.js";
+import { getFortuneCardBackUrl } from "../fortune/fortuneCardAssets";
+import { getPositionTestButtonIconUrl } from "../position-test/positionTestAssets";
+import { hasOpenedFortune, markFortuneOpened } from "../storage";
 
 export type MinigameId = "kickups" | "freekick" | "cardmatch" | "soccer-sum10" | "grass-merge" | "keeper-breakout" | "football-match3" | "football-rules-quiz";
 
@@ -64,8 +67,17 @@ const WARMUP_URLS = Array.from(
   ]),
 );
 
-export function MinigameMenu({ onSelect }: { onSelect: (game: MinigameId) => void }) {
+export function MinigameMenu({
+  onSelect,
+  onOpenFortune,
+  onOpenPositionTest,
+}: {
+  onSelect: (game: MinigameId) => void;
+  onOpenFortune: () => void;
+  onOpenPositionTest: () => void;
+}) {
   const [open, setOpen] = useState(false);
+  const [fortuneOpened, setFortuneOpened] = useState(() => hasOpenedFortune());
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -101,6 +113,29 @@ export function MinigameMenu({ onSelect }: { onSelect: (game: MinigameId) => voi
     };
   }, [open]);
 
+  const fortuneBackUrl = getFortuneCardBackUrl();
+  const positionIconUrl = getPositionTestButtonIconUrl();
+  const extras: { key: string; label: string; icon: React.ReactNode; isNew?: boolean; onClick: () => void }[] = [
+    {
+      key: "fortune",
+      label: "오늘의 운세 뽑기",
+      icon: fortuneBackUrl ? <img src={fortuneBackUrl} alt="" className="minigame-menu__icon" /> : <Sparkles className="minigame-menu__icon minigame-menu__icon--fallback" aria-hidden="true" />,
+      isNew: !fortuneOpened,
+      onClick: () => {
+        if (!fortuneOpened) {
+          markFortuneOpened();
+          setFortuneOpened(true);
+        }
+        onOpenFortune();
+      },
+    },
+    {
+      key: "position-test",
+      label: "나의 축구 포지션은?",
+      icon: positionIconUrl ? <img src={positionIconUrl} alt="" className="minigame-menu__icon" /> : <Footprints className="minigame-menu__icon minigame-menu__icon--fallback" aria-hidden="true" />,
+      onClick: onOpenPositionTest,
+    },
+  ];
   const cardBackUrl = getCardMatchBackUrl();
   const games: { id: MinigameId; label: string; icon: React.ReactNode }[] = [
     { id: "kickups", label: "축구공 튀기기", icon: <img src="/soccer_ball.webp" alt="" className="minigame-menu__icon" /> },
@@ -138,10 +173,29 @@ export function MinigameMenu({ onSelect }: { onSelect: (game: MinigameId) => voi
         aria-expanded={open}
       >
         <Gamepad2 className="minigame-menu__trigger-icon" aria-hidden="true" />
-        <span className="minigame-menu__trigger-label">미니게임</span>
+        <span className="minigame-menu__trigger-label">심심풀이</span>
+        {!fortuneOpened && <span className="minigame-menu__new-dot" aria-hidden="true" />}
       </button>
       {open && (
-        <ul className="minigame-menu__panel" role="menu" aria-label="미니게임 목록">
+        <ul className="minigame-menu__panel" role="menu" aria-label="심심풀이 목록">
+          {extras.map((extra) => (
+            <li key={extra.key} role="none">
+              <button
+                type="button"
+                role="menuitem"
+                className="minigame-menu__item"
+                onClick={() => {
+                  setOpen(false);
+                  extra.onClick();
+                }}
+              >
+                <span className="minigame-menu__icon-wrap">{extra.icon}</span>
+                <span className="minigame-menu__item-label">{extra.label}</span>
+                {extra.isNew && <span className="minigame-menu__new-badge">NEW</span>}
+              </button>
+            </li>
+          ))}
+          <li role="separator" className="minigame-menu__separator" />
           {games.map((game) => (
             <li key={game.id} role="none">
               <button
