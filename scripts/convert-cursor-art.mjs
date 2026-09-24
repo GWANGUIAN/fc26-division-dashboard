@@ -13,6 +13,16 @@ import sharp from "sharp";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ids = ["tdnlamuron", "ju010228", "doormomo", "bboringirl", "kaksjak0730", "sjh4018", "haepalin", "lina0108", "tleod1818", "janine95kim", "hachi97", "woowakgood"];
 const roles = ["default", "pointer", "text", "crosshair", "move", "grabbing", "resize-ew", "resize-ns", "resize-diagonal", "wait", "not-allowed", "help"];
+// Some dynamic source sheets intentionally let hair, a ball, or a boot cross the nominal 4×3
+// cell boundary. These rectangles isolate the complete intended frame before trimming it. They
+// are authored against the documented 1536×1024 sheet and scale with future source resolutions.
+const motionCropOverrides = {
+  sjh4018: [
+    [0, 0, 425, 390], [410, 0, 735, 390], [720, 0, 1115, 360], [1115, 0, 1536, 360],
+    [0, 390, 440, 680], [455, 390, 800, 680], [800, 390, 1155, 680], [1150, 390, 1536, 680],
+    [0, 680, 380, 1024], [420, 680, 780, 1024], [780, 680, 1155, 1024], [1150, 680, 1536, 1024],
+  ],
+};
 const requested = process.argv.slice(2).filter((arg) => arg !== "--");
 const targets = requested.includes("--all") ? ids : requested.filter((id) => ids.includes(id));
 
@@ -125,6 +135,26 @@ async function renderSprite(cell, size, align = "centre", removeMotionEdgeBleed 
   };
 }
 
+function motionFrameCrop(id, index, width, height) {
+  const override = motionCropOverrides[id]?.[index];
+  if (override) {
+    const [left, top, right, bottom] = override;
+    const x = Math.floor(left / 1536 * width);
+    const y = Math.floor(top / 1024 * height);
+    const endX = Math.ceil(right / 1536 * width);
+    const endY = Math.ceil(bottom / 1024 * height);
+    return { left: x, top: y, width: endX - x, height: endY - y };
+  }
+  const column = index % 4, row = Math.floor(index / 4);
+  const left = Math.floor(column * width / 4), top = Math.floor(row * height / 3);
+  return {
+    left,
+    top,
+    width: Math.floor((column + 1) * width / 4) - left,
+    height: Math.floor((row + 1) * height / 3) - top,
+  };
+}
+
 async function convert(id) {
   const source = path.join(root, "tmp", "cursor-src", id);
   const keyposeFile = path.join(source, `cursor-${id}-keypose.png`);
@@ -149,10 +179,9 @@ async function convert(id) {
     if (rendered.empty) console.warn(`! ${id}: empty glyph cell ${index + 1} (${roles[index]})`);
     await rendered.image.webp({ lossless: true }).toFile(path.join(output, `glyph-${roles[index]}.webp`));
   }
-  const motionCellW = Math.floor(motionSource.info.width / 4), motionCellH = Math.floor(motionSource.info.height / 3);
   const frames = [];
   for (let index = 0; index < 12; index++) {
-    const cell = motionSource.input.clone().extract({ left: index % 4 * motionCellW, top: Math.floor(index / 4) * motionCellH, width: motionCellW, height: motionCellH });
+    const cell = motionSource.input.clone().extract(motionFrameCrop(id, index, motionSource.info.width, motionSource.info.height));
     const rendered = await renderSprite(cell, 32, "centre", true);
     if (rendered.empty) console.warn(`! ${id}: empty motion frame ${index + 1}`);
     if (rendered.removed) console.log(`  ${id}: removed ${rendered.removed} edge-noise pixels from frame ${index + 1}`);
