@@ -1,0 +1,164 @@
+# 잔디동 피치 — 사이트 진입 화면 계획 문서
+
+사이트 진입점을 **FIFA 스타일 2D 픽셀 축구장**(플레이어 1명 + AI 골키퍼)으로 바꾸는 프로젝트의 계획 문서 세트다. 방향키로 달리며 드리블·개인기·슛을 하고, 우상단 버튼으로 기존 잔디동 대시보드와 오가며(상태는 localStorage), 캐릭터 12명(우왁굳 + 잔디동 11명)을 고르고, 좌하단 게이트로 락커룸에 들어가 스탯 육각형(현재 `???` / COMING SOON)을 본다. **게임 화면은 성능을 위해 전부 2D Canvas**, 아트는 잔디동 월드와 **별개의 16비트 아케이드 스포츠 컨셉**으로 새로 생성한다.
+
+> **현재 상태(P1~P8 전부 완료 — 남은 것은 아래 백로그)**. P7 은 성능 리포트([01 §7-1](01-concept-and-architecture.md))·폴백 토스트·저장소 메모리 폴백·키보드 탈출(Backspace)·코너 플래그·`goal-horn` 연결·문서 마감(아래 세션 로그). 이전 단계 요약 ↓
+>
+> **(P1·A1·P2·P3·P4·A2·A3·P5·P6·P6b 완료 시점 요약)**: 진입 게이트·캔버스 쉘·로딩·대시보드 왕복은 P1, 우왁굳·keeper-ai·공용 코어 변환 + `animations.ts`·에셋 키 맵은 A1(`pnpm convert:pitch-art`), 방향키 달리기·스프린트·드리블·볼 물리·실제 아트 피치 화면은 P2, Space 3단계 슛·AI 골키퍼·판정·스코어·`?pitchDebug=1` 는 P3, 개인기 Z X C V·스타일 게이지(→ 골키퍼 속임 Tier)·카메라 흔들림/히트스톱/콘페티/관중·SFX/BGM·누적 통계는 P4. A2 는 12명·선택 UI·celebrate FX 변환 결과를 검수·테스트로 고정(재생성 필요 없음). A3 는 락커룸·스탯 UI 5시트를 검수·테스트로 고정(재생성 필요 없음, 앵커 표 = 05 §7). P5 는 12명 레지스트리·캐릭터 선택창(오버레이; 저장값 정정·지연 로딩·실패 폴백). P6 은 피치 좌하단 게이트(글로우·화살표·`E 락커룸`·프리로드)→락커룸(이동·충돌·스탯 분석기·출구 문)→스탯 육각형 오버레이(좌 육각형 / 우 설명, 전부 `???` + COMING SOON). P6b 는 포지션별 스탯 이름·설명(공통 3+고유 3, GK 고유 6)·구조화된 설명 패널·휠 스크롤(능력치 숫자만 `???`). P8 은 터치 컨트롤 없이 **터치 기기 = 항상 대시보드(피치 복귀 버튼 숨김)** 로 확정.
+
+## 문서 지도
+
+| 문서 | 내용 | 언제 보나 |
+| --- | --- | --- |
+| [01-concept-and-architecture.md](01-concept-and-architecture.md) | 확정 사양, Canvas 구조, 씬/에셋 로딩, 진입·전환(Root 게이트), localStorage 키, 성능 예산, 모듈 구조, 리스크 | 코드 구조를 정할 때 |
+| [02-gameplay-spec.md](02-gameplay-spec.md) | 조작, 좌표, 이동·드리블, 3단계 슛 공식, 개인기·스타일 게이지, 골키퍼 AI, 목표 선방률 표, 테스트 계획 | 게임 로직 구현·튜닝 |
+| [03-screens-and-ui.md](03-screens-and-ui.md) | 로딩·피치 HUD·선택창·락커룸·스탯 화면의 레이아웃(960×540 좌표), 버튼, 전환 | UI 구현 |
+| [04-art-characters.md](04-art-characters.md) | 월드와 다른 스타일 바이블, 셀 규격, 애니메이션 세트(달리기/슛/개인기/세리머니), 아틀라스 배치, 12명 특징 표, 골키퍼 | 이미지 생성·변환 |
+| [05-art-world-and-ui.md](05-art-world-and-ui.md) | 경기장·골대·볼·락커룸·이펙트·UI 시트 규격(러닝북 생성기 입력) | 이미지 생성·변환 |
+| [06-audio.md](06-audio.md) | BGM 3 + SFX 50 (파일명·저장 위치·한글/영어 검색 키워드·라이선스 칸) + §3-1 확보 현황·코드 연결 | 소리 확보 |
+| [07-implementation-roadmap.md](07-implementation-roadmap.md) | 세션 구성·의존성·DoD | 진행 관리 |
+| [08-asset-checklist.md](08-asset-checklist.md) | 이미지·오디오·코드 산출물 현황판, 파일명 규칙 | 진행 관리 |
+| [09-image-generation-runbook.md](09-image-generation-runbook.md) | **이미지 123장의 개별 프롬프트**: 저장 이름·스레드·레퍼런스·검수·변환 (스크립트 생성) | 이미지 생성 |
+| [10-session-prompts.md](10-session-prompts.md) | **세션별 복붙 지시문** + 변경 전파 프로토콜 | 구현 세션 시작 |
+| [11-stat-definitions.md](11-stat-definitions.md) | **포지션별 스탯 이름·설명**(공통 3+고유 3, GK 고유 6), 데이터 모델, 설명 패널 UI, 테스트 계획 — 03 §5 의 `???` 라벨/설명을 대체(숫자는 `???` 유지) | 스탯 화면(P6b) |
+| [12-title-logo-prompt.md](12-title-logo-prompt.md) | 로딩 화면 타이틀 로고 1장의 프롬프트·저장 이름·변환 명령 | 로고 생성 |
+| `tools/build-image-runbook.mjs` | 09 생성기 | 04/05 수정 후 |
+
+## 한눈에 보는 수치
+
+| 항목 | 값 |
+| --- | --- |
+| 렌더링 / 해상도 | 2D Canvas / 논리 960×540 |
+| 시점 | 3/4 탑다운 하프코트, 골대 위쪽 |
+| 아트 컨셉 | 16비트 아케이드 스포츠, 4.5등신, 네이비 2px 외곽선, 야간 경기장 |
+| 캐릭터 | 필드 플레이어 12명(우왁굳 기본) + AI 골키퍼 1 |
+| 캐릭터 셀 / 아틀라스 | 96×96 / 960×960 (10×10) |
+| 애니메이션 | idle 2 · run 6 · shoot 4 · 개인기 4종×4(측면/후면) · 세리머니 2종 · 아쉬움 = **80프레임/캐릭터** |
+| 조작 | 방향키 이동, Shift, Space×3(조준→파워), Z/X/C/V 개인기, E, Tab |
+| 이미지 생성 | **123스텝**(캐릭터 96 + 골키퍼 5 + 환경/FX/UI 22) |
+| 오디오 | BGM 3 + SFX 50 |
+| 세션 | S0 문서 · P1 · A1 · P2 · P3 · P4 · A2 · P5 · A3 · P6 · P7 · P8 |
+| localStorage | `fc26-entry-mode`, `fc26-pitch-character`, `fc26-pitch-settings-v1`, `fc26-pitch-stats-v1` |
+
+## 핵심 결정 이력
+
+| 결정 | 내용 | 근거 |
+| --- | --- | --- |
+| 2D 픽셀 vs 3D | **2D 확정** | 12명 × 다수 액션 포즈의 3D 모델 제작 비용이 병목, 사이트 톤·번들·모바일 성능 |
+| Canvas | **필수** | 성능 요구 |
+| 시점 | 3/4 탑다운, 골대 위쪽 | 스프라이트 방향 3(정/측/후)로 충분 |
+| 슛 조작 | 자유 방향 조준(왕복 화살표) + 파워 게이지 | 조작 구현 난이도와 게임성 균형 |
+| 아트 컨셉 | 월드(2.5등신 JRPG)와 **다른** 16비트 아케이드 스포츠 | 사용자 요구 |
+| 논리 해상도 | 640×360 → **960×540** | 4.5등신 96px 셀이 필요해 해상도를 키움(S0 중 변경) |
+| 이동 | 걷기가 아닌 **달리기** 6프레임 | 사용자 요구 |
+| 골키퍼 | 오리지널 `keeper-ai`(선택 불가) | 슈터가 누구든 충돌 없음 |
+| 스탯 | 6축 육각형, 포지션별 다름, 이름·설명 표시(11) + 능력치 숫자만 `???` + COMING SOON | 사용자 요구, 숫자 미확정 |
+| 월드 에셋 | 전부 신규 생성, 월드 이미지를 레퍼런스로 붙이지 않음 | 사용자 요구, 정체성 혼입 방지 |
+
+## 열린 결정 (기본값 + 변경 방법)
+
+| # | 결정 | 기본값 | 바꾸려면 |
+| --- | --- | --- | --- |
+| 1 | 터치/모바일 진입 | **확정(P8)**: 터치 전용 기기는 항상 대시보드, 피치 복귀 버튼 숨김, 터치 컨트롤 없음 | 01 §4-1 규칙 0 (`entryMode.ts`) |
+| 2 | AI 골키퍼 정체성 | 오리지널 `keeper-ai` | 04 §6 수정 후 09 재생성 |
+| 3 | 딥링크 우선순위 | 기존 쿼리(`?view=` 등)가 있으면 대시보드 | 01 §4-1 |
+| 4 | 우왁굳 복장 | 홈 키트 + 시그니처 머리 유지 + 주장 완장 | 04 §5 표 |
+| 5 | 난이도 선택 | **1단계 확정(P7 검토 결과: 3단계 미구현)** — 선방률 표(02 §6)와 Monte Carlo 검증이 1단계 기준이라 3단계는 표·튜닝·UI(설정 화면)가 함께 필요한 별도 작업. 백로그 B2 | 02 §6 |
+| 6 | P3/P4 분할 | P3 는 한 세션(슛+키퍼)으로 완료. P4(개인기+연출+사운드)는 크면 분할 | 07 §4, 10 |
+| 7 | 감독(우왁굳 `MGR`) 스탯 | 스탯 정의 캡처에 없어서 `???` ×6 + COMING SOON 유지(능력치 숫자는 전 포지션 `???`) | 11 §1·§8, 나중에 `stats.ts` 의 MGR 시트 |
+
+## 백로그 (P7 이후 남은 일)
+
+| # | 항목 | 비고 |
+| --- | --- | --- |
+| B1 | ~~P8 터치 컨트롤~~ | 취소 — 열린 결정 #1 에서 터치 기기는 대시보드 전용으로 확정 |
+| B2 | 난이도 3단계 | 열린 결정 #5. 02 §6 표를 단계별로 만들고 Monte Carlo 로 검증한 뒤 설정 UI 필요 |
+| B3 | 소리 확보 6개 | `pitch-aim-tick`(P0) · `pitch-ball-loose` · `pitch-goal-horn`(코드는 스윗스팟 골에 연결됨) · `pitch-stat-on` · `pitch-stat-soon` + `pitch-miss-whoos.mp3` 철자 교정. 파일을 `public/sfxes/` 에 넣으면 코드 변경 없이 켜짐([06 §3-1](06-audio.md)) |
+| B4 | 오디오 47개 출처/라이선스 기록 + 크레딧 | [06 §5](06-audio.md) 표를 확보자가 채움. CC-BY 표기 필요 파일이 있으면 그때 크레딧 UI 추가(현재 근거 없어 미구현) |
+| B5 | 볼륨 조절 UI | 저장된 `sfxVolume`/`musicVolume` 만 사용 중 |
+| B6 | 누적 통계 표시 위치 | `fc26-pitch-stats-v1` 는 저장만 함(스탯 화면/락커룸에 표시할지 결정) |
+| B7 | 미사용 이미지 | `env/crowd-idle\|cheer\|groan`(스탠드 흔들기로 대체, 3장 700KB 라 core 밖) · `env/ad-a\|b\|c` · 콘·물병·조끼 등 필드 소품(배경 그림에 이미 광고판이 있어 배치 근거 없음) · `ui/sweet-spot`·`ring-perfect`·`star-style`. 쓰려면 배치를 사용자가 확인하며 정할 것 |
+| B8 | Galmuri11 자체 호스팅 | 지금은 jsDelivr(`styles.css` @import) + monospace 폴백([01 §10](01-concept-and-architecture.md)) |
+| B9 | 캐릭터 파일 크기 | 아틀라스 최대 481KB(목표 350KB), 캐릭터 그룹 최대 653KB(목표 550KB) — 선택한 1명만 로드하고 3MB 예산 안이라 수용. 재압축은 선택 |
+| B10 | 락커룸 소품 배치·게이트 글로우 등 눈대중 값 | 사용자 확인 후 조정([03 §4](03-screens-and-ui.md)) |
+
+## 이번 세션(S0)에서 확인한 사실 / 리스크
+
+- 스택은 React 19 + Vite, 라우터 없음. 재사용 대상: `world/engine/loop.ts` `createLoop`, `world/worldAssets.ts` 패턴, `sfxAudio.ts`/`worldAudio.ts` 구조, `storage.ts` 컨벤션, `musicControl.ts`.
+- 아트 파이프라인 함정(월드 경험): 캔버스 크기 드리프트, 측면 달리기 발 겹침, stand 대비 시트 비례 불일치, 전체 재변환 시 달리기 행 틀어짐 → 러닝북 검수 게이트와 변환 `--only` 옵션에 반영.
+- Galmuri11 폰트 출처는 P1에서 확인됨: `styles.css`의 galmuri.css `@import`(jsDelivr) — [01 §3-4b](01-concept-and-architecture.md).
+- 프로젝트 메모리 규칙 반영: 브라우저 수동 검증 생략(사용자가 배포 후 확인), 시트 재변환은 변경된 부분만 끼워 넣기, `victory.mp3` 사용 금지, Bash heredoc 대신 Write 도구.
+
+## 변경 전파 프로토콜
+
+구현 중 사양·수치·파일명·구조가 바뀌면 **코드와 함께 문서를 갱신**한다. 세션 종료 전 필수:
+
+1. 바뀐 내용이 속한 **원천 스펙 문서**(01~06)를 먼저 수정(04/05 수정 시 `node docs/pitch/tools/build-image-runbook.mjs` 재실행).
+2. **[10-session-prompts.md](10-session-prompts.md) 에서 영향받는 이후 세션 프롬프트를 새 사실에 맞게 다시 작성**(경로·시그니처·수치·전제, `전제`/`마지막 갱신` 줄 포함).
+3. 07 로드맵 상태와 08 체크리스트 동기화.
+4. 아래 세션 로그에 한 줄 추가.
+5. `grep` 으로 옛 이름·옛 수치 잔존 여부 확인 후 로그에 기록.
+6. 사용자가 배포 후 확인할 체크리스트를 세션 마지막에 제시.
+
+## 핸드오프 체크리스트
+
+- [x] S0: 계획 문서 세트(README, 01~10, 러닝북 생성기)
+- [ ] 사용자: 선수별 레퍼런스 이미지를 `tmp/pitch-src/refs/<id>-ref.webp(또는 .png)` 로 준비(12명; 전신 필수, 얼굴 선택)
+- [x] 사용자: 러닝북 Phase 1(우왁굳 파일럿 8시트) 생성·승인 → 스타일/포즈 문법 확정
+- [x] P1 기반 공사
+- [x] A1 아트 파이프라인 1
+- [x] P2 이동·드리블·볼
+- [x] P3 슛·골키퍼
+- [x] P4 개인기·연출·사운드
+- [x] A2 아트 파이프라인 2
+- [x] A3 아트 파이프라인 3
+- [x] P5 캐릭터 선택
+- [x] P6 락커룸·스탯
+- [x] P6b 스탯 이름·설명 반영
+- [x] P7 성능·접근성·폴백·마감
+- [x] P8 모바일 정책(터치 = 대시보드 전용)
+
+## 세션 로그
+
+| 날짜 | 세션 | 한 일 | 결정/변경점 | 영향받는 후속 세션 |
+| --- | --- | --- | --- | --- |
+| 2026-09-24 | S0 | `docs/pitch/` 문서 세트 작성(README, 01~10, 러닝북 생성기), 이미지 123스텝·SFX 50개·세션 프롬프트 정리 | 논리 해상도 960×540(셀 96×96, 4.5등신), 스타일 = 16비트 아케이드 스포츠(월드와 분리), 이동 = run 6프레임, 슛 = 왕복 조준+파워 게이지, `App.tsx`는 이름 변경 없이 Root가 import | 전체(P1~P8, A1~A3) |
+| 2026-09-25 | S0(추가) | 우왁굳 파일럿 7장 검토 → 프롬프트 보강(셀 여백·후광 금지·후면 스케일·스킬 동작 구체화·초상화 간격), 04 §8 신설, 러닝북에 검토 상태/재생성 표시 | 우왁굳 파일럿 8시트 전부 검토 통과(#003~#006, #008은 재생성본). 재생성 대상 없음. 다음: 러닝북 Phase 2(공용 코어) → Phase 3(골키퍼) → A1 | 09, A1(변환 QA 항목), 나머지 11명 프롬프트 |
+| 2026-09-25 | P1 | 진입 게이트(`Root`/`entryMode`), 캔버스 엔진 쉘(`stage`/`input`/`sceneManager`/`assets`/`text`), `LoadingScene`, 임시 `PitchScene`, `PitchEntry`(lazy, 실패 시 대시보드 폴백), `TopBar` 복귀 버튼, 저장 함수 3종, 단위 테스트 5파일 | 월드 `stageLayout`/`gameFrame`은 재사용하지 않고 `pitch/engine/stage.ts` 신설(루프만 `createLoop` 재사용). 결정 규칙 = `?mode=` > 딥링크(`view`/`totyCapture`/`fancyMembers`/`worldDebug`/해시) > 저장값 > 터치=대시보드 > 피치. 딥링크 진입은 저장값을 바꾸지 않음. 전환 시 `?mode=`와(피치로 갈 때) 딥링크 쿼리·해시를 `replaceState`로 제거. Galmuri11은 `styles.css`의 galmuri.css `@import`(jsDelivr)이며 캔버스는 `ensurePixelFont()`로 선로딩. `Scene.enter/exit`는 선택적·동기, 씬 컨텍스트는 `SceneHost{assets, goDashboard, setCursor}`. 에셋 파일 이름은 `pitchAssets.ts`가 아니라 `engine/assets.ts`, `ASSET_GROUPS`는 P1에서 비어 있음(A1이 채움). `load/savePitchSettings`가 P1에서 이미 구현됨 | A1(`ASSET_GROUPS`·`groupSpecs` 채우기), P2(PitchScene 구조), P4(설정 저장은 사용만), P5(캐릭터 id 정정), P7(폰트 자체 호스팅 검토) |
+| 2026-09-25 | P1(점검) | 불일치 grep(`pitchAssets`, `P1 첫 작업`, 옛 `?mode=` 문장) 후 잔존분 정리 | 잔존 없음. 참고: `scripts/convert-world-art.test.mjs`(world-art-manifest 개수 19 vs 20)는 P1 이전부터 실패 중인 무관한 테스트 | — |
+| 2026-09-25 | A1 | `scripts/convert-pitch-art.mjs`·`pitch-art-manifest.json`·`lib/pitch-art-math.mjs`(+테스트), `pnpm convert:pitch-art`(--only/--scene/--tolerance/--quality), `data/animations.ts`·`characterIds.ts`·`assetMeta.generated.ts`, `assets.ts` 그룹/키/바이트 채움. 우왁굳(atlas·hero·portraits)·keeper-ai atlas·env 42·fx 7·ui 106·keyart 2 변환(fx-celebrate 원본 없음) | 셀 좌표 = animations.ts(테스트로 manifest 와 동기), 스케일 = 시트 기준 행 중앙값→78~80px(행 단위 축소), 접지선 = 행 단위 하위 절반 중앙값(공중 행 ±3px 스냅), gap 2px·알파 128 이진화로 20프레임 dive 포함 전 시트 분리 성공, keeper 아틀라스 960×768(dive 192×96) 확정, `char:<id>` = atlas + 초상화 4(hero 는 select), `ASSET_GROUPS` 채움(선택 캐릭터 atlas 는 core 밖), 원본이 셀을 85~99% 채우는 경향과 비율 미준수 UI 17건은 04 §9·05 §6 기록 | P2(PitchScene/로딩에서 `char:<id>` 로드, animations.ts 사용), A2(같은 파이프라인), 09(여백 문구) |
+| 2026-09-25 | A1(점검) | `pitchAssets`·`characters/<id>-portrait` 옛 키 grep | `assets.test.ts` 의 옛 `-portrait` 기대값 갱신, 그 외 잔존 없음 | — |
+| 2026-09-25 | A1(전체 변환) | `pnpm convert:pitch-art -- --all`: 필드 12명 atlas·hero·초상화 + keeper + env/fx/ui/keyart(234파일, 에셋 폴더 11MB) | 병합/누락 프레임 7시트(hachi97 skill-side, ju010228 skill-side, haepalin shoot, tleod1818 shoot·skill-up, lina0108 skill-side·skill-up)는 프레임이 서로 붙어 gap 2px 에서도 합쳐짐 → 재생성 대상(09 검수). 초상화 칸 접촉 경고 다수(폭 94~97%), doormomo 초상화 마젠타 잔여 18~26px. 피치 화면에 우왁굳이 안 보이는 것은 버그가 아니라 `PitchScene`이 P1 임시 화면(도형)이라서 — 렌더링은 P2 | 09(재생성), P2 |
+| 2026-09-25 | A1(재생성 반영) | 부록 A 7시트 재생성본 재변환(`--only`). 해파린 shoot 은 새 이미지에서도 행1·2 프레임이 꼭지점(부츠↔아호게)만 닿아 있어 변환기에 **침식 분리**(`splitTouching`, 셀 중심 2개 이상을 포함한 덩어리를 침식→최근접 배정→경계 1px 제거)를 추가 | 12명 atlas 전부 80프레임 빈 셀 0, 재변환 시 접촉 프레임은 자동 분리(콘솔에 '침식 분리' 로그). 남은 경고: 초상화 칸 접촉(clip 14)·doormomo 초상화 마젠타 18~26px·keeper beaten 등(수용) | 09, A2 |
+| 2026-09-25 | P2 | `game/{tuning,player,ball}.ts`, `engine/{sprite,particles}.ts`, `data/characters.ts`(우왁굳), 실제 아트 `PitchScene`(정적 캐시 레이어·y 정렬·키퍼 idle·스코어보드/버튼 3/캐릭터 판/힌트 12초/토스트/포커스 안내·R 리셋·먼지·볼 그림자/스핀), `SceneHost.input`·`hasKeyboardFocus`, LoadingScene 의 `char:<id>` 선로딩, 테스트 3파일(player 17·ball 17·particles 4) | 볼 스프링은 **플레이어 이동 프레임 기준**(`a=k²(t−b)−2ζk(v_b−v_p)`)으로 풀고 **감쇠비 ζ 를 추가**(달리기 ζ=1, 스프린트 ζ=0.15) — 02 원안의 k 만으로는 직선 스프린트에서 소유 상실 위험이 생기지 않아, 시뮬레이션으로 튜닝(직선 스프린트 ≤약 70px 안전, 0.35~0.4s 간격 좌우 꺾기 반복 시 loose). 캐리드 볼은 벽에 고정·loose 볼만 dead(볼만 리셋, R 은 전체), 대각선 클립 = side, 캐릭터 변경 버튼/Tab = 토스트(선택창은 P5), 소리 버튼/M = `sfxOn`·`musicOn` 동시 토글(저장만, 소리는 P4), 컨트롤 힌트는 구현된 조작만 | P3(볼 `shot` 모드·점수 자리·`HINT_ITEMS`), P4(소리 저장 연결·힌트), P5(`onButton("change")`·`getCharacter`) — 10 의 해당 프롬프트 갱신 완료. 불일치 grep(`GOAL 00`·`(16, 468)`·옛 `tween.ts, particles` 표기·P2 미완료 표기) 잔존 없음 |
+| 2026-09-25 | P3 | `game/{rng,shot,keeper,match,montecarlo}.ts`, `ball.ts` 에 `shot` 모드(z·스크립트 비행·자유 비행), `scenes/{shotHud,pitchDebug}.ts`, `PitchScene` 슛 루프(Space×3·TOO FAR·키퍼 클립·네트 리플·결과 배너·2.0s+0.3s 리셋·세리머니 최소 표시·힌트에 Space), `?pitchDebug=1`(히트박스·골평면·도달 반경·D/스윗 조절·강제 결과·Monte Carlo 콘솔), 테스트 5파일(shot·keeper·match·ballShot·PitchScene 슛 루프) | 키퍼 화면 발 y=128 로 확정(P3 프롬프트의 (480,168) 정정), 볼 좌표=화면 지면 좌표·골면 y=118·z×74/80. **D 최종값 react 0.20 · diveSpeed 328 · maxReach 92 · predErr 0.08** + 신규 변수 `bodyReach 13.5 · reachSpread 0.23 · centerZone 30 · sweetReach 0.95` (원 4변수만으로는 표와 최대 28pt 어긋남). **표 변경: 중앙×스윗스팟 65→60**(근거 02 §6, 나머지 8셀은 원안 유지, 최대 오차 4.8pt). Tier: 반응·예측만으로 −13.6/−26.0pt 라 Tier 2 에 완전 속임 8% 를 더해 −13.6/−28.4pt(§5 의 "−15pt 추가"와 §6 의 "−15/−30" 불일치를 측정 평균으로 통일). 조준 광선은 각도 선형 보간, 시각 z 아치에 파워 계수 추가, 스윗스팟 78~92 로 표 밴드(중간 41~77) 통일, 디버그는 배포 빌드에서도 `?pitchDebug=1` 로 동작. 상태기계 이름 `ShotPhase idle→aim→power→released`, `KeeperPhase ready→track→dive→resolve→recover`, `MatchPhase play→flight→result→fade`. 결과 이벤트 = `PitchScene.onShotResult(ShotResult)` 빈 훅, 스타일 Tier 훅 = `PitchScene.styleTier()`. 캐주얼 시뮬레이션 골 43%·스윗스팟 노리는 유저 58%·숙련 65~81% | P4(Tier 훅·결과 훅·HINT_ITEMS·통계 bestStreak) — 10 의 P3 "남긴 것"·P4 프롬프트 갱신 완료. 불일치 grep(`(480,168)`·`로직 좌표 168`·`선방률 −15pt 추가`·`this.score`·`76~92`·옛 D 값 `0.22/520/130/0.16` 을 현재값으로 쓰는 곳) 잔존 없음(P2 기록·초기값 서술은 의도적 유지) |
+| 2026-09-25 | P4 | `game/{skills,stats}.ts`(개인기 4종·쿨다운·체인·헛스윙·게이지·Tier·소비), `engine/{tween,effects}.ts`, `audio/{pitchAudio,sfxMap}.ts`(BGM 2채널 크로스페이드·SFX 풀·누락 무음·첫 입력 unlock), `scenes/styleHud.ts`(스타일 미터·콤보 핍·STYLE/PERFECT 콜아웃·개인기 라벨), `SceneHost.audio/reducedMotion`, `PitchScene`(Z X C V·Space 캔슬·Tier 연결·카메라 흔들림·히트스톱·콘페티·이펙트·스탠드 흔들기·발소리/터치/조준/킥/결과 소리·통계 저장·힌트에 Z X C V), `storage.ts`(`fc26-pitch-stats-v1`), 테스트(skills 20 · sfxMap · pitchAudio 11 · effects/tween · storage stats · PitchScene 개인기/연출/소리 24) | 쿨다운은 **개인기 종료 시점부터** 0.5s, 게이지는 **시작 순간** 가산, 체인 창은 직전 성공 개인기가 **끝난 뒤** 2.0s, 헛스윙은 이동·스타일·체인 없음(라벨 `볼이 없어요`), 슛을 조준·비행하는 동안 게이지 감소 정지(신규 규칙), 킥 시 `styleTier()` 읽고 `consumeStyle`(디버그 T 가 올라 있으면 우선), Space 캔슬은 마지막 0.15s 에 볼 소유·520px 이내일 때만. 히트스톱 = `update` 에서 시뮬레이션 스킵(연출 타이머는 진행), 흔들림은 월드 레이어만(reduced-motion 이면 생략), **관중 = 스탠드 띠(y 0~72) 흔들기**(`env/crowd-*` 스프라이트는 스탠드 위치가 아트에 없어 미사용), 개인기별 이펙트(먼지·`fx-grass`·`fx-star`·`fx-speed`). **누적 통계는 대시보드 전환 시가 아니라 결과마다 저장**(02 §7 원안 변경). 오디오: 이벤트마다 후보 파일 리스트(첫 항목 = 06 파일명, 뒤 = 06 §3 재사용), 존재하는 첫 파일만 재생, `victory.mp3` 는 어디에도 없음(테스트). `public/` 실측: BGM 3/3, SFX 44/50 — **`pitch-aim-tick`(P0) 없음**, `pitch-miss-whoos.mp3`(오타)는 두 철자 모두 인식, `ball-loose`·`goal-horn`·`stat-on`·`stat-soon`(P1) 없음 → 무음. 월드 오디오의 `AudioLike/AudioDeps/defaultAudioDeps/crossfadeGains` 재사용 | P5(`host.audio`·`ui-*` 이벤트·`hardReset` 이 개인기 초기화), P6(`playBgm("locker")`·게이트/스탯 이벤트·힌트 줄과 게이트 겹침), P7(06 §3-1 점검·라이선스 기록·볼륨 UI·reduced-motion·풀 용량·통계 표시) — 10 의 P4 "남긴 것"·P5·P6·P7 프롬프트 갱신 완료 |
+| 2026-09-25 | A2 | 12명·select UI·fx-celebrate 검수(맞춤 컨택트 시트로 측면 달리기 원본/미러, 초상화 48장 육안 확인), `characterAssets.test.ts`(12명 atlas 960×960·초상화 4×192²·hero 383~384·`char:<id>` 5파일·select 50키 존재/바이트·card 96×128·name-plate 인셋 12·celebrate FX 4프레임), 04 §10 신설(QA 결과·미러 확인 목록·인셋 확정), 러닝북 portrait 검수 줄 보강 | **변환은 A1 `--all` 에서 이미 끝나 있어 A2 는 재변환 없이 검수만 함.** 재생성 필요 목록 없음(잔여 QA 경고 전부 수용: clip 14 = 하단절단 흉상, doormomo 마젠타 = 보라 머리끝 오탐, edge/foot = 웅크림 프레임, 9-slice 대칭 경고 4건은 select 밖이라 A3 확인). select 9-slice 인셋: name-plate 12(가로만 늘림), card/confirm/화살표는 고정 크기. 좌향(측면 프레임 미러) 비대칭 소품 8명 목록 기록(04 §10), 정체성 문제 없어 수용 | P5(선택창 크기·키 계약 — 10 의 P5 전제 갱신 완료), A3(9-slice 대칭 경고 4건 확인) |
+| 2026-09-25 | A3 | 락커룸 게이트·배경·소품·스탯 UI·아이콘 5시트 검수(컨택트 시트 육안 + 알파 bbox 로 앵커 확인), `__tests__/lockerAssets.test.ts`, `ASSET_GROUPS.locker` 에 아이콘 3개 추가(28개), 05 §7 신설 | **재변환 없음**(A1 `--all` 이 이미 5시트 전부 변환, 누락 0). 스프라이트 크기: 게이트 128×128×3+화살표 24×32+명판 64×24, 분석기 96×128×3, 문 64×96×2, 사물함 48×80×2, 벤치 96×40, 육각형 bg/fill 280² · frame 320×280(셋 다 중앙 정렬), 노드 12/16/16, 아이콘 24개 24². 앵커 = 분석기·문·사물함·소품 하단 중앙, 게이트 좌상단 (16,400). 9-slice 인셋 detail-panel 16 · terminal-frame 24(상하 대칭 경고 0.109/0.097 수용), scan-line 종횡비 늘림 수용. 게이트 5종은 `core` 그룹, `locker` 그룹은 락커 전용 | P6(10 의 P6 전제·범위 1·2·4·5 갱신 완료). 불일치 grep(`locker-gate` 시트명 외의 `env/locker-gate*.webp` 파일 표기 등) 결과: 09 러닝북·A2 기록 외 옛 표기(`env/locker-gate*.webp`) 1건(08)을 실제 파일명으로 정정, 그 외 잔존 없음 |
+| 2026-09-25 | P5 | `data/characters.ts` 12명(03 §3 순서·`POSITION_LABELS`·테마색·`resolveStoredCharacter`), `scenes/{CharacterSelectScene,selectGrid}.ts`(히어로+idle→run 프리뷰·6x2 카드·사용 중 태그·이름/포지션 판·확정/돌아가기·화살표·대시보드 버튼·스켈레톤·카드 로더·실패 문구), `PitchScene.openSelect/setCharacter`(Tab·버튼 → push, 교체 시 `hardReset`), LoadingScene 저장값 정정, `assets.release` 가 다른 그룹과 공유한 파일 보존, 테스트(characters 7 · selectGrid 6 · characterSelect 16 · assets +1) | **확정 순서 변경: 로드 성공 후에만 저장**(03 원안은 저장→로드; 실패 id 가 저장되는 것을 방지). 실패(파일 오류·아틀라스 없음·예외)면 저장·교체 없이 현재 캐릭터 유지 + 안내 문구, 로딩 중 Esc 는 로드를 포기. 이미 사용 중인 캐릭터 확정은 닫기만. 프리뷰 아틀라스는 커서가 0.25s 머문 뒤 `char:<id>` 를 받고 커서가 떠나면 해제(12명 5MB 동시 보유 방지). 화살표는 그리드 옆에 자리가 없어 이름 판 옆(284·924, 392)으로, 이름 판 616→600. 히어로 최대높이 290·발끝 340, 프리뷰 배율 0.8 은 눈대중(사용자 확인). 스코어는 캐릭터 교체 후에도 유지. `mode-switch`·`ui-*` 사운드 연결 | P6(락커룸에서 `resolveStoredCharacter()` + `CharacterSelectScene` push — 10 의 P6 전제 갱신 완료), P7(10 의 (g) 점검 항목). 불일치 grep(`캐릭터 선택은 곧 열려요`·`P5 전까지`·`레지스트리에 없는 id 정정은 P5`·`ui-select`·`ui-cursor` 미연결 표기) 결과: 06 §3-1 의 "P5·P6 가 호출" 문구·01 §5 의 "정정은 P5"·03 §2-1/§3 의 토스트/616 폭 서술을 현재 값으로 정정, P2 기록의 "토스트(선택창은 P5)" 는 당시 사실이라 유지, 그 외 잔존 없음 |
+| 2026-09-25 | P6 | `game/locker.ts`(게이트·문·분석기 반경·`GATE_SPAWN`·`LOCKER_COLLIDERS`·`resolveBoxes`), `data/stats.ts`(8종×6축 자리표시자, `statSheetFor`), `ui/hexagon.ts`(꼭짓점·링·채움 폴리곤·hit test·`cycleAxis`·`drawHexagon`), `scenes/{LockerScene,StatScene,hudCommon}.ts`, `PitchScene`(게이트 그리기·프롬프트·E/Enter·프리로드·복귀 스폰·스코어 이어받기·힌트 x=160), `SceneHost.announce` + PitchEntry 숨김 `aria-live`, 테스트(hexagon 9 · stats 5 · locker 13 · lockerScene 22) | 피치↔락커룸은 `replace`(와이프)라 씬이 새로 만들어짐 → **스코어·힌트 표시는 `PitchScene` 모듈 변수 `carry` 로 이어받음**(락커룸 진입 때만, 대시보드 왕복은 0부터). `LockerScene` 은 `createPitch()` 팩토리로 순환 import 회피. **분석기 상호작용 반경 기준을 스프라이트 중심 (248,330) → 하단 중앙 (248,394)** 로 정정(남쪽에서 못 닿음). 분석기 OFF 는 입장 후 0.5s, ACTIVE 는 오버레이 동안 + 0.25s. 스탯 화면 `PLAYER STATS` 는 버튼과 겹쳐 오른쪽 끝을 x=660 에. 소품 배치(냉수기·부츠랙·전술판·사물함 2·벤치·킷백)·충돌 상자·`LOCKER` 판 글자는 배경 그림을 보고 잡은 눈대중(사용자 확인). `locker` 그룹은 해제하지 않음. 스탯 확정 데이터 교체는 `data/stats.ts` 의 `STAT_SHEETS` 만(03 §5). 소리는 `stat-on`·`stat-soon` 파일이 없어 무음 | P7(10 의 P7 전제 갱신 완료: 눈대중 항목·`locker` 그룹 상주·통계 표시 자리·aria 점검). 불일치 grep(`P6 에서 사용`·`게이트(16,400)는 P6`·`P5·P6 가 씬에서 호출`·`중심 (248, 330)` 기준 서술) 결과: 06 §3-1 두 문구·03 §2-1 힌트 행·03 §4 분석기 반경 서술을 현재 사실로 정정, 그 외 잔존 없음 |
+| 2026-09-25 | 스탯 정의 추가 | `11-stat-definitions.md` 신설(공통 3·포지션 고유 3·GK 고유 6의 한국어 이름·설명·판정 기준·세부 항목, 데이터 모델 확장, 설명 패널 UI 설계, 테스트 계획), `10` 에 세션 **P6b** 추가, 07/08/README 동기화 | 03 §5 의 "라벨·설명 전부 `???`" 정책은 **이름·설명은 표시, 능력치 숫자만 `???`** 로 변경(03 §5 자체는 P6b 세션에서 갱신). 우왁굳(MGR)은 정의 없음 → `???` 유지 | P6b, P7 |
+| 2026-09-25 | P6(조정) | 사용자 피드백: 게이트 1.3배(y 362, 166²)·힌트 줄 y=236 으로 이동·`E` 프롬프트 판 1.3배·락커룸 캐릭터/출구 문 1.5배·분석기를 오른쪽 (712,394)으로·나머지 소품 2배(뒤쪽 줄 + 벤치 왼쪽 (300,450)·킷백) | 게이트 중심 (80,470)→(99,445), 복귀 스폰 (170,470)→(215,470), 락커룸 걷기 y 210→250(뒤쪽 소품은 충돌 없이 벽 역할). 배치는 눈대중 | 03 §2-1·§4, 02 §2, 05 §7 갱신. 10 의 P6 "남긴 것"의 좌표는 이 행이 우선 |
+| 2026-09-25 | P6(정정) | 조정 요청을 반대로 해석했던 것 정정: 조작법 줄은 y=490 그대로, **게이트를 조작법 줄 위**(타일 y 316~482, 중심 (99,399))로 이동, 복귀 스폰 (215,440) | 바로 위 P6(조정) 행의 게이트 y 362·중심 (99,445)·조작법 y=236·스폰 (215,470) 은 이 행으로 대체 | 02 §2·03 §2-1 갱신 |
+| 2026-09-25 | P6(조정 2) | 락커룸 벤치 제거(소품·충돌 상자), 전술판↔냉수기 자리 교체 후 간격 8px(전술판 250·냉수기 346), 부츠랙·사물함 2개 간격 4px(부츠랙 560) | 03 §4 소품 배치 갱신. 위 조정 행의 벤치 (300,450)·냉수기 250·전술판 400·부츠랙 540 은 대체됨 | — |
+| 2026-09-25 | P6(조정 3) | 사물함1 x 660→672(사물함2 와 겹침, 뒤에 그림), 부츠랙 560→570, 냉수기 y 240→220 | 03 §4 소품 배치 갱신 | — |
+| 2026-09-25 | P6(조정 4) | 사물함1 (672,240)→(677,238), 부츠랙 (570,240)→(580,237), 전술판 (250,240)→(260,220), 냉수기 x 346→356. 스탯 화면: 헤더를 프레임 안쪽으로(초상화 40×40 (92,80)), `PLAYER STATS`·키 안내를 상단 바 안에, 설명 패널 텍스트를 아트 헤더 슬롯(축 이름)·본문 영역에 맞춤 | 03 §4·§5 | — |
+| 2026-09-25 | P6(조정 5) | 킷백 (780,480)→(775,450)(분석기 앞에 겹침, 충돌 상자 동반 이동), 스탯 화면 키 안내를 이름 옆으로·락커룸 제목/안내는 스탯 화면이 열려 있으면 숨김 | 03 §4 | — |
+| 2026-09-25 | P6(조정 6) | 부츠랙 y 237→217. 스탯 화면: `PLAYER STATS` 화면 가운데 (480,61), `COMING SOON` 글자 11px·검정 + 주황(#ff8a1f) 그림자, `AXIS n/6`·축 이름 7px 아래 | 03 §4·§5 | — |
+| 2026-09-25 | P6(조정 7) | 스탯 화면 `PLAYER STATS` y 61→63, `AXIS n/6`·축 이름 2px 아래 | 03 §5 | — |
+| 2026-09-25 | P6(에셋 교체) | `ui/detail-panel` 을 사용자가 재생성한 이미지(400×392 고정)로 교체 — 9-slice 늘림 왜곡 제거, `StatScene` 은 1:1 로 그림(임시 `drawPanelArt` 제거), 헤더 칸 글자 위치(AXIS y+35·이름 y+55)·본문(x+48,y+100)·COMING SOON(y+h-70) 재조정, `assetMeta`·`lockerAssets` 테스트 갱신 | 05 §7 | 화면 확인은 사용자 |
+| 2026-09-25 | P6(조정 8) | 락커룸 출구 문 기준 (480,520)→(480,510)(상호작용 원 포함), 하단 키 안내 y 526→516 | 03 §4 | — |
+| 2026-09-25 | P6(조정 9) | 락커룸 `LOCKER ROOM` 제목 뒤에 STREAK 와 같은 반투명 네이비(rgba(10,10,26,.85)) 판 | 03 §4 | — |
+| 2026-09-25 | P6(조정 10) | 락커룸 출구 문 기준 (480,510)→(480,495), 하단 키 안내 y 516→501 | 03 §4 | — |
+| 2026-09-25 | P6(조정 11) | 락커룸 출구 문 기준 (480,495)→(480,490), 하단 키 안내 y 501→496 | 03 §4 | — |
+| 2026-09-25 | P6(조정 12) | 냉수기↔전술판 자리 교체(냉수기 236·전술판 332, y 220, 사이 8px)와 두 이미지 좌우반전(`Prop.flip`) | 03 §4 | — |
+| 2026-09-25 | P6(조정 13) | 냉수기 (236,220)→(256,190), 전술판 (332,220)→(352,220) | 03 §4 | — |
+| 2026-09-25 | P6(조정 14) | 킷백 (775,450)→(775,430)(충돌 상자 동반 이동) | 03 §4 | — |
+| 2026-09-25 | P6(조정 15) | 전술판 (352,220)→(352,190) | 03 §4 | — |
+| 2026-09-25 | P6(조정 16) | 전술판 (352,190)→(352,205), 킷백 (775,430)→(775,420)(충돌 상자 동반) | 03 §4 | — |
+| 2026-09-25 | P6b | `data/stats.ts`(공통 3 공유 객체·포지션 고유·GK 6·MGR 자리표시자·`isPlaceholderAxis/axisTag`), `ui/statDetail.ts`(`wrapText`·`layoutStatDetail`·`clampScroll`), `StatScene`(태그 칩·판정 기준·세부 항목 트리·자식 칩·능력치 빈 바·레이아웃 캐시·스크롤·0.12s 전환·범례·`announcementFor`), `hexagon.ts`(kind 색 링·`KIND_COLORS`), `Scene.onWheel`/`SceneManager.wheel`/PitchEntry 휠, 테스트(stats 10·statDetail 9·lockerScene 갱신) | **콘텐츠 영역 316px → 204px**(실제 `detail-panel` 아트의 어두운 본문이 y 76~352, 하단에 능력치 행+리본 자리; 11 §6-1 정정) — 42축 모두 ≤195px 로 스크롤 없이 들어감(가짜 전각 측정기). 제목은 헤더 슬롯, `AXIS n/6` 은 내용 첫 줄 우측. **`↑↓` 는 축 순환에서 패널 스크롤로 변경**(←→/Tab 만 축 선택). `탈압박` 설명을 한 줄로 축약. 라벨 판/노드 링/범례 색 = 공통 청록·고유 금색 | P7(10 의 (m) 항목), 숫자 확정 시 `STAT_SHEETS[*].values`. 불일치 grep(`316`·`352px`·`↑↓ 축`·`???` 라벨 정책) 결과는 아래 점검 행 |
+| 2026-09-25 | P6b(점검) | `316`·`352px`·`↑↓` 축 순환·`???` 라벨 정책·`placeholderSheet("XX")` 교체 문구 grep | 잔존 없음(316 은 게이트 y 좌표·11 의 정정 문장만, 03 §5 의 옛 `???` 정책/교체 문단은 새 내용으로 대체) | — |
+| 2026-09-25 | P6b(추가) | 스탯 화면 선수 전환(◀▶·Q/E, 보기 전용)·포지션 배지 글자 1px 아래로(수직 중앙) | 03 §5 `선수 전환` 행 | P7 |
+| 2026-09-25 | P6(조정 17) | 피치 게이트 위 `LOCKER` 간판 오른쪽 +1px·아래 +10px(화살표는 간판을 따라 같이 내려감) | 03 §2-1 | — |
+| 2026-09-25 | P7 | `engine/perf.ts`(프레임 시간 링버퍼·`drawImage` 카운터·오버레이, `?pitchDebug=1` 에서만 켜짐·5초마다 콘솔), `entryNotice.ts`(폴백 토스트 전달)·`Root`/`PitchEntry`/`App` 연결, `storage.ts` 메모리 폴백(`pitchRead/pitchWrite`), `contextlost` 폴백, 피치 Backspace = 대시보드, 코너 플래그(`env/flag`·`flag-wave` → core), 스윗스팟 골 `goal-horn`, 테스트(perf 5 · assetBudget 4 · pitchStorage +2 · PitchScene +3) | **성능 리포트(빌드 산출물 기준)**: boot 156KB(≤300) · core 1311KB · boot+core+최대 캐릭터(lina0108) 2.07MB(≤3MB) · `assets/app.js` 유지, `PitchEntry` 청크 155KB(gzip 52KB) 분리 확인 · 프레임 실측은 사용자 배포 후 `?pitchDebug=1`. **결정**: 대시보드 prefetch 미구현(스냅샷이 고정 픽스처라 fetch 없음 — 실시간 수집 재개 시 추가), 난이도 3단계 미구현(#5), 크레딧 미구현(CC-BY 근거 없음, B4), 필드 소품·관중 스프라이트는 배경에 광고판·스탠드가 이미 있어 코너 플래그만 통합(B7), `Tab` 을 게임이 쓰므로 DOM `Skip to dashboard` 는 키보드로 닿지 않아 Backspace 를 추가하고 aria 설명·하단 안내에 표기. `locker` 그룹은 계속 상주(디코드 약 4MB, 전체 최악 약 27MB 로 수용) | P8(입력 표면: `Backspace`·`onKey`), 01 §7-1·§9, 03 §8, 06 §3-1, 08 |
+| 2026-09-25 | P8 | `entryMode.ts`: `resolveInitialMode` 이 `coarsePointer` 면 **최우선으로 `dashboard`**(`?mode=pitch`·저장값도 무시), `detectCoarsePointer()` 추출, `useEntryMode` 가 `pitchAvailable` 반환 → `Root` 가 터치 기기에서 `onGoPitch` 를 넘기지 않아 `TopBar` 의 `피치로 돌아가기` 버튼이 숨겨짐, 테스트 2건 갱신 | **사용자 결정으로 계획 변경**: 온스크린 방향 패드·버튼(원 P8 범위)은 만들지 않음. 터치 = 대시보드 전용(열린 결정 #1 확정, B1 취소). 01 §4-1·§(리스크 표) 갱신. 참고: 터치 노트북(coarse 가 아닌 hybrid)은 `(pointer: coarse)` 가 false 라 피치 유지 | 없음(마지막 세션). 불일치 grep(`터치 컨트롤`·`(P8)`·`coarse`·`저장값이 우선`) 결과: 07 의 `(P8)` 표기·10 의 P7 종료 문구를 정정, 그 외 잔존 없음(P1 프롬프트의 터치 서술은 기록용) |
