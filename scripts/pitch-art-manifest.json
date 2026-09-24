@@ -1,0 +1,408 @@
+{
+  "_doc": "Slot/layout tables for scripts/convert-pitch-art.mjs (docs/pitch/04 §4·§6, 05). Sheet items: [id, cell | [cells...], w, h, opts]. A cell list = a horizontal strip of frames. opts: align (bottom|center), group (shared scale), fill (stretch to w×h), slice (9-slice inset, frame is kept at its own aspect), soft (keep translucent glow), symmetry (lr).",
+  "cell": 96,
+  "footY": 92,
+  "alphaThreshold": 128,
+  "gap": 2,
+  "minArea": 30,
+  "footSnapPx": 3,
+  "fillWarnRatio": 0.72,
+  "hero": { "maxHeight": 384 },
+  "portraits": { "size": 192, "names": ["neutral", "confident", "celebrate", "disappointed"] },
+  "characters": {
+    "field": ["woowakgood", "janine95kim", "bboringirl", "sjh4018", "doormomo", "hachi97", "kaksjak0730", "ju010228", "haepalin", "tleod1818", "tdnlamuron", "lina0108"],
+    "keeper": ["keeper-ai"]
+  },
+  "field": {
+    "atlas": { "w": 960, "h": 960 },
+    "sheets": {
+      "idle": {
+        "grid": [2, 3],
+        "ref": { "rows": [0], "height": 80 },
+        "rows": [
+          { "clip": "idle", "dir": "down", "frames": 2, "cellW": 96, "atlas": [0, 0], "airborne": false },
+          { "clip": "idle", "dir": "side", "frames": 2, "cellW": 96, "atlas": [0, 2], "airborne": false },
+          { "clip": "idle", "dir": "up", "frames": 2, "cellW": 96, "atlas": [0, 4], "airborne": false }
+        ]
+      },
+      "run": {
+        "grid": [6, 3],
+        "ref": { "rows": [0], "height": 78 },
+        "rows": [
+          { "clip": "run", "dir": "down", "frames": 6, "cellW": 96, "atlas": [1, 0], "airborne": true },
+          { "clip": "run", "dir": "side", "frames": 6, "cellW": 96, "atlas": [2, 0], "airborne": true },
+          { "clip": "run", "dir": "up", "frames": 6, "cellW": 96, "atlas": [3, 0], "airborne": true }
+        ]
+      },
+      "shoot": {
+        "grid": [4, 3],
+        "ref": { "rows": [0], "height": 78 },
+        "rows": [
+          { "clip": "shoot", "dir": "down", "frames": 4, "cellW": 96, "atlas": [1, 6], "airborne": true },
+          { "clip": "shoot", "dir": "side", "frames": 4, "cellW": 96, "atlas": [2, 6], "airborne": true },
+          { "clip": "shoot", "dir": "up", "frames": 4, "cellW": 96, "atlas": [3, 6], "airborne": true }
+        ]
+      },
+      "skill-side": {
+        "grid": [4, 4],
+        "ref": { "rows": [0], "height": 78 },
+        "rows": [
+          { "clip": "skill_stepover", "dir": "side", "frames": 4, "cellW": 96, "atlas": [4, 0], "airborne": true },
+          { "clip": "skill_roulette", "dir": "side", "frames": 4, "cellW": 96, "atlas": [4, 4], "airborne": true },
+          { "clip": "skill_rainbow", "dir": "side", "frames": 4, "cellW": 96, "atlas": [5, 0], "airborne": true },
+          { "clip": "skill_elastico", "dir": "side", "frames": 4, "cellW": 96, "atlas": [5, 4], "airborne": true }
+        ]
+      },
+      "skill-up": {
+        "grid": [4, 4],
+        "ref": { "rows": [0], "height": 78 },
+        "rows": [
+          { "clip": "skill_stepover", "dir": "up", "frames": 4, "cellW": 96, "atlas": [6, 0], "airborne": true },
+          { "clip": "skill_roulette", "dir": "up", "frames": 4, "cellW": 96, "atlas": [6, 4], "airborne": true },
+          { "clip": "skill_rainbow", "dir": "up", "frames": 4, "cellW": 96, "atlas": [7, 0], "airborne": true },
+          { "clip": "skill_elastico", "dir": "up", "frames": 4, "cellW": 96, "atlas": [7, 4], "airborne": true }
+        ]
+      },
+      "emote": {
+        "grid": [4, 3],
+        "ref": { "rows": [0, 1, 2], "height": 78 },
+        "rows": [
+          { "clip": "celebrate_a", "dir": "down", "frames": 4, "cellW": 96, "atlas": [8, 0], "airborne": true },
+          { "clip": "celebrate_b", "dir": "down", "frames": 4, "cellW": 96, "atlas": [8, 4], "airborne": true },
+          { "clip": "disappointed", "dir": "down", "frames": 4, "cellW": 96, "atlas": [9, 0], "airborne": false }
+        ]
+      }
+    }
+  },
+  "keeper": {
+    "atlas": { "w": 960, "h": 768 },
+    "sheets": {
+      "ready": {
+        "grid": [4, 3],
+        "ref": { "rows": [0], "height": 86 },
+        "rows": [
+          { "clip": "ready", "dir": "down", "frames": 2, "cellW": 96, "atlas": [0, 0], "airborne": false },
+          { "clip": "shuffle_left", "dir": "down", "frames": 4, "cellW": 96, "atlas": [0, 2], "airborne": false },
+          { "clip": "shuffle_right", "dir": "down", "frames": 4, "cellW": 96, "atlas": [0, 6], "airborne": false }
+        ]
+      },
+      "save": {
+        "grid": [4, 3],
+        "scaleFrom": { "sheet": "ready", "byCell": true },
+        "rows": [
+          { "clip": "catch", "dir": "down", "frames": 4, "cellW": 96, "atlas": [1, 0], "airborne": true },
+          { "clip": "punch", "dir": "down", "frames": 4, "cellW": 96, "atlas": [1, 4], "airborne": true },
+          { "clip": "foot_deflect", "dir": "down", "frames": 4, "cellW": 96, "atlas": [2, 0], "airborne": true }
+        ]
+      },
+      "react": {
+        "grid": [4, 3],
+        "scaleFrom": { "sheet": "ready", "byCell": true },
+        "rows": [
+          { "clip": "beaten", "dir": "down", "frames": 4, "cellW": 96, "atlas": [2, 4], "airborne": false },
+          { "clip": "save_celebrate", "dir": "down", "frames": 4, "cellW": 96, "atlas": [3, 0], "airborne": true },
+          { "clip": "rage_slam", "dir": "down", "frames": 4, "cellW": 96, "atlas": [3, 4], "airborne": true }
+        ]
+      },
+      "dive": {
+        "grid": [5, 4],
+        "scaleFrom": { "sheet": "ready", "byCell": true },
+        "rows": [
+          { "clip": "dive_low_left", "dir": "down", "frames": 5, "cellW": 192, "atlas": [4, 0], "airborne": true },
+          { "clip": "dive_low_right", "dir": "down", "frames": 5, "cellW": 192, "atlas": [5, 0], "airborne": true },
+          { "clip": "dive_high_left", "dir": "down", "frames": 5, "cellW": 192, "atlas": [6, 0], "airborne": true },
+          { "clip": "dive_high_right", "dir": "down", "frames": 5, "cellW": 192, "atlas": [7, 0], "airborne": true }
+        ]
+      }
+    }
+  },
+  "sheets": {
+    "env": {
+      "pitch-bg": { "file": "env-pitch-bg.png", "scene": true },
+      "goal": {
+        "file": "env-goal.png",
+        "grid": [3, 2],
+        "items": [
+          ["goal-back", 0, 300, 74, { "group": "goal", "soft": true }],
+          ["goal-front", 1, 300, 74, { "group": "goal", "soft": true }],
+          ["goal-ripple", [2, 3, 4, 5], 300, 74, { "group": "goal", "soft": true }]
+        ]
+      },
+      "ball": {
+        "file": "env-ball.png",
+        "grid": [4, 3],
+        "items": [
+          ["ball-spin", [0, 1, 2, 3, 4, 5, 6, 7], 16, 16, { "align": "center" }],
+          ["ball-shadow", 8, 24, 10, { "align": "center" }],
+          ["ball-trail", 9, 48, 12, { "align": "center" }],
+          ["ball-ring", 10, 32, 32, { "align": "center" }],
+          ["ball-sparkle", 11, 16, 16, { "align": "center" }]
+        ]
+      },
+      "props": {
+        "file": "env-props.png",
+        "grid": [4, 3],
+        "items": [
+          ["cone-orange", 0, 24, 32],
+          ["cone-yellow", 1, 24, 32],
+          ["flag", 2, 24, 48, { "group": "flag" }],
+          ["flag-wave", 3, 24, 48, { "group": "flag" }],
+          ["ad-a", 4, 96, 32],
+          ["ad-b", 5, 96, 32],
+          ["ad-c", 6, 96, 32],
+          ["bottle", 7, 16, 24],
+          ["bibs", 8, 32, 24],
+          ["ballbag", 9, 40, 40],
+          ["hurdle", 10, 40, 32],
+          ["ladder", 11, 64, 24]
+        ]
+      },
+      "locker-gate": {
+        "file": "env-locker-gate.png",
+        "grid": [3, 2],
+        "items": [
+          ["gate-closed", 0, 128, 128, { "group": "gate" }],
+          ["gate-open", 1, 128, 128, { "group": "gate" }],
+          ["gate-glow", 2, 128, 128, { "group": "gate" }],
+          ["gate-arrow", 3, 24, 32, { "align": "center" }],
+          ["gate-plate", 5, 64, 24, { "align": "center" }]
+        ]
+      },
+      "locker-bg": { "file": "env-locker-bg.png", "scene": true },
+      "locker-props": {
+        "file": "env-locker-props.png",
+        "grid": [4, 3],
+        "items": [
+          ["terminal-off", 0, 96, 128, { "group": "terminal" }],
+          ["terminal-idle", 1, 96, 128, { "group": "terminal" }],
+          ["terminal-active", 2, 96, 128, { "group": "terminal" }],
+          ["exit-closed", 3, 64, 96, { "group": "exit" }],
+          ["exit-open", 4, 64, 96, { "group": "exit" }],
+          ["locker-unit", 5, 48, 80, { "group": "lockerunit" }],
+          ["locker-unit-open", 6, 48, 80, { "group": "lockerunit" }],
+          ["bench", 7, 96, 40],
+          ["whiteboard", 8, 56, 72],
+          ["cooler", 9, 32, 48],
+          ["kitbag", 10, 40, 32],
+          ["bootrack", 11, 48, 32]
+        ]
+      },
+      "crowd": {
+        "file": "env-crowd.png",
+        "grid": [4, 3],
+        "items": [
+          ["crowd-idle", [0, 1, 2, 3], 384, 128, { "group": "crowd" }],
+          ["crowd-cheer", [4, 5, 6, 7], 384, 128, { "group": "crowd" }],
+          ["crowd-groan", [8, 9, 10, 11], 384, 128, { "group": "crowd" }]
+        ]
+      }
+    },
+    "keyart": {
+      "loading-bg": { "file": "keyart-loading-bg.png", "scene": true },
+      "select-bg": { "file": "keyart-select-bg.png", "scene": true }
+    },
+    "fx": {
+      "impact": {
+        "file": "fx-impact.png",
+        "grid": [4, 4],
+        "soft": true,
+        "items": [
+          ["fx-dust", [0, 1, 2, 3], 32, 32, { "align": "center" }],
+          ["fx-grass", [4, 5, 6, 7], 32, 32, { "align": "center" }],
+          ["fx-star", [8, 9, 10, 11], 48, 48, { "align": "center" }],
+          ["fx-speed", [12, 13, 14, 15], 64, 32, { "align": "center" }]
+        ]
+      },
+      "shot": {
+        "file": "fx-shot.png",
+        "grid": [4, 3],
+        "soft": true,
+        "items": [
+          ["fx-aim-arrow", [0, 1, 2, 3], 32, 40, { "align": "center" }],
+          ["fx-reticle", [4, 5, 6, 7], 48, 48, { "align": "center" }],
+          ["fx-sweet", [8, 9, 10, 11], 24, 24, { "align": "center" }]
+        ]
+      },
+      "celebrate": {
+        "file": "fx-celebrate.png",
+        "grid": [4, 4],
+        "soft": true,
+        "items": [
+          ["fx-confetti", [0, 1, 2, 3], 96, 96, { "align": "center" }],
+          ["fx-firework", [4, 5, 6, 7], 96, 96, { "align": "center" }],
+          ["fx-rays", [8, 9, 10, 11], 128, 128, { "align": "center" }],
+          ["fx-save-sparkle", [12, 13, 14, 15], 64, 64, { "align": "center" }]
+        ]
+      }
+    },
+    "ui": {
+      "frames": {
+        "file": "ui-frames.png",
+        "grid": [4, 3],
+        "items": [
+          ["panel-large", 0, 240, 160, { "slice": 12 }],
+          ["panel-medium", 1, 180, 120, { "slice": 10 }],
+          ["dialog-small", 2, 140, 90, { "slice": 8 }],
+          ["ribbon", 3, 240, 32, { "slice": 12, "symmetry": "lr" }],
+          ["nameplate", 4, 160, 28, { "slice": 8 }],
+          ["tooltip", 5, 120, 48, { "slice": 8 }],
+          ["divider-h", 6, 200, 6, { "fill": true }],
+          ["divider-v", 7, 6, 120, { "fill": true }],
+          ["corner-bracket", 8, 24, 24, { "align": "center" }],
+          ["tab-header", 9, 160, 28, { "slice": 8, "symmetry": "lr" }],
+          ["led-tile", 10, 32, 32, { "fill": true }],
+          ["backdrop-tile", 11, 32, 32, { "fill": true }]
+        ]
+      },
+      "buttons": {
+        "file": "ui-buttons.png",
+        "grid": [3, 5],
+        "items": [
+          ["btn-dashboard", [0, 1, 2], 212, 48, { "fill": true }],
+          ["btn-change", [3, 4, 5], 212, 40, { "fill": true }],
+          ["btn-pill", [6, 7, 8], 120, 36, { "fill": true }],
+          ["btn-return", [9, 10, 11], 168, 40, { "fill": true }],
+          ["btn-square", [12, 13, 14], 40, 40, { "fill": true }]
+        ]
+      },
+      "hud-gauges": {
+        "file": "ui-hud-gauges.png",
+        "grid": [4, 3],
+        "items": [
+          ["scoreboard", 0, 232, 64, { "align": "center" }],
+          ["aim-bar", 1, 320, 20, { "fill": true }],
+          ["power-bar", 2, 320, 28, { "fill": true }],
+          ["fill-green", 3, 16, 28, { "fill": true }],
+          ["fill-gold", 4, 16, 28, { "fill": true }],
+          ["fill-red", 5, 16, 28, { "fill": true }],
+          ["sweet-spot", 6, 64, 36, { "align": "center" }],
+          ["aim-cursor", 7, 16, 16, { "align": "center" }],
+          ["style-frame", 8, 24, 160, { "fill": true }],
+          ["style-fill", 9, 24, 16, { "fill": true }],
+          ["pip-lit", 10, 12, 12, { "align": "center", "group": "pip" }],
+          ["pip-unlit", 11, 12, 12, { "align": "center", "group": "pip" }]
+        ]
+      },
+      "hud-keys": {
+        "file": "ui-hud-keys.png",
+        "grid": [4, 3],
+        "items": [
+          ["key-up", 0, 32, 32, { "fill": true }],
+          ["key-down", 1, 32, 32, { "fill": true }],
+          ["key-arrow-up", 2, 32, 32, { "fill": true }],
+          ["key-arrow-down", 3, 32, 32, { "fill": true }],
+          ["key-arrow-left", 4, 32, 32, { "fill": true }],
+          ["key-arrow-right", 5, 32, 32, { "fill": true }],
+          ["key-space-up", 6, 96, 32, { "fill": true }],
+          ["key-space-down", 7, 96, 32, { "fill": true }],
+          ["key-shift", 8, 64, 32, { "fill": true }],
+          ["prompt-bubble", 9, 72, 44, { "align": "center" }],
+          ["key-glow", 10, 40, 40, { "align": "center" }],
+          ["mouse-icon", 11, 24, 32, { "align": "center" }]
+        ]
+      },
+      "hud-banners": {
+        "file": "ui-hud-banners.png",
+        "grid": [2, 6],
+        "items": [
+          ["banner-goal", 0, 480, 80, { "fill": true }],
+          ["burst-goal", 1, 64, 64, { "align": "center" }],
+          ["banner-save", 2, 480, 80, { "fill": true }],
+          ["burst-save", 3, 64, 64, { "align": "center" }],
+          ["banner-post", 4, 480, 80, { "fill": true }],
+          ["burst-post", 5, 64, 64, { "align": "center" }],
+          ["banner-miss", 6, 480, 80, { "fill": true }],
+          ["burst-miss", 7, 64, 64, { "align": "center" }],
+          ["banner-style", 8, 360, 60, { "fill": true }],
+          ["star-style", 9, 32, 32, { "align": "center" }],
+          ["banner-perfect", 10, 360, 60, { "fill": true }],
+          ["ring-perfect", 11, 48, 48, { "align": "center" }]
+        ]
+      },
+      "select": {
+        "file": "ui-select.png",
+        "grid": [4, 3],
+        "items": [
+          ["card-normal", 0, 96, 128, { "fill": true }],
+          ["card-hover", 1, 96, 128, { "fill": true }],
+          ["card-selected", 2, 96, 128, { "fill": true }],
+          ["tag-current", 3, 56, 16, { "align": "center" }],
+          ["arrow-left", 4, 32, 32, { "align": "center", "group": "selarrow" }],
+          ["arrow-left-pressed", 5, 32, 32, { "align": "center", "group": "selarrow" }],
+          ["arrow-right", 6, 32, 32, { "align": "center", "group": "selarrow" }],
+          ["arrow-right-pressed", 7, 32, 32, { "align": "center", "group": "selarrow" }],
+          ["name-plate", 8, 320, 40, { "slice": 12, "symmetry": "lr" }],
+          ["pos-badge", 9, 32, 32, { "align": "center" }],
+          ["confirm", 10, 216, 48, { "fill": true }],
+          ["confirm-pressed", 11, 216, 48, { "fill": true }]
+        ]
+      },
+      "stat": {
+        "file": "ui-stat.png",
+        "grid": [4, 3],
+        "items": [
+          ["hex-bg", 0, 280, 280, { "align": "center", "group": "hex" }],
+          ["hex-frame", 1, 320, 280, { "align": "center" }],
+          ["hex-fill", 2, 280, 280, { "align": "center", "group": "hex" }],
+          ["node-normal", 3, 12, 12, { "align": "center", "group": "node" }],
+          ["node-hover", 4, 16, 16, { "align": "center", "group": "node" }],
+          ["node-selected", 5, 16, 16, { "align": "center", "group": "node" }],
+          ["axis-plate", 6, 72, 22, { "fill": true }],
+          ["detail-panel", 7, 220, 200],
+          ["coming-soon", 8, 216, 40, { "align": "center" }],
+          ["terminal-frame", 9, 288, 164, { "slice": 24 }],
+          ["scan-line", 10, 320, 8, { "fill": true, "soft": true }],
+          ["padlock", 11, 16, 16, { "align": "center" }]
+        ]
+      },
+      "icons": {
+        "file": "ui-icons.png",
+        "grid": [6, 4],
+        "items": [
+          ["icon-sound-on", 0, 24, 24, { "align": "center" }],
+          ["icon-sound-off", 1, 24, 24, { "align": "center" }],
+          ["icon-music-on", 2, 24, 24, { "align": "center" }],
+          ["icon-music-off", 3, 24, 24, { "align": "center" }],
+          ["icon-close", 4, 24, 24, { "align": "center" }],
+          ["icon-back", 5, 24, 24, { "align": "center" }],
+          ["icon-gear", 6, 24, 24, { "align": "center" }],
+          ["icon-scoreboard", 7, 24, 24, { "align": "center" }],
+          ["icon-locker", 8, 24, 24, { "align": "center" }],
+          ["icon-ball", 9, 24, 24, { "align": "center" }],
+          ["icon-goal", 10, 24, 24, { "align": "center" }],
+          ["icon-glove", 11, 24, 24, { "align": "center" }],
+          ["icon-star", 12, 24, 24, { "align": "center" }],
+          ["icon-trophy", 13, 24, 24, { "align": "center" }],
+          ["icon-bolt", 14, 24, 24, { "align": "center" }],
+          ["icon-shoe", 15, 24, 24, { "align": "center" }],
+          ["icon-crest", 16, 24, 24, { "align": "center" }],
+          ["icon-hexagon", 17, 24, 24, { "align": "center" }],
+          ["icon-question", 18, 24, 24, { "align": "center" }],
+          ["icon-lock", 19, 24, 24, { "align": "center" }],
+          ["icon-keyboard", 20, 24, 24, { "align": "center" }],
+          ["icon-refresh", 21, 24, 24, { "align": "center" }],
+          ["icon-pause", 22, 24, 24, { "align": "center" }],
+          ["icon-play", 23, 24, 24, { "align": "center" }]
+        ]
+      },
+      "title": {
+        "file": "ui-title-logo.png",
+        "grid": [1, 1],
+        "items": [
+          ["title-logo", 0, 480, 160, { "align": "center" }]
+        ]
+      },
+      "loader": {
+        "file": "ui-loader.png",
+        "grid": [4, 3],
+        "items": [
+          ["loader-ball", [0, 1, 2, 3, 4, 5, 6, 7], 32, 32, { "align": "center" }],
+          ["loader-bar-frame", 8, 480, 24, { "fill": true }],
+          ["loader-bar-fill", 9, 32, 24, { "fill": true }],
+          ["loader-bar-shine", 10, 96, 24, { "align": "center", "soft": true }],
+          ["loader-tip", 11, 480, 36, { "fill": true }]
+        ]
+      }
+    }
+  }
+}

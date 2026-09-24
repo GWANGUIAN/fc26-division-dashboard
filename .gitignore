@@ -24,3 +24,6 @@ tmp/minigame-src/
 .dev.vars
 .dev.vars.*
 !.dev.vars.example
+
+# Pitch art originals (AI-generated PNGs, ~230MB; converted to src/web/assets/pitch/ by pnpm convert:pitch-art)
+tmp/pitch-src/

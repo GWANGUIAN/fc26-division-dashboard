@@ -308,7 +308,7 @@ describe("world-art-manifest.json", () => {
     }
     expect(Object.values(manifest.props).flat().filter((slot) => slot[3]?.withered)).toHaveLength(15);
     expect(Object.keys(manifest.buildings)).toHaveLength(17);
-    expect(manifest.interiors.ids).toHaveLength(19);
+    expect(manifest.interiors.ids).toHaveLength(20);
     expect(manifest.interiors).toMatchObject({ size: [640, 384], sourceWidth: 1536, lossless: true });
     for (const id of ["loading-bg", "title-bg", "select-bg"]) expect(manifest.ui.singles[id]).toMatchObject({ w: 1672, h: 940, lossless: true });
     expect(Object.keys(manifest.ending.singles)).toEqual(["pc-01-dropped-trimmer", "pc-02-glove-grab", "pc-03-silhouette-rise", "pc-04-scheme-room", "pc-05-eye-v-sign", "pc-06-village-hint"]);
