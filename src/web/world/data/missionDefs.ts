@@ -14,9 +14,9 @@ export type MissionKind =
   | "collection_count" | "card_collection" | "daily_stamp" | "talk" | "card_reveal" | "card_variant" | "minigame_best"
   | "collect" | "delivery" | "time_trial" | "kick_goals" | "talk_chain" | "finale";
 
-/** How each minigame is called and counted ("축구공 합 10", "점"), for round prompts and progress text. */
+/** How each minigame is called and counted ("축구공 사과게임", "점"), for round prompts and progress text. */
 export const MINIGAME_INFO: Record<MinigameGame, { name: string; unit: string }> = {
-  "soccer-sum10": { name: "축구공 합 10", unit: "점" },
+  "soccer-sum10": { name: "축구공 사과게임", unit: "점" },
   kickups: { name: "축구공 튀기기", unit: "회" },
   freekick: { name: "3D 프리킥", unit: "골" },
   rush: { name: "잔디 러시", unit: "m" },
@@ -129,7 +129,7 @@ export const MISSION_DEFS: readonly MissionDef[] = [
   // ── main missions (act 2) ───────────────────────────────────────────────────────────────
   {
     id: "m-doormomo-sum10", giver: "doormomo", title: "천리안 셈법", kind: "minigame_best", game: "soccer-sum10", min: 60, main: true,
-    objective: "오락실 합 10 기계에서 60점 이상", hint: "북동 룬 언덕 · 오락실 1번 기계",
+    objective: "오락실 축구공 사과게임 기계에서 60점 이상", hint: "북동 룬 언덕 · 오락실 1번 기계",
     requiresFlags: ["main-open"], reward: MAIN_REWARD,
   },
   {

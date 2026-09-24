@@ -255,7 +255,7 @@ describe("the showdown", () => {
     const start = talkTo("referee", open()).node.choices![0].next!;
     expect(start.lines.map((line) => line.text).slice(0, 2)).toEqual([FINALE_SCRIPT.rounds[0].taunt, roundCall(finale, 0)]);
     expect(start.choices?.[0]).toMatchObject({ label: "1라운드 도전!", effect: { type: "start-round", mission: "m-90-finale" } });
-    expect(roundCall(finale, 0)).toBe("1라운드! 축구공 합 10, 70점 이상이면 통과!");
+    expect(roundCall(finale, 0)).toBe("1라운드! 축구공 사과게임, 70점 이상이면 통과!");
     expect(roundCall(finale, 1)).toBe("2라운드! 축구공 튀기기, 20회 이상이면 통과!");
     expect(roundCall(finale, 2)).toBe("3라운드! 카드 짝 맞추기, 17턴 이하면 통과!");
   });

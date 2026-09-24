@@ -108,7 +108,7 @@ function completePart(cast: CastDef, def: MissionDef): Part {
 
 // ── the showdown (02 §9) ─────────────────────────────────────────────────────────────────────
 
-/** "1라운드! 축구공 합 10, 70점 이상이면 통과!" — built from the mission data so retuning a threshold retunes the line. */
+/** "1라운드! 축구공 사과게임, 70점 이상이면 통과!" — built from the mission data so retuning a threshold retunes the line. */
 export function roundCall(def: Extract<MissionDef, { kind: "finale" }>, round: number): string {
   const spec = def.rounds[round];
   return `${round + 1}라운드! ${MINIGAME_INFO[spec.game].name}, ${finaleRoundGoal(spec, "if")} 통과!`;

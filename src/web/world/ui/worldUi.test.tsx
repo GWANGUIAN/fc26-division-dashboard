@@ -204,7 +204,7 @@ describe("S5 panels", () => {
   it("renders the arcade records with the rank ladder of the highlighted game", () => {
     const save = createNewGameSave("janine95kim"); save.bests.sum10 = 100;
     const html = plain(renderToString(<CollectionBook save={save} hiddenUnlocked={false} onClose={noop} />));
-    expect(html).toContain("잔디동 도감"); expect(html).toContain("축구공 합 10"); expect(html).toContain("합격 조건 충족");
+    expect(html).toContain("잔디동 도감"); expect(html).toContain("축구공 사과게임"); expect(html).toContain("합격 조건 충족");
     for (const rank of ["입구컷", "합격 불투명", "상현급", "에이스급", "반장급", "운영급", "회장"]) expect(html).toContain(rank);
     expect(html).toContain("130점 이상"); expect(html).toContain("아직 기록 없음");
   });
@@ -237,7 +237,7 @@ describe("S5 panels", () => {
     const html = plain(renderToString(<DailyBoard save={save} onClaim={noop} onClose={noop} />));
     expect(html.match(/world-daily__task is-done/g)).toHaveLength(1);
     expect(html.match(/world-daily__task is-todo/g)).toHaveLength(2);
-    expect(html).toContain("합 10 40점"); expect(html).toContain("1/3");
+    expect(html).toContain("축구공 사과게임 40점"); expect(html).toContain("1/3");
     expect(html).toContain("스탬프 받기"); expect(html).toMatch(/<button[^>]*disabled=""[^>]*>스탬프 받기/);
   });
   it("opens the claim once all three are done, and shuts the board before the ending", () => {

@@ -89,7 +89,7 @@ export const MISSION_SCRIPTS: Readonly<Record<string, MissionScript>> = {
 
   // members (02 §7)
   "m-doormomo-sum10": {
-    offer: ["잔디 조각? 줄 수 있지. 대신 내 계산 속도를 따라와 봐. 합 10 게임에서 60점 이상, 어때?"],
+    offer: ["잔디 조각? 줄 수 있지. 대신 내 계산 속도를 따라와 봐. 축구공 사과게임에서 60점 이상, 어때?"],
     accept: "좋아. 오락실 1번 기계야. 큰 숫자부터 보지 마.",
     active: ["아직이야? 큰 숫자부터 보지 말고 작은 숫자 짝을 먼저 잡아 봐."],
     complete: [["…인정. 빠르네, {player}. 자, 잔디 조각이야. 나머지도 잘 부탁해.", "happy"]],

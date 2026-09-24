@@ -8,8 +8,8 @@ export const kstDate = (now: number) => new Date(now + 9 * 3600000).toISOString(
  */
 export interface DailyTask { id: string; label: string; group: string; game?: MinigameRoundResult["game"]; min?: number; max?: number; prefix?: string; need?: number }
 export const DAILY_TASKS: readonly DailyTask[] = [
-  { id: "sum10", label: "합 10 40점", group: "sum10", game: "soccer-sum10", min: 40 },
-  { id: "sum10-hard", label: "합 10 70점", group: "sum10", game: "soccer-sum10", min: 70 },
+  { id: "sum10", label: "축구공 사과게임 40점", group: "sum10", game: "soccer-sum10", min: 40 },
+  { id: "sum10-hard", label: "축구공 사과게임 70점", group: "sum10", game: "soccer-sum10", min: 70 },
   { id: "kickups", label: "공 튀기기 10회", group: "kickups", game: "kickups", min: 10 },
   { id: "kickups-hard", label: "공 튀기기 20회", group: "kickups", game: "kickups", min: 20 },
   { id: "freekick", label: "프리킥 3골", group: "freekick", game: "freekick", min: 3 },
