@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import type { OneVsOneApplicationView, StreamerRecord } from "../shared/model.js";
 import { buildDivisionListText } from "./appHelpers";
 import { downloadStreamersXlsx } from "./xlsx-export.js";
@@ -14,6 +14,7 @@ import {
 } from "./storage";
 
 import { useDashboardSnapshot } from "./useDashboardSnapshot";
+import { consumeEntryNotice } from "./entryNotice";
 import { useToast } from "./useToast";
 import { useTheme } from "./useTheme";
 import { useCursorPlayer } from "./useCursorPlayer";
@@ -92,7 +93,7 @@ const WorldOverlay = lazy(() => import("./world/WorldOverlay"));
 // 아래 잔디동 LED 티커 + 단체샷으로 임시 교체 — 다른 코드는 삭제되지 않았음.
 const SHOW_PHOTO_BOOTH_CELEBRATION = false;
 
-export function App() {
+export function App({ onGoPitch }: { onGoPitch?: () => void } = {}) {
   const { snapshot, loading: snapshotLoading } = useDashboardSnapshot();
   const { view, setView } = useView();
   const [selected, setSelected] = useState<StreamerRecord>();
@@ -120,6 +121,12 @@ export function App() {
   const [activeMinigame, setActiveMinigame] = useState<"kickups" | "freekick" | "cardmatch" | "soccer-sum10" | "grass-merge" | "keeper-breakout" | "football-match3" | "football-rules-quiz" | null>(null);
 
   const { toast, showToast } = useToast();
+  // The pitch hands over a one-shot message when it fell back to this dashboard (docs/pitch/01 §9).
+  useEffect(() => {
+    const notice = consumeEntryNotice();
+    if (notice) showToast(notice);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [woowakgoodAnnounceVisible, setWoowakgoodAnnounceVisible] = useState(false);
   const woowakgoodUnlocked = useWoowakgoodBonusUnlock(snapshot?.streamers, () =>
     setWoowakgoodAnnounceVisible(true),
@@ -220,6 +227,7 @@ export function App() {
         onUniformOpen={() => setUniformCustomizerOpen(true)}
         onTrophyOpen={() => setTrophyOpen(true)}
         onStadiumOpen={() => setStadiumShowcaseOpen(true)}
+        onGoPitch={onGoPitch}
       />
       {woowakgoodUnlocked && (
         <WoowakgoodBonusButton onOpen={() => setTotyCardStreamer(WOOWAKGOOD_BONUS_STREAMER)} />

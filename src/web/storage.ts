@@ -927,3 +927,149 @@ export function savePositionTestName(name: string) {
     // ignore storage failures (e.g. private browsing)
   }
 }
+
+// ── 피치(2D 픽셀 축구 진입 화면) — docs/pitch/01 §5 ─────────────────────────────────────────────
+export type EntryMode = "pitch" | "dashboard";
+
+/**
+ * When localStorage cannot be written (private mode, quota, blocked site data) the value lives here for the rest of
+ * the session, so the pitch still remembers the mode, character, sound settings and stats until the tab closes
+ * (docs/pitch/01 §9). A successful write drops the entry, so working storage is always the source of truth.
+ */
+const pitchMemory = new Map<string, string>();
+
+function pitchRead(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch (error) {
+    // no localStorage object at all (non-browser) is not "blocked storage": nothing to fall back to
+    return error instanceof ReferenceError ? null : (pitchMemory.get(key) ?? null);
+  }
+}
+
+function pitchWrite(key: string, value: string) {
+  try {
+    localStorage.setItem(key, value);
+    pitchMemory.delete(key);
+  } catch (error) {
+    if (!(error instanceof ReferenceError)) pitchMemory.set(key, value);
+  }
+}
+
+/** Test hook: forgets the in-memory fallback values. */
+export function resetPitchStorageMemory() {
+  pitchMemory.clear();
+}
+
+export const ENTRY_MODE_STORAGE_KEY = "fc26-entry-mode";
+export const PITCH_CHARACTER_STORAGE_KEY = "fc26-pitch-character";
+export const PITCH_SETTINGS_STORAGE_KEY = "fc26-pitch-settings-v1";
+export const DEFAULT_PITCH_CHARACTER = "woowakgood";
+
+export interface PitchSettings {
+  sfxVolume: number;
+  musicVolume: number;
+  sfxOn: boolean;
+  musicOn: boolean;
+}
+
+export const DEFAULT_PITCH_SETTINGS: PitchSettings = {
+  sfxVolume: 0.8,
+  musicVolume: 0.5,
+  sfxOn: true,
+  musicOn: true,
+};
+
+/** The saved entry mode, or null when nothing valid is stored (the caller then applies its own default). */
+export function loadEntryMode(): EntryMode | null {
+  try {
+    const value = pitchRead(ENTRY_MODE_STORAGE_KEY);
+    return value === "pitch" || value === "dashboard" ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveEntryMode(mode: EntryMode) {
+  pitchWrite(ENTRY_MODE_STORAGE_KEY, mode);
+}
+
+/**
+ * The chosen pitch character id. Only the shape is checked here (the 12-character registry arrives with
+ * P5, which must also correct ids it does not know); anything unreadable falls back to the default.
+ */
+export function loadPitchCharacter(): string {
+  try {
+    const value = pitchRead(PITCH_CHARACTER_STORAGE_KEY);
+    return value && /^[a-z0-9][a-z0-9_-]{0,63}$/.test(value) ? value : DEFAULT_PITCH_CHARACTER;
+  } catch {
+    return DEFAULT_PITCH_CHARACTER;
+  }
+}
+
+export function savePitchCharacter(id: string) {
+  pitchWrite(PITCH_CHARACTER_STORAGE_KEY, id);
+}
+
+function clampUnit(value: unknown, fallback: number): number {
+  return typeof value === "number" && Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : fallback;
+}
+
+export function loadPitchSettings(): PitchSettings {
+  try {
+    const raw = pitchRead(PITCH_SETTINGS_STORAGE_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : null;
+    if (!parsed || typeof parsed !== "object") return { ...DEFAULT_PITCH_SETTINGS };
+    const data = parsed as Record<string, unknown>;
+    return {
+      sfxVolume: clampUnit(data.sfxVolume, DEFAULT_PITCH_SETTINGS.sfxVolume),
+      musicVolume: clampUnit(data.musicVolume, DEFAULT_PITCH_SETTINGS.musicVolume),
+      sfxOn: typeof data.sfxOn === "boolean" ? data.sfxOn : DEFAULT_PITCH_SETTINGS.sfxOn,
+      musicOn: typeof data.musicOn === "boolean" ? data.musicOn : DEFAULT_PITCH_SETTINGS.musicOn,
+    };
+  } catch {
+    return { ...DEFAULT_PITCH_SETTINGS };
+  }
+}
+
+export function savePitchSettings(settings: PitchSettings) {
+  pitchWrite(PITCH_SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+}
+
+// ── 피치 누적 기록 — docs/pitch/01 §5 (fc26-pitch-stats-v1) ─────────────────────────────────────
+export const PITCH_STATS_STORAGE_KEY = "fc26-pitch-stats-v1";
+
+export interface PitchStats {
+  goals: number;
+  saves: number;
+  /** Longest run of consecutive goals. */
+  bestStreak: number;
+  shots: number;
+}
+
+export const DEFAULT_PITCH_STATS: PitchStats = { goals: 0, saves: 0, bestStreak: 0, shots: 0 };
+
+function countOr(value: unknown, fallback: number): number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 ? Math.floor(value) : fallback;
+}
+
+export function loadPitchStats(): PitchStats {
+  try {
+    const raw = pitchRead(PITCH_STATS_STORAGE_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : null;
+    if (!parsed || typeof parsed !== "object") return { ...DEFAULT_PITCH_STATS };
+    const data = parsed as Record<string, unknown>;
+    return {
+      goals: countOr(data.goals, 0),
+      saves: countOr(data.saves, 0),
+      bestStreak: countOr(data.bestStreak, 0),
+      shots: countOr(data.shots, 0),
+    };
+  } catch {
+    return { ...DEFAULT_PITCH_STATS };
+  }
+}
+
+export function savePitchStats(stats: PitchStats) {
+  pitchWrite(PITCH_STATS_STORAGE_KEY, JSON.stringify(stats));
+}

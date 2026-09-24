@@ -1,0 +1,24 @@
+/* "피치로 돌아가기" — 대시보드 상단바의 임시 버튼(P1). 실제 아트(ui-buttons return-to-pitch)는 이후 세션에서 교체.
+   WorldToggle(좌상단 고정)과 달리 topbar__actions 안(우측)에 있어 겹치지 않는다. */
+.pitch-return {
+  display: inline-flex;
+  height: 39px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  border: 1px solid var(--accent-border);
+  border-radius: 4px;
+  color: var(--accent-text);
+  background: var(--fill-faint);
+  font: 12px "Galmuri11", "Noto Sans KR", monospace;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: .2s;
+}
+.pitch-return svg { width: 19px; height: 19px; stroke-width: 2.4; }
+.pitch-return:hover, .pitch-return:focus-visible { color: #fff; background: #00e9ae18; box-shadow: 0 0 0 3px #00e9ae12; outline: 0; }
+.pitch-return:focus-visible { outline: 2px solid #ffd54a; outline-offset: 2px; }
+@media (max-width: 680px) {
+  .pitch-return { width: 35px; height: 35px; justify-content: center; padding: 0; }
+  .pitch-return__label { display: none; }
+}

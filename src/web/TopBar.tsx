@@ -1,14 +1,18 @@
-import { Castle, Shirt, Trophy } from "lucide-react";
+import { Castle, Goal, Shirt, Trophy } from "lucide-react";
 import { AnnouncementWidget } from "./AnnouncementModal";
+import "./pitch-return.css";
 
 export function TopBar({
   onUniformOpen,
   onTrophyOpen,
   onStadiumOpen,
+  onGoPitch,
 }: {
   onUniformOpen: () => void;
   onTrophyOpen: () => void;
   onStadiumOpen: () => void;
+  /** Present only when the dashboard was entered through the pitch gate (Root); shows the way back. */
+  onGoPitch?: () => void;
 }) {
   return (
     <header className="topbar">
@@ -21,6 +25,12 @@ export function TopBar({
         <AnnouncementWidget />
       </div>
       <div className="topbar__actions">
+        {onGoPitch && (
+          <button className="pitch-return" type="button" onClick={onGoPitch} aria-label="피치로 돌아가기">
+            <Goal aria-hidden="true" />
+            <span className="pitch-return__label">피치로 돌아가기</span>
+          </button>
+        )}
         <button
           className="stadium-toggle"
           type="button"

@@ -66,6 +66,10 @@ export function CursorOverlay({ playerId }: { playerId: CursorPlayerId }) {
         };
         target.style.setProperty("cursor", "none", "important");
       }
+      // Canvas-driven surfaces (the pitch) cannot change their CSS cursor without undoing the suppression above,
+      // so they publish the glyph they want in data-cursor-role instead; re-read on every move.
+      const forced = target.closest<HTMLElement>("[data-cursor-role]")?.dataset.cursorRole;
+      if (forced) setRole(cursorRoleFromCss(forced));
       const overlay = overlayRef.current;
       if (overlay) overlay.style.transform = `translate3d(${event.clientX}px, ${event.clientY}px, 0)`;
       setVisible(true);

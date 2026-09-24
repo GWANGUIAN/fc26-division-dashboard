@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { App } from "./App.js";
+import { Root } from "./Root.js";
 import { TotyCardCapturePage } from "./toty-card/TotyCardCapturePage.js";
 import { WOOWAKGOOD_ASCII_ART } from "./asciiArt.generated.js";
 import "./styles.css";
@@ -13,5 +13,5 @@ console.log("형 사랑해");
 const isTotyCapture = new URLSearchParams(window.location.search).has("totyCapture");
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>{isTotyCapture ? <TotyCardCapturePage /> : <App />}</StrictMode>,
+  <StrictMode>{isTotyCapture ? <TotyCardCapturePage /> : <Root />}</StrictMode>,
 );
