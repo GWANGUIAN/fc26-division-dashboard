@@ -17,6 +17,7 @@
     "convert:hof-art": "node scripts/convert-hall-of-fame-art.mjs",
     "convert:world-art": "node scripts/convert-world-art.mjs",
     "convert:cursor-art": "node scripts/convert-cursor-art.mjs",
+    "build:windows-cursors": "node scripts/build-windows-cursors.mjs",
     "convert:minigame-art": "node scripts/convert-minigame-art.mjs",
     "convert:title-frame": "node scripts/convert-title-frame-art.mjs",
     "sync:comments-roster": "node scripts/sync-roster-from-comments-xlsx.mjs",

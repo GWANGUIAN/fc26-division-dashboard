@@ -72,6 +72,11 @@ const previewAssets = import.meta.glob<string>("./assets/cursors/*/preview.webp"
   query: "?url&no-inline",
   import: "default",
 });
+const windowsCursorPackAssets = import.meta.glob<string>("./assets/cursors/*/windows-cursor-pack.zip", {
+  eager: true,
+  query: "?url&no-inline",
+  import: "default",
+});
 
 export function isCursorPlayerId(value: unknown): value is CursorPlayerId {
   return typeof value === "string" && (CURSOR_PLAYER_IDS as readonly string[]).includes(value);
@@ -89,6 +94,7 @@ export function cursorAssetUrls(id: CursorPlayerId): {
   glyph: Partial<Record<CursorGlyphRole, string>>;
   motion?: string;
   preview?: string;
+  windowsPack?: string;
 } {
   const glyph = Object.fromEntries(
     ([
@@ -104,6 +110,7 @@ export function cursorAssetUrls(id: CursorPlayerId): {
     glyph,
     motion: motionAssets[`./assets/cursors/${id}/motion-strip.webp`],
     preview: previewAssets[`./assets/cursors/${id}/preview.webp`],
+    windowsPack: windowsCursorPackAssets[`./assets/cursors/${id}/windows-cursor-pack.zip`],
   };
 }
 

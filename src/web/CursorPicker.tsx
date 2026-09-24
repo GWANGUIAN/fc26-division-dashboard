@@ -1,8 +1,9 @@
-import { MousePointer2, X } from "lucide-react";
+import { Download, MousePointer2, X } from "lucide-react";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import {
   CURSOR_PLAYERS,
   cursorAssetUrls,
+  getCursorPlayer,
   NATIVE_CURSOR_SELECTION_ID,
   type CursorSelectionId,
 } from "./cursorCatalog";
@@ -45,6 +46,8 @@ export function CursorPicker({
     }
     setOpen((current) => !current);
   };
+  const selectedPlayer = playerId === NATIVE_CURSOR_SELECTION_ID ? undefined : getCursorPlayer(playerId);
+  const selectedPack = selectedPlayer ? cursorAssetUrls(selectedPlayer.id).windowsPack : undefined;
 
   return (
     <div className="cursor-picker" ref={rootRef}>
@@ -70,7 +73,7 @@ export function CursorPicker({
             <button
               type="button"
               className={`cursor-picker__player cursor-picker__player--default ${playerId === NATIVE_CURSOR_SELECTION_ID ? "cursor-picker__player--selected" : ""}`}
-              onClick={() => { onPlayerChange(NATIVE_CURSOR_SELECTION_ID); setOpen(false); }}
+              onClick={() => onPlayerChange(NATIVE_CURSOR_SELECTION_ID)}
               aria-pressed={playerId === NATIVE_CURSOR_SELECTION_ID}
             >
               <span className="cursor-picker__native-preview" aria-hidden="true"><MousePointer2 /></span>
@@ -85,7 +88,7 @@ export function CursorPicker({
                   key={player.id}
                   type="button"
                   className={`cursor-picker__player ${selected ? "cursor-picker__player--selected" : ""}`}
-                  onClick={() => { onPlayerChange(player.id); setOpen(false); }}
+                  onClick={() => onPlayerChange(player.id)}
                   aria-pressed={selected}
                   style={{ "--cursor-accent": player.accent } as CSSProperties}
                 >
@@ -98,6 +101,11 @@ export function CursorPicker({
               );
             })}
           </div>
+          {selectedPlayer && selectedPack && (
+            <a className="cursor-picker__download" href={selectedPack} download={`fc26-${selectedPlayer.id}-windows-cursor-pack.zip`}>
+              <Download aria-hidden="true" /> {selectedPlayer.name} Windows 커서 팩 다운로드
+            </a>
+          )}
         </section>
       )}
     </div>

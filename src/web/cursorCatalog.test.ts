@@ -26,6 +26,7 @@ describe("player cursor catalogue", () => {
       expect(assets.glyph.default).toBeTruthy();
       expect(assets.preview).toBeTruthy();
       expect(assets.motion).toBeTruthy();
+      expect(assets.windowsPack).toBeTruthy();
     }
   });
 });

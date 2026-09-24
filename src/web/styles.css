@@ -1288,7 +1288,11 @@ body { isolation: isolate; }
 .cursor-picker__badge { position: absolute; bottom: calc(100% + 12px); left: -4px; z-index: 1; width: max-content; max-width: min(210px, calc(100vw - 40px)); padding: 7px 10px; border: 1px solid #00e9ae8c; border-radius: 10px; color: #073126; background: #effff9; box-shadow: 0 8px 20px rgba(var(--shadow-color), .35); font: 800 12px/1.25 "Noto Sans KR", sans-serif; letter-spacing: -.02em; pointer-events: none; white-space: nowrap; }
 .cursor-picker__badge::after { position: absolute; top: 100%; left: 17px; width: 9px; height: 9px; border-right: 1px solid #00e9ae8c; border-bottom: 1px solid #00e9ae8c; background: #effff9; content: ""; transform: translateY(-5px) rotate(45deg); }
 @keyframes cursor-picker-nudge { 0%, 58%, 100% { transform: translateY(0); } 65% { transform: translateY(-4px); } 72% { transform: translateY(0); } 79% { transform: translateY(-2px); } }
-.cursor-picker__panel { position: absolute; bottom: calc(100% + 12px); left: 0; z-index: 100; width: min(342px, calc(100vw - 40px)); max-height: min(470px, calc(100vh - 90px)); overflow: auto; padding: 12px; border: 1px solid #00e9ae62; border-radius: 14px; background: linear-gradient(150deg, var(--surface-3), var(--surface-3-alt) 60%); box-shadow: 0 20px 60px rgba(var(--shadow-color), .62); animation: cursor-picker-in .18s ease-out; }
+.cursor-picker__panel { position: absolute; bottom: calc(100% + 12px); left: 0; z-index: 100; width: min(402px, calc(100vw - 40px)); max-height: none; overflow: visible; padding: 12px; border: 1px solid #00e9ae62; border-radius: 14px; scrollbar-width: thin; scrollbar-color: #00e9ae8c transparent; background: linear-gradient(150deg, var(--surface-3), var(--surface-3-alt) 60%); box-shadow: 0 20px 60px rgba(var(--shadow-color), .62); animation: cursor-picker-in .18s ease-out; }
+.cursor-picker__panel::-webkit-scrollbar { width: 8px; }
+.cursor-picker__panel::-webkit-scrollbar-track { margin: 9px 0; border-radius: 999px; background: transparent; }
+.cursor-picker__panel::-webkit-scrollbar-thumb { border: 2px solid var(--surface-3); border-radius: 999px; background: #00e9ae8c; }
+.cursor-picker__panel::-webkit-scrollbar-thumb:hover { background: var(--accent-text); }
 @keyframes cursor-picker-in { from { opacity: 0; transform: translateY(6px) scale(.95); } to { opacity: 1; transform: none; } }
 .cursor-picker__heading { display: flex; align-items: center; justify-content: space-between; margin: 0 2px 10px; color: var(--text-primary); }
 .cursor-picker__heading div { display: grid; gap: 2px; }
@@ -1297,8 +1301,12 @@ body { isolation: isolate; }
 .cursor-picker__heading button { display: grid; width: 28px; height: 28px; padding: 0; border: 0; place-items: center; border-radius: 50%; color: var(--text-secondary); background: transparent; }
 .cursor-picker__heading button:hover, .cursor-picker__heading button:focus-visible { color: var(--accent-text); background: #00e9ae14; outline: 0; }
 .cursor-picker__heading svg { width: 16px; height: 16px; }
-.cursor-picker__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.cursor-picker__player { display: grid; min-height: 72px; padding: 6px; border: 1px solid var(--border-default); border-radius: 9px; place-items: center; gap: 3px; color: var(--text-secondary); background: var(--fill-faint); font: 700 11px/1 "Noto Sans KR", sans-serif; transition: border-color .15s, background-color .15s, transform .15s; }
+.cursor-picker__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.cursor-picker__download { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; margin-top: 10px; padding: 9px 10px; border: 1px solid #00e9ae70; border-radius: 8px; color: var(--accent-text); background: #00e9ae10; font: 800 11px/1.2 "Noto Sans KR", sans-serif; text-decoration: none; transition: border-color .15s, background-color .15s, transform .15s; }
+.cursor-picker__download:hover, .cursor-picker__download:focus-visible { border-color: var(--accent-border); background: #00e9ae1f; outline: 0; }
+.cursor-picker__download:active { transform: scale(.98); }
+.cursor-picker__download svg { width: 15px; height: 15px; }
+.cursor-picker__player { display: grid; min-height: 66px; padding: 5px; border: 1px solid var(--border-default); border-radius: 9px; place-items: center; gap: 2px; color: var(--text-secondary); background: var(--fill-faint); font: 700 11px/1 "Noto Sans KR", sans-serif; transition: border-color .15s, background-color .15s, transform .15s; }
 .cursor-picker__player:hover, .cursor-picker__player:focus-visible { border-color: var(--cursor-accent); background: color-mix(in srgb, var(--cursor-accent) 14%, transparent); color: var(--text-primary); outline: 0; }
 .cursor-picker__player:active { transform: scale(.96); }
 .cursor-picker__player--selected { border-color: var(--cursor-accent); box-shadow: inset 0 0 0 1px var(--cursor-accent), 0 0 12px color-mix(in srgb, var(--cursor-accent) 30%, transparent); color: var(--text-primary); }
@@ -1311,6 +1319,7 @@ body { isolation: isolate; }
 .cursor-picker__preview-character { position: absolute; right: 0; bottom: 0; width: 27px; height: 27px; object-fit: contain; image-rendering: pixelated; }
 .cursor-picker__preview-glyph-fallback { position: absolute; top: 2px; left: 2px; width: 0; height: 0; border-top: 12px solid var(--cursor-accent); border-right: 8px solid transparent; filter: drop-shadow(1px 1px #16302e); }
 .cursor-picker__preview-character-fallback { position: absolute; right: 2px; bottom: 2px; width: 17px; height: 17px; border: 2px solid #16302e; border-radius: 45% 45% 42% 42%; background: var(--cursor-accent); box-shadow: 0 -8px 0 -2px var(--cursor-accent), 0 -8px 0 0 #16302e; }
+@media (max-height: 520px) and (hover: hover) and (pointer: fine) { .cursor-picker__panel { max-height: calc(100vh - 24px); overflow-y: auto; } }
 .cursor-overlay { position: fixed; z-index: 10000; top: 0; left: 0; width: 57.6px; height: 57.6px; opacity: 0; pointer-events: none; will-change: transform; image-rendering: pixelated; transition: opacity .08s linear; }
 .cursor-overlay--visible { opacity: 1; }
 .cursor-overlay__glyph { position: absolute; top: 0; left: 0; width: 23.04px; height: 23.04px; object-fit: contain; object-position: top left; image-rendering: pixelated; }

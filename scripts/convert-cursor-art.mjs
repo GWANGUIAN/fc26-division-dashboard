@@ -41,8 +41,55 @@ async function normalized(file) {
   return { input: sharp(Buffer.from(pixels), { raw: { width: info.width, height: info.height, channels: 4 } }), info, keyed };
 }
 
-async function alphaBox(image) {
+function removeEdgeBleed(data, width, height) {
+  const alphaAt = (x, y) => data[(y * width + x) * 4 + 3] >= 32;
+  const seen = new Uint8Array(width * height);
+  const components = [];
+  for (let start = 0; start < seen.length; start++) {
+    if (seen[start]) continue;
+    const startX = start % width, startY = Math.floor(start / width);
+    if (!alphaAt(startX, startY)) { seen[start] = 1; continue; }
+    const pixels = [];
+    const queue = [start];
+    seen[start] = 1;
+    let left = startX, right = startX, top = startY, bottom = startY;
+    for (let index = 0; index < queue.length; index++) {
+      const point = queue[index];
+      const x = point % width, y = Math.floor(point / width);
+      pixels.push(point);
+      left = Math.min(left, x); right = Math.max(right, x); top = Math.min(top, y); bottom = Math.max(bottom, y);
+      for (let yOffset = -1; yOffset <= 1; yOffset++) for (let xOffset = -1; xOffset <= 1; xOffset++) {
+        if (xOffset === 0 && yOffset === 0) continue;
+        const nextX = x + xOffset, nextY = y + yOffset;
+        if (nextX < 0 || nextY < 0 || nextX >= width || nextY >= height) continue;
+        const next = nextY * width + nextX;
+        if (seen[next] || !alphaAt(nextX, nextY)) continue;
+        seen[next] = 1;
+        queue.push(next);
+      }
+    }
+    components.push({ pixels, left, right, top, bottom });
+  }
+  const largest = Math.max(0, ...components.map((component) => component.pixels.length));
+  const edge = Math.max(2, Math.floor(Math.min(width, height) * .04));
+  let removed = 0;
+  for (const component of components) {
+    if (component.pixels.length === largest) continue;
+    const touchesHorizontal = component.left <= edge || component.right >= width - edge - 1;
+    const touchesVertical = component.top <= edge || component.bottom >= height - edge - 1;
+    const touchesCorner = touchesHorizontal && touchesVertical;
+    const isTinyBoundaryNoise = (touchesHorizontal || touchesVertical) && component.pixels.length <= Math.max(40, largest * .035);
+    const isCornerBleed = touchesCorner && component.pixels.length <= largest * .25;
+    if (!isTinyBoundaryNoise && !isCornerBleed) continue;
+    for (const point of component.pixels) data[point * 4 + 3] = 0;
+    removed += component.pixels.length;
+  }
+  return removed;
+}
+
+async function alphaBox(image, removeMotionEdgeBleed = false) {
   const { data, info } = await image.clone().ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const removed = removeMotionEdgeBleed ? removeEdgeBleed(data, info.width, info.height) : 0;
   const { width, height } = info;
   let left = width, top = height, right = -1, bottom = -1;
   for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
@@ -53,11 +100,12 @@ async function alphaBox(image) {
     data,
     info,
     box: right < left ? null : { left, top, width: right - left + 1, height: bottom - top + 1 },
+    removed,
   };
 }
 
-async function renderSprite(cell, size, align = "centre") {
-  const { data, info, box } = await alphaBox(cell);
+async function renderSprite(cell, size, align = "centre", removeMotionEdgeBleed = false) {
+  const { data, info, box, removed } = await alphaBox(cell, removeMotionEdgeBleed);
   if (!box) return { image: sharp({ create: { width: size, height: size, channels: 4, background: "#00000000" } }), empty: true };
   // A second extract on a Sharp pipeline can be resolved against its original input rather than
   // the preceding grid crop. Rehydrate the already-cropped raw cell before trimming it again.
@@ -73,6 +121,7 @@ async function renderSprite(cell, size, align = "centre") {
       top: align === "top-left" ? 0 : size - height,
     }]),
     empty: false,
+    removed,
   };
 }
 
@@ -104,8 +153,9 @@ async function convert(id) {
   const frames = [];
   for (let index = 0; index < 12; index++) {
     const cell = motionSource.input.clone().extract({ left: index % 4 * motionCellW, top: Math.floor(index / 4) * motionCellH, width: motionCellW, height: motionCellH });
-    const rendered = await renderSprite(cell, 32);
+    const rendered = await renderSprite(cell, 32, "centre", true);
     if (rendered.empty) console.warn(`! ${id}: empty motion frame ${index + 1}`);
+    if (rendered.removed) console.log(`  ${id}: removed ${rendered.removed} edge-noise pixels from frame ${index + 1}`);
     frames.push(await rendered.image.png().toBuffer());
   }
   await sharp({ create: { width: 32 * 12, height: 32, channels: 4, background: "#00000000" } })
