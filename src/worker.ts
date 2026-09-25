@@ -33,6 +33,8 @@ const SOOP_LIVE_CACHE_SECONDS = 115;
 const SOOP_LIVE_CACHE_VERSION = "v3";
 // Hard cap per sooplive category request; a hung upstream must not hang the rail.
 const SOOP_LIVE_UPSTREAM_TIMEOUT_MS = 4_000;
+// If sooplive has not answered by then, ask again in parallel (see fetchSoopLiveCategory).
+const SOOP_LIVE_HEDGE_MS = 1_200;
 // Last complete snapshot, only served when sooplive itself is failing.
 const SOOP_LIVE_STALE_SECONDS = 1_800;
 // The world's ON AIR signs poll on the same 2-minute rhythm as the LIVE rail.
@@ -223,18 +225,41 @@ async function serveSoopLive(request: Request, ctx: ExecutionContext): Promise<R
   return response;
 }
 
-/** One category's live list, or undefined when sooplive errored, timed out or sent something unparseable. */
+/**
+ * One category's live list, or undefined when sooplive errored, timed out or sent something unparseable.
+ *
+ * sooplive intermittently never answers a Worker's request (a hung connection, not a slow one: the same
+ * call normally returns in ~0.1s). Waiting it out is what left the LIVE rail pending for tens of seconds,
+ * so a second identical request is fired if the first has not answered after SOOP_LIVE_HEDGE_MS and
+ * whichever succeeds first wins. Both are abandoned at SOOP_LIVE_UPSTREAM_TIMEOUT_MS.
+ */
 async function fetchSoopLiveCategory(categoryNo: string): Promise<SoopLiveApiEntry[] | undefined> {
-  try {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), SOOP_LIVE_UPSTREAM_TIMEOUT_MS);
+  let settled = false;
+  const attempt = async (): Promise<SoopLiveApiEntry[]> => {
     const upstream = await fetch(soopLiveCategoryUrl(categoryNo), {
       headers: { Accept: "application/json", Referer: "https://www.sooplive.com/" },
-      signal: AbortSignal.timeout(SOOP_LIVE_UPSTREAM_TIMEOUT_MS),
+      signal: controller.signal,
     });
-    if (!upstream.ok) return undefined;
+    if (!upstream.ok) throw new Error(`soop live category ${categoryNo}: ${upstream.status}`);
     const payload = await upstream.json() as { data?: { list?: SoopLiveApiEntry[] } };
     return payload.data?.list ?? [];
+  };
+  const hedge = new Promise<SoopLiveApiEntry[]>((resolve, reject) => {
+    setTimeout(() => {
+      if (settled) reject(new Error("hedge not needed"));
+      else attempt().then(resolve, reject);
+    }, SOOP_LIVE_HEDGE_MS);
+  });
+  try {
+    return await Promise.any([attempt(), hedge]);
   } catch {
     return undefined;
+  } finally {
+    settled = true;
+    clearTimeout(timeout);
+    controller.abort();
   }
 }
 
