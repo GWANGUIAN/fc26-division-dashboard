@@ -11,7 +11,7 @@ import type { KeyInput, PointerInput, Scene, SceneCtx } from "../engine/sceneMan
 import { drawFrame } from "../engine/sprite";
 import { LOGICAL_HEIGHT, LOGICAL_WIDTH } from "../engine/stage";
 import { drawText, TEXT_COLORS } from "../engine/text";
-import { ANALYZER, EXIT_DOOR, EXIT_DOOR_SCALE, LOCKER_PLAYER_SCALE, LOCKER_SPAWN, PROP_SCALE, nearAnalyzer, nearExit, resolveBoxes } from "../game/locker";
+import { ANALYZER, LOCKER_PLAYER_SCALE, LOCKER_SPAWN, PROP_SCALE, nearAnalyzer, nearExit, resolveBoxes } from "../game/locker";
 import { createPlayer, playerPose, stepPlayer, type PlayerState } from "../game/player";
 import { depthScale } from "../game/tuning";
 import { CharacterSelectScene } from "./CharacterSelectScene";
@@ -241,7 +241,7 @@ export class LockerScene implements Scene {
   render(g: CanvasRenderingContext2D) {
     this.drawBackground(g);
     if (this.ready) {
-      this.drawExitDoor(g);
+      this.drawExitGlow(g);
       this.drawSorted(g);
     } else this.drawLoading(g);
     if (!this.statOpen) {
@@ -251,7 +251,9 @@ export class LockerScene implements Scene {
       g.fillStyle = "rgba(10, 10, 26, 0.85)";
       g.fillRect(Math.round(LOGICAL_WIDTH / 2 - titleW / 2), 24, titleW, 32);
       drawText(g, "LOCKER ROOM", LOGICAL_WIDTH / 2, 40, { size: 20, color: TEXT_COLORS.gold, align: "center", baseline: "middle" });
-      drawText(g, "방향키 이동 · E 상호작용 · Tab 캐릭터 변경 · Esc 나가기", LOGICAL_WIDTH / 2, 496, { size: 10, color: "#9fe9ff", align: "center", baseline: "middle" });
+      // two short lines in the bottom-left wall band (the tunnel mouth takes the middle of the bottom edge)
+      drawText(g, "방향키 이동 · E 상호작용", 16, 510, { size: 10, color: "#9fe9ff", baseline: "middle" });
+      drawText(g, "Tab 캐릭터 변경 · Esc 나가기", 16, 526, { size: 10, color: "#9fe9ff", baseline: "middle" });
     }
     this.drawPromptBubble(g);
     drawHudButtons(g, (key) => this.image(key), HUD_BUTTONS, { hovered: this.hovered, pressed: this.pressed });
@@ -277,14 +279,14 @@ export class LockerScene implements Scene {
     g.restore();
   }
 
-  private drawExitDoor(g: CanvasRenderingContext2D) {
-    const open = this.interaction() === "exit" || this.exiting;
-    const door = this.image(open ? "env/exit-open" : "env/exit-closed");
-    if (door) {
-      const w = Math.round(door.width * EXIT_DOOR_SCALE);
-      const h = Math.round(door.height * EXIT_DOOR_SCALE);
-      g.drawImage(door, Math.round(EXIT_DOOR.baseX - w / 2), Math.round(EXIT_DOOR.baseY - h), w, h);
-    }
+  /** The exit is the tunnel mouth painted into `env/locker-bg` (x 387~572, y 420~540): near it, its warm light pulses brighter. */
+  private drawExitGlow(g: CanvasRenderingContext2D) {
+    if (this.interaction() !== "exit" && !this.exiting) return;
+    g.save();
+    g.globalAlpha = 0.1 + 0.06 * Math.sin(this.clock * 6);
+    g.fillStyle = "#ffc450";
+    g.fillRect(390, 424, 180, 116);
+    g.restore();
   }
 
   /** Props, the analyzer and the player back to front by their feet y. */

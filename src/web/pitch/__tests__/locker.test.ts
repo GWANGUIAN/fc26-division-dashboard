@@ -59,8 +59,8 @@ describe("locker room interaction radii", () => {
     expect(withinCircle(0, 0, { x: 3, y: 4, r: 5 })).toBe(true);
   });
 
-  it("starts the player at (480, 470), inside the exit prompt and clear of the analyzer", () => {
-    expect(LOCKER_SPAWN).toEqual({ x: 480, y: 470 });
+  it("starts the player at (480, 450), inside the exit prompt and clear of the analyzer", () => {
+    expect(LOCKER_SPAWN).toEqual({ x: 480, y: 450 });
     expect(lockerTargetAt(LOCKER_SPAWN.x, LOCKER_SPAWN.y)).toBe("exit");
     expect(lockerTargetAt(480, 300)).toBeNull();
   });

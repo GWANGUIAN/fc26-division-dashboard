@@ -19,7 +19,7 @@ export interface Rect {
 }
 
 /** Centre and circumradius of the hexagon in logical px (03 §5). */
-export const HEX = { cx: 276, cy: 304, radius: 140, rings: 6 } as const;
+export const HEX = { cx: 276, cy: 290, radius: 140, rings: 6 } as const;
 
 /** The polygon stands for this fraction of every axis until real values exist (03 §5 "60% 균일"). */
 export const PLACEHOLDER_FILL = 0.6;
@@ -32,12 +32,12 @@ export const SELECTED_NODE_INSET = 23;
  * frame's bolts. Index = axis: 12 o'clock, 2, 4~5, 6, 7~8, 10 o'clock.
  */
 export const NODE_NUDGE: ReadonlyArray<Readonly<{ x: number; y: number }>> = [
-  { x: 0, y: -2 },
+  { x: -1, y: -2 },
   { x: 6, y: 7 },
-  { x: 6, y: -2 },
+  { x: 6, y: -3 },
   { x: -1, y: -1 },
-  { x: -6, y: -2 },
-  { x: -6, y: 7 },
+  { x: -6, y: -3 },
+  { x: -7, y: 7 },
 ];
 export const AXIS_PLATE = { w: 72, h: 22 } as const;
 /** Distance between a corner and its label plate. */

@@ -190,9 +190,9 @@ describe("LockerScene", () => {
     return { ...env, scene, factory, player: () => (scene as unknown as { player: { x: number; y: number } }).player };
   };
 
-  it("enters at (480, 470) with the locker music and a closing door, and loads its group", () => {
+  it("enters at (480, 450) with the locker music and a closing door, and loads its group", () => {
     const { scene, events, loaded, player } = setup();
-    expect(player()).toMatchObject({ x: 480, y: 470 });
+    expect(player()).toMatchObject({ x: 480, y: 450 });
     expect(events).toEqual(expect.arrayContaining(["bgm:locker", "gate-close"]));
     expect(loaded).toEqual(["locker"]);
     expect(() => scene.render(fakeGraphics())).not.toThrow();
@@ -324,10 +324,10 @@ describe("StatScene", () => {
 
   it("selects an axis by clicking its node", () => {
     const { scene, events } = setup();
-    // corner 3 (bottom) is at (276, 444)
-    scene.onPointer({ type: "move", x: 276, y: 444 });
-    scene.onPointer({ type: "down", x: 276, y: 444 });
-    scene.onPointer({ type: "up", x: 276, y: 444 });
+    // corner 3 (bottom) is at (276, 430)
+    scene.onPointer({ type: "move", x: 276, y: 430 });
+    scene.onPointer({ type: "down", x: 276, y: 430 });
+    scene.onPointer({ type: "up", x: 276, y: 430 });
     expect(scene.selectedAxis).toBe(3);
     expect(events).toContain("stat-select");
   });
@@ -380,9 +380,9 @@ describe("StatScene player switcher", () => {
 
   it("switches by clicking the arrows", () => {
     const { scene } = setup();
-    scene.onPointer({ type: "move", x: 489, y: 85 });
-    scene.onPointer({ type: "down", x: 489, y: 85 });
-    scene.onPointer({ type: "up", x: 489, y: 85 });
+    scene.onPointer({ type: "move", x: 469, y: 85 });
+    scene.onPointer({ type: "down", x: 469, y: 85 });
+    scene.onPointer({ type: "up", x: 469, y: 85 });
     expect(scene.viewedCharacter.id).toBe("janine95kim");
   });
 });

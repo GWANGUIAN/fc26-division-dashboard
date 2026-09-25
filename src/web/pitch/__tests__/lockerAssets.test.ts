@@ -19,7 +19,6 @@ describe("locker gate / room / stat UI assets (A3)", () => {
 
   it("props: stat terminal 3 states 96x128, exit door 2 states 64x96, locker unit 2 states 48x80", () => {
     for (const name of ["terminal-off", "terminal-idle", "terminal-active"]) expect(size(`env/${name}`)).toMatchObject({ w: 96, h: 128 });
-    for (const name of ["exit-closed", "exit-open"]) expect(size(`env/${name}`)).toMatchObject({ w: 64, h: 96 });
     for (const name of ["locker-unit", "locker-unit-open"]) expect(size(`env/${name}`)).toMatchObject({ w: 48, h: 80 });
     expect(size("env/bench")).toMatchObject({ w: 96, h: 40 });
     expect(size("env/whiteboard")).toMatchObject({ w: 56, h: 72 });
@@ -33,7 +32,8 @@ describe("locker gate / room / stat UI assets (A3)", () => {
     expect(size("ui/node-selected")).toMatchObject({ w: 16, h: 16 });
     expect(size("ui/detail-panel")).toMatchObject({ w: 400, h: 392 });
     expect(size("ui/detail-panel").slice).toBeUndefined();
-    expect(size("ui/terminal-frame").slice).toBe(24);
+    expect(size("ui/terminal-frame")).toMatchObject({ w: 896, h: 492 });
+    expect(size("ui/terminal-frame").slice).toBeUndefined();
     expect(size("ui/coming-soon")).toMatchObject({ w: 216, h: 40 });
     expect(size("ui/axis-plate")).toMatchObject({ w: 72, h: 22 });
   });
@@ -52,6 +52,6 @@ describe("locker gate / room / stat UI assets (A3)", () => {
       expect(spec.bytes, spec.key).toBeGreaterThan(0);
     }
     const keys = specs.map((spec) => spec.key);
-    for (const key of ["env/locker-bg", "env/terminal-idle", "env/exit-open", "ui/hex-frame", "ui/detail-panel", "ui/coming-soon", "ui/icon-question"]) expect(keys).toContain(key);
+    for (const key of ["env/locker-bg", "env/terminal-idle", "ui/hex-frame", "ui/detail-panel", "ui/coming-soon", "ui/icon-question"]) expect(keys).toContain(key);
   });
 });

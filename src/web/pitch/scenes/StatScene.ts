@@ -8,7 +8,6 @@ import { STAT_AXIS_COUNT, axisLabel, isPlaceholderAxis, statSheetFor, type StatA
 import { SILENT_PITCH_AUDIO, type PitchAudioLike } from "../audio/pitchAudio";
 import type { AssetImage, PitchAssets } from "../engine/assets";
 import type { KeyInput, PointerInput, Scene, SceneCtx } from "../engine/sceneManager";
-import { drawNineSlice } from "../engine/sprite";
 import { LOGICAL_HEIGHT, LOGICAL_WIDTH } from "../engine/stage";
 import { drawText, PIXEL_FONT_FAMILY, TEXT_COLORS } from "../engine/text";
 import { cycleAxis, drawHexagon, hitAxis, labelPlateRect, HEX, KIND_COLORS, type AxisStep, type Rect } from "../ui/hexagon";
@@ -16,9 +15,10 @@ import { CHIP_HEIGHT, CHIP_SIZE, DESC_LINE, DESC_SIZE, DETAIL_CONTENT, SIGN_CHIP
 import { VolumePanel } from "../ui/volumePanel";
 import { drawHudButtons, soundState, hudButtonAt, inside, syncSoundState, toggleSound, type HudButtonId } from "./hudCommon";
 
+/** The frame art is drawn this much wider than `STAT_FRAME`, centred (content layout unchanged). */
+const FRAME_EXTRA_WIDTH = 15;
 export const STAT_FRAME: Rect = { x: 32, y: 24, w: 896, h: 492 };
-export const STAT_DETAIL_PANEL: Rect = { x: 512, y: 104, w: 400, h: 392 };
-const FRAME_INSET = 24;
+export const STAT_DETAIL_PANEL: Rect = { x: 494, y: 80, w: 400, h: 392 };
 const HEADER = { x: 56, y: 40, w: 848, h: 48 } as const;
 const RIBBON_ANGLE = (-12 * Math.PI) / 180;
 export const STAT_OPEN_FADE_SECONDS = 0.15;
@@ -36,8 +36,8 @@ const ABILITY_ROW_Y = 290;
 const RIBBON_Y = 328;
 
 /** Header switcher for looking at another player's stats: ◀ name ▶ (Q / E). View only — the played character is unchanged. */
-export const CHAR_PREV_RECT: Rect = { x: 300, y: 76, w: 22, h: 18 };
-export const CHAR_NEXT_RECT: Rect = { x: 478, y: 76, w: 22, h: 18 };
+export const CHAR_PREV_RECT: Rect = { x: 280, y: 76, w: 22, h: 18 };
+export const CHAR_NEXT_RECT: Rect = { x: 458, y: 76, w: 22, h: 18 };
 export type CharStep = -1 | 1;
 
 const HUD_BUTTONS: readonly HudButtonId[] = ["dashboard", "sound"];
@@ -334,7 +334,9 @@ export class StatScene implements Scene {
     const { x, y, w, h } = STAT_FRAME;
     const frame = this.image("ui/terminal-frame");
     if (frame) {
-      drawNineSlice(g, frame, FRAME_INSET, x, y, w, h);
+      // made for exactly this rectangle (896×492): drawn 1:1, never stretched; the interior is x 59~902, y 69~482
+      // shown 10px wider (5px each side); the content positions stay as they are
+      g.drawImage(frame, x - FRAME_EXTRA_WIDTH / 2, y, w + FRAME_EXTRA_WIDTH, h);
       return;
     }
     g.fillStyle = "#0a0a1a";
@@ -353,8 +355,8 @@ export class StatScene implements Scene {
   private drawHeader(g: CanvasRenderingContext2D) {
     const { character } = this;
     const portrait = this.image(`portraits/${character.id}-neutral`);
-    const px = 92;
-    const py = 80;
+    const px = 72;
+    const py = 76;
     g.fillStyle = "#0a0a1a";
     g.fillRect(px - 2, py - 2, 44, 44);
     if (portrait) g.drawImage(portrait, px, py, 40, 40);
@@ -372,9 +374,9 @@ export class StatScene implements Scene {
     g.strokeRect(badgeX + 0.5, badgeY + 0.5, 39, 13);
     drawText(g, this.sheet.position, badgeX + 20, badgeY + 8, { size: 10, align: "center", baseline: "middle" });
     drawText(g, character.positionLabel, badgeX + 48, badgeY + 8, { size: 10, color: "#9fe9ff", baseline: "middle" });
-    drawText(g, "PLAYER STATS", LOGICAL_WIDTH / 2, 63, { size: 20, align: "center", baseline: "middle" });
+    drawText(g, "PLAYER STATS", LOGICAL_WIDTH / 2, 45, { size: 20, align: "center", baseline: "middle" });
     this.drawCharSwitcher(g);
-    drawText(g, "←→ 축 · Tab 다음 · Q/E 선수 · Esc", 300, 106, { size: 10, color: "#9fe9ff", baseline: "middle" });
+    drawText(g, "←→ 축 · Tab 다음 · Q/E 선수 · Esc", 280, 106, { size: 10, color: "#9fe9ff", baseline: "middle" });
   }
 
   private drawCharSwitcher(g: CanvasRenderingContext2D) {
@@ -422,10 +424,10 @@ export class StatScene implements Scene {
     if (this.sheet.axes.some((axis) => axis.kind === "common")) items.push({ color: KIND_COLORS.common, text: "공통 스탯" });
     items.push({ color: KIND_COLORS.unique, text: this.sheet.position === "GK" ? "GK 고유 스탯" : "포지션 고유 스탯" });
     const measure = makeMeasure(g);
-    let x = 56;
+    let x = 70;
     for (const item of items) {
-      drawText(g, "●", x, 486, { size: 10, color: item.color, baseline: "middle" });
-      drawText(g, item.text, x + 14, 486, { size: 10, baseline: "middle" });
+      drawText(g, "●", x, 474, { size: 10, color: item.color, baseline: "middle" });
+      drawText(g, item.text, x + 14, 474, { size: 10, baseline: "middle" });
       x += 14 + Math.ceil(measure(item.text, 10)) + 16;
     }
   }

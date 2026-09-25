@@ -168,7 +168,7 @@
           ["gate-plate", 5, 64, 24, { "align": "center" }]
         ]
       },
-      "locker-bg": { "file": "env-locker-bg.png", "scene": true },
+      "locker-bg": { "file": "env-locker-bg-v2.png", "scene": true, "anchorY": 0.75 },
       "locker-props": {
         "file": "env-locker-props.png",
         "grid": [4, 3],
@@ -350,7 +350,7 @@
           ["axis-plate", 6, 72, 22, { "fill": true }],
           ["detail-panel", 7, 220, 200],
           ["coming-soon", 8, 216, 40, { "align": "center" }],
-          ["terminal-frame", 9, 288, 164, { "slice": 24 }],
+          ["terminal-frame", 9, 288, 164, {}],
           ["scan-line", 10, 320, 8, { "fill": true, "soft": true }],
           ["padlock", 11, 16, 16, { "align": "center" }]
         ]

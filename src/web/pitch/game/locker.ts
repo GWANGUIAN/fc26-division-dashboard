@@ -26,17 +26,16 @@ export const GATE_SPAWN = { x: 215, y: 440 } as const;
 
 /** Walkable floor of the locker room and where the player enters (03 §4). */
 /** The back row of furniture (2× props) stands on y=240, so the floor starts below it. */
-export const LOCKER_AREA = { minX: 80, maxX: 880, minY: 250, maxY: 500 } as const;
-export const LOCKER_SPAWN = { x: 480, y: 470 } as const;
+export const LOCKER_AREA = { minX: 80, maxX: 880, minY: 250, maxY: 468 } as const;
+export const LOCKER_SPAWN = { x: 480, y: 450 } as const;
 
 /** Sprite anchors (bottom centre; the analyzer's top-left is (200, 266) for its 96×128 sprite — 05 §7). */
 export const ANALYZER = { baseX: 712, baseY: 394, interactRadius: 64 } as const;
 /** The player and the exit door are drawn larger in the locker room. */
 export const LOCKER_PLAYER_SCALE = 1.5;
-export const EXIT_DOOR_SCALE = 1.5;
 /** Every other prop (not the analyzer) is drawn 2×. */
 export const PROP_SCALE = 2;
-export const EXIT_DOOR = { baseX: 480, baseY: 490, interactRadius: 60 } as const;
+export const EXIT_DOOR = { baseX: 480, baseY: 478, interactRadius: 60 } as const;
 
 export const ANALYZER_ZONE: Circle = { x: ANALYZER.baseX, y: ANALYZER.baseY, r: ANALYZER.interactRadius };
 export const EXIT_ZONE: Circle = { x: EXIT_DOOR.baseX, y: EXIT_DOOR.baseY, r: EXIT_DOOR.interactRadius };
@@ -63,7 +62,7 @@ export const nearExit = (x: number, y: number) => withinCircle(x, y, EXIT_ZONE);
  */
 export const LOCKER_COLLIDERS: readonly Box[] = [
   { x: 0, y: 0, w: 150, h: 300 },
-  { x: 835, y: 0, w: 125, h: 325 },
+  { x: 835, y: 0, w: 125, h: 365 },
   // stat analyzer (base 248,394): only its base is solid, the player can stand behind it
   { x: 672, y: 368, w: 80, h: 26 },
   // kit bag; the back-wall furniture is behind the walkable floor

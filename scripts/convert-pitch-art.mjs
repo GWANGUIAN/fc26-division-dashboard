@@ -387,7 +387,7 @@ async function convertScene(category, sheetId, cfg) {
   const file = sourceFile(category, cfg.file);
   if (!file) return;
   const raster = await loadRaster(file);
-  const crop = M.cropRaster(raster, M.coverCropRect(raster.width, raster.height, 960, 540));
+  const crop = M.cropRaster(raster, M.coverCropRect(raster.width, raster.height, 960, 540, 0.5, cfg.anchorY ?? 0.5));
   const out = M.boxDownscale(crop, 960, 540);
   for (let i = 3; i < out.data.length; i += 4) out.data[i] = 255;
   const drift = raster.width !== 1536 || raster.height !== 1024;

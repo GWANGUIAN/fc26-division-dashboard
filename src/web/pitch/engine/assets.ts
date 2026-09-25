@@ -55,7 +55,7 @@ const SELECT_KEYS = [
 ];
 
 const LOCKER_KEYS = [
-  ...ids("env", ["locker-bg", "terminal-off", "terminal-idle", "terminal-active", "exit-closed", "exit-open", "locker-unit", "locker-unit-open", "bench", "whiteboard", "cooler", "kitbag", "bootrack"]),
+  ...ids("env", ["locker-bg", "terminal-off", "terminal-idle", "terminal-active", "locker-unit", "locker-unit-open", "bench", "whiteboard", "cooler", "kitbag", "bootrack"]),
   ...ids("ui", ["hex-bg", "hex-frame", "hex-fill", "node-normal", "node-hover", "node-selected", "axis-plate", "detail-panel", "coming-soon", "terminal-frame", "scan-line", "padlock"]),
   ...ids("ui", ["icon-hexagon", "icon-question", "icon-locker"]),
 ];
