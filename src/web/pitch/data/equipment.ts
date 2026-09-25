@@ -87,6 +87,8 @@ const COMMON_PETS: readonly PetDef[] = [
   { id: "chuny", name: "처니" },
   { id: "jinho", name: "지노" },
   { id: "messi", name: "메시" },
+  { id: "doocheely", name: "두치리" },
+  { id: "naldoo", name: "날두" },
 ];
 
 const EXCLUSIVE_PETS: readonly PetDef[] = [

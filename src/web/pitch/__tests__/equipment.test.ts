@@ -51,7 +51,7 @@ describe("equipment catalog vs scripts/pitch-art-manifest.json", () => {
     expect(itemsForSlot("back")).toHaveLength(4);
   });
 
-  it("lists the same pets as the manifest: 9 common + 12 exclusive, one per character", () => {
+  it("lists the same pets as the manifest: 11 common + 12 exclusive, one per character", () => {
     const common = PETS.filter((pet) => !pet.exclusiveTo).map((pet) => pet.id);
     expect(common).toEqual(manifest.pets.common);
     const exclusive = Object.fromEntries(PETS.filter((pet) => pet.exclusiveTo).map((pet) => [pet.id, pet.exclusiveTo]));
@@ -61,10 +61,10 @@ describe("equipment catalog vs scripts/pitch-art-manifest.json", () => {
 });
 
 describe("pets per character", () => {
-  it("offers its exclusive pet first, then the nine common ones", () => {
+  it("offers its exclusive pet first, then the eleven common ones", () => {
     for (const id of PITCH_CHARACTER_IDS) {
       const pets = petsFor(id);
-      expect(pets).toHaveLength(10);
+      expect(pets).toHaveLength(12);
       expect(pets[0].exclusiveTo).toBe(id);
       expect(pets.slice(1).every((pet) => pet.exclusiveTo === undefined)).toBe(true);
     }
@@ -120,10 +120,10 @@ describe("loadout storage (per character)", () => {
 });
 
 describe("asset groups", () => {
-  it("pets:<id> lists the ten pets a character may wear, wearable sheets are part of core", async () => {
+  it("pets:<id> lists the twelve pets a character may wear, wearable sheets are part of core", async () => {
     const { ASSET_GROUPS, groupSpecs } = await import("../engine/assets");
     const keys = groupSpecs("pets:woowakgood").map((spec) => spec.key);
-    expect(keys).toHaveLength(10);
+    expect(keys).toHaveLength(12);
     expect(keys[0]).toBe("pets/pet-panchi");
     expect(keys).toContain("pets/pet-cheezenyang");
     expect(keys).not.toContain("pets/pet-haepi");
