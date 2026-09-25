@@ -16,6 +16,8 @@ test-results/
 # World art originals (AI-generated PNGs; converted to src/web/assets/world/ by pnpm convert:world-art)
 tmp/world-src/
 tmp/minigame-src/
+tmp/cursor-src/
+tmp/walk-contact-sheet.png
 
 # Local wrangler state (dev D1 etc.)
 .wrangler/
