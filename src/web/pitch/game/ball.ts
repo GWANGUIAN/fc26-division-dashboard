@@ -145,7 +145,11 @@ function stepLoose(b: BallState, p: PlayerState, dt: number) {
 }
 
 /** Kicks the ball: ground track from where it is to the goal plane (screen y `GOAL_SCREEN.planeY`), lifted by the shot's z arc. */
-export function launchBall(b: BallState, shot: ShotFlight, arc: number = SHOT.arc) {
+/**
+ * `stopY`: a shot the keeper saves ends at the keeper (screen y) instead of the goal plane behind him, so the ball never
+ * passes through the keeper into the net and comes back out.
+ */
+export function launchBall(b: BallState, shot: ShotFlight, arc: number = SHOT.arc, stopY: number = GOAL_SCREEN.planeY) {
   b.mode = "shot";
   b.trap = 0;
   b.vx = 0;
@@ -156,7 +160,7 @@ export function launchBall(b: BallState, shot: ShotFlight, arc: number = SHOT.ar
     sx: b.x,
     sy: b.y,
     ex: goalScreenX(480 + shot.tx),
-    ey: GOAL_SCREEN.planeY,
+    ey: stopY,
     t: 0,
     time: Math.max(shot.time, 1e-3),
     endZ: shot.h * GOAL_SCREEN.zScale,

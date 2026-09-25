@@ -583,7 +583,9 @@ export class PitchScene implements Scene {
     this.trail.length = 0;
     this.trailClock = 0;
     this.ballInNet = false;
-    launchBall(ball, flight, this.shotTuning.arc);
+    // a saved shot stops in front of the keeper (his feet are at KEEPER_FOOT_Y); the ball is drawn over him there
+    const saved = plan.saved && flight.kind !== "post" && flight.kind !== "bar" && flight.kind !== "wide" && flight.kind !== "over";
+    launchBall(ball, flight, this.shotTuning.arc, saved ? KEEPER_FOOT_Y + 6 : GOAL_SCREEN.planeY);
     startDive(keeper, plan);
     beginFlight(match);
   }
