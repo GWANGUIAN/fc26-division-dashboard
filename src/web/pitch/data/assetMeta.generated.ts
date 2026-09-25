@@ -77,7 +77,7 @@ export const PITCH_ASSET_META: Readonly<Record<string, PitchAssetMeta>> = {
   "env/terminal-off": { bytes: 17390, w: 96, h: 128 },
   "env/whiteboard": { bytes: 4336, w: 56, h: 72 },
   "equipment/acc-back-a": { bytes: 17546, w: 228, h: 224 },
-  "equipment/acc-face-a": { bytes: 1792, w: 108, h: 88 },
+  "equipment/acc-face-a": { bytes: 1472, w: 108, h: 88 },
   "equipment/acc-hat-a": { bytes: 8082, w: 156, h: 176 },
   "equipment/acc-hat-b": { bytes: 7672, w: 156, h: 176 },
   "fx/fx-aim-arrow": { bytes: 6840, w: 128, h: 40, frames: 4 },

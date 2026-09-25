@@ -34,10 +34,18 @@ export const EQUIP_FIT: Readonly<
     },
     santa: { down: { dy: 2 } },
     cowboy: { down: { dx: -2, dy: 2 }, side: { dx: 5, dy: 1 } },
+    sunglasses: { down: { dx: -1, dy: 5 }, side: { dx: 2, dy: 0 } },
+    roundglasses: { down: { dx: -1, dy: 5 }, side: { dx: 2, dy: 0 } },
+    heartglasses: { down: { dx: -1, dy: 5 }, side: { dx: 2, dy: 0 } },
+    eyepatch: { down: { dx: 0, dy: 4 }, side: { dx: 0, dy: 0 } },
   },
   // 재닌
   janine95kim: {
     cap: { side: { dx: 2, dy: 1 } },
+    sunglasses: { down: { dx: 1, dy: -1 }, side: { dx: 0, dy: -5 } },
+    roundglasses: { down: { dx: 1, dy: -2 }, side: { dx: 0, dy: -5 } },
+    heartglasses: { down: { dx: 1, dy: -1 }, side: { dx: 0, dy: -6 } },
+    eyepatch: { down: { dx: 2, dy: -4 }, side: { dx: -2, dy: -5 } },
   },
   // 뽀린걸
   bboringirl: {
@@ -48,6 +56,10 @@ export const EQUIP_FIT: Readonly<
     headphones: { down: { dx: 2, dy: 2 } },
     santa: { down: { dx: 3, dy: 1 } },
     cowboy: { down: { dx: 2 } },
+    sunglasses: { down: { dx: 3, dy: 5 }, side: { dx: 0, dy: 0 } },
+    roundglasses: { down: { dx: 3, dy: 5 }, side: { dx: 0, dy: 0 } },
+    heartglasses: { down: { dx: 3, dy: 3 }, side: { dx: 0, dy: -1 } },
+    eyepatch: { down: { dx: 4, dy: 2 }, side: { dx: -2, dy: 0 } },
   },
   // 쥬멩이
   ju010228: {
@@ -58,6 +70,10 @@ export const EQUIP_FIT: Readonly<
     straw: { side: { dx: 6, dy: 2 } },
     headphones: { down: { dx: -2, dy: 3 } },
     cowboy: { side: { dx: 6 } },
+    sunglasses: { down: { dx: -1, dy: 0 }, side: { dx: 3, dy: -2 } },
+    roundglasses: { down: { dx: -1, dy: 0 }, side: { dx: 4, dy: -3 } },
+    heartglasses: { down: { dx: -1, dy: 1 }, side: { dx: 4, dy: -3 } },
+    eyepatch: { down: { dx: 1, dy: 0 }, side: { dx: 2, dy: -2 } },
   },
   // 우왁굳
   woowakgood: {
@@ -66,6 +82,10 @@ export const EQUIP_FIT: Readonly<
     },
     santa: { side: { dx: -4 }, down: { dx: 2 } },
     headphones: { side: { dx: -2 } },
+    sunglasses: { down: { dx: -1, dy: 0 }, side: { dx: 0, dy: -4 } },
+    roundglasses: { down: { dx: -1, dy: 0 }, side: { dx: 0, dy: -4 } },
+    heartglasses: { down: { dx: -1, dy: 0 }, side: { dx: 0, dy: -5 } },
+    eyepatch: { down: { dx: 0, dy: -1 }, side: { dx: -3, dy: -5 } },
   },
   // 하치
   hachi97: {
@@ -77,6 +97,10 @@ export const EQUIP_FIT: Readonly<
     headphones: {
       side: { dx: -3, dy: 2 },
     },
+    sunglasses: { down: { dx: 2, dy: 1 }, side: { dx: -1, dy: -1 } },
+    roundglasses: { down: { dx: 2, dy: 1 }, side: { dx: -1, dy: -1 } },
+    heartglasses: { down: { dx: 2, dy: 1 }, side: { dx: -1, dy: -1 } },
+    eyepatch: { down: { dx: 3, dy: 0 }, side: { dx: -3, dy: -1 } },
   },
   kaksjak0730: {
     cap: {
@@ -93,6 +117,10 @@ export const EQUIP_FIT: Readonly<
       down: { dx: -2, dy: 3 },
     },
     cowboy: { down: { dx: -2 }, side: { dx: 1 } },
+    sunglasses: { down: { dx: -1, dy: 2 }, side: { dx: 0, dy: -2 } },
+    roundglasses: { down: { dx: -2, dy: 2 }, side: { dx: 0, dy: -2 } },
+    heartglasses: { down: { dx: -2, dy: 2 }, side: { dx: 1, dy: -2 } },
+    eyepatch: { down: { dx: 0, dy: 0 }, side: { dx: -1, dy: 1 } },
   },
   // 해파린
   haepalin: {
@@ -113,6 +141,10 @@ export const EQUIP_FIT: Readonly<
     },
     santa: { down: { dx: 3 }, side: { dx: -5 } },
     cowboy: { down: { dx: 2 }, up: { dx: -2 } },
+    sunglasses: { down: { dx: 2, dy: 2 }, side: { dx: -1, dy: -1 } },
+    roundglasses: { down: { dx: 2, dy: 2 }, side: { dx: 0, dy: -1 } },
+    heartglasses: { down: { dx: 2, dy: 2 }, side: { dx: 0, dy: -1 } },
+    eyepatch: { down: { dx: 3, dy: 0 }, side: { dx: -4, dy: -1 } },
   },
   // 빙밍
   tleod1818: {
@@ -132,11 +164,19 @@ export const EQUIP_FIT: Readonly<
     },
     santa: { down: { dx: -1, dy: 2 }, side: { dx: -4 }, up: { dx: 3, dy: 3 } },
     cowboy: { down: { dx: -3, dy: 3 }, up: { dx: 1, dy: 3 } },
+    sunglasses: { down: { dx: -1, dy: 3 }, side: { dx: 0, dy: 0 } },
+    roundglasses: { down: { dx: -2, dy: 4 }, side: { dx: 0, dy: 0 } },
+    heartglasses: { down: { dx: -2, dy: 4 }, side: { dx: 1, dy: -1 } },
+    eyepatch: { down: { dx: 0, dy: 2 }, side: { dx: -2, dy: 0 } },
   },
   // 다시바
   tdnlamuron: {
     santa: { side: { dx: -5 } },
     headphones: { side: { dx: -3 } },
+    sunglasses: { down: { dx: 1, dy: 0 }, side: { dx: 1, dy: -3 } },
+    roundglasses: { down: { dx: 1, dy: 1 }, side: { dx: 0, dy: -3 } },
+    heartglasses: { down: { dx: 1, dy: 1 }, side: { dx: 0, dy: -3 } },
+    eyepatch: { down: { dx: 3, dy: 0 }, side: { dx: -4, dy: -3 } },
   },
   // 리냐
   lina0108: {
@@ -148,12 +188,30 @@ export const EQUIP_FIT: Readonly<
     crown: { down: { dy: 3 }, side: { dy: 2 } },
     santa: { down: { dx: 2, dy: 2 }, side: { dx: -3 } },
     headphones: { side: { dx: -6 } },
+    sunglasses: { down: { dx: 3, dy: 4 }, side: { dx: 0, dy: 0 } },
+    roundglasses: { down: { dx: 3, dy: 3 }, side: { dx: 0, dy: 0 } },
+    heartglasses: { down: { dx: 3, dy: 3 }, side: { dx: -1, dy: -1 } },
+    eyepatch: { down: { dx: 3, dy: 3 }, side: { dx: -4, dy: 0 } },
+  },
+  doormomo: {
+    sunglasses: { down: { dx: 0, dy: 0 }, side: { dx: 0, dy: -4 } },
+    roundglasses: { down: { dx: 0, dy: 0 }, side: { dx: 0, dy: -4 } },
+    heartglasses: { down: { dx: 0, dy: 0 }, side: { dx: 0, dy: -4 } },
+    eyepatch: { down: { dx: 2, dy: -1 }, side: { dx: -3, dy: -3 } },
   },
 };
 
 /** Face items (glasses, eye patch) sit this many atlas px lower than the automatic eye line; woowakgood's automatic line is already right. */
 export const FACE_DROP_DEFAULT = 2;
 const FACE_DROP: Readonly<Record<string, number>> = { woowakgood: 0 };
+
+/** Extra offset of every face item on top of the eye line and the per-character fit (atlas px; side: + = toward the facing direction). */
+export const FACE_DEFAULT_OFFSET: Readonly<
+  Partial<Record<Direction, { dx: number; dy: number }>>
+> = {
+  down: { dx: -1, dy: 1 },
+  side: { dx: 0, dy: 4 },
+};
 
 export function faceDrop(characterId: string): number {
   return FACE_DROP[characterId] ?? FACE_DROP_DEFAULT;

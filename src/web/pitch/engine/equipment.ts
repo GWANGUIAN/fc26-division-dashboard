@@ -4,7 +4,7 @@
 
 import { CELL_SIZE, FOOT_Y, type Direction, type FrameRect } from "../data/animations";
 import { CHARACTER_ANCHORS, HEAD_REF } from "../data/equipmentAnchors.generated";
-import { faceDrop, fitFor } from "../data/equipmentFit";
+import { FACE_DEFAULT_OFFSET, faceDrop, fitFor } from "../data/equipmentFit";
 import { EQUIP_SHEETS, equipItem, type EquipItem, type Loadout } from "../data/equipment";
 import { drawFrame, type DrawFrameOptions } from "./sprite";
 
@@ -101,7 +101,8 @@ function drawItem(g: CanvasRenderingContext2D, placed: PlacedItem | undefined, f
   const w = Math.round(sw * k);
   const h = Math.round(sh * k);
   const dxPx = ((item.dx ?? 0) + (dir === "side" ? (item.sideDx ?? 0) : 0)) * k;
-  const dyPx = (item.dy ?? 0) * k + fit.dy * scale;
+  const faceExtra = item.slot === "face" ? FACE_DEFAULT_OFFSET[dir] : undefined;
+  const dyPx = (item.dy ?? 0) * k + (fit.dy + (faceExtra?.dy ?? 0)) * scale;
   if (item.slot === "hat") {
     cellY = anchor.y + anchor.headW * HAT_SINK;
     top = footY + (cellY - FOOT_Y) * scale - h + dyPx;
@@ -114,7 +115,7 @@ function drawItem(g: CanvasRenderingContext2D, placed: PlacedItem | undefined, f
     if (dir === "side") cellX -= anchor.headW * BACK_BEHIND;
     top = footY + (cellY - FOOT_Y) * scale + dyPx;
   }
-  const centreX = footX + flip * (cellX - CELL_SIZE / 2) * scale + flip * (dxPx + fit.dx * scale);
+  const centreX = footX + flip * (cellX - CELL_SIZE / 2) * scale + flip * (dxPx + (fit.dx + (faceExtra?.dx ?? 0)) * scale);
   const previousAlpha = g.globalAlpha;
   if (alpha !== 1) g.globalAlpha = previousAlpha * alpha;
   if (mirror) {

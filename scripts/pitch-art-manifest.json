@@ -122,7 +122,7 @@
     "sheets": {
       "hat-a": { "file": "acc-hat-a.png", "slot": "hat", "cell": [52, 44], "items": [["cap", 23], ["beanie", 22, { "flipSide": true }], ["crown", 17, { "flipSide": true }], ["wizard", 27, { "flipSide": true }]] },
       "hat-b": { "file": "acc-hat-b.png", "slot": "hat", "cell": [52, 44], "items": [["straw", 32], ["headphones", 21], ["santa", 23, { "flipSide": true }], ["cowboy", 30]] },
-      "face-a": { "file": "acc-face-a.png", "slot": "face", "cell": [36, 22], "items": [["sunglasses", 19, { "flipSide": true }], ["roundglasses", 17, { "flipSide": true }], ["heartglasses", 19, { "flipSide": true }], ["eyepatch", 20, { "flipSide": true }]] },
+      "face-a": { "file": "acc-face-a.png", "slot": "face", "cell": [36, 22], "items": [["sunglasses", 17, { "flipSide": true }], ["roundglasses", 15, { "flipSide": true }], ["heartglasses", 17, { "flipSide": true }], ["eyepatch", 18, { "flipSide": true }]] },
       "back-a": { "file": "acc-back-a.png", "slot": "back", "cell": [76, 56], "items": [["cape", 34], ["angelwings", 56], ["devilwings", 56], ["backpack", 25, { "flipSide": true }]] }
     }
   },
