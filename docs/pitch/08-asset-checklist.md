@@ -74,6 +74,10 @@
 | 변환 결과 | `src/web/assets/pitch/<category>/...webp` | `characters/woowakgood-atlas.webp` |
 | SFX | `public/sfxes/pitch-<이름>.mp3` | `pitch-kick-mid.mp3` |
 | BGM | `public/pitch-bgm-<이름>.mp3` | `pitch-bgm-pitch.mp3` |
-| localStorage | `fc26-entry-mode`, `fc26-pitch-character`, `fc26-pitch-settings-v1`, `fc26-pitch-stats-v1` | |
+| 착용 아이템 시트 원본 | `tmp/pitch-src/equipment/acc-<sheet>.png` (`hat-a hat-b face-a back-a`) | `acc-hat-a.png` |
+| 펫 원본 | `tmp/pitch-src/pets/pet-<petId>.png` | `pet-panchi.png` |
+| 펫 레퍼런스(사용자 보유) | `tmp/pitch-src/refs/pet-<petId>-ref.png` | `pet-baemsuri-ref.png` |
+| 인벤토리 UI·FX 원본 | `tmp/pitch-src/ui/ui-inv-<name>.png`, `tmp/pitch-src/fx/fx-equip-sparkle.png` | `ui-inv-frame.png` |
+| localStorage | `fc26-entry-mode`, `fc26-pitch-character`, `fc26-pitch-settings-v1`, `fc26-pitch-stats-v1`, `fc26-pitch-loadout-v1`(인벤토리, [13](13-locker-inventory-spec.md)), `fc26-pitch-inventory-v1`(미리보기 자동 회전/고정) | |
 
 > 이미지 원본(`tmp/`)은 git 추적 여부를 프로젝트 관례에 따른다(월드 `tmp/world-src` 확인). 원본은 삭제하지 않는다.

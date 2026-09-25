@@ -22,6 +22,9 @@
 | [10-session-prompts.md](10-session-prompts.md) | **세션별 복붙 지시문** + 변경 전파 프로토콜 | 구현 세션 시작 |
 | [11-stat-definitions.md](11-stat-definitions.md) | **포지션별 스탯 이름·설명**(공통 3+고유 3, GK 고유 6), 데이터 모델, 설명 패널 UI, 테스트 계획 — 03 §5 의 `???` 라벨/설명을 대체(숫자는 `???` 유지) | 스탯 화면(P6b) |
 | [12-title-logo-prompt.md](12-title-logo-prompt.md) | 로딩 화면 타이틀 로고 1장의 프롬프트·저장 이름·변환 명령 | 로고 생성 |
+| [13-locker-inventory-spec.md](13-locker-inventory-spec.md) | **락커룸 캐비닛·인벤토리(캐릭터 꾸미기 + 펫) 사양**: 슬롯 검토, 카탈로그(아이템 16·펫 18), 캐릭터별 저장 스키마, 방향별 합성·앵커, 펫 추적, 창 레이아웃, 테스트 | 인벤토리 구현 |
+| [14-inventory-image-runbook.md](14-inventory-image-runbook.md) | **인벤토리 이미지 30장의 개별 프롬프트**: 저장 이름·스레드·레퍼런스·검수·변환 (스크립트 생성) | 인벤토리 이미지 생성 |
+| `tools/build-inventory-runbook.mjs` | 14 생성기 | 아이템/펫/UI 목록 수정 후 |
 | `tools/build-image-runbook.mjs` | 09 생성기 | 04/05 수정 후 |
 
 ## 한눈에 보는 수치
@@ -178,3 +181,5 @@
 | 2026-09-25 | P6(조정 27) | 스탯 `terminal-frame` 표시 너비 추가 +5px(총 +15px, 좌우 7.5px) | 03 §5 | — |
 | 2026-09-25 | P6(조정 28) | `NODE_NUDGE` 보정 → 12시 (−1,−2)·2시 (6,7)·5시 (6,−3)·6시 (−1,−1)·7시 (−6,−3)·11시 (−7,7) | 03 §5 | — |
 | 2026-09-25 | P6(조정 29) | 스탯 화면 헤더(초상화·이름·포지션, 캐릭터 이전/다음 UI, 키 안내)를 왼쪽으로 20px(초상화 x 72, 화살표 280/458, 안내 x 280) | 03 §5 | — |
+| 2026-09-25 | 인벤토리 문서 | `13-locker-inventory-spec.md`(락커룸 캐비닛·인벤토리 사양)·`14-inventory-image-runbook.md`(이미지 30장 지시서)·`tools/build-inventory-runbook.mjs`(14 생성기) 신설, README 문서 지도·08 파일명 규칙 갱신. **코드 구현 전 문서 단계** | 슬롯 v1 = hat/face/back/pet(신발·장갑·유니폼은 프레임별 아트가 필요해 제외), 아이템은 방향별 정지 이미지 + 프레임별 머리 앵커 자동 추출, 로드아웃은 캐릭터별 `fc26-pitch-loadout-v1`, 전용 펫 12(요청의 시바 = tdnlamuron)·공용 6, 이미지 번호는 09 와 겹치지 않게 `#I01`~`#I30` | 이미지 생성(14) → 구현 Phase 1~5(13 §7) |
+| 2026-09-25 | 인벤토리 구현 | 캐비닛(`CABINET` 원 (677,258) r56, `E 캐비닛 열기`)·`InventoryScene`(720×480 창, 왼쪽 미리보기·탭 4·4×3 슬롯·정보 카드·적용/해제/전체 해제/닫기)·착용 합성(`engine/equipment.ts`, 프레임별 머리 앵커 `pnpm build:pitch-anchors`)·펫(`game/pet.ts`)·캐릭터별 저장 `fc26-pitch-loadout-v1`·변환기 `equipment`/`pets` 모드와 `ui inv-*`/`fx equip-sparkle` 매니페스트(`crop`·`parts`). 아이템 시트 4장·펫 16종 변환, UI 이미지·펭귄·웅남이는 원본 도착 전(코드는 단색 폴백) | 아이템은 머리 폭 23px 기준으로 구워 `headW/23`(0.7~1.3)로 배율, 등 아이템은 측면에서 뒤로 0.4 머리 폭 이동, `sfxMap` 은 그대로(기존 ui 이벤트 재사용), 펫 그룹 `pets:<id>` 는 착용 중일 때·인벤토리 열 때 로드, 시트 4장은 `core` | 13 §9 에 남은 일. 브라우저 확인은 사용자 배포본에서 |
