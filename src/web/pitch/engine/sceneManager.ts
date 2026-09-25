@@ -34,6 +34,10 @@ export interface SceneHost {
   reducedMotion?(): boolean;
   /** Screen-reader text for canvas-only state (the stat screen's selected axis); "" clears it. Missing = nothing. */
   announce?(text: string): void;
+  /** Opens the full-screen 잔디동 playlist popup over the canvas; `onClose` runs when it is closed. Missing = nothing happens. */
+  openPlaylist?(onClose: () => void): void;
+  /** Opens the dashboard's "나만의 스쿼드 빌더" popup over the canvas (it loads the roster itself); `onClose` runs when it is closed. */
+  openSquad?(onClose: () => void): void;
 }
 
 export interface SceneCtx {

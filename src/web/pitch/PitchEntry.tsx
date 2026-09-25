@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { PITCH_FALLBACK_NOTICE, setEntryNotice } from "../entryNotice";
 import { resumeGlobalMusic, suspendGlobalMusic } from "../musicControl";
 import { createLoop } from "../world/engine/loop";
@@ -12,6 +12,12 @@ import { ensurePixelFont } from "./engine/text";
 import { loadPitchSettings } from "../storage";
 import { LoadingScene } from "./scenes/LoadingScene";
 import { pitchDebugEnabled } from "./scenes/pitchDebug";
+
+// Dashboard popups opened from the locker room (jukebox = playlist, whiteboard = squad manager). Lazy so the pitch chunk stays small.
+const CoverLoopPlaylistOverlay = lazy(() => import("../CoverLoopPlaylistOverlay").then((m) => ({ default: m.CoverLoopPlaylistOverlay })));
+const PitchSquadPopup = lazy(() => import("./PitchSquadPopup"));
+
+type PopupKind = "playlist" | "squad";
 
 const SKIP_LINK_STYLE = {
   position: "absolute",
@@ -38,6 +44,14 @@ export default function PitchEntry({ onGoDashboard, customCursor = false }: { on
   goDashboardRef.current = onGoDashboard;
   const customCursorRef = useRef(customCursor);
   customCursorRef.current = customCursor;
+  const [popup, setPopup] = useState<PopupKind | null>(null);
+  // Set by the effect below: gives the keyboard back to the game and tells the scene that asked for the popup.
+  const popupClosedRef = useRef<() => void>(() => undefined);
+
+  const closePopup = () => {
+    setPopup(null);
+    popupClosedRef.current();
+  };
 
   useEffect(() => {
     const container = containerRef.current;
@@ -74,6 +88,20 @@ export default function PitchEntry({ onGoDashboard, customCursor = false }: { on
     window.addEventListener("keydown", unlockAudio, { once: true });
     window.addEventListener("pointerdown", unlockAudio, { once: true });
     const motionQuery = typeof window.matchMedia === "function" ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+    // While the popup is up the game must ignore the keyboard (its Esc closes the popup, not the locker room).
+    let popupOnClose: (() => void) | null = null;
+    popupClosedRef.current = () => {
+      input.setEnabled(true);
+      const done = popupOnClose;
+      popupOnClose = null;
+      done?.();
+    };
+    const openPopup = (kind: PopupKind, onClose: () => void) => {
+      if (popupOnClose) return;
+      popupOnClose = onClose;
+      input.setEnabled(false);
+      setPopup(kind);
+    };
     const manager = createSceneManager({
       width: LOGICAL_WIDTH,
       height: LOGICAL_HEIGHT,
@@ -88,6 +116,8 @@ export default function PitchEntry({ onGoDashboard, customCursor = false }: { on
         },
         hasKeyboardFocus: () => document.hasFocus() && !isIgnoredTarget(document.activeElement),
         goDashboard: () => goDashboardRef.current(),
+        openPlaylist: (onClose: () => void) => openPopup("playlist", onClose),
+        openSquad: (onClose: () => void) => openPopup("squad", onClose),
         setCursor: (kind: CursorKind) => {
           // CursorOverlay reads this attribute; the native cursor is only touched when no custom pointer is active.
           stage.canvas.dataset.cursorRole = kind;
@@ -238,6 +268,11 @@ export default function PitchEntry({ onGoDashboard, customCursor = false }: { on
       >
         방향키로 움직이는 축구 미니게임입니다. Space 슛, Z X C V 개인기, E 락커룸, Tab 캐릭터 선택. 피치 화면에서 Backspace 키, 우측 상단 버튼 또는 Skip to dashboard 버튼으로 잔디동 대시보드로 이동할 수 있습니다.
       </p>
+      {popup && (
+        <Suspense fallback={null}>
+          {popup === "playlist" ? <CoverLoopPlaylistOverlay onClose={closePopup} /> : <PitchSquadPopup onClose={closePopup} />}
+        </Suspense>
+      )}
       <p ref={liveRef} aria-live="polite" style={{ position: "absolute", width: 1, height: 1, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)" }} />
       <button
         type="button"

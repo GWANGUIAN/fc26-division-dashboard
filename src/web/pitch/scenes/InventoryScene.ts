@@ -156,7 +156,7 @@ export class InventoryScene implements Scene {
     // the pet art of this character (the locker room already loaded the equipped one); missing groups are fine
     void this.assets.loadGroup(`pets:${this.params.character.id}`).catch(() => undefined);
     this.audio.playSfx("ui-select");
-    ctx.host.announce?.(`캐비닛. ${this.params.character.name} 꾸미기. 방향키로 고르고 엔터로 미리 착용, A로 적용, Esc로 닫습니다.`);
+    ctx.host.announce?.(`인벤토리. ${this.params.character.name} 꾸미기. 방향키로 고르고 엔터로 미리 착용, A로 적용, Esc로 닫습니다.`);
   }
 
   exit() {
@@ -377,7 +377,7 @@ export class InventoryScene implements Scene {
     g.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     g.restore();
     this.drawFrame(g);
-    drawText(g, `캐비닛 · ${this.params.character.name}`, INV_TITLE.x, INV_TITLE.y, { size: 14, color: TEXT_COLORS.gold, align: "center", baseline: "middle" });
+    drawText(g, `인벤토리 · ${this.params.character.name}`, INV_TITLE.x, INV_TITLE.y, { size: 14, color: TEXT_COLORS.gold, align: "center", baseline: "middle" });
     this.drawPreview(g);
     this.drawTabs(g);
     this.drawGrid(g);

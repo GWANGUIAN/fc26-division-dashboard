@@ -218,6 +218,15 @@
           ["bootrack", 11, 48, 32]
         ]
       },
+      "locker-jukebox": {
+        "file": "env-locker-jukebox.png",
+        "grid": [3, 2],
+        "items": [
+          ["jukebox-off", 0, 96, 120, { "group": "jukebox" }],
+          ["jukebox-idle", 1, 96, 120, { "group": "jukebox" }],
+          ["jukebox-play", [2, 3, 4], 96, 120, { "group": "jukebox" }]
+        ]
+      },
       "crowd": {
         "file": "env-crowd.png",
         "grid": [4, 3],

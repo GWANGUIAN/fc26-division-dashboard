@@ -12,10 +12,10 @@ import type { KeyInput, PointerInput, Scene, SceneCtx } from "../engine/sceneMan
 import { drawEquippedFrame } from "../engine/equipment";
 import { LOGICAL_HEIGHT, LOGICAL_WIDTH } from "../engine/stage";
 import { drawText, TEXT_COLORS } from "../engine/text";
-import { ANALYZER, CABINET, LOCKER_PLAYER_SCALE, LOCKER_SPAWN, PROP_SCALE, nearAnalyzer, nearCabinet, nearExit, resolveBoxes } from "../game/locker";
+import { ANALYZER, CABINET, EXIT_CORRIDOR, LOCKER_PLAYER_SCALE, JUKEBOX, LOCKER_SPAWN, PROP_SCALE, nearAnalyzer, nearCabinet, nearExit, nearJukebox, nearWhiteboard, resolveBoxes, WHITEBOARD } from "../game/locker";
 import { createPet, drawPet, resetPet, updatePet, type PetState } from "../game/pet";
 import { createPlayer, playerPose, stepPlayer, type PlayerState } from "../game/player";
-import { depthScale } from "../game/tuning";
+import { PLAY_AREA, depthScale } from "../game/tuning";
 import { CharacterSelectScene } from "./CharacterSelectScene";
 import { VolumePanel } from "../ui/volumePanel";
 import { drawHudButtons, soundState, drawPrompt, hudButtonAt, syncSoundState, toggleSound, type HudButtonId } from "./hudCommon";
@@ -28,6 +28,8 @@ const HUD_BUTTONS: readonly HudButtonId[] = ["dashboard", "change", "sound"];
 export const ANALYZER_POWER_ON_SECONDS = 0.5;
 /** Extra time the analyzer keeps its ACTIVE look after the overlay closes. */
 const ACTIVE_AFTERGLOW_SECONDS = 0.25;
+/** Movement bounds while walking in the locker room: the pitch bounds, but deep enough for the exit tunnel (resolveBoxes then trims the floor). */
+const LOCKER_STEP_AREA = { ...PLAY_AREA, maxY: EXIT_CORRIDOR.maxY };
 const INTERACT_KEYS: ReadonlySet<string> = new Set(["KeyE", "Enter", "NumpadEnter"]);
 
 interface Prop {
@@ -42,15 +44,29 @@ interface Prop {
 /** Furniture sprites, each drawn `PROP_SCALE`× (the back row is not walkable; the kit bag has a box in `game/locker.ts`). */
 const PROPS: readonly Prop[] = [
   { key: "env/cooler", x: 256, y: 190, flip: true },
-  { key: "env/whiteboard", x: 352, y: 205, flip: true },
+  { key: "env/whiteboard", x: WHITEBOARD.baseX, y: WHITEBOARD.baseY, flip: true },
   { key: "env/bootrack", x: 580, y: 217 },
   { key: "env/locker-unit", x: 677, y: 238 },
   { key: "env/locker-unit-open", x: 760, y: 240 },
   { key: "env/kitbag", x: 775, y: 420 },
 ];
 
-/** Draw order of the static furniture (the analyzer is `prop: null`), back to front by base y. */
-const DRAW_ORDER: ReadonlyArray<{ y: number; prop: Prop | null }> = [...PROPS.map((prop) => ({ y: prop.y, prop })), { y: ANALYZER.baseY, prop: null }].sort((a, b) => a.y - b.y);
+/** The analyzer and the jukebox are stateful, so they are drawn by their own methods (`prop: null`). */
+type DrawEntry = { y: number; prop: Prop | null; special?: "analyzer" | "jukebox" };
+
+/** Draw order of the static furniture, back to front by base y. */
+const DRAW_ORDER: readonly DrawEntry[] = (
+  [
+    ...PROPS.map((prop): DrawEntry => ({ y: prop.y, prop })),
+    { y: ANALYZER.baseY, prop: null, special: "analyzer" },
+    { y: JUKEBOX.baseY, prop: null, special: "jukebox" },
+  ] satisfies DrawEntry[]
+).sort((a, b) => a.y - b.y);
+
+/** The jukebox spins and plays notes at this rate while the playlist popup is open (and briefly after). */
+const JUKEBOX_FRAMES = 3;
+const JUKEBOX_FPS = 4;
+const JUKEBOX_AFTERGLOW_SECONDS = 0.6;
 
 export interface LockerParams {
   /** Builds the pitch scene to return to (kept as a factory so this file never imports `PitchScene`). */
@@ -66,12 +82,14 @@ export interface PitchEnterParams {
   fromLocker?: boolean;
 }
 
-export type LockerTarget = "analyzer" | "cabinet" | "exit" | null;
+export type LockerTarget = "analyzer" | "cabinet" | "playlist" | "squad" | "exit" | null;
 
-/** Which interaction a spot offers; the analyzer wins where the circles ever overlap, then the cabinet. */
+/** Which interaction a spot offers; the analyzer wins where the circles ever overlap, then the cabinet, the jukebox and the whiteboard. */
 export function lockerTargetAt(x: number, y: number): LockerTarget {
   if (nearAnalyzer(x, y)) return "analyzer";
   if (nearCabinet(x, y)) return "cabinet";
+  if (nearJukebox(x, y)) return "playlist";
+  if (nearWhiteboard(x, y)) return "squad";
   if (nearExit(x, y)) return "exit";
   return null;
 }
@@ -92,6 +110,9 @@ export class LockerScene implements Scene {
   private exiting = false;
   private statOpen = false;
   private inventoryOpen = false;
+  private playlistOpen = false;
+  private squadOpen = false;
+  private jukeboxGlow = 0;
   private autoOpened = false;
   private loadout: Loadout = {};
   private pet: PetState = createPet(LOCKER_SPAWN.x, LOCKER_SPAWN.y);
@@ -154,6 +175,7 @@ export class LockerScene implements Scene {
     this.volume?.update(dt);
     this.clock += dt;
     if (this.afterglow > 0) this.afterglow = Math.max(0, this.afterglow - dt);
+    if (this.jukeboxGlow > 0) this.jukeboxGlow = Math.max(0, this.jukeboxGlow - dt);
     if (this.params.openInventory && !this.autoOpened && this.ready && this.ctx?.manager.transitionProgress == null) {
       this.autoOpened = true;
       this.openInventory();
@@ -162,14 +184,14 @@ export class LockerScene implements Scene {
     const p = this.player;
     const frozen = !host || this.exiting || this.ctx?.manager.transitionProgress != null;
     const down = (code: string) => (host?.input.isDown(code) ? 1 : 0);
-    stepPlayer(p, frozen ? { dx: 0, dy: 0, sprint: false } : { dx: down("ArrowRight") - down("ArrowLeft"), dy: down("ArrowDown") - down("ArrowUp"), sprint: false }, dt);
+    stepPlayer(p, frozen ? { dx: 0, dy: 0, sprint: false } : { dx: down("ArrowRight") - down("ArrowLeft"), dy: down("ArrowDown") - down("ArrowUp"), sprint: false }, dt, LOCKER_STEP_AREA);
     resolveBoxes(p);
     updatePet(this.pet, p, dt, Math.abs(p.fx) > 0.3 ? Math.sign(p.fx) : 0);
   }
 
   /** What a press of E would do right now (null while something else owns the input). */
   interaction(): LockerTarget {
-    if (this.exiting || this.statOpen || this.inventoryOpen || this.ctx?.manager.transitionProgress != null) return null;
+    if (this.exiting || this.statOpen || this.inventoryOpen || this.playlistOpen || this.squadOpen || this.ctx?.manager.transitionProgress != null) return null;
     return lockerTargetAt(this.player.x, this.player.y);
   }
 
@@ -213,6 +235,35 @@ export class LockerScene implements Scene {
         },
       }),
     );
+  }
+
+  /** The full-screen playlist popup lives in React (PitchEntry); the pitch music pauses while it plays. */
+  private openPlaylist() {
+    const ctx = this.ctx;
+    if (!ctx?.host.openPlaylist || this.playlistOpen || this.statOpen || this.inventoryOpen) return;
+    this.playlistOpen = true;
+    this.hovered = null;
+    this.pressed = null;
+    ctx.host.setCursor("default");
+    this.audio.playBgm(null);
+    ctx.host.openPlaylist(() => {
+      this.playlistOpen = false;
+      this.jukeboxGlow = JUKEBOX_AFTERGLOW_SECONDS;
+      this.audio.playBgm("locker");
+    });
+  }
+
+  /** The squad manager popup (the dashboard's squad builder) lives in React (PitchEntry); the game keeps running behind it. */
+  private openSquad() {
+    const ctx = this.ctx;
+    if (!ctx?.host.openSquad || this.squadOpen || this.playlistOpen || this.statOpen || this.inventoryOpen) return;
+    this.squadOpen = true;
+    this.hovered = null;
+    this.pressed = null;
+    ctx.host.setCursor("default");
+    ctx.host.openSquad(() => {
+      this.squadOpen = false;
+    });
   }
 
   private leaveToPitch() {
@@ -259,6 +310,8 @@ export class LockerScene implements Scene {
       const target = this.interaction();
       if (target === "analyzer") this.openStats();
       else if (target === "cabinet") this.openInventory();
+      else if (target === "playlist") this.openPlaylist();
+      else if (target === "squad") this.openSquad();
       else if (target === "exit") this.leaveToPitch();
       return;
     }
@@ -310,7 +363,7 @@ export class LockerScene implements Scene {
       g.fillRect(Math.round(LOGICAL_WIDTH / 2 - titleW / 2), 24, titleW, 32);
       drawText(g, "LOCKER ROOM", LOGICAL_WIDTH / 2, 40, { size: 20, color: TEXT_COLORS.gold, align: "center", baseline: "middle" });
       // two short lines in the bottom-left wall band (the tunnel mouth takes the middle of the bottom edge)
-      drawText(g, "방향키 이동 · E 스탯·캐비닛", 16, 510, { size: 10, color: "#9fe9ff", baseline: "middle" });
+      drawText(g, "방향키 이동 · E 상호작용", 16, 510, { size: 10, color: "#9fe9ff", baseline: "middle" });
       drawText(g, "Tab 캐릭터 변경 · Esc 나가기", 16, 526, { size: 10, color: "#9fe9ff", baseline: "middle" });
     }
     this.drawInteractHints(g);
@@ -357,6 +410,7 @@ export class LockerScene implements Scene {
     for (const entry of DRAW_ORDER) {
       while (next < movers.length && entry.y > movers[next].y) movers[next++].draw();
       if (entry.prop) this.drawProp(g, entry.prop);
+      else if (entry.special === "jukebox") this.drawJukebox(g);
       else this.drawAnalyzer(g);
     }
     while (next < movers.length) movers[next++].draw();
@@ -403,6 +457,32 @@ export class LockerScene implements Scene {
     g.fillRect(ANALYZER.baseX - w / 2, ANALYZER.baseY - h, w, h);
   }
 
+  /** OFF while powering on (like the analyzer), PLAYING while the popup is open (or just was), otherwise IDLE. Drawn mirrored. */
+  jukeboxState(): "off" | "idle" | "play" {
+    if (this.playlistOpen || this.jukeboxGlow > 0) return "play";
+    return this.clock < ANALYZER_POWER_ON_SECONDS ? "off" : "idle";
+  }
+
+  private drawJukebox(g: CanvasRenderingContext2D) {
+    const state = this.jukeboxState();
+    const sprite = this.image(`env/jukebox-${state}`);
+    const { baseX, baseY, spriteW: w, spriteH: h } = JUKEBOX;
+    if (!sprite) {
+      g.fillStyle = "#0a0a1a";
+      g.fillRect(baseX - w / 2 - 2, baseY - h - 2, w + 4, h + 4);
+      g.fillStyle = state === "play" ? "#8a6d1a" : state === "idle" ? "#1f5c66" : "#222a3a";
+      g.fillRect(baseX - w / 2, baseY - h, w, h);
+      return;
+    }
+    const frame = state === "play" ? Math.floor(this.clock * JUKEBOX_FPS) % JUKEBOX_FRAMES : 0;
+    const frameW = state === "play" ? Math.round(sprite.width / JUKEBOX_FRAMES) : sprite.width;
+    g.save();
+    g.translate(Math.round(baseX), 0);
+    g.scale(-1, 1);
+    g.drawImage(sprite, frame * frameW, 0, frameW, sprite.height, -Math.round(frameW / 2), Math.round(baseY - sprite.height), frameW, sprite.height);
+    g.restore();
+  }
+
   private drawPlayer(g: CanvasRenderingContext2D) {
     const p = this.player;
     const scale = depthScale(p.y) * LOCKER_PLAYER_SCALE;
@@ -425,15 +505,17 @@ export class LockerScene implements Scene {
   }
 
   /**
-   * Discoverability: the two usable spots (stat analyzer, cabinet) get a bobbing label until the
+   * Discoverability: the usable spots (stat analyzer, cabinet, jukebox, whiteboard) get a bobbing label until the
    * player stands in their circle (then the E prompt takes over). Hidden while an overlay or the exit is running.
    */
   private drawInteractHints(g: CanvasRenderingContext2D) {
-    if (!this.ready || this.exiting || this.statOpen || this.inventoryOpen || this.ctx?.manager.transitionProgress != null) return;
+    if (!this.ready || this.exiting || this.statOpen || this.inventoryOpen || this.playlistOpen || this.squadOpen || this.ctx?.manager.transitionProgress != null) return;
     const active = this.interaction();
     const spots: ReadonlyArray<{ target: LockerTarget; label: string; labelAt: [number, number] }> = [
       { target: "analyzer", label: "스탯 확인", labelAt: [ANALYZER.baseX, 250] },
-      { target: "cabinet", label: "캐비닛", labelAt: [CABINET.baseX, 90] },
+      { target: "cabinet", label: "인벤토리", labelAt: [CABINET.baseX, 90] },
+      { target: "squad", label: "스쿼드 관리", labelAt: [WHITEBOARD.baseX, WHITEBOARD.baseY - 72 * PROP_SCALE + 18] },
+      { target: "playlist", label: "플레이리스트", labelAt: [JUKEBOX.baseX, JUKEBOX.baseY - JUKEBOX.spriteH - 22] },
     ];
     const reduced = this.ctx?.host.reducedMotion?.() ?? false;
     for (const spot of spots) {
@@ -464,7 +546,7 @@ export class LockerScene implements Scene {
     const target = this.interaction();
     if (!target) return;
     const p = this.player;
-    const label = target === "analyzer" ? "스탯 확인" : target === "cabinet" ? "캐비닛 열기" : "피치로 나가기";
+    const label = target === "analyzer" ? "스탯 확인" : target === "cabinet" ? "인벤토리 열기" : target === "playlist" ? "플레이리스트" : target === "squad" ? "스쿼드 관리" : "피치로 나가기";
     drawPrompt(g, this.image("ui/dialog-small"), "E", label, p.x, p.y - Math.round(86 * depthScale(p.y) * LOCKER_PLAYER_SCALE), this.clock);
   }
 }

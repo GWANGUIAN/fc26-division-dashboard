@@ -47,7 +47,7 @@ export function playerSpeed(p: PlayerState) {
 }
 
 /** Advances one fixed step. */
-export function stepPlayer(p: PlayerState, input: MoveInput, dt: number) {
+export function stepPlayer(p: PlayerState, input: MoveInput, dt: number, area: { minX: number; maxX: number; minY: number; maxY: number } = PLAY_AREA) {
   const len = Math.hypot(input.dx, input.dy);
   const moving = len > 0;
   p.sprinting = moving && input.sprint;
@@ -81,12 +81,12 @@ export function stepPlayer(p: PlayerState, input: MoveInput, dt: number) {
   p.y += p.vy * dt;
 
   // Bounds: clamp the position and drop the velocity component pushing into the wall.
-  if (p.x < PLAY_AREA.minX || p.x > PLAY_AREA.maxX) {
-    p.x = clamp(p.x, PLAY_AREA.minX, PLAY_AREA.maxX);
+  if (p.x < area.minX || p.x > area.maxX) {
+    p.x = clamp(p.x, area.minX, area.maxX);
     p.vx = 0;
   }
-  if (p.y < PLAY_AREA.minY || p.y > PLAY_AREA.maxY) {
-    p.y = clamp(p.y, PLAY_AREA.minY, PLAY_AREA.maxY);
+  if (p.y < area.minY || p.y > area.maxY) {
+    p.y = clamp(p.y, area.minY, area.maxY);
     p.vy = 0;
   }
 

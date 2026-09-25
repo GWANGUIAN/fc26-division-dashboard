@@ -1,6 +1,6 @@
-# 13. 락커룸 캐비닛 · 인벤토리(캐릭터 꾸미기 + 펫) 사양
+# 13. 락커룸 인벤토리(캐릭터 꾸미기 + 펫) 사양
 
-락커룸에 **캐비닛 상호작용**을 추가하고, 열면 **인벤토리 창**이 떠서 캐릭터를 꾸민다(착용 아이템 + 펫). 착용 상태는 **캐릭터별로 저장**되고, 캐릭터가 움직이는 **모든 방향·모든 애니메이션**에서 유지된다. 이 문서가 구현의 기준이고, 이미지 생성 지시는 [14-inventory-image-runbook.md](14-inventory-image-runbook.md)(생성기 `tools/build-inventory-runbook.mjs`)에 있다. **구현보다 이 두 문서가 먼저**다.
+락커룸에 **인벤토리 상호작용**을 추가하고, 열면 **인벤토리 창**이 떠서 캐릭터를 꾸민다(착용 아이템 + 펫). 착용 상태는 **캐릭터별로 저장**되고, 캐릭터가 움직이는 **모든 방향·모든 애니메이션**에서 유지된다. 이 문서가 구현의 기준이고, 이미지 생성 지시는 [14-inventory-image-runbook.md](14-inventory-image-runbook.md)(생성기 `tools/build-inventory-runbook.mjs`)에 있다. **구현보다 이 두 문서가 먼저**다.
 
 > 기존 사실(탐색 결과): 피치 전체가 클라이언트 캔버스(960×540), 상태는 localStorage(`storage.ts` `pitchRead/pitchWrite`), 캐릭터 아틀라스는 960×960(96×96 셀 10×10, 방향 3종 `down`/`side`/`up`, 좌향 = `side` 미러, 80프레임: idle·run·shoot·skill·celebrate·disappointed — `data/animations.ts`, `engine/sprite.ts drawFrame`), 락커룸은 `scenes/LockerScene.ts` + `game/locker.ts`(원형 상호작용·`lockerTargetAt`·`drawPrompt`), 스탯 화면은 `manager.push(new StatScene(...))` 오버레이. 03 §4 가 락커룸 좌표의 기준이다.
 
@@ -103,10 +103,10 @@ interface PetDef { id: string; name: string; exclusiveTo?: string }
 - y 정렬 그리기에 참여(피치 `drawActors` 4번째 요소, 락커룸 `drawSorted` 의 이동 요소), **충돌·볼·슛 판정에 관여하지 않음**. 피치·락커룸·인벤토리 미리보기에 표시. 캐릭터 교체·`R` 리셋 때 `resetPet` 으로 바로 옆에 다시 놓는다.
 - 아트가 없으면 펫은 그려지지 않는다.
 
-## 5. 캐비닛 상호작용과 인벤토리 씬
+## 5. 인벤토리 상호작용과 인벤토리 씬
 
-### 5-1. 락커룸 캐비닛 (`game/locker.ts`, `LockerScene.ts`)
-- **닫힌 사물함 `env/locker-unit`(스프라이트 기준 (677,238), 03 §4 사물함1)** 이 "내 캐비닛"이다. 뒤쪽 줄은 걸을 수 없어 **상호작용 원 `CABINET` = 중심 (677, 258), r=56** 을 그 바로 앞 바닥에 둔다(분석기·출구 원·충돌 상자와 겹치지 않음, 테스트). 위치는 눈대중이라 사용자 확인 후 조정 가능. `ANALYZER`/`EXIT_DOOR` 와 같은 방식으로 `lockerTargetAt` 에 `"cabinet"` 분기, 프롬프트 `캐비닛 열기`(`drawPrompt` `E`), `onKey` 에서 E/Enter → `manager.push(new InventoryScene(...))`.
+### 5-1. 락커룸 인벤토리 (`game/locker.ts`, `LockerScene.ts`)
+- **닫힌 사물함 `env/locker-unit`(스프라이트 기준 (677,238), 03 §4 사물함1)** 이 "내 인벤토리"이다. 뒤쪽 줄은 걸을 수 없어 **상호작용 원 `CABINET` = 중심 (677, 258), r=56** 을 그 바로 앞 바닥에 둔다(분석기·출구 원·충돌 상자와 겹치지 않음, 테스트). 위치는 눈대중이라 사용자 확인 후 조정 가능. `ANALYZER`/`EXIT_DOOR` 와 같은 방식으로 `lockerTargetAt` 에 `"cabinet"` 분기, 프롬프트 `인벤토리 열기`(`drawPrompt` `E`), `onKey` 에서 E/Enter → `manager.push(new InventoryScene(...))`.
 - 인벤토리가 열려 있는 동안 소품 스프라이트를 `locker-unit` → `locker-unit-open` 으로 교체(닫히면 복귀). 분석기와 반경이 겹치지 않는지 `game/locker.ts` 테스트에 추가.
 - 락커룸 플레이어와 펫은 인벤토리에서 저장한 로드아웃을 닫힌 뒤 즉시 반영.
 
@@ -116,7 +116,7 @@ interface PetDef { id: string; name: string; exclusiveTo?: string }
 | 요소 | 창 기준 위치/크기 | 이미지(14) |
 | --- | --- | --- |
 | 창 프레임 | 0,0 · 720×480 | `ui/inv-frame` (#I23) |
-| 제목 | 상단 바 중앙 (360, 40) `캐비닛 · 캐릭터 이름` | 캔버스 텍스트(Galmuri11) |
+| 제목 | 상단 바 중앙 (360, 40) `인벤토리 · 캐릭터 이름` | 캔버스 텍스트(Galmuri11) |
 | **미리보기 패널(왼쪽)** | 29,74 · 212×337 (프레임의 왼쪽 오목 패널), 무대 이미지는 그 안 29,121 · 212×233 | `ui/inv-preview-stage` (#I24, 원본에서 자체 테두리를 잘라 안쪽만 사용) |
 | 미리보기 캐릭터 | 무대 연단 중심 (135, 319) 발 기준, 배율 2배, 펫은 캐릭터 옆 70px | 아틀라스 idle/run + 오버레이 |
 | 방향 회전 ◀▶ | (34,372)·(208,372) 원형 28×28 | `ui/inv-arrow-left/right` |
@@ -154,7 +154,7 @@ interface PetDef { id: string; name: string; exclusiveTo?: string }
 | 1 | 카탈로그·저장·앵커 추출 | `data/equipment.ts`, `storage.ts`, `scripts/build-pitch-anchors.mjs`, `data/equipmentAnchors.generated.ts` |
 | 2 | 변환 파이프라인 `equipment` / `pets` 모드(시트 슬라이스·정규화 셀·`assetMeta` 갱신) + `ui inv-*`·`fx equip-sparkle` 매니페스트 시트(`crop`·`parts` 지원) | `scripts/convert-pitch-art.mjs`, `scripts/pitch-art-manifest.json` |
 | 3 | 합성·펫·씬 적용, 에셋 그룹(`core` 에 시트, `pets:<id>`) | `engine/equipment.ts`, `game/pet.ts`, `PitchScene`, `LockerScene`, `engine/assets.ts` |
-| 4 | 캐비닛 + 인벤토리 씬 | `game/locker.ts`, `LockerScene.ts`, `scenes/InventoryScene.ts`, `ui/inventoryLayout.ts` |
+| 4 | 인벤토리 상호작용 + 씬 | `game/locker.ts`, `LockerScene.ts`, `scenes/InventoryScene.ts`, `ui/inventoryLayout.ts` |
 | 5 | 테스트·문서 동기화 | 아래 |
 
 ### 테스트 계획
@@ -186,7 +186,7 @@ interface PetDef { id: string; name: string; exclusiveTo?: string }
 | 1 카탈로그·저장·앵커 | 완료 | `data/equipment.ts`, `storage.ts`(`loadPitchLoadouts`/`savePitchLoadouts`), `pnpm build:pitch-anchors` |
 | 2 변환 | 완료 | `pnpm convert:pitch-art -- equipment`(4시트) · `pets`(16종 변환, **penguin·ungnami 원본 없음**) · UI/FX 7+1 시트는 원본 도착 후 `ui inv-*`, `fx equip-sparkle` |
 | 3 합성·펫 | 완료 | `engine/equipment.ts`, `game/pet.ts`, `PitchScene`, `LockerScene` |
-| 4 캐비닛·인벤토리 | 완료(UI 아트 없이 단색 폴백) | `scenes/InventoryScene.ts`, `ui/inventoryLayout.ts` |
+| 4 인벤토리 상호작용·씬 | 완료(UI 아트 없이 단색 폴백) | `scenes/InventoryScene.ts`, `ui/inventoryLayout.ts` |
 | 5 테스트 | 완료 | `equipment`·`equipmentDraw`·`pet`·`inventoryLayout`·`inventoryScene` + 매니페스트 테스트 |
 
 **남은 일 (이미지 도착 후)**: #I23~#I30(UI·FX)와 펭귄·웅남이 펫 이미지를 `tmp/pitch-src/` 에 저장 → `pnpm convert:pitch-art -- ui` / `-- fx equip-sparkle` / `-- pets penguin` / `-- pets ungnami`(변환 후 `assetMeta` 가 갱신되고 UI 키가 `locker` 그룹에 자동으로 들어옴) → 창 좌표(§5-2)·아이템 위치 상수를 눈으로 보고 조정. 브라우저 확인은 사용자가 배포본에서 진행.

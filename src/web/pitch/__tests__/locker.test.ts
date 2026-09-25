@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   ANALYZER,
+  EXIT_CORRIDOR,
   EXIT_DOOR,
+  JUKEBOX,
+  JUKEBOX_ZONE,
+  WHITEBOARD,
+  WHITEBOARD_ZONE,
   GATE,
   GATE_SPAWN,
   LOCKER_AREA,
@@ -12,12 +17,15 @@ import {
   insideBox,
   nearAnalyzer,
   nearExit,
+  nearJukebox,
+  nearWhiteboard,
   nearGate,
   nearGatePreload,
   resolveBoxes,
   withinCircle,
 } from "../game/locker";
 import { createPlayer, stepPlayer } from "../game/player";
+import { PLAY_AREA } from "../game/tuning";
 import { lockerTargetAt } from "../scenes/LockerScene";
 
 const body = (x: number, y: number) => ({ x, y, vx: 0, vy: 0 });
@@ -81,12 +89,56 @@ describe("locker room interaction radii", () => {
     expect(nearAnalyzer(p.x, p.y)).toBe(true);
     // and the door
     const q = createPlayer(480, 300);
-    for (let i = 0; i < 240; i++) {
-      stepPlayer(q, { dx: 0, dy: 1, sprint: false }, 1 / 60);
+    for (let i = 0; i < 420; i++) {
+      stepPlayer(q, { dx: 0, dy: 1, sprint: false }, 1 / 60, { ...PLAY_AREA, maxY: EXIT_CORRIDOR.maxY });
       resolveBoxes(q);
     }
-    expect(q.y).toBe(LOCKER_AREA.maxY);
+    expect(q.y).toBe(EXIT_CORRIDOR.maxY);
     expect(nearExit(q.x, q.y)).toBe(true);
+  });
+});
+
+describe("exit corridor", () => {
+  it("lets the feet walk down into the tunnel mouth but not beside it", () => {
+    const inside = body(480, 500);
+    clampToArea(inside);
+    expect(inside).toMatchObject({ x: 480, y: 500 });
+    const beside = body(300, 500);
+    clampToArea(beside);
+    expect(beside.y).toBe(LOCKER_AREA.maxY);
+  });
+
+  it("stops at the tunnel end and slides along its walls without snapping back up", () => {
+    const b = body(480, 900);
+    clampToArea(b);
+    expect(b.y).toBe(EXIT_CORRIDOR.maxY);
+    const wall = body(EXIT_CORRIDOR.minX - 3, 500);
+    clampToArea(wall);
+    expect(wall).toMatchObject({ x: EXIT_CORRIDOR.minX, y: 500 });
+  });
+});
+
+describe("jukebox", () => {
+  it("prompts in front of its solid base and keeps clear of the other spots", () => {
+    expect(nearJukebox(JUKEBOX_ZONE.x, JUKEBOX_ZONE.y)).toBe(true);
+    expect(lockerTargetAt(JUKEBOX_ZONE.x, JUKEBOX_ZONE.y)).toBe("playlist");
+    expect(LOCKER_COLLIDERS.some((box) => insideBox(JUKEBOX_ZONE.x, JUKEBOX_ZONE.y, box))).toBe(false);
+    expect(JUKEBOX_ZONE.y).toBeLessThanOrEqual(LOCKER_AREA.maxY);
+    expect(nearJukebox(EXIT_DOOR.baseX, EXIT_DOOR.baseY)).toBe(false);
+    expect(JUKEBOX.baseX - JUKEBOX.spriteW / 2).toBeGreaterThanOrEqual(LOCKER_AREA.minX - 30);
+  });
+});
+
+describe("whiteboard", () => {
+  it("sits 20px higher than before and opens the squad manager from the first walkable row in front of it", () => {
+    expect(WHITEBOARD.baseY).toBe(185);
+    expect(WHITEBOARD_ZONE.y).toBeGreaterThanOrEqual(LOCKER_AREA.minY);
+    const feet = body(WHITEBOARD_ZONE.x, LOCKER_AREA.minY);
+    resolveBoxes(feet);
+    expect(nearWhiteboard(feet.x, feet.y)).toBe(true);
+    expect(lockerTargetAt(feet.x, feet.y)).toBe("squad");
+    expect(LOCKER_COLLIDERS.some((box) => insideBox(WHITEBOARD_ZONE.x, WHITEBOARD_ZONE.y, box))).toBe(false);
+    expect(nearWhiteboard(EXIT_DOOR.baseX, EXIT_DOOR.baseY)).toBe(false);
   });
 });
 

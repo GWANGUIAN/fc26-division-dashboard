@@ -64,7 +64,7 @@ const INVENTORY_KEYS = [
 ].filter((key) => key in PITCH_ASSET_META);
 
 const LOCKER_KEYS = [
-  ...ids("env", ["locker-bg", "terminal-off", "terminal-idle", "terminal-active", "locker-unit", "locker-unit-open", "bench", "whiteboard", "cooler", "kitbag", "bootrack"]),
+  ...ids("env", ["locker-bg", "terminal-off", "terminal-idle", "terminal-active", "locker-unit", "locker-unit-open", "bench", "whiteboard", "cooler", "kitbag", "bootrack", "jukebox-off", "jukebox-idle", "jukebox-play"]),
   ...ids("ui", ["hex-bg", "hex-frame", "hex-fill", "node-normal", "node-hover", "node-selected", "axis-plate", "detail-panel", "coming-soon", "terminal-frame", "scan-line", "padlock"]),
   ...ids("ui", ["icon-hexagon", "icon-question", "icon-locker"]),
   ...INVENTORY_KEYS,
