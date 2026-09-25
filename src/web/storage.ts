@@ -1073,3 +1073,60 @@ export function loadPitchStats(): PitchStats {
 export function savePitchStats(stats: PitchStats) {
   pitchWrite(PITCH_STATS_STORAGE_KEY, JSON.stringify(stats));
 }
+
+// ── 피치 캐릭터별 착용 상태 — docs/pitch/13 §3 (fc26-pitch-loadout-v1) ───────────────────────────
+export const PITCH_LOADOUT_STORAGE_KEY = "fc26-pitch-loadout-v1";
+
+/** characterId → slot → item/pet id. Only the shape is checked here; the catalog check lives in pitch/data/equipment.ts. */
+export type PitchLoadoutStore = Record<string, Record<string, string>>;
+
+export function loadPitchLoadouts(): PitchLoadoutStore {
+  try {
+    const raw = pitchRead(PITCH_LOADOUT_STORAGE_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : null;
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+    const store: PitchLoadoutStore = {};
+    for (const [characterId, slots] of Object.entries(parsed as Record<string, unknown>)) {
+      if (!slots || typeof slots !== "object" || Array.isArray(slots)) continue;
+      const clean: Record<string, string> = {};
+      for (const [slot, id] of Object.entries(slots as Record<string, unknown>)) {
+        if (typeof id === "string" && id) clean[slot] = id;
+      }
+      // an empty object is kept: it means the player took everything off (no entry at all = the character's default)
+      store[characterId] = clean;
+    }
+    return store;
+  } catch {
+    return {};
+  }
+}
+
+export function savePitchLoadouts(store: PitchLoadoutStore) {
+  pitchWrite(PITCH_LOADOUT_STORAGE_KEY, JSON.stringify(store));
+}
+
+// ── 피치 인벤토리 미리보기 설정 — docs/pitch/13 §5-3 (fc26-pitch-inventory-v1) ───────────────────
+export const PITCH_INVENTORY_STORAGE_KEY = "fc26-pitch-inventory-v1";
+
+export interface PitchInventoryPrefs {
+  /** true = the preview turns by itself (자동 회전), false = it holds its direction (고정). */
+  autoTurn: boolean;
+}
+
+export const DEFAULT_PITCH_INVENTORY_PREFS: PitchInventoryPrefs = { autoTurn: true };
+
+export function loadPitchInventoryPrefs(): PitchInventoryPrefs {
+  try {
+    const raw = pitchRead(PITCH_INVENTORY_STORAGE_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : null;
+    if (!parsed || typeof parsed !== "object") return { ...DEFAULT_PITCH_INVENTORY_PREFS };
+    const data = parsed as Record<string, unknown>;
+    return { autoTurn: typeof data.autoTurn === "boolean" ? data.autoTurn : DEFAULT_PITCH_INVENTORY_PREFS.autoTurn };
+  } catch {
+    return { ...DEFAULT_PITCH_INVENTORY_PREFS };
+  }
+}
+
+export function savePitchInventoryPrefs(prefs: PitchInventoryPrefs) {
+  pitchWrite(PITCH_INVENTORY_STORAGE_KEY, JSON.stringify(prefs));
+}

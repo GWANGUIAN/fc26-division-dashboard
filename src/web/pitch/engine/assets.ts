@@ -4,6 +4,7 @@
 
 import { PITCH_CHARACTER_IDS } from "../data/characterIds";
 import { PITCH_ASSET_META } from "../data/assetMeta.generated";
+import { petsFor } from "../data/equipment";
 
 const PORTRAIT_NAMES = ["neutral", "confident", "celebrate", "disappointed"] as const;
 
@@ -20,7 +21,7 @@ const URLS: ReadonlyMap<string, string> = new Map(
 
 export type AssetImage = ImageBitmap | HTMLImageElement;
 
-export type AssetGroupName = "boot" | "core" | "select" | "locker" | `char:${string}`;
+export type AssetGroupName = "boot" | "core" | "select" | "locker" | `char:${string}` | `pets:${string}`;
 
 export interface AssetSpec {
   key: string;
@@ -46,6 +47,8 @@ const CORE_KEYS = [
   ...ids("ui", ["banner-goal", "burst-goal", "banner-save", "burst-save", "banner-post", "burst-post", "banner-miss", "burst-miss", "banner-style", "star-style", "banner-perfect", "ring-perfect"]),
   ...ids("ui", ["icon-sound-on", "icon-sound-off", "icon-music-on", "icon-music-off", "icon-close", "icon-back", "icon-gear", "icon-lock"]),
   "characters/keeper-ai-atlas",
+  // wearable items (docs/pitch/13): 4 sheets, ~50KB; drawn only when a loadout uses them
+  ...ids("equipment", ["acc-hat-a", "acc-hat-b", "acc-face-a", "acc-back-a"]),
 ];
 
 const SELECT_KEYS = [
@@ -54,10 +57,17 @@ const SELECT_KEYS = [
   ...PITCH_CHARACTER_IDS.flatMap((id) => [`characters/${id}-hero`, `portraits/${id}-neutral`, `portraits/${id}-confident`]),
 ];
 
+// Inventory UI art (docs/pitch/14 #I23-#I30) is optional like the title logo: it joins the locker group once converted.
+const INVENTORY_KEYS = [
+  ...ids("ui", ["inv-frame", "inv-preview-stage", "inv-tab-hat", "inv-tab-face", "inv-tab-back", "inv-tab-pet", "inv-slot", "inv-btn", "inv-arrow-left", "inv-arrow-right", "inv-infocard", "inv-badge-equipped", "inv-badge-exclusive", "inv-badge-new", "inv-badge-locked"]),
+  "fx/fx-equip-sparkle",
+].filter((key) => key in PITCH_ASSET_META);
+
 const LOCKER_KEYS = [
   ...ids("env", ["locker-bg", "terminal-off", "terminal-idle", "terminal-active", "locker-unit", "locker-unit-open", "bench", "whiteboard", "cooler", "kitbag", "bootrack"]),
   ...ids("ui", ["hex-bg", "hex-frame", "hex-fill", "node-normal", "node-hover", "node-selected", "axis-plate", "detail-panel", "coming-soon", "terminal-frame", "scan-line", "padlock"]),
   ...ids("ui", ["icon-hexagon", "icon-question", "icon-locker"]),
+  ...INVENTORY_KEYS,
 ];
 
 /**
@@ -72,12 +82,14 @@ export const ASSET_GROUPS: Readonly<Record<"boot" | "core" | "select" | "locker"
   locker: LOCKER_KEYS.map(spec),
 };
 
-/** `char:<id>` = the atlas + the four portraits of one field character. */
+/** `char:<id>` = the atlas + the four portraits of one field character; `pets:<id>` = its wearable pets. */
 export function groupSpecs(group: AssetGroupName, groups: Readonly<Record<string, readonly AssetSpec[]>> = ASSET_GROUPS): readonly AssetSpec[] {
   if (group.startsWith("char:")) {
     const id = group.slice("char:".length);
     return [`characters/${id}-atlas`, ...PORTRAIT_NAMES.map((name) => `portraits/${id}-${name}`)].map(spec);
   }
+  // `pets:<id>` = every pet character <id> may wear (docs/pitch/13 §2), loaded when the inventory opens and for the equipped pet
+  if (group.startsWith("pets:")) return petsFor(group.slice("pets:".length)).map((pet) => spec(`pets/pet-${pet.id}`));
   return groups[group] ?? [];
 }
 

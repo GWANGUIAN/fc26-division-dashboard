@@ -13,6 +13,8 @@
  *   pnpm convert:pitch-art -- characters                     every character whose eight (five) sheets all exist
  *   pnpm convert:pitch-art -- env goal                       one sheet (ids: see the manifest "sheets")
  *   pnpm convert:pitch-art -- env | fx | ui | keyart         every sheet of the category
+ *   pnpm convert:pitch-art -- equipment hat-a                one wearable-item sheet (docs/pitch/13 §4; ids: hat-a hat-b face-a back-a)
+ *   pnpm convert:pitch-art -- pets panchi                    one pet sheet (`equipment` / `pets` alone = every sheet that has an original)
  *   pnpm convert:pitch-art -- --all                          everything that has an original
  * Flags: --tolerance N (chroma-key distance for magenta-background originals, default 40)
  *        --quality N (lossy WebP quality of the 960x540 scenes, default 90)
@@ -38,7 +40,7 @@ const metaFile = path.join(rootDir, "src", "web", "pitch", "data", "assetMeta.ge
 const reportFile = path.join(srcRoot, "qa-report.json");
 const manifest = JSON.parse(readFileSync(path.join(__dirname, "pitch-art-manifest.json"), "utf8"));
 
-const CATEGORIES = ["characters", "env", "fx", "ui", "keyart"];
+const CATEGORIES = ["characters", "env", "fx", "ui", "keyart", "equipment", "pets"];
 const FIELD_SHEETS = ["stand", "idle", "run", "shoot", "skill-side", "skill-up", "emote", "portrait"];
 const KEEPER_SHEETS = ["stand", "ready", "dive", "save", "react"];
 const CELL = manifest.cell;
@@ -402,7 +404,22 @@ async function convertSheet(category, sheetId) {
   beginScope(`${category}/${sheetId}`);
   const file = sourceFile(category, cfg.file);
   if (!file) return;
-  const raster = normalizeAlpha(await loadRaster(file), cfg.file);
+  const base = normalizeAlpha(await loadRaster(file), cfg.file);
+  for (const part of cfg.parts ?? [cfg]) await convertPart(category, sheetId, { ...cfg, ...part }, base);
+}
+
+/** One grid of a sheet (`crop` = [x, y, w, h] as fractions of the original when the art only fills a band). */
+async function convertPart(category, sheetId, cfg, source) {
+  let raster = source;
+  if (cfg.crop) {
+    const [fx, fy, fw, fh] = cfg.crop;
+    raster = M.cropRaster(source, {
+      x: Math.round(fx * source.width),
+      y: Math.round(fy * source.height),
+      w: Math.round(fw * source.width),
+      h: Math.round(fh * source.height),
+    });
+  }
   const [cols, rows] = cfg.grid;
   const cells = M.gridCells(raster.width, raster.height, cols, rows);
   if (raster.width !== 1536 || raster.height !== 1024) console.log(`  · 원본 캔버스 ${raster.width}×${raster.height} (요청 1536×1024): 그리드 비례로 처리`);
@@ -468,6 +485,109 @@ async function convertSheet(category, sheetId) {
 }
 
 // ---------------------------------------------------------------------------------------------
+// Wearable items and pets (docs/pitch/13 §4, 14)
+/** Mirrors a raster left-right in place. */
+function flipHorizontal(raster) {
+  const { data, width, height } = raster;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width >> 1; x++) {
+      const a = (y * width + x) * 4;
+      const b = (y * width + (width - 1 - x)) * 4;
+      for (let c = 0; c < 4; c++) {
+        const t = data[a + c];
+        data[a + c] = data[b + c];
+        data[b + c] = t;
+      }
+    }
+  }
+}
+
+/** 3 views (front / side / back) x 4 items -> one atlas of 3*cell x 4*cell; every view of an item keeps the scale of its front view. */
+async function convertEquipment(sheetId) {
+  const cfg = manifest.equipment.sheets[sheetId];
+  beginScope(`equipment/${sheetId}`);
+  const file = sourceFile("equipment", cfg.file);
+  if (!file) return;
+  const raster = normalizeAlpha(await loadRaster(file), cfg.file);
+  if (raster.width !== 1536 || raster.height !== 1024) console.log(`  · 원본 캔버스 ${raster.width}×${raster.height} (요청 1536×1024): 그리드 비례로 처리`);
+  const sprites = M.extractSprites(raster, M.gridCells(raster.width, raster.height, 3, 4), HARD);
+  const [cw, ch] = cfg.cell;
+  const atlas = M.createRaster(cw * 3, ch * 4);
+  cfg.items.forEach(([id, bakedW, opts = {}], row) => {
+    const target = `equipment/${sheetId}/${id}`;
+    const views = [0, 1, 2].map((col) => sprites[row * 3 + col]);
+    const front = views[0];
+    if (!front) return warn(target, "정면 셀이 비어 있음", "empty");
+    let scale = bakedW / front.raster.width;
+    const overflow = Math.max(...views.filter(Boolean).map((v) => Math.max((v.raster.width * scale) / cw, (v.raster.height * scale) / ch)));
+    if (overflow > 1) {
+      scale /= overflow;
+      warn(target, `측면/후면이 칸(${cw}×${ch})보다 커서 x${(1 / overflow).toFixed(2)} 로 더 줄임`, "scale");
+    }
+    views.forEach((sprite, col) => {
+      if (!sprite) {
+        if (!(cfg.slot === "face" && col === 2)) warn(`${target} view${col}`, "셀이 비어 있음", "empty");
+        return;
+      }
+      if (M.bboxTouchesEdge(sprite.bbox, raster.width, raster.height, 1)) warn(`${target} view${col}`, "오브젝트가 시트 가장자리에 닿음(잘렸을 수 있음)", "clip");
+      const w = Math.max(1, Math.round(sprite.raster.width * scale));
+      const h = Math.max(1, Math.round(sprite.raster.height * scale));
+      const scaled = M.boxDownscale(sprite.raster, w, h);
+      M.snapAlpha(scaled);
+      if (col === 1 && opts.flipSide) flipHorizontal(scaled);
+      const y = cfg.slot === "hat" ? ch - h : cfg.slot === "face" ? Math.round((ch - h) / 2) : 0;
+      M.blit(atlas, scaled, col * cw + Math.round((cw - w) / 2), row * ch + y);
+    });
+    console.log(`  · ${target}: 정면 ${front.raster.width}px → ${Math.round(front.raster.width * scale)}px (x${scale.toFixed(3)})`);
+  });
+  warnMagenta(`equipment/${sheetId}`, atlas);
+  await saveRaster(atlas, "equipment", `acc-${sheetId}`, { note: `atlas ${cw * 3}×${ch * 4}, cell ${cw}×${ch}` });
+}
+
+/** 4 poses x 3 directions -> one atlas of 4*cell x 3*cell; uniform scale per pet, per-row ground line = median bottom. */
+async function convertPet(id) {
+  const cfg = manifest.pets;
+  beginScope(`pets/${id}`);
+  const file = sourceFile("pets", `pet-${id}.png`);
+  if (!file) return;
+  const raster = normalizeAlpha(await loadRaster(file), `pet-${id}.png`);
+  const cells = M.gridCells(raster.width, raster.height, 4, 3);
+  const sprites = M.extractSprites(raster, cells, HARD);
+  const missing = sprites.map((sprite, i) => (sprite ? -1 : i)).filter((i) => i >= 0);
+  for (const i of missing) warn(`pets/${id} #${i}`, "셀이 비어 있음", "empty");
+  const found = sprites.filter(Boolean);
+  if (found.length === 0) return;
+  found.forEach((sprite) => {
+    if (M.bboxTouchesEdge(sprite.bbox, raster.width, raster.height, 1)) warn(`pets/${id}`, "오브젝트가 시트 가장자리에 닿음(잘렸을 수 있음)", "clip");
+  });
+  const maxW = Math.max(...found.map((sprite) => sprite.raster.width));
+  const maxH = Math.max(...found.map((sprite) => sprite.raster.height));
+  const scale = Math.min(cfg.fit[0] / maxW, cfg.fit[1] / maxH);
+  const size = cfg.cell;
+  const atlas = M.createRaster(size * 4, size * 3);
+  for (let row = 0; row < 3; row++) {
+    const bottoms = [0, 1, 2, 3].filter((col) => sprites[row * 4 + col]).map((col) => sprites[row * 4 + col].bbox.y + sprites[row * 4 + col].bbox.h);
+    const ground = M.median(bottoms);
+    for (let col = 0; col < 4; col++) {
+      const sprite = sprites[row * 4 + col];
+      if (!sprite) continue;
+      const w = Math.max(1, Math.round(sprite.raster.width * scale));
+      const h = Math.max(1, Math.round(sprite.raster.height * scale));
+      const scaled = M.boxDownscale(sprite.raster, w, h);
+      M.snapAlpha(scaled);
+      const bottom = Math.min(size - 1, cfg.baseY + Math.round((sprite.bbox.y + sprite.bbox.h - ground) * scale));
+      const top = Math.max(0, bottom - h);
+      if (bottom - h < 0) warn(`pets/${id} #${row * 4 + col}`, "점프 프레임이 칸 위쪽에서 잘림", "clip");
+      M.blit(atlas, scaled, col * size + Math.round((size - w) / 2), row * size + top);
+    }
+  }
+  console.log(`  · pets/${id}: 최대 ${maxW}×${maxH}px → 배율 x${scale.toFixed(3)} (칸 ${size}px)`);
+  if (scale > 1.001) warn(`pets/${id}`, `원본이 목표보다 작아 확대됨(x${scale.toFixed(2)})`, "scale");
+  warnMagenta(`pets/${id}`, atlas);
+  await saveRaster(atlas, "pets", `pet-${id}`, { note: `atlas ${size * 4}×${size * 3}, cell ${size}` });
+}
+
+// ---------------------------------------------------------------------------------------------
 // Meta (bytes + dimensions of every converted file, consumed by engine/assets.ts)
 function walkWebp(dir, base = dir) {
   if (!existsSync(dir)) return [];
@@ -484,7 +604,7 @@ async function writeMeta() {
   const extra = new Map(); // key -> { frames?, slice? }
   for (const [category, sheets] of Object.entries(manifest.sheets)) {
     for (const cfg of Object.values(sheets)) {
-      for (const [id, cellRef, , , opts = {}] of cfg.items ?? []) {
+      for (const [id, cellRef, , , opts = {}] of (cfg.parts ? cfg.parts.flatMap((part) => part.items) : cfg.items) ?? []) {
         const info = {};
         if (Array.isArray(cellRef) && cellRef.length > 1) info.frames = cellRef.length;
         if (opts.slice !== undefined) info.slice = opts.slice;
@@ -538,6 +658,22 @@ async function run(category, id) {
         continue;
       }
       await convertCharacter(character);
+    }
+    return;
+  }
+  if (category === "equipment") {
+    const ids = Object.keys(manifest.equipment.sheets);
+    for (const sheetId of id ? [id] : ids) {
+      if (!ids.includes(sheetId)) throw new Error(`Unknown equipment sheet "${sheetId}". Known: ${ids.join(", ")}`);
+      await convertEquipment(sheetId);
+    }
+    return;
+  }
+  if (category === "pets") {
+    const ids = [...manifest.pets.common, ...Object.keys(manifest.pets.exclusive)];
+    for (const petId of id ? [id] : ids) {
+      if (!ids.includes(petId)) throw new Error(`Unknown pet "${petId}". Known: ${ids.join(", ")}`);
+      await convertPet(petId);
     }
     return;
   }

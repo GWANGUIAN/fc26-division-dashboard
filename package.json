@@ -19,6 +19,7 @@
     "convert:cursor-art": "node scripts/convert-cursor-art.mjs",
     "build:windows-cursors": "node scripts/build-windows-cursors.mjs",
     "convert:pitch-art": "node scripts/convert-pitch-art.mjs",
+    "build:pitch-anchors": "node scripts/build-pitch-anchors.mjs",
     "convert:minigame-art": "node scripts/convert-minigame-art.mjs",
     "convert:title-frame": "node scripts/convert-title-frame-art.mjs",
     "sync:comments-roster": "node scripts/sync-roster-from-comments-xlsx.mjs",

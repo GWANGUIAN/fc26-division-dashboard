@@ -6,12 +6,14 @@
 
 import { getCharacter, resolveStoredCharacter, type PitchCharacter } from "../data/characters";
 import { clipDef, frameAt, frameRect } from "../data/animations";
+import { loadLoadout, type Loadout } from "../data/equipment";
 import { SILENT_PITCH_AUDIO, type PitchAudioLike } from "../audio/pitchAudio";
 import { kickSfx, type PitchSfxId } from "../audio/sfxMap";
 import { createEffectPool, drawEffects } from "../engine/effects";
 import { createParticlePool, particleProgress } from "../engine/particles";
 import type { AssetImage, PitchAssets } from "../engine/assets";
 import type { PointerInput, Scene, SceneCtx } from "../engine/sceneManager";
+import { drawEquippedFrame } from "../engine/equipment";
 import { drawFrame, drawNineSlice, drawStripFrame } from "../engine/sprite";
 import { LOGICAL_HEIGHT, LOGICAL_WIDTH } from "../engine/stage";
 import { drawText, TEXT_COLORS } from "../engine/text";
@@ -30,6 +32,7 @@ import {
 } from "../game/keeper";
 import { ballExit, beginFlight, createMatch, fadeAlpha, registerResult, resolveShot, stepMatch, type ShotResult } from "../game/match";
 import { GATE, GATE_SCALE, GATE_SPAWN, gateDistance } from "../game/locker";
+import { createPet, drawPet, resetPet, updatePet, type PetState } from "../game/pet";
 import { createPlayer, playerPose, playerSpeed, resetPlayer, stepPlayer, type MoveInput } from "../game/player";
 import { createRng, type Rng } from "../game/rng";
 import {
@@ -215,13 +218,17 @@ export class PitchScene implements Scene {
   private leaving: number | null = null;
 
   private staticLayer: HTMLCanvasElement | null = null;
-  private readonly order = [0, 1, 2];
-  private readonly sortY = [0, 0, 0];
+  private readonly order = [0, 1, 2, 3];
+  private readonly sortY = [0, 0, 0, 0];
+  /** What the current character wears and its pet (docs/pitch/13); items and pet are visual only. */
+  private loadout: Loadout = {};
+  private readonly pet: PetState = createPet(0, 0);
 
   enter(ctx: SceneCtx, params?: unknown) {
     this.ctx = ctx;
     this.assets = ctx.host.assets;
     this.character = resolveStoredCharacter();
+    this.refreshLook();
     const settings = loadPitchSettings();
     this.muted = !settings.sfxOn && !settings.musicOn;
     this.audio = ctx.host.audio ?? SILENT_PITCH_AUDIO;
@@ -247,6 +254,7 @@ export class PitchScene implements Scene {
     Object.assign(this.player, createPlayer(GATE_SPAWN.x, GATE_SPAWN.y));
     this.player.fx = 1;
     this.player.fy = 0;
+    resetPet(this.pet, GATE_SPAWN.x, GATE_SPAWN.y);
     Object.assign(this.ball, createBall(GATE_SPAWN.x + DRIBBLE.touchDistance, GATE_SPAWN.y));
     this.gateNear = gateDistance(GATE_SPAWN.x, GATE_SPAWN.y) <= GATE.promptRadius;
     this.lockerRequested = true;
@@ -311,8 +319,16 @@ export class PitchScene implements Scene {
     this.updateShot(dt);
     this.emitDust(dt);
     this.dust.update(dt, 3);
+    updatePet(this.pet, this.player, dt, Math.abs(this.player.fx) > 0.3 ? Math.sign(this.player.fx) : 0);
     this.syncAudio();
     this.updateGate();
+  }
+
+  /** Reads the saved loadout of the current character, fetches its pet art and puts the pet next to the player. */
+  private refreshLook() {
+    this.loadout = loadLoadout(this.character.id);
+    resetPet(this.pet, this.player.x, this.player.y);
+    if (this.loadout.pet) void this.assets?.loadGroup?.(`pets:${this.character.id}`)?.catch?.(() => undefined);
   }
 
   /** Gate proximity: opens the gate, and the first time the player gets within the preload radius the locker assets are fetched. */
@@ -735,6 +751,7 @@ export class PitchScene implements Scene {
   /** R: same, and it also abandons a shot that is still in flight or showing its result. */
   private hardReset() {
     this.resetPitch();
+    resetPet(this.pet, this.player.x, this.player.y);
     const m = this.match;
     m.phase = "play";
     m.timer = 0;
@@ -822,6 +839,7 @@ export class PitchScene implements Scene {
   setCharacter(character: PitchCharacter) {
     this.character = character;
     this.hardReset();
+    this.refreshLook();
   }
 
   private leave() {
@@ -1072,10 +1090,12 @@ export class PitchScene implements Scene {
     sortY[0] = KEEPER_FOOT_Y;
     sortY[1] = this.player.y;
     sortY[2] = this.ball.y;
+    sortY[3] = this.pet.y;
     order[0] = 0;
     order[1] = 1;
     order[2] = 2;
-    for (let i = 1; i < 3; i++) {
+    order[3] = 3;
+    for (let i = 1; i < 4; i++) {
       const v = order[i]!;
       let j = i - 1;
       while (j >= 0 && sortY[order[j]!]! > sortY[v]!) {
@@ -1089,6 +1109,7 @@ export class PitchScene implements Scene {
     for (const index of order) {
       if (index === 0) this.drawKeeper(g);
       else if (index === 1) this.drawPlayer(g);
+      else if (index === 3) this.drawPetSprite(g);
       else if (!this.ballInNet) this.drawBall(g);
     }
   }
@@ -1116,7 +1137,13 @@ export class PitchScene implements Scene {
       return;
     }
     const cell = this.playerRect();
-    drawFrame(g, atlas, cell.rect, p.x, p.y - hop, { scale, mirror: cell.mirror });
+    drawEquippedFrame(g, atlas, cell.rect, this.character.id, this.loadout, (key) => this.image(key) as never, p.x, p.y - hop, { scale, mirror: cell.mirror });
+  }
+
+  private drawPetSprite(g: CanvasRenderingContext2D) {
+    const petId = this.loadout.pet;
+    if (!petId) return;
+    drawPet(g, this.image(`pets/pet-${petId}`), this.pet, depthScale(this.pet.y));
   }
 
   /** Atlas cell of the player: kick clip after the shot, celebration / disappointment during the result, else idle / run. */

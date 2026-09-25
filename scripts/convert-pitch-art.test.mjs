@@ -31,20 +31,44 @@ describe("pitch-art-manifest", () => {
     for (const [category, sheets] of Object.entries(manifest.sheets)) {
       for (const [sheetId, cfg] of Object.entries(sheets)) {
         if (cfg.scene) continue;
-        const total = cfg.grid[0] * cfg.grid[1];
-        const seen = new Set();
-        for (const [id, cell] of cfg.items) {
-          for (const c of Array.isArray(cell) ? cell : [cell]) {
-            expect(c, `${sheetId}/${id}`).toBeLessThan(total);
-            expect(seen.has(c), `${sheetId} cell ${c} reused`).toBe(false);
-            seen.add(c);
+        // a sheet is one grid, or several (`parts`, each with its own crop band, grid and items)
+        for (const part of cfg.parts ?? [cfg]) {
+          const total = part.grid[0] * part.grid[1];
+          const seen = new Set();
+          for (const [id, cell] of part.items) {
+            for (const c of Array.isArray(cell) ? cell : [cell]) {
+              expect(c, `${sheetId}/${id}`).toBeLessThan(total);
+              expect(seen.has(c), `${sheetId} cell ${c} reused`).toBe(false);
+              seen.add(c);
+            }
+            const key = `${category}/${id}`;
+            expect(ids.has(key), key).toBe(false);
+            ids.add(key);
           }
-          const key = `${category}/${id}`;
-          expect(ids.has(key), key).toBe(false);
-          ids.add(key);
         }
       }
     }
+  });
+});
+
+describe("pitch-art-manifest equipment and pets", () => {
+  it("wearable sheets are 3 views x 4 items with a baked width that fits the cell", () => {
+    expect(manifest.equipment.headRef).toBeGreaterThan(0);
+    for (const [sheetId, cfg] of Object.entries(manifest.equipment.sheets)) {
+      expect(["hat", "face", "back"], sheetId).toContain(cfg.slot);
+      expect(cfg.items, sheetId).toHaveLength(4);
+      for (const [id, width] of cfg.items) expect(width, `${sheetId}/${id}`).toBeLessThanOrEqual(cfg.cell[0]);
+    }
+  });
+
+  it("pets: 6 common + 12 exclusive to distinct field characters, fitting the cell", () => {
+    expect(manifest.pets.common).toHaveLength(6);
+    const owners = Object.values(manifest.pets.exclusive);
+    expect(owners).toHaveLength(12);
+    expect(new Set(owners).size).toBe(12);
+    for (const owner of owners) expect(manifest.characters.field).toContain(owner);
+    expect(manifest.pets.baseY).toBeLessThan(manifest.pets.cell);
+    expect(Math.max(...manifest.pets.fit)).toBeLessThanOrEqual(manifest.pets.cell);
   });
 });
 

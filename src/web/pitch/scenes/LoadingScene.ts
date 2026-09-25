@@ -5,7 +5,9 @@ import { LOGICAL_HEIGHT, LOGICAL_WIDTH } from "../engine/stage";
 import type { PointerInput, Scene, SceneCtx } from "../engine/sceneManager";
 import { drawStripFrame } from "../engine/sprite";
 import { drawText, TEXT_COLORS } from "../engine/text";
-import { resolveStoredCharacter } from "../data/characters";
+import { getCharacter, resolveStoredCharacter } from "../data/characters";
+import { LockerScene } from "./LockerScene";
+import { pitchFitParams } from "./pitchDebug";
 import { PitchScene } from "./PitchScene";
 
 export const MIN_LOADING_MS = 600;
@@ -38,7 +40,8 @@ export class LoadingScene implements Scene {
     ctx.host.audio?.playBgm("loading");
     // `core` does not contain the selected character's atlas: load its group alongside so the pitch opens with the real sprite.
     // (an id the registry does not know is corrected to the default here, before any group is chosen)
-    const characterGroup = `char:${resolveStoredCharacter().id}` as const;
+    const fit = pitchFitParams();
+    const characterGroup = `char:${fit?.characterId ?? resolveStoredCharacter().id}` as const;
     const progress = { core: 0, character: 0 };
     const report = () => (this.target = progress.core * CORE_WEIGHT + progress.character * (1 - CORE_WEIGHT));
     void Promise.all([
@@ -62,7 +65,12 @@ export class LoadingScene implements Scene {
     if (this.done && this.shown >= 1 && !this.leaving && this.ctx) {
       this.leaving = true;
       this.ctx.host.audio?.playSfx("load-complete");
-      this.ctx.manager.replace(new PitchScene(), undefined, { transition: "fade" });
+      const fit = pitchFitParams();
+      if (fit) {
+        // item fitting tool: locker room with the inventory open
+        const character = fit.characterId ? getCharacter(fit.characterId) : undefined;
+        this.ctx.manager.replace(new LockerScene({ createPitch: () => new PitchScene(), character, openInventory: true }), undefined, { transition: "fade" });
+      } else this.ctx.manager.replace(new PitchScene(), undefined, { transition: "fade" });
     }
   }
 

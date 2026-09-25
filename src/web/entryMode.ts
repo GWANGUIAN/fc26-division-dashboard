@@ -23,6 +23,8 @@ export function resolveInitialMode({ search, hash, stored, coarsePointer }: Entr
   const params = new URLSearchParams(search);
   const override = params.get("mode");
   if (override === "pitch" || override === "dashboard") return override;
+  // `?pitchFit=1` (item fitting tool, pitch/scenes/pitchDebug.ts) only exists in the pitch
+  if (params.has("pitchFit")) return "pitch";
   if (DASHBOARD_DEEP_LINK_PARAMS.some((name) => params.has(name)) || hash.length > 1) return "dashboard";
   if (stored) return stored;
   return "pitch";

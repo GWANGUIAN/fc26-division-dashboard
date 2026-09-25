@@ -74,6 +74,9 @@ function makeCtx() {
   return { ctx, held, events, announced, log, loaded };
 }
 
+/** Asset groups other than the default pet's (a character with no saved loadout wears its exclusive pet). */
+const groupsOnly = (groups: string[]) => groups.filter((group) => !group.startsWith("pets:"));
+
 const run = (scene: Scene, n: number) => {
   for (let i = 0; i < n; i++) scene.update(DT);
 };
@@ -128,11 +131,11 @@ describe("PitchScene locker-room gate", () => {
 
   it("preloads the locker group once when the player comes within 200px", () => {
     const far = setup(480, 440);
-    expect(far.loaded).toHaveLength(0);
+    expect(groupsOnly(far.loaded)).toHaveLength(0);
     const near = setup(GATE.centerX + 150, GATE.centerY);
-    expect(near.loaded).toEqual(["locker"]);
+    expect(groupsOnly(near.loaded)).toEqual(["locker"]);
     run(near.scene, 30);
-    expect(near.loaded).toEqual(["locker"]);
+    expect(groupsOnly(near.loaded)).toEqual(["locker"]);
   });
 
   it("ignores E while a skill move is running", () => {
@@ -194,7 +197,7 @@ describe("LockerScene", () => {
     const { scene, events, loaded, player } = setup();
     expect(player()).toMatchObject({ x: 480, y: 450 });
     expect(events).toEqual(expect.arrayContaining(["bgm:locker", "gate-close"]));
-    expect(loaded).toEqual(["locker"]);
+    expect(groupsOnly(loaded)).toEqual(["locker"]);
     expect(() => scene.render(fakeGraphics())).not.toThrow();
   });
 

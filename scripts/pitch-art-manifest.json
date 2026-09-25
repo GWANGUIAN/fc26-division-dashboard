@@ -116,6 +116,37 @@
       }
     }
   },
+  "equipment": {
+    "_doc": "Wearable item sheets (docs/pitch/13 §4, 14): 3 cols (front/side/back) x 4 rows (items), converted to one atlas per sheet of 3*cell x 4*cell. Item = [id, baked front-view width in px at the reference head width `headRef`, opts]; opts.flipSide = the SIDE column was drawn facing left, mirror it so it faces right like the atlas; every view of an item shares the scale of its front view. Anchors: hat = bottom centre, face = centre, back = top centre.",
+    "headRef": 23,
+    "sheets": {
+      "hat-a": { "file": "acc-hat-a.png", "slot": "hat", "cell": [52, 44], "items": [["cap", 23], ["beanie", 22, { "flipSide": true }], ["crown", 17, { "flipSide": true }], ["wizard", 27, { "flipSide": true }]] },
+      "hat-b": { "file": "acc-hat-b.png", "slot": "hat", "cell": [52, 44], "items": [["straw", 32], ["headphones", 21], ["santa", 23, { "flipSide": true }], ["cowboy", 30]] },
+      "face-a": { "file": "acc-face-a.png", "slot": "face", "cell": [36, 22], "items": [["sunglasses", 19, { "flipSide": true }], ["roundglasses", 17, { "flipSide": true }], ["heartglasses", 19, { "flipSide": true }], ["eyepatch", 20, { "flipSide": true }]] },
+      "back-a": { "file": "acc-back-a.png", "slot": "back", "cell": [76, 56], "items": [["cape", 34], ["angelwings", 56], ["devilwings", 56], ["backpack", 25, { "flipSide": true }]] }
+    }
+  },
+  "pets": {
+    "_doc": "Pet sheets (docs/pitch/13 §4-4, 14): 4 cols (idle A, idle B, move A, move B) x 3 rows (front, side, back) -> one 4*cell x 3*cell atlas per pet, sprite scale is uniform per pet (fit into `fit`), ground line per row = median bottom.",
+    "cell": 48,
+    "baseY": 45,
+    "fit": [40, 40],
+    "common": ["cheezenyang", "kkwaegi", "mallangi", "gongdori", "ppiyagi", "ttuttu"],
+    "exclusive": {
+      "panchi": "woowakgood",
+      "haepi": "haepalin",
+      "gureumi": "janine95kim",
+      "yongboli": "hachi97",
+      "baemsuri": "lina0108",
+      "dolmengi": "ju010228",
+      "sibakkeo": "tdnlamuron",
+      "penguin": "sjh4018",
+      "bongbabi": "tleod1818",
+      "dangyeol": "kaksjak0730",
+      "bbogeulseu": "bboringirl",
+      "ungnami": "doormomo"
+    }
+  },
   "sheets": {
     "env": {
       "pitch-bg": { "file": "env-pitch-bg.png", "scene": true },
@@ -202,6 +233,12 @@
       "select-bg": { "file": "keyart-select-bg.png", "scene": true }
     },
     "fx": {
+      "equip-sparkle": {
+        "file": "fx-equip-sparkle.png",
+        "grid": [3, 2],
+        "soft": true,
+        "items": [["fx-equip-sparkle", [0, 1, 2, 3, 4, 5], 64, 64, { "align": "center" }]]
+      },
       "impact": {
         "file": "fx-impact.png",
         "grid": [4, 4],
@@ -401,6 +438,63 @@
           ["loader-bar-fill", 9, 32, 24, { "fill": true }],
           ["loader-bar-shine", 10, 96, 24, { "align": "center", "soft": true }],
           ["loader-tip", 11, 480, 36, { "fill": true }]
+        ]
+      },
+      "inv-frame": {
+        "file": "ui-inv-frame.png",
+        "grid": [1, 1],
+        "items": [["inv-frame", 0, 720, 480, { "fill": true }]]
+      },
+      "inv-preview-stage": {
+        "file": "ui-inv-preview-stage.png",
+        "crop": [0.075, 0.095, 0.85, 0.68],
+        "grid": [1, 1],
+        "items": [["inv-preview-stage", 0, 212, 233, { "fill": true }]]
+      },
+      "inv-tabs": {
+        "file": "ui-inv-tabs.png",
+        "crop": [0, 0, 1, 0.49],
+        "grid": [4, 3],
+        "items": [
+          ["inv-tab-hat", [0, 4, 8], 96, 36, { "fill": true }],
+          ["inv-tab-face", [1, 5, 9], 96, 36, { "fill": true }],
+          ["inv-tab-back", [2, 6, 10], 96, 36, { "fill": true }],
+          ["inv-tab-pet", [3, 7, 11], 96, 36, { "fill": true }]
+        ]
+      },
+      "inv-slot": {
+        "file": "ui-inv-slot.png",
+        "grid": [3, 2],
+        "items": [["inv-slot", [0, 1, 2, 3, 4], 64, 64, { "fill": true }]]
+      },
+      "inv-btn": {
+        "file": "ui-inv-btn.png",
+        "parts": [
+          { "crop": [0, 0, 1, 0.27], "grid": [3, 1], "items": [["inv-btn", [0, 1, 2], 96, 36, { "fill": true }]] },
+          {
+            "crop": [0, 0.28, 1, 0.27],
+            "grid": [6, 1],
+            "items": [
+              ["inv-arrow-left", [0, 1, 2], 28, 28, { "fill": true }],
+              ["inv-arrow-right", [3, 4, 5], 28, 28, { "fill": true }]
+            ]
+          }
+        ]
+      },
+      "inv-infocard": {
+        "file": "ui-inv-infocard.png",
+        "grid": [1, 1],
+        "items": [["inv-infocard", 0, 96, 96, { "slice": 12 }]]
+      },
+      "inv-badges": {
+        "file": "ui-inv-badges.png",
+        "crop": [0, 0, 1, 0.7],
+        "grid": [4, 1],
+        "items": [
+          ["inv-badge-equipped", 0, 16, 16, { "align": "center" }],
+          ["inv-badge-exclusive", 1, 16, 16, { "align": "center" }],
+          ["inv-badge-new", 2, 16, 16, { "align": "center" }],
+          ["inv-badge-locked", 3, 16, 16, { "align": "center" }]
         ]
       }
     }

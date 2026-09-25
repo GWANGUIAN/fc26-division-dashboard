@@ -14,9 +14,25 @@ import type { ShotOutcome } from "../game/match";
 import { formatSaveTable, saveRateTable } from "../game/montecarlo";
 import { GOAL_MOUTH, GOAL_SCREEN, clamp, goalScreenX, type KeeperTuning, type ShotTuning } from "../game/tuning";
 import { drawText, TEXT_COLORS } from "../engine/text";
+import { isKnownCharacterId } from "../data/characters";
 
 export function pitchDebugEnabled(search: string = typeof window === "undefined" ? "" : window.location.search): boolean {
   return new URLSearchParams(search).get("pitchDebug") === "1";
+}
+
+/**
+ * `?pitchFit=1` (docs/pitch/13 §4-2): skips the loading fade straight into the locker room with the cabinet inventory
+ * already open, for fitting worn items. `&char=<characterId>` picks the character without saving it as the selected one.
+ */
+export interface PitchFitParams {
+  characterId?: string;
+}
+
+export function pitchFitParams(search: string = typeof window === "undefined" ? "" : window.location.search): PitchFitParams | null {
+  const params = new URLSearchParams(search);
+  if (!params.has("pitchFit") || params.get("pitchFit") === "0") return null;
+  const id = params.get("char");
+  return id && isKnownCharacterId(id) ? { characterId: id } : {};
 }
 
 interface DebugParam {

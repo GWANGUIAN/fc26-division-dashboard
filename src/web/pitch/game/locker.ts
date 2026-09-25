@@ -35,10 +35,16 @@ export const ANALYZER = { baseX: 712, baseY: 394, interactRadius: 64 } as const;
 export const LOCKER_PLAYER_SCALE = 1.5;
 /** Every other prop (not the analyzer) is drawn 2×. */
 export const PROP_SCALE = 2;
+/**
+ * The player's cabinet (docs/pitch/13 §5-1): the closed locker unit of the back row (sprite base (677, 238)). The floor starts
+ * below the back row, so the interaction circle sits on the first walkable row in front of it.
+ */
+export const CABINET = { baseX: 677, baseY: 258, interactRadius: 56 } as const;
 export const EXIT_DOOR = { baseX: 480, baseY: 478, interactRadius: 60 } as const;
 
 export const ANALYZER_ZONE: Circle = { x: ANALYZER.baseX, y: ANALYZER.baseY, r: ANALYZER.interactRadius };
 export const EXIT_ZONE: Circle = { x: EXIT_DOOR.baseX, y: EXIT_DOOR.baseY, r: EXIT_DOOR.interactRadius };
+export const CABINET_ZONE: Circle = { x: CABINET.baseX, y: CABINET.baseY, r: CABINET.interactRadius };
 export const GATE_ZONE: Circle = { x: GATE.centerX, y: GATE.centerY, r: GATE.promptRadius };
 
 /** Inside the circle (border included)? */
@@ -54,6 +60,7 @@ export const nearGate = (x: number, y: number) => gateDistance(x, y) <= GATE.pro
 /** Close enough to start fetching the locker-room assets. */
 export const nearGatePreload = (x: number, y: number) => gateDistance(x, y) < GATE.preloadRadius;
 export const nearAnalyzer = (x: number, y: number) => withinCircle(x, y, ANALYZER_ZONE);
+export const nearCabinet = (x: number, y: number) => withinCircle(x, y, CABINET_ZONE);
 export const nearExit = (x: number, y: number) => withinCircle(x, y, EXIT_ZONE);
 
 /**
