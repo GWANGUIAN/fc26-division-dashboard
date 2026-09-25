@@ -25,6 +25,20 @@ export const HEX = { cx: 276, cy: 304, radius: 140, rings: 6 } as const;
 export const PLACEHOLDER_FILL = 0.6;
 
 export const NODE_HIT_RADIUS = 14;
+/** The `node-selected` marker (and its kind ring) is drawn this many px closer to the centre than the corner (the click target stays on the corner). */
+export const SELECTED_NODE_INSET = 23;
+/**
+ * Per-axis fine adjustment (px, screen coordinates) of the ring and the selected marker so they sit exactly on the
+ * frame's bolts. Index = axis: 12 o'clock, 2, 4~5, 6, 7~8, 10 o'clock.
+ */
+export const NODE_NUDGE: ReadonlyArray<Readonly<{ x: number; y: number }>> = [
+  { x: 0, y: -2 },
+  { x: 6, y: 7 },
+  { x: 6, y: -2 },
+  { x: -1, y: -1 },
+  { x: -6, y: -2 },
+  { x: -6, y: 7 },
+];
 export const AXIS_PLATE = { w: 72, h: 22 } as const;
 /** Distance between a corner and its label plate. */
 const PLATE_GAP = 16;
@@ -167,15 +181,20 @@ export function drawHexagon(g: CanvasRenderingContext2D, { images, values, selec
   if (images.frame) centred(images.frame);
 
   for (let index = 0; index < STAT_AXIS_COUNT; index++) {
-    const v = hexVertex(index);
     const isSelected = index === selected;
     const isHover = index === hovered;
+    // the kind ring of every axis and the selected marker sit SELECTED_NODE_INSET px in from the corner, toward the centre
+    const base = hexVertex(index, isSelected ? HEX.radius - SELECTED_NODE_INSET : HEX.radius);
+    const nudge = isSelected ? NODE_NUDGE[index]! : { x: 0, y: 0 };
+    const v = { x: base.x + nudge.x, y: base.y + nudge.y };
     const kind = kinds?.[index];
     if (kind) {
       g.strokeStyle = KIND_COLORS[kind];
       g.lineWidth = 1;
       g.beginPath();
-      g.arc(Math.round(v.x), Math.round(v.y), isSelected ? 12 : 10, 0, Math.PI * 2);
+      const ringBase = hexVertex(index, HEX.radius - SELECTED_NODE_INSET);
+      const ring = { x: ringBase.x + NODE_NUDGE[index]!.x, y: ringBase.y + NODE_NUDGE[index]!.y };
+      g.arc(Math.round(ring.x), Math.round(ring.y), isSelected ? 12 : 10, 0, Math.PI * 2);
       g.stroke();
     }
     const sprite = isSelected ? images.nodeSelected : isHover ? images.nodeHover : undefined;
