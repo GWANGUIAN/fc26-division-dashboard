@@ -31,6 +31,10 @@ const API_CACHE_VERSION = "v3";
 // the exact same poll cycle twice.
 const SOOP_LIVE_CACHE_SECONDS = 115;
 const SOOP_LIVE_CACHE_VERSION = "v3";
+// Hard cap per sooplive category request; a hung upstream must not hang the rail.
+const SOOP_LIVE_UPSTREAM_TIMEOUT_MS = 4_000;
+// Last complete snapshot, only served when sooplive itself is failing.
+const SOOP_LIVE_STALE_SECONDS = 1_800;
 // The world's ON AIR signs poll on the same 2-minute rhythm as the LIVE rail.
 const WORLD_ONAIR_CACHE_SECONDS = 115;
 const WORLD_ONAIR_CACHE_VERSION = "v1";
@@ -153,21 +157,25 @@ async function serveSoopLive(request: Request, ctx: ExecutionContext): Promise<R
   const cacheKey = new Request(`${url.origin}/api/soop-live?edge-cache=${SOOP_LIVE_CACHE_VERSION}`, { method: "GET" });
   const cached = await edgeCache.default.match(cacheKey);
   if (cached) return cached;
+  const staleKey = new Request(`${url.origin}/api/soop-live?edge-cache=${SOOP_LIVE_CACHE_VERSION}-stale`, { method: "GET" });
 
-  const upstreamResponses = await Promise.all(
-    SOOP_LIVE_CATEGORIES.map(({ categoryNo }) =>
-      fetch(soopLiveCategoryUrl(categoryNo), {
-        headers: { Accept: "application/json", Referer: "https://www.sooplive.com/" },
-      })
-    ),
-  );
-  if (upstreamResponses.some((upstream) => !upstream.ok)) {
-    return Response.json({ message: "soop live lookup failed" }, { status: 502 });
+  // Each category is fetched on its own with a hard timeout: a hung sooplive
+  // response used to stall the whole request (and the frontend's skeleton)
+  // indefinitely, and one failing category used to fail both.
+  const payloads = await Promise.all(SOOP_LIVE_CATEGORIES.map(({ categoryNo }) => fetchSoopLiveCategory(categoryNo)));
+  const failedCount = payloads.filter((payload) => payload === undefined).length;
+
+  if (failedCount === payloads.length) {
+    // sooplive is unreachable: serve the last good snapshot instead of an error.
+    const stale = await edgeCache.default.match(staleKey);
+    if (stale) {
+      const headers = new Headers(stale.headers);
+      headers.set("cache-control", "no-store");
+      return new Response(stale.body, { status: 200, headers });
+    }
+    return Response.json({ message: "soop live lookup failed" }, { status: 502, headers: { "cache-control": "no-store" } });
   }
 
-  const payloads = await Promise.all(
-    upstreamResponses.map((upstream) => upstream.json() as Promise<{ data?: { list?: SoopLiveApiEntry[] } }>),
-  );
   // A streamer could in principle appear in both category feeds at once
   // (e.g. a multi-game session); dedupe by broadcast id so they don't get a
   // duplicate card. Tagged with `game` before flattening so the dedupe keeps
@@ -175,7 +183,7 @@ async function serveSoopLive(request: Request, ctx: ExecutionContext): Promise<R
   const seenBroadNos = new Set<number>();
   const streamers: SoopLiveStreamer[] = payloads
     .flatMap((payload, index) =>
-      (payload.data?.list ?? []).map((entry) => ({ entry, game: SOOP_LIVE_CATEGORIES[index].game }))
+      (payload ?? []).map((entry) => ({ entry, game: SOOP_LIVE_CATEGORIES[index].game }))
     )
     .filter(({ entry }) => (seenBroadNos.has(entry.broad_no) ? false : (seenBroadNos.add(entry.broad_no), true)))
     .map(({ entry, game }) => ({
@@ -188,15 +196,46 @@ async function serveSoopLive(request: Request, ctx: ExecutionContext): Promise<R
       profileImageUrl: entry.user_profile_img,
       game,
     }));
+  const body = JSON.stringify({ generatedAt: new Date().toISOString(), streamers });
 
-  const response = Response.json({ generatedAt: new Date().toISOString(), streamers }, {
+  // A partial result (one category failed) is returned but neither cached nor
+  // kept as the fallback, so the next poll retries and a complete snapshot is
+  // never overwritten by an incomplete one.
+  if (failedCount > 0) {
+    return new Response(body, {
+      headers: { "content-type": "application/json", "cache-control": "no-store", "x-content-type-options": "nosniff" },
+    });
+  }
+
+  const response = new Response(body, {
     headers: {
+      "content-type": "application/json",
       "cache-control": `public, max-age=${SOOP_LIVE_CACHE_SECONDS}, stale-while-revalidate=30`,
       "x-content-type-options": "nosniff",
     },
   });
-  ctx.waitUntil(edgeCache.default.put(cacheKey, response.clone()));
+  ctx.waitUntil(Promise.all([
+    edgeCache.default.put(cacheKey, response.clone()),
+    edgeCache.default.put(staleKey, new Response(body, {
+      headers: { "content-type": "application/json", "cache-control": `public, max-age=${SOOP_LIVE_STALE_SECONDS}` },
+    })),
+  ]));
   return response;
+}
+
+/** One category's live list, or undefined when sooplive errored, timed out or sent something unparseable. */
+async function fetchSoopLiveCategory(categoryNo: string): Promise<SoopLiveApiEntry[] | undefined> {
+  try {
+    const upstream = await fetch(soopLiveCategoryUrl(categoryNo), {
+      headers: { Accept: "application/json", Referer: "https://www.sooplive.com/" },
+      signal: AbortSignal.timeout(SOOP_LIVE_UPSTREAM_TIMEOUT_MS),
+    });
+    if (!upstream.ok) return undefined;
+    const payload = await upstream.json() as { data?: { list?: SoopLiveApiEntry[] } };
+    return payload.data?.list ?? [];
+  } catch {
+    return undefined;
+  }
 }
 
 /**

@@ -80,7 +80,7 @@ function SoopLiveCard({ entry }: { entry: LiveRosterEntry }) {
 }
 
 export function SoopLiveSection({ soopLive }: { soopLive: SoopLiveState }) {
-  const { enabled, loaded, entries, updatedAt, containerRef } = soopLive;
+  const { enabled, loaded, failed, entries, updatedAt, containerRef } = soopLive;
   const swiper = useRef<SwiperInstance | null>(null);
   const [canGoPrev, setCanGoPrev] = useState(false);
   const [canGoNext, setCanGoNext] = useState(true);
@@ -152,7 +152,9 @@ export function SoopLiveSection({ soopLive }: { soopLive: SoopLiveState }) {
           )}
         </div>
       </div>
-      {!loaded ? (
+      {!loaded && failed ? (
+        <p className="soop-live__empty">방송 목록을 불러오지 못했어요. 잠시 후 자동으로 다시 시도합니다</p>
+      ) : !loaded ? (
         <div className="soop-live__skeleton" aria-hidden="true">
           {SKELETON_SLOTS.map((slot) => (
             <SoopLiveSkeletonCard key={slot} />

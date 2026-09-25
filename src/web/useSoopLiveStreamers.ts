@@ -8,6 +8,11 @@ import {
 } from "../shared/soop-live.js";
 
 const POLL_INTERVAL_MS = 120_000;
+// A hung request must not leave the rail on its skeleton forever.
+const FETCH_TIMEOUT_MS = 8_000;
+// Until the first successful load, retry quickly instead of waiting a full poll
+// interval; once these run out the rail shows a failure message rather than a skeleton.
+const INITIAL_RETRY_DELAYS_MS = [3_000, 8_000];
 // Beyond visibility, also require actual mouse/keyboard/touch activity
 // within this window — a tab left visible but unattended (e.g. a
 // background browser window) stops polling until the user comes back.
@@ -36,6 +41,8 @@ const GUEST_LIVE_STREAMERS: StreamerRecord[] = [
 export interface SoopLiveState {
   enabled: boolean;
   loaded: boolean;
+  /** The first load failed after all quick retries; the next regular poll may still recover. */
+  failed: boolean;
   entries: LiveRosterEntry[];
   updatedAt?: string;
   containerRef: RefObject<HTMLElement | null>;
@@ -72,6 +79,7 @@ export function useSoopLiveStreamers(streamers: StreamerRecord[]): SoopLiveState
   // for the next poll to happen to catch it.
   const [rawStreamers, setRawStreamers] = useState<SoopLiveStreamer[]>();
   const [updatedAt, setUpdatedAt] = useState<string>();
+  const [failed, setFailed] = useState(false);
   const orderRef = useRef<string[]>([]);
   const lastActivityRef = useRef(Date.now());
   const containerRef = useRef<HTMLElement | null>(null);
@@ -98,6 +106,20 @@ export function useSoopLiveStreamers(streamers: StreamerRecord[]): SoopLiveState
   useEffect(() => {
     if (!SOOP_LIVE_ENABLED) return;
     let cancelled = false;
+    let loadedOnce = false;
+    let retryAttempt = 0;
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
+
+    function scheduleInitialRetry() {
+      if (loadedOnce || cancelled) return;
+      const delay = INITIAL_RETRY_DELAYS_MS[retryAttempt++];
+      if (delay === undefined) {
+        setFailed(true);
+        return;
+      }
+      clearTimeout(retryTimer);
+      retryTimer = setTimeout(tick, delay);
+    }
 
     async function tick() {
       if (document.visibilityState !== "visible") return;
@@ -111,15 +133,25 @@ export function useSoopLiveStreamers(streamers: StreamerRecord[]): SoopLiveState
         const response = await fetch("/api/soop-live", {
           cache: "no-store",
           headers: { Accept: "application/json" },
+          signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
         });
-        if (!response.ok || cancelled) return;
+        if (cancelled) return;
+        if (!response.ok) {
+          scheduleInitialRetry();
+          return;
+        }
         const snapshot = await response.json() as SoopLiveSnapshot;
         if (cancelled) return;
+        loadedOnce = true;
+        clearTimeout(retryTimer);
+        setFailed(false);
         setRawStreamers(snapshot.streamers);
         setUpdatedAt(snapshot.generatedAt);
       } catch {
-        // A network hiccup just skips this refresh; the next tick (or the
-        // next time the tab becomes visible) retries.
+        // A network hiccup or timeout just skips this refresh; the next tick
+        // (or the next time the tab becomes visible) retries. Before the first
+        // successful load, retry sooner so the skeleton doesn't linger.
+        scheduleInitialRetry();
       }
     }
 
@@ -141,6 +173,7 @@ export function useSoopLiveStreamers(streamers: StreamerRecord[]): SoopLiveState
     document.addEventListener("visibilitychange", tick);
     return () => {
       cancelled = true;
+      clearTimeout(retryTimer);
       clearInterval(interval);
       document.removeEventListener("visibilitychange", tick);
       observer?.disconnect();
@@ -159,5 +192,5 @@ export function useSoopLiveStreamers(streamers: StreamerRecord[]): SoopLiveState
     [streamers, rawStreamers],
   );
 
-  return { enabled: SOOP_LIVE_ENABLED, loaded: rawStreamers !== undefined, entries, updatedAt, containerRef };
+  return { enabled: SOOP_LIVE_ENABLED, loaded: rawStreamers !== undefined, failed, entries, updatedAt, containerRef };
 }
