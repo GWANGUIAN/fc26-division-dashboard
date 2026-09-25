@@ -23,7 +23,7 @@ export function Avatar({
   const [failed, setFailed] = useState(false);
   const src = profileImageUrl ?? defaultSoopProfileUrl(soopId);
   return src && !failed ? (
-    <img className="avatar" src={src} alt="" onError={() => setFailed(true)} />
+    <img className="avatar" src={src} alt="" loading="lazy" decoding="async" onError={() => setFailed(true)} />
   ) : (
     <span className="avatar avatar-fallback" aria-hidden="true">
       {displayName.slice(0, 1)}
