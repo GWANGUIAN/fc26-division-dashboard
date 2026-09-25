@@ -36,18 +36,20 @@ export interface TextStyle {
   baseline?: CanvasTextBaseline;
   /** Draw a 1px navy drop shadow. */
   shadow?: boolean;
+  /** Colour of that drop shadow (default navy). */
+  shadowColor?: string;
 }
 
 /** Integer coordinates only — fractional positions blur pixel fonts. */
 export function drawText(g: CanvasRenderingContext2D, text: string, x: number, y: number, style: TextStyle = {}) {
-  const { size = 12, color = TEXT_COLORS.base, align = "left", baseline = "alphabetic", shadow = true } = style;
+  const { size = 12, color = TEXT_COLORS.base, align = "left", baseline = "alphabetic", shadow = true, shadowColor = TEXT_COLORS.shadow } = style;
   g.font = `${size}px ${PIXEL_FONT_FAMILY}`;
   g.textAlign = align;
   g.textBaseline = baseline;
   const px = Math.round(x);
   const py = Math.round(y);
   if (shadow) {
-    g.fillStyle = TEXT_COLORS.shadow;
+    g.fillStyle = shadowColor;
     g.fillText(text, px, py + 1);
   }
   g.fillStyle = color;

@@ -18,6 +18,10 @@ type Rect = { x: number; y: number; w: number; h: number };
 type ButtonId = "dashboard" | "cancel" | "confirm" | "prev" | "next";
 
 // The dashboard button keeps its pitch position (03 §0); values mirror PitchScene.DASHBOARD_BUTTON.
+/** 돌아가기 / 이 선수로 시작: deep teal text (fits the mint buttons) with a white shadow. */
+const BUTTON_TEXT_COLOR = "#0b3b38";
+const BUTTON_TEXT_SHADOW = "#ffffff";
+
 export const SELECT_DASHBOARD_BUTTON: Rect = { x: 732, y: 16, w: 212, h: 48 };
 export const SELECT_CONFIRM_BUTTON: Rect = { x: 720, y: 440, w: 216, h: 48 };
 export const SELECT_CANCEL_BUTTON: Rect = { x: 496, y: 440, w: 200, h: 48 };
@@ -497,7 +501,7 @@ export class CharacterSelectScene implements Scene {
     // cancel
     const cancel = SELECT_CANCEL_BUTTON;
     this.drawStripButton(g, "ui/btn-return", cancel, "cancel", 3);
-    drawText(g, "돌아가기", cancel.x + cancel.w / 2, cancel.y + cancel.h / 2, { align: "center", baseline: "middle" });
+    drawText(g, "돌아가기", cancel.x + cancel.w / 2, cancel.y + cancel.h / 2, { align: "center", baseline: "middle", color: BUTTON_TEXT_COLOR, shadowColor: BUTTON_TEXT_SHADOW });
     // confirm
     const confirm = SELECT_CONFIRM_BUTTON;
     const down = this.pressed === "confirm" && this.hovered === "confirm";
@@ -511,7 +515,7 @@ export class CharacterSelectScene implements Scene {
       g.fillRect(confirm.x, confirm.y + oy, confirm.w, confirm.h);
     }
     const label = busy ? "불러오는 중…" : this.cursorCharacter().id === this.activeId ? "사용 중인 선수" : "이 선수로 시작";
-    drawText(g, label, confirm.x + confirm.w / 2, confirm.y + confirm.h / 2 + oy, { align: "center", baseline: "middle" });
+    drawText(g, label, confirm.x + confirm.w / 2, confirm.y + confirm.h / 2 + oy, { align: "center", baseline: "middle", color: BUTTON_TEXT_COLOR, shadowColor: BUTTON_TEXT_SHADOW });
     // arrows
     this.drawArrow(g, "prev", "ui/arrow-left");
     this.drawArrow(g, "next", "ui/arrow-right");
