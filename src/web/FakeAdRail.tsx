@@ -47,10 +47,15 @@ function useRailOffsets() {
 // <img src>, which otherwise briefly renders blank and pops in — the "blink".
 function usePreloadAdImages() {
   useEffect(() => {
-    fakeAds.forEach((ad) => {
-      const img = new Image();
-      img.src = ad.image;
-    });
+    // Idle-time so the ~4MB of ads doesn't compete with the dashboard's first-view content.
+    const preload = () => {
+      fakeAds.forEach((ad) => {
+        const img = new Image();
+        img.src = ad.image;
+      });
+    };
+    const handle = window.requestIdleCallback(preload, { timeout: 4000 });
+    return () => window.cancelIdleCallback(handle);
   }, []);
 }
 

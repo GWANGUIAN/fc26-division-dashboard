@@ -1,13 +1,13 @@
 import { Component, lazy, Suspense, type ReactNode } from "react";
-import { App } from "./App.js";
 import { CursorOverlay } from "./CursorOverlay";
 import { useEntryMode } from "./entryMode";
 import { PITCH_FALLBACK_NOTICE, setEntryNotice } from "./entryNotice";
 import { loadCursorPlayerId } from "./storage";
 
-// The pitch (2D canvas) and everything it needs stay out of the dashboard path: the chunk is only
-// requested when the entry mode is "pitch", and the dashboard (snapshot fetch, overlays) is not mounted then.
+// Each mode is its own chunk and only the one for the resolved entry mode is requested: a pitch visitor
+// never downloads the dashboard bundle (snapshot, overlays), and a dashboard visitor never gets the pitch.
 const PitchEntry = lazy(() => import("./pitch/PitchEntry"));
+const App = lazy(() => import("./App.js").then((m) => ({ default: m.App })));
 
 const BACKDROP = { position: "fixed", inset: 0, zIndex: 80, background: "#05060f" } as const;
 
@@ -32,7 +32,13 @@ class PitchBoundary extends Component<{ onFail: () => void; children: ReactNode 
 
 export function Root() {
   const { mode, goDashboard, goPitch, pitchAvailable } = useEntryMode();
-  if (mode === "dashboard") return <App onGoPitch={pitchAvailable ? goPitch : undefined} />;
+  if (mode === "dashboard") {
+    return (
+      <Suspense fallback={null}>
+        <App onGoPitch={pitchAvailable ? goPitch : undefined} />
+      </Suspense>
+    );
+  }
   // Same saved pointer the dashboard uses (chosen there via CursorPicker); re-read on every switch into the pitch.
   const cursorPlayerId = loadCursorPlayerId();
   return (
