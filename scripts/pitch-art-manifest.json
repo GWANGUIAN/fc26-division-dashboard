@@ -200,6 +200,57 @@
         ]
       },
       "locker-bg": { "file": "env-locker-bg-v2.png", "scene": true, "anchorY": 0.75 },
+      "forever-gate": {
+        "file": "env-forever-gate.png",
+        "grid": [3, 2],
+        "items": [
+          ["forever-gate-closed", 0, 128, 128, { "group": "gate" }],
+          ["forever-gate-open", 1, 128, 128, { "group": "gate" }],
+          ["forever-gate-glow", 2, 128, 128, { "group": "gate" }],
+          ["forever-gate-arrow", 3, 24, 32, { "align": "center" }],
+          ["forever-gate-plate", 5, 64, 24, { "align": "center" }]
+        ]
+      },
+      "forever-loading-bg": { "file": "env-forever-loading-bg.png", "scene": true },
+      "forever-hub-bg": { "file": "env-forever-hub-bg.png", "scene": true },
+      "forever-field-bg": { "file": "env-forever-field-bg.png", "scene": true },
+      "forever-portal": {
+        "file": "env-forever-portal.png",
+        "grid": [3, 2],
+        "items": [
+          ["forever-portal-field", [0, 1, 2], 112, 104, { "group": "portal" }],
+          ["forever-portal-town", [3, 4, 5], 112, 104, { "group": "portal" }]
+        ]
+      },
+      "forever-props-2": {
+        "file": "env-forever-props-2.png",
+        "grid": [4, 2],
+        "items": [
+          ["forever-prop-mailbox-mail", 0, 48, 64],
+          ["forever-prop-burrow", 1, 64, 40],
+          ["forever-prop-stump", 2, 56, 48],
+          ["forever-prop-boulder", 3, 72, 56],
+          ["forever-prop-bush", 4, 64, 56],
+          ["forever-prop-mushrooms", 5, 48, 40],
+          ["forever-prop-fence", 6, 80, 48],
+          ["forever-prop-warnsign", 7, 48, 72]
+        ]
+      },
+      "forever-orgrimmar-bg": { "file": "env-forever-orgrimmar-bg.png", "scene": true },
+      "forever-props": {
+        "file": "env-forever-props.png",
+        "grid": [4, 2],
+        "items": [
+          ["forever-prop-mailbox", 0, 48, 64],
+          ["forever-prop-signboard", 1, 80, 80],
+          ["forever-prop-hearthstone", 2, 64, 80],
+          ["forever-prop-campfire", 3, 64, 64],
+          ["forever-prop-dummy", 4, 64, 88],
+          ["forever-prop-signpost", 5, 64, 80],
+          ["forever-prop-perch", 6, 64, 96],
+          ["forever-prop-barrels", 7, 80, 72]
+        ]
+      },
       "locker-props": {
         "file": "env-locker-props.png",
         "grid": [4, 3],
@@ -504,6 +555,75 @@
           ["inv-badge-exclusive", 1, 16, 16, { "align": "center" }],
           ["inv-badge-new", 2, 16, 16, { "align": "center" }],
           ["inv-badge-locked", 3, 16, 16, { "align": "center" }]
+        ]
+      },
+      "forever-logo": {
+        "file": "ui-forever-logo.png",
+        "grid": [1, 1],
+        "items": [["forever-logo", 0, 480, 160, { "align": "center" }]]
+      },
+      "forever-hud": {
+        "file": "ui-forever-hud.png",
+        "grid": [4, 3],
+        "items": [
+          ["forever-quest-available", 0, 24, 32, { "align": "center" }],
+          ["forever-quest-complete", 1, 24, 32, { "align": "center" }],
+          ["forever-quest-progress", 2, 24, 32, { "align": "center" }],
+          ["forever-ding-burst", 3, 128, 128, { "align": "center", "soft": true }],
+          ["forever-quest-scroll", 4, 360, 240, { "fill": true }],
+          ["forever-cast-bar", 5, 240, 80, { "fill": true }],
+          ["forever-xp-bar", 6, 240, 80, { "fill": true }],
+          ["forever-toast", 7, 240, 120, { "fill": true }],
+          ["forever-chat", 8, 320, 160, { "fill": true }],
+          ["forever-slot", 9, 64, 64, { "fill": true }],
+          ["forever-ding-pillar", 10, 96, 128, { "align": "center", "soft": true }],
+          ["forever-coin", 11, 32, 32, { "align": "center" }]
+        ]
+      },
+      "forever-letter": {
+        "file": "ui-forever-letter.png",
+        "grid": [2, 2],
+        "items": [
+          ["forever-letter", 0, 400, 230, { "fill": true }],
+          ["forever-seal", 1, 32, 32, { "align": "center" }],
+          ["forever-mail-icon", 2, 32, 24, { "align": "center" }],
+          ["forever-mail-open-icon", 3, 32, 24, { "align": "center" }]
+        ]
+      }
+    },
+    "characters": {
+      "forever-npc": {
+        "file": "forever-npc.png",
+        "grid": [4, 3],
+        "items": [
+          ["forever-npc-questgiver", [0, 1], 96, 96, { "group": "npc" }],
+          ["forever-npc-streamer", [2, 3], 96, 96, { "group": "npc" }],
+          ["forever-npc-leroy", [4, 5], 96, 96, { "group": "npc" }],
+          ["forever-npc-innkeeper", [6, 7], 96, 96, { "group": "npc" }],
+          ["forever-npc-flightmaster", [8, 9], 96, 96, { "group": "npc" }],
+          ["forever-npc-guard", [10, 11], 96, 96, { "group": "npc" }]
+        ]
+      },
+      "forever-npc-2": {
+        "file": "forever-npc-2.png",
+        "grid": [4, 3],
+        "items": [
+          ["forever-npc2-orc", [0, 1], 96, 96, { "group": "npc" }],
+          ["forever-npc2-elder", [2, 3], 96, 96, { "group": "npc" }],
+          ["forever-npc2-goblin", [4, 5], 96, 96, { "group": "npc" }],
+          ["forever-npc2-grunt", [6, 7], 96, 96, { "group": "npc" }],
+          ["forever-npc2-rider", [8, 9], 96, 96, { "group": "npc" }],
+          ["forever-npc2-cook", [10, 11], 96, 96, { "group": "npc" }]
+        ]
+      },
+      "forever-mobs": {
+        "file": "forever-mobs.png",
+        "grid": [4, 2],
+        "items": [
+          ["forever-mob-rabbit", [0, 4], 48, 56, { "align": "bottom" }],
+          ["forever-mob-boar", [1, 5], 64, 52, { "align": "bottom" }],
+          ["forever-mob-murloc", [2, 6], 56, 56, { "align": "bottom" }],
+          ["forever-mob-kobold", [3, 7], 56, 64, { "align": "bottom" }]
         ]
       }
     }

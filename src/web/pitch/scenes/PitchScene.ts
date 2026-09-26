@@ -32,6 +32,7 @@ import {
 } from "../game/keeper";
 import { ballExit, beginFlight, createMatch, fadeAlpha, registerResult, resolveShot, stepMatch, type ShotResult } from "../game/match";
 import { GATE, GATE_SCALE, GATE_SPAWN, gateDistance } from "../game/locker";
+import { FOREVER_SPAWN, GATE_FOREVER, gateForeverDistance } from "../game/forever";
 import { createPet, drawPet, resetPet, updatePet, type PetState } from "../game/pet";
 import { createPlayer, playerPose, playerSpeed, resetPlayer, stepPlayer, type MoveInput } from "../game/player";
 import { createRng, type Rng } from "../game/rng";
@@ -73,6 +74,7 @@ import {
 import { loadPitchSettings, loadPitchStats, savePitchSettings, savePitchStats, type PitchStats } from "../../storage";
 import { CharacterSelectScene } from "./CharacterSelectScene";
 import { drawPrompt } from "./hudCommon";
+import { ForeverLoadingScene } from "./ForeverLoadingScene";
 import { LockerScene, type PitchEnterParams } from "./LockerScene";
 import { VolumePanel } from "../ui/volumePanel";
 import { PitchDebug, pitchDebugEnabled } from "./pitchDebug";
@@ -210,6 +212,10 @@ export class PitchScene implements Scene {
   /** Within the preload radius (glow + arrow, the locker assets are fetched). */
   private gateApproach = false;
   private lockerRequested = false;
+  // Jandi Forever gate on the right edge (docs/forever/02 §2): same states as the locker gate.
+  private foreverNear = false;
+  private foreverApproach = false;
+  private foreverRequested = false;
 
   private volume: VolumePanel | null = null;
   private hovered: ButtonId | null = null;
@@ -241,23 +247,36 @@ export class PitchScene implements Scene {
     });
     this.stats = loadPitchStats();
     if (pitchDebugEnabled()) this.debug = new PitchDebug(this.shotTuning, this.keeperTuning);
-    if ((params as PitchEnterParams | undefined)?.fromLocker) this.arriveFromLocker();
+    const enter = params as PitchEnterParams | undefined;
+    if (enter?.fromLocker) this.arriveFromLocker();
+    else if (enter?.fromForever) this.arriveFromForever();
     carry = null;
   }
 
   /** Back from the locker room: the score and hint state carry over and the player stands in front of the gate, ball at the feet. */
   private arriveFromLocker() {
+    this.arriveAt(GATE_SPAWN.x, GATE_SPAWN.y, 1);
+    this.gateNear = gateDistance(GATE_SPAWN.x, GATE_SPAWN.y) <= GATE.promptRadius;
+    this.lockerRequested = true;
+  }
+
+  /** Back from Jandi Forever: same as the locker return, at the right gate and facing left with the ball at the feet. */
+  private arriveFromForever() {
+    this.arriveAt(FOREVER_SPAWN.x, FOREVER_SPAWN.y, -1);
+    this.foreverNear = gateForeverDistance(FOREVER_SPAWN.x, FOREVER_SPAWN.y) <= GATE_FOREVER.promptRadius;
+    this.foreverRequested = true;
+  }
+
+  private arriveAt(x: number, y: number, facing: 1 | -1) {
     if (carry) {
       Object.assign(this.match, carry.match);
       this.hintsVisible = carry.hintsVisible;
     }
-    Object.assign(this.player, createPlayer(GATE_SPAWN.x, GATE_SPAWN.y));
-    this.player.fx = 1;
+    Object.assign(this.player, createPlayer(x, y));
+    this.player.fx = facing;
     this.player.fy = 0;
-    resetPet(this.pet, GATE_SPAWN.x, GATE_SPAWN.y);
-    Object.assign(this.ball, createBall(GATE_SPAWN.x + DRIBBLE.touchDistance, GATE_SPAWN.y));
-    this.gateNear = gateDistance(GATE_SPAWN.x, GATE_SPAWN.y) <= GATE.promptRadius;
-    this.lockerRequested = true;
+    resetPet(this.pet, x, y);
+    Object.assign(this.ball, createBall(x + facing * DRIBBLE.touchDistance, y));
   }
 
   /** Test hook: fixes the random source (the game uses Math.random). */
@@ -322,6 +341,7 @@ export class PitchScene implements Scene {
     updatePet(this.pet, this.player, dt, Math.abs(this.player.fx) > 0.3 ? Math.sign(this.player.fx) : 0);
     this.syncAudio();
     this.updateGate();
+    this.updateForeverGate();
   }
 
   /** Reads the saved loadout of the current character, fetches its pet art and puts the pet next to the player. */
@@ -343,19 +363,38 @@ export class PitchScene implements Scene {
     assets.loadGroup("locker").catch(() => undefined);
   }
 
-  /** The `E 락커룸` prompt: at the gate, with nothing else going on (no shot, skill, result or transition). */
-  private gatePromptVisible() {
-    return this.gateNear && this.inputLive() && this.shot.phase === "idle" && this.skills.active === null;
+  /** Same for the Jandi Forever gate: the first time the player gets within its preload radius the `forever` group is fetched. */
+  private updateForeverGate() {
+    const distance = gateForeverDistance(this.player.x, this.player.y);
+    this.foreverNear = distance <= GATE_FOREVER.promptRadius;
+    this.foreverApproach = distance < GATE_FOREVER.preloadRadius;
+    if (!this.foreverApproach || this.foreverRequested) return;
+    this.foreverRequested = true;
+    const assets = this.assets;
+    if (!assets || typeof assets.loadGroup !== "function" || assets.has?.("env/forever-hub-bg")) return;
+    assets.loadGroup("forever").catch(() => undefined);
   }
 
-  /** E / Enter at the gate: wipe into the locker room. */
-  private enterLocker() {
+  /**
+   * The gate whose E prompt is up: at a gate, with nothing else going on (no shot, skill, result or transition).
+   * Standing inside both prompt radii, the nearer gate wins.
+   */
+  private promptGate(): "locker" | "forever" | null {
+    if (!this.inputLive() || this.shot.phase !== "idle" || this.skills.active !== null) return null;
+    if (this.gateNear && this.foreverNear) return gateDistance(this.player.x, this.player.y) <= gateForeverDistance(this.player.x, this.player.y) ? "locker" : "forever";
+    return this.gateNear ? "locker" : this.foreverNear ? "forever" : null;
+  }
+
+  /** E / Enter at a gate: wipe into the locker room or into Jandi Forever. */
+  private enterGate() {
     const ctx = this.ctx;
-    if (!ctx || !this.gatePromptVisible()) return;
-    this.audio.playSfx("gate-open");
+    const gate = this.promptGate();
+    if (!ctx || !gate) return;
+    this.audio.playSfx(gate === "forever" ? "forever-portal-enter" : "gate-open");
     this.audio.playSfx("transition-wipe");
     carry = { match: { goals: this.match.goals, saves: this.match.saves, streak: this.match.streak, bestStreak: this.match.bestStreak, shots: this.match.shots }, hintsVisible: this.hintsVisible };
-    ctx.manager.replace(new LockerScene({ createPitch: () => new PitchScene() }), undefined, { transition: "wipe" });
+    if (gate === "locker") ctx.manager.replace(new LockerScene({ createPitch: () => new PitchScene() }), undefined, { transition: "wipe" });
+    else ctx.manager.replace(new ForeverLoadingScene({ createPitch: () => new PitchScene() }), undefined, { transition: "wipe" });
   }
 
   /** Real-time animation timers (they run through the hit stop). */
@@ -805,7 +844,7 @@ export class PitchScene implements Scene {
       case "KeyE":
       case "Enter":
       case "NumpadEnter":
-        this.enterLocker();
+        this.enterGate();
         break;
       default: {
         const skill = skillForKey(e.code);
@@ -906,6 +945,7 @@ export class PitchScene implements Scene {
     this.drawCrowd(g);
     this.drawCornerFlags(g);
     this.drawGate(g);
+    this.drawForeverGate(g);
     this.drawDust(g);
     // a ball that ended up in the net lies under the front netting
     if (this.ballInNet) {
@@ -949,19 +989,40 @@ export class PitchScene implements Scene {
 
   /** Locker-room gate tile: closed, glowing when the player is within 200px (with a bouncing arrow), open within the prompt radius. */
   private drawGate(g: CanvasRenderingContext2D) {
-    const { x, y, w, h } = GATE;
-    const open = this.gateNear ? this.image("env/gate-open") : undefined;
-    const closed = this.image("env/gate-closed");
+    this.drawGateSprite(g, GATE, { near: this.gateNear, approach: this.gateApproach, art: "gate", label: "LOCKER" });
+  }
+
+  /** Jandi Forever gate (mirror of the locker gate): its own art, and the FOREVER plate. */
+  private drawForeverGate(g: CanvasRenderingContext2D) {
+    this.drawGateSprite(g, GATE_FOREVER, {
+      near: this.foreverNear,
+      approach: this.foreverApproach,
+      art: "forever-gate",
+      label: "FOREVER",
+      tint: ["#1a3d2b", "#3f7a1a"],
+    });
+  }
+
+  /** Shared gate drawing: `art` is the env key prefix (`<art>-closed|open|glow|arrow|plate`); shapes stand in for missing art. */
+  private drawGateSprite(
+    g: CanvasRenderingContext2D,
+    { x, y, w, h }: { x: number; y: number; w: number; h: number },
+    opts: { near: boolean; approach: boolean; art: string; label: string; tint?: readonly [string, string] },
+  ) {
+    const { near, approach, art } = opts;
+    const [idle, lit] = opts.tint ?? ["#1a2b4d", "#8a6d1a"];
+    const open = near ? this.image(`env/${art}-open`) : undefined;
+    const closed = this.image(`env/${art}-closed`);
     if (open) g.drawImage(open, x, y, w, h);
     else if (closed) g.drawImage(closed, x, y, w, h);
     else {
       g.fillStyle = "#0a0a1a";
       g.fillRect(x, y, w, h);
-      g.fillStyle = this.gateNear ? "#8a6d1a" : "#1a2b4d";
+      g.fillStyle = near ? lit : idle;
       g.fillRect(x + 8, y + 16, w - 16, h - 16);
     }
-    if (this.gateApproach && !open) {
-      const glow = this.image("env/gate-glow");
+    if (approach && !open) {
+      const glow = this.image(`env/${art}-glow`);
       if (glow) {
         g.save();
         g.globalAlpha = 0.35 + 0.35 * Math.sin(this.clock * 4);
@@ -969,15 +1030,15 @@ export class PitchScene implements Scene {
         g.restore();
       }
     }
-    const plate = this.image("env/gate-plate");
+    const plate = this.image(`env/${art}-plate`);
     const plateW = Math.round((plate?.width ?? 64) * GATE_SCALE);
     const plateH = Math.round((plate?.height ?? 24) * GATE_SCALE);
     const plateX = x + Math.round((w - plateW) / 2) + 1;
     const plateY = y - plateH - 4 + 10;
     if (plate) g.drawImage(plate, plateX, plateY, plateW, plateH);
-    drawText(g, "LOCKER", plateX + plateW / 2, plateY + plateH / 2, { size: 10, align: "center", baseline: "middle" });
-    if (this.gateApproach) {
-      const arrow = this.image("env/gate-arrow");
+    drawText(g, opts.label, plateX + plateW / 2, plateY + plateH / 2, { size: 10, align: "center", baseline: "middle" });
+    if (approach) {
+      const arrow = this.image(`env/${art}-arrow`);
       const bounce = Math.round(Math.abs(Math.sin(this.clock * 4)) * 4);
       if (arrow) {
         const aw = Math.round(arrow.width * GATE_SCALE);
@@ -1243,9 +1304,10 @@ export class PitchScene implements Scene {
     if (this.callout) drawCallout(g, (key) => this.image(key), this.callout.kind, this.callout.age);
     if (this.skillLabel) drawSkillLabel(g, this.skillLabel.text, this.player.x, this.player.y, this.skillLabel.age, this.skillLabel.color);
     this.drawShotHud(g);
-    if (this.gatePromptVisible()) {
+    const gate = this.promptGate();
+    if (gate) {
       const p = this.player;
-      drawPrompt(g, this.image("ui/dialog-small"), "E", "락커룸", p.x, p.y - Math.round(86 * depthScale(p.y)), this.clock);
+      drawPrompt(g, this.image("ui/dialog-small"), "E", gate === "locker" ? "락커룸" : "잔디 포에버 입장", p.x, p.y - Math.round(86 * depthScale(p.y)), this.clock);
     }
     this.drawHints(g);
     this.drawToast(g);

@@ -3,12 +3,14 @@
 // public/sfxes, 06 §2) and then the reuse candidates of 06 §3, which stand in until the real file arrives.
 // `victory.mp3` belongs to another feature and must never appear in this table (a test enforces it).
 
-export type PitchBgmId = "loading" | "pitch" | "locker";
+export type PitchBgmId = "loading" | "pitch" | "locker" | "forever" | "forever-loading";
 
 export const BGM_FILES: Readonly<Record<PitchBgmId, string>> = {
   loading: "/pitch-bgm-loading.mp3",
   pitch: "/pitch-bgm-pitch.mp3",
   locker: "/pitch-bgm-locker.mp3",
+  forever: "/pitch-bgm-forever.mp3",
+  "forever-loading": "/pitch-bgm-forever-loading.mp3",
 };
 
 /** Sound events of the pitch. Named after the 06 file (without `pitch-` and `.mp3`). */
@@ -25,7 +27,13 @@ export type PitchSfxId =
   | "net-hit" | "goal-cheer" | "goal-horn" | "save-glove" | "save-punch" | "save-deflect" | "save-groan" | "post-hit" | "bar-hit"
   | "miss-whoosh" | "whistle-short" | "banner-in" | "celebrate"
   // keeper / locker room / stats (06 §2-6)
-  | "keeper-dive" | "gate-open" | "gate-close" | "stat-on" | "stat-select" | "stat-soon";
+  | "keeper-dive" | "gate-open" | "gate-close" | "stat-on" | "stat-select" | "stat-soon"
+  // Jandi Forever (docs/forever/06 §2)
+  | "forever-portal-enter" | "forever-portal-hum" | "forever-zone-enter"
+  | "forever-quest-accept" | "forever-quest-complete" | "forever-quest-progress" | "forever-ding" | "forever-achievement"
+  | "forever-cast-loop" | "forever-cast-cancel" | "forever-cast-complete"
+  | "forever-npc-greet" | "forever-leroy-charge" | "forever-murloc" | "forever-rabbit-hit" | "forever-mob-defeat" | "forever-griffin"
+  | "forever-mailbox" | "forever-dummy-hit" | "forever-coin" | "forever-chat" | "forever-popup-open";
 
 const sfx = (name: string) => `/sfxes/${name}.mp3`;
 
@@ -84,6 +92,28 @@ export const SFX_CANDIDATES: Readonly<Record<PitchSfxId, readonly string[]>> = {
   "stat-on": [sfx("pitch-stat-on")],
   "stat-select": [sfx("pitch-stat-select")],
   "stat-soon": [sfx("pitch-stat-soon")],
+  "forever-portal-enter": [sfx("pitch-forever-portal-enter"), sfx("pitch-gate-open")],
+  "forever-portal-hum": [sfx("pitch-forever-portal-hum")],
+  "forever-zone-enter": [sfx("pitch-forever-zone-enter"), sfx("pitch-banner-in")],
+  "forever-quest-accept": [sfx("pitch-forever-quest-accept"), sfx("pitch-ui-select")],
+  "forever-quest-complete": [sfx("pitch-forever-quest-complete"), sfx("pitch-style-tier")],
+  "forever-quest-progress": [sfx("pitch-forever-quest-progress"), sfx("pitch-forever-quest-progres"), sfx("pitch-style-gain")],
+  "forever-ding": [sfx("pitch-forever-ding"), sfx("pitch-style-tier")],
+  "forever-achievement": [sfx("pitch-forever-achievement"), sfx("pitch-style-tier")],
+  "forever-cast-loop": [sfx("pitch-forever-cast-loop"), sfx("pitch-power-charge")],
+  "forever-cast-cancel": [sfx("pitch-forever-cast-cancel"), sfx("pitch-ui-back")],
+  "forever-cast-complete": [sfx("pitch-forever-cast-complete"), sfx("pitch-transition-wipe")],
+  "forever-npc-greet": [sfx("pitch-forever-npc-greet"), sfx("pitch-ui-click")],
+  "forever-leroy-charge": [sfx("pitch-forever-leroy-charge")],
+  "forever-murloc": [sfx("pitch-forever-murloc")],
+  "forever-rabbit-hit": [sfx("pitch-forever-rabbit-hit"), sfx("pitch-ball-touch")],
+  "forever-mob-defeat": [sfx("pitch-forever-mob-defeat"), sfx("pitch-ball-trap")],
+  "forever-griffin": [sfx("pitch-forever-griffin"), sfx("pitch-transition-wipe")],
+  "forever-mailbox": [sfx("pitch-forever-mailbox"), sfx("pitch-ui-click")],
+  "forever-dummy-hit": [sfx("pitch-forever-dummy-hit"), sfx("pitch-net-hit")],
+  "forever-coin": [sfx("pitch-forever-coin"), sfx("pitch-style-gain")],
+  "forever-chat": [sfx("pitch-forever-chat")],
+  "forever-popup-open": [sfx("pitch-forever-popup-open"), sfx("pitch-ui-select")],
 };
 
 /**
@@ -101,6 +131,9 @@ export const SFX_GAIN: Readonly<Partial<Record<PitchSfxId, number>>> = {
   "banner-in": 0.6,
   "goal-cheer": 0.9,
   "save-groan": 0.8,
+  "forever-chat": 0.4,
+  "forever-portal-hum": 0.3,
+  "forever-cast-loop": 0.6,
 };
 
 /** Every file the table can play (all candidates of all events). */

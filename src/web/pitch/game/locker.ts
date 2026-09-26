@@ -126,8 +126,13 @@ export function insideBox(x: number, y: number, box: Box, pad: { x: number; y: n
 }
 
 /** Pushes the body out of every box along the shortest way and drops the velocity that pointed into it. */
-export function resolveBoxes(b: Body, boxes: readonly Box[] = LOCKER_COLLIDERS, pad: { x: number; y: number } = FOOT_PAD) {
-  clampToArea(b);
+export function resolveBoxes(
+  b: Body,
+  boxes: readonly Box[] = LOCKER_COLLIDERS,
+  pad: { x: number; y: number } = FOOT_PAD,
+  area: { minX: number; maxX: number; minY: number; maxY: number } = LOCKER_AREA,
+) {
+  clampToArea(b, area);
   for (let pass = 0; pass < 2; pass++) {
     for (const box of boxes) {
       if (!insideBox(b.x, b.y, box, pad)) continue;
@@ -151,5 +156,5 @@ export function resolveBoxes(b: Body, boxes: readonly Box[] = LOCKER_COLLIDERS, 
       }
     }
   }
-  clampToArea(b);
+  clampToArea(b, area);
 }
