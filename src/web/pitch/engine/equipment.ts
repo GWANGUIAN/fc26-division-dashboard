@@ -21,7 +21,7 @@ const BACK_NECK = 0.8;
 /** Side view: the face points to +x, the glasses sit a little in front of the head centre. */
 const FACE_FORWARD = 0.05;
 /** Side view: cape / wings / backpack hang behind the back (away from the facing direction). */
-const BACK_BEHIND = 0.4;
+const BACK_BEHIND = 0.8;
 
 /** Direction of an atlas cell (atlas layout of data/animations.ts): idle row pairs, run/shoot rows, skills, celebrations. */
 export function directionOfCell(row: number, col: number): Direction {

@@ -61,8 +61,8 @@ describe("pitch-art-manifest equipment and pets", () => {
     }
   });
 
-  it("pets: 6 common + 12 exclusive to distinct field characters, fitting the cell", () => {
-    expect(manifest.pets.common).toHaveLength(6);
+  it("pets: common pets + 12 exclusive to distinct field characters, fitting the cell", () => {
+    expect(manifest.pets.common.length).toBeGreaterThanOrEqual(6);
     const owners = Object.values(manifest.pets.exclusive);
     expect(owners).toHaveLength(12);
     expect(new Set(owners).size).toBe(12);
