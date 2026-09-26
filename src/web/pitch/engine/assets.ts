@@ -21,7 +21,7 @@ const URLS: ReadonlyMap<string, string> = new Map(
 
 export type AssetImage = ImageBitmap | HTMLImageElement;
 
-export type AssetGroupName = "boot" | "core" | "select" | "locker" | `char:${string}` | `pets:${string}`;
+export type AssetGroupName = "boot" | "core" | "select" | "locker" | "forever" | "forever2" | "forever-field" | `char:${string}` | `pets:${string}`;
 
 export interface AssetSpec {
   key: string;
@@ -39,7 +39,7 @@ const OPTIONAL_BOOT_KEYS = ["ui/title-logo"].filter((key) => key in PITCH_ASSET_
 const BOOT_KEYS = ["keyart/loading-bg", ...ids("ui", ["loader-ball"]), ...OPTIONAL_BOOT_KEYS];
 
 const CORE_KEYS = [
-  ...ids("env", ["pitch-bg", "goal-back", "goal-front", "goal-ripple", "ball-spin", "ball-shadow", "ball-trail", "ball-ring", "ball-sparkle", "gate-closed", "gate-open", "gate-glow", "gate-arrow", "gate-plate", "flag", "flag-wave"]),
+  ...ids("env", ["pitch-bg", "goal-back", "goal-front", "goal-ripple", "ball-spin", "ball-shadow", "ball-trail", "ball-ring", "ball-sparkle", "gate-closed", "gate-open", "gate-glow", "gate-arrow", "gate-plate", "forever-gate-closed", "forever-gate-open", "forever-gate-glow", "forever-gate-arrow", "forever-gate-plate", "flag", "flag-wave"]),
   ...ids("fx", ["fx-dust", "fx-grass", "fx-star", "fx-speed", "fx-aim-arrow", "fx-reticle", "fx-sweet", "fx-confetti", "fx-firework", "fx-rays", "fx-save-sparkle"]),
   ...ids("ui", ["panel-large", "panel-medium", "dialog-small", "ribbon", "nameplate", "tooltip", "corner-bracket", "btn-dashboard", "btn-change", "btn-pill", "btn-square"]),
   ...ids("ui", ["scoreboard", "aim-bar", "power-bar", "fill-green", "fill-gold", "fill-red", "sweet-spot", "aim-cursor", "style-frame", "style-fill", "pip-lit", "pip-unlit"]),
@@ -70,16 +70,48 @@ const LOCKER_KEYS = [
   ...INVENTORY_KEYS,
 ];
 
+// Jandi Forever (docs/forever/03 §3): the whole map (backgrounds, logo, props, NPCs, monsters, HUD). The pitch-side gate art
+// (`forever-gate-*`) is in `core` instead, because the gate is on screen from the first frame; the logo is here, not in `boot`.
+const FOREVER_KEYS = [
+  ...ids("env", ["forever-loading-bg", "forever-hub-bg"]),
+  "ui/forever-logo",
+  ...ids("env", ["forever-prop-mailbox", "forever-prop-signboard", "forever-prop-hearthstone", "forever-prop-campfire", "forever-prop-dummy", "forever-prop-signpost", "forever-prop-perch", "forever-prop-barrels"]),
+  ...ids("characters", ["forever-npc-questgiver", "forever-npc-streamer", "forever-npc-leroy", "forever-npc-innkeeper", "forever-npc-flightmaster", "forever-npc-guard"]),
+  ...ids("characters", ["forever-mob-rabbit", "forever-mob-boar", "forever-mob-murloc", "forever-mob-kobold"]),
+  ...ids("ui", ["forever-quest-available", "forever-quest-complete", "forever-quest-progress", "forever-ding-burst", "forever-ding-pillar", "forever-quest-scroll"]),
+  ...ids("ui", ["forever-cast-bar", "forever-xp-bar", "forever-toast", "forever-chat", "forever-slot", "forever-coin"]),
+  // session 6 (docs/forever/07): the portals to the monster meadow, the letter of the mailbox
+  ...ids("env", ["forever-portal-field", "forever-portal-town", "forever-prop-mailbox-mail"]),
+  ...ids("ui", ["forever-letter", "forever-seal", "forever-mail-icon", "forever-mail-open-icon"]),
+];
+
+// Third Jandi Forever map, the monster meadow (docs/forever/07 §1-2): background and its props in a group of their own, fetched when
+// the player nears the portal of the first map. The monster sprites are already in `forever`.
+const FOREVER_FIELD_KEYS = [
+  ...ids("env", ["forever-field-bg"]),
+  ...ids("env", ["forever-prop-burrow", "forever-prop-stump", "forever-prop-boulder", "forever-prop-bush", "forever-prop-mushrooms", "forever-prop-fence", "forever-prop-warnsign"]),
+];
+
+// Second Jandi Forever map (docs/forever/02 §11): its own group so the first visit never pays for it; the map loads it when the
+// player takes the griffin there. Its props (hearthstone, dummy, mailbox, perch) are the ones of the first map.
+const FOREVER2_KEYS = [
+  ...ids("env", ["forever-orgrimmar-bg"]),
+  ...ids("characters", ["forever-npc2-orc", "forever-npc2-elder", "forever-npc2-goblin", "forever-npc2-grunt", "forever-npc2-rider", "forever-npc2-cook"]),
+];
+
 /**
  * Group → files (docs/pitch/01 §3-4). Keys are paths under assets/pitch without ".webp". The selected character's
  * `char:<id>` group is loaded on top of `core`. A key with no file yet is reported as `missing`, never an error.
  * `boot` must stay small and complete: a failed boot file sends PitchEntry back to the dashboard.
  */
-export const ASSET_GROUPS: Readonly<Record<"boot" | "core" | "select" | "locker", readonly AssetSpec[]>> = {
+export const ASSET_GROUPS: Readonly<Record<"boot" | "core" | "select" | "locker" | "forever" | "forever2" | "forever-field", readonly AssetSpec[]>> = {
   boot: BOOT_KEYS.map(spec),
   core: CORE_KEYS.map(spec),
   select: SELECT_KEYS.map(spec),
   locker: LOCKER_KEYS.map(spec),
+  forever: FOREVER_KEYS.map(spec),
+  forever2: FOREVER2_KEYS.map(spec),
+  "forever-field": FOREVER_FIELD_KEYS.map(spec),
 };
 
 /** `char:<id>` = the atlas + the four portraits of one field character; `pets:<id>` = its wearable pets. */

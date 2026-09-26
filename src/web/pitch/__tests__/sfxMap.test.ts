@@ -4,6 +4,9 @@ import { BGM_FILES, SFX_CANDIDATES, SFX_GAIN, allSfxFiles, kickSfx, resolveSfx, 
 
 const doc06 = readFileSync(new URL("../../../../docs/pitch/06-audio.md", import.meta.url), "utf8");
 
+const doc06Forever = readFileSync(new URL("../../../../docs/forever/06-audio.md", import.meta.url), "utf8");
+const FOREVER_SFX = Object.keys(SFX_CANDIDATES).filter((id) => id.startsWith("forever-")) as PitchSfxId[];
+
 /** Table rows of 06 (`| S12 | <file in backticks> | ... | P0 |`) → file name and priority. */
 function docRows(prefix: "S" | "B") {
   const rows: Array<{ file: string; priority: string }> = [];
@@ -24,7 +27,7 @@ describe("sfxMap: reserved file", () => {
 
   it("only points at public/sfxes and public/pitch-bgm files", () => {
     for (const url of allSfxFiles()) expect(url).toMatch(/^\/sfxes\/[a-z0-9-]+\.mp3$/);
-    for (const url of Object.values(BGM_FILES)) expect(url).toMatch(/^\/pitch-bgm-[a-z]+\.mp3$/);
+    for (const url of Object.values(BGM_FILES)) expect(url).toMatch(/^\/pitch-bgm-[a-z-]+\.mp3$/);
   });
 });
 
@@ -37,12 +40,48 @@ describe("sfxMap: 06 file names match the code", () => {
       expect(SFX_CANDIDATES[id], file).toBeDefined();
       expect(SFX_CANDIDATES[id][0]).toBe(`/sfxes/${file}`);
     }
-    expect(Object.keys(SFX_CANDIDATES)).toHaveLength(50);
+    expect(Object.keys(SFX_CANDIDATES)).toHaveLength(50 + FOREVER_SFX.length);
+  });
+
+  it("lists all 22 Jandi Forever effects of docs/forever/06 with their own file first", () => {
+    const rows = [...doc06Forever.matchAll(/`(pitch-forever-[a-z0-9-]+\.mp3)`/g)].map((m) => m[1]!);
+    const files = [...new Set(rows.filter((file) => file !== "pitch-forever-*.mp3"))];
+    expect(files).toHaveLength(22);
+    for (const file of files) {
+      const id = file.replace(/^pitch-/, "").replace(/\.mp3$/, "") as PitchSfxId;
+      expect(FOREVER_SFX).toContain(id);
+      expect(SFX_CANDIDATES[id][0]).toBe(`/sfxes/${file}`);
+    }
+  });
+
+  it("falls back to the 06 reuse candidates for the Forever events and never to victory", () => {
+    const only = (name: string) => (url: string) => url === `/sfxes/${name}.mp3`;
+    expect(resolveSfx("forever-portal-enter", only("pitch-gate-open"))).toBe("/sfxes/pitch-gate-open.mp3");
+    expect(resolveSfx("forever-ding", only("pitch-style-tier"))).toBe("/sfxes/pitch-style-tier.mp3");
+    expect(resolveSfx("forever-cast-loop", only("pitch-power-charge"))).toBe("/sfxes/pitch-power-charge.mp3");
+    expect(resolveSfx("forever-cast-cancel", only("pitch-ui-back"))).toBe("/sfxes/pitch-ui-back.mp3");
+    expect(resolveSfx("forever-rabbit-hit", only("pitch-ball-touch"))).toBe("/sfxes/pitch-ball-touch.mp3");
+    expect(resolveSfx("forever-ding", () => true)).toBe("/sfxes/pitch-forever-ding.mp3");
+    for (const id of ["forever-chat", "forever-leroy-charge", "forever-murloc", "forever-portal-hum"] as const) expect(resolveSfx(id, only("pitch-ui-click"))).toBeNull();
+    for (const id of FOREVER_SFX) for (const url of SFX_CANDIDATES[id]) expect(url).not.toMatch(/victory/i);
+  });
+
+  it("keeps the looping and repeating Forever sounds quieter", () => {
+    expect(SFX_GAIN["forever-chat"]).toBe(0.4);
+    expect(SFX_GAIN["forever-portal-hum"]).toBe(0.3);
+    expect(SFX_GAIN["forever-cast-loop"]).toBe(0.6);
+  });
+
+  it("names the two Forever BGM tracks after 06 §1", () => {
+    expect(BGM_FILES.forever).toBe("/pitch-bgm-forever.mp3");
+    expect(BGM_FILES["forever-loading"]).toBe("/pitch-bgm-forever-loading.mp3");
+    expect(doc06Forever).toContain("pitch-bgm-forever.mp3");
+    expect(doc06Forever).toContain("pitch-bgm-forever-loading.mp3");
   });
 
   it("uses the 06 names for the three BGM tracks", () => {
     const rows = docRows("B");
-    expect(rows.map((r) => `/${r.file}`).sort()).toEqual(Object.values(BGM_FILES).sort());
+    expect(rows.map((r) => `/${r.file}`).sort()).toEqual(Object.values(BGM_FILES).filter((url) => !url.includes("forever")).sort());
   });
 
   it("knows the on-disk spelling of the miss whoosh", () => {

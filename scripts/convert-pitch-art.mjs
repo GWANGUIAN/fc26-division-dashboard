@@ -648,8 +648,11 @@ async function writeMeta() {
 async function run(category, id) {
   if (category === "characters") {
     const all = [...manifest.characters.field, ...manifest.characters.keeper];
+    // plain grid sheets of NPCs / monsters (docs/forever/03 §3) live under manifest.sheets.characters
+    const gridSheets = Object.keys(manifest.sheets.characters ?? {});
+    if (id && gridSheets.includes(id)) return convertSheet("characters", id);
     if (id) {
-      if (!all.includes(id)) throw new Error(`Unknown character "${id}". Known: ${all.join(", ")}`);
+      if (!all.includes(id)) throw new Error(`Unknown character "${id}". Known: ${[...all, ...gridSheets].join(", ")}`);
       return convertCharacter(id);
     }
     for (const character of all) {
@@ -659,6 +662,7 @@ async function run(category, id) {
       }
       await convertCharacter(character);
     }
+    for (const sheetId of gridSheets) await convertSheet("characters", sheetId);
     return;
   }
   if (category === "equipment") {

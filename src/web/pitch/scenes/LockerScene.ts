@@ -80,6 +80,8 @@ export interface LockerParams {
 /** What the pitch is told when it is entered from the locker room. */
 export interface PitchEnterParams {
   fromLocker?: boolean;
+  /** Back from Jandi Forever: the player starts at `FOREVER_SPAWN` (docs/forever/02 §1). */
+  fromForever?: boolean;
 }
 
 export type LockerTarget = "analyzer" | "cabinet" | "playlist" | "squad" | "exit" | null;
