@@ -85,7 +85,7 @@ describe("sanitizeLoadout", () => {
     expect(sameLoadout({ hat: "cap" }, { hat: "cap" })).toBe(true);
     expect(sameLoadout({ hat: "cap" }, {})).toBe(false);
     expect(isEmptyLoadout({})).toBe(true);
-    expect(isEmptyLoadout({ pet: "kkwaegi" })).toBe(false);
+    expect(isEmptyLoadout({ pet: "murloc" })).toBe(false);
   });
 });
 

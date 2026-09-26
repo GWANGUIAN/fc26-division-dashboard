@@ -521,7 +521,7 @@ export class InventoryScene implements Scene {
     }
     // centre the art itself (hats sit at the bottom of their cell, back items at the top), not the cell
     const bounds = cellBounds(image, sx, sy, cw, ch);
-    const k = iconScale(bounds, SLOT_SIZE - 12);
+    const k = iconScale(bounds, SLOT_SIZE - 12) * (this.tab === "pet" ? 1 : (equipItem(id)?.iconShrink ?? 1));
     const w = Math.round(bounds.w * k);
     const h = Math.round(bounds.h * k);
     g.drawImage(image, sx + bounds.x, sy + bounds.y, bounds.w, bounds.h, Math.round(r.x + (r.w - w) / 2), Math.round(r.y + (r.h - h) / 2), w, h);

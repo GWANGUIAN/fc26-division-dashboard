@@ -40,9 +40,11 @@ export interface EquipItem {
   sideDx?: number;
   /** The sheet drew the item's outer face in the FRONT column (a backpack's pockets): from behind the wearer that face is the one to show. */
   faceOutFront?: boolean;
+  /** Inventory icon only: shrink factor on top of the fit-to-slot scale (1 = full slot). */
+  iconShrink?: number;
 }
 
-const item = (sheet: string, row: number, id: string, name: string, tune: Pick<EquipItem, "dx" | "dy" | "sideDx" | "faceOutFront"> = {}): EquipItem => ({
+const item = (sheet: string, row: number, id: string, name: string, tune: Pick<EquipItem, "dx" | "dy" | "sideDx" | "faceOutFront" | "iconShrink"> = {}): EquipItem => ({
   id,
   slot: EQUIP_SHEETS[sheet].slot,
   name,
@@ -52,13 +54,13 @@ const item = (sheet: string, row: number, id: string, name: string, tune: Pick<E
 });
 
 export const EQUIP_ITEMS: readonly EquipItem[] = [
-  item("hat-a", 0, "cap", "야구모자"),
-  item("hat-a", 1, "beanie", "비니", { sideDx: -1 }),
-  item("hat-a", 2, "crown", "왕관", { dy: -5 }),
+  item("hat-a", 0, "cap", "야구모자", { iconShrink: 0.75 }),
+  item("hat-a", 1, "beanie", "비니", { sideDx: -1, iconShrink: 0.75 }),
+  item("hat-a", 2, "crown", "왕관", { dy: -5, iconShrink: 0.75 }),
   item("hat-a", 3, "wizard", "마법사 모자", { sideDx: -1 }),
   item("hat-b", 0, "straw", "밀짚모자", { dy: 1 }),
-  item("hat-b", 1, "headphones", "헤드폰", { dy: 4 }),
-  item("hat-b", 2, "santa", "산타 모자", { dy: -1, sideDx: 2 }),
+  item("hat-b", 1, "headphones", "헤드폰", { dy: 4, iconShrink: 0.75 }),
+  item("hat-b", 2, "santa", "산타 모자", { dy: -1, sideDx: 2, iconShrink: 0.75 }),
   item("hat-b", 3, "cowboy", "카우보이 모자"),
   item("face-a", 0, "sunglasses", "선글라스"),
   item("face-a", 1, "roundglasses", "동그란 안경"),
@@ -67,7 +69,7 @@ export const EQUIP_ITEMS: readonly EquipItem[] = [
   item("back-a", 0, "cape", "붉은 망토"),
   item("back-a", 1, "angelwings", "천사 날개"),
   item("back-a", 2, "devilwings", "악마 날개"),
-  item("back-a", 3, "backpack", "책가방", { faceOutFront: true }),
+  item("back-a", 3, "backpack", "책가방", { faceOutFront: true, iconShrink: 0.75 }),
 ];
 
 export interface PetDef {
@@ -79,7 +81,7 @@ export interface PetDef {
 
 const COMMON_PETS: readonly PetDef[] = [
   { id: "cheezenyang", name: "치즈냥" },
-  { id: "kkwaegi", name: "꽥이" },
+  { id: "murloc", name: "멀록" },
   { id: "mallangi", name: "말랑이" },
   { id: "gongdori", name: "공돌이" },
   { id: "ppiyagi", name: "삐약이" },
