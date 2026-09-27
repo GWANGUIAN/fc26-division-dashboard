@@ -8,11 +8,16 @@ import { getFortuneCardBackUrl } from "../fortune/fortuneCardAssets";
 import { getPositionTestButtonIconUrl } from "../position-test/positionTestAssets";
 import { hasOpenedFortune, markFortuneOpened } from "../storage";
 
-export type MinigameId = "kickups" | "freekick" | "cardmatch" | "soccer-sum10" | "grass-merge" | "keeper-breakout" | "football-match3" | "football-rules-quiz";
+export type MinigameId = "kickups" | "freekick" | "cardmatch" | "soccer-sum10" | "grass-merge" | "keeper-breakout" | "football-match3" | "football-rules-quiz" | "cleat-drop";
 
 function KeeperBreakoutMenuIcon() {
   const [available, setAvailable] = useState(true);
   return available ? <img src="/keeper-breakout-icon.webp" alt="" className="minigame-menu__icon" onError={() => setAvailable(false)} /> : <span className="minigame-menu__icon minigame-menu__icon--fallback" aria-hidden="true">🧤</span>;
+}
+
+function CleatDropMenuIcon() {
+  const [available, setAvailable] = useState(true);
+  return available ? <img src="/cleat-drop-icon.webp" alt="" className="minigame-menu__icon" onError={() => setAvailable(false)} /> : <span className="minigame-menu__icon minigame-menu__icon--fallback" aria-hidden="true">👟</span>;
 }
 
 function FootballRulesQuizMenuIcon() {
@@ -64,6 +69,11 @@ const WARMUP_URLS = Array.from(
     "/sfxes/football-rules-quiz-next.mp3",
     "/sfxes/football-rules-quiz-result.mp3",
     "/sfxes/football-rules-quiz-perfect.mp3",
+    // cleat-drop
+    "/cleat-drop-bgm.mp3",
+    "/sfxes/cleat-drop-lace-release.mp3",
+    "/sfxes/cleat-drop-leg-swing.mp3",
+    "/sfxes/cleat-drop-kick-impact.mp3",
   ]),
 );
 
@@ -160,6 +170,7 @@ export function MinigameMenu({
     { id: "keeper-breakout", label: "골키퍼 벽돌깨기", icon: <KeeperBreakoutMenuIcon /> },
     { id: "football-match3", label: "축구 매치3", icon: <img src="/football-match3-icon.webp" alt="" className="minigame-menu__icon" /> },
     { id: "football-rules-quiz", label: "축구 상식 퀴즈", icon: <FootballRulesQuizMenuIcon /> },
+    { id: "cleat-drop", label: "축구화 던지기", icon: <CleatDropMenuIcon /> },
   ];
 
   return (

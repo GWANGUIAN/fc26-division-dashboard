@@ -109,6 +109,72 @@
           { "cell": 2, "file": "football-rules-quiz-wrong-burst.webp", "width": 512, "height": 512 }
         ] }
       ]
+    },
+    {
+      "id": "cleat-drop",
+      "sourceDir": "cleat-drop",
+      "assets": [
+        { "source": "cleat-sheet.png", "grid": { "columns": 3, "rows": 2 }, "trim": true, "outputs": [
+          { "cell": 0, "file": "cleat-drop-cleat-idle.webp", "width": 512, "height": 512 },
+          { "cell": 1, "file": "cleat-drop-cleat-swing-left.webp", "width": 512, "height": 512 },
+          { "cell": 2, "file": "cleat-drop-cleat-swing-right.webp", "width": 512, "height": 512 },
+          { "cell": 3, "file": "cleat-drop-cleat-falling.webp", "width": 512, "height": 512 },
+          { "cell": 4, "file": "cleat-drop-cleat-landed.webp", "width": 512, "height": 512 }
+        ] },
+        { "source": "leg-sheet.png", "grid": { "columns": 2, "rows": 2 }, "trim": true, "outputs": [
+          { "cell": 0, "file": "cleat-drop-leg-idle.webp", "width": 512, "height": 512 },
+          { "cell": 1, "file": "cleat-drop-leg-swing-a.webp", "width": 512, "height": 512 },
+          { "cell": 2, "file": "cleat-drop-leg-swing-b.webp", "width": 512, "height": 512 }
+        ] },
+        { "source": "targets-tier1.png", "grid": { "columns": 3, "rows": 2 }, "trim": true, "outputs": [
+          { "cell": 0, "file": "cleat-drop-target-bench.webp", "width": 512, "height": 512 },
+          { "cell": 1, "file": "cleat-drop-target-kitbag.webp", "width": 512, "height": 512 },
+          { "cell": 2, "file": "cleat-drop-target-bottle-carrier.webp", "width": 512, "height": 512 },
+          { "cell": 3, "file": "cleat-drop-target-clipboard.webp", "width": 512, "height": 512 },
+          { "cell": 4, "file": "cleat-drop-target-banner-roll.webp", "width": 512, "height": 512 },
+          { "cell": 5, "file": "cleat-drop-target-gk-mat.webp", "width": 512, "height": 512 }
+        ] },
+        { "source": "targets-tier2.png", "grid": { "columns": 3, "rows": 2 }, "trim": true, "outputs": [
+          { "cell": 0, "file": "cleat-drop-target-cone.webp", "width": 512, "height": 512 },
+          { "cell": 1, "file": "cleat-drop-target-corner-flag-base.webp", "width": 512, "height": 512 },
+          { "cell": 2, "file": "cleat-drop-target-basin.webp", "width": 512, "height": 512 },
+          { "cell": 3, "file": "cleat-drop-target-chair-back.webp", "width": 512, "height": 512 },
+          { "cell": 4, "file": "cleat-drop-target-team-cushion.webp", "width": 512, "height": 512 },
+          { "cell": 5, "file": "cleat-drop-target-line-marker.webp", "width": 512, "height": 512 }
+        ] },
+        { "source": "targets-tier3.png", "grid": { "columns": 3, "rows": 2 }, "trim": true, "outputs": [
+          { "cell": 0, "file": "cleat-drop-target-trophy-rim.webp", "width": 512, "height": 512 },
+          { "cell": 1, "file": "cleat-drop-target-crossbar.webp", "width": 512, "height": 512 },
+          { "cell": 2, "file": "cleat-drop-target-corner-flag-top.webp", "width": 512, "height": 512 },
+          { "cell": 3, "file": "cleat-drop-target-ball-cart-rim.webp", "width": 512, "height": 512 },
+          { "cell": 4, "file": "cleat-drop-target-whistle-hook.webp", "width": 512, "height": 512 },
+          { "cell": 5, "file": "cleat-drop-target-scoreboard-corner.webp", "width": 512, "height": 512 }
+        ] },
+        { "source": "targets-tier4.png", "grid": { "columns": 3, "rows": 2 }, "trim": true, "outputs": [
+          { "cell": 0, "file": "cleat-drop-target-bottle-cap.webp", "width": 512, "height": 512 },
+          { "cell": 1, "file": "cleat-drop-target-gk-glove-back.webp", "width": 512, "height": 512 },
+          { "cell": 2, "file": "cleat-drop-target-armband-hook.webp", "width": 512, "height": 512 },
+          { "cell": 3, "file": "cleat-drop-target-card-wallet.webp", "width": 512, "height": 512 },
+          { "cell": 4, "file": "cleat-drop-target-lace-loop.webp", "width": 512, "height": 512 },
+          { "cell": 5, "file": "cleat-drop-target-megaphone-mouth.webp", "width": 512, "height": 512 }
+        ] },
+        { "source": "targets-tier5.png", "grid": { "columns": 3, "rows": 2 }, "trim": true, "outputs": [
+          { "cell": 0, "file": "cleat-drop-target-sprinkler.webp", "width": 512, "height": 512 },
+          { "cell": 1, "file": "cleat-drop-target-balloon-top.webp", "width": 512, "height": 512 },
+          { "cell": 2, "file": "cleat-drop-target-tilted-board-corner.webp", "width": 512, "height": 512 },
+          { "cell": 3, "file": "cleat-drop-target-drone-top.webp", "width": 512, "height": 512 },
+          { "cell": 4, "file": "cleat-drop-target-net-rope.webp", "width": 512, "height": 512 },
+          { "cell": 5, "file": "cleat-drop-target-flagpole-tip.webp", "width": 512, "height": 512 }
+        ] },
+        { "source": "env-and-ui.png", "grid": { "columns": 3, "rows": 2 }, "trim": true, "outputs": [
+          { "cell": 0, "file": "cleat-drop-bg.webp", "width": 512, "height": 512 },
+          { "cell": 1, "file": "cleat-drop-hook.webp", "width": 512, "height": 512 },
+          { "cell": 2, "file": "cleat-drop-icon.webp", "width": 512, "height": 512 },
+          { "cell": 3, "file": "cleat-drop-timer-ring.webp", "width": 512, "height": 512 },
+          { "cell": 4, "file": "cleat-drop-stage-dot-empty.webp", "width": 512, "height": 512 },
+          { "cell": 5, "file": "cleat-drop-stage-dot-filled.webp", "width": 512, "height": 512 }
+        ] }
+      ]
     }
   ]
 }

@@ -82,6 +82,7 @@ const GrassMergeModal = lazy(() => import("./minigame/grass-merge/GrassMergeModa
 const KeeperBreakoutModal = lazy(() => import("./minigame/keeper-breakout/KeeperBreakoutModal"));
 const FootballMatch3Modal = lazy(() => import("./minigame/football-match3/FootballMatch3Modal"));
 const FootballRulesQuizModal = lazy(() => import("./minigame/football-rules-quiz/FootballRulesQuizModal"));
+const CleatDropModal = lazy(() => import("./minigame/cleat-drop/CleatDropModal"));
 const StadiumShowcaseModal = lazy(() => import("./stadium-showcase/StadiumShowcaseModal"));
 
 // 잔디동 월드 (2D 도트 RPG). The overlay, engine and every world asset stay out of the main bundle;
@@ -116,7 +117,7 @@ export function App({ onGoPitch }: { onGoPitch?: () => void } = {}) {
     useState<Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision" | "sfx">>();
   // A single slot (rather than one boolean per minigame) makes it structurally impossible for two
   // minigame modals to be open at once.
-  const [activeMinigame, setActiveMinigame] = useState<"kickups" | "freekick" | "cardmatch" | "soccer-sum10" | "grass-merge" | "keeper-breakout" | "football-match3" | "football-rules-quiz" | null>(null);
+  const [activeMinigame, setActiveMinigame] = useState<"kickups" | "freekick" | "cardmatch" | "soccer-sum10" | "grass-merge" | "keeper-breakout" | "football-match3" | "football-rules-quiz" | "cleat-drop" | null>(null);
 
   const { toast, showToast } = useToast();
   // The pitch hands over a one-shot message when it fell back to this dashboard (docs/pitch/01 §9).
@@ -478,6 +479,11 @@ export function App({ onGoPitch }: { onGoPitch?: () => void } = {}) {
       {activeMinigame === "football-rules-quiz" && (
         <Suspense fallback={null}>
           <FootballRulesQuizModal onClose={() => setActiveMinigame(null)} />
+        </Suspense>
+      )}
+      {activeMinigame === "cleat-drop" && (
+        <Suspense fallback={null}>
+          <CleatDropModal onClose={() => setActiveMinigame(null)} />
         </Suspense>
       )}
       {fortuneOpen && (

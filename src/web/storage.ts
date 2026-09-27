@@ -402,6 +402,20 @@ const FOOTBALL_MATCH3_SFX_VOLUME_KEY = "fc26-football-match3-sfx-volume";
 const FOOTBALL_MATCH3_MUSIC_ENABLED_KEY = "fc26-football-match3-music-enabled";
 const FOOTBALL_MATCH3_MUSIC_VOLUME_KEY = "fc26-football-match3-music-volume";
 
+const CLEAT_DROP_SFX_ENABLED_KEY = "fc26-cleat-drop-sfx-enabled";
+const CLEAT_DROP_SFX_VOLUME_KEY = "fc26-cleat-drop-sfx-volume";
+const CLEAT_DROP_MUSIC_ENABLED_KEY = "fc26-cleat-drop-music-enabled";
+const CLEAT_DROP_MUSIC_VOLUME_KEY = "fc26-cleat-drop-music-volume";
+
+export function loadCleatDropSfxEnabled(): boolean { try { const value = localStorage.getItem(CLEAT_DROP_SFX_ENABLED_KEY); return value === null ? true : value === "1"; } catch { return true; } }
+export function saveCleatDropSfxEnabled(enabled: boolean) { try { localStorage.setItem(CLEAT_DROP_SFX_ENABLED_KEY, enabled ? "1" : "0"); } catch { /* ignore storage failures */ } }
+export function loadCleatDropSfxVolume() { return loadStoredVolume(CLEAT_DROP_SFX_VOLUME_KEY, 55); }
+export function saveCleatDropSfxVolume(volume: number) { try { localStorage.setItem(CLEAT_DROP_SFX_VOLUME_KEY, String(Math.min(100, Math.max(0, Math.floor(volume))))); } catch { /* ignore storage failures */ } }
+export function loadCleatDropMusicEnabled(): boolean { try { const value = localStorage.getItem(CLEAT_DROP_MUSIC_ENABLED_KEY); return value === null ? true : value === "1"; } catch { return true; } }
+export function saveCleatDropMusicEnabled(enabled: boolean) { try { localStorage.setItem(CLEAT_DROP_MUSIC_ENABLED_KEY, enabled ? "1" : "0"); } catch { /* ignore storage failures */ } }
+export function loadCleatDropMusicVolume() { return loadStoredVolume(CLEAT_DROP_MUSIC_VOLUME_KEY, 35); }
+export function saveCleatDropMusicVolume(volume: number) { try { localStorage.setItem(CLEAT_DROP_MUSIC_VOLUME_KEY, String(Math.min(100, Math.max(0, Math.floor(volume))))); } catch { /* ignore storage failures */ } }
+
 const FOOTBALL_RULES_QUIZ_SFX_ENABLED_KEY = "fc26-football-rules-quiz-sfx-enabled";
 const FOOTBALL_RULES_QUIZ_SFX_VOLUME_KEY = "fc26-football-rules-quiz-sfx-volume";
 const FOOTBALL_RULES_QUIZ_MUSIC_ENABLED_KEY = "fc26-football-rules-quiz-music-enabled";
