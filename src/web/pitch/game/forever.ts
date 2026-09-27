@@ -1,7 +1,10 @@
 // Jandi Forever numbers (docs/forever/02 §2, §3). Pure geometry and dates, no DOM, so the gate radii, the map's
 // interaction circles and the colliders can be tested. Coordinates are logical 960×540 px, measured from the feet.
 
-import { withinCircle, type Box, type Circle } from "./locker";
+import { LOCKER_PLAYER_SCALE, withinCircle, type Box, type Circle } from "./locker";
+
+/** The player (and its pet) draw smaller on every Forever map than in the locker room — 0.8× the locker's player scale. */
+export const FOREVER_PLAYER_SCALE = LOCKER_PLAYER_SCALE * 0.8;
 
 /**
  * Pitch-side gate on the right edge, mirroring the locker gate (`GATE`, x 16): same y line and size, so

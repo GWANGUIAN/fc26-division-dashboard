@@ -15,7 +15,7 @@ import { LOGICAL_HEIGHT, LOGICAL_WIDTH } from "../engine/stage";
 import { drawText, TEXT_COLORS } from "../engine/text";
 import {
   ACHIEVEMENT_TOAST_SECONDS, CAST_LOOP_SECONDS, CAST_SECONDS, CHAT_LINE_SECONDS, CHAT_MAX_LINES, DING_SECONDS, FOREVER_MAPS, FOREVER_MAP_ELWYNN,
-  GRIFFIN_SECONDS, MOB_NAMES, MOB_RESPAWN_SECONDS, PORTAL_FPS, PORTAL_PRELOAD_RADIUS, PORTAL_SECONDS, WORLD_CHAT_LINES, WORLD_CHAT_MAX_SECONDS,
+  FOREVER_PLAYER_SCALE, GRIFFIN_SECONDS, MOB_NAMES, MOB_RESPAWN_SECONDS, PORTAL_FPS, PORTAL_PRELOAD_RADIUS, PORTAL_SECONDS, WORLD_CHAT_LINES, WORLD_CHAT_MAX_SECONDS,
   WORLD_CHAT_MIN_SECONDS, foreverTargetAt, mobAt,
   type ForeverMapDef, type ForeverMapId, type ForeverMobKind, type ForeverMobSpot, type ForeverNpcDef, type ForeverTarget,
 } from "../game/forever";
@@ -23,7 +23,7 @@ import {
   ACHIEVEMENTS, QUESTS, QUEST_ORDER, acceptQuest, advanceQuest, completeQuest, grantAchievement, loadProgress, questMarkFor, questOffered,
   questProgress, questReady, saveProgress, xpToNext, type AchievementId, type ForeverProgress, type QuestDef, type QuestId, type QuestMark,
 } from "../game/foreverProgress";
-import { LOCKER_PLAYER_SCALE, resolveBoxes } from "../game/locker";
+import { resolveBoxes } from "../game/locker";
 import { createPet, drawPet, resetPet, updatePet, type PetState } from "../game/pet";
 import { createPlayer, playerPose, stepPlayer, type PlayerState } from "../game/player";
 import { depthScale } from "../game/tuning";
@@ -616,7 +616,7 @@ export class ForeverScene implements Scene {
   /** Head top of the player in the scene's units (the prompt and the name plate sit above it). */
   private headTop() {
     const p = this.player;
-    return p.y - Math.round(86 * depthScale(p.y) * LOCKER_PLAYER_SCALE);
+    return p.y - Math.round(86 * depthScale(p.y) * FOREVER_PLAYER_SCALE);
   }
 
   private drawInteractPrompt(g: CanvasRenderingContext2D) {
@@ -737,12 +737,12 @@ export class ForeverScene implements Scene {
   private drawPetSprite(g: CanvasRenderingContext2D) {
     const petId = this.loadout.pet;
     if (!petId) return;
-    drawPet(g, this.image(`pets/pet-${petId}`), this.pet, depthScale(this.pet.y) * LOCKER_PLAYER_SCALE);
+    drawPet(g, this.image(`pets/pet-${petId}`), this.pet, depthScale(this.pet.y) * FOREVER_PLAYER_SCALE);
   }
 
   private drawPlayer(g: CanvasRenderingContext2D) {
     const p = this.player;
-    const scale = depthScale(p.y) * LOCKER_PLAYER_SCALE;
+    const scale = depthScale(p.y) * FOREVER_PLAYER_SCALE;
     g.fillStyle = "rgba(5, 8, 20, 0.35)";
     g.beginPath();
     g.ellipse(Math.round(p.x), Math.round(p.y), Math.max(1, Math.round(15 * scale)), Math.max(1, Math.round(4.5 * scale)), 0, 0, Math.PI * 2);
