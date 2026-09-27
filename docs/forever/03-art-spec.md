@@ -44,6 +44,7 @@
 | J12 | env-forever-portal | 3x2 | `env/forever-portal-field`(윗행), `env/forever-portal-town`(아랫행), 각 **3프레임 스트립 112x104** | 프레임 112x104 |
 | J13 | ui-forever-letter | 2x2 | `ui/forever-letter`(400x230), `ui/forever-seal`(32x32), `ui/forever-mail-icon`·`ui/forever-mail-open-icon`(32x24) | 가변 |
 | J14 | env-forever-props-2 | 4x2 | `env/forever-prop-mailbox-mail`(48x64) `-burrow`(64x40) `-stump`(56x48) `-boulder`(72x56) `-bush`(64x56) `-mushrooms`(48x40) `-fence`(80x48) `-warnsign`(48x72) | 오브젝트별 |
+| J15 | fx-forever-hit | 4x1 | `fx/forever-hit`, **4프레임 스트립** (처치 킥 타격 이펙트, 02 §14) | 프레임 96x96 |
 | J10(옵션) | forever-npc-2 | 4x3 | `characters/forever-npc2-<id>-a|b` | 96x96 |
 
 - 원본 PNG 저장 위치는 `tmp/pitch-src/<카테고리>/` (gitignore됨, 커밋하지 않음).

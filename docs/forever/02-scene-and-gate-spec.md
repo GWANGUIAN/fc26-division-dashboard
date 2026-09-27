@@ -198,7 +198,25 @@ interface ForeverProgress {
 - **토끼 로직 일반화**: `ForeverMapDef.rabbits` → `mobs: {kind,x,y}[]`, `rabbitAt` → `mobAt`, `RABBIT_*` → `MOB_*`, `interaction()` 은 `mob_<index>`, 접근자 `rabbitsAlive()` → `mobsAlive()`. 토끼만 `q_rabbits`를 센다. 다른 몬스터는 채팅 "○○을(를) 처치했습니다." + `forever-mob-defeat`, 멀록은 `forever-murloc` 추가(그동안 안 쓰던 두 id 연결). `q_rabbits`의 보고는 광장의 잔디지기에게 하므로 초원에서 5마리를 잡고 포털로 돌아온다.
 - **포털**: `ForeverTarget`에 `portal` 추가, `ForeverMapDef.portal = {sprite, x, y, to}` + `zones.portal`(반경 50). 광장 (800,500 발치, 원 (800,472)) → 초원 `env/forever-portal-field`, 초원 돌 제단 (255,158 발치, 원 (285,195)) → 광장 `env/forever-portal-town`. 스프라이트는 3프레임 스트립 112x104(원본이 가로로 넓어 문서의 96x128 대신), 4fps, 감소된 모션이면 1프레임. E → 0.5초 검은 페이드(`PORTAL_SECONDS`) + `forever-portal-enter` 후 `switchMap`(그리핀 비행 로직 재사용, "그리핀 비행 중…" 텍스트·사운드 없음). 목적지 그룹은 포털 200px 안에서 미리 받고(`PORTAL_PRELOAD_RADIUS`), 로드가 실패해도 맵이 열린다. `ForeverMapDef.zones`는 `Partial`(초원엔 포털 원만 있다). 초원에는 귀환석·그리핀 조련사가 없다: 피치로 가려면 광장으로 돌아가 귀환석/그리핀을 쓴다.
 - **우편함 편지**: `ForeverLetterScene`(오버레이, E/Enter/Esc 닫기, 이동 차단, `forever-popup-open`), 제목 "우왁굳에게 온 편지"(종이 위 y+38). 본문 첫 줄은 **읽고 있는 캐릭터 이름으로 된 30레벨 축하 인사**(`game/forever.ts`의 `letterLines(characterName)`가 만든다: `"{이름}님의 ??렙 달성을 진심으로 축하드립니다."`, 캐릭터가 "우왁굳"이면 이름 자리에 `letterAddressee`가 "???"를 돌려준다 — 본인에게 본인 이름을 쓰는 어색함을 피하려고). 그 다음 내용은 전부 `~~~~`로 가려지고, 서명 `- 우왁굳 드림`만 다시 읽힌다(보이는 글자 진한 갈색 `#3a2410`, `~~~~` 연한 갈색 `#b39866`, 종이 400x230 위 11줄, 도장 `ui/forever-seal`). `ForeverScene`이 `ForeverLetterScene(this.character.name)`으로 이름을 넘긴다. 처음 읽으면 채팅 "우편함: 우왁굳에게 온 편지를 읽었습니다." + `ForeverProgress.letterRead?: boolean`(선택 필드, `version` 유지, true일 때만 보존). 안 읽은 동안 우편함이 `forever-prop-mailbox-mail`로 바뀌고 위에 `ui/forever-mail-icon`이 떠오른다(아트 없으면 "편지" 글자). 월드 채팅 "우편함에 편지 왔대요 ㅋㅋ".
-- 에셋 그룹 크기(측정 2026-09-27): `forever` 40개 1.10MB / 디코딩 6.5MB(포털·편지 추가, 예산을 1.25MB / 7MB로 조정), `forever-field` 8개, `forever2` 7개.
+- 에셋 그룹 크기(측정 2026-09-27): `forever` 41개 1.13MB / 디코딩 6.6MB(포털·편지·타격 이펙트 추가, 예산 1.25MB / 7MB 유지), `forever-field` 8개, `forever2` 7개.
+
+## 13. 구현 메모 — 레벨링 그라인드 (몬스터 반복 처치 경험치)
+
+퀘스트 3종이 주는 경험치(100+150=250)가 `xpToNext(2)=250`와 딱 맞물려, 세 퀘스트를 전부 깨도 레벨 2에서 더 못 올라가는 문제가 있었다(사용자 리포트, 2026-09-27). 01 문서의 "골 경험치"(피치 골 → 포에버 XP) 컨셉은 02/세션 어디에도 스펙으로 넘어간 적이 없어 구현하지 않았고, 대신 **몬스터 반복 처치 경험치**로 해결했다.
+
+- `game/forever.ts`의 `MOB_XP: Record<ForeverMobKind, number>` = `{ rabbit: 4, boar: 7, murloc: 7, kobold: 6 }`. 몬스터 초원의 몬스터는 8초마다 부활하므로(`MOB_RESPAWN_SECONDS`) 퀘스트를 다 끝낸 뒤에도 무한히 반복해서 얻을 수 있다.
+- `ForeverScene.hitMob()`이 매 처치마다 `payMobXp(kind)` → `addXp` → `commit` → 레벨업이 있으면 `triggerDing`을 호출한다. 퀘스트 진행/보고와는 별개의 commit이라 채팅 문구(`"토끼 처치: n/5"`, `"○○을(를) 처치했습니다."` 등)는 그대로다.
+- 퀘스트가 활성 상태일 때 토끼를 잡으면 퀘스트 카운트 xp와 처치 xp가 함께 쌓인다(예: 토끼 5마리 잡고 잔디지기에게 보고 → 100(퀘스트) + 20(처치 5×4) = 120 xp가 들어와 레벨 2, xp 20 남음. 세션 6까지의 "레벨 2, xp 0" 전제였던 테스트를 이 값으로 갱신).
+
+## 14. 구현 메모 — 처치 킥 애니메이션 · 타격 이펙트
+
+사용자 요청(2026-09-27): 몬스터를 때릴 때 캐릭터가 축구공을 차는 것처럼 보이고, 차는 소리와 스킬 같은 타격 효과가 나오게 해 달라는 요청.
+
+- **킥 동작**: 새 이미지 없이 피치 슛 애니메이션(`data/animations.ts`의 `shoot` 클립, 캐릭터 아틀라스에 이미 있음)을 재사용한다. `ForeverScene.strikeMob(target)`이 `facingDirection(target - player)`로 방향/미러를 계산해 `this.kick = { clock: 0, dir, mirror }`를 설정하고, `drawPlayer()`가 이동 중이 아니면 이 킥 포즈를(있으면) 우선 그린다. 지속 시간(`KICK_SECONDS`)은 `shoot` 클립 자체의 프레임/fps에서 계산(4프레임 @16fps = 0.25초)해서 피치와 어긋나지 않는다.
+- **소리**: 새 sfx 없이 피치의 기존 `kick-mid`(실제 mp3 있음)를 그대로 재생한다.
+- **타격 이펙트**: `engine/effects.ts`의 기존 이펙트 풀(`createEffectPool`/`drawEffects`, 피치 스킬 이펙트와 같은 시스템)을 `ForeverScene`에도 만들어(`hitFx`), 처치 지점(발치보다 28px 위)에 `fx/forever-hit`(4프레임 스트립, 0.3초) 스폰. 아트가 없으면 금색 사각형 placeholder로 대체된다(엔진 기본 폴백).
+- **에셋**: J15 = `tmp/pitch-src/fx/fx-forever-hit.png`(사용자가 생성) → `pnpm convert:pitch-art -- fx forever-hit` → `fx/forever-hit`(96×96, 4프레임 스트립 384×96). `forever` 그룹에 추가(03 §3, `foreverAssets.test.ts`).
+- `strikeMob`은 토끼든 다른 몬스터든 공통으로 호출되어, 어떤 처치든 같은 킥/타격 연출이 나온다.
 
 ## 9. 테스트 항목
 
