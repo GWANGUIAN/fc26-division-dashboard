@@ -34,7 +34,7 @@ describe("pitch loading budget", () => {
     expect(base + worst).toBeLessThanOrEqual(3 * MB);
   });
 
-  it("forever group (measured 2026-09-27 with the portals and the letter: 1.10MB / 6.5MB decoded) stays within 1.25MB and 7MB decoded, under the locker group's decoded size", () => {
+  it("forever group (measured 2026-09-27 with the portals, the letter and the kick-hit fx: 1.13MB / 6.6MB decoded) stays within 1.25MB and 7MB decoded, under the locker group's decoded size", () => {
     expect(bytesOf("forever")).toBeLessThanOrEqual(1.25 * MB);
     expect(decodedOf("forever")).toBeLessThanOrEqual(7 * MB);
   });

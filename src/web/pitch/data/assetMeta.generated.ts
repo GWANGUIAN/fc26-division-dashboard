@@ -126,6 +126,7 @@ export const PITCH_ASSET_META: Readonly<Record<string, PitchAssetMeta>> = {
   "equipment/acc-face-a": { bytes: 1472, w: 108, h: 88 },
   "equipment/acc-hat-a": { bytes: 8082, w: 156, h: 176 },
   "equipment/acc-hat-b": { bytes: 7672, w: 156, h: 176 },
+  "fx/forever-hit": { bytes: 30122, w: 384, h: 96, frames: 4 },
   "fx/fx-aim-arrow": { bytes: 6840, w: 128, h: 40, frames: 4 },
   "fx/fx-confetti": { bytes: 32918, w: 384, h: 96, frames: 4 },
   "fx/fx-dust": { bytes: 2990, w: 128, h: 32, frames: 4 },

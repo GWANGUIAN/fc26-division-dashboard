@@ -293,6 +293,12 @@
       "select-bg": { "file": "keyart-select-bg.png", "scene": true }
     },
     "fx": {
+      "forever-hit": {
+        "file": "fx-forever-hit.png",
+        "grid": [4, 1],
+        "soft": true,
+        "items": [["forever-hit", [0, 1, 2, 3], 96, 96, { "align": "center" }]]
+      },
       "equip-sparkle": {
         "file": "fx-equip-sparkle.png",
         "grid": [3, 2],

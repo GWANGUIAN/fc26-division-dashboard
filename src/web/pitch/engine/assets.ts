@@ -83,6 +83,8 @@ const FOREVER_KEYS = [
   // session 6 (docs/forever/07): the portals to the monster meadow, the letter of the mailbox
   ...ids("env", ["forever-portal-field", "forever-portal-town", "forever-prop-mailbox-mail"]),
   ...ids("ui", ["forever-letter", "forever-seal", "forever-mail-icon", "forever-mail-open-icon"]),
+  // the kick-hit burst over a struck monster (docs/forever/02 §14)
+  "fx/forever-hit",
 ];
 
 // Third Jandi Forever map, the monster meadow (docs/forever/07 §1-2): background and its props in a group of their own, fetched when

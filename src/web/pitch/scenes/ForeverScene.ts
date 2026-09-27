@@ -2,12 +2,13 @@
 // cast the hearthstone or ride the griffin back to the pitch. Every sprite is optional: without art the map is drawn as flat
 // colours, labelled circles and text marks, so nothing here waits for an image.
 
-import { clipDef, frameRect } from "../data/animations";
+import { clipDef, frameAt, frameRect, type Direction } from "../data/animations";
 import { resolveStoredCharacter, type PitchCharacter } from "../data/characters";
 import { loadLoadout, type Loadout } from "../data/equipment";
 import { SILENT_PITCH_AUDIO, type PitchAudioLike } from "../audio/pitchAudio";
 import type { PitchSfxId } from "../audio/sfxMap";
 import type { AssetImage, PitchAssets } from "../engine/assets";
+import { createEffectPool, drawEffects } from "../engine/effects";
 import { drawEquippedFrame } from "../engine/equipment";
 import type { KeyInput, Scene, SceneCtx } from "../engine/sceneManager";
 import { drawStripFrame } from "../engine/sprite";
@@ -15,17 +16,17 @@ import { LOGICAL_HEIGHT, LOGICAL_WIDTH } from "../engine/stage";
 import { drawText, TEXT_COLORS } from "../engine/text";
 import {
   ACHIEVEMENT_TOAST_SECONDS, CAST_LOOP_SECONDS, CAST_SECONDS, CHAT_LINE_SECONDS, CHAT_MAX_LINES, DING_SECONDS, FOREVER_MAPS, FOREVER_MAP_ELWYNN,
-  FOREVER_PLAYER_SCALE, GRIFFIN_SECONDS, MOB_NAMES, MOB_RESPAWN_SECONDS, PORTAL_FPS, PORTAL_PRELOAD_RADIUS, PORTAL_SECONDS, WORLD_CHAT_LINES, WORLD_CHAT_MAX_SECONDS,
+  FOREVER_PLAYER_SCALE, GRIFFIN_SECONDS, MOB_NAMES, MOB_RESPAWN_SECONDS, MOB_XP, PORTAL_FPS, PORTAL_PRELOAD_RADIUS, PORTAL_SECONDS, WORLD_CHAT_LINES, WORLD_CHAT_MAX_SECONDS,
   WORLD_CHAT_MIN_SECONDS, foreverTargetAt, mobAt,
   type ForeverMapDef, type ForeverMapId, type ForeverMobKind, type ForeverMobSpot, type ForeverNpcDef, type ForeverTarget,
 } from "../game/forever";
 import {
-  ACHIEVEMENTS, QUESTS, QUEST_ORDER, acceptQuest, advanceQuest, completeQuest, grantAchievement, loadProgress, questMarkFor, questOffered,
+  ACHIEVEMENTS, QUESTS, QUEST_ORDER, acceptQuest, addXp, advanceQuest, completeQuest, grantAchievement, loadProgress, questMarkFor, questOffered,
   questProgress, questReady, saveProgress, xpToNext, type AchievementId, type ForeverProgress, type QuestDef, type QuestId, type QuestMark,
 } from "../game/foreverProgress";
 import { resolveBoxes } from "../game/locker";
 import { createPet, drawPet, resetPet, updatePet, type PetState } from "../game/pet";
-import { createPlayer, playerPose, stepPlayer, type PlayerState } from "../game/player";
+import { createPlayer, facingDirection, playerPose, stepPlayer, type PlayerState } from "../game/player";
 import { depthScale } from "../game/tuning";
 import { drawPrompt } from "./hudCommon";
 import { DummyShootScene } from "./DummyShootScene";
@@ -35,6 +36,13 @@ import type { PitchEnterParams } from "./LockerScene";
 
 const INTERACT_KEYS: ReadonlySet<string> = new Set(["KeyE", "Enter", "NumpadEnter"]);
 const MOVE_KEYS: readonly string[] = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
+/** Hitting a monster plays the same kick clip a pitch shot uses (docs/forever/02 §14): its own frames/fps set the duration. */
+const KICK_CLIP = clipDef("shoot", "up");
+const KICK_SECONDS = KICK_CLIP.frames / KICK_CLIP.fps;
+/** Strip effect over a freshly hit monster; a missing sprite falls back to a coloured burst (`drawEffects`). */
+const HIT_FX_KEY = "fx/forever-hit";
+const HIT_FX_FRAMES = 4;
+const HIT_FX_SECONDS = 0.3;
 /** The zone banner stays up this long after entering. */
 export const ZONE_BANNER_SECONDS = 3;
 export const ZONE_NAME = FOREVER_MAP_ELWYNN.zoneName;
@@ -135,6 +143,9 @@ export class ForeverScene implements Scene {
   private ding: { elapsed: number; level: number } | null = null;
   private toast: Toast | null = null;
   private readonly toastQueue: string[] = [];
+  /** The kick swing on a monster hit (docs/forever/02 §14): plays out over `KICK_SECONDS` regardless of movement. */
+  private kick: { clock: number; dir: Direction; mirror: boolean } | null = null;
+  private readonly hitFx = createEffectPool(8);
 
   constructor(params: ForeverParams) {
     this.params = params;
@@ -405,29 +416,49 @@ export class ForeverScene implements Scene {
     if (portal) this.startFlight(portal.to, "portal");
   }
 
+  /** Faces the target, swings the kick clip and drops a hit effect on it — same for every monster, quest or not. */
+  private strikeMob(target: { x: number; y: number }) {
+    const { dir, mirror } = facingDirection(target.x - this.player.x, target.y - this.player.y);
+    this.kick = { clock: 0, dir, mirror };
+    this.sfx("kick-mid");
+    this.hitFx.spawn({ key: HIT_FX_KEY, frames: HIT_FX_FRAMES, x: target.x, y: target.y - 28, life: HIT_FX_SECONDS, scale: 1, color: TEXT_COLORS.gold });
+  }
+
   private hitMob(index: number) {
     const spot = this.map.mobs[index];
     if (!spot || !this.mobAlive[index]) return;
     this.mobAlive[index] = false;
     this.mobBack[index] = MOB_RESPAWN_SECONDS;
+    this.strikeMob(spot);
     if (spot.kind !== "rabbit") {
       this.sfx("forever-mob-defeat");
       if (spot.kind === "murloc") this.sfx("forever-murloc");
       this.say("system", `${MOB_NAMES[spot.kind]}을(를) 처치했습니다.`);
+      this.payMobXp(spot.kind);
       return;
     }
     this.sfx("forever-rabbit-hit");
     const before = questProgress(this.progress, "q_rabbits");
-    const next = advanceQuest(this.progress, "q_rabbits");
-    if (next === this.progress) {
-      this.say("system", "토끼를 처치했습니다.");
-      return;
+    const advanced = advanceQuest(this.progress, "q_rabbits");
+    if (advanced === this.progress) this.say("system", "토끼를 처치했습니다.");
+    else {
+      this.commit(advanced);
+      this.sfx("forever-quest-progress");
+      const goal = QUESTS.q_rabbits.goal;
+      this.say("system", `토끼 처치: ${before.count + 1}/${goal}`);
+      if (questReady(advanced, "q_rabbits")) this.say("system", `목표 달성: ${this.npcName("questgiver")}에게 돌아가세요.`);
     }
-    this.commit(next);
-    this.sfx("forever-quest-progress");
-    const goal = QUESTS.q_rabbits.goal;
-    this.say("system", `토끼 처치: ${before.count + 1}/${goal}`);
-    if (questReady(next, "q_rabbits")) this.say("system", `목표 달성: ${this.npcName("questgiver")}에게 돌아가세요.`);
+    this.payMobXp("rabbit");
+  }
+
+  /**
+   * Small, repeatable xp for every kill (docs/forever/02 §13), on top of whatever a quest hand-in just paid: the
+   * meadow's monsters respawn, so this is what keeps levelling going once the three quests are spent.
+   */
+  private payMobXp(kind: ForeverMobKind) {
+    const gained = addXp(this.progress, MOB_XP[kind]);
+    this.commit(gained.progress);
+    for (const level of gained.levelsGained) this.triggerDing(level);
   }
 
   // ---- hearthstone cast / griffin ----
@@ -581,6 +612,11 @@ export class ForeverScene implements Scene {
   }
 
   private updateEffects(dt: number) {
+    if (this.kick) {
+      this.kick.clock += dt;
+      if (this.kick.clock >= KICK_SECONDS) this.kick = null;
+    }
+    this.hitFx.update(dt);
     if (this.ding) {
       this.ding.elapsed += dt;
       if (this.ding.elapsed >= DING_SECONDS) this.ding = null;
@@ -601,6 +637,7 @@ export class ForeverScene implements Scene {
     if (bg) g.drawImage(bg, 0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     else this.drawPlaceholderMap(g);
     this.drawSorted(g);
+    drawEffects(g, this.hitFx, (key) => this.image(key));
     this.drawOverheads(g);
     this.drawDing(g);
     this.drawBanner(g);
@@ -757,8 +794,18 @@ export class ForeverScene implements Scene {
       g.fillRect(Math.round(p.x - w / 2), Math.round(p.y - h), w, h);
       return;
     }
+    const { rect, mirror } = this.playerFrame(p);
+    drawEquippedFrame(g, atlas, rect, this.character.id, this.loadout, (key) => this.image(key) as never, p.x, p.y, { scale, mirror });
+  }
+
+  /** The kick swing while `this.kick` runs, otherwise the usual idle / run pose. */
+  private playerFrame(p: PlayerState) {
+    if (this.kick) {
+      const def = clipDef("shoot", this.kick.dir);
+      return { rect: frameRect(def, frameAt(def, this.kick.clock)), mirror: this.kick.mirror };
+    }
     const pose = playerPose(p);
-    drawEquippedFrame(g, atlas, frameRect(clipDef(pose.clip, pose.dir), pose.frame), this.character.id, this.loadout, (key) => this.image(key) as never, p.x, p.y, { scale, mirror: pose.mirror });
+    return { rect: frameRect(clipDef(pose.clip, pose.dir), pose.frame), mirror: pose.mirror };
   }
 
   // ---- overlays ----

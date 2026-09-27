@@ -149,6 +149,13 @@ export interface ForeverMobSpot {
 
 export const MOB_NAMES: Readonly<Record<ForeverMobKind, string>> = { rabbit: "토끼", boar: "멧돼지", murloc: "멀록", kobold: "코볼트" };
 
+/**
+ * XP paid for every kill (docs/forever/02 §13), on top of whatever a quest pays on hand-in: the meadow's monsters
+ * respawn (`MOB_RESPAWN_SECONDS`), so this is the repeatable grind that keeps levelling going once the three quests
+ * are done and their one-time rewards are spent.
+ */
+export const MOB_XP: Readonly<Record<ForeverMobKind, number>> = { rabbit: 4, boar: 7, murloc: 7, kobold: 6 };
+
 /** The monsters of the meadow, at least 110px apart. They come back `MOB_RESPAWN_SECONDS` after being hit, so the rabbit quest can always be finished. */
 export const FIELD_MOBS: ReadonlyArray<ForeverMobSpot> = [
   { kind: "rabbit", x: 160, y: 280 },

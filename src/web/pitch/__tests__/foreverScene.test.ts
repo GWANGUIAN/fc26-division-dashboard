@@ -4,7 +4,7 @@ import type { PitchSfxId } from "../audio/sfxMap";
 import type { Scene, SceneCtx } from "../engine/sceneManager";
 import {
   CAST_SECONDS, DING_SECONDS, FIELD_MOBS, FOREVER_AREA, FOREVER_MAP_ELWYNN, FOREVER_MAP_FIELD, FOREVER_NPCS, FOREVER_SPAWN, FOREVER_SPAWN_POINT, GATE_FOREVER, FOREVER_ZONES,
-  GRIFFIN_SECONDS, MOB_RESPAWN_SECONDS, PORTAL_SECONDS, type ForeverMapId,
+  GRIFFIN_SECONDS, MOB_RESPAWN_SECONDS, MOB_XP, PORTAL_SECONDS, type ForeverMapId,
 } from "../game/forever";
 import { ForeverLetterScene } from "../scenes/ForeverLetterScene";
 import { QUESTS, acceptQuest, advanceQuest, completeQuest, defaultProgress, loadProgress, resetProgressMemory, saveProgress, type ForeverProgress } from "../game/foreverProgress";
@@ -343,7 +343,8 @@ describe("ForeverScene", () => {
       popup.onKey({ code: "KeyE" });
       expect(scene.progressSnapshot().quests.q_rabbits!.state).toBe("done");
       expect(scene.level).toBe(2);
-      expect(scene.progressSnapshot().xp).toBe(0);
+      // the 5 rabbits also paid their per-kill xp (docs/forever/02 §13) on top of the quest's 100
+      expect(scene.progressSnapshot().xp).toBe(20);
       expect(scene.dinging).toBe(true);
       expect(events).toEqual(expect.arrayContaining(["forever-quest-complete", "forever-ding"]));
       expect(scene.chatLines().join("\n")).toContain("축하합니다! 레벨 2에 도달했습니다.");
@@ -786,15 +787,54 @@ describe("town square declutter and the monster meadow (docs/forever/07)", () =>
     expect(scene.chatLines().join("\n")).toContain("코볼트을(를) 처치했습니다.");
     expect(events).not.toContain("forever-rabbit-hit");
     expect(scene.progressSnapshot().quests.q_rabbits).toEqual({ state: "active", count: 0 });
+    // every kind pays its own per-kill xp (docs/forever/02 §13), regardless of the quest
+    expect(scene.progressSnapshot().xp).toBe(MOB_XP.boar + MOB_XP.murloc + MOB_XP.kobold);
   });
 
-  it("a sixth rabbit does not move a finished counter", () => {
+  it("a sixth rabbit does not move a finished counter, but still pays its xp", () => {
     const { scene, at } = setup("field", advanceQuest(acceptQuest(defaultProgress(), "q_rabbits"), "q_rabbits", 5));
     const rabbit = FIELD_MOBS.find((mob) => mob.kind === "rabbit")!;
     at(rabbit.x, rabbit.y);
     scene.onKey({ code: "KeyE" });
     expect(scene.progressSnapshot().quests.q_rabbits!.count).toBe(5);
     expect(scene.chatLines()).toContain("토끼를 처치했습니다.");
+    expect(scene.progressSnapshot().xp).toBe(MOB_XP.rabbit);
+  });
+
+  describe("repeatable kill xp keeps levelling past the quests (docs/forever/02 §13)", () => {
+    /** Every quest already done (the fixed 250 xp they ever pay is spent); only the meadow's respawning kills add more. */
+    const allQuestsDone = (xp: number): ForeverProgress => ({
+      ...defaultProgress(),
+      level: 2,
+      xp,
+      quests: { q_rabbits: { state: "done", count: 5 }, q_leroy: { state: "done", count: 1 }, q_hearth: { state: "done", count: 1 } },
+      achievements: ["level2", "leroy", "recall"],
+    });
+
+    it("a kill still pays xp once every quest is done, with nothing left to advance", () => {
+      const { scene, at } = setup("field", allQuestsDone(10));
+      const rabbit = FIELD_MOBS.find((mob) => mob.kind === "rabbit")!;
+      at(rabbit.x, rabbit.y);
+      scene.onKey({ code: "KeyE" });
+      expect(scene.progressSnapshot().xp).toBe(10 + MOB_XP.rabbit);
+      expect(scene.chatLines()).toContain("토끼를 처치했습니다.");
+    });
+
+    it("grinding a kill past xpToNext(2) DINGs at level 3, with no quest left to pay it", () => {
+      const { scene, at, events } = setup("field", allQuestsDone(250 - MOB_XP.kobold));
+      expect(scene.level).toBe(2);
+      expect(scene.dinging).toBe(false);
+      const kobold = FIELD_MOBS.find((mob) => mob.kind === "kobold")!;
+      at(kobold.x, kobold.y);
+      scene.onKey({ code: "KeyE" });
+      expect(scene.level).toBe(3);
+      expect(scene.dinging).toBe(true);
+      expect(scene.progressSnapshot().xp).toBe(0);
+      expect(events).toContain("forever-ding");
+      expect(scene.chatLines().join("\n")).toContain("축하합니다! 레벨 3에 도달했습니다.");
+      // the level-2 achievement (already held) does not fire a second time
+      expect(scene.progressSnapshot().achievements.filter((id) => id === "level2")).toHaveLength(1);
+    });
   });
 
   describe("portals", () => {
@@ -864,6 +904,64 @@ describe("town square declutter and the monster meadow (docs/forever/07)", () =>
       expect(scene.mapId).toBe("field");
       expect(() => scene.render(fakeGraphics())).not.toThrow();
     });
+  });
+});
+
+describe("kicking a monster (docs/forever/02 §14)", () => {
+  beforeEach(() => resetProgressMemory());
+  const setup = () => {
+    const env = makeCtx();
+    const scene = new ForeverScene({ createPitch: () => new PitchScene(), random: () => 0.5, map: "field" });
+    scene.enter(env.ctx);
+    const player = () => (scene as unknown as { player: { x: number; y: number } }).player;
+    const at = (x: number, y: number) => Object.assign(player(), { x, y });
+    const kick = () => (scene as unknown as { kick: { clock: number; dir: string; mirror: boolean } | null }).kick;
+    const hitFxCount = () => (scene as unknown as { hitFx: { activeCount: number } }).hitFx.activeCount;
+    return { ...env, scene, player, at, kick, hitFxCount };
+  };
+  /** Stands just below a rabbit so the swing should face "up" toward it. */
+  const standBelowRabbit = (at: (x: number, y: number) => void) => {
+    const rabbit = FIELD_MOBS.find((mob) => mob.kind === "rabbit")!;
+    at(rabbit.x, rabbit.y + 20);
+    return rabbit;
+  };
+
+  it("swings the shoot clip toward the monster and plays the ball-kick sound", () => {
+    const { scene, at, kick, events } = setup();
+    standBelowRabbit(at);
+    scene.onKey({ code: "KeyE" });
+    expect(kick()).toMatchObject({ clock: 0, dir: "up", mirror: false });
+    expect(events).toContain("kick-mid");
+    run(scene, 60); // the swing is short (a quarter second): well cleared a second later
+    expect(kick()).toBeNull();
+  });
+
+  it("faces the swing the other way for a monster on the opposite side", () => {
+    const { scene, at, kick } = setup();
+    const rabbit = FIELD_MOBS.find((mob) => mob.kind === "rabbit")!;
+    at(rabbit.x, rabbit.y - 20); // standing above it now
+    scene.onKey({ code: "KeyE" });
+    expect(kick()).toMatchObject({ dir: "down" });
+  });
+
+  it("drops a hit effect on the monster that clears itself out", () => {
+    const { scene, at, hitFxCount } = setup();
+    standBelowRabbit(at);
+    expect(hitFxCount()).toBe(0);
+    scene.onKey({ code: "KeyE" });
+    expect(hitFxCount()).toBe(1);
+    run(scene, 60);
+    expect(hitFxCount()).toBe(0);
+  });
+
+  it("renders the kick pose and the hit effect without art, and every other monster kind triggers it too", () => {
+    for (const kind of ["rabbit", "boar", "murloc", "kobold"] as const) {
+      const { scene, at } = setup();
+      const spot = FIELD_MOBS.find((mob) => mob.kind === kind)!;
+      at(spot.x, spot.y + 20);
+      scene.onKey({ code: "KeyE" });
+      expect(() => scene.render(fakeGraphics())).not.toThrow();
+    }
   });
 });
 

@@ -28,6 +28,10 @@ describe("Jandi Forever art (docs/forever/03 §3)", () => {
     expect(FOREVER_PROPS).toHaveLength(8);
   });
 
+  it("the kick-hit burst is a 4-frame strip (docs/forever/02 §14)", () => {
+    expect(size("fx/forever-hit")).toMatchObject({ frames: 4 });
+  });
+
   it("the forever group is complete and byte-weighted", () => {
     const specs = ASSET_GROUPS.forever;
     expect(new Set(specs.map((spec) => spec.key)).size).toBe(specs.length);
@@ -35,6 +39,6 @@ describe("Jandi Forever art (docs/forever/03 §3)", () => {
       expect(getPitchAssetUrl(spec.key), spec.key).toBeDefined();
       expect(spec.bytes, spec.key).toBeGreaterThan(0);
     }
-    expect(specs).toHaveLength(40);
+    expect(specs).toHaveLength(41);
   });
 });
