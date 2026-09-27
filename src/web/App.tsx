@@ -42,7 +42,6 @@ import { LatestFeedDrawer } from "./LatestFeedDrawer";
 import { AnnouncementModal } from "./AnnouncementModal";
 import { DetailModal } from "./DetailModal";
 import { TrophyModal } from "./TrophyModal";
-import { GrowthGraphModal } from "./GrowthGraphModal";
 import { UniformCustomizerModal } from "./uniform-customizer/UniformCustomizerModal";
 import { TestScheduleModal } from "./TestScheduleModal";
 import { WakgoodNotebookModal } from "./WakgoodNotebookModal";
@@ -108,7 +107,6 @@ export function App({ onGoPitch }: { onGoPitch?: () => void } = {}) {
   const [wakgoodNotebookOpen, setWakgoodNotebookOpen] = useState(false);
   const [photoBoothOpen, setPhotoBoothOpen] = useState(false);
   const [groupPhotoOpen, setGroupPhotoOpen] = useState(false);
-  const [growthGraphOpen, setGrowthGraphOpen] = useState(false);
   const [fortuneOpen, setFortuneOpen] = useState(false);
   const [positionTestOpen, setPositionTestOpen] = useState(false);
   const [worldOpen, setWorldOpen] = useState(false);
@@ -170,7 +168,6 @@ export function App({ onGoPitch }: { onGoPitch?: () => void } = {}) {
     isAllPositionsSelected,
     trophyAwards,
     streamers,
-    includedStreamers,
     excludedNames,
     divisionStats,
     cardStreamers,
@@ -286,7 +283,6 @@ export function App({ onGoPitch }: { onGoPitch?: () => void } = {}) {
       {isDivision && (
         <ViewToolbar
           divisionStats={divisionStats}
-          streamersForHistogram={includedStreamers}
           excludedNames={excludedNames}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
@@ -299,7 +295,6 @@ export function App({ onGoPitch }: { onGoPitch?: () => void } = {}) {
           onPassAnnouncementOpen={() => setPassAnnouncementOpen(true)}
           onTestScheduleOpen={() => setTestScheduleOpen(true)}
           onWakgoodNotebookOpen={() => setWakgoodNotebookOpen(true)}
-          onGrowthGraphOpen={() => setGrowthGraphOpen(true)}
         />
       )}
       {isDivision ? (
@@ -392,12 +387,6 @@ export function App({ onGoPitch }: { onGoPitch?: () => void } = {}) {
         <Suspense fallback={null}>
           <StadiumShowcaseModal onClose={() => setStadiumShowcaseOpen(false)} />
         </Suspense>
-      )}
-      {growthGraphOpen && (
-        <GrowthGraphModal
-          streamers={boardStreamers ?? []}
-          onClose={() => setGrowthGraphOpen(false)}
-        />
       )}
       {squadBuilderOpen && (
         <SquadBuilderOverlay

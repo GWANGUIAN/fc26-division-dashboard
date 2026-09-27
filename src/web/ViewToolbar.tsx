@@ -1,12 +1,9 @@
-import { BadgeCheck, CalendarDays, CirclePile, List, Minus, Plus, Rows3, Shield, TrendingUp } from "lucide-react";
-import type { StreamerRecord } from "../shared/model.js";
+import { BadgeCheck, CalendarDays, CirclePile, List, Minus, Plus, Rows3, Shield } from "lucide-react";
 import notepadIcon from "./assets/icon-notepad.webp";
-import { DivisionHistogram } from "./DivisionHistogram";
 import { CARD_ZOOM_MAX, CARD_ZOOM_MIN } from "./storage";
 
 export function ViewToolbar({
   divisionStats,
-  streamersForHistogram,
   excludedNames,
   viewMode,
   onViewModeChange,
@@ -19,13 +16,11 @@ export function ViewToolbar({
   onPassAnnouncementOpen,
   onTestScheduleOpen,
   onWakgoodNotebookOpen,
-  onGrowthGraphOpen,
 }: {
   divisionStats: {
     firstRoundTotal: number;
     secondRoundTotal: number;
   };
-  streamersForHistogram: StreamerRecord[];
   excludedNames: string[];
   viewMode: "list" | "table" | "card";
   onViewModeChange: (mode: "list" | "table" | "card") => void;
@@ -38,7 +33,6 @@ export function ViewToolbar({
   onPassAnnouncementOpen: () => void;
   onTestScheduleOpen: () => void;
   onWakgoodNotebookOpen: () => void;
-  onGrowthGraphOpen: () => void;
 }) {
   return (
     <section className="view-toolbar" aria-label="보기 설정">
@@ -65,20 +59,6 @@ export function ViewToolbar({
               <span>1차 합격자</span>
             </div>
           </div>
-        </div>
-        <div className="division-summary__chart-group">
-          <DivisionHistogram
-            streamers={streamersForHistogram}
-            excludedNames={excludedNames}
-          />
-          <button
-            type="button"
-            className="growth-graph-toggle"
-            onClick={onGrowthGraphOpen}
-            aria-label="디비전 성장 그래프 보기"
-          >
-            <TrendingUp aria-hidden="true" /> <span>성장 그래프</span>
-          </button>
         </div>
       </div>
       <div className="view-toolbar__controls">
