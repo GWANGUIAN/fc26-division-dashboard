@@ -203,17 +203,17 @@ describe("letter of the mailbox (docs/forever/07 §1-3, §12)", () => {
 
   it("opens with the level-30 congratulation naming the character, keeps the body smudged and signs `우왁굳 드림`", () => {
     const lines = textOf("재닌").split("\n");
-    expect(lines[0]).toBe("재닌님의 30렙 달성을 진심으로 축하드립니다.");
+    expect(lines[0]).toBe("재닌님의 ??렙 달성을 진심으로 축하드립니다.");
     expect(lines).toContain("- 우왁굳 드림");
     // the only readable words are the opening line, the signature and 추신
     const readable = linesOf("재닌").flat().filter((part) => !part.hidden).map((part) => part.text).join("");
-    expect(readable).toBe("재닌님의 30렙 달성을 진심으로 축하드립니다.- 우왁굳 드림추신. ");
+    expect(readable).toBe("재닌님의 ??렙 달성을 진심으로 축하드립니다.- 우왁굳 드림추신. ");
   });
 
   it("shows ??? instead of 우왁굳's own name (letterAddressee), every other name passes through", () => {
     expect(letterAddressee("우왁굳")).toBe("???");
     expect(letterAddressee("재닌")).toBe("재닌");
-    expect(textOf("우왁굳")).toContain("???님의 30렙 달성을 진심으로 축하드립니다.");
+    expect(textOf("우왁굳")).toContain("???님의 ??렙 달성을 진심으로 축하드립니다.");
     expect(textOf("우왁굳")).not.toContain("우왁굳님의");
   });
 

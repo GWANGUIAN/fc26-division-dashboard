@@ -210,7 +210,7 @@ export function letterAddressee(characterName: string): string {
 /** The letter opens on a personal note (the player's level-30 milestone); the rest of the body stays fully smudged. */
 export function letterLines(characterName: string): ReadonlyArray<readonly LetterPart[]> {
   return [
-    [{ text: `${letterAddressee(characterName)}님의 30렙 달성을 진심으로 축하드립니다.` }],
+    [{ text: `${letterAddressee(characterName)}님의 ??렙 달성을 진심으로 축하드립니다.` }],
     [],
     [{ text: "~~~~~~~~~~~~~~~~~~~~~~~~", hidden: true }],
     [{ text: "~~~~~~~~~~~~~~~~~~", hidden: true }],
