@@ -6,7 +6,7 @@ import type { AssetImage } from "../engine/assets";
 import type { KeyInput, Scene, SceneCtx } from "../engine/sceneManager";
 import { LOGICAL_HEIGHT, LOGICAL_WIDTH } from "../engine/stage";
 import { drawText } from "../engine/text";
-import { LETTER_LINES, LETTER_TITLE } from "../game/forever";
+import { LETTER_TITLE, letterLines } from "../game/forever";
 
 const CLOSE_KEYS: ReadonlySet<string> = new Set(["Escape", "KeyE", "Enter", "NumpadEnter"]);
 const PAPER = { w: 400, h: 230 } as const;
@@ -19,6 +19,12 @@ const LINE_HEIGHT = 14;
 export class ForeverLetterScene implements Scene {
   private ctx?: SceneCtx;
   private clock = 0;
+  private readonly lines: ReturnType<typeof letterLines>;
+
+  /** `characterName` picks the addressee of the opening line (§07): the stored character's name, or "???" for 우왁굳 himself. */
+  constructor(characterName: string) {
+    this.lines = letterLines(characterName);
+  }
 
   enter(ctx: SceneCtx) {
     this.ctx = ctx;
@@ -50,7 +56,7 @@ export class ForeverLetterScene implements Scene {
     drawText(g, LETTER_TITLE, left + PAPER.w / 2, top + 38, { size: 14, color: INK_GOLD, align: "center", baseline: "middle", shadow: false });
     g.font = "11px Galmuri11, monospace";
     const textLeft = left + 44;
-    LETTER_LINES.forEach((parts, row) => {
+    this.lines.forEach((parts, row) => {
       let x = textLeft;
       const y = top + 54 + row * LINE_HEIGHT;
       for (const part of parts) {

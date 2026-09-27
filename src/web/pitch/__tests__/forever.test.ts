@@ -7,12 +7,13 @@ import {
   FOREVER_MAPS,
   FOREVER_NPCS,
   FOREVER_PROPS,
-  LETTER_LINES,
   LETTER_TITLE,
   FOREVER_SPAWN,
   FOREVER_ZONES,
   GATE_FOREVER,
   foreverTargetAt,
+  letterAddressee,
+  letterLines,
   gateForeverDistance,
   nearGateForever,
   nearGateForeverPreload,
@@ -187,30 +188,40 @@ describe("monster meadow (docs/forever/07 §1-2)", () => {
   });
 });
 
-describe("letter of the mailbox (docs/forever/07 §1-3)", () => {
-  const text = LETTER_LINES.map((line) => line.map((part) => part.text).join("")).join("\n");
+describe("letter of the mailbox (docs/forever/07 §1-3, §12)", () => {
+  const textOf = (name: string) => letterLines(name).map((line) => line.map((part) => part.text).join("")).join("\n");
+  const linesOf = (name: string) => letterLines(name);
 
-  it("has the title and hides most of its content behind ~~~~ and ???", () => {
+  it("has the title and hides most of the body behind ~~~~", () => {
     expect(LETTER_TITLE).toBe("우왁굳에게 온 편지");
+    const text = textOf("재닌");
     expect(text).toContain("~~~~~~");
-    expect(text).toContain("???");
-    const hidden = LETTER_LINES.flat().filter((part) => part.hidden);
+    const hidden = linesOf("재닌").flat().filter((part) => part.hidden);
     expect(hidden.length).toBeGreaterThanOrEqual(6);
-    for (const part of hidden) expect(part.text).toMatch(/^(~+|\?+)$/);
+    for (const part of hidden) expect(part.text).toMatch(/^~+$/);
   });
 
-  it("greets `??? 님께,`, keeps the body fully smudged and signs `우왁굳 드림`", () => {
-    const lines = text.split("\n");
-    expect(lines[0]).toBe("??? 님께,");
+  it("opens with the level-30 congratulation naming the character, keeps the body smudged and signs `우왁굳 드림`", () => {
+    const lines = textOf("재닌").split("\n");
+    expect(lines[0]).toBe("재닌님의 30렙 달성을 진심으로 축하드립니다.");
     expect(lines).toContain("- 우왁굳 드림");
-    // the only readable words are the greeting, the signature and 추신
-    const readable = LETTER_LINES.flat().filter((part) => !part.hidden).map((part) => part.text).join("");
-    expect(readable).toBe(" 님께,- 우왁굳 드림추신. ");
-    expect(text).not.toContain("우왁굳 님께");
+    // the only readable words are the opening line, the signature and 추신
+    const readable = linesOf("재닌").flat().filter((part) => !part.hidden).map((part) => part.text).join("");
+    expect(readable).toBe("재닌님의 30렙 달성을 진심으로 축하드립니다.- 우왁굳 드림추신. ");
   });
 
-  it("fits the paper: at most 11 lines, none longer than 30 characters", () => {
-    expect(LETTER_LINES.length).toBeLessThanOrEqual(11);
-    for (const line of text.split("\n")) expect(line.length).toBeLessThanOrEqual(30);
+  it("shows ??? instead of 우왁굳's own name (letterAddressee), every other name passes through", () => {
+    expect(letterAddressee("우왁굳")).toBe("???");
+    expect(letterAddressee("재닌")).toBe("재닌");
+    expect(textOf("우왁굳")).toContain("???님의 30렙 달성을 진심으로 축하드립니다.");
+    expect(textOf("우왁굳")).not.toContain("우왁굳님의");
+  });
+
+  it("fits the paper: at most 11 lines, none longer than 30 characters for every roster character", () => {
+    for (const name of ["우왁굳", "재닌", "뽀린걸", "핑구", "문모모", "하치", "한결", "쥬멩이", "해파린", "빙밍", "다시바", "리냐"]) {
+      const lines = textOf(name);
+      expect(linesOf(name).length, name).toBeLessThanOrEqual(11);
+      for (const line of lines.split("\n")) expect(line.length, `${name}: ${line}`).toBeLessThanOrEqual(30);
+    }
   });
 });

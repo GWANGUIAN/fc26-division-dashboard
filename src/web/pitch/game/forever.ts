@@ -199,19 +199,27 @@ export interface LetterPart {
   text: string;
   hidden?: boolean;
 }
-export const LETTER_LINES: ReadonlyArray<readonly LetterPart[]> = [
-  [{ text: "???", hidden: true }, { text: " 님께," }],
-  [],
-  [{ text: "~~~~~~~~~~~~~~~~~~~~~~~~", hidden: true }],
-  [{ text: "~~~~~~~~~~~~~~~~~~", hidden: true }],
-  [],
-  [{ text: "~~~~~~~~~~~~~~~~~~~~~~~~~~", hidden: true }],
-  [{ text: "~~~~~~~~~~~~~~~~~~~~", hidden: true }],
-  [{ text: "~~~~~~~~~~~~~~~~~~~~~~", hidden: true }],
-  [],
-  [{ text: "- 우왁굳 드림" }],
-  [{ text: "추신. " }, { text: "~~~~~~~~~~~~~~", hidden: true }],
-];
+/** The player's own character stands in for "우왁굳" as "???" (the letter is from him; saying his own name back to him is odd). */
+export function letterAddressee(characterName: string): string {
+  return characterName === "우왁굳" ? "???" : characterName;
+}
+
+/** The letter opens on a personal note (the player's level-30 milestone); the rest of the body stays fully smudged. */
+export function letterLines(characterName: string): ReadonlyArray<readonly LetterPart[]> {
+  return [
+    [{ text: `${letterAddressee(characterName)}님의 30렙 달성을 진심으로 축하드립니다.` }],
+    [],
+    [{ text: "~~~~~~~~~~~~~~~~~~~~~~~~", hidden: true }],
+    [{ text: "~~~~~~~~~~~~~~~~~~", hidden: true }],
+    [],
+    [{ text: "~~~~~~~~~~~~~~~~~~~~~~~~~~", hidden: true }],
+    [{ text: "~~~~~~~~~~~~~~~~~~~~", hidden: true }],
+    [{ text: "~~~~~~~~~~~~~~~~~~~~~~", hidden: true }],
+    [],
+    [{ text: "- 우왁굳 드림" }],
+    [{ text: "추신. " }, { text: "~~~~~~~~~~~~~~", hidden: true }],
+  ];
+}
 
 export interface ForeverMapDef {
   id: ForeverMapId;

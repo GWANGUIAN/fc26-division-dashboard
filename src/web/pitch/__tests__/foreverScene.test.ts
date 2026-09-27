@@ -244,7 +244,7 @@ describe("ForeverScene", () => {
     it("closes on E, Enter and Esc and renders with and without art", () => {
       for (const code of ["KeyE", "Enter", "NumpadEnter", "Escape"]) {
         const env = makeCtx();
-        const letter = new ForeverLetterScene();
+        const letter = new ForeverLetterScene("재닌");
         letter.enter(env.ctx);
         letter.update(0.1);
         expect(() => letter.render(fakeGraphics())).not.toThrow();

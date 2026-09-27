@@ -397,7 +397,7 @@ export class ForeverScene implements Scene {
       this.commit({ ...this.progress, letterRead: true });
       this.say("system", "우편함: 우왁굳에게 온 편지를 읽었습니다.");
     }
-    ctx.manager.push(new ForeverLetterScene());
+    ctx.manager.push(new ForeverLetterScene(this.character.name));
   }
 
   private usePortal() {
