@@ -6,6 +6,8 @@ import type { PointerInput, Scene, SceneCtx } from "../engine/sceneManager";
 import { drawStripFrame } from "../engine/sprite";
 import { drawText, TEXT_COLORS } from "../engine/text";
 import { getCharacter, resolveStoredCharacter } from "../data/characters";
+import { hasStoredPitchCharacter } from "../../storage";
+import { CharacterSelectScene } from "./CharacterSelectScene";
 import { LockerScene } from "./LockerScene";
 import { pitchFitParams } from "./pitchDebug";
 import { PitchScene } from "./PitchScene";
@@ -70,6 +72,11 @@ export class LoadingScene implements Scene {
         // item fitting tool: locker room with the inventory open
         const character = fit.characterId ? getCharacter(fit.characterId) : undefined;
         this.ctx.manager.replace(new LockerScene({ createPitch: () => new PitchScene(), character, openInventory: true }), undefined, { transition: "fade" });
+      } else if (!hasStoredPitchCharacter()) {
+        // never picked before: the pitch loads with the default look, but the select screen opens over it before play starts
+        const pitch = new PitchScene();
+        this.ctx.manager.replace(pitch, undefined, { transition: "none" });
+        this.ctx.manager.push(new CharacterSelectScene({ currentId: resolveStoredCharacter().id, onApply: (picked) => pitch.setCharacter(picked) }));
       } else this.ctx.manager.replace(new PitchScene(), undefined, { transition: "fade" });
     }
   }

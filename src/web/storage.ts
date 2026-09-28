@@ -1011,6 +1011,11 @@ export function savePitchCharacter(id: string) {
   pitchWrite(PITCH_CHARACTER_STORAGE_KEY, id);
 }
 
+/** Whether the player has ever picked a pitch character — unlike `loadPitchCharacter()`, this does not treat the unset key as the default id. */
+export function hasStoredPitchCharacter(): boolean {
+  return pitchRead(PITCH_CHARACTER_STORAGE_KEY) !== null;
+}
+
 function clampUnit(value: unknown, fallback: number): number {
   return typeof value === "number" && Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : fallback;
 }
