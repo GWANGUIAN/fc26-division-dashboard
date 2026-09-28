@@ -20,12 +20,6 @@ export const fakeAds: FakeAd[] = [
     label: "찰신",
   },
   {
-    id: "wowhachi",
-    image: "/fake-ads/ad-wowhachi.webp",
-    href: "https://vod.sooplive.com/player/207158227",
-    label: "두고하치...",
-  },
-  {
     id: "bmw",
     image: "/fake-ads/ad-bmw.webp",
     href: "https://www.sooplive.com/station/ecvhao/post/207633197",
