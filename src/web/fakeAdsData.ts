@@ -43,4 +43,10 @@ export const fakeAds: FakeAd[] = [
     href: "https://vod.sooplive.com/player/207820227?change_second=51",
     label: "어깨 누르기",
   },
+  {
+    id: "wow",
+    image: "/fake-ads/ad-wow.webp",
+    href: "https://www.sooplive.com/station/ecvhao/post/208244861",
+    label: "와우...",
+  },
 ];
