@@ -1,7 +1,7 @@
 /**
  * ON AIR signs of 잔디동 월드 (docs/world/15-onair-sign.md): which of the 11 world members are live on SOOP.
  *
- * The category feed behind `/api/soop-live` only lists FC26/FC27 broadcasts, so a member streaming another
+ * The category feed behind `/api/soop-live` only lists FC27 broadcasts, so a member streaming another
  * game would look offline. This asks SOOP's player API about each member's own channel instead.
  * The members' world ids are their SOOP ids (roster.yaml), which is why one list serves both.
  */

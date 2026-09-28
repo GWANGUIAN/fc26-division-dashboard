@@ -42,19 +42,7 @@ describe("/api/soop-live upstream handling", () => {
     await vi.advanceTimersByTimeAsync(1_300);
     const response = await pending;
     expect(response.status).toBe(200);
-    expect(calls).toBeGreaterThanOrEqual(3);
-  });
-
-  it("returns the working category when the other one never answers", async () => {
-    vi.stubGlobal("fetch", vi.fn(async (url: URL, init?: RequestInit) =>
-      url.searchParams.get("szCateNo") === "00040354" ? never(init?.signal) : json(list("abc"))));
-    const pending = call();
-    await vi.advanceTimersByTimeAsync(4_500);
-    const response = await pending;
-    expect(response.status).toBe(200);
-    const body = await response.json() as { streamers: { userId: string }[] };
-    expect(body.streamers.map((s) => s.userId)).toEqual(["abc"]);
-    expect(response.headers.get("cache-control")).toBe("no-store");
+    expect(calls).toBeGreaterThanOrEqual(2);
   });
 
   it("falls back to the last complete snapshot when sooplive is unreachable", async () => {

@@ -7,7 +7,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 대상 | `house-<id>` 11채(`WORLD_ONAIR_SOOP_IDS`). 멤버의 월드 id = SOOP id(roster.yaml) |
-| 조회 | `GET /api/soop-onair` → `{ generatedAt, streamers: [{ soopId, live, broadNo? }] }`. Worker가 11명의 SOOP 플레이어 API(`live.sooplive.com/afreeca/player_live_api.php`, `CHANNEL.RESULT` 1 = 방송 중)를 병렬로 묻는다. **FC26/27 카테고리 목록이 아니라 각자의 채널**을 보므로 다른 게임을 방송해도 켜진다 |
+| 조회 | `GET /api/soop-onair` → `{ generatedAt, streamers: [{ soopId, live, broadNo? }] }`. Worker가 11명의 SOOP 플레이어 API(`live.sooplive.com/afreeca/player_live_api.php`, `CHANNEL.RESULT` 1 = 방송 중)를 병렬로 묻는다. **FC27 카테고리 목록이 아니라 각자의 채널**을 보므로 다른 게임을 방송해도 켜진다 |
 | 캐시 | 엣지 115초. 조회에 실패한 멤버는 응답에서 빠진다("모름"이지 "꺼짐"이 아님). 전부 실패하면 502(캐시 안 함) |
 | 폴링 | 브라우저 2분 간격, **월드가 열려 있고 탭이 보일 때만**. 월드를 닫으면 멈추고 다시 열면 즉시 1회. `VITE_ENABLE_SOOP_LIVE=true`일 때만(대시보드 LIVE 레일과 같은 스위치) |
 | 만료 | 마지막 성공 조회가 6분(폴링 3회) 지나면 그 멤버는 꺼진 것으로 그린다 |

@@ -40,13 +40,13 @@ const SOOP_LIVE_STALE_SECONDS = 1_800;
 // The world's ON AIR signs poll on the same 2-minute rhythm as the LIVE rail.
 const WORLD_ONAIR_CACHE_SECONDS = 115;
 const WORLD_ONAIR_CACHE_VERSION = "v1";
-// sooplive's internal ids for the "EA Sports FC 26" and "EA Sports FC 27"
-// directory categories, found via sch.sooplive.com/api.php?m=categoryList
-// (categoryContentsList itself takes the id, not the category name). Not
-// documented anywhere public, so they can only be rediscovered the same way
-// if sooplive ever reassigns them.
+// sooplive's internal id for the "EA Sports FC 27" directory category, found
+// via sch.sooplive.com/api.php?m=categoryList (categoryContentsList itself
+// takes the id, not the category name). Not documented anywhere public, so
+// it can only be rediscovered the same way if sooplive ever reassigns it.
+// FC26's category (00040354) is intentionally excluded now that FC27 is the
+// current title; add it back here if the rail should ever cover both again.
 const SOOP_LIVE_CATEGORIES: { categoryNo: string; game: SoopLiveGame }[] = [
-  { categoryNo: "00040354", game: "fc26" },
   { categoryNo: "00040425", game: "fc27" },
 ];
 // Scraper now runs hourly (was every 3 minutes), so generatedAt only
@@ -178,10 +178,8 @@ async function serveSoopLive(request: Request, ctx: ExecutionContext): Promise<R
     return Response.json({ message: "soop live lookup failed" }, { status: 502, headers: { "cache-control": "no-store" } });
   }
 
-  // A streamer could in principle appear in both category feeds at once
-  // (e.g. a multi-game session); dedupe by broadcast id so they don't get a
-  // duplicate card. Tagged with `game` before flattening so the dedupe keeps
-  // whichever category it was first seen in.
+  // Dedupe by broadcast id in case sooplive ever lists the same broadcast
+  // twice. Tagged with `game` before flattening (see SOOP_LIVE_CATEGORIES).
   const seenBroadNos = new Set<number>();
   const streamers: SoopLiveStreamer[] = payloads
     .flatMap((payload, index) =>

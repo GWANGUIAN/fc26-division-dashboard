@@ -68,9 +68,6 @@ function SoopLiveCard({ entry }: { entry: LiveRosterEntry }) {
         <span className="soop-live-card__copy">
           <span className="soop-live-card__name-row">
             <strong>{entry.displayName}</strong>
-            <span className={`soop-live-card__game soop-live-card__game--${entry.game}`}>
-              {entry.game === "fc26" ? "FC26" : "FC27"}
-            </span>
           </span>
           <small>{entry.title}</small>
         </span>
@@ -102,7 +99,7 @@ export function SoopLiveSection({ soopLive }: { soopLive: SoopLiveState }) {
         <div>
           <p className="eyebrow">NOW STREAMING</p>
           <h2 id="soop-live-title">
-            FC26 & FC27 <span className="soop-live__title-sub">카테고리</span> LIVE
+            FC27 <span className="soop-live__title-sub">카테고리</span> LIVE
             <span className="soop-live__live-dot" aria-hidden="true" />
             {hasLiveStreamers && (
               <span className="soop-live__count">
@@ -111,7 +108,7 @@ export function SoopLiveSection({ soopLive }: { soopLive: SoopLiveState }) {
             )}
           </h2>
           <p className="soop-live__hint">
-            현재 FC26 & FC27 카테고리에서 방송 중인 잔디동 멤버는 프로필 사진에{" "}
+            현재 FC27 카테고리에서 방송 중인 잔디동 멤버는 프로필 사진에{" "}
             <span className="soop-live__hint-dot" aria-hidden="true" /> 테두리로
             표시됩니다.
           </p>
