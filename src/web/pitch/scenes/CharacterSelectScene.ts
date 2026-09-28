@@ -11,7 +11,7 @@ import type { KeyInput, PointerInput, Scene, SceneCtx } from "../engine/sceneMan
 import { drawFrame, drawNineSlice, drawStripFrame } from "../engine/sprite";
 import { LOGICAL_HEIGHT, LOGICAL_WIDTH } from "../engine/stage";
 import { drawText, TEXT_COLORS } from "../engine/text";
-import { savePitchCharacter } from "../../storage";
+import { hasStoredPitchCharacter, savePitchCharacter } from "../../storage";
 import { cardAt, cardRect, moveCursor, stepCursor, type GridDir } from "./selectGrid";
 
 type Rect = { x: number; y: number; w: number; h: number };
@@ -66,6 +66,8 @@ export interface CharacterSelectParams {
   onApply(character: PitchCharacter): void;
   /** Test hook. */
   save?: (id: string) => void;
+  /** Test hook for `hasStoredPitchCharacter`. */
+  hasStored?: () => boolean;
 }
 
 export class CharacterSelectScene implements Scene {
@@ -192,8 +194,18 @@ export class CharacterSelectScene implements Scene {
     this.ctx?.manager.pop();
   }
 
+  /**
+   * Leaving without switching character (cancel, or confirm while the cursor sits on the active card) still counts
+   * as picking it on the first-ever visit — otherwise the forced select screen would keep reappearing even though
+   * the player already left it on the default.
+   */
+  private keepActiveIfUnset() {
+    if (!(this.params.hasStored ?? hasStoredPitchCharacter)()) (this.params.save ?? savePitchCharacter)(this.activeId);
+  }
+
   private cancel() {
     this.audio.playSfx("ui-back");
+    this.keepActiveIfUnset();
     this.close();
   }
 
@@ -205,6 +217,7 @@ export class CharacterSelectScene implements Scene {
     this.audio.playFile?.(character.sfx);
     if (character.id === this.activeId) {
       // already in use: nothing to load or reset
+      this.keepActiveIfUnset();
       this.close();
       return;
     }

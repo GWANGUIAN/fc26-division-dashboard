@@ -56,7 +56,8 @@ function makeAssets() {
   return { assets, pendingLoads, released, loaded };
 }
 
-function makeSelect(currentId = "woowakgood") {
+/** `hasStored` defaults to true: most tests represent an ordinary session where a character was already picked. */
+function makeSelect(currentId = "woowakgood", hasStored = () => true) {
   const env = makeAssets();
   const popped = vi.fn();
   const played: string[] = [];
@@ -76,7 +77,7 @@ function makeSelect(currentId = "woowakgood") {
       audio: { playSfx: (id: string) => void played.push(id), playFile: (url: string) => void files.push(url), playBgm: () => undefined, stopSfx: () => undefined, setSettings: () => undefined },
     },
   } as unknown as SceneCtx;
-  const scene = new CharacterSelectScene({ currentId, onApply: (c) => applied.push(c), save });
+  const scene = new CharacterSelectScene({ currentId, onApply: (c) => applied.push(c), save, hasStored });
   scene.enter(ctx);
   return { scene, ctx, popped, played, files, applied, save, ...env };
 }
@@ -124,6 +125,19 @@ describe("CharacterSelectScene (P5)", () => {
     expect(popped).toHaveBeenCalledTimes(1);
     expect(applied).toHaveLength(0);
     expect(pendingLoads.filter((p) => p.group.startsWith("char:"))).toHaveLength(0);
+  });
+
+  it("on the forced first visit, cancelling or confirming the default still counts as picking it (so the prompt does not reappear)", () => {
+    for (const code of ["Escape", "Tab"]) {
+      const { scene, popped, save } = makeSelect("woowakgood", () => false);
+      key(scene, code);
+      expect(popped).toHaveBeenCalledTimes(1);
+      expect(save).toHaveBeenCalledWith("woowakgood");
+    }
+    const { scene, popped, save } = makeSelect("woowakgood", () => false);
+    key(scene, "Enter");
+    expect(popped).toHaveBeenCalledTimes(1);
+    expect(save).toHaveBeenCalledWith("woowakgood");
   });
 
   it("confirm loads char:<id> first, then saves, applies, frees the old group and closes", async () => {
