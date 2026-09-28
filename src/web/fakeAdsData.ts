@@ -49,4 +49,10 @@ export const fakeAds: FakeAd[] = [
     href: "https://www.sooplive.com/station/ecvhao/post/208244861",
     label: "와우...",
   },
+  {
+    id: "first",
+    image: "/fake-ads/ad-first.webp",
+    href: "https://play.sooplive.com/ecvhao",
+    label: "잔디동 첫모임",
+  },
 ];
