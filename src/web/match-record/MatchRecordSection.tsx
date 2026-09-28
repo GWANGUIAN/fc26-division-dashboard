@@ -9,7 +9,7 @@ import { CUSTOM_TEST_SCHEDULE_STREAMERS } from "../testScheduleData";
 import { MatchDetailModal } from "./MatchDetailModal";
 import { MatchRankingModal } from "./MatchRankingModal";
 import { JECHO_PLAYERS, MATCH_RECORDS } from "./matchRecordData";
-import type { LineupPlayer, MatchDay } from "./types";
+import type { MatchGame, LineupPlayer, MatchDay } from "./types";
 
 const VISIBLE_ROWS = 5;
 
@@ -22,14 +22,27 @@ function formatShortDate(date: Date): string {
   return `${date.getMonth() + 1}/${date.getDate()}`;
 }
 
+/** 잔디동 기준 이 경기의 승/무/패 — 승부차기가 있으면 그 결과로 가른다. */
+function getJandyResult(game: MatchGame): "win" | "draw" | "loss" {
+  if (game.penaltyShootout) {
+    return game.penaltyShootout.jandyScore > game.penaltyShootout.opponentScore
+      ? "win"
+      : "loss";
+  }
+  if (game.jandyScore > game.opponentScore) return "win";
+  if (game.jandyScore === game.opponentScore) return "draw";
+  return "loss";
+}
+
 function computeRecord(days: MatchDay[]): { wins: number; draws: number; losses: number } {
   let wins = 0;
   let draws = 0;
   let losses = 0;
   for (const day of days) {
     for (const game of day.games) {
-      if (game.jandyScore > game.opponentScore) wins++;
-      else if (game.jandyScore === game.opponentScore) draws++;
+      const result = getJandyResult(game);
+      if (result === "win") wins++;
+      else if (result === "draw") draws++;
       else losses++;
     }
   }
@@ -47,12 +60,17 @@ function MatchScoreChip({
 }) {
   const game = day.games.find((entry) => entry.id === gameId);
   if (!game) return null;
+  const result = getJandyResult(game);
+  const resultLabel = result === "win" ? "승" : result === "loss" ? "패" : "무";
   return (
     <button
       type="button"
       className="match-record__chip"
       onClick={() => onOpen(day, gameId)}
     >
+      <span className={`match-record__chip-result match-record__chip-result--${result}`}>
+        {resultLabel}
+      </span>
       {day.games.length > 1 && (
         <span className="match-record__chip-label">{game.label}</span>
       )}
@@ -60,6 +78,11 @@ function MatchScoreChip({
       <span className="match-record__chip-score">
         {game.jandyScore} : {game.opponentScore}
       </span>
+      {game.penaltyShootout && (
+        <span className="match-record__chip-pk">
+          PK {game.penaltyShootout.jandyScore}:{game.penaltyShootout.opponentScore}
+        </span>
+      )}
       <img src={game.opponentLineup.teamLogoUrl} alt="" />
     </button>
   );
@@ -68,9 +91,11 @@ function MatchScoreChip({
 function DateRangeFilter({
   range,
   onChange,
+  matchDates,
 }: {
   range?: DateRange;
   onChange: (range: DateRange | undefined) => void;
+  matchDates: Date[];
 }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -123,9 +148,11 @@ function DateRangeFilter({
             mode="range"
             selected={range}
             onSelect={onChange}
-            defaultMonth={range?.to ?? range?.from}
+            defaultMonth={range?.to ?? range?.from ?? matchDates[0]}
             weekStartsOn={0}
             locale={ko}
+            modifiers={{ hasMatch: matchDates }}
+            modifiersClassNames={{ hasMatch: "match-record__calendar-day--has-match" }}
           />
         </div>
       )}
@@ -165,6 +192,11 @@ export function MatchRecordSection({ streamers }: { streamers: StreamerRecord[] 
     () =>
       [...MATCH_RECORDS].sort((a, b) => (a.isoDate < b.isoDate ? 1 : -1)),
     [],
+  );
+
+  const matchDates = useMemo(
+    () => sortedDays.map((day) => parseIsoDate(day.isoDate)),
+    [sortedDays],
   );
 
   const filteredDays = useMemo(() => {
@@ -208,7 +240,7 @@ export function MatchRecordSection({ streamers }: { streamers: StreamerRecord[] 
             <Trophy aria-hidden="true" size={14} />
             골/어시 순위
           </button>
-          <DateRangeFilter range={dateRange} onChange={setDateRange} />
+          <DateRangeFilter range={dateRange} onChange={setDateRange} matchDates={matchDates} />
         </div>
       </div>
 

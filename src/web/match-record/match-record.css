@@ -48,6 +48,23 @@
 .match-record__calendar-popover .rdp-day_button:hover:not([disabled]) { background: #00e9ae1f; }
 .match-record__calendar-popover .rdp-range_start .rdp-day_button,
 .match-record__calendar-popover .rdp-range_end .rdp-day_button { color: #04140f; font-weight: 800; }
+.match-record__calendar-popover .match-record__calendar-day--has-match .rdp-day_button { position: relative; }
+.match-record__calendar-popover .match-record__calendar-day--has-match .rdp-day_button::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #fff;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.match-record__calendar-popover .rdp-range_start.match-record__calendar-day--has-match .rdp-day_button::after,
+.match-record__calendar-popover .rdp-range_end.match-record__calendar-day--has-match .rdp-day_button::after {
+  background: #04140f;
+}
 
 .match-record__empty { margin: 10px 0 0; padding: 24px; border: 1px dashed var(--border-strong); color: var(--text-muted); text-align: center; }
 
@@ -63,6 +80,11 @@
 .match-record__chip img { width: 20px; height: 20px; object-fit: contain; }
 .match-record__chip-score { font: 800 15px/1 "Barlow Condensed"; letter-spacing: .02em; }
 .match-record__chip-label { padding: 1px 6px; border: 1px solid var(--border-default); border-radius: 3px; color: var(--text-muted); font-size: 10px; }
+.match-record__chip-pk { padding: 1px 6px; border: 1px solid var(--border-default); border-radius: 3px; color: var(--text-muted); font: 700 10px "Barlow Condensed", "Noto Sans KR"; }
+.match-record__chip-result { padding: 1px 6px; border-radius: 3px; font: 800 10px "Barlow Condensed", "Noto Sans KR"; }
+.match-record__chip-result--win { color: #00e9ae; background: #00e9ae1f; border: 1px solid #00e9ae52; }
+.match-record__chip-result--loss { color: #ff5c5c; background: #ff5c5c1f; border: 1px solid #ff5c5c52; }
+.match-record__chip-result--draw { color: var(--text-muted); background: var(--surface-1); border: 1px solid var(--border-default); }
 
 .match-record__more { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; margin-top: 10px; padding: 10px; border: 1px dashed var(--border-strong); border-radius: 5px; color: var(--text-secondary); background: transparent; font: 700 12px "Barlow Condensed", "Noto Sans KR"; cursor: pointer; transition: border-color .18s, color .18s; }
 .match-record__more:hover { border-color: var(--accent-border); color: var(--accent-text); }
@@ -79,6 +101,7 @@
 .match-scoreboard__team img { display: block; width: 77px; height: 77px; object-fit: contain; }
 .match-scoreboard__score { display: inline-flex; align-items: center; color: var(--text-primary); font: 900 italic 48px/1 "Barlow Condensed"; letter-spacing: .02em; white-space: nowrap; }
 .match-scoreboard__score i { margin: 0 14px; color: var(--accent-text); font-style: normal; }
+.match-scoreboard__pk { margin: 8px 0 0; color: var(--text-muted); font: 700 13px "Barlow Condensed", "Noto Sans KR"; }
 .match-detail__video-link { display: inline-block; margin-top: 16px; }
 @media (max-width: 680px) {
   .match-scoreboard__row { gap: 12px; }

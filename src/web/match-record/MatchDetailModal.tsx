@@ -72,6 +72,11 @@ export function MatchDetailModal({
             <img src={game.opponentLineup.teamLogoUrl} alt="" />
           </div>
         </div>
+        {game.penaltyShootout && (
+          <p className="match-scoreboard__pk">
+            승부차기 {game.penaltyShootout.jandyScore} : {game.penaltyShootout.opponentScore}
+          </p>
+        )}
         {gameVideoUrl && (
           <a
             className="action match-detail__video-link"

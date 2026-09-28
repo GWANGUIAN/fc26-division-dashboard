@@ -71,7 +71,7 @@ function MatchPitchHalf({
         { label: lineup.teamLabel, slots: lineup.slots.map((slot) => ({ streamerId: slot.playerId, position: slot.position })) },
         layoutKey,
         "standalone",
-        { mirrorX },
+        { mirrorX, tightenMidGap: lineup.teamLabel === "잔디동" },
       ),
     [lineup, layoutKey, mirrorX],
   );
@@ -112,7 +112,7 @@ export function MatchLineupPitch({
 }) {
   return (
     <div className="test-pitch-split">
-      <MatchPitchHalf lineup={jandyLineup} playerById={playerById} layoutKey={gameId} mirrorX />
+      <MatchPitchHalf lineup={jandyLineup} playerById={playerById} layoutKey={gameId} />
       <MatchPitchHalf lineup={opponentLineup} playerById={playerById} layoutKey={gameId} />
     </div>
   );

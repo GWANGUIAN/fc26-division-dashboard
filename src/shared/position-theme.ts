@@ -20,8 +20,8 @@ export const POSITION_GROUP_FALLBACK_COLOR = "#9aa5b1";
 /** Source of truth for which individual position codes belong to which group — also drives the position filter dropdown's grouping. */
 export const POSITION_GROUP_CODES: Record<PositionGroup, string[]> = {
   FW: ["ST", "CF", "WF", "RW", "LW"],
-  MF: ["CM", "CDM", "CAM", "RM", "LM"],
-  DF: ["CB", "FB", "RB", "LB", "RWB", "LWB", "SW"],
+  MF: ["CM", "LCM", "RCM", "CDM", "LDM", "RDM", "CAM", "RM", "LM"],
+  DF: ["CB", "LCB", "RCB", "FB", "RB", "LB", "RWB", "LWB", "SW"],
   GK: ["GK"],
 };
 

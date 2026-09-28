@@ -38,6 +38,8 @@ export interface MatchGame {
   label: string;
   jandyScore: number;
   opponentScore: number;
+  /** 정규시간이 무승부일 때의 승부차기 결과. 있으면 이 결과가 실제 승패(전적 집계)를 가른다. */
+  penaltyShootout?: { jandyScore: number; opponentScore: number };
   jandyLineup: MatchLineup;
   opponentLineup: MatchLineup;
   timeline: MatchGoalEvent[];

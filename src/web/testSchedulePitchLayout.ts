@@ -16,10 +16,16 @@ const POSITION_INFO: Record<string, { line: PitchLine; side: PitchSide }> = {
   FB: { line: "DF", side: "auto" },
   LB: { line: "DF", side: "left" },
   RB: { line: "DF", side: "right" },
+  LCB: { line: "DF", side: "center" },
+  RCB: { line: "DF", side: "center" },
   LWB: { line: "DF", side: "left" },
   RWB: { line: "DF", side: "right" },
   CDM: { line: "DM", side: "center" },
+  LDM: { line: "DM", side: "center" },
+  RDM: { line: "DM", side: "center" },
   CM: { line: "MF", side: "center" },
+  LCM: { line: "MF", side: "center" },
+  RCM: { line: "MF", side: "center" },
   CAM: { line: "MF", side: "center" },
   LM: { line: "MF", side: "left" },
   RM: { line: "MF", side: "right" },
@@ -100,7 +106,7 @@ export function computeTeamPitchLayout(
   team: TestScheduleTeam,
   dateIso: string,
   half: "bottom" | "top" | "standalone",
-  options?: { mirrorX?: boolean },
+  options?: { mirrorX?: boolean; tightenMidGap?: boolean },
 ): PitchSlotView[] {
   const keyFor = (index: number) => `${dateIso}__${team.label}__${index}`;
   const lines: Record<PitchLine, { slot: TestScheduleSlot; index: number }[]> = {
@@ -141,7 +147,12 @@ export function computeTeamPitchLayout(
   (["DF", "DM", "MF", "FW"] as const).forEach((line) => {
     const entries = lines[line];
     if (entries.length === 0) return;
-    const y = yForLine(line, half);
+    let y = yForLine(line, half);
+    // 두 미드필드 라인(중앙 미드필더 vs 수비형 미드필더) 사이 간격을 살짝 좁힌다.
+    if (options?.tightenMidGap) {
+      if (line === "MF") y += 4;
+      else if (line === "DM") y -= 4;
+    }
 
     const left: typeof entries = [];
     const right: typeof entries = [];
@@ -161,14 +172,18 @@ export function computeTeamPitchLayout(
     const hasFlanks = left.length > 0 || right.length > 0;
     const leftXs = evenSpread(left.length, 8, 28);
     const rightXs = evenSpread(right.length, 72, 92);
-    const centerXs = evenSpread(
-      center.length,
-      hasFlanks ? 36 : 26,
-      hasFlanks ? 64 : 74,
-    );
+    // DM 라인의 center 그룹(LDM/RDM처럼 flank 없이 두 명만 있는 경우)은 CB/CM
+    // 라인보다 눈에 띄게 좁게 — 바로 위 MF 라인 선수들 x좌표 안쪽으로 모이게 한다.
+    const centerMin =
+      line === "DM" && !hasFlanks ? 34 : line === "DF" && hasFlanks ? 40 : hasFlanks ? 36 : 26;
+    const centerMax =
+      line === "DM" && !hasFlanks ? 66 : line === "DF" && hasFlanks ? 60 : hasFlanks ? 64 : 74;
+    const centerXs = evenSpread(center.length, centerMin, centerMax);
+    // FW 라인의 양쪽 윙(LW/RW/WF)은 중앙 스트라이커보다 살짝 아래(수비 쪽)로 내려서 배치한다.
+    const flankY = line === "FW" ? y + 5 : y;
 
-    left.forEach((entry, index) => push(entry, leftXs[index], y));
-    right.forEach((entry, index) => push(entry, rightXs[index], y));
+    left.forEach((entry, index) => push(entry, leftXs[index], flankY));
+    right.forEach((entry, index) => push(entry, rightXs[index], flankY));
     center.forEach((entry, index) => push(entry, centerXs[index], y));
 
     const byKey = new Map(result.map((view) => [view.key, view]));
