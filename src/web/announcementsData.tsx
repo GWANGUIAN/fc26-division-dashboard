@@ -3,6 +3,7 @@ import {
   Box,
   CalendarDays,
   CirclePile,
+  Image,
   ListMusic,
   Shield,
   Shirt,
@@ -24,6 +25,22 @@ export type Announcement = {
 };
 
 export const ANNOUNCEMENTS: Announcement[] = [
+  {
+    id: "2026-09-wallpaper",
+    date: "2026.09.28",
+    body: (
+      <>
+        <strong>잔디동 월페이퍼</strong> 기능이 추가되었습니다. 화면 왼쪽 아래{" "}
+        <br />
+        <br />
+        <span className="announcement-wallpaper-btn">
+          <Image aria-hidden="true" />
+          <span>잔디동 월페이퍼</span>
+        </span>{" "}
+        버튼을 눌러 잔디동 멤버들의 배경화면을 다운로드 해보세요.{" "}
+      </>
+    ),
+  },
   {
     id: "2026-09-cover-loop-playlist",
     date: "2026.09.22",

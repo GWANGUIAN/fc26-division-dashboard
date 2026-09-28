@@ -1,0 +1,79 @@
+/* "잔디동 월페이퍼" 버튼 — .bottom-left-toolbar 안, MinigameMenu(심심풀이) 오른쪽.
+   playlist-toggle.css와 같은 구조(각진 반투명 배지)지만 흰색 대신 회색 계열 톤으로
+   구분되게 한다. */
+.wallpaper-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  min-width: 44px;
+  padding: 0 16px;
+  border: 1px solid rgba(198, 204, 210, 0.5);
+  border-radius: 0;
+  color: #d7dde1;
+  background: rgba(150, 158, 165, 0.14);
+  font: 700 12px/1 "Barlow Condensed", "Noto Sans KR", sans-serif;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: background 0.18s ease, border-color 0.18s ease, filter 0.18s ease, transform 0.12s ease;
+}
+.wallpaper-toggle svg { width: 18px; height: 18px; stroke-width: 1.75; flex: 0 0 auto; }
+.wallpaper-toggle > span:not(.wallpaper-toggle__badge) { white-space: nowrap; }
+.wallpaper-toggle:hover, .wallpaper-toggle:focus-visible { border-color: #c6ccd2; background: rgba(180, 186, 192, 0.24); outline: 0; }
+.wallpaper-toggle:focus-visible { box-shadow: 0 0 0 2px rgba(200, 206, 212, 0.9); }
+.wallpaper-toggle:active { transform: translateY(1px); }
+
+/* 첫 방문 유입 유도: 펄스 + 살짝 위아래로 떠 있는 움직임 + 말풍선 — 첫 클릭 후 영구 해제
+   (playlist-toggle--new와 동일한 패턴). */
+.wallpaper-toggle--new { animation: wallpaper-toggle-pulse 2.2s ease-in-out infinite, wallpaper-toggle-bob 2.2s ease-in-out infinite; }
+@keyframes wallpaper-toggle-pulse {
+  0%, 100% { border-color: rgba(198, 204, 210, 0.5); filter: brightness(1); box-shadow: 0 0 0 0 rgba(200, 206, 212, 0); }
+  50% { border-color: #d7dde1; filter: brightness(1.25); box-shadow: 0 0 18px 3px rgba(200, 206, 212, 0.45); }
+}
+@keyframes wallpaper-toggle-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* 말풍선 안내 — 버튼이 왼쪽 툴바에 있어서 꼬리를 왼쪽으로(playlist-toggle의 오른쪽 배지와 반대). */
+.wallpaper-toggle__badge {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 14px);
+  width: max-content;
+  max-width: min(220px, calc(100vw - 40px));
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 12px;
+  color: #14151a;
+  background: #fff;
+  font: 700 12px/1.35 "Noto Sans KR", sans-serif;
+  letter-spacing: 0;
+  text-align: center;
+  white-space: normal;
+  pointer-events: none;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+}
+.wallpaper-toggle__badge::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 16px;
+  width: 0;
+  height: 0;
+  border: 7px solid transparent;
+  border-bottom: 0;
+  border-top-color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wallpaper-toggle { transition: none; }
+  .wallpaper-toggle--new { animation: none; border-color: #d7dde1; box-shadow: 0 0 14px 2px rgba(200, 206, 212, 0.4); }
+}
+
+@media (max-width: 680px) {
+  .wallpaper-toggle { gap: 0; padding: 0 12px; }
+  .wallpaper-toggle > span:not(.wallpaper-toggle__badge) { display: none; }
+}

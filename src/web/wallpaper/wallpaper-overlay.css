@@ -1,0 +1,287 @@
+/* 잔디동 월페이퍼 팝업 — cover-loop-overlay.css(잔디동 플레이리스트)와 같은 전체화면(진짜
+   inset:0, 여백/둥근 카드 없음) + 각진(border-radius:0) 반투명 흑백 디자인 언어를 그대로
+   따르되, 흰색 대신 회색 계열 톤으로 살짝 구분한다. */
+.wallpaper-overlay {
+  position: fixed;
+  z-index: 85;
+  inset: 0;
+  display: flex;
+  overflow: hidden;
+  background: #0b0c0d;
+}
+.wallpaper-overlay:focus { outline: 0; }
+
+.wallpaper-overlay__close {
+  position: absolute;
+  z-index: 6;
+  top: clamp(14px, 2.4vw, 20px);
+  right: clamp(14px, 2.4vw, 20px);
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid rgba(210, 216, 222, 0.5);
+  border-radius: 0;
+  color: #d7dde1;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.wallpaper-overlay__close svg { width: 18px; height: 18px; }
+.wallpaper-overlay__close:hover, .wallpaper-overlay__close:focus-visible {
+  border-color: #d7dde1;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.65);
+  outline: 0;
+}
+.wallpaper-overlay__close:focus-visible { box-shadow: 0 0 0 2px rgba(215, 221, 225, 0.85); }
+
+/* --- 왼쪽: 멤버 필터 + 세로 스와이퍼 목록 --- */
+.wallpaper-overlay__sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  flex: 0 0 auto;
+  height: 100%;
+  min-height: 0;
+  border-right: 1px solid rgba(210, 216, 222, 0.16);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.wallpaper-overlay__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 16px 14px 14px;
+  border-bottom: 1px solid rgba(210, 216, 222, 0.14);
+}
+
+.wallpaper-filter-chip {
+  padding: 6px 12px;
+  border: 1px solid rgba(210, 216, 222, 0.35);
+  border-radius: 0;
+  color: #9aa3a9;
+  background: transparent;
+  font: 700 12px/1 "Noto Sans KR", sans-serif;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.wallpaper-filter-chip:hover { border-color: #d7dde1; color: #d7dde1; }
+.wallpaper-filter-chip--active {
+  border-color: #d7dde1;
+  color: #fff;
+  background: rgba(215, 221, 225, 0.18);
+}
+
+.wallpaper-overlay__list {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(210, 216, 222, 0.5) #050506;
+}
+
+.wallpaper-overlay__list-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px;
+  margin-bottom: 3px;
+  border: 1px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.14s, border-color 0.14s;
+}
+.wallpaper-overlay__list-item:hover { background: rgba(255, 255, 255, 0.06); }
+.wallpaper-overlay__list-item--active {
+  border-color: rgba(215, 221, 225, 0.55);
+  background: rgba(215, 221, 225, 0.14);
+}
+
+.wallpaper-overlay__thumb {
+  width: 68px;
+  height: 38px;
+  flex: 0 0 auto;
+  border-radius: 0;
+  object-fit: cover;
+  background: #17181a;
+}
+
+.wallpaper-overlay__list-title {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  color: #e7ebed;
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+.wallpaper-overlay__empty {
+  padding: 30px 14px;
+  color: #7d868c;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* --- 오른쪽: 큰 이미지 + 상단바 + 줌/다운로드 툴바 --- */
+.wallpaper-overlay__main {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+}
+
+.wallpaper-overlay__topbar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 72px 12px 24px;
+}
+
+.wallpaper-overlay__title {
+  overflow: hidden;
+  flex: 1 1 auto;
+  min-width: 0;
+  color: #f2f4f5;
+  font-weight: 800;
+  font-size: 17px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wallpaper-overlay__counter {
+  flex: 0 0 auto;
+  padding: 4px 11px;
+  border: 1px solid rgba(210, 216, 222, 0.35);
+  border-radius: 0;
+  color: #9aa3a9;
+  background: rgba(255, 255, 255, 0.04);
+  font-weight: 700;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.wallpaper-overlay__frame {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0 20px;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(210, 216, 222, 0.5) #050506;
+  background: #050506;
+  touch-action: manipulation;
+}
+.wallpaper-overlay__frame--zoomed { align-items: flex-start; justify-content: flex-start; touch-action: none; }
+.wallpaper-overlay__frame--panning { cursor: grabbing; }
+
+.wallpaper-overlay__image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  cursor: zoom-in;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.wallpaper-overlay__frame--zoomed .wallpaper-overlay__image { max-width: none; max-height: none; cursor: grab; }
+.wallpaper-overlay__frame--panning .wallpaper-overlay__image { cursor: grabbing; }
+
+.wallpaper-overlay__nav {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(210, 216, 222, 0.4);
+  border-radius: 0;
+  color: #e7ebed;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: border-color 0.15s, background 0.15s;
+}
+.wallpaper-overlay__nav:hover { border-color: #d7dde1; background: rgba(0, 0, 0, 0.68); }
+.wallpaper-overlay__nav--prev { left: 14px; }
+.wallpaper-overlay__nav--next { right: 14px; }
+.wallpaper-overlay__nav svg { width: 20px; height: 20px; }
+
+.wallpaper-overlay__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 24px 22px;
+}
+
+.wallpaper-overlay__zoom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.wallpaper-overlay__zoom button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(210, 216, 222, 0.35);
+  border-radius: 0;
+  color: #e7ebed;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.wallpaper-overlay__zoom button:hover:not(:disabled) { border-color: #d7dde1; background: rgba(255, 255, 255, 0.08); }
+.wallpaper-overlay__zoom button:disabled { opacity: 0.35; cursor: not-allowed; }
+.wallpaper-overlay__zoom button svg { width: 16px; height: 16px; }
+.wallpaper-overlay__zoom-value {
+  min-width: 42px;
+  color: #9aa3a9;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.wallpaper-overlay__download {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 1px solid rgba(215, 221, 225, 0.55);
+  border-radius: 0;
+  color: #fff;
+  background: rgba(215, 221, 225, 0.16);
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.wallpaper-overlay__download:hover { border-color: #fff; background: rgba(215, 221, 225, 0.28); }
+.wallpaper-overlay__download svg { width: 16px; height: 16px; }
+
+@media (max-width: 860px) {
+  .wallpaper-overlay { flex-direction: column; }
+  .wallpaper-overlay__sidebar { width: 100%; height: 34vh; border-right: none; border-bottom: 1px solid rgba(210, 216, 222, 0.16); }
+  .wallpaper-overlay__filters { padding: 60px 12px 12px; }
+  .wallpaper-overlay__main { height: 66vh; }
+  .wallpaper-overlay__topbar { padding: 14px 60px 10px 16px; }
+  .wallpaper-overlay__frame { margin: 0 12px; }
+  .wallpaper-overlay__toolbar { padding: 12px 16px 18px; }
+}

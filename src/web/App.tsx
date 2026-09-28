@@ -49,6 +49,8 @@ import { EvaluationModal } from "./EvaluationViews";
 import { SfxIntroNotice, SfxToggle } from "./SfxControls";
 import { PlaylistToggle } from "./PlaylistToggle";
 import { CoverLoopPlaylistOverlay } from "./CoverLoopPlaylistOverlay";
+import { WallpaperToggle } from "./wallpaper/WallpaperToggle";
+import { WallpaperOverlay } from "./wallpaper/WallpaperOverlay";
 import { ThemeToggle } from "./ThemeToggle";
 import { CursorPicker } from "./CursorPicker";
 import { CursorOverlay } from "./CursorOverlay";
@@ -111,6 +113,7 @@ export function App({ onGoPitch }: { onGoPitch?: () => void } = {}) {
   const [positionTestOpen, setPositionTestOpen] = useState(false);
   const [worldOpen, setWorldOpen] = useState(false);
   const [playlistOpen, setPlaylistOpen] = useState(false);
+  const [wallpaperOpen, setWallpaperOpen] = useState(false);
   const [stadiumShowcaseOpen, setStadiumShowcaseOpen] = useState(false);
   const [totyCardStreamer, setTotyCardStreamer] =
     useState<Pick<StreamerRecord, "id" | "displayName" | "hopedPosition1" | "currentDivision" | "sfx">>();
@@ -520,6 +523,7 @@ export function App({ onGoPitch }: { onGoPitch?: () => void } = {}) {
           onOpenFortune={() => setFortuneOpen(true)}
           onOpenPositionTest={() => setPositionTestOpen(true)}
         />
+        <WallpaperToggle onClick={() => setWallpaperOpen(true)} />
       </div>
       {cursorPlayerId !== "default" && <CursorOverlay playerId={cursorPlayerId} />}
       <BrightnessGag />
@@ -534,6 +538,12 @@ export function App({ onGoPitch }: { onGoPitch?: () => void } = {}) {
         <PlaylistToggle onClick={() => setPlaylistOpen(true)} />
       </div>
       {playlistOpen && <CoverLoopPlaylistOverlay onClose={() => setPlaylistOpen(false)} />}
+      {wallpaperOpen && (
+        <WallpaperOverlay
+          passedStreamers={celebrationEligibleStreamers}
+          onClose={() => setWallpaperOpen(false)}
+        />
+      )}
       {sfxIntroVisible && (
         <SfxIntroNotice
           enabled={sfxEnabled}

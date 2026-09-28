@@ -21,6 +21,7 @@
     "build:pitch-anchors": "node scripts/build-pitch-anchors.mjs",
     "convert:minigame-art": "node scripts/convert-minigame-art.mjs",
     "convert:title-frame": "node scripts/convert-title-frame-art.mjs",
+    "convert:wallpaper-art": "node scripts/convert-wallpaper-art.mjs",
     "sync:comments-roster": "node scripts/sync-roster-from-comments-xlsx.mjs",
     "fetch:collabot": "node scripts/fetch-collabot-export.mjs",
     "sync:collabot-live": "node scripts/sync-roster-from-collabot-xlsx.mjs",
