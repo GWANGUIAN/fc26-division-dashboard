@@ -98,6 +98,20 @@ export const WALLPAPERS: WallpaperEntry[] = [
   { id: "wallpaper-unique-04", file: "wallpaper-unique-04", title: "블랙라이트 파티 포스터", category: "group", members: ["tleod1818", "lina0108"] },
   { id: "wallpaper-unique-05", file: "wallpaper-unique-05", title: "홀로그램 포토카드", category: "group", members: ["janine95kim", "haepalin"] },
   { id: "wallpaper-unique-06", file: "wallpaper-unique-06", title: "노을 그림자극", category: "group", members: ["hachi97", "woowakgood"] },
+
+  // --- 미니멀 단색 배경 (12장, 인당 1장) ---
+  { id: "wallpaper-minimal-woowakgood", file: "wallpaper-minimal-woowakgood", title: "미니멀 단색 배경 — 우왁굳", category: "solo", members: ["woowakgood"] },
+  { id: "wallpaper-minimal-janine95kim", file: "wallpaper-minimal-janine95kim", title: "미니멀 단색 배경 — 재닌", category: "solo", members: ["janine95kim"] },
+  { id: "wallpaper-minimal-bboringirl", file: "wallpaper-minimal-bboringirl", title: "미니멀 단색 배경 — 뽀린걸", category: "solo", members: ["bboringirl"] },
+  { id: "wallpaper-minimal-sjh4018", file: "wallpaper-minimal-sjh4018", title: "미니멀 단색 배경 — 핑구", category: "solo", members: ["sjh4018"] },
+  { id: "wallpaper-minimal-doormomo", file: "wallpaper-minimal-doormomo", title: "미니멀 단색 배경 — 문모모", category: "solo", members: ["doormomo"] },
+  { id: "wallpaper-minimal-hachi97", file: "wallpaper-minimal-hachi97", title: "미니멀 단색 배경 — 하치_HACHI", category: "solo", members: ["hachi97"] },
+  { id: "wallpaper-minimal-kaksjak0730", file: "wallpaper-minimal-kaksjak0730", title: "미니멀 단색 배경 — 한결___", category: "solo", members: ["kaksjak0730"] },
+  { id: "wallpaper-minimal-ju010228", file: "wallpaper-minimal-ju010228", title: "미니멀 단색 배경 — 쥬멩이", category: "solo", members: ["ju010228"] },
+  { id: "wallpaper-minimal-tleod1818", file: "wallpaper-minimal-tleod1818", title: "미니멀 단색 배경 — 빙밍_", category: "solo", members: ["tleod1818"] },
+  { id: "wallpaper-minimal-lina0108", file: "wallpaper-minimal-lina0108", title: "미니멀 단색 배경 — 리냐_LINYA", category: "solo", members: ["lina0108"] },
+  { id: "wallpaper-minimal-haepalin", file: "wallpaper-minimal-haepalin", title: "미니멀 단색 배경 — 해파린~", category: "solo", members: ["haepalin"] },
+  { id: "wallpaper-minimal-tdnlamuron", file: "wallpaper-minimal-tdnlamuron", title: "미니멀 단색 배경 — 다시바", category: "solo", members: ["tdnlamuron"] },
 ];
 
 export function wallpaperFullUrl(file: string): string {

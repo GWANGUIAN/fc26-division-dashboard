@@ -1642,4 +1642,355 @@
 
 ---
 
+## G. 미니멀 단색 배경 (12장)
+
+12명 전원 각자 1장씩 — 아주 작은 픽셀아트 캐릭터 + 본인 펫을 화면 정중앙에 조그맣게(전체 프레임의 12~15% 높이 정도) 배치하고, 배경은 그 사람에게 어울리는 연한 단색 하나로만 채운 미니멀 컨셉. 전부 같은 픽셀아트 스타일/구도를 공유하고 인물별로 배경색·포즈·펫만 다름. 파일명은 `wallpaper-minimal-<id>.webp`.
+
+### 1. 우왁굳 — `wallpaper-minimal-woowakgood.webp`
+
+- **파일 경로**: `public/wallpapers/wallpaper-minimal-woowakgood.webp`
+- **레퍼런스**: 우왁굳의 (a) 실제 레퍼런스 사진 + (c) 펫 레퍼런스(판치, `tmp/pitch-src/pets/pet-panchi.png`)
+- **프롬프트**:
+  ```
+  A charming retro pixel-art wallpaper on a solid pale mint (#d7f7ec)
+  background — one flat color filling the entire frame, no scenery, no
+  texture, no gradient, no scanline/CRT effect. In the exact center, a
+  small chunky pixel-art sprite of him stands facing forward with arms
+  crossed in a confident, friendly pose, built from clearly visible
+  square pixels with a limited color palette (drastically simplified
+  from the reference photo — keep just enough of the face, hairstyle
+  and headset shape to be recognizable at pixel scale, redraw only the
+  rendering technique). Beside him, his chubby black-furred monkey-like
+  pet with cream ears/paws and a mint hair streak (exactly like the
+  attached pet reference image) rendered as a small matching pixel-art
+  sprite. No background elements, no props, no text, no logos, no
+  watermark, only a tiny flat pixel-art shadow beneath their feet.
+  Render the character and pet quite small — only about a quarter the
+  size of a typical centered subject, together taking up roughly 12-15%
+  of the frame's height — like a tiny sprite floating in the middle of
+  a vast, empty expanse of flat color. Placed in the exact center of
+  the frame with very generous, dominant empty space filling most of
+  the frame on all sides. Landscape, 3840x2160, crisp pixel edges
+  (nearest-neighbor upscale).
+  ```
+- [x] wallpaper-minimal-woowakgood.webp
+
+### 2. 재닌 — `wallpaper-minimal-janine95kim.webp`
+
+- **파일 경로**: `public/wallpapers/wallpaper-minimal-janine95kim.webp`
+- **레퍼런스**: 재닌의 (a) 실제 레퍼런스 사진 + (c) 펫 레퍼런스(구르미, `tmp/pitch-src/pets/pet-gureumi.png`)
+- **프롬프트**:
+  ```
+  A charming retro pixel-art wallpaper on a solid pale sky blue
+  (#dcefff) background — one flat color filling the entire frame, no
+  scenery, no texture, no gradient, no scanline/CRT effect. In the
+  exact center, a small chunky pixel-art sprite of her stands facing
+  forward with a gentle wave, built from clearly visible square pixels
+  with a limited color palette (drastically simplified from the
+  reference photo — keep just enough of the face and hairstyle to be
+  recognizable at pixel scale, redraw only the rendering technique).
+  Beside her, her fluffy round cloud-shaped pet with tiny round glasses
+  (exactly like the attached pet reference image) rendered as a small
+  matching pixel-art sprite. No background elements, no props, no text,
+  no logos, no watermark, only a tiny flat pixel-art shadow beneath
+  their feet. Render the character and pet quite small — only about a
+  quarter the size of a typical centered subject, together taking up
+  roughly 12-15% of the frame's height — like a tiny sprite floating in
+  the middle of a vast, empty expanse of flat color. Placed in the
+  exact center of the frame with very generous, dominant empty space
+  filling most of the frame on all sides. Landscape, 3840x2160, crisp
+  pixel edges (nearest-neighbor upscale).
+  ```
+- [x] wallpaper-minimal-janine95kim.webp
+
+### 3. 뽀린걸 — `wallpaper-minimal-bboringirl.webp`
+
+- **파일 경로**: `public/wallpapers/wallpaper-minimal-bboringirl.webp`
+- **레퍼런스**: 뽀린걸의 (a) 실제 레퍼런스 사진 + (c) 펫 레퍼런스(뽀글스, `tmp/pitch-src/pets/pet-bbogeulseu.png`)
+- **프롬프트**:
+  ```
+  A charming retro pixel-art wallpaper on a solid pale ivory (#f6efe3)
+  background — one flat color filling the entire frame, no scenery, no
+  texture, no gradient, no scanline/CRT effect. In the exact center, a
+  small chunky pixel-art sprite of her stands facing forward striking a
+  cheerful peace-sign pose, built from clearly visible square pixels
+  with a limited color palette (drastically simplified from the
+  reference photo — keep just enough of the face and hairstyle to be
+  recognizable at pixel scale, redraw only the rendering technique).
+  Beside her, her round owl-like pet with striped belly (exactly like
+  the attached pet reference image) rendered as a small matching
+  pixel-art sprite. No background elements, no props, no text, no
+  logos, no watermark, only a tiny flat pixel-art shadow beneath their
+  feet. Render the character and pet quite small — only about a quarter
+  the size of a typical centered subject, together taking up roughly
+  12-15% of the frame's height — like a tiny sprite floating in the
+  middle of a vast, empty expanse of flat color. Placed in the exact
+  center of the frame with very generous, dominant empty space filling
+  most of the frame on all sides. Landscape, 3840x2160, crisp pixel
+  edges (nearest-neighbor upscale).
+  ```
+- [x] wallpaper-minimal-bboringirl.webp
+
+### 4. 핑구 — `wallpaper-minimal-sjh4018.webp`
+
+- **파일 경로**: `public/wallpapers/wallpaper-minimal-sjh4018.webp`
+- **레퍼런스**: 핑구의 (a) 실제 레퍼런스 사진 + (c) 펫 레퍼런스(펭귄, `tmp/pitch-src/pets/pet-penguin.png`)
+- **프롬프트**:
+  ```
+  A charming retro pixel-art wallpaper on a solid pale ice-blue-gray
+  (#e2edf2) background — one flat color filling the entire frame, no
+  scenery, no texture, no gradient, no scanline/CRT effect. In the
+  exact center, a small chunky pixel-art sprite of him stands facing
+  forward with hands in pockets, relaxed and cool, built from clearly
+  visible square pixels with a limited color palette (drastically
+  simplified from the reference photo — keep just enough of the face
+  and hairstyle to be recognizable at pixel scale, redraw only the
+  rendering technique). Beside him, his crown-wearing penguin pet with
+  sleepy eyes (exactly like the attached pet reference image) rendered
+  as a small matching pixel-art sprite. No background elements, no
+  props, no text, no logos, no watermark, only a tiny flat pixel-art
+  shadow beneath their feet. Render the character and pet quite small —
+  only about a quarter the size of a typical centered subject, together
+  taking up roughly 12-15% of the frame's height — like a tiny sprite
+  floating in the middle of a vast, empty expanse of flat color. Placed
+  in the exact center of the frame with very generous, dominant empty
+  space filling most of the frame on all sides. Landscape, 3840x2160,
+  crisp pixel edges (nearest-neighbor upscale).
+  ```
+- [x] wallpaper-minimal-sjh4018.webp
+
+### 5. 문모모 — `wallpaper-minimal-doormomo.webp`
+
+- **파일 경로**: `public/wallpapers/wallpaper-minimal-doormomo.webp`
+- **레퍼런스**: 문모모의 (a) 실제 레퍼런스 사진 + (c) 펫 레퍼런스(웅냐미, `tmp/pitch-src/pets/pet-ungnami.png`)
+- **프롬프트**:
+  ```
+  A charming retro pixel-art wallpaper on a solid pale beige (#f3e6d5)
+  background — one flat color filling the entire frame, no scenery, no
+  texture, no gradient, no scanline/CRT effect. In the exact center, a
+  small chunky pixel-art sprite of her stands facing forward with one
+  hand on her hip, confident and composed, built from clearly visible
+  square pixels with a limited color palette (drastically simplified
+  from the reference photo — keep just enough of the face and hairstyle
+  to be recognizable at pixel scale, redraw only the rendering
+  technique). Beside her, her stitched teddy-bear plush pet with button
+  eyes and a red ribbon (exactly like the attached pet reference image)
+  rendered as a small matching pixel-art sprite. No background
+  elements, no props, no text, no logos, no watermark, only a tiny flat
+  pixel-art shadow beneath their feet. Render the character and pet
+  quite small — only about a quarter the size of a typical centered
+  subject, together taking up roughly 12-15% of the frame's height —
+  like a tiny sprite floating in the middle of a vast, empty expanse of
+  flat color. Placed in the exact center of the frame with very
+  generous, dominant empty space filling most of the frame on all
+  sides. Landscape, 3840x2160, crisp pixel edges (nearest-neighbor
+  upscale).
+  ```
+- [x] wallpaper-minimal-doormomo.webp
+
+### 6. 하치_HACHI — `wallpaper-minimal-hachi97.webp`
+
+- **파일 경로**: `public/wallpapers/wallpaper-minimal-hachi97.webp`
+- **레퍼런스**: 하치의 (a) 실제 레퍼런스 사진 + (c) 펫 레퍼런스(용볼이, `src/web/assets/pitch/pets/pet-yongboli.webp`)
+- **프롬프트**:
+  ```
+  A charming retro pixel-art wallpaper on a solid pale golden yellow
+  (#fbf0c2) background — one flat color filling the entire frame, no
+  scenery, no texture, no gradient, no scanline/CRT effect. In the
+  exact center, a small chunky pixel-art sprite of him stands facing
+  forward mid-cheerful laugh, one fist raised, built from clearly
+  visible square pixels with a limited color palette (drastically
+  simplified from the reference photo — keep just enough of the face
+  and hairstyle to be recognizable at pixel scale, redraw only the
+  rendering technique). Beside him, his tiny yellow chick-like pet with
+  a heart-shaped mouth (exactly like the attached pet reference image)
+  rendered as a small matching pixel-art sprite. No background
+  elements, no props, no text, no logos, no watermark, only a tiny flat
+  pixel-art shadow beneath their feet. Render the character and pet
+  quite small — only about a quarter the size of a typical centered
+  subject, together taking up roughly 12-15% of the frame's height —
+  like a tiny sprite floating in the middle of a vast, empty expanse of
+  flat color. Placed in the exact center of the frame with very
+  generous, dominant empty space filling most of the frame on all
+  sides. Landscape, 3840x2160, crisp pixel edges (nearest-neighbor
+  upscale).
+  ```
+- [x] wallpaper-minimal-hachi97.webp
+
+### 7. 한결___ — `wallpaper-minimal-kaksjak0730.webp`
+
+- **파일 경로**: `public/wallpapers/wallpaper-minimal-kaksjak0730.webp`
+- **레퍼런스**: 한결의 (a) 실제 레퍼런스 사진 + (c) 펫 레퍼런스(단결, `tmp/pitch-src/pets/pet-dangyeol.png`)
+- **프롬프트**:
+  ```
+  A charming retro pixel-art wallpaper on a solid pale periwinkle
+  lavender (#e3e2f7) background — one flat color filling the entire
+  frame, no scenery, no texture, no gradient, no scanline/CRT effect.
+  In the exact center, a small chunky pixel-art sprite of her stands
+  facing forward with a calm, elegant posture, hands loosely clasped in
+  front, built from clearly visible square pixels with a limited color
+  palette (drastically simplified from the reference photo — keep just
+  enough of the face and hairstyle to be recognizable at pixel scale,
+  redraw only the rendering technique). Beside her, her fluffy white
+  kitten pet with multiple pink-tipped tails (exactly like the attached
+  pet reference image) rendered as a small matching pixel-art sprite.
+  No background elements, no props, no text, no logos, no watermark,
+  only a tiny flat pixel-art shadow beneath their feet. Render the
+  character and pet quite small — only about a quarter the size of a
+  typical centered subject, together taking up roughly 12-15% of the
+  frame's height — like a tiny sprite floating in the middle of a vast,
+  empty expanse of flat color. Placed in the exact center of the frame
+  with very generous, dominant empty space filling most of the frame on
+  all sides. Landscape, 3840x2160, crisp pixel edges (nearest-neighbor
+  upscale).
+  ```
+- [x] wallpaper-minimal-kaksjak0730.webp
+
+### 8. 쥬멩이 — `wallpaper-minimal-ju010228.webp`
+
+- **파일 경로**: `public/wallpapers/wallpaper-minimal-ju010228.webp`
+- **레퍼런스**: 쥬멩이의 (a) 실제 레퍼런스 사진 + (c) 펫 레퍼런스(돌멩이, `tmp/pitch-src/pets/pet-dolmengi.png`)
+- **프롬프트**:
+  ```
+  A charming retro pixel-art wallpaper on a solid pale stone gray
+  (#e8e6df) background — one flat color filling the entire frame, no
+  scenery, no texture, no gradient, no scanline/CRT effect. In the
+  exact center, a small chunky pixel-art sprite of her stands facing
+  forward mid-jump with both arms up, energetic and playful, built from
+  clearly visible square pixels with a limited color palette
+  (drastically simplified from the reference photo — keep just enough
+  of the face and hairstyle to be recognizable at pixel scale, redraw
+  only the rendering technique). Beside her, her round smiling grey
+  pebble-shaped pet (exactly like the attached pet reference image)
+  rendered as a small matching pixel-art sprite. No background
+  elements, no props, no text, no logos, no watermark, only a tiny flat
+  pixel-art shadow beneath their feet. Render the character and pet
+  quite small — only about a quarter the size of a typical centered
+  subject, together taking up roughly 12-15% of the frame's height —
+  like a tiny sprite floating in the middle of a vast, empty expanse of
+  flat color. Placed in the exact center of the frame with very
+  generous, dominant empty space filling most of the frame on all
+  sides. Landscape, 3840x2160, crisp pixel edges (nearest-neighbor
+  upscale).
+  ```
+- [x] wallpaper-minimal-ju010228.webp
+
+### 9. 빙밍_ — `wallpaper-minimal-tleod1818.webp`
+
+- **파일 경로**: `public/wallpapers/wallpaper-minimal-tleod1818.webp`
+- **레퍼런스**: 빙밍의 (a) 실제 레퍼런스 사진 + (c) 펫 레퍼런스(봉바비, `tmp/pitch-src/pets/pet-bongbabi.png`)
+- **프롬프트**:
+  ```
+  A charming retro pixel-art wallpaper on a solid pale pistachio green
+  (#e4f2df) background — one flat color filling the entire frame, no
+  scenery, no texture, no gradient, no scanline/CRT effect. In the
+  exact center, a small chunky pixel-art sprite of her stands facing
+  forward mid-giggle, both hands near her cheeks, cute and bubbly,
+  built from clearly visible square pixels with a limited color palette
+  (drastically simplified from the reference photo — keep just enough
+  of the face and hairstyle to be recognizable at pixel scale, redraw
+  only the rendering technique). Beside her, her round white rice-cake-
+  shaped pet with a little green sprout on top (exactly like the
+  attached pet reference image) rendered as a small matching pixel-art
+  sprite. No background elements, no props, no text, no logos, no
+  watermark, only a tiny flat pixel-art shadow beneath their feet.
+  Render the character and pet quite small — only about a quarter the
+  size of a typical centered subject, together taking up roughly 12-15%
+  of the frame's height — like a tiny sprite floating in the middle of
+  a vast, empty expanse of flat color. Placed in the exact center of
+  the frame with very generous, dominant empty space filling most of
+  the frame on all sides. Landscape, 3840x2160, crisp pixel edges
+  (nearest-neighbor upscale).
+  ```
+- [x] wallpaper-minimal-tleod1818.webp
+
+### 10. 리냐_LINYA — `wallpaper-minimal-lina0108.webp`
+
+- **파일 경로**: `public/wallpapers/wallpaper-minimal-lina0108.webp`
+- **레퍼런스**: 리냐의 (a) 실제 레퍼런스 사진 + (c) 펫 레퍼런스(뱀수리, `tmp/pitch-src/pets/pet-baemsuri.png`)
+- **프롬프트**:
+  ```
+  A charming retro pixel-art wallpaper on a solid pale lilac purple
+  (#f1e3f7) background — one flat color filling the entire frame, no
+  scenery, no texture, no gradient, no scanline/CRT effect. In the
+  exact center, a small chunky pixel-art sprite of her stands facing
+  forward with a playful wink and a peace sign, built from clearly
+  visible square pixels with a limited color palette (drastically
+  simplified from the reference photo — keep just enough of the face
+  and hairstyle to be recognizable at pixel scale, redraw only the
+  rendering technique). Beside her, her small pale-lavender round
+  egg-shaped pet (exactly like the attached pet reference image)
+  rendered as a small matching pixel-art sprite. No background
+  elements, no props, no text, no logos, no watermark, only a tiny flat
+  pixel-art shadow beneath their feet. Render the character and pet
+  quite small — only about a quarter the size of a typical centered
+  subject, together taking up roughly 12-15% of the frame's height —
+  like a tiny sprite floating in the middle of a vast, empty expanse of
+  flat color. Placed in the exact center of the frame with very
+  generous, dominant empty space filling most of the frame on all
+  sides. Landscape, 3840x2160, crisp pixel edges (nearest-neighbor
+  upscale).
+  ```
+- [x] wallpaper-minimal-lina0108.webp
+
+### 11. 해파린~ — `wallpaper-minimal-haepalin.webp`
+
+- **파일 경로**: `public/wallpapers/wallpaper-minimal-haepalin.webp`
+- **레퍼런스**: 해파린의 (a) 실제 레퍼런스 사진 + (c) 펫 레퍼런스(해피, `tmp/pitch-src/pets/pet-haepi.png`)
+- **프롬프트**:
+  ```
+  A charming retro pixel-art wallpaper on a solid pale aqua teal
+  (#dbf3ee) background — one flat color filling the entire frame, no
+  scenery, no texture, no gradient, no scanline/CRT effect. In the
+  exact center, a small chunky pixel-art sprite of her stands facing
+  forward with a soft gentle smile, hands clasped behind her back,
+  built from clearly visible square pixels with a limited color palette
+  (drastically simplified from the reference photo — keep just enough
+  of the face and hairstyle to be recognizable at pixel scale, redraw
+  only the rendering technique). Beside her, her small purple
+  jellyfish-shaped pet with dangling tentacle-legs (exactly like the
+  attached pet reference image) rendered as a small matching pixel-art
+  sprite. No background elements, no props, no text, no logos, no
+  watermark, only a tiny flat pixel-art shadow beneath their feet.
+  Render the character and pet quite small — only about a quarter the
+  size of a typical centered subject, together taking up roughly 12-15%
+  of the frame's height — like a tiny sprite floating in the middle of
+  a vast, empty expanse of flat color. Placed in the exact center of
+  the frame with very generous, dominant empty space filling most of
+  the frame on all sides. Landscape, 3840x2160, crisp pixel edges
+  (nearest-neighbor upscale).
+  ```
+- [x] wallpaper-minimal-haepalin.webp
+
+### 12. 다시바 — `wallpaper-minimal-tdnlamuron.webp`
+
+- **파일 경로**: `public/wallpapers/wallpaper-minimal-tdnlamuron.webp`
+- **레퍼런스**: 다시바의 (a) 실제 레퍼런스 사진 + (c) 펫 레퍼런스(시바꺼, `tmp/pitch-src/pets/pet-sibakkeo.png`)
+- **프롬프트**:
+  ```
+  A charming retro pixel-art wallpaper on a solid pale peach (#fbe4d6)
+  background — one flat color filling the entire frame, no scenery, no
+  texture, no gradient, no scanline/CRT effect. In the exact center, a
+  small chunky pixel-art sprite of her stands facing forward mid-stride
+  with a bright confident smile, built from clearly visible square
+  pixels with a limited color palette (drastically simplified from the
+  reference photo — keep just enough of the face and hairstyle to be
+  recognizable at pixel scale, redraw only the rendering technique).
+  Beside her, her small orange shiba-inu puppy pet with a curled tail
+  and bone-shaped collar charm (exactly like the attached pet reference
+  image) rendered as a small matching pixel-art sprite. No background
+  elements, no props, no text, no logos, no watermark, only a tiny flat
+  pixel-art shadow beneath their feet. Render the character and pet
+  quite small — only about a quarter the size of a typical centered
+  subject, together taking up roughly 12-15% of the frame's height —
+  like a tiny sprite floating in the middle of a vast, empty expanse of
+  flat color. Placed in the exact center of the frame with very
+  generous, dominant empty space filling most of the frame on all
+  sides. Landscape, 3840x2160, crisp pixel edges (nearest-neighbor
+  upscale).
+  ```
+- [x] wallpaper-minimal-tdnlamuron.webp
+
+---
+
 각 이미지 섹션은 파일이 생성되어 `public/wallpapers/`에 들어갈 때마다 위 체크박스를 체크해서 진행 상황을 표시할 것.
