@@ -626,21 +626,20 @@
 
 ### 문모모 (`doormomo`)
 
-#### 1. 캡틴의 전술 노트 — `wallpaper-solo-doormomo-1.webp`
+#### 1. 전술 노트를 보며 — `wallpaper-solo-doormomo-1.webp`
 
 - **파일 경로**: `public/wallpapers/wallpaper-solo-doormomo-1.webp`
 - **레퍼런스**: 문모모의 (a) 실제 레퍼런스 사진 + (b) 유니폼 레퍼런스
 - **프롬프트**:
   ```
   A cinematic semi-realistic illustration wallpaper of her sitting on
-  the locker-room bench studying a small tactics notebook, captain's
-  armband visible on her sleeve, focused calm expression, boots and kit
-  bag beside her. The character is the exact person in the attached
-  reference photo, rendered with cinematic semi-realistic lighting and
-  rich color grading close to the reference photo's own art style (keep
-  the reference photo's existing rendering technique, just change pose/
-  setting). Wearing the exact jersey/shorts/socks design from the
-  attached uniform reference image with a captain's armband. Locker room
+  the locker-room bench studying a small tactics notebook, focused calm
+  expression, boots and kit bag beside her. The character is the exact
+  person in the attached reference photo, rendered with cinematic
+  semi-realistic lighting and rich color grading close to the reference
+  photo's own art style (keep the reference photo's existing rendering
+  technique, just change pose/setting). Wearing the exact jersey/shorts/
+  socks design from the attached uniform reference image. Locker room
   background, single warm spotlight, soft shadow. Character placed
   lower-center-right, upper-left corner left relatively open. No
   readable text on the notebook, no watermark. Landscape, 3840x2160.
@@ -1381,6 +1380,265 @@
   Landscape, 3840x2160.
   ```
 - [x] wallpaper-hachi-04.webp
+
+---
+
+## F. 픽셀 그림체 + 특이한 그림체 (10장)
+
+일반적인 애니메이션/일러스트 화풍이 아닌 것만 모은 섹션. 앞쪽(픽셀 4장)은 기존에 쓴 픽셀아트(8비트 NES풍, SNES풍, 16비트 일반)와 겹치지 않는 픽셀 하위 스타일만 골랐고, 뒤쪽(특이한 그림체 6장)은 지금까지 문서에 없던 완전히 다른 매체/질감(타투 플래시, 나전칠기, 레고 브릭, 블랙라이트, 홀로그램 포토카드, 그림자극)만 골랐음. 전부 2~3명 소그룹.
+
+### 픽셀 그림체 (4장)
+
+#### 1. 트릭슛 연습 — `wallpaper-pixel-01.webp`
+
+- **참여 인물**: 재닌, 핑구 (2명)
+- **파일 경로**: `public/wallpapers/wallpaper-pixel-01.webp`
+- **레퍼런스**: 2명의 (a) 실제 레퍼런스 사진 + (b) 유니폼 레퍼런스
+- **프롬프트**:
+  ```
+  A classic 1990s handheld-console monochrome pixel-art wallpaper —
+  rendered entirely in the limited 4-shade dot-matrix green palette of a
+  vintage handheld game screen (dark olive to pale lime green only, no
+  other colors), showing two players practicing trick shots on a
+  training pitch, one flicking the ball up for a juggling trick, the
+  other applauding. The two characters are chunky, charming pixel-art
+  sprites whose face/hair silhouette is clearly recognizable as the
+  people in their attached reference photos, built from the exact same
+  4-tone green dot-matrix palette (keep identity readable within the
+  monochrome palette, redraw only the rendering technique). Wearing the
+  exact jersey design from the attached uniform reference image,
+  simplified into the same green tones. Faint visible pixel grid /
+  dot-matrix screen texture and a subtle vignette like looking through a
+  handheld console's screen. Figures placed lower-center-right, upper-
+  left corner left relatively open. No readable text, no watermark.
+  Landscape, 3840x2160, crisp pixel edges (nearest-neighbor upscale).
+  ```
+- [x] wallpaper-pixel-01.webp
+
+#### 2. 클럽하우스 라운지 — `wallpaper-pixel-02.webp`
+
+- **참여 인물**: 뽀린걸, 쥬멩이, 다시바 (3명)
+- **파일 경로**: `public/wallpapers/wallpaper-pixel-02.webp`
+- **레퍼런스**: 3명의 (a) 실제 레퍼런스 사진
+- **프롬프트**:
+  ```
+  An isometric pixel-art diorama wallpaper — a cutaway isometric-view
+  pixel-art room (like a classic city-builder/strategy game tile) of a
+  cozy clubhouse lounge, complete with tiny pixel-art sofas, a trophy
+  shelf and a rug, viewed from a 3/4 isometric angle. Three players sit
+  and stand around chatting and relaxing inside the room, rendered as
+  small isometric pixel-art characters whose color palette and
+  silhouette clearly resemble the people in their attached reference
+  photos (keep identity readable at isometric pixel scale, redraw only
+  the rendering technique). Casual loungewear, not the uniform. Warm
+  indoor isometric pixel-art lighting with tiny pixel light-bulb glow
+  accents. The whole scene sits as a floating isometric diorama block
+  against a plain dark background. No readable text, no watermark.
+  Landscape, 3840x2160, crisp pixel edges (nearest-neighbor upscale).
+  ```
+- [x] wallpaper-pixel-02.webp
+
+#### 3. 야간 조명 아래 대결 — `wallpaper-pixel-03.webp`
+
+- **참여 인물**: 한결___, 빙밍_ (2명)
+- **파일 경로**: `public/wallpapers/wallpaper-pixel-03.webp`
+- **레퍼런스**: 2명의 (a) 실제 레퍼런스 사진 + (b) 유니폼 레퍼런스
+- **프롬프트**:
+  ```
+  A retro 32-bit "5th-generation console" style wallpaper — chunky
+  low-polygon 3D characters with visibly low-resolution, dithered
+  textures and a soft affine-warped texture wobble, like an early
+  PlayStation/Saturn-era game render, showing two players in a tense
+  1v1 duel for the ball under bright stadium floodlights at night. The
+  two low-poly, dithered-texture characters clearly resemble the exact
+  people in their attached reference photos through their silhouette,
+  hair shape and jersey colors (keep identity readable within the
+  low-poly style, redraw only the rendering technique). Wearing the
+  exact jersey design from the attached uniform reference image,
+  simplified into low-poly dithered texture. Blocky low-poly stadium
+  floodlight-tower silhouettes and a foggy night sky background, faint
+  scanline/CRT texture over the whole image. Figures placed lower-
+  center-right, upper-left corner left relatively open. No readable
+  text, no watermark. Landscape, 3840x2160.
+  ```
+- [x] wallpaper-pixel-03.webp
+
+#### 4. 우정 사진 — `wallpaper-pixel-04.webp`
+
+- **참여 인물**: 리냐_LINYA, 해파린~ (2명)
+- **파일 경로**: `public/wallpapers/wallpaper-pixel-04.webp`
+- **레퍼런스**: 2명의 (a) 실제 레퍼런스 사진
+- **프롬프트**:
+  ```
+  A highly detailed dithered pixel-art portrait wallpaper — in the style
+  of modern indie pixel-art RPG character portraits (dense fine
+  dithering for soft gradients, painterly pixel shading rather than flat
+  sprite colors), a close-up bust portrait of two friends leaning their
+  heads together, warm genuine smiles, arms around each other's
+  shoulders. The two characters are rendered as richly detailed pixel-
+  art portraits whose faces and hairstyles clearly resemble the exact
+  people in their attached reference photos, with fine dithered shading
+  giving a soft painterly gradient despite being pure pixel art (keep
+  identity clearly readable, redraw only the rendering technique).
+  Casual outfits, not the uniform. Simple softly dithered gradient
+  background (warm dusk colors), no scenery detail. Portrait placed
+  lower-center-right, upper-left corner left relatively open. No
+  readable text, no watermark. Landscape, 3840x2160, crisp pixel edges
+  (nearest-neighbor upscale, fine dithering preserved).
+  ```
+- [x] wallpaper-pixel-04.webp
+
+### 특이한 그림체 (6장)
+
+#### 1. 올드스쿨 타투 플래시 — `wallpaper-unique-01.webp`
+
+- **참여 인물**: 하치_HACHI, 다시바 (2명)
+- **파일 경로**: `public/wallpapers/wallpaper-unique-01.webp`
+- **레퍼런스**: 2명의 (a) 실제 레퍼런스 사진
+- **프롬프트**:
+  ```
+  An authentic old-school American traditional tattoo flash-sheet style
+  wallpaper — two bust portraits side by side laid out like a classic
+  tattoo parlor flash sheet, surrounded by small soccer-themed flash
+  motifs (a ball, crossed boots, a banner ribbon shape left blank of any
+  text, a star) filling the empty space. The two portraits are rendered
+  in bold thick black tattoo linework with the classic limited flash
+  palette (red, green, yellow, black, cream paper tone), heavy uniform
+  line weight and simple flat color fills, clearly resembling the exact
+  people in their attached reference photos through face shape and
+  hairstyle (keep identity readable within the tattoo-flash linework,
+  redraw only the rendering technique). Aged cream parchment-paper
+  background texture with faint stains, like a genuine vintage flash
+  sheet. Portraits placed across the lower two-thirds of frame, upper-
+  left corner left relatively open. No readable text/banners, no
+  watermark. Landscape, 3840x2160.
+  ```
+- [x] wallpaper-unique-01.webp
+
+#### 2. 자개 병풍 속 감독과 문모모 — `wallpaper-unique-02.webp`
+
+- **참여 인물**: 우왁굳, 문모모 (2명)
+- **파일 경로**: `public/wallpapers/wallpaper-unique-02.webp`
+- **레퍼런스**: 2명의 (a) 실제 레퍼런스 사진
+- **프롬프트**:
+  ```
+  An exquisite traditional Korean najeonchilgi (mother-of-pearl inlaid
+  black lacquerware) style wallpaper — the manager and a player depicted
+  standing together side by side in dignified formal poses, as
+  if inlaid into a black lacquer folding-screen panel with iridescent
+  mother-of-pearl shell fragments forming their silhouettes, clothing
+  patterns and a border of stylized clouds/pine-branch motifs. The two
+  figures are built entirely from shimmering abalone-shell-like
+  iridescent fragments (shifting green/blue/pink pearlescent sheen)
+  against deep glossy black lacquer, their face shapes and hairstyles
+  still clearly resembling the exact people in their attached reference
+  photos through the inlaid silhouette (keep identity readable within
+  the lacquerware style, redraw only the rendering technique). Deep
+  glossy black lacquer background with a fine decorative inlaid border
+  framing the whole scene. Figures placed lower-center-right, upper-left
+  corner left relatively open. No readable text, no watermark.
+  Landscape, 3840x2160.
+  ```
+- [x] wallpaper-unique-02.webp
+
+#### 3. 레고 락커룸 디오라마 — `wallpaper-unique-03.webp`
+
+- **참여 인물**: 쥬멩이, 한결___, 뽀린걸 (3명)
+- **파일 경로**: `public/wallpapers/wallpaper-unique-03.webp`
+- **레퍼런스**: 3명의 (a) 실제 레퍼런스 사진 + (b) 유니폼 레퍼런스
+- **프롬프트**:
+  ```
+  A charming LEGO brick-built diorama style wallpaper — a photorealistic
+  render of a miniature locker room built entirely out of LEGO bricks,
+  with three LEGO minifigures standing among LEGO-brick lockers and
+  benches, tiny printed minifigure torsos and interchangeable smiling
+  minifigure heads. The three minifigures' hairpiece shapes and torso
+  colors clearly reference the exact people in their attached reference
+  photos (keep identity readable through the LEGO minifigure design
+  language, redraw only the rendering technique — this is a toy
+  reinterpretation, not the original art style). Minifigure torsos
+  printed with the exact jersey design from the attached uniform
+  reference image, simplified into LEGO-print graphics. Studio product-
+  photography lighting on the brick diorama, shallow depth of field
+  with soft background blur, visible plastic brick texture and stud
+  studs throughout. Diorama placed lower-center-right, upper-left corner
+  left relatively open. No readable text/logos, no watermark. Landscape,
+  3840x2160.
+  ```
+- [x] wallpaper-unique-03.webp
+
+#### 4. 블랙라이트 파티 포스터 — `wallpaper-unique-04.webp`
+
+- **참여 인물**: 빙밍_, 리냐_LINYA (2명)
+- **파일 경로**: `public/wallpapers/wallpaper-unique-04.webp`
+- **레퍼런스**: 2명의 (a) 실제 레퍼런스 사진
+- **프롬프트**:
+  ```
+  A trippy blacklight/UV-reactive poster style wallpaper — as if painted
+  entirely in fluorescent neon poster paint and photographed glowing
+  under a blacklight, the background deep near-black with only vividly
+  glowing fluorescent pink, electric green, and UV-orange shapes
+  visible. Two friends dance/pose together mid-laugh, painted as bold
+  glowing fluorescent outlines and flat glow-in-the-dark color fields
+  with visible paint-drip texture. The two characters' faces and
+  hairstyles are clearly recognizable as the exact people in their
+  attached reference photos through the glowing fluorescent silhouette
+  (keep identity readable within the blacklight-poster style, redraw
+  only the rendering technique). Fun glowing fluorescent party outfits,
+  not the uniform. A few glowing abstract swirl/splatter shapes floating
+  around them, deep black background making everything appear to glow.
+  Figures placed lower-center-right, upper-left corner left relatively
+  open. No readable text, no watermark. Landscape, 3840x2160.
+  ```
+- [x] wallpaper-unique-04.webp
+
+#### 5. 홀로그램 포토카드 — `wallpaper-unique-05.webp`
+
+- **참여 인물**: 재닌, 해파린~ (2명)
+- **파일 경로**: `public/wallpapers/wallpaper-unique-05.webp`
+- **레퍼런스**: 2명의 (a) 실제 레퍼런스 사진
+- **프롬프트**:
+  ```
+  A glossy K-pop idol holographic photocard style wallpaper — two
+  rectangular photocards laid side by side at a slight tilt on a soft
+  reflective surface, each card showing a cute close-up portrait with a
+  sparkly holographic rainbow foil overlay catching the light in
+  diagonal prism streaks, a thin glossy card border, and small soft
+  bokeh sparkle particles floating above the cards. The two portraits
+  clearly resemble the exact people in their attached reference photos
+  (keep faces and hairstyles recognizable, redraw only the rendering
+  technique for the cute photocard pose — peace sign, playful wink).
+  Casual cute outfits, not the uniform. Soft pastel gradient background
+  behind the cards with a gentle reflection of the cards on the glossy
+  surface below. Cards placed lower-center-right, upper-left corner left
+  relatively open. No readable text/logos/serial numbers on the cards,
+  no watermark. Landscape, 3840x2160.
+  ```
+- [x] wallpaper-unique-05.webp
+
+#### 6. 노을 그림자극 — `wallpaper-unique-06.webp`
+
+- **참여 인물**: 하치_HACHI, 우왁굳 (2명)
+- **파일 경로**: `public/wallpapers/wallpaper-unique-06.webp`
+- **레퍼런스**: 2명의 (a) 실제 레퍼런스 사진
+- **프롬프트**:
+  ```
+  A poetic shadow-puppet theater style wallpaper — two figures rendered
+  as flat, fully black silhouette cutouts (like traditional shadow-
+  puppet theater figures) posed against a huge glowing orange-to-purple
+  sunset gradient sky, the manager resting a hand on the young player's
+  shoulder, both looking out toward the horizon where a distant goalpost
+  silhouette stands. The two silhouettes' hairstyle shapes and posture
+  are distinct enough to clearly reference the exact people in their
+  attached reference photos even in pure flat silhouette (keep identity
+  readable through silhouette shape alone, redraw only the rendering
+  technique — no interior detail, pure flat black cutout shapes with
+  crisp paper-cutout edges). A few silhouetted birds and soft cloud
+  wisps in the sky, warm sunset light gradient filling the frame.
+  Silhouettes placed lower-center-right, upper-left corner left
+  relatively open. No readable text, no watermark. Landscape, 3840x2160.
+  ```
+- [x] wallpaper-unique-06.webp
 
 ---
 

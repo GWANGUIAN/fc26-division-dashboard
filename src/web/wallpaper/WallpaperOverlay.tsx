@@ -230,27 +230,33 @@ export function WallpaperOverlay({
           </span>
         </div>
 
-        <div
-          ref={frameRef}
-          className={`wallpaper-overlay__frame${zoom > MIN_ZOOM ? " wallpaper-overlay__frame--zoomed" : ""}${
-            isPanning ? " wallpaper-overlay__frame--panning" : ""
-          }`}
-          onPointerDown={handleFramePointerDown}
-          onPointerMove={handleFramePointerMove}
-          onPointerUp={endPan}
-          onPointerCancel={endPan}
-        >
-          {selected && (
-            <img
-              key={selected.id}
-              src={wallpaperFullUrl(selected.file)}
-              alt={selected.title}
-              className="wallpaper-overlay__image"
-              style={zoom > MIN_ZOOM ? { width: `${zoom * 100}%` } : undefined}
-              draggable={false}
-              onDoubleClick={() => setZoom((z) => (z > MIN_ZOOM ? MIN_ZOOM : 2))}
-            />
-          )}
+        {/* nav 버튼은 frame(스크롤되는 확대/이동 영역) 밖, stage(스크롤 안 되는 고정
+            영역)에 둬야 확대·드래그 이동과 무관하게 항상 같은 위치에 머문다 — frame
+            안에 있으면 absolute 위치가 frame의 스크롤 콘텐츠 좌표계를 따라가서 확대
+            상태에서 스크롤할 때마다 버튼도 같이 밀려나 버림. */}
+        <div className="wallpaper-overlay__stage">
+          <div
+            ref={frameRef}
+            className={`wallpaper-overlay__frame${zoom > MIN_ZOOM ? " wallpaper-overlay__frame--zoomed" : ""}${
+              isPanning ? " wallpaper-overlay__frame--panning" : ""
+            }`}
+            onPointerDown={handleFramePointerDown}
+            onPointerMove={handleFramePointerMove}
+            onPointerUp={endPan}
+            onPointerCancel={endPan}
+          >
+            {selected && (
+              <img
+                key={selected.id}
+                src={wallpaperFullUrl(selected.file)}
+                alt={selected.title}
+                className="wallpaper-overlay__image"
+                style={zoom > MIN_ZOOM ? { width: `${zoom * 100}%` } : undefined}
+                draggable={false}
+                onDoubleClick={() => setZoom((z) => (z > MIN_ZOOM ? MIN_ZOOM : 2))}
+              />
+            )}
+          </div>
           {filtered.length > 1 && (
             <>
               <button

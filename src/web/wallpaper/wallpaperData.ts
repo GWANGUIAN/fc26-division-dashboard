@@ -60,7 +60,7 @@ export const WALLPAPERS: WallpaperEntry[] = [
   { id: "wallpaper-solo-bboringirl-2", file: "wallpaper-solo-bboringirl-2", title: "치비 프로필", category: "solo", members: ["bboringirl"] },
   { id: "wallpaper-solo-sjh4018-1", file: "wallpaper-solo-sjh4018-1", title: "헤더 경합", category: "solo", members: ["sjh4018"] },
   { id: "wallpaper-solo-sjh4018-2", file: "wallpaper-solo-sjh4018-2", title: "겨울 패딩 입고 원정길", category: "solo", members: ["sjh4018"] },
-  { id: "wallpaper-solo-doormomo-1", file: "wallpaper-solo-doormomo-1", title: "캡틴의 전술 노트", category: "solo", members: ["doormomo"] },
+  { id: "wallpaper-solo-doormomo-1", file: "wallpaper-solo-doormomo-1", title: "전술 노트를 보며", category: "solo", members: ["doormomo"] },
   { id: "wallpaper-solo-doormomo-2", file: "wallpaper-solo-doormomo-2", title: "시상식 정장", category: "solo", members: ["doormomo"] },
   { id: "wallpaper-solo-hachi97-1", file: "wallpaper-solo-hachi97-1", title: "필살 슈팅", category: "solo", members: ["hachi97"] },
   { id: "wallpaper-solo-hachi97-2", file: "wallpaper-solo-hachi97-2", title: "편의점 야식 컵라면", category: "solo", members: ["hachi97"] },
@@ -84,6 +84,20 @@ export const WALLPAPERS: WallpaperEntry[] = [
   { id: "wallpaper-hachi-02", file: "wallpaper-hachi-02", title: "훈련 후 인터뷰", category: "solo", members: ["hachi97"] },
   { id: "wallpaper-hachi-03", file: "wallpaper-hachi-03", title: "경기장 앞 동상", category: "solo", members: ["hachi97"] },
   { id: "wallpaper-hachi-04", file: "wallpaper-hachi-04", title: "골목 벽화 속 하치", category: "solo", members: ["hachi97"] },
+
+  // --- 픽셀 그림체 (4장) ---
+  { id: "wallpaper-pixel-01", file: "wallpaper-pixel-01", title: "트릭슛 연습", category: "group", members: ["janine95kim", "sjh4018"] },
+  { id: "wallpaper-pixel-02", file: "wallpaper-pixel-02", title: "클럽하우스 라운지", category: "group", members: ["bboringirl", "ju010228", "tdnlamuron"] },
+  { id: "wallpaper-pixel-03", file: "wallpaper-pixel-03", title: "야간 조명 아래 대결", category: "group", members: ["kaksjak0730", "tleod1818"] },
+  { id: "wallpaper-pixel-04", file: "wallpaper-pixel-04", title: "우정 사진", category: "group", members: ["lina0108", "haepalin"] },
+
+  // --- 특이한 그림체 (6장) ---
+  { id: "wallpaper-unique-01", file: "wallpaper-unique-01", title: "올드스쿨 타투 플래시", category: "group", members: ["hachi97", "tdnlamuron"] },
+  { id: "wallpaper-unique-02", file: "wallpaper-unique-02", title: "자개 병풍 속 감독과 문모모", category: "group", members: ["woowakgood", "doormomo"] },
+  { id: "wallpaper-unique-03", file: "wallpaper-unique-03", title: "레고 락커룸 디오라마", category: "group", members: ["ju010228", "kaksjak0730", "bboringirl"] },
+  { id: "wallpaper-unique-04", file: "wallpaper-unique-04", title: "블랙라이트 파티 포스터", category: "group", members: ["tleod1818", "lina0108"] },
+  { id: "wallpaper-unique-05", file: "wallpaper-unique-05", title: "홀로그램 포토카드", category: "group", members: ["janine95kim", "haepalin"] },
+  { id: "wallpaper-unique-06", file: "wallpaper-unique-06", title: "노을 그림자극", category: "group", members: ["hachi97", "woowakgood"] },
 ];
 
 export function wallpaperFullUrl(file: string): string {
