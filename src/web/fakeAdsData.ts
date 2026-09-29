@@ -46,7 +46,7 @@ export const fakeAds: FakeAd[] = [
   {
     id: "first",
     image: "/fake-ads/ad-first.webp",
-    href: "https://play.sooplive.com/ecvhao",
+    href: "https://vod.sooplive.com/player/208382975?change_second=2359",
     label: "잔디동 첫모임",
   },
 ];
