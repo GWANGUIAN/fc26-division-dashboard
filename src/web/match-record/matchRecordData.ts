@@ -6,6 +6,9 @@ export const JECHO_TEAM_LOGO = "/team/team-jecho.webp";
 /** 9/11 경기 VOD — 3경기와 우왁굳 피드백이 전부 이 한 영상 안의 구간들이다. */
 const MATCH_VOD_URL = "https://vod.sooplive.com/player/206803485";
 
+/** 9/28 경기 VOD — 6경기와 2/3경기 우왁굳 피드백이 전부 이 한 영상 안의 구간들이다. */
+const MATCH_VOD_URL_0928 = "https://vod.sooplive.com/player/208382975";
+
 /** 잔디동은 9/11 3경기 모두 같은 라인업으로 뛰었다. playerId는 roster.yaml slug. */
 const JANDY_LINEUP: MatchLineup = {
   teamLabel: "잔디동",
@@ -293,6 +296,8 @@ export const MATCH_RECORDS: MatchDay[] = [
         jandyScore: 1,
         opponentScore: 1,
         penaltyShootout: { jandyScore: 6, opponentScore: 7 },
+        videoUrl: MATCH_VOD_URL_0928,
+        startSeconds: 10314, // 02:51:54
         jandyLineup: JANDY_LINEUP,
         opponentLineup: {
           teamLabel: "제초동",
@@ -320,6 +325,7 @@ export const MATCH_RECORDS: MatchDay[] = [
             assistId: "jecho-podone",
             assistName: "포도네",
             minuteLabel: "07:34",
+            seconds: 10391, // 02:53:11
           },
           {
             id: "2026-09-28-1-g2",
@@ -329,6 +335,7 @@ export const MATCH_RECORDS: MatchDay[] = [
             assistId: "bboringirl",
             assistName: "뽀린걸",
             minuteLabel: "23:54",
+            seconds: 10554, // 02:55:54
           },
         ],
       },
@@ -337,6 +344,9 @@ export const MATCH_RECORDS: MatchDay[] = [
         label: "2경기",
         jandyScore: 1,
         opponentScore: 0,
+        videoUrl: MATCH_VOD_URL_0928,
+        startSeconds: 12067, // 03:21:07
+        wakgoodReviewVideoUrl: `${MATCH_VOD_URL_0928}?change_second=19826`, // 05:30:26
         jandyLineup: JANDY_LINEUP,
         opponentLineup: {
           teamLabel: "제초동",
@@ -364,6 +374,7 @@ export const MATCH_RECORDS: MatchDay[] = [
             assistId: "kaksjak0730",
             assistName: "한결___",
             minuteLabel: "17:48",
+            seconds: 12219, // 03:23:39
           },
         ],
       },
@@ -372,6 +383,9 @@ export const MATCH_RECORDS: MatchDay[] = [
         label: "3경기",
         jandyScore: 2,
         opponentScore: 1,
+        videoUrl: MATCH_VOD_URL_0928,
+        startSeconds: 13380, // 03:43:00
+        wakgoodReviewVideoUrl: `${MATCH_VOD_URL_0928}?change_second=22150`, // 06:09:10
         jandyLineup: JANDY_LINEUP,
         opponentLineup: {
           teamLabel: "제초동",
@@ -399,6 +413,7 @@ export const MATCH_RECORDS: MatchDay[] = [
             assistId: "kaksjak0730",
             assistName: "한결___",
             minuteLabel: "14:17",
+            seconds: 13523, // 03:45:23
           },
           {
             id: "2026-09-28-3-g2",
@@ -408,6 +423,7 @@ export const MATCH_RECORDS: MatchDay[] = [
             assistId: "jecho-hiki",
             assistName: "히키",
             minuteLabel: "21:24",
+            seconds: 13595, // 03:46:35
           },
           {
             id: "2026-09-28-3-g3",
@@ -425,6 +441,8 @@ export const MATCH_RECORDS: MatchDay[] = [
         label: "4경기",
         jandyScore: 0,
         opponentScore: 1,
+        videoUrl: MATCH_VOD_URL_0928,
+        startSeconds: 15219, // 04:13:39
         jandyLineup: JANDY_LINEUP,
         opponentLineup: {
           teamLabel: "제초동",
@@ -451,6 +469,7 @@ export const MATCH_RECORDS: MatchDay[] = [
             scorerName: "핑구",
             isOwnGoal: true,
             minuteLabel: "55:46",
+            seconds: 15761, // 04:22:41
           },
         ],
       },
@@ -459,6 +478,8 @@ export const MATCH_RECORDS: MatchDay[] = [
         label: "5경기",
         jandyScore: 4,
         opponentScore: 0,
+        videoUrl: MATCH_VOD_URL_0928,
+        startSeconds: 16416, // 04:33:36
         jandyLineup: JANDY_LINEUP,
         opponentLineup: {
           teamLabel: "제초동",
@@ -484,6 +505,7 @@ export const MATCH_RECORDS: MatchDay[] = [
             scorerId: "bboringirl",
             scorerName: "뽀린걸",
             minuteLabel: "05:37",
+            seconds: 16469, // 04:34:29
           },
           {
             id: "2026-09-28-5-g2",
@@ -493,6 +515,7 @@ export const MATCH_RECORDS: MatchDay[] = [
             assistId: "kaksjak0730",
             assistName: "한결___",
             minuteLabel: "31:55",
+            seconds: 16718, // 04:38:38
           },
           {
             id: "2026-09-28-5-g3",
@@ -502,6 +525,7 @@ export const MATCH_RECORDS: MatchDay[] = [
             assistId: "hachi97",
             assistName: "하치_HACHI",
             minuteLabel: "41:58",
+            seconds: 16811, // 04:40:11
           },
           {
             id: "2026-09-28-5-g4",
@@ -511,6 +535,7 @@ export const MATCH_RECORDS: MatchDay[] = [
             assistId: "ju010228",
             assistName: "쥬멩이",
             minuteLabel: "45:11(전반 추가시간)",
+            seconds: 16857, // 04:40:57
           },
         ],
       },
@@ -519,6 +544,8 @@ export const MATCH_RECORDS: MatchDay[] = [
         label: "6경기",
         jandyScore: 2,
         opponentScore: 1,
+        videoUrl: MATCH_VOD_URL_0928,
+        startSeconds: 17832, // 04:57:12
         jandyLineup: JANDY_LINEUP,
         opponentLineup: {
           teamLabel: "제초동",
@@ -544,6 +571,7 @@ export const MATCH_RECORDS: MatchDay[] = [
             scorerId: "jecho-podone",
             scorerName: "포도네",
             minuteLabel: "15:38",
+            seconds: 17955, // 04:59:15
           },
           {
             id: "2026-09-28-6-g2",
@@ -553,6 +581,7 @@ export const MATCH_RECORDS: MatchDay[] = [
             assistId: "doormomo",
             assistName: "문모모",
             minuteLabel: "17:39",
+            seconds: 17979, // 04:59:39
           },
           {
             id: "2026-09-28-6-g3",
@@ -560,6 +589,7 @@ export const MATCH_RECORDS: MatchDay[] = [
             scorerId: "kaksjak0730",
             scorerName: "한결___",
             minuteLabel: "80:42",
+            seconds: 18616, // 05:10:16
           },
         ],
       },
