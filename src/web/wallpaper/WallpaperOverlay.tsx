@@ -52,6 +52,23 @@ function useFocusReturn(rootRef: RefObject<HTMLDivElement | null>) {
   }, [rootRef]);
 }
 
+/** 사이드바 썸네일 — lazy 로드가 끝날 때까지 쉬머 스켈레톤을 깔아둔다. */
+function WallpaperThumb({ file }: { file: string }) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <span className={`wallpaper-overlay__thumb-wrap${loaded ? "" : " wallpaper-skeleton"}`}>
+      <img
+        src={wallpaperThumbUrl(file)}
+        alt=""
+        loading="lazy"
+        className={`wallpaper-overlay__thumb${loaded ? " wallpaper-overlay__thumb--loaded" : ""}`}
+        onLoad={() => setLoaded(true)}
+        onError={() => setLoaded(true)}
+      />
+    </span>
+  );
+}
+
 export function WallpaperOverlay({
   passedStreamers,
   onClose,
@@ -90,6 +107,10 @@ export function WallpaperOverlay({
     filtered.findIndex((w) => w.id === selectedId),
   );
   const selected = filtered[selectedIndex];
+
+  // 원본(full) 이미지 로드 완료 여부 — 선택이 바뀌면 자연히 로딩 상태가 되도록 id로 추적.
+  const [loadedId, setLoadedId] = useState<string | null>(null);
+  const isImageLoading = !!selected && loadedId !== selected.id;
 
   const [zoom, setZoom] = useState(MIN_ZOOM);
   useEffect(() => setZoom(MIN_ZOOM), [selectedId]);
@@ -205,12 +226,7 @@ export function WallpaperOverlay({
                   className={`wallpaper-overlay__list-item${active ? " wallpaper-overlay__list-item--active" : ""}`}
                   onClick={() => setSelectedId(wallpaper.id)}
                 >
-                  <img
-                    src={wallpaperThumbUrl(wallpaper.file)}
-                    alt=""
-                    loading="lazy"
-                    className="wallpaper-overlay__thumb"
-                  />
+                  <WallpaperThumb file={wallpaper.file} />
                   <span className="wallpaper-overlay__list-title">{wallpaper.title}</span>
                 </button>
               </li>
@@ -250,13 +266,23 @@ export function WallpaperOverlay({
                 key={selected.id}
                 src={wallpaperFullUrl(selected.file)}
                 alt={selected.title}
-                className="wallpaper-overlay__image"
+                className={`wallpaper-overlay__image${isImageLoading ? " wallpaper-overlay__image--loading" : ""}`}
                 style={zoom > MIN_ZOOM ? { width: `${zoom * 100}%` } : undefined}
                 draggable={false}
+                onLoad={() => setLoadedId(selected.id)}
+                onError={() => setLoadedId(selected.id)}
                 onDoubleClick={() => setZoom((z) => (z > MIN_ZOOM ? MIN_ZOOM : 2))}
               />
             )}
           </div>
+          {/* 로딩 표시는 frame(스크롤 영역) 밖 stage에 둬서 확대 상태와 무관하게 화면을 덮는다.
+              사이드바에서 이미 받아둔 썸네일을 흐리게 깔아 원본이 오기 전에도 대략의 그림이 보이게 함. */}
+          {isImageLoading && selected && (
+            <div className="wallpaper-overlay__loader wallpaper-skeleton" role="status" aria-label="이미지 불러오는 중">
+              <img src={wallpaperThumbUrl(selected.file)} alt="" className="wallpaper-overlay__loader-preview" />
+              <span className="wallpaper-overlay__spinner" aria-hidden="true" />
+            </div>
+          )}
           {filtered.length > 1 && (
             <>
               <button
