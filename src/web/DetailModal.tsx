@@ -28,6 +28,7 @@ import {
   PromotionTimeline,
   StreamerActivitySection,
 } from "./StreamerActivitySection";
+import { VrchatAvatarLink } from "./VrchatAvatarLink";
 import { WakgoodNotePanel } from "./WakgoodNoteTooltip";
 import { computeMatchStats } from "./match-record/matchRecordData";
 import { TotyCardButton } from "./toty-card/TotyCardButton";
@@ -206,6 +207,7 @@ export function DetailModal({
           </span>
         </div>
       )}
+      <VrchatAvatarLink streamerId={streamer.id} />
       {showNotePanel && <WakgoodNotePanel streamer={streamer} />}
       <GeminiReviewSection review={streamer.latestReview} hasPost={!!post} />
       {post ? (
