@@ -2,7 +2,7 @@ import hachiThumb from "./assets/vrchat/hachi97.webp";
 import janineThumb from "./assets/vrchat/janine95kim.webp";
 // import haepalinThumb from "./assets/vrchat/haepalin.webp";
 // import bingmingThumb from "./assets/vrchat/tleod1818.webp";
-// import jumengiThumb from "./assets/vrchat/ju010228.webp";
+import jumengiThumb from "./assets/vrchat/ju010228.webp";
 import vrchatLogo from "./assets/vrchat/vrchat-logo.webp";
 
 type VrchatAvatar = { name: string; url: string; thumbnail: string };
@@ -31,11 +31,11 @@ const VRCHAT_AVATARS: Record<string, VrchatAvatar> = {
   //   url: "https://vrchat.com/home/avatar/avtr_f88a7660-9641-49ec-b14e-8a2387eba491",
   //   thumbnail: bingmingThumb,
   // },
-  // ju010228: {
-  //   name: "돌멩이",
-  //   url: "https://vrchat.com/home/avatar/avtr_cad67ddf-dcc8-4090-b1cd-6bac61c81bfb",
-  //   thumbnail: jumengiThumb,
-  // },
+  ju010228: {
+    name: "돌멩이",
+    url: "https://vrchat.com/home/avatar/avtr_cad67ddf-dcc8-4090-b1cd-6bac61c81bfb",
+    thumbnail: jumengiThumb,
+  },
 };
 
 export function VrchatAvatarLink({ streamerId }: { streamerId: string }) {
