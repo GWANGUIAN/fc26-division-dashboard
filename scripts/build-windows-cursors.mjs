@@ -72,7 +72,7 @@ function makeAni(frames) {
   anih.writeUInt32LE(32, 20);
   anih.writeUInt32LE(1, 24);
   anih.writeUInt32LE(9, 28); // 9 jiffies = 150ms; 12 frames loop in 1.8 seconds.
-  anih.writeUInt32LE(0, 32); // CUR data, not ICO data.
+  anih.writeUInt32LE(1, 32); // AF_ICON: frames are ICO/CUR files. 0 means raw bitmaps, which Windows rejects here.
   const frameList = Buffer.concat([Buffer.from("fram", "ascii"), ...frames.map((frame) => riffChunk("icon", frame))]);
   const contents = Buffer.concat([riffChunk("anih", anih), riffChunk("LIST", frameList)]);
   const result = Buffer.alloc(12);
