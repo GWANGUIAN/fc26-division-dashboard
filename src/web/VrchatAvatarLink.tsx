@@ -1,6 +1,6 @@
 import hachiThumb from "./assets/vrchat/hachi97.webp";
 import janineThumb from "./assets/vrchat/janine95kim.webp";
-// import haepalinThumb from "./assets/vrchat/haepalin.webp";
+import haepalinThumb from "./assets/vrchat/haepalin.webp";
 // import bingmingThumb from "./assets/vrchat/tleod1818.webp";
 import jumengiThumb from "./assets/vrchat/ju010228.webp";
 import vrchatLogo from "./assets/vrchat/vrchat-logo.webp";
