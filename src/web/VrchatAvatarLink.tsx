@@ -21,16 +21,11 @@ const VRCHAT_AVATARS: Record<string, VrchatAvatar> = {
     url: "https://vrchat.com/home/avatar/avtr_02d97d10-23f8-48bb-b880-d6b1556ffe41",
     thumbnail: janineThumb,
   },
-  // haepalin: {
-  //   name: "해피",
-  //   url: "https://vrchat.com/home/avatar/avtr_bc8ba5b6-93e0-477d-a2fc-6669374b169a",
-  //   thumbnail: haepalinThumb,
-  // },
-  // tleod1818: {
-  //   name: "봉밥이",
-  //   url: "https://vrchat.com/home/avatar/avtr_f88a7660-9641-49ec-b14e-8a2387eba491",
-  //   thumbnail: bingmingThumb,
-  // },
+  haepalin: {
+    name: "해피",
+    url: "https://vrchat.com/home/avatar/avtr_bc8ba5b6-93e0-477d-a2fc-6669374b169a",
+    thumbnail: haepalinThumb,
+  },
   ju010228: {
     name: "돌멩이",
     url: "https://vrchat.com/home/avatar/avtr_cad67ddf-dcc8-4090-b1cd-6bac61c81bfb",
