@@ -1,8 +1,8 @@
 import hachiThumb from "./assets/vrchat/hachi97.webp";
 import janineThumb from "./assets/vrchat/janine95kim.webp";
 import haepalinThumb from "./assets/vrchat/haepalin.webp";
-// import bingmingThumb from "./assets/vrchat/tleod1818.webp";
 import jumengiThumb from "./assets/vrchat/ju010228.webp";
+import bboringirlThumb from "./assets/vrchat/bboringirl.webp";
 import vrchatLogo from "./assets/vrchat/vrchat-logo.webp";
 
 type VrchatAvatar = { name: string; url: string; thumbnail: string };
@@ -31,6 +31,11 @@ const VRCHAT_AVATARS: Record<string, VrchatAvatar> = {
     url: "https://vrchat.com/home/avatar/avtr_cad67ddf-dcc8-4090-b1cd-6bac61c81bfb",
     thumbnail: jumengiThumb,
   },
+  bboringirl: {
+    name: "뽀글스",
+    url: "https://vrchat.com/home/avatar/avtr_ba1fa43d-76a3-4e88-a095-a2a49f92e1a0",
+    thumbnail: bboringirlThumb,
+  },
 };
 
 export function VrchatAvatarLink({ streamerId }: { streamerId: string }) {
@@ -42,7 +47,7 @@ export function VrchatAvatarLink({ streamerId }: { streamerId: string }) {
       href={avatar.url}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={`${avatar.name} VRChat 아바타 다운로드 (새 창)`}
+      aria-label={`${avatar.name} VRChat 아바타 사용해보기 (새 창)`}
     >
       <img
         className="vrchat-avatar-link__thumb"
@@ -54,7 +59,7 @@ export function VrchatAvatarLink({ streamerId }: { streamerId: string }) {
         <span className="vrchat-avatar-link__name">
           {avatar.name} VRChat 아바타
         </span>
-        <span className="vrchat-avatar-link__cta">다운로드 ↗</span>
+        <span className="vrchat-avatar-link__cta">사용해보기 ↗</span>
       </span>
       <img
         className="vrchat-avatar-link__logo"
