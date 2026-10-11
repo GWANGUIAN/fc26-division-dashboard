@@ -37,10 +37,10 @@ export const fakeAds: FakeAd[] = [
     href: "https://vod.sooplive.com/player/208834227",
     label: "굿나잇",
   },
-  // {
-  //   id: "jiphap",
-  //   image: "/fake-ads/ad-jiphap.webp",
-  //   href: "",
-  //   label: "집합",
-  // },
+  {
+    id: "chair",
+    image: "/fake-ads/ad-chair.webp",
+    href: "https://vod.sooplive.com/player/209554641",
+    label: "왁기의자",
+  },
 ];
