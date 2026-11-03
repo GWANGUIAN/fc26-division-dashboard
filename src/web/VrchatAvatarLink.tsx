@@ -1,8 +1,9 @@
-import hachiThumb from "./assets/vrchat/hachi97.webp";
+// import hachiThumb from "./assets/vrchat/hachi97.webp";
 import janineThumb from "./assets/vrchat/janine95kim.webp";
 import haepalinThumb from "./assets/vrchat/haepalin.webp";
 import jumengiThumb from "./assets/vrchat/ju010228.webp";
 import bboringirlThumb from "./assets/vrchat/bboringirl.webp";
+import shibagguThumb from "./assets/vrchat/tdnlamuron.webp";
 import vrchatLogo from "./assets/vrchat/vrchat-logo.webp";
 
 type VrchatAvatar = { name: string; url: string; thumbnail: string };
@@ -11,11 +12,11 @@ type VrchatAvatar = { name: string; url: string; thumbnail: string };
 // their fan-character avatar being linked are enabled; the rest are
 // implemented but commented out until permission is granted.
 const VRCHAT_AVATARS: Record<string, VrchatAvatar> = {
-  hachi97: {
-    name: "용볼이",
-    url: "https://vrchat.com/home/avatar/avtr_e4fdbc47-9fcb-4944-b39f-c9759c0792c9",
-    thumbnail: hachiThumb,
-  },
+  // hachi97: {
+  //   name: "용볼이",
+  //   url: "https://vrchat.com/home/avatar/avtr_e4fdbc47-9fcb-4944-b39f-c9759c0792c9",
+  //   thumbnail: hachiThumb,
+  // },
   janine95kim: {
     name: "구르미",
     url: "https://vrchat.com/home/avatar/avtr_02d97d10-23f8-48bb-b880-d6b1556ffe41",
@@ -30,6 +31,11 @@ const VRCHAT_AVATARS: Record<string, VrchatAvatar> = {
     name: "돌멩이",
     url: "https://vrchat.com/home/avatar/avtr_cad67ddf-dcc8-4090-b1cd-6bac61c81bfb",
     thumbnail: jumengiThumb,
+  },
+  tdnlamuron: {
+    name: "시바꺼",
+    url: "https://vrchat.com/home/avatar/avtr_0beb55c4-7dfb-4090-828f-69f421a9b46f",
+    thumbnail: shibagguThumb,
   },
   bboringirl: {
     name: "뽀글스",
